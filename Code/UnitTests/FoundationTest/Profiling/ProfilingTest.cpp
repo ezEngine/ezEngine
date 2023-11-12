@@ -33,10 +33,10 @@ EZ_CREATE_SIMPLE_TEST(Profiling, Profiling)
 
     {
       EZ_PROFILE_SCOPE("Prewarm scope");
-      ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
     }
 
-    ezTime endTime = ezTime::Now() + ezTime::Milliseconds(1);
+    ezTime endTime = ezTime::Now() + ezTime::MakeFromMilliseconds(1);
 
     {
       EZ_PROFILE_SCOPE("Outer scope");

@@ -5,6 +5,7 @@
 #include <JoltPlugin/Shapes/JoltShapeComponent.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <JoltPlugin/Utilities/JoltUserData.h>
+#include <Physics/Collision/CollisionCollectorImpl.h>
 
 void FillCastResult(ezPhysicsCastResult& ref_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const JPH::BodyID& bodyId, const JPH::SubShapeID& subShapeId, const JPH::BodyLockInterface& lockInterface, const JPH::BodyInterface& bodyInterface, const ezJoltWorldModule* pModule)
 {
@@ -25,7 +26,10 @@ void FillCastResult(ezPhysicsCastResult& ref_result, const ezVec3& vStart, const
 
   if (const ezJoltMaterial* pMaterial = static_cast<const ezJoltMaterial*>(bodyInterface.GetMaterial(bodyId, subShapeId)))
   {
-    ref_result.m_hSurface = pMaterial->m_pSurface->GetResourceHandle();
+    if (pMaterial->m_pSurface)
+    {
+      ref_result.m_hSurface = pMaterial->m_pSurface->GetResourceHandle();
+    }
   }
 
   const size_t uiBodyId = bodyId.GetIndexAndSequenceNumber();
@@ -203,8 +207,7 @@ bool ezJoltWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_result, float 
 
   const JPH::CapsuleShape shape(fCapsuleHeight * 0.5f, fCapsuleRadius);
 
-  ezQuat qFixRot;
-  qFixRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90.0f));
+  ezQuat qFixRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
 
   ezQuat qRot;
   qRot = transform.m_qRotation;
@@ -288,8 +291,7 @@ bool ezJoltWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsuleH
 
   const JPH::CapsuleShape shape(fCapsuleHeight * 0.5f, fCapsuleRadius);
 
-  ezQuat qFixRot;
-  qFixRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90.0f));
+  ezQuat qFixRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
 
   ezQuat qRot;
   qRot = transform.m_qRotation;
@@ -344,6 +346,12 @@ void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_res
     const auto& body = bodyLock.GetBody();
 
     overlapResult.m_uiObjectFilterID = body.GetCollisionGroup().GetGroupID();
+    overlapResult.m_vCenterPosition = ezJoltConversionUtils::ToVec3(body.GetCenterOfMassPosition());
+
+    const size_t uiBodyId = body.GetID().GetIndexAndSequenceNumber();
+    const size_t uiShapeId = overlapHit.mSubShapeID2.GetValue();
+    overlapResult.m_pInternalPhysicsActor = reinterpret_cast<void*>(uiBodyId);
+    overlapResult.m_pInternalPhysicsShape = reinterpret_cast<void*>(uiShapeId);
 
     if (ezComponent* pShapeComponent = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body.GetShape()->GetSubShapeUserData(overlapHit.mSubShapeID2))))
     {
@@ -357,6 +365,54 @@ void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_res
   }
 }
 
+void ezJoltWorldModule::QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_triangles) const
+{
+  JPH::AABox aabb;
+  aabb.mMin = ezJoltConversionUtils::ToVec3(box.m_vMin);
+  aabb.mMax = ezJoltConversionUtils::ToVec3(box.m_vMax);
+
+  JPH::AllHitCollisionCollector<JPH::TransformedShapeCollector> collector;
+
+  ezJoltBroadPhaseLayerFilter broadphaseFilter(params.m_ShapeTypes);
+  ezJoltObjectLayerFilter objectFilter(params.m_uiCollisionLayer);
+  ezJoltBodyFilter bodyFilter(params.m_uiIgnoreObjectFilterID);
+
+  m_pSystem->GetNarrowPhaseQuery().CollectTransformedShapes(aabb, collector, broadphaseFilter, objectFilter, bodyFilter);
+
+  const int cMaxTriangles = 128;
+
+  ezStaticArray<ezVec3, cMaxTriangles * 3> positionsTmp;
+  positionsTmp.SetCountUninitialized(cMaxTriangles * 3);
+
+  ezStaticArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp;
+  materialsTmp.SetCountUninitialized(cMaxTriangles);
+
+  for (const JPH::TransformedShape& ts : collector.mHits)
+  {
+    JPH::Shape::GetTrianglesContext ctx;
+    ts.GetTrianglesStart(ctx, aabb, JPH::Vec3::sZero());
+
+    while (true)
+    {
+      const int triCount = ts.GetTrianglesNext(ctx, cMaxTriangles, reinterpret_cast<JPH::Float3*>(positionsTmp.GetData()), materialsTmp.GetData());
+
+      if (triCount == 0)
+        break;
+
+      out_triangles.Reserve(out_triangles.GetCount() + triCount);
+
+      for (ezUInt32 i = 0; i < triCount; ++i)
+      {
+        const ezJoltMaterial* pMat = static_cast<const ezJoltMaterial*>(materialsTmp[i]);
+
+        auto& tri = out_triangles.ExpandAndGetRef();
+        tri.m_pSurface = pMat ? pMat->m_pSurface : nullptr;
+        tri.m_Vertices[0] = positionsTmp[i * 3 + 0];
+        tri.m_Vertices[1] = positionsTmp[i * 3 + 1];
+        tri.m_Vertices[2] = positionsTmp[i * 3 + 2];
+      }
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltQueries);
-

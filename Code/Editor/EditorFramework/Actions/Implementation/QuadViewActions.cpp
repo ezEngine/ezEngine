@@ -7,13 +7,10 @@
 ezActionDescriptorHandle ezQuadViewActions::s_hToggleViews;
 ezActionDescriptorHandle ezQuadViewActions::s_hSpawnView;
 
-
 void ezQuadViewActions::RegisterActions()
 {
-  s_hToggleViews =
-    EZ_REGISTER_ACTION_1("Scene.View.Toggle", ezActionScope::Window, "Scene", "", ezQuadViewAction, ezQuadViewAction::ButtonType::ToggleViews);
-  s_hSpawnView =
-    EZ_REGISTER_ACTION_1("Scene.View.Span", ezActionScope::Window, "Scene", "", ezQuadViewAction, ezQuadViewAction::ButtonType::SpawnView);
+  s_hToggleViews = EZ_REGISTER_ACTION_1("Scene.View.Toggle", ezActionScope::Window, "Scene", "", ezQuadViewAction, ezQuadViewAction::ButtonType::ToggleViews);
+  s_hSpawnView = EZ_REGISTER_ACTION_1("Scene.View.Span", ezActionScope::Window, "Scene", "", ezQuadViewAction, ezQuadViewAction::ButtonType::SpawnView);
 }
 
 void ezQuadViewActions::UnregisterActions()
@@ -22,13 +19,12 @@ void ezQuadViewActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSpawnView);
 }
 
-void ezQuadViewActions::MapActions(const char* szMapping, const char* szPath)
+void ezQuadViewActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  pMap->MapAction(s_hToggleViews, szPath, 3.0f);
-  // pMap->MapAction(s_hSpawnView, szPath, 4.0f);
+  pMap->MapAction(s_hToggleViews, "", 3.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -47,15 +43,15 @@ ezQuadViewAction::ezQuadViewAction(const ezActionContext& context, const char* s
   switch (m_ButtonType)
   {
     case ButtonType::ToggleViews:
-      SetIconPath(":/EditorFramework/Icons/ToggleViews16.png");
+      SetIconPath(":/EditorFramework/Icons/ToggleViews.svg");
       break;
     case ButtonType::SpawnView:
-      SetIconPath(":/EditorFramework/Icons/SpawnView16.png");
+      SetIconPath(":/EditorFramework/Icons/SpawnView.svg");
       break;
   }
 }
 
-ezQuadViewAction::~ezQuadViewAction() {}
+ezQuadViewAction::~ezQuadViewAction() = default;
 
 void ezQuadViewAction::Execute(const ezVariant& value)
 {

@@ -42,12 +42,12 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11VertexShader* m_pVertexShader;
-  ID3D11HullShader* m_pHullShader;
-  ID3D11DomainShader* m_pDomainShader;
-  ID3D11GeometryShader* m_pGeometryShader;
-  ID3D11PixelShader* m_pPixelShader;
-  ID3D11ComputeShader* m_pComputeShader;
+  ID3D11VertexShader* m_pVertexShader = nullptr;
+  ID3D11HullShader* m_pHullShader = nullptr;
+  ID3D11DomainShader* m_pDomainShader = nullptr;
+  ID3D11GeometryShader* m_pGeometryShader = nullptr;
+  ID3D11PixelShader* m_pPixelShader = nullptr;
+  ID3D11ComputeShader* m_pComputeShader = nullptr;
 };
 
 #include <RendererDX11/Shader/Implementation/ShaderDX11_inl.h>

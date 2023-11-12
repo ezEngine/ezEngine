@@ -13,13 +13,11 @@ bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALRend
 
 ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
   : ezGALRenderTargetView(pTexture, Description)
-  , m_pRenderTargetView(nullptr)
-  , m_pDepthStencilView(nullptr)
-  , m_pUnorderedAccessView(nullptr)
+
 {
 }
 
-ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11() {}
+ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11() = default;
 
 ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 {

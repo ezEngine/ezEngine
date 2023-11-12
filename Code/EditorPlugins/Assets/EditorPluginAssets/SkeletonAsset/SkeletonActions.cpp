@@ -14,6 +14,7 @@ ezActionDescriptorHandle ezSkeletonActions::s_hRenderColliders;
 ezActionDescriptorHandle ezSkeletonActions::s_hRenderJoints;
 ezActionDescriptorHandle ezSkeletonActions::s_hRenderSwingLimits;
 ezActionDescriptorHandle ezSkeletonActions::s_hRenderTwistLimits;
+ezActionDescriptorHandle ezSkeletonActions::s_hRenderPreviewMesh;
 
 void ezSkeletonActions::RegisterActions()
 {
@@ -23,6 +24,7 @@ void ezSkeletonActions::RegisterActions()
   s_hRenderJoints = EZ_REGISTER_ACTION_1("Skeleton.RenderJoints", ezActionScope::Document, "Skeletons", "", ezSkeletonAction, ezSkeletonAction::ActionType::RenderJoints);
   s_hRenderSwingLimits = EZ_REGISTER_ACTION_1("Skeleton.RenderSwingLimits", ezActionScope::Document, "Skeletons", "", ezSkeletonAction, ezSkeletonAction::ActionType::RenderSwingLimits);
   s_hRenderTwistLimits = EZ_REGISTER_ACTION_1("Skeleton.RenderTwistLimits", ezActionScope::Document, "Skeletons", "", ezSkeletonAction, ezSkeletonAction::ActionType::RenderTwistLimits);
+  s_hRenderPreviewMesh = EZ_REGISTER_ACTION_1("Skeleton.RenderPreviewMesh", ezActionScope::Document, "Skeletons", "", ezSkeletonAction, ezSkeletonAction::ActionType::RenderPreviewMesh);
 }
 
 void ezSkeletonActions::UnregisterActions()
@@ -33,12 +35,13 @@ void ezSkeletonActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRenderJoints);
   ezActionManager::UnregisterAction(s_hRenderSwingLimits);
   ezActionManager::UnregisterAction(s_hRenderTwistLimits);
+  ezActionManager::UnregisterAction(s_hRenderPreviewMesh);
 }
 
-void ezSkeletonActions::MapActions(const char* szMapping, const char* szPath)
+void ezSkeletonActions::MapActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 11.0f);
 
@@ -46,9 +49,10 @@ void ezSkeletonActions::MapActions(const char* szMapping, const char* szPath)
 
   pMap->MapAction(s_hRenderBones, szSubPath, 1.0f);
   pMap->MapAction(s_hRenderColliders, szSubPath, 2.0f);
-  //pMap->MapAction(s_hRenderJoints, szSubPath, 3.0f);
+  // pMap->MapAction(s_hRenderJoints, szSubPath, 3.0f);
   pMap->MapAction(s_hRenderSwingLimits, szSubPath, 4.0f);
   pMap->MapAction(s_hRenderTwistLimits, szSubPath, 5.0f);
+  pMap->MapAction(s_hRenderPreviewMesh, szSubPath, 6.0f);
 }
 
 ezSkeletonAction::ezSkeletonAction(const ezActionContext& context, const char* szName, ezSkeletonAction::ActionType type)
@@ -62,23 +66,27 @@ ezSkeletonAction::ezSkeletonAction(const ezActionContext& context, const char* s
   switch (m_Type)
   {
     case ActionType::RenderBones:
-      SetIconPath(":/EditorPluginAssets/SkeletonBones.png");
+      SetIconPath(":/EditorPluginAssets/SkeletonBones.svg");
       break;
 
     case ActionType::RenderColliders:
-      SetIconPath(":/EditorPluginAssets/SkeletonColliders.png");
+      SetIconPath(":/EditorPluginAssets/SkeletonColliders.svg");
       break;
 
     case ActionType::RenderJoints:
-      SetIconPath(":/EditorPluginAssets/SkeletonJoints.png");
+      SetIconPath(":/EditorPluginAssets/SkeletonJoints.svg");
       break;
 
     case ActionType::RenderSwingLimits:
-      SetIconPath(":/EditorPluginAssets/JointSwingLimits.png");
+      SetIconPath(":/EditorPluginAssets/JointSwingLimits.svg");
       break;
 
     case ActionType::RenderTwistLimits:
-      SetIconPath(":/EditorPluginAssets/JointTwistLimits.png");
+      SetIconPath(":/EditorPluginAssets/JointTwistLimits.svg");
+      break;
+
+    case ActionType::RenderPreviewMesh:
+      SetIconPath(":/EditorPluginAssets/PreviewMesh.svg");
       break;
   }
 
@@ -112,6 +120,10 @@ void ezSkeletonAction::Execute(const ezVariant& value)
 
     case ActionType::RenderTwistLimits:
       m_pSkeletonpDocument->SetRenderTwistLimits(!m_pSkeletonpDocument->GetRenderTwistLimits());
+      return;
+
+    case ActionType::RenderPreviewMesh:
+      m_pSkeletonpDocument->SetRenderPreviewMesh(!m_pSkeletonpDocument->GetRenderPreviewMesh());
       return;
   }
 }
@@ -158,5 +170,11 @@ void ezSkeletonAction::UpdateState()
   {
     SetCheckable(true);
     SetChecked(m_pSkeletonpDocument->GetRenderTwistLimits());
+  }
+
+  if (m_Type == ActionType::RenderPreviewMesh)
+  {
+    SetCheckable(true);
+    SetChecked(m_pSkeletonpDocument->GetRenderPreviewMesh());
   }
 }

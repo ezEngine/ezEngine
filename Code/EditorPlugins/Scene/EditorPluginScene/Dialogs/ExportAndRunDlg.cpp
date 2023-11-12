@@ -108,7 +108,8 @@ void ezQtExportAndRunDlg::on_AddToolButton_clicked()
 
   ezStringBuilder path = sFile.toUtf8().data();
   path.MakeCleanPath();
-  path.TrimWordStart(appDir, "/");
+  path.TrimWordStart(appDir);
+  path.Trim("/", "");
 
   ezStringBuilder tmp;
   ToolCombo->addItem(QString::fromUtf8(path.GetFileName().GetData(tmp)), QString::fromUtf8(path.GetData()));

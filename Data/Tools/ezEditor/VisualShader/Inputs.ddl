@@ -56,18 +56,27 @@ Node %UV2
   string %Color { "Teal" }
   
   string %CodeVertexShader { "
+#ifndef USE_TEXCOORD0
+  #define USE_TEXCOORD0
+#endif
 #ifndef USE_TEXCOORD1
   #define USE_TEXCOORD1
 #endif
 " }
 
   string %CodeGeometryShader { "
+#ifndef USE_TEXCOORD0
+  #define USE_TEXCOORD0
+#endif
 #ifndef USE_TEXCOORD1
   #define USE_TEXCOORD1
 #endif
 " }
   
   string %CodePixelDefines { "
+#ifndef USE_TEXCOORD0
+  #define USE_TEXCOORD0
+#endif
 #ifndef USE_TEXCOORD1
   #define USE_TEXCOORD1
 #endif

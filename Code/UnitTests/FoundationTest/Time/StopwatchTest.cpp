@@ -9,34 +9,34 @@ EZ_CREATE_SIMPLE_TEST(Time, Stopwatch)
   {
     ezStopwatch sw;
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(50));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
 
     sw.StopAndReset();
     sw.Resume();
 
     const ezTime t0 = sw.Checkpoint();
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
     const ezTime t1 = sw.Checkpoint();
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(20));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(20));
 
     const ezTime t2 = sw.Checkpoint();
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(30));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(30));
 
     const ezTime t3 = sw.Checkpoint();
 
     const ezTime tTotal1 = sw.GetRunningTotal();
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
     sw.Pause(); // freeze the current running total
 
     const ezTime tTotal2 = sw.GetRunningTotal();
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10)); // should not affect the running total anymore
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10)); // should not affect the running total anymore
 
     const ezTime tTotal3 = sw.GetRunningTotal();
 
@@ -44,10 +44,10 @@ EZ_CREATE_SIMPLE_TEST(Time, Stopwatch)
     // these tests are deliberately written such that they cannot fail,
     // even when the OS is under heavy load
 
-    EZ_TEST_BOOL(t0 > ezTime::Milliseconds(5));
-    EZ_TEST_BOOL(t1 > ezTime::Milliseconds(5));
-    EZ_TEST_BOOL(t2 > ezTime::Milliseconds(5));
-    EZ_TEST_BOOL(t3 > ezTime::Milliseconds(5));
+    EZ_TEST_BOOL(t0 > ezTime::MakeFromMilliseconds(5));
+    EZ_TEST_BOOL(t1 > ezTime::MakeFromMilliseconds(5));
+    EZ_TEST_BOOL(t2 > ezTime::MakeFromMilliseconds(5));
+    EZ_TEST_BOOL(t3 > ezTime::MakeFromMilliseconds(5));
 
 
     EZ_TEST_BOOL(t1 + t2 + t3 <= tTotal1);

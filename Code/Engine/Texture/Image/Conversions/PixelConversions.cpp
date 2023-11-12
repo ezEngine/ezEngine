@@ -767,6 +767,44 @@ public:
   }
 };
 
+class ezImageConversion_S16_F32 : public ezImageConversionStepLinear
+{
+public:
+  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  {
+    static ezImageConversionEntry supportedConversions[] = {
+      ezImageConversionEntry(ezImageFormat::R16_SNORM, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R16G16_SNORM, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R16G16B16A16_SNORM, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    };
+    return supportedConversions;
+  }
+
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
+    ezImageFormat::Enum targetFormat) const override
+  {
+    // Work with single channels instead of pixels
+    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+
+    ezUInt32 sourceStride = 2;
+    ezUInt32 targetStride = 4;
+
+    const void* sourcePointer = source.GetPtr();
+    void* targetPointer = target.GetPtr();
+
+    while (uiNumElements)
+    {
+      *reinterpret_cast<float*>(targetPointer) = ezMath::ColorSignedShortToFloat(*reinterpret_cast<const ezInt16*>(sourcePointer));
+
+      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      uiNumElements--;
+    }
+
+    return EZ_SUCCESS;
+  }
+};
+
 class ezImageConversion_F16_F32 : public ezImageConversionStepLinear
 {
 public:
@@ -1394,6 +1432,122 @@ public:
 };
 
 
+template <typename T>
+class ezImageConversion_Int_To_F32 : public ezImageConversionStepLinear
+{
+public:
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
+    ezImageFormat::Enum targetFormat) const override
+  {
+    // Work with single channels instead of pixels
+    uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
+
+    const ezUInt32 sourceStride = sizeof(T);
+    const ezUInt32 targetStride = 4;
+
+    const void* sourcePointer = source.GetPtr();
+    void* targetPointer = target.GetPtr();
+
+    while (uiNumElements)
+    {
+      *reinterpret_cast<float*>(targetPointer) = static_cast<float>(*reinterpret_cast<const T*>(sourcePointer));
+
+      sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride);
+      targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride);
+      uiNumElements--;
+    }
+
+    return EZ_SUCCESS;
+  }
+};
+
+
+class ezImageConversion_UINT8_F32 : public ezImageConversion_Int_To_F32<ezUInt8>
+{
+public:
+  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  {
+    static ezImageConversionEntry supportedConversions[] = {
+      ezImageConversionEntry(ezImageFormat::R8_UINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R8G8_UINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R8G8B8A8_UINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    };
+    return supportedConversions;
+  }
+};
+
+class ezImageConversion_SINT8_F32 : public ezImageConversion_Int_To_F32<ezInt8>
+{
+public:
+  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  {
+    static ezImageConversionEntry supportedConversions[] = {
+      ezImageConversionEntry(ezImageFormat::R8_SINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R8G8_SINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R8G8B8A8_SINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    };
+    return supportedConversions;
+  }
+};
+
+class ezImageConversion_UINT16_F32 : public ezImageConversion_Int_To_F32<ezUInt16>
+{
+public:
+  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  {
+    static ezImageConversionEntry supportedConversions[] = {
+      ezImageConversionEntry(ezImageFormat::R16_UINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R16G16_UINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R16G16B16A16_UINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    };
+    return supportedConversions;
+  }
+};
+
+class ezImageConversion_SINT16_F32 : public ezImageConversion_Int_To_F32<ezInt16>
+{
+public:
+  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  {
+    static ezImageConversionEntry supportedConversions[] = {
+      ezImageConversionEntry(ezImageFormat::R16_SINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R16G16_SINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R16G16B16A16_SINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    };
+    return supportedConversions;
+  }
+};
+
+class ezImageConversion_UINT32_F32 : public ezImageConversion_Int_To_F32<ezUInt32>
+{
+public:
+  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  {
+    static ezImageConversionEntry supportedConversions[] = {
+      ezImageConversionEntry(ezImageFormat::R32_UINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R32G32_UINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R32G32B32_UINT, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R32G32B32A32_UINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    };
+    return supportedConversions;
+  }
+};
+
+class ezImageConversion_SINT32_F32 : public ezImageConversion_Int_To_F32<ezInt32>
+{
+public:
+  virtual ezArrayPtr<const ezImageConversionEntry> GetSupportedConversions() const override
+  {
+    static ezImageConversionEntry supportedConversions[] = {
+      ezImageConversionEntry(ezImageFormat::R32_SINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R32G32_SINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R32G32B32_SINT, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R32G32B32A32_SINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
+    };
+    return supportedConversions;
+  }
+};
+
 
 #define ADD_16BPP_CONVERSION(format)                                                                                                                 \
   static ezImageConversionStep_Decompress16bpp<ezDecompress##format, ezImageFormat::format##_UNORM> s_conversion_ezDecompress##format;               \
@@ -1417,8 +1571,16 @@ static ezImageConversion_F32_S8 s_conversion_F32_S8;
 static ezImageConversion_U8_F32 s_conversion_U8_F32;
 static ezImageConversion_sRGB_F32 s_conversion_sRGB_F32;
 static ezImageConversion_U16_F32 s_conversion_U16_F32;
+static ezImageConversion_S16_F32 s_conversion_S16_F32;
 static ezImageConversion_F16_F32 s_conversion_F16_F32;
 static ezImageConversion_S8_F32 s_conversion_S8_F32;
+static ezImageConversion_UINT8_F32 s_conversion_UINT8_F32;
+static ezImageConversion_SINT8_F32 s_conversion_SINT8_F32;
+static ezImageConversion_UINT16_F32 s_conversion_UINT16_F32;
+static ezImageConversion_SINT16_F32 s_conversion_SINT16_F32;
+static ezImageConversion_UINT32_F32 s_conversion_UINT32_F32;
+static ezImageConversion_SINT32_F32 s_conversion_SINT32_F32;
+
 static ezImageConversion_Pad_To_RGBA_U8 s_conversion_Pad_To_RGBA_U8;
 static ezImageConversion_Pad_To_RGBA_F32 s_conversion_Pad_To_RGBA_F32;
 static ezImageConversion_DiscardChannels s_conversion_DiscardChannels;

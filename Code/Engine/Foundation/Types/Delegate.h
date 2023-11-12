@@ -28,7 +28,7 @@ protected:
 /// Delegates have a rather strange syntax:
 ///
 /// \code{.cpp}
-///   typedef ezDelegate<void (ezUInt32, float)> SomeCallback;
+///   using SomeCallback = ezDelegate<void (ezUInt32, float)>;
 /// \endcode
 ///
 /// This defines a type 'SomeCallback' that can call any function that returns void and

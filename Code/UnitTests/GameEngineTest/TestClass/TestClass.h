@@ -18,7 +18,7 @@ public:
 class ezGameEngineTestApplication : public ezGameApplication
 {
 public:
-  typedef ezGameApplication SUPER;
+  using SUPER = ezGameApplication;
 
   ezGameEngineTestApplication(const char* szProjectDirName);
 
@@ -33,7 +33,7 @@ protected:
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeHighLevelSystemsShutdown() override;
-  virtual void StoreScreenshot(ezImage&& image, const char* szContext) override;
+  virtual void StoreScreenshot(ezImage&& image, ezStringView sContext) override;
   virtual void Init_FileSystem_ConfigureDataDirs() override;
   virtual ezUniquePtr<ezGameStateBase> CreateGameState(ezWorld* pWorld) override;
 
@@ -50,7 +50,7 @@ public:
   ezGameEngineTest();
   ~ezGameEngineTest();
 
-  virtual ezResult GetImage(ezImage& ref_img) override;
+  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;
   virtual ezGameEngineTestApplication* CreateApplication() = 0;
 
 protected:

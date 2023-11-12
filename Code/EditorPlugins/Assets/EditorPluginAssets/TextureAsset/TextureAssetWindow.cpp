@@ -53,8 +53,6 @@ ezTextureLodSliderAction::ezTextureLodSliderAction(const ezActionContext& contex
 
 void ezTextureLodSliderAction::Execute(const ezVariant& value)
 {
-  const ezInt32 iValue = value.Get<ezInt32>();
-
   m_pDocument->m_iTextureLod = value.Get<ezInt32>();
 }
 
@@ -68,7 +66,7 @@ ezActionDescriptorHandle ezTextureAssetActions::s_hLodSlider;
 
 void ezTextureAssetActions::RegisterActions()
 {
-  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureAsset.ChannelMode", ezTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
+  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureAsset.ChannelMode", ezTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.svg");
   s_hLodSlider = EZ_REGISTER_ACTION_0("TextureAsset.LodSlider", ezActionScope::Document, "Texture 2D", "", ezTextureLodSliderAction);
 }
 
@@ -78,13 +76,13 @@ void ezTextureAssetActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hLodSlider);
 }
 
-void ezTextureAssetActions::MapActions(const char* szMapping, const char* szPath)
+void ezTextureAssetActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  pMap->MapAction(s_hLodSlider, szPath, 14.0f);
-  pMap->MapAction(s_hTextureChannelMode, szPath, 15.0f);
+  pMap->MapAction(s_hLodSlider, "", 14.0f);
+  pMap->MapAction(s_hTextureChannelMode, "", 15.0f);
 }
 
 
@@ -125,7 +123,7 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(1.0f), ezVec3(-1, 0, 0));
+    m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(-1, 0, 0));
     AddViewWidget(m_pViewWidget);
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr);
 

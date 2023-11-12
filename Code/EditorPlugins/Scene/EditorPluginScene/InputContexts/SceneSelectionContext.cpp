@@ -34,7 +34,7 @@ void ezSceneSelectionContext::SelectPickedObject(const ezObjectPickingResult& re
           m_PickObjectOverride(pObject);
           return;
         }
-        pSceneDocument->SetActiveLayer(layerGuid);
+        pSceneDocument->SetActiveLayer(layerGuid).LogFailure();
       }
     }
   }

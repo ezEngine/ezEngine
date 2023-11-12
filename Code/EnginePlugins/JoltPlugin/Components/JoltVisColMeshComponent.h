@@ -10,7 +10,7 @@
 class ezJoltVisColMeshComponentManager : public ezComponentManager<class ezJoltVisColMeshComponent, ezBlockStorageType::Compact>
 {
 public:
-  typedef ezComponentManager<ezJoltVisColMeshComponent, ezBlockStorageType::Compact> SUPER;
+  using SUPER = ezComponentManager<ezJoltVisColMeshComponent, ezBlockStorageType::Compact>;
 
   ezJoltVisColMeshComponentManager(ezWorld* pWorld)
     : SUPER(pWorld)

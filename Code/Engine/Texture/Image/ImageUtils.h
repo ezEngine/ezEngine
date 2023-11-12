@@ -12,6 +12,9 @@ public:
   /// \brief Returns the image with the difference (absolute values) between ImageA and ImageB.
   static void ComputeImageDifferenceABS(const ezImageView& imageA, const ezImageView& imageB, ezImage& out_difference);
 
+  /// \brief Same as ComputeImageDifferenceABS, but for every pixel in imageA, the minimum diff in imageB is searched in a 1-pixel radius, allowing pixels in B to shift slightly without incurring a difference.
+  static void ComputeImageDifferenceABSRelaxed(const ezImageView& imageA, const ezImageView& imageB, ezImage& out_difference);
+
   /// \brief Computes the mean square error for the block at (offsetx, offsety) to (offsetx + uiBlockSize, offsety + uiBlockSize).
   /// DifferenceImage is expected to be an image that represents the difference between two images.
   static ezUInt32 ComputeMeanSquareError(const ezImageView& differenceImage, ezUInt8 uiBlockSize, ezUInt32 uiOffsetx, ezUInt32 uiOffsety);

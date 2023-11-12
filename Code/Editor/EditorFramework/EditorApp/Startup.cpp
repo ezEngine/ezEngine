@@ -10,6 +10,7 @@
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
+#include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/DynamicDefaultStateProvider.h>
 #include <EditorFramework/GUI/ExposedParametersDefaultStateProvider.h>
@@ -49,6 +50,7 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
+#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
@@ -88,7 +90,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezCommonAssetActions::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar").IgnoreResult();
-    ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Default);
     ezProjectActions::MapActions("SettingsTabMenuBar");
 
     ezActionMapManager::RegisterActionMap("AssetBrowserToolBar").IgnoreResult();
@@ -234,8 +236,6 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   m_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
-  m_pEngineViewProcess->SetRenderer(pCmd->GetStringOption("-renderer", 0, ""));
-
   m_LongOpControllerManager.Startup(&m_pEngineViewProcess->GetCommunicationChannel());
 
   if (!IsInHeadlessMode())
@@ -260,6 +260,14 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   // prevent restoration of window layouts when in safe mode
   ezQtDocumentWindow::s_bAllowRestoreWindowLayout = !IsInSafeMode();
+
+  {
+    // Make sure that we have at least 4 worker threads for short running and 4 worker threads for long running tasks.
+    // Otherwise the Editor might deadlock during asset transform.
+    ezInt32 iLongThreads = ezMath::Max(4, (ezInt32)ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::LongTasks));
+    ezInt32 iShortThreads = ezMath::Max(4, (ezInt32)ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks));
+    ezTaskSystem::SetWorkerThreadCount(iShortThreads, iLongThreads);
+  }
 
   {
     EZ_PROFILE_SCOPE("Filesystem");
@@ -319,10 +327,13 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     ShowSettingsDocument();
 
-    connect(&m_VersionChecker, &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted, Qt::QueuedConnection);
+    if (!IsInUnitTestMode())
+    {
+      connect(m_pVersionChecker.Borrow(), &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted, Qt::QueuedConnection);
 
-    m_VersionChecker.Initialize();
-    m_VersionChecker.Check(false);
+      m_pVersionChecker->Initialize();
+      m_pVersionChecker->Check(false);
+    }
   }
 
   LoadEditorPlugins();
@@ -366,6 +377,17 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
   m_pTimer->start(1);
+
+  if (m_bWroteCrashIndicatorFile)
+  {
+    QTimer::singleShot(1000, [this]() {
+      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+      sTemp.AppendPath("ezEditorCrashIndicator");
+      ezOSFile::DeleteFile(sTemp).IgnoreResult();
+      m_bWroteCrashIndicatorFile = false;
+      //
+    });
+  }
 
   if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest) && !ezToolsProject::GetSingleton()->IsProjectOpen())
   {
@@ -417,7 +439,6 @@ void ezQtEditorApp::ShutdownEditor()
     for (ezUInt32 i = 0; i < uiNumPanels; ++i)
     {
       ezQtApplicationPanel* pPanel = Panels[i];
-      QObject* pParent = pPanel->parent();
       delete pPanel;
     }
   }
@@ -431,6 +452,15 @@ void ezQtEditorApp::ShutdownEditor()
   // Unload potential plugin referenced clipboard data to prevent crash on shutdown.
   QApplication::clipboard()->clear();
   ezPlugin::UnloadAllPlugins();
+
+  if (m_bWroteCrashIndicatorFile)
+  {
+    // orderly shutdown -> make sure the crash indicator file is gone
+    ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+    sTemp.AppendPath("ezEditorCrashIndicator");
+    ezOSFile::DeleteFile(sTemp).IgnoreResult();
+    m_bWroteCrashIndicatorFile = false;
+  }
 
   // make sure no one tries to load any further images in parallel
   ezQtImageCache::GetSingleton()->StopRequestProcessing(true);

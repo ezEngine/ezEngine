@@ -658,7 +658,6 @@ void ezQtEventTrackWidget::wheelEvent(QWheelEvent* e)
   ClampZoomPan();
 
   changeX = m_SceneToPixelScale.x() / oldScaleX;
-  changeY = m_SceneToPixelScale.y() / oldScaleY;
 
   posDiff = posDiff * (1.0 / changeX);
 
@@ -1011,7 +1010,7 @@ void ezQtEventTrackWidget::ComputeSelectionRect()
     return;
 
   ezBoundingBox bbox;
-  bbox.SetInvalid();
+  bbox = ezBoundingBox::MakeInvalid();
 
   // TODO: properly implement the Y value
   // for (const auto& cpSel : m_SelectedPoints)

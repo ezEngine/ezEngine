@@ -69,7 +69,7 @@ class TextureSample : public ezApplication
   ezConstantBufferStorage<ezTextureSampleConstants>* m_pSampleConstantBuffer;
 
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   TextureSample()
     : ezApplication("Texture Sample")
@@ -117,10 +117,10 @@ public:
     constexpr const char* szDefaultRenderer = "DX11";
 #endif
 
-    const char* szRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+    ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
     const char* szShaderModel = "";
     const char* szShaderCompiler = "";
-    ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+    ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
 
     ezShaderManager::Configure(szShaderModel, true);
     EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
@@ -173,8 +173,8 @@ public:
       ezGALDeviceCreationDescription DeviceInit;
       DeviceInit.m_bDebugDevice = true;
 
-      m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-      EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
+      m_pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+      EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", sRendererName);
       EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 
       ezGALDevice::SetDefaultDevice(m_pDevice);
@@ -306,7 +306,7 @@ public:
       ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
       ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
 
-      ezMat4 mTransform = ezMat4::IdentityMatrix();
+      ezMat4 mTransform = ezMat4::MakeIdentity();
 
       ezInt32 iLeftBound = (ezInt32)ezMath::Floor((m_vCameraPosition.x - g_uiWindowWidth * 0.5f) / 100.0f);
       ezInt32 iLowerBound = (ezInt32)ezMath::Floor((m_vCameraPosition.y - g_uiWindowHeight * 0.5f) / 100.0f);

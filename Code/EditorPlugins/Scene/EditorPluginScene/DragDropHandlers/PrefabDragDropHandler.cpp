@@ -49,7 +49,6 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
   if (vPos.IsNaN())
     vPos.SetZero();
 
-  ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_pDocument);
   auto pCmdHistory = m_pDocument->GetCommandHistory();
 
   ezInstantiatePrefabCommand PasteCmd;
@@ -57,16 +56,16 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
   PasteCmd.m_CreateFromPrefab = AssetGuid;
   PasteCmd.m_Index = iInsertChildIndex;
   PasteCmd.m_sBasePrefabGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(AssetGuid);
-  PasteCmd.m_RemapGuid.CreateNewUuid();
+  PasteCmd.m_RemapGuid = ezUuid::MakeUuid();
 
   if (PasteCmd.m_sBasePrefabGraph.IsEmpty())
     return; // error
 
-  pCmdHistory->AddCommand(PasteCmd);
+  pCmdHistory->AddCommand(PasteCmd).AssertSuccess();
 
   if (PasteCmd.m_CreatedRootObject.IsValid())
   {
-    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPos, ezQuat::IdentityQuaternion());
+    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPos, ezQuat::MakeIdentity());
 
     m_DraggedObjects.PushBack(PasteCmd.m_CreatedRootObject);
   }

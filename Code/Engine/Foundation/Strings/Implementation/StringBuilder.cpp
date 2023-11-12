@@ -798,6 +798,7 @@ void ezStringBuilder::AppendWithSeparator(ezStringView sOptional, ezStringView s
   const ezStringView pStrings[uiMaxParams] = {sOptional, sText1, sText2, sText3, sText4, sText5, sText6};
   ezUInt32 uiStrLen[uiMaxParams] = {0};
   ezUInt32 uiMoreBytes = 0;
+  ezUInt32 uiMoreChars = 0;
 
   // first figure out how much the string has to grow
   for (ezUInt32 i = 0; i < uiMaxParams; ++i)
@@ -811,9 +812,15 @@ void ezStringBuilder::AppendWithSeparator(ezStringView sOptional, ezStringView s
     ezUInt32 uiCharacters = 0;
     ezStringUtils::GetCharacterAndElementCount(pStrings[i].GetStartPointer(), uiCharacters, uiStrLen[i], pStrings[i].GetEndPointer());
     uiMoreBytes += uiStrLen[i];
-    m_uiCharacterCount += uiCharacters;
+    uiMoreChars += uiCharacters;
 
     EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(pStrings[i].GetStartPointer(), pStrings[i].GetEndPointer()), "Parameter {0} is not a valid Utf8 sequence.", i + 1);
+  }
+
+  if (uiMoreBytes == uiStrLen[0])
+  {
+    // if all other strings (than the separator) are empty, don't append anything
+    return;
   }
 
   ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
@@ -821,6 +828,7 @@ void ezStringBuilder::AppendWithSeparator(ezStringView sOptional, ezStringView s
 
   // now resize
   m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
+  m_uiCharacterCount += uiMoreChars;
 
   // and then append all the strings
   for (ezUInt32 i = 0; i < uiMaxParams; ++i)
@@ -1068,110 +1076,53 @@ void ezStringBuilder::Trim(const char* szTrimCharsStart, const char* szTrimChars
   Shrink(ezStringUtils::GetCharacterCount(GetData(), szNewStart), ezStringUtils::GetCharacterCount(szNewEnd, GetData() + GetElementCount()));
 }
 
-bool ezStringBuilder::TrimWordStart(const char* szWord1, const char* szWord2 /*= nullptr*/, const char* szWord3 /*= nullptr*/,
-  const char* szWord4 /*= nullptr*/, const char* szWord5 /*= nullptr*/)
+bool ezStringBuilder::TrimWordStart(ezStringView sWord)
 {
-  /// \test TrimWordStart
+  const bool bTrimAll = false;
+
   bool trimmed = false;
 
-  while (true)
+  do
   {
-    if (!ezStringUtils::IsNullOrEmpty(szWord1) && StartsWith_NoCase(szWord1))
+    if (!sWord.IsEmpty() && StartsWith_NoCase(sWord))
     {
-      Shrink(ezStringUtils::GetCharacterCount(szWord1), 0);
+      Shrink(ezStringUtils::GetCharacterCount(sWord.GetStartPointer(), sWord.GetEndPointer()), 0);
       trimmed = true;
-      continue;
     }
 
-    if (!ezStringUtils::IsNullOrEmpty(szWord2) && StartsWith_NoCase(szWord2))
-    {
-      Shrink(ezStringUtils::GetCharacterCount(szWord2), 0);
-      trimmed = true;
-      continue;
-    }
+  } while (bTrimAll);
 
-    if (!ezStringUtils::IsNullOrEmpty(szWord3) && StartsWith_NoCase(szWord3))
-    {
-      Shrink(ezStringUtils::GetCharacterCount(szWord3), 0);
-      trimmed = true;
-      continue;
-    }
-
-    if (!ezStringUtils::IsNullOrEmpty(szWord4) && StartsWith_NoCase(szWord4))
-    {
-      Shrink(ezStringUtils::GetCharacterCount(szWord4), 0);
-      trimmed = true;
-      continue;
-    }
-
-    if (!ezStringUtils::IsNullOrEmpty(szWord5) && StartsWith_NoCase(szWord5))
-    {
-      Shrink(ezStringUtils::GetCharacterCount(szWord5), 0);
-      trimmed = true;
-      continue;
-    }
-
-    return trimmed;
-  }
+  return trimmed;
 }
 
-bool ezStringBuilder::TrimWordEnd(const char* szWord1, const char* szWord2 /*= nullptr*/, const char* szWord3 /*= nullptr*/,
-  const char* szWord4 /*= nullptr*/, const char* szWord5 /*= nullptr*/)
+bool ezStringBuilder::TrimWordEnd(ezStringView sWord)
 {
-  /// \test TrimWordEnd
+  const bool bTrimAll = false;
 
   bool trimmed = false;
 
-  while (true)
+  do
   {
 
-    if (!ezStringUtils::IsNullOrEmpty(szWord1) && EndsWith_NoCase(szWord1))
+    if (!sWord.IsEmpty() && EndsWith_NoCase(sWord))
     {
-      Shrink(0, ezStringUtils::GetCharacterCount(szWord1));
+      Shrink(0, ezStringUtils::GetCharacterCount(sWord.GetStartPointer(), sWord.GetEndPointer()));
       trimmed = true;
-      continue;
     }
 
-    if (!ezStringUtils::IsNullOrEmpty(szWord2) && EndsWith_NoCase(szWord2))
-    {
-      Shrink(0, ezStringUtils::GetCharacterCount(szWord2));
-      trimmed = true;
-      continue;
-    }
+  } while (bTrimAll);
 
-    if (!ezStringUtils::IsNullOrEmpty(szWord3) && EndsWith_NoCase(szWord3))
-    {
-      Shrink(0, ezStringUtils::GetCharacterCount(szWord3));
-      trimmed = true;
-      continue;
-    }
-
-    if (!ezStringUtils::IsNullOrEmpty(szWord4) && EndsWith_NoCase(szWord4))
-    {
-      Shrink(0, ezStringUtils::GetCharacterCount(szWord4));
-      trimmed = true;
-      continue;
-    }
-
-    if (!ezStringUtils::IsNullOrEmpty(szWord5) && EndsWith_NoCase(szWord5))
-    {
-      Shrink(0, ezStringUtils::GetCharacterCount(szWord5));
-      trimmed = true;
-      continue;
-    }
-
-    return trimmed;
-  }
+  return trimmed;
 }
 
 void ezStringBuilder::Format(const ezFormatString& string)
 {
   Clear();
-  const char* szText = string.GetText(*this);
+  ezStringView sText = string.GetText(*this);
 
   // this is for the case that GetText does not use the ezStringBuilder as temp storage
-  if (szText != GetData())
-    *this = szText;
+  if (sText.GetStartPointer() != GetData())
+    *this = sText;
 }
 
 void ezStringBuilder::AppendFormat(const ezFormatString& string)

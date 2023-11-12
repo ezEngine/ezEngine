@@ -30,7 +30,7 @@ ezTargetPass::ezTargetPass(const char* szName)
 {
 }
 
-ezTargetPass::~ezTargetPass() {}
+ezTargetPass::~ezTargetPass() = default;
 
 const ezGALTextureHandle* ezTargetPass::GetTextureHandle(const ezGALRenderTargets& renderTargets, const ezRenderPipelineNodePin* pPin)
 {

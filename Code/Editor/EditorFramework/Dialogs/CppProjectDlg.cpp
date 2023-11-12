@@ -27,17 +27,12 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
   {
     ezQtScopedBlockSignals _1(Generator);
     Generator->addItem("None");
-    Generator->addItem("Visual Studio 2019");
     Generator->addItem("Visual Studio 2022");
     Generator->setCurrentIndex(0);
 
-    if (m_CppSettings.m_Compiler == ezCppSettings::Compiler::Vs2019)
+    if (m_CppSettings.m_Compiler == ezCppSettings::Compiler::Vs2022)
     {
       Generator->setCurrentIndex(1);
-    }
-    else if (m_CppSettings.m_Compiler == ezCppSettings::Compiler::Vs2022)
-    {
-      Generator->setCurrentIndex(2);
     }
   }
 
@@ -67,9 +62,6 @@ void ezQtCppProjectDlg::on_Generator_currentIndexChanged(int)
       m_CppSettings.m_Compiler = ezCppSettings::Compiler::None;
       break;
     case 1:
-      m_CppSettings.m_Compiler = ezCppSettings::Compiler::Vs2019;
-      break;
-    case 2:
       m_CppSettings.m_Compiler = ezCppSettings::Compiler::Vs2022;
       break;
   }
@@ -87,7 +79,14 @@ void ezQtCppProjectDlg::on_OpenSolution_clicked()
 
 void ezQtCppProjectDlg::on_PluginName_textEdited(const QString& text)
 {
-  m_CppSettings.m_sPluginName = PluginName->text().toUtf8().data();
+  ezStringBuilder name = PluginName->text().toUtf8().data();
+
+  if (name.EndsWith_NoCase("Plugin"))
+  {
+    name.Shrink(0, 6);
+  }
+
+  m_CppSettings.m_sPluginName = name;
 
   UpdateUI();
 }

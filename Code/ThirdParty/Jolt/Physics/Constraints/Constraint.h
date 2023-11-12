@@ -11,6 +11,7 @@
 
 JPH_NAMESPACE_BEGIN
 
+class BodyID;
 class IslandBuilder;
 class LargeIslandSplitter;
 class BodyManager;
@@ -60,10 +61,10 @@ enum class EConstraintSpace
 };
 
 /// Class used to store the configuration of a constraint. Allows run-time creation of constraints.
-class ConstraintSettings : public SerializableObject, public RefTarget<ConstraintSettings>
+class JPH_EXPORT ConstraintSettings : public SerializableObject, public RefTarget<ConstraintSettings>
 {
 public:
-	JPH_DECLARE_SERIALIZABLE_VIRTUAL(ConstraintSettings)
+	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, ConstraintSettings)
 
 	using ConstraintResult = Result<Ref<ConstraintSettings>>;
 
@@ -75,6 +76,10 @@ public:
 
 	/// If this constraint is enabled initially. Use Constraint::SetEnabled to toggle after creation.
 	bool						mEnabled = true;
+
+	/// Priority of the constraint when solving. Higher numbers have are more likely to be solved correctly.
+	/// Note that if you want a deterministic simulation and you cannot guarantee the order in which constraints are added/removed, you can make the priority for all constraints unique to get a deterministic ordering.
+	uint32						mConstraintPriority = 0;
 
 	/// Override for the number of solver velocity iterations to run, the total amount of iterations is the max of PhysicsSettings::mNumVelocitySteps and this for all constraints in the island.
 	int							mNumVelocityStepsOverride = 0;
@@ -94,7 +99,7 @@ protected:
 };
 
 /// Base class for all physics constraints. A constraint removes one or more degrees of freedom for a rigid body.
-class Constraint : public RefTarget<Constraint>, public NonCopyable
+class JPH_EXPORT Constraint : public RefTarget<Constraint>, public NonCopyable
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -104,6 +109,7 @@ public:
 #ifdef JPH_DEBUG_RENDERER
 		mDrawConstraintSize(inSettings.mDrawConstraintSize),
 #endif // JPH_DEBUG_RENDERER
+		mConstraintPriority(inSettings.mConstraintPriority),
 		mNumVelocityStepsOverride(inSettings.mNumVelocityStepsOverride),
 		mNumPositionStepsOverride(inSettings.mNumPositionStepsOverride),
 		mEnabled(inSettings.mEnabled),
@@ -119,6 +125,11 @@ public:
 
 	/// Get the sub type of a constraint
 	virtual EConstraintSubType	GetSubType() const = 0;
+
+	/// Priority of the constraint when solving. Higher numbers have are more likely to be solved correctly.
+	/// Note that if you want a deterministic simulation and you cannot guarantee the order in which constraints are added/removed, you can make the priority for all constraints unique to get a deterministic ordering.
+	uint32						GetConstraintPriority() const				{ return mConstraintPriority; }
+	void						SetConstraintPriority(uint32 inPriority)	{ mConstraintPriority = inPriority; }
 
 	/// Override for the number of solver velocity iterations to run, the total amount of iterations is the max of PhysicsSettings::mNumVelocitySteps and this for all constraints in the island.
 	void						SetNumVelocityStepsOverride(int inN)		{ mNumVelocityStepsOverride = inN; }
@@ -141,6 +152,12 @@ public:
 	uint64						GetUserData() const							{ return mUserData; }
 	void						SetUserData(uint64 inUserData)				{ mUserData = inUserData; }
 
+	/// Notify the constraint that the shape of a body has changed and that its center of mass has moved by inDeltaCOM.
+	/// Bodies don't know which constraints are connected to them so the user is responsible for notifying the relevant constraints when a body changes.
+	/// @param inBodyID ID of the body that has changed
+	/// @param inDeltaCOM The delta of the center of mass of the body (shape->GetCenterOfMass() - shape_before_change->GetCenterOfMass())
+	virtual void				NotifyShapeChanged(const BodyID &inBodyID, Vec3Arg inDeltaCOM) = 0;
+
 	///@name Solver interface
 	///@{
 	virtual bool				IsActive() const							{ return mEnabled; }
@@ -159,8 +176,8 @@ public:
 #ifdef JPH_DEBUG_RENDERER
 	// Drawing interface
 	virtual void				DrawConstraint(DebugRenderer *inRenderer) const = 0;
-	virtual void				DrawConstraintLimits(DebugRenderer *inRenderer) const { }
-	virtual void				DrawConstraintReferenceFrame(DebugRenderer *inRenderer) const { }
+	virtual void				DrawConstraintLimits([[maybe_unused]] DebugRenderer *inRenderer) const { }
+	virtual void				DrawConstraintReferenceFrame([[maybe_unused]] DebugRenderer *inRenderer) const { }
 
 	/// Size of constraint when drawing it through the debug renderer
 	float						GetDrawConstraintSize() const				{ return mDrawConstraintSize; }
@@ -193,6 +210,9 @@ private:
 
 	/// Index in the mConstraints list of the ConstraintManager for easy finding
 	uint32						mConstraintIndex = cInvalidConstraintIndex;
+
+	/// Priority of the constraint when solving. Higher numbers have are more likely to be solved correctly.
+	uint32						mConstraintPriority = 0;
 
 	/// Override for the number of solver velocity iterations to run, the total amount of iterations is the max of PhysicsSettings::mNumVelocitySteps and this for all constraints in the island.
 	int							mNumVelocityStepsOverride = 0;

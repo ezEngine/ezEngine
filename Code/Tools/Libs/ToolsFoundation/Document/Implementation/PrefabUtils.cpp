@@ -27,9 +27,9 @@ ezString ToBinary(const ezUuid& guid)
   return sResult;
 }
 
-void ezPrefabUtils::LoadGraph(ezAbstractObjectGraph& out_graph, const char* szGraph)
+void ezPrefabUtils::LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGraph)
 {
-  ezPrefabCache::GetSingleton()->LoadGraph(out_graph, ezStringView(szGraph));
+  ezPrefabCache::GetSingleton()->LoadGraph(out_graph, ezStringView(sGraph));
 }
 
 
@@ -39,11 +39,11 @@ ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& ref
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
-    if (ezStringUtils::IsEqual(pNode->GetNodeName(), "ObjectTree"))
+    if (pNode->GetNodeName() == "ObjectTree")
     {
       for (const auto& ObjectTreeProp : pNode->GetProperties())
       {
-        if (ezStringUtils::IsEqual(ObjectTreeProp.m_szPropertyName, "Children") && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
+        if (ObjectTreeProp.m_sPropertyName == "Children" && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
         {
           const ezVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<ezVariantArray>();
 
@@ -69,11 +69,11 @@ void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& ref_graph, ezHybridArray
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
-    if (ezStringUtils::IsEqual(pNode->GetNodeName(), "ObjectTree"))
+    if (pNode->GetNodeName() == "ObjectTree")
     {
       for (const auto& ObjectTreeProp : pNode->GetProperties())
       {
-        if (ezStringUtils::IsEqual(ObjectTreeProp.m_szPropertyName, "Children") && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
+        if (ObjectTreeProp.m_sPropertyName == "Children" && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
         {
           const ezVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<ezVariantArray>();
 
@@ -117,7 +117,7 @@ ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObj
 }
 
 
-ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty, ezVariant index, bool* pValueFound)
+ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, ezStringView sProperty, ezVariant index, bool* pValueFound)
 {
   if (pValueFound)
     *pValueFound = false;
@@ -126,7 +126,7 @@ ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, con
   if (!pNode)
     return ezVariant();
 
-  const ezAbstractObjectNode::Property* pProp = pNode->FindProperty(szProperty);
+  const ezAbstractObjectNode::Property* pProp = pNode->FindProperty(sProperty);
   if (pProp)
   {
     const ezVariant& value = pProp->m_Value;
@@ -244,11 +244,11 @@ void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstra
   }
 }
 
-void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& prefabSeed, ezStringBuilder& out_sNewGraph)
+void ezPrefabUtils::Merge(ezStringView sBase, ezStringView sLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& prefabSeed, ezStringBuilder& out_sNewGraph)
 {
   // prepare the original prefab as a graph
   ezAbstractObjectGraph baseGraph;
-  ezPrefabUtils::LoadGraph(baseGraph, szBase);
+  ezPrefabUtils::LoadGraph(baseGraph, sBase);
   if (auto pHeader = baseGraph.GetNodeByName("Header"))
   {
     baseGraph.RemoveNode(pHeader->GetGuid());
@@ -257,7 +257,7 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
   {
     // read the new template as a graph
     ezAbstractObjectGraph leftGraph;
-    ezPrefabUtils::LoadGraph(leftGraph, szLeft);
+    ezPrefabUtils::LoadGraph(leftGraph, sLeft);
     if (auto pHeader = leftGraph.GetNodeByName("Header"))
     {
       leftGraph.RemoveNode(pHeader->GetGuid());
@@ -318,12 +318,12 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
   }
 }
 
-ezString ezPrefabUtils::ReadDocumentAsString(const char* szFile)
+ezString ezPrefabUtils::ReadDocumentAsString(ezStringView sFile)
 {
   ezFileReader file;
-  if (file.Open(szFile) == EZ_FAILURE)
+  if (file.Open(sFile) == EZ_FAILURE)
   {
-    ezLog::Error("Failed to open document file '{0}'", szFile);
+    ezLog::Error("Failed to open document file '{0}'", sFile);
     return ezString();
   }
 

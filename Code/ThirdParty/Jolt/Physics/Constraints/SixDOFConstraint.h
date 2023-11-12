@@ -15,10 +15,10 @@
 JPH_NAMESPACE_BEGIN
 
 /// 6 Degree Of Freedom Constraint setup structure. Allows control over each of the 6 degrees of freedom.
-class SixDOFConstraintSettings final : public TwoBodyConstraintSettings
+class JPH_EXPORT SixDOFConstraintSettings final : public TwoBodyConstraintSettings
 {
 public:
-	JPH_DECLARE_SERIALIZABLE_VIRTUAL(SixDOFConstraintSettings)
+	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, SixDOFConstraintSettings)
 
 	/// Constraint is split up into translation/rotation around X, Y and Z axis.
 	enum EAxis
@@ -32,6 +32,7 @@ public:
 		RotationZ,				///< When limited: MaxLimit between [0, PI]. MinLimit = -MaxLimit. Forms a cone shaped limit with Y.
 
 		Num,
+		NumTranslation = TranslationZ + 1,
 	};
 
 	// See: ConstraintSettings::SaveBinaryState
@@ -52,14 +53,14 @@ public:
 	RVec3						mPosition2 = RVec3::sZero();
 	Vec3						mAxisX2 = Vec3::sAxisX();
 	Vec3						mAxisY2 = Vec3::sAxisY();
-	
+
 	/// Friction settings.
 	/// For translation: Max friction force in N. 0 = no friction.
 	/// For rotation: Max friction torque in Nm. 0 = no friction.
 	float						mMaxFriction[EAxis::Num] = { 0, 0, 0, 0, 0, 0 };
 
 	/// Limits.
-	/// For translation: Min and max linear limits in m (0 is frame of body 1 and 2 coincide). 
+	/// For translation: Min and max linear limits in m (0 is frame of body 1 and 2 coincide).
 	/// For rotation: Min and max angular limits in rad (0 is frame of body 1 and 2 coincide). See comments at Axis enum for limit ranges.
 	///
 	/// Remove degree of freedom by setting min = FLT_MAX and max = -FLT_MAX. The constraint will be driven to 0 for this axis.
@@ -67,6 +68,10 @@ public:
 	/// Free movement over an axis is allowed when min = -FLT_MAX and max = FLT_MAX.
 	float						mLimitMin[EAxis::Num] = { -FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 	float						mLimitMax[EAxis::Num] = { FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX };
+
+	/// When enabled, this makes the limits soft. When the constraint exceeds the limits, a spring force will pull it back.
+	/// Only soft translation limits are supported, soft rotation limits are not currently supported.
+	SpringSettings				mLimitsSpringSettings[EAxis::NumTranslation];
 
 	/// Make axis free (unconstrained)
 	void						MakeFreeAxis(EAxis inAxis)									{ mLimitMin[inAxis] = -FLT_MAX; mLimitMax[inAxis] = FLT_MAX; }
@@ -88,7 +93,7 @@ protected:
 };
 
 /// 6 Degree Of Freedom Constraint. Allows control over each of the 6 degrees of freedom.
-class SixDOFConstraint final : public TwoBodyConstraint
+class JPH_EXPORT SixDOFConstraint final : public TwoBodyConstraint
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -101,6 +106,7 @@ public:
 
 	/// Generic interface of a constraint
 	virtual EConstraintSubType	GetSubType() const override									{ return EConstraintSubType::SixDOF; }
+	virtual void				NotifyShapeChanged(const BodyID &inBodyID, Vec3Arg inDeltaCOM) override;
 	virtual void				SetupVelocityConstraint(float inDeltaTime) override;
 	virtual void				WarmStartVelocityConstraint(float inWarmStartImpulseRatio) override;
 	virtual bool				SolveVelocityConstraint(float inDeltaTime) override;
@@ -130,12 +136,16 @@ public:
 	inline bool					IsFixedAxis(EAxis inAxis) const								{ return (mFixedAxis & (1 << inAxis)) != 0; }
 	inline bool					IsFreeAxis(EAxis inAxis) const								{ return (mFreeAxis & (1 << inAxis)) != 0; }
 
+	/// Update the limits spring settings
+	const SpringSettings &		GetLimitsSpringSettings(EAxis inAxis) const					{ JPH_ASSERT(inAxis < EAxis::NumTranslation); return mLimitsSpringSettings[inAxis]; }
+	void						SetLimitsSpringSettings(EAxis inAxis, const SpringSettings& inLimitsSpringSettings) { JPH_ASSERT(inAxis < EAxis::NumTranslation); mLimitsSpringSettings[inAxis] = inLimitsSpringSettings; CacheHasSpringLimits(); }
+
 	/// Set the max friction for each axis
 	void						SetMaxFriction(EAxis inAxis, float inFriction);
 	float						GetMaxFriction(EAxis inAxis) const							{ return mMaxFriction[inAxis]; }
 
 	/// Get rotation of constraint in constraint space
-	inline Quat					GetRotationInConstraintSpace() const;
+	Quat						GetRotationInConstraintSpace() const;
 
 	/// Motor settings
 	MotorSettings &				GetMotorSettings(EAxis inAxis)								{ return mMotorSettings[inAxis]; }
@@ -167,7 +177,7 @@ public:
 	/// Solve: R2 * ConstraintToBody2 = R1 * ConstraintToBody1 * q (see SwingTwistConstraint::GetSwingTwist) and R2 = R1 * inOrientation for q.
 	void						SetTargetOrientationBS(QuatArg inOrientation)				{ SetTargetOrientationCS(mConstraintToBody1.Conjugated() * inOrientation * mConstraintToBody2); }
 
-	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
+	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
 	inline Vec3		 			GetTotalLambdaPosition() const								{ return IsTranslationFullyConstrained()? mPointConstraintPart.GetTotalLambda() : Vec3(mTranslationConstraintPart[0].GetTotalLambda(), mTranslationConstraintPart[1].GetTotalLambda(), mTranslationConstraintPart[2].GetTotalLambda()); }
 	inline Vec3					GetTotalLambdaRotation() const								{ return IsRotationFullyConstrained()? mRotationConstraintPart.GetTotalLambda() : Vec3(mSwingTwistConstraintPart.GetTotalTwistLambda(), mSwingTwistConstraintPart.GetTotalSwingYLambda(), mSwingTwistConstraintPart.GetTotalSwingZLambda()); }
 	inline Vec3					GetTotalLambdaMotorTranslation() const						{ return Vec3(mMotorTranslationConstraintPart[0].GetTotalLambda(), mMotorTranslationConstraintPart[1].GetTotalLambda(), mMotorTranslationConstraintPart[2].GetTotalLambda()); }
@@ -186,9 +196,12 @@ private:
 	// Cache the state of mRotationMotorActive
 	void						CacheRotationMotorActive();
 
+	/// Cache the state of mHasSpringLimits
+	void						CacheHasSpringLimits();
+
 	// Constraint settings helper functions
 	inline bool					IsTranslationConstrained() const							{ return (mFreeAxis & 0b111) != 0b111; }
-	inline bool					IsTranslationFullyConstrained() const						{ return (mFixedAxis & 0b111) == 0b111; }
+	inline bool					IsTranslationFullyConstrained() const						{ return (mFixedAxis & 0b111) == 0b111 && !mHasSpringLimits; }
 	inline bool					IsRotationConstrained() const								{ return (mFreeAxis & 0b111000) != 0b111000; }
 	inline bool					IsRotationFullyConstrained() const							{ return (mFixedAxis & 0b111000) == 0b111000; }
 	inline bool					HasFriction(EAxis inAxis) const								{ return !IsFixedAxis(inAxis) && mMaxFriction[inAxis] > 0.0f; }
@@ -209,8 +222,10 @@ private:
 	bool						mTranslationMotorActive = false;							// If any of the translational frictions / motors are active
 	bool						mRotationMotorActive = false;								// If any of the rotational frictions / motors are active
 	uint8						mRotationPositionMotorActive = 0;							// Bitmask of axis that have position motor active (bit 0 = RotationX)
+	bool						mHasSpringLimits = false;									// If any of the limit springs have a non-zero frequency/stiffness
 	float						mLimitMin[EAxis::Num];
 	float						mLimitMax[EAxis::Num];
+	SpringSettings				mLimitsSpringSettings[EAxis::NumTranslation];
 
 	// Motor settings for each axis
 	MotorSettings				mMotorSettings[EAxis::Num];

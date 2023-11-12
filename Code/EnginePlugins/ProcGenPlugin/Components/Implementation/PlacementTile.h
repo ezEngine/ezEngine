@@ -45,7 +45,7 @@ namespace ezProcGenInternal
       };
     };
 
-    State::Enum m_State;
+    State::Enum m_State = State::Invalid;
     ezDynamicArray<ezGameObjectHandle> m_PlacedObjects;
   };
 } // namespace ezProcGenInternal

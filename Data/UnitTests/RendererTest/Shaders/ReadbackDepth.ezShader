@@ -1,0 +1,34 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+
+[RENDERSTATE]
+
+DepthTest = true
+DepthWrite = true
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+#include <Shaders/Common/Common.h>
+
+struct PS_OUT
+{
+    float4 color : SV_Target;
+    float depth : SV_Depth;
+};
+
+PS_OUT main(PS_IN Input)
+{
+  PS_OUT output;
+  output.color = float4(Input.TexCoord0.xy, 0, 1);
+  output.depth = max(output.color.x, output.color.y);
+  return output;
+}

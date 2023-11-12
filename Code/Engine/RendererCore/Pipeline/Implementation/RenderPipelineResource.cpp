@@ -111,7 +111,15 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion == 1, "Unknown ezRenderPipelineBin version {0}", uiVersion);
+
+    // Version 1 was using old tooling serialization. Code path removed.
+    if (uiVersion == 1)
+    {
+      res.m_State = ezResourceState::LoadedResourceMissing;
+      ezLog::Error("Failed to load old ezRenderPipelineResource '{}'. Needs re-transform.", sAbsFilePath);
+      return res;
+    }
+    EZ_ASSERT_DEV(uiVersion == 2, "Unknown ezRenderPipelineBin version {0}", uiVersion);
 
     ezUInt32 uiSize = 0;
     (*Stream) >> uiSize;

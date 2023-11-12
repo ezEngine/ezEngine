@@ -140,8 +140,8 @@ private:
   ezUInt64 m_uiInstalledMainMemory;
   ezUInt32 m_uiMemoryPageSize;
   ezUInt32 m_uiCPUCoreCount;
-  const char* m_szPlatformName;
-  const char* m_szBuildConfiguration;
+  const char* m_szPlatformName = nullptr;
+  const char* m_szBuildConfiguration = nullptr;
   char m_sHostName[256];
   bool m_bB64BitOS;
   bool m_bIsInitialized;

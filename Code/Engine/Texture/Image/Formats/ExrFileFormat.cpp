@@ -13,15 +13,15 @@
 
 ezExrFileFormat g_ExrFileFormat;
 
-ezResult ReadImageData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& fileBuffer, ezImageHeader& header, EXRHeader& exrHeader, EXRImage& exrImage)
+ezResult ReadImageData(ezStreamReader& ref_stream, ezDynamicArray<ezUInt8>& ref_fileBuffer, ezImageHeader& ref_header, EXRHeader& ref_exrHeader, EXRImage& ref_exrImage)
 {
   // read the entire file to memory
-  ezStreamUtils::ReadAllAndAppend(stream, fileBuffer);
+  ezStreamUtils::ReadAllAndAppend(ref_stream, ref_fileBuffer);
 
   // read the EXR version
   EXRVersion exrVersion;
 
-  if (ParseEXRVersionFromMemory(&exrVersion, fileBuffer.GetData(), fileBuffer.GetCount()) != 0)
+  if (ParseEXRVersionFromMemory(&exrVersion, ref_fileBuffer.GetData(), ref_fileBuffer.GetCount()) != 0)
   {
     ezLog::Error("Invalid EXR file: Cannot read version.");
     return EZ_FAILURE;
@@ -35,38 +35,38 @@ ezResult ReadImageData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& fileBuff
 
   // read the EXR header
   const char* err = nullptr;
-  if (ParseEXRHeaderFromMemory(&exrHeader, &exrVersion, fileBuffer.GetData(), fileBuffer.GetCount(), &err) != 0)
+  if (ParseEXRHeaderFromMemory(&ref_exrHeader, &exrVersion, ref_fileBuffer.GetData(), ref_fileBuffer.GetCount(), &err) != 0)
   {
     ezLog::Error("Invalid EXR file: '{0}'", err);
     FreeEXRErrorMessage(err);
     return EZ_FAILURE;
   }
 
-  for (int c = 1; c < exrHeader.num_channels; ++c)
+  for (int c = 1; c < ref_exrHeader.num_channels; ++c)
   {
-    if (exrHeader.pixel_types[c - 1] != exrHeader.pixel_types[c])
+    if (ref_exrHeader.pixel_types[c - 1] != ref_exrHeader.pixel_types[c])
     {
       ezLog::Error("Unsupported EXR file: all channels should have the same size.");
       break;
     }
   }
 
-  if (LoadEXRImageFromMemory(&exrImage, &exrHeader, fileBuffer.GetData(), fileBuffer.GetCount(), &err) != 0)
+  if (LoadEXRImageFromMemory(&ref_exrImage, &ref_exrHeader, ref_fileBuffer.GetData(), ref_fileBuffer.GetCount(), &err) != 0)
   {
     ezLog::Error("Invalid EXR file: '{0}'", err);
 
-    FreeEXRHeader(&exrHeader);
+    FreeEXRHeader(&ref_exrHeader);
     FreeEXRErrorMessage(err);
     return EZ_FAILURE;
   }
 
   ezImageFormat::Enum imageFormat = ezImageFormat::UNKNOWN;
 
-  switch (exrHeader.num_channels)
+  switch (ref_exrHeader.num_channels)
   {
     case 1:
     {
-      switch (exrHeader.pixel_types[0])
+      switch (ref_exrHeader.pixel_types[0])
       {
         case TINYEXR_PIXELTYPE_FLOAT:
           imageFormat = ezImageFormat::R32_FLOAT;
@@ -86,7 +86,7 @@ ezResult ReadImageData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& fileBuff
 
     case 2:
     {
-      switch (exrHeader.pixel_types[0])
+      switch (ref_exrHeader.pixel_types[0])
       {
         case TINYEXR_PIXELTYPE_FLOAT:
           imageFormat = ezImageFormat::R32G32_FLOAT;
@@ -106,7 +106,7 @@ ezResult ReadImageData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& fileBuff
 
     case 3:
     {
-      switch (exrHeader.pixel_types[0])
+      switch (ref_exrHeader.pixel_types[0])
       {
         case TINYEXR_PIXELTYPE_FLOAT:
           imageFormat = ezImageFormat::R32G32B32_FLOAT;
@@ -126,7 +126,7 @@ ezResult ReadImageData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& fileBuff
 
     case 4:
     {
-      switch (exrHeader.pixel_types[0])
+      switch (ref_exrHeader.pixel_types[0])
       {
         case TINYEXR_PIXELTYPE_FLOAT:
           imageFormat = ezImageFormat::R32G32B32A32_FLOAT;
@@ -137,7 +137,7 @@ ezResult ReadImageData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& fileBuff
           break;
 
         case TINYEXR_PIXELTYPE_UINT:
-          ezImageFormat::R32G32B32A32_UINT;
+          imageFormat = ezImageFormat::R32G32B32A32_UINT;
           break;
       }
 
@@ -147,23 +147,23 @@ ezResult ReadImageData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& fileBuff
 
   if (imageFormat == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error("Unsupported EXR file: {}-channel files with format '{}' are unsupported.", exrHeader.num_channels, exrHeader.pixel_types[0]);
+    ezLog::Error("Unsupported EXR file: {}-channel files with format '{}' are unsupported.", ref_exrHeader.num_channels, ref_exrHeader.pixel_types[0]);
     return EZ_FAILURE;
   }
 
-  header.SetWidth(exrImage.width);
-  header.SetHeight(exrImage.height);
-  header.SetImageFormat(imageFormat);
+  ref_header.SetWidth(ref_exrImage.width);
+  ref_header.SetHeight(ref_exrImage.height);
+  ref_header.SetImageFormat(imageFormat);
 
-  header.SetNumMipLevels(1);
-  header.SetNumArrayIndices(1);
-  header.SetNumFaces(1);
-  header.SetDepth(1);
+  ref_header.SetNumMipLevels(1);
+  ref_header.SetNumArrayIndices(1);
+  ref_header.SetNumFaces(1);
+  ref_header.SetDepth(1);
 
   return EZ_SUCCESS;
 }
 
-ezResult ezExrFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension) const
+ezResult ezExrFileFormat::ReadImageHeader(ezStreamReader& ref_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezExrFileFormat::ReadImageHeader");
 
@@ -176,7 +176,7 @@ ezResult ezExrFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader&
   EZ_SCOPE_EXIT(FreeEXRImage(&exrImage));
 
   ezDynamicArray<ezUInt8> fileBuffer;
-  return ReadImageData(stream, fileBuffer, header, exrHeader, exrImage);
+  return ReadImageData(ref_stream, fileBuffer, ref_header, exrHeader, exrImage);
 }
 
 static void CopyChannel(ezUInt8* pDst, const ezUInt8* pSrc, ezUInt32 uiNumElements, ezUInt32 uiElementSize, ezUInt32 uiDstStride)
@@ -199,7 +199,7 @@ static void CopyChannel(ezUInt8* pDst, const ezUInt8* pSrc, ezUInt32 uiNumElemen
   }
 }
 
-ezResult ezExrFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const
+ezResult ezExrFileFormat::ReadImage(ezStreamReader& ref_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezExrFileFormat::ReadImage");
 
@@ -214,9 +214,9 @@ ezResult ezExrFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
   ezImageHeader header;
   ezDynamicArray<ezUInt8> fileBuffer;
 
-  EZ_SUCCEED_OR_RETURN(ReadImageData(stream, fileBuffer, header, exrHeader, exrImage));
+  EZ_SUCCEED_OR_RETURN(ReadImageData(ref_stream, fileBuffer, header, exrHeader, exrImage));
 
-  image.ResetAndAlloc(header);
+  ref_image.ResetAndAlloc(header);
 
   const ezUInt32 uiPixelCount = header.GetWidth() * header.GetHeight();
   const ezUInt32 uiNumDstChannels = ezImageFormat::GetNumChannels(header.GetImageFormat());
@@ -245,7 +245,7 @@ ezResult ezExrFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
   // however data is interleaved in dst, but not interleaved in src
 
   const ezUInt32 uiDstStride = uiSrcStride * uiNumDstChannels;
-  ezUInt8* pDstBytes = image.GetBlobPtr<ezUInt8>().GetPtr();
+  ezUInt8* pDstBytes = ref_image.GetBlobPtr<ezUInt8>().GetPtr();
 
   if (uiNumDstChannels > uiNumSrcChannels)
   {
@@ -302,18 +302,18 @@ ezResult ezExrFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
   return EZ_SUCCESS;
 }
 
-ezResult ezExrFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezExrFileFormat::WriteImage(ezStreamWriter& ref_stream, const ezImageView& image, ezStringView sFileExtension) const
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return EZ_FAILURE;
 }
 
-bool ezExrFileFormat::CanReadFileType(const char* szExtension) const
+bool ezExrFileFormat::CanReadFileType(ezStringView sExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "exr");
+  return sExtension.IsEqual_NoCase("exr");
 }
 
-bool ezExrFileFormat::CanWriteFileType(const char* szExtension) const
+bool ezExrFileFormat::CanWriteFileType(ezStringView sExtension) const
 {
   return false;
 }

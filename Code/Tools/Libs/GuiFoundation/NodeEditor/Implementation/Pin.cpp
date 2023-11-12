@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/NodeEditor/Connection.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <QApplication>
@@ -42,21 +43,22 @@ void ezQtPin::RemoveConnection(ezQtConnection* pConnection)
 
 void ezQtPin::ConnectedStateChanged(bool bConnected)
 {
-  if (bConnected)
-  {
-    setBrush(pen().color().darker(125));
-  }
-  else
-  {
-    setBrush(QApplication::palette().base());
-  }
+  UpdatePinColors();
 }
 
 void ezQtPin::SetPin(const ezPin& pin)
 {
   m_pPin = &pin;
 
-  m_pLabel->setPlainText(pin.GetName());
+  if (m_bTranslatePinName)
+  {
+    m_pLabel->setPlainText(ezTranslate(pin.GetName()));
+  }
+  else
+  {
+    m_pLabel->setPlainText(pin.GetName());
+  }
+
   auto rectLabel = m_pLabel->boundingRect();
 
   const int iRadus = rectLabel.height();
@@ -90,15 +92,26 @@ void ezQtPin::SetPin(const ezPin& pin)
       case ezPin::Shape::RoundRect:
         p.addRoundedRect(bounds, 2, 2);
         break;
+      case ezPin::Shape::Arrow:
+      {
+        QPolygonF arrow;
+        arrow.append(bounds.topLeft());
+        arrow.append(QPointF(bounds.center().x(), bounds.top()));
+        arrow.append(QPointF(bounds.right(), bounds.center().y()));
+        arrow.append(QPointF(bounds.center().x(), bounds.bottom()));
+        arrow.append(bounds.bottomLeft());
+        arrow.append(bounds.topLeft());
+
+        p.addPolygon(arrow);
+        break;
+      }
         EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
 
     setPath(p);
   }
 
-  QPen p = pen();
-  p.setColor(ezToQtColor(pin.GetColor()));
-  setPen(p);
+  UpdatePinColors();
 }
 
 QPointF ezQtPin::GetPinPos() const
@@ -158,7 +171,7 @@ void ezQtPin::SetHighlightState(ezQtPinHighlightState state)
   {
     m_HighlightState = state;
 
-    if (AdjustRenderingForHighlight(state))
+    if (UpdatePinColors())
     {
       update();
     }
@@ -169,21 +182,21 @@ void ezQtPin::SetActive(bool bActive)
 {
   m_bIsActive = bActive;
 
-  if (AdjustRenderingForHighlight(m_HighlightState))
+  if (UpdatePinColors())
   {
     update();
   }
 }
 
-bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
+bool ezQtPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
 {
-  ezColorGammaUB pinColor = GetPin()->GetColor();
-  QColor base = QApplication::palette().base().color();
+  ezColorGammaUB pinColor = pOverwriteColor != nullptr ? *pOverwriteColor : GetPin()->GetColor();
+  QColor base = QApplication::palette().window().color();
 
   if (!m_bIsActive)
     pinColor = ezMath::Lerp<ezColor>(ezColorGammaUB(base.red(), base.green(), base.blue()), pinColor, 0.2f);
 
-  switch (state)
+  switch (m_HighlightState)
   {
     case ezQtPinHighlightState::None:
     {
@@ -191,7 +204,7 @@ bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
       p.setColor(ezToQtColor(pinColor));
       setPen(p);
 
-      setBrush(GetConnections().IsEmpty() ? base : pen().color().darker(125));
+      setBrush(HasAnyConnections() ? pen().color().darker(125) : base);
     }
     break;
 

@@ -9,7 +9,7 @@
 
 struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -33,7 +33,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimTarget);
 
 struct EZ_GAMEENGINE_DLL ezPropertyAnimMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

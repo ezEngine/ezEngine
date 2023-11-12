@@ -20,6 +20,8 @@ public:
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
 
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
   void SetRadius(ezUInt32 uiRadius);
   ezUInt32 GetRadius() const;
@@ -35,9 +37,9 @@ protected:
   ezRenderPipelineNodeInputPin m_PinDepthInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  ezUInt32 m_uiRadius;
-  float m_fGaussianSigma;
-  float m_fSharpness;
+  ezUInt32 m_uiRadius = 7;
+  float m_fGaussianSigma = 3.5f;
+  float m_fSharpness = 120.0f;
   ezConstantBufferStorageHandle m_hBilateralBlurCB;
   ezShaderResourceHandle m_hShader;
 };

@@ -2,6 +2,7 @@
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/QtFileLineEdit.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 
@@ -12,7 +13,7 @@ ezQtFilePropertyWidget::ezQtFilePropertyWidget()
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
-  m_pWidget = new QLineEdit(this);
+  m_pWidget = new ezQtFileLineEdit(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pWidget->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   setFocusProxy(m_pWidget);
@@ -30,16 +31,34 @@ ezQtFilePropertyWidget::ezQtFilePropertyWidget()
     QMenu* pMenu = new QMenu();
 
     pMenu->setDefaultAction(pMenu->addAction(QIcon(), QLatin1String("Select File"), this, SLOT(on_BrowseFile_clicked())));
-    QAction* pDocAction = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open File"), this, SLOT(OnOpenFile())) /*->setEnabled(!m_pWidget->text().isEmpty())*/;
-    pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
+    QAction* pDocAction = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open File"), this, SLOT(OnOpenFile())) /*->setEnabled(!m_pWidget->text().isEmpty())*/;
+    pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
 
-    connect(pMenu, &QMenu::aboutToShow, pMenu, [=]() { pDocAction->setEnabled(!m_pWidget->text().isEmpty()); });
+    connect(pMenu, &QMenu::aboutToShow, pMenu, [=]()
+      { pDocAction->setEnabled(!m_pWidget->text().isEmpty()); });
 
     m_pButton->setMenu(pMenu);
   }
 
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
+}
+
+bool ezQtFilePropertyWidget::IsValidFileReference(ezStringView sFile) const
+{
+  auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
+
+  ezHybridArray<ezStringView, 8> extensions;
+  ezStringView sTemp = pAttr->GetTypeFilter();
+  sTemp.Split(false, extensions, ";");
+  for (ezStringView& ext : extensions)
+  {
+    ext.TrimWordStart("*.");
+    if (sFile.GetFileExtension().IsEqual_NoCase(ext))
+      return true;
+  }
+
+  return false;
 }
 
 void ezQtFilePropertyWidget::OnInit()

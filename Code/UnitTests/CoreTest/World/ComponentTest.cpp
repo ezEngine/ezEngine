@@ -52,10 +52,9 @@ namespace
 
   public:
     TestComponent()
-      : m_iSomeData(1)
-    {
-    }
-    ~TestComponent() {}
+
+      = default;
+    ~TestComponent() = default;
 
     virtual void Initialize() override { ++s_iInitCounter; }
 
@@ -78,7 +77,7 @@ namespace
 
     void SpawnOther();
 
-    ezInt32 m_iSomeData;
+    ezInt32 m_iSomeData = 1;
 
     static ezInt32 s_iInitCounter;
     static ezInt32 s_iActivateCounter;
@@ -126,7 +125,7 @@ namespace
     }
   }
 
-  typedef ezComponentManager<class TestComponent2, ezBlockStorageType::FreeList> TestComponent2Manager;
+  using TestComponent2Manager = ezComponentManager<class TestComponent2, ezBlockStorageType::FreeList>;
 
   class TestComponent2 : public ezComponent
   {

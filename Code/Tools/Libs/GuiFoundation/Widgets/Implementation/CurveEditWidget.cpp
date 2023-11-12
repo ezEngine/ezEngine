@@ -1512,7 +1512,7 @@ void ezQtCurveEditWidget::ComputeSelectionRect()
     return;
 
   ezBoundingBox bbox;
-  bbox.SetInvalid();
+  bbox = ezBoundingBox::MakeInvalid();
 
   for (const auto& cpSel : m_SelectedCPs)
   {

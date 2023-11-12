@@ -56,9 +56,9 @@ void ezOccluderComponent::SetExtents(const ezVec3& vExtents)
 void ezOccluderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   if (GetOwner()->IsStatic())
-    msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezDefaultSpatialDataCategories::OcclusionStatic);
+    msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), ezDefaultSpatialDataCategories::OcclusionStatic);
   else
-    msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezDefaultSpatialDataCategories::OcclusionDynamic);
+    msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), ezDefaultSpatialDataCategories::OcclusionDynamic);
 }
 
 void ezOccluderComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const
@@ -86,7 +86,7 @@ void ezOccluderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 void ezOccluderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;

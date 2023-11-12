@@ -17,16 +17,16 @@ ezToolsProjectRequest::ezToolsProjectRequest()
   m_iContainerWindowUniqueIdentifier = 0;
 }
 
-ezToolsProject::ezToolsProject(const char* szProjectPath)
+ezToolsProject::ezToolsProject(ezStringView sProjectPath)
   : m_SingletonRegistrar(this)
 {
   m_bIsClosing = false;
 
-  m_sProjectPath = szProjectPath;
+  m_sProjectPath = sProjectPath;
   EZ_ASSERT_DEV(!m_sProjectPath.IsEmpty(), "Path cannot be empty.");
 }
 
-ezToolsProject::~ezToolsProject() {}
+ezToolsProject::~ezToolsProject() = default;
 
 ezStatus ezToolsProject::Create()
 {
@@ -38,9 +38,9 @@ ezStatus ezToolsProject::Create()
     }
     else
     {
-      const char* szToken = "ezEditor Project File";
+      ezStringView szToken = "ezEditor Project File";
 
-      EZ_SUCCEED_OR_RETURN(ProjectFile.Write(szToken, ezStringUtils::GetStringElementCount(szToken) + 1));
+      EZ_SUCCEED_OR_RETURN(ProjectFile.Write(szToken.GetStartPointer(), szToken.GetElementCount() + 1));
       ProjectFile.Close();
     }
   }
@@ -71,13 +71,13 @@ ezStatus ezToolsProject::Open()
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezToolsProject::CreateSubFolder(const char* szFolder) const
+void ezToolsProject::CreateSubFolder(ezStringView sFolder) const
 {
   ezStringBuilder sPath;
 
   sPath = m_sProjectPath;
   sPath.PathParentDirectory();
-  sPath.AppendPath(szFolder);
+  sPath.AppendPath(sFolder);
 
   ezOSFile::CreateDirectoryStructure(sPath).IgnoreResult();
 }
@@ -165,11 +165,11 @@ ezStringBuilder ezToolsProject::GetPathForDocumentGuid(const ezUuid& guid)
   return e.m_sAbsDocumentPath;
 }
 
-ezStatus ezToolsProject::CreateOrOpenProject(const char* szProjectPath, bool bCreate)
+ezStatus ezToolsProject::CreateOrOpenProject(ezStringView sProjectPath, bool bCreate)
 {
   CloseProject();
 
-  new ezToolsProject(szProjectPath);
+  new ezToolsProject(sProjectPath);
 
   ezStatus ret;
 
@@ -190,16 +190,16 @@ ezStatus ezToolsProject::CreateOrOpenProject(const char* szProjectPath, bool bCr
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezToolsProject::OpenProject(const char* szProjectPath)
+ezStatus ezToolsProject::OpenProject(ezStringView sProjectPath)
 {
-  ezStatus status = CreateOrOpenProject(szProjectPath, false);
+  ezStatus status = CreateOrOpenProject(sProjectPath, false);
 
   return status;
 }
 
-ezStatus ezToolsProject::CreateProject(const char* szProjectPath)
+ezStatus ezToolsProject::CreateProject(ezStringView sProjectPath)
 {
-  return CreateOrOpenProject(szProjectPath, true);
+  return CreateOrOpenProject(sProjectPath, true);
 }
 
 void ezToolsProject::BroadcastSaveAll()
@@ -220,9 +220,9 @@ void ezToolsProject::BroadcastConfigChanged()
   s_Events.Broadcast(e);
 }
 
-void ezToolsProject::AddAllowedDocumentRoot(const char* szPath)
+void ezToolsProject::AddAllowedDocumentRoot(ezStringView sPath)
 {
-  ezStringBuilder s = szPath;
+  ezStringBuilder s = sPath;
   s.MakeCleanPath();
   s.Trim("", "/");
 
@@ -230,19 +230,19 @@ void ezToolsProject::AddAllowedDocumentRoot(const char* szPath)
 }
 
 
-bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezString* out_pRelativePath) const
+bool ezToolsProject::IsDocumentInAllowedRoot(ezStringView sDocumentPath, ezString* out_pRelativePath) const
 {
   for (ezUInt32 i = m_AllowedDocumentRoots.GetCount(); i > 0; --i)
   {
     const auto& root = m_AllowedDocumentRoots[i - 1];
 
-    ezStringBuilder s = szDocumentPath;
+    ezStringBuilder s = sDocumentPath;
     if (!s.IsPathBelowFolder(root))
       continue;
 
     if (out_pRelativePath)
     {
-      ezStringBuilder sText = szDocumentPath;
+      ezStringBuilder sText = sDocumentPath;
       sText.MakeRelativeTo(root).IgnoreResult();
 
       *out_pRelativePath = sText;
@@ -326,9 +326,9 @@ ezString ezToolsProject::GetProjectDataFolder() const
   return s;
 }
 
-ezString ezToolsProject::FindProjectDirectoryForDocument(const char* szDocumentPath)
+ezString ezToolsProject::FindProjectDirectoryForDocument(ezStringView sDocumentPath)
 {
-  ezStringBuilder sPath = szDocumentPath;
+  ezStringBuilder sPath = sDocumentPath;
   sPath.PathParentDirectory();
 
   ezStringBuilder sTemp;

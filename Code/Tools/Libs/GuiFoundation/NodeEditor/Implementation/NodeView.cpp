@@ -6,9 +6,7 @@
 
 ezQtNodeView::ezQtNodeView(QWidget* pParent)
   : QGraphicsView(pParent)
-  , m_pScene(nullptr)
-  , m_bPanning(false)
-  , m_iPanCounter(0)
+
 {
   setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
   setDragMode(QGraphicsView::DragMode::RubberBandDrag);
@@ -19,7 +17,7 @@ ezQtNodeView::ezQtNodeView(QWidget* pParent)
   m_ViewScale = QPointF(1, 1);
 }
 
-ezQtNodeView::~ezQtNodeView() {}
+ezQtNodeView::~ezQtNodeView() = default;
 
 void ezQtNodeView::SetScene(ezQtNodeScene* pScene)
 {
@@ -44,11 +42,7 @@ void ezQtNodeView::mousePressEvent(QMouseEvent* event)
   if (event->button() == Qt::RightButton)
   {
     setContextMenuPolicy(Qt::NoContextMenu);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    m_StartDragView = event->localPos();
-#else
-    m_vStartDragView = event->pos();
-#endif
+    m_StartDragView = event->position();
 
     m_StartDragScene = m_ViewPos;
     viewport()->setCursor(Qt::ClosedHandCursor);
@@ -66,7 +60,7 @@ void ezQtNodeView::mouseMoveEvent(QMouseEvent* event)
   {
     m_iPanCounter++;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    QPointF vViewDelta = m_StartDragView - event->localPos();
+    QPointF vViewDelta = m_StartDragView - event->position();
 #else
     QPointF vViewDelta = m_vStartDragView - event->pos();
 #endif

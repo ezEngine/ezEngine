@@ -16,11 +16,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMsgSetPowerInput, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("NewValue", m_uiNewValue),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-      new ezAutoGenVisScriptMsgHandler()
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -85,7 +80,7 @@ void ezPowerConnectorComponent::ConnectToSocket(ezGameObjectHandle hSocket)
   if (IsConnected())
     return;
 
-  if (GetOwner()->GetWorld()->GetClock().GetAccumulatedTime() - m_DetachTime < ezTime::Seconds(1))
+  if (GetOwner()->GetWorld()->GetClock().GetAccumulatedTime() - m_DetachTime < ezTime::MakeFromSeconds(1))
   {
     // recently detached -> wait a bit before allowing to attach again
     return;

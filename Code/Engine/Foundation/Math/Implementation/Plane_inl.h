@@ -14,42 +14,39 @@ EZ_FORCE_INLINE ezPlaneTemplate<Type>::ezPlaneTemplate()
 }
 
 template <typename Type>
-ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane)
+ezPlaneTemplate<Type> ezPlaneTemplate<Type>::MakeInvalid()
 {
-  SetFromNormalAndPoint(vNormal, vPointOnPlane);
+  ezPlaneTemplate<Type> res;
+  res.m_vNormal.Set(0);
+  res.m_fNegDistance = 0;
+  return res;
 }
 
 template <typename Type>
-ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
+ezPlaneTemplate<Type> ezPlaneTemplate<Type>::MakeFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane)
 {
-  SetFromPoints(v1, v2, v3).IgnoreResult();
+  EZ_ASSERT_DEV(vNormal.IsNormalized(), "Normal must be normalized.");
+
+  ezPlaneTemplate<Type> res;
+  res.m_vNormal = vNormal;
+  res.m_fNegDistance = -vNormal.Dot(vPointOnPlane);
+  return res;
 }
 
 template <typename Type>
-ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>* const pVertices)
+ezPlaneTemplate<Type> ezPlaneTemplate<Type>::MakeFromPoints(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
 {
-  SetFromPoints(pVertices).IgnoreResult();
-}
+  ezPlaneTemplate<Type> res;
+  EZ_VERIFY(res.m_vNormal.CalculateNormal(v1, v2, v3).Succeeded(), "The 3 provided points do not form a plane");
 
-template <typename Type>
-ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>* const pVertices, ezUInt32 uiMaxVertices)
-{
-  SetFromPoints(pVertices, uiMaxVertices).IgnoreResult();
+  res.m_fNegDistance = -res.m_vNormal.Dot(v1);
+  return res;
 }
 
 template <typename Type>
 ezVec4Template<Type> ezPlaneTemplate<Type>::GetAsVec4() const
 {
   return ezVec4(m_vNormal.x, m_vNormal.y, m_vNormal.z, m_fNegDistance);
-}
-
-template <typename Type>
-void ezPlaneTemplate<Type>::SetFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane)
-{
-  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "Normal must be normalized.");
-
-  m_vNormal = vNormal;
-  m_fNegDistance = -m_vNormal.Dot(vPointOnPlane);
 }
 
 template <typename Type>
@@ -99,8 +96,8 @@ void ezPlaneTemplate<Type>::Transform(const ezMat3Template<Type>& m)
   }
   else
   {
-    SetFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
-  } 
+    *this = ezPlane::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
+  }
 }
 
 template <typename Type>
@@ -119,7 +116,7 @@ void ezPlaneTemplate<Type>::Transform(const ezMat4Template<Type>& m)
   }
   else
   {
-    SetFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
+    *this = ezPlane::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
   }
 }
 
@@ -210,13 +207,6 @@ bool ezPlaneTemplate<Type>::FlipIfNecessary(const ezVec3Template<Type>& vPoint, 
   }
 
   return false;
-}
-
-template <typename Type>
-void ezPlaneTemplate<Type>::SetInvalid()
-{
-  m_vNormal.Set(0);
-  m_fNegDistance = 0;
 }
 
 template <typename Type>

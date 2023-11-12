@@ -94,8 +94,7 @@ void ezCollisionMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg*
   if (m_pMeshObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());

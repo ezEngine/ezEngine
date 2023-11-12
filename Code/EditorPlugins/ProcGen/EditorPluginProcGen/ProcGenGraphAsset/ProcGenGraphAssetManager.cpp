@@ -14,7 +14,8 @@ ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "ProcGen Graph";
   m_DocTypeDesc.m_sFileExtension = "ezProcGenGraphAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ProcGen_Graph.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ProcGen_Graph.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Construction";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezProcGenGraphAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ProcGen_Graph");
@@ -22,7 +23,7 @@ ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezProcGenGraph";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen_Graph.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen_Graph.svg"));
 }
 
 ezProcGenGraphAssetDocumentManager::~ezProcGenGraphAssetDocumentManager()
@@ -38,7 +39,7 @@ void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezProcGenGraphAssetDocument>())
       {
-        auto pDocWnd = new ezProcGenGraphAssetDocumentWindow(static_cast<ezProcGenGraphAssetDocument*>(e.m_pDocument));
+        new ezProcGenGraphAssetDocumentWindow(static_cast<ezProcGenGraphAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -49,9 +50,9 @@ void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
 }
 
 void ezProcGenGraphAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezProcGenGraphAssetDocument(szPath);
+  out_pDocument = new ezProcGenGraphAssetDocument(sPath);
 }
 
 void ezProcGenGraphAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

@@ -42,7 +42,7 @@ namespace
 
     *pFactory = nullptr;
 
-    typedef HRESULT(WINAPI * pfn_CreateDXGIFactory1)(REFIID riid, _Out_ void** ppFactory);
+    using pfn_CreateDXGIFactory1 = HRESULT(WINAPI*)(REFIID riid, _Out_ void** ppFactory);
 
     static pfn_CreateDXGIFactory1 s_CreateDXGIFactory1 = nullptr;
 
@@ -111,12 +111,12 @@ namespace
     TypeOfDeviceCreated deviceType = TypeOfDeviceCreated::None;
     if (pHardwareAdapter1 != nullptr)
     {
-      pAdapter1 = pHardwareAdapter1;
+      pAdapter1 = std::move(pHardwareAdapter1);
       deviceType = TypeOfDeviceCreated::Hardware;
     }
     else if (pFallbackAdapter1 != nullptr)
     {
-      pAdapter1 = pFallbackAdapter1;
+      pAdapter1 = std::move(pFallbackAdapter1);
       deviceType = TypeOfDeviceCreated::Software;
     }
 

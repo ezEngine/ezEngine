@@ -33,26 +33,26 @@ void ezGameObjectContextActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hClearContextObject);
 }
 
-void ezGameObjectContextActions::MapToolbarActions(const char* szMapping, const char* szPath)
+void ezGameObjectContextActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 10.0f);
 
-  ezStringBuilder szSubPath(szPath, "/GameObjectContextCategory");
+  const ezStringView szSubPath = "GameObjectContextCategory";
   pMap->MapAction(s_hPickContextScene, szSubPath, 1.0f);
 }
 
 
-void ezGameObjectContextActions::MapContextMenuActions(const char* szMapping, const char* szPath)
+void ezGameObjectContextActions::MapContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 10.0f);
 
-  ezStringBuilder szSubPath(szPath, "/GameObjectContextCategory");
+  const ezStringView szSubPath = "GameObjectContextCategory";
   pMap->MapAction(s_hPickContextObject, szSubPath, 1.0f);
   pMap->MapAction(s_hClearContextObject, szSubPath, 2.0f);
 }
@@ -65,13 +65,13 @@ ezGameObjectContextAction::ezGameObjectContextAction(const ezActionContext& cont
   switch (m_Type)
   {
     case ActionType::PickContextScene:
-      SetIconPath(":/EditorPluginAssets/PickTarget16.png");
+      SetIconPath(":/EditorPluginAssets/PickTarget.svg");
       break;
     case ActionType::PickContextObject:
-      SetIconPath(":/EditorPluginAssets/PickTarget16.png");
+      SetIconPath(":/EditorPluginAssets/PickTarget.svg");
       break;
     case ActionType::ClearContextObject:
-      SetIconPath(":/EditorPluginAssets/PickTarget16.png");
+      SetIconPath(":/EditorPluginAssets/PickTarget.svg");
       break;
     default:
       break;

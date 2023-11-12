@@ -280,7 +280,7 @@ ezStatus ezNodeCommands::AddAndConnectCommand(ezCommandHistory* pHistory, const 
 {
   ezAddObjectCommand cmd;
   cmd.m_pType = pConnectionType;
-  cmd.m_NewObjectGuid.CreateNewUuid();
+  cmd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmd.m_Index = -1;
 
   ezStatus res = pHistory->AddCommand(cmd);

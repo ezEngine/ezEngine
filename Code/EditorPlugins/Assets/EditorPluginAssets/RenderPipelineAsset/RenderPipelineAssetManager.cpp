@@ -13,7 +13,8 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "RenderPipeline";
   m_DocTypeDesc.m_sFileExtension = "ezRenderPipelineAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/RenderPipeline.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/RenderPipeline.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_RenderPipeline");
@@ -21,7 +22,7 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezRenderPipelineBin";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("RenderPipeline", QPixmap(":/AssetIcons/RenderPipeline.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("RenderPipeline", QPixmap(":/AssetIcons/RenderPipeline.svg"));
 }
 
 ezRenderPipelineAssetManager::~ezRenderPipelineAssetManager()
@@ -37,7 +38,7 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezRenderPipelineAssetDocument>())
       {
-        ezQtRenderPipelineAssetDocumentWindow* pDocWnd = new ezQtRenderPipelineAssetDocumentWindow(e.m_pDocument);
+        new ezQtRenderPipelineAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -48,9 +49,9 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
 }
 
 void ezRenderPipelineAssetManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezRenderPipelineAssetDocument(szPath);
+  out_pDocument = new ezRenderPipelineAssetDocument(sPath);
 }
 
 void ezRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

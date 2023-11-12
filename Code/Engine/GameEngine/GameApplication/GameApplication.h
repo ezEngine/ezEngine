@@ -39,7 +39,7 @@ public:
   static ezCVarBool cvar_AppShowFPS;
 
 public:
-  typedef ezGameApplicationBase SUPER;
+  using SUPER = ezGameApplicationBase;
 
   /// szProjectPath may be nullptr, if FindProjectDirectory() is overridden.
   ezGameApplication(const char* szAppName, const char* szProjectPath);
@@ -49,7 +49,7 @@ public:
   static ezGameApplication* GetGameApplicationInstance() { return s_pGameApplicationInstance; }
 
   /// \brief Returns the active renderer of the current app. Either the default or overridden via -render command line flag.
-  static const char* GetActiveRenderer();
+  static ezStringView GetActiveRenderer();
 
   /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This
   /// function allows to override that by setting a custom function that creates a graphics device.

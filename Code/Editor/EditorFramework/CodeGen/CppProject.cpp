@@ -14,9 +14,15 @@
 
 ezEvent<const ezCppSettings&> ezCppProject::s_ChangeEvents;
 
-ezString ezCppProject::GetTargetSourceDir()
+ezString ezCppProject::GetTargetSourceDir(ezStringView sProjectDirectory /*= {}*/)
 {
-  ezStringBuilder sTargetDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  ezStringBuilder sTargetDir = sProjectDirectory;
+
+  if (sTargetDir.IsEmpty())
+  {
+    sTargetDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  }
+
   sTargetDir.AppendPath("CppSource");
   return sTargetDir;
 }
@@ -27,9 +33,6 @@ ezString ezCppProject::GetGeneratorFolderName(const ezCppSettings& cfg)
   {
     case ezCppSettings::Compiler::None:
       return "";
-
-    case ezCppSettings::Compiler::Vs2019:
-      return "Vs2019x64";
 
     case ezCppSettings::Compiler::Vs2022:
       return "Vs2022x64";
@@ -47,9 +50,6 @@ ezString ezCppProject::GetCMakeGeneratorName(const ezCppSettings& cfg)
     case ezCppSettings::Compiler::None:
       return "";
 
-    case ezCppSettings::Compiler::Vs2019:
-      return "Visual Studio 16 2019";
-
     case ezCppSettings::Compiler::Vs2022:
       return "Visual Studio 17 2022";
 
@@ -57,6 +57,14 @@ ezString ezCppProject::GetCMakeGeneratorName(const ezCppSettings& cfg)
   }
 
   return {};
+}
+
+ezString ezCppProject::GetPluginSourceDir(const ezCppSettings& cfg, ezStringView sProjectDirectory /*= {}*/)
+{
+  ezStringBuilder sDir = GetTargetSourceDir(sProjectDirectory);
+  sDir.AppendPath(cfg.m_sPluginName);
+  sDir.Append("Plugin");
+  return sDir;
 }
 
 ezString ezCppProject::GetBuildDir(const ezCppSettings& cfg)
@@ -73,6 +81,40 @@ ezString ezCppProject::GetSolutionPath(const ezCppSettings& cfg)
   sSolutionFile.AppendPath(cfg.m_sPluginName);
   sSolutionFile.Append(".sln");
   return sSolutionFile;
+}
+
+ezResult ezCppProject::CheckCMakeCache(const ezCppSettings& cfg)
+{
+  ezStringBuilder sCacheFile;
+  sCacheFile = GetBuildDir(cfg);
+  sCacheFile.AppendPath("CMakeCache.txt");
+
+  ezFileReader file;
+  EZ_SUCCEED_OR_RETURN(file.Open(sCacheFile));
+
+  ezStringBuilder content;
+  content.ReadAll(file);
+
+  const ezStringView sSearchFor = "CMAKE_CONFIGURATION_TYPES:STRING="_ezsv;
+
+  const char* pConfig = content.FindSubString(sSearchFor);
+  if (pConfig == nullptr)
+    return EZ_FAILURE;
+
+  pConfig += sSearchFor.GetElementCount();
+
+  const char* pEndConfig = content.FindSubString("\n", pConfig);
+  if (pEndConfig == nullptr)
+    return EZ_FAILURE;
+
+  ezStringBuilder sUsedCfg;
+  sUsedCfg.SetSubString_FromTo(pConfig, pEndConfig);
+  sUsedCfg.Trim("\t\n\r ");
+
+  if (sUsedCfg != BUILDSYSTEM_BUILDTYPE)
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
 }
 
 bool ezCppProject::ExistsSolution(const ezCppSettings& cfg)
@@ -268,7 +310,7 @@ ezResult ezCppProject::RunCMakeIfNecessary(const ezCppSettings& cfg)
   if (!ezCppProject::ExistsProjectCMakeListsTxt())
     return EZ_SUCCESS;
 
-  if (ezCppProject::ExistsSolution(cfg))
+  if (ezCppProject::ExistsSolution(cfg) && ezCppProject::CheckCMakeCache(cfg).Succeeded())
     return EZ_SUCCESS;
 
   return ezCppProject::RunCMake(cfg);
@@ -287,14 +329,19 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
     return EZ_FAILURE;
   }
 
+  if (ezSystemInformation::IsDebuggerAttached())
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxWarning("When a debugger is attached, MSBuild usually fails to compile the project.\n\nDetach the debugger now, then press OK to continue.");
+  }
+
   ezHybridArray<ezString, 32> errors;
 
   ezProcessOptions po;
   po.m_sProcess = cfg.m_sMsBuildPath;
   po.m_bHideConsoleWindow = true;
-  po.m_onStdOut = [&](ezStringView res) {
-    if (res.FindSubString_NoCase("error") != nullptr)
-      errors.PushBack(res);
+  po.m_onStdOut = [&](ezStringView sText) {
+    if (sText.FindSubString_NoCase("error") != nullptr)
+      errors.PushBack(sText);
   };
 
   po.AddArgument(ezCppProject::GetSolutionPath(cfg));
@@ -338,7 +385,7 @@ ezResult ezCppProject::BuildCodeIfNecessary(const ezCppSettings& cfg)
   if (!ezCppProject::ExistsProjectCMakeListsTxt())
     return EZ_SUCCESS;
 
-  if (!ezCppProject::ExistsSolution(cfg))
+  if (!ezCppProject::ExistsSolution(cfg) || ezCppProject::CheckCMakeCache(cfg).Failed())
   {
     EZ_SUCCEED_OR_RETURN(ezCppProject::RunCMake(cfg));
   }
@@ -372,7 +419,7 @@ ezResult ezCppProject::FindMsBuild(const ezCppSettings& cfg)
   ezProcessOptions po;
   po.m_sProcess = sVsWhere;
   po.m_bHideConsoleWindow = true;
-  po.m_onStdOut = [&](ezStringView res) { sStdOut.Append(res); };
+  po.m_onStdOut = [&](ezStringView sText) { sStdOut.Append(sText); };
 
   // TODO: search for VS2022 or VS2019 depending on cfg
   po.AddCommandLine("-latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe");
@@ -405,7 +452,7 @@ void ezCppProject::UpdatePluginConfig(const ezCppSettings& cfg)
   plugin.m_bLoadCopy = true;
   plugin.m_bSelected = true;
   plugin.m_bMissing = true;
-  plugin.m_LastModificationTime.Invalidate();
+  plugin.m_LastModificationTime = ezTimestamp::MakeInvalid();
   plugin.m_ExclusiveFeatures.PushBack("ProjectPlugin");
   txt.Set("'", cfg.m_sPluginName, "' project plugin");
   plugin.m_sDisplayName = txt;
@@ -414,4 +461,57 @@ void ezCppProject::UpdatePluginConfig(const ezCppSettings& cfg)
   plugin.m_RuntimePlugins.PushBack(sPluginName);
 
   ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
+}
+
+ezResult ezCppProject::EnsureCppPluginReady()
+{
+  if (!ExistsProjectCMakeListsTxt())
+    return EZ_SUCCESS;
+
+  ezCppSettings cppSettings;
+  if (cppSettings.Load().Failed())
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to load the C++ plugin settings."));
+    return EZ_FAILURE;
+  }
+
+  if (ezCppProject::BuildCodeIfNecessary(cppSettings).Failed())
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to build the C++ code. See log for details."));
+    return EZ_FAILURE;
+  }
+
+  ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+  return EZ_SUCCESS;
+}
+
+bool ezCppProject::IsBuildRequired()
+{
+  if (!ExistsProjectCMakeListsTxt())
+    return false;
+
+  ezCppSettings cfg;
+  if (cfg.Load().Failed())
+    return false;
+
+  if (!ezCppProject::ExistsSolution(cfg))
+    return true;
+
+  if (ezCppProject::CheckCMakeCache(cfg).Failed())
+    return true;
+
+  ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
+  sPath.AppendPath(cfg.m_sPluginName);
+  sPath.Append("Plugin");
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  sPath.Append(".dll");
+#else
+  sPath.Append(".so");
+#endif
+
+  if (!ezOSFile::ExistsFile(sPath))
+    return true;
+
+  return false;
 }

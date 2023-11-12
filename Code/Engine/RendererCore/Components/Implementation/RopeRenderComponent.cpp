@@ -65,7 +65,7 @@ void ezRopeRenderComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 void ezRopeRenderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_Color;
@@ -80,7 +80,7 @@ void ezRopeRenderComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  m_LocalBounds.SetInvalid();
+  m_LocalBounds = ezBoundingBoxSphere::MakeInvalid();
 }
 
 void ezRopeRenderComponent::OnDeactivated()
@@ -132,20 +132,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   if (hMaterial.IsValid())
   {
     ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-
-    ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-    if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-    {
-      category = ezDefaultRenderDataCategories::LitOpaque;
-    }
-    else if (blendModeValue == "BLEND_MODE_MASKED")
-    {
-      category = ezDefaultRenderDataCategories::LitMasked;
-    }
-    else
-    {
-      category = ezDefaultRenderDataCategories::LitTransparent;
-    }
+    category = pMaterial->GetRenderDataCategory();
   }
 
   msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
@@ -167,19 +154,19 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
       auto& x = lines.ExpandAndGetRef();
       x.m_start = pos;
-      x.m_end = x.m_start + skinningMat.TransformDirection(ezVec3::UnitXAxis());
+      x.m_end = x.m_start + skinningMat.TransformDirection(ezVec3::MakeAxisX());
       x.m_startColor = ezColor::Red;
       x.m_endColor = ezColor::Red;
 
       auto& y = lines.ExpandAndGetRef();
       y.m_start = pos;
-      y.m_end = y.m_start + skinningMat.TransformDirection(ezVec3::UnitYAxis() * 2.0f);
+      y.m_end = y.m_start + skinningMat.TransformDirection(ezVec3::MakeAxisY() * 2.0f);
       y.m_startColor = ezColor::Green;
       y.m_endColor = ezColor::Green;
 
       auto& z = lines.ExpandAndGetRef();
       z.m_start = pos;
-      z.m_end = z.m_start + skinningMat.TransformDirection(ezVec3::UnitZAxis() * 2.0f);
+      z.m_end = z.m_start + skinningMat.TransformDirection(ezVec3::MakeAxisZ() * 2.0f);
       z.m_startColor = ezColor::Blue;
       z.m_endColor = ezColor::Blue;
     }
@@ -227,7 +214,7 @@ void ezRopeRenderComponent::SetThickness(float fThickness)
         offsetMat.SetTranslationVector(ezVec3(static_cast<float>(i), 0, 0));
         ezMat4 skinningMat = m_SkinningState.m_Transforms[i].GetAsMat4() * offsetMat;
 
-        transforms[i].SetFromMat4(skinningMat);
+        transforms[i] = ezTransform::MakeFromMat4(skinningMat);
       }
 
       UpdateSkinningTransformBuffer(transforms);
@@ -298,13 +285,12 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
 
   UpdateSkinningTransformBuffer(msg.m_LinkTransforms);
 
-  ezBoundingBox newBounds;
-  newBounds.SetFromPoints(&msg.m_LinkTransforms[0].m_vPosition, msg.m_LinkTransforms.GetCount(), sizeof(ezTransform));
+  ezBoundingBox newBounds = ezBoundingBox::MakeFromPoints(&msg.m_LinkTransforms[0].m_vPosition, msg.m_LinkTransforms.GetCount(), sizeof(ezTransform));
 
   // if the existing bounds are big enough, don't update them
   if (!m_LocalBounds.IsValid() || !m_LocalBounds.GetBox().Contains(newBounds))
   {
-    m_LocalBounds.ExpandToInclude(newBounds);
+    m_LocalBounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromBox(newBounds));
 
     TriggerLocalBoundsUpdate();
   }
@@ -321,7 +307,7 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 
   ezGeometry geom;
 
-  const ezAngle fDegStep = ezAngle::Degree(360.0f / m_uiDetail);
+  const ezAngle fDegStep = ezAngle::MakeFromDegree(360.0f / m_uiDetail);
   const float fVStep = 1.0f / m_uiDetail;
 
   auto addCap = [&](float x, const ezVec3& vNormal, ezUInt16 uiBoneIndex, bool bFlipWinding) {
@@ -329,7 +315,7 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 
     ezUInt32 centerIndex = geom.AddVertex(ezVec3(x, 0, 0), vNormal, ezVec2(0.5f, 0.5f), ezColor::White, boneIndices);
 
-    ezAngle deg = ezAngle::Radian(0);
+    ezAngle deg = ezAngle::MakeFromRadian(0);
     for (ezUInt32 s = 0; s < m_uiDetail; ++s)
     {
       const float fY = ezMath::Cos(deg);
@@ -352,7 +338,7 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
   };
 
   auto addPiece = [&](float x, const ezVec4U16& vBoneIndices, const ezColorLinearUB& boneWeights, bool bCreatePolygons) {
-    ezAngle deg = ezAngle::Radian(0);
+    ezAngle deg = ezAngle::MakeFromRadian(0);
     float fU = x * m_fUScale;
     float fV = 0;
 

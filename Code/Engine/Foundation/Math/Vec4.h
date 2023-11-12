@@ -29,21 +29,11 @@ public:
   explicit ezVec4Template(Type v); // [tested]
   // no copy-constructor and operator= since the default-generated ones will be faster
 
-  /// \brief Returns a vector with all components set to zero.
-  static const ezVec4Template<Type> ZeroVector() { return ezVec4Template<Type>(0); } // [tested]
-  /// \brief Returns a vector with all components set to one.
-  static const ezVec4Template<Type> OneVector() { return ezVec4Template<Type>(1); }
+  /// \brief Returns a vector with all components set to Not-a-Number (NaN).
+  [[nodiscard]] static ezVec4Template<Type> MakeNaN() { return ezVec4Template<Type>(ezMath::NaN<Type>()); }
 
-  /// \brief Returns a vector initialized to the origin point (0, 0, 0, 1).
-  static const ezVec4Template<Type> OriginPoint() { return ezVec4Template<Type>(0, 0, 0, 1); }
-  /// \brief Returns a vector initialized to the x unit vector (1, 0, 0, 0).
-  static const ezVec4Template<Type> UnitXAxis() { return ezVec4Template<Type>(1, 0, 0, 0); }
-  /// \brief Returns a vector initialized to the y unit vector (0, 1, 0, 0).
-  static const ezVec4Template<Type> UnitYAxis() { return ezVec4Template<Type>(0, 1, 0, 0); }
-  /// \brief Returns a vector initialized to the z unit vector (1, 0, 0, 0).
-  static const ezVec4Template<Type> UnitZAxis() { return ezVec4Template<Type>(0, 0, 1, 0); }
-  /// \brief Returns a vector initialized to the w unit vector (0, 0, 0, 1).
-  static const ezVec4Template<Type> UnitWAxis() { return ezVec4Template<Type>(0, 0, 0, 1); }
+  /// \brief Returns a vector with all components set to zero.
+  [[nodiscard]] static ezVec4Template<Type> MakeZero() { return ezVec4Template<Type>(0); } // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const

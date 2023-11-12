@@ -9,8 +9,9 @@
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/StateMachine/StateMachineResource.h>
+#include <GameEngine/Utils/BlackboardTemplateResource.h>
 #include <GameEngine/Utils/ImageDataResource.h>
-#include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
@@ -45,27 +46,29 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   // which platform assets to use
   ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";
 
-  ezResourceManager::RegisterResourceForAssetType("Collection", ezGetStaticRTTI<ezCollectionResource>());
-  ezResourceManager::RegisterResourceForAssetType("Material", ezGetStaticRTTI<ezMaterialResource>());
-  ezResourceManager::RegisterResourceForAssetType("Mesh", ezGetStaticRTTI<ezMeshResource>());
   ezResourceManager::RegisterResourceForAssetType("Animated Mesh", ezGetStaticRTTI<ezMeshResource>());
-  ezResourceManager::RegisterResourceForAssetType("Prefab", ezGetStaticRTTI<ezPrefabResource>());
-  ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
-  ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
-  ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Render Target", ezGetStaticRTTI<ezTexture2DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
-  ezResourceManager::RegisterResourceForAssetType("Color Gradient", ezGetStaticRTTI<ezColorGradientResource>());
-  ezResourceManager::RegisterResourceForAssetType("Curve1D", ezGetStaticRTTI<ezCurve1DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Skeleton", ezGetStaticRTTI<ezSkeletonResource>());
   ezResourceManager::RegisterResourceForAssetType("Animation Clip", ezGetStaticRTTI<ezAnimationClipResource>());
-  ezResourceManager::RegisterResourceForAssetType("Animation Controller", ezGetStaticRTTI<ezAnimGraphResource>());
-  ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
-  ezResourceManager::RegisterResourceForAssetType("PropertyAnim", ezGetStaticRTTI<ezPropertyAnimResource>());
-  ezResourceManager::RegisterResourceForAssetType("Visual Script", ezGetStaticRTTI<ezVisualScriptResource>());
+  ezResourceManager::RegisterResourceForAssetType("Animation Graph", ezGetStaticRTTI<ezAnimGraphResource>());
+  ezResourceManager::RegisterResourceForAssetType("BlackboardTemplate", ezGetStaticRTTI<ezBlackboardTemplateResource>());
+  ezResourceManager::RegisterResourceForAssetType("Collection", ezGetStaticRTTI<ezCollectionResource>());
+  ezResourceManager::RegisterResourceForAssetType("ColorGradient", ezGetStaticRTTI<ezColorGradientResource>());
+  ezResourceManager::RegisterResourceForAssetType("Curve1D", ezGetStaticRTTI<ezCurve1DResource>());
   ezResourceManager::RegisterResourceForAssetType("Decal", ezGetStaticRTTI<ezDecalResource>());
   ezResourceManager::RegisterResourceForAssetType("Decal Atlas", ezGetStaticRTTI<ezDecalAtlasResource>());
+  ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
   ezResourceManager::RegisterResourceForAssetType("LUT", ezGetStaticRTTI<ezTexture3DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Material", ezGetStaticRTTI<ezMaterialResource>());
+  ezResourceManager::RegisterResourceForAssetType("Mesh", ezGetStaticRTTI<ezMeshResource>());
+  ezResourceManager::RegisterResourceForAssetType("Prefab", ezGetStaticRTTI<ezPrefabResource>());
+  ezResourceManager::RegisterResourceForAssetType("PropertyAnim", ezGetStaticRTTI<ezPropertyAnimResource>());
+  ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
+  ezResourceManager::RegisterResourceForAssetType("Render Target", ezGetStaticRTTI<ezTexture2DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Skeleton", ezGetStaticRTTI<ezSkeletonResource>());
+  ezResourceManager::RegisterResourceForAssetType("StateMachine", ezGetStaticRTTI<ezStateMachineResource>());
+  ezResourceManager::RegisterResourceForAssetType("Substance Texture", ezGetStaticRTTI<ezTexture2DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
 }
 
 void ezGameApplication::Init_SetupDefaultResources()
@@ -78,7 +81,9 @@ void ezGameApplication::Init_SetupDefaultResources()
   {
     ezShaderResourceDescriptor desc;
     ezShaderResourceHandle hFallbackShader = ezResourceManager::CreateResource<ezShaderResource>("FallbackShaderResource", std::move(desc), "FallbackShaderResource");
-    ezShaderResourceHandle hMissingShader = ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", std::move(desc), "MissingShaderResource");
+
+    ezShaderResourceDescriptor desc2;
+    ezShaderResourceHandle hMissingShader = ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", std::move(desc2), "MissingShaderResource");
 
     ezResourceManager::SetResourceTypeLoadingFallback<ezShaderResource>(hFallbackShader);
     ezResourceManager::SetResourceTypeMissingFallback<ezShaderResource>(hMissingShader);
@@ -189,18 +194,10 @@ void ezGameApplication::Init_SetupDefaultResources()
     ezResourceManager::SetResourceTypeMissingFallback<ezCurve1DResource>(hResource);
   }
 
-  // Visual Script
-  {
-    ezVisualScriptResourceDescriptor desc;
-
-    ezVisualScriptResourceHandle hResource = ezResourceManager::CreateResource<ezVisualScriptResource>("MissingVisualScript", std::move(desc), "Missing Visual Script Resource");
-    ezResourceManager::SetResourceTypeMissingFallback<ezVisualScriptResource>(hResource);
-  }
-
   // Property Animations
   {
     ezPropertyAnimResourceDescriptor desc;
-    desc.m_AnimationDuration = ezTime::Seconds(0.1);
+    desc.m_AnimationDuration = ezTime::MakeFromSeconds(0.1);
 
     ezPropertyAnimResourceHandle hResource = ezResourceManager::CreateResource<ezPropertyAnimResource>("MissingPropertyAnim", std::move(desc), "Missing Property Animation Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezPropertyAnimResource>(hResource);
@@ -228,12 +225,12 @@ void ezGameApplication::Init_SetupDefaultResources()
   }
 }
 
-const char* GetRendererNameFromCommandLine()
+ezStringView GetRendererNameFromCommandLine()
 {
   return opt_Renderer.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified);
 }
 
-const char* ezGameApplication::GetActiveRenderer()
+ezStringView ezGameApplication::GetActiveRenderer()
 {
   return GetRendererNameFromCommandLine();
 }
@@ -255,9 +252,9 @@ void ezGameApplication::Init_SetupGraphicsDevice()
     }
     else
     {
-      const char* szRendererName = GetRendererNameFromCommandLine();
-      pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-      EZ_ASSERT_DEV(pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
+      ezStringView sRendererName = GetRendererNameFromCommandLine();
+      pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+      EZ_ASSERT_DEV(pDevice != nullptr, "Device implemention for '{}' not found", sRendererName);
     }
 
     EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
@@ -273,10 +270,10 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 {
   ezPlugin::InitializeStaticallyLinkedPlugins();
 
-  const char* szRendererName = GetRendererNameFromCommandLine();
+  ezStringView sRendererName = GetRendererNameFromCommandLine();
   const char* szShaderModel = "";
   const char* szShaderCompiler = "";
-  ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+  ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
   ezShaderManager::Configure(szShaderModel, true);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

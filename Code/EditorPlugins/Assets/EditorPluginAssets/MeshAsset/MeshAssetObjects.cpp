@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("Detail2", m_uiDetail2)->AddAttributes(new ezDefaultValueAttribute(0), new ezClampValueAttribute(0, 128)),
     EZ_MEMBER_PROPERTY("Cap", m_bCap)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Cap2", m_bCap2)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(360.0f)), new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(360.0f))),
+    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(360.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(360.0f))),
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, true, true)),
   }
   EZ_END_PROPERTIES;
@@ -205,7 +205,7 @@ public:
       if (pProp->m_Value.IsA<float>())
       {
         const float valFloat = pProp->m_Value.Get<float>();
-        pProp->m_Value = ezAngle::Degree(valFloat);
+        pProp->m_Value = ezAngle::MakeFromDegree(valFloat);
       }
     }
   }

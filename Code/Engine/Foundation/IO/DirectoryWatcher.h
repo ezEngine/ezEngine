@@ -36,7 +36,7 @@ public:
   /// \brief What to watch out for.
   struct Watch
   {
-    typedef ezUInt8 StorageType;
+    using StorageType = ezUInt8;
     constexpr static ezUInt8 Default = 0;
 
     /// \brief Enum values
@@ -74,9 +74,9 @@ public:
 
   /// \brief
   ///   Returns the opened directory, will be empty if no directory was opened.
-  const char* GetDirectory() const { return m_sDirectoryPath; }
+  ezStringView GetDirectory() const { return m_sDirectoryPath; }
 
-  using EnumerateChangesFunction = ezDelegate<void(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type), 48>;
+  using EnumerateChangesFunction = ezDelegate<void(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type), 48>;
 
   /// \brief
   ///   Calls the callback \p func for each change since the last call. For each change the filename
@@ -84,11 +84,11 @@ public:
   ///   If waitUpToMilliseconds is greater than 0, blocks until either a change was observed or the timelimit is reached.
   ///
   /// \note There might be multiple changes on the same file reported.
-  void EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo = ezTime::Zero());
+  void EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo = ezTime::MakeZero());
 
   /// \brief
   ///   Same as the other EnumerateChanges function, but enumerates multiple watchers.
-  static void EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo = ezTime::Zero());
+  static void EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo = ezTime::MakeZero());
 
 private:
   ezString m_sDirectoryPath;

@@ -53,8 +53,6 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
     addToolBar(pToolBar);
   }
 
-  const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
-
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("PropertyPanel");
@@ -92,9 +90,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   FinishWindowCreation();
 }
 
-ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
-{
-}
+ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow() = default;
 
 ezQtSceneDocumentWindowBase::ezQtSceneDocumentWindowBase(ezSceneDocument* pDocument)
   : ezQtGameObjectDocumentWindow(pDocument)

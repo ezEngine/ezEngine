@@ -65,7 +65,7 @@ public:
   float m_fAngularDamping = 0.05f;                        // [ property ]
   ezSurfaceResourceHandle m_hSurface;                     // [ property ]
   ezBitflags<ezOnJoltContact> m_OnContact;                // [ property ]
-  ezVec3 m_vCenterOfMass = ezVec3::ZeroVector();          // [ property ]
+  ezVec3 m_vCenterOfMass = ezVec3::MakeZero();            // [ property ]
   bool GetUseCustomCoM() const { return GetUserFlag(0); } // [ property ]
   void SetUseCustomCoM(bool b) { SetUserFlag(0, b); }     // [ property ]
 
@@ -74,9 +74,20 @@ public:
   void AddAngularForce(const ezVec3& vForce);     // [ scriptable ]
   void AddAngularImpulse(const ezVec3& vImpulse); // [ scriptable ]
 
+  /// \brief Should be called by components that add Jolt constraints to this body.
+  ///
+  /// All registered components receive ezJoltMsgDisconnectConstraints in case the body is deleted.
+  /// It is necessary to react to that by removing the Jolt constraint, otherwise Jolt will crash during the next update.
+  void AddConstraint(ezComponentHandle hComponent);
+
+  /// \brief Should be called when a constraint is removed (though not strictly required) to prevent unnecessary message sending.
+  void RemoveConstraint(ezComponentHandle hComponent);
+
 protected:
   const ezJoltMaterial* GetJoltMaterial() const;
 
   bool m_bKinematic = false;
   float m_fGravityFactor = 1.0f; // [ property ]
+
+  ezDynamicArray<ezComponentHandle> m_Constraints;
 };

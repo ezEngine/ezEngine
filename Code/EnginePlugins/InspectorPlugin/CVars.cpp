@@ -99,7 +99,7 @@ static void SendCVarTelemetry(ezCVar* pCVar)
     break;
     case ezCVarType::String:
     {
-      const char* val = ((ezCVarString*)pCVar)->GetValue().GetData();
+      ezStringView val = ((ezCVarString*)pCVar)->GetValue();
       msg.GetWriter() << val;
     }
     break;

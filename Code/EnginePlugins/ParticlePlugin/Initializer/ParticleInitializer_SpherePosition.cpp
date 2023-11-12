@@ -24,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 2, 
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezSphereVisualizerAttribute("Radius", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "PositionOffset"),
+    new ezSphereVisualizerAttribute("Radius", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "PositionOffset"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -167,7 +167,7 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezVec3 pos = ezVec3::CreateRandomPointInSphere(rng) * m_fRadius;
+    ezVec3 pos = ezVec3::MakeRandomPointInSphere(rng) * m_fRadius;
     ezVec3 normalPos = pos;
 
     if (m_bSpawnOnSurface || m_bSetVelocity)

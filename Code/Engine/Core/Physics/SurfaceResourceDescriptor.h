@@ -15,7 +15,7 @@ using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
 struct ezSurfaceInteractionAlignment
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -76,7 +76,6 @@ public:
   void SetRollReactionPrefabFile(const char* szFile);
   const char* GetRollReactionPrefabFile() const;
 
-
   ezSurfaceResourceHandle m_hBaseSurface;
   float m_fPhysicsRestitution;
   float m_fPhysicsFrictionStatic;
@@ -84,6 +83,7 @@ public:
   ezHashedString m_sOnCollideInteraction;
   ezHashedString m_sSlideInteractionPrefab;
   ezHashedString m_sRollInteractionPrefab;
+  ezInt8 m_iGroundType = -1; ///< What kind of ground this is for navigation purposes. Ground type properties need to be specified elsewhere, this is just a number.
 
   ezHybridArray<ezSurfaceInteraction, 16> m_Interactions;
 };

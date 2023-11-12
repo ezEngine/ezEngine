@@ -27,7 +27,7 @@ namespace ezRmlUiInternal
 
   struct Batch
   {
-    ezMat4 m_Transform = ezMat4::IdentityMatrix();
+    ezMat4 m_Transform = ezMat4::MakeIdentity();
     ezVec2 m_Translation = ezVec2(0);
     CompiledGeometry m_CompiledGeometry;
     ezRectFloat m_ScissorRect = ezRectFloat(0, 0);

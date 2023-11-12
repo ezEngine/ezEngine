@@ -4,10 +4,10 @@
 
 ezGALQuery::ezGALQuery(const ezGALQueryCreationDescription& Description)
   : ezGALResource<ezGALQueryCreationDescription>(Description)
-  , m_bStarted(false)
+
 {
 }
 
-ezGALQuery::~ezGALQuery() {}
+ezGALQuery::~ezGALQuery() = default;
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_Query);

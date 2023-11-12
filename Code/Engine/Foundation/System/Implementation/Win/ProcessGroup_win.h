@@ -97,7 +97,7 @@ ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
   return EZ_SUCCESS;
 }
 
-ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
+ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
 {
   if (m_pImpl->m_hJobObject == INVALID_HANDLE_VALUE)
     return EZ_SUCCESS;

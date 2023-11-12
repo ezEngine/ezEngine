@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Passes/LSAOPass.h>
 #include <RendererCore/Pipeline/View.h>
@@ -59,10 +60,7 @@ namespace
 
 ezLSAOPass::ezLSAOPass()
   : ezRenderPipelinePass("LSAOPass", true)
-  , m_iLineToLinePixelOffset(2)
-  , m_iLineSamplePixelOffsetFactor(1)
-  , m_bSweepDataDirty(true)
-  , m_bDistributedGathering(true)
+
 {
   {
     // Load shader.
@@ -76,9 +74,6 @@ ezLSAOPass::ezLSAOPass()
 
   {
     m_hLineSweepCB = ezRenderContext::CreateConstantBufferStorage<ezLSAOConstants>();
-    ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
-    cb->DepthCutoffDistance = 8.0f;
-    cb->OcclusionFalloff = 0.25f;
   }
 }
 
@@ -127,6 +122,13 @@ void ezLSAOPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassCon
 
 void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
+  if (m_bConstantsDirty)
+  {
+    ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
+    cb->DepthCutoffDistance = m_fDepthCutoffDistance;
+    cb->OcclusionFalloff = m_fOcclusionFalloff;
+  }
+
   if (m_bSweepDataDirty)
   {
     const ezGALTextureCreationDescription& desc = inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc;
@@ -254,6 +256,32 @@ void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, c
   auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, "Clear");
 }
 
+ezResult ezLSAOPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_iLineToLinePixelOffset;
+  inout_stream << m_iLineSamplePixelOffsetFactor;
+  inout_stream << m_fOcclusionFalloff;
+  inout_stream << m_fDepthCutoffDistance;
+  inout_stream << m_DepthCompareFunction;
+  inout_stream << m_bDistributedGathering;
+  return EZ_SUCCESS;
+}
+
+ezResult ezLSAOPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  inout_stream >> m_iLineToLinePixelOffset;
+  inout_stream >> m_iLineSamplePixelOffsetFactor;
+  inout_stream >> m_fOcclusionFalloff;
+  inout_stream >> m_fDepthCutoffDistance;
+  inout_stream >> m_DepthCompareFunction;
+  inout_stream >> m_bDistributedGathering;
+  return EZ_SUCCESS;
+}
+
 void ezLSAOPass::SetLineToLinePixelOffset(ezUInt32 uiPixelOffset)
 {
   m_iLineToLinePixelOffset = uiPixelOffset;
@@ -268,26 +296,24 @@ void ezLSAOPass::SetLineSamplePixelOffset(ezUInt32 uiPixelOffset)
 
 float ezLSAOPass::GetDepthCutoffDistance() const
 {
-  ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
-  return cb->DepthCutoffDistance;
+  return m_fDepthCutoffDistance;
 }
 
 void ezLSAOPass::SetDepthCutoffDistance(float fDepthCutoffDistance)
 {
-  ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
-  cb->DepthCutoffDistance = fDepthCutoffDistance;
+  m_fDepthCutoffDistance = fDepthCutoffDistance;
+  m_bConstantsDirty = true;
 }
 
 float ezLSAOPass::GetOcclusionFalloff() const
 {
-  ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
-  return cb->OcclusionFalloff;
+  return m_fOcclusionFalloff;
 }
 
 void ezLSAOPass::SetOcclusionFalloff(float fFalloff)
 {
-  ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
-  cb->OcclusionFalloff = fFalloff;
+  m_fOcclusionFalloff = fFalloff;
+  m_bConstantsDirty = true;
 }
 
 void ezLSAOPass::DestroyLineSweepData()
@@ -339,10 +365,10 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
     {
       // Put opposing directions next to each other, so that a gather pass that doesn't sample all directions, only needs to sample an even
       // number of directions to end up with non-negative occlusion.
-      samplingDir[i * 4 + 0] = ezVec2I32(i - halfPerSide, halfPerSide) * m_iLineSamplePixelOffsetFactor;  // Top
-      samplingDir[i * 4 + 1] = -samplingDir[i * 4 + 0];                                                   // Bottom
-      samplingDir[i * 4 + 2] = ezVec2I32(halfPerSide, halfPerSide - i) * m_iLineSamplePixelOffsetFactor;  // Right
-      samplingDir[i * 4 + 3] = -samplingDir[i * 4 + 2];                                                   // Left
+      samplingDir[i * 4 + 0] = ezVec2I32(i - halfPerSide, halfPerSide) * m_iLineSamplePixelOffsetFactor; // Top
+      samplingDir[i * 4 + 1] = -samplingDir[i * 4 + 0];                                                  // Bottom
+      samplingDir[i * 4 + 2] = ezVec2I32(halfPerSide, halfPerSide - i) * m_iLineSamplePixelOffsetFactor; // Right
+      samplingDir[i * 4 + 3] = -samplingDir[i * 4 + 2];                                                  // Left
     }
 
     // todo: Ddd debug test to check whether any direction is duplicated. Mistakes in the equations above can easily happen!
@@ -383,7 +409,6 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       bufferDesc.m_bUseForIndirectArguments = false;
       bufferDesc.m_bUseAsStructuredBuffer = false;
       bufferDesc.m_bAllowRawViews = false;
-      bufferDesc.m_bStreamOutputTarget = false;
       bufferDesc.m_bAllowShaderResourceView = true;
       bufferDesc.m_bAllowUAV = true;
       bufferDesc.m_ResourceAccess.m_bReadBack = false;
@@ -418,7 +443,6 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       bufferDesc.m_bUseForIndirectArguments = false;
       bufferDesc.m_bUseAsStructuredBuffer = true;
       bufferDesc.m_bAllowRawViews = false;
-      bufferDesc.m_bStreamOutputTarget = false;
       bufferDesc.m_bAllowShaderResourceView = true;
       bufferDesc.m_bAllowUAV = false;
       bufferDesc.m_ResourceAccess.m_bReadBack = false;

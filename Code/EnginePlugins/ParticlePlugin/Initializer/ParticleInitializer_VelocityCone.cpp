@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 2, ez
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(1), ezAngle::Degree(89))),
+    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(89))),
     EZ_MEMBER_PROPERTY("Speed", m_Speed),
   }
   EZ_END_PROPERTIES;
@@ -32,7 +32,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleInitializerFactory_VelocityCone::ezParticleInitializerFactory_VelocityCone()
 {
-  m_Angle = ezAngle::Degree(45);
+  m_Angle = ezAngle::MakeFromDegree(45);
 }
 
 const ezRTTI* ezParticleInitializerFactory_VelocityCone::GetInitializerType() const
@@ -44,7 +44,7 @@ void ezParticleInitializerFactory_VelocityCone::CopyInitializerProperties(ezPart
 {
   ezParticleInitializer_VelocityCone* pInitializer = static_cast<ezParticleInitializer_VelocityCone*>(pInitializer0);
 
-  pInitializer->m_Angle = ezMath::Clamp(m_Angle, ezAngle::Degree(1), ezAngle::Degree(89));
+  pInitializer->m_Angle = ezMath::Clamp(m_Angle, ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(89));
   pInitializer->m_Speed = m_Speed;
 }
 
@@ -94,7 +94,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    const ezVec3 dir = ezVec3::CreateRandomDeviationZ(rng, m_Angle);
+    const ezVec3 dir = ezVec3::MakeRandomDeviationZ(rng, m_Angle);
     // dir.z = 0;
     // float len = 0.0f;
 

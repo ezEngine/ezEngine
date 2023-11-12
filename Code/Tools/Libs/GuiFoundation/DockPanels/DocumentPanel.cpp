@@ -29,10 +29,10 @@ void ezQtDocumentPanel::closeEvent(QCloseEvent* e)
 
 bool ezQtDocumentPanel::event(QEvent* pEvent)
 {
-  if (pEvent->type() == QEvent::ShortcutOverride)
+  if (pEvent->type() == QEvent::ShortcutOverride || pEvent->type() == QEvent::KeyPress)
   {
     QKeyEvent* keyEvent = static_cast<QKeyEvent*>(pEvent);
-    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent))
+    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, pEvent->type() == QEvent::ShortcutOverride))
       return true;
   }
   return QDockWidget::event(pEvent);

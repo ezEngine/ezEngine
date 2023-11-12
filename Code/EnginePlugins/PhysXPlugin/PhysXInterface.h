@@ -25,7 +25,7 @@ public:
 
 struct EZ_PHYSXPLUGIN_DLL ezPxSteppingMode
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {
@@ -43,7 +43,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PHYSXPLUGIN_DLL, ezPxSteppingMode);
 
 struct ezOnPhysXContact
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {

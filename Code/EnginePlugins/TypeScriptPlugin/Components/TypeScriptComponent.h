@@ -111,7 +111,7 @@ private:
 private:
   ezUuid m_TypeScriptComponentGuid;
   ezTime m_LastUpdate;
-  ezTime m_UpdateInterval = ezTime::Seconds(-1); // deactivated by default
+  ezTime m_UpdateInterval = ezTime::MakeZero();
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters

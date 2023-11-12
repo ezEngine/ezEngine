@@ -40,11 +40,11 @@ void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezScene2Document>())
       {
-        ezQtDocumentWindow* pDocWnd = new ezQtScene2DocumentWindow(static_cast<ezScene2Document*>(e.m_pDocument));
+        new ezQtScene2DocumentWindow(static_cast<ezScene2Document*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
       else if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSceneDocument>())
       {
-        ezQtDocumentWindow* pDocWnd = new ezQtSceneDocumentWindow(static_cast<ezSceneDocument*>(e.m_pDocument));
+        new ezQtSceneDocumentWindow(static_cast<ezSceneDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -87,8 +87,13 @@ void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
+void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+
+
 void OnLoadPlugin()
 {
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSceneDocument_PropertyMetaStateEventHandler);
+
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
   ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ToolsProjectEventHandler);
@@ -111,28 +116,28 @@ void OnLoadPlugin()
   const char* MenuBars[] = {"EditorPluginScene_DocumentMenuBar", "EditorPluginScene_Scene2MenuBar"};
   for (const char* szMenuBar : MenuBars)
   {
-    ezActionMapManager::RegisterActionMap(szMenuBar).IgnoreResult();
-    ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Scene | ezStandardMenuTypes::Panels | ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
+    ezActionMapManager::RegisterActionMap(szMenuBar).AssertSuccess();
+    ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Scene | ezStandardMenuTypes::View);
     ezProjectActions::MapActions(szMenuBar);
-    ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
-    ezAssetActions::MapMenuActions(szMenuBar, "Menu.File");
-    ezDocumentActions::MapToolsActions(szMenuBar, "Menu.Tools");
-    ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");
-    ezTransformGizmoActions::MapMenuActions(szMenuBar, "Menu.Edit");
-    ezSceneGizmoActions::MapMenuActions(szMenuBar, "Menu.Edit");
-    ezGameObjectSelectionActions::MapActions(szMenuBar, "Menu.Edit");
-    ezSelectionActions::MapActions(szMenuBar, "Menu.Edit");
-    ezEditActions::MapActions(szMenuBar, "Menu.Edit", true, true);
-    ezTranslateGizmoAction::MapActions(szMenuBar, "Menu.Edit/Gizmo.Menu");
-    ezGameObjectDocumentActions::MapMenuActions(szMenuBar, "Menu.View");
-    ezGameObjectDocumentActions::MapMenuSimulationSpeed(szMenuBar, "Menu.Scene");
+    ezDocumentActions::MapMenuActions(szMenuBar);
+    ezAssetActions::MapMenuActions(szMenuBar);
+    ezDocumentActions::MapToolsActions(szMenuBar);
+    ezCommandHistoryActions::MapActions(szMenuBar);
+    ezTransformGizmoActions::MapMenuActions(szMenuBar);
+    ezSceneGizmoActions::MapMenuActions(szMenuBar);
+    ezGameObjectSelectionActions::MapActions(szMenuBar);
+    ezSelectionActions::MapActions(szMenuBar);
+    ezEditActions::MapActions(szMenuBar, true, true);
+    ezTranslateGizmoAction::MapActions(szMenuBar);
+    ezGameObjectDocumentActions::MapMenuActions(szMenuBar);
+    ezGameObjectDocumentActions::MapMenuSimulationSpeed(szMenuBar);
     ezSceneActions::MapMenuActions(szMenuBar);
   }
   // Scene2 Menu bar adjustments
   {
     ezActionMap* pMap = ezActionMapManager::GetActionMap(MenuBars[1]);
-    pMap->UnmapAction(ezDocumentActions::s_hSave, "Menu.File/SaveCategory").IgnoreResult();
-    pMap->MapAction(ezLayerActions::s_hSaveActiveLayer, "Menu.File/SaveCategory", 1.0f);
+    pMap->UnmapAction(ezDocumentActions::s_hSave, "G.File.Common").AssertSuccess();
+    pMap->MapAction(ezLayerActions::s_hSaveActiveLayer, "G.File.Common", 6.5f);
   }
 
 
@@ -140,25 +145,25 @@ void OnLoadPlugin()
   const char* ToolBars[] = {"EditorPluginScene_DocumentToolBar", "EditorPluginScene_Scene2ToolBar"};
   for (const char* szToolBar : ToolBars)
   {
-    ezActionMapManager::RegisterActionMap(szToolBar).IgnoreResult();
-    ezDocumentActions::MapActions(szToolBar, "", true);
+    ezActionMapManager::RegisterActionMap(szToolBar).AssertSuccess();
+    ezDocumentActions::MapToolbarActions(szToolBar);
     ezCommandHistoryActions::MapActions(szToolBar, "");
-    ezTransformGizmoActions::MapToolbarActions(szToolBar, "");
-    ezSceneGizmoActions::MapToolbarActions(szToolBar, "");
-    ezGameObjectDocumentActions::MapToolbarActions(szToolBar, "");
+    ezTransformGizmoActions::MapToolbarActions(szToolBar);
+    ezSceneGizmoActions::MapToolbarActions(szToolBar);
+    ezGameObjectDocumentActions::MapToolbarActions(szToolBar);
     ezSceneActions::MapToolbarActions(szToolBar);
   }
   // Scene2 Tool bar adjustments
   {
     ezActionMap* pMap = ezActionMapManager::GetActionMap(ToolBars[1]);
-    pMap->UnmapAction(ezDocumentActions::s_hSave, "SaveCategory").IgnoreResult();
+    pMap->UnmapAction(ezDocumentActions::s_hSave, "SaveCategory").AssertSuccess();
     pMap->MapAction(ezLayerActions::s_hSaveActiveLayer, "SaveCategory", 1.0f);
   }
 
   // View Tool Bar
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar").IgnoreResult();
-  ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
-  ezQuadViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar").AssertSuccess();
+  ezViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+  ezQuadViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar");
 
   // Visualizers
   ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
@@ -166,14 +171,14 @@ void OnLoadPlugin()
   ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxReflectionProbeVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
 
   // SceneGraph Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu").IgnoreResult();
-  ezGameObjectSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
-  ezSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
-  ezEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu").AssertSuccess();
+  ezGameObjectSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
+  ezSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
+  ezEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
 
   // Layer Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu").IgnoreResult();
-  ezLayerActions::MapContextMenuActions("EditorPluginScene_LayerContextMenu", "");
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu").AssertSuccess();
+  ezLayerActions::MapContextMenuActions("EditorPluginScene_LayerContextMenu");
 
   // component property meta states
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
@@ -182,6 +187,8 @@ void OnLoadPlugin()
 
 void OnUnloadPlugin()
 {
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSceneDocument_PropertyMetaStateEventHandler);
+
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
   ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(AssetCuratorEventHandler);

@@ -29,7 +29,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new ezCategoryAttribute("Effects"),
   }
   EZ_END_ATTRIBUTES;
 }

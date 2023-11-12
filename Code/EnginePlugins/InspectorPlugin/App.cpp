@@ -7,8 +7,7 @@
 
 static ezAssertHandler g_PreviousAssertHandler = nullptr;
 
-static bool TelemetryAssertHandler(
-  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+static bool TelemetryAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   if (ezTelemetry::IsConnectedToClient())
   {
@@ -26,7 +25,7 @@ static bool TelemetryAssertHandler(
     // since we are crashing the application in (half) 'a second', we need to make sure the network traffic has indeed been sent
     for (ezUInt32 i = 0; i < 5; ++i)
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
       ezTelemetry::UpdateNetwork();
     }
   }

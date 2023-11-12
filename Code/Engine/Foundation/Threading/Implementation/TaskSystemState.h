@@ -24,7 +24,7 @@ private:
   friend class ezTaskSystem;
 
   // The target frame time used by FinishFrameTasks()
-  ezTime m_TargetFrameTime = ezTime::Seconds(1.0 / 40.0); // => 25 ms
+  ezTime m_TargetFrameTime = ezTime::MakeFromSeconds(1.0 / 40.0); // => 25 ms
 
   // The deque can grow without relocating existing data, therefore the ezTaskGroupID's can store pointers directly to the data
   ezDeque<ezTaskGroup> m_TaskGroups;

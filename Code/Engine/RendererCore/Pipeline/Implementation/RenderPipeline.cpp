@@ -37,7 +37,7 @@ ezCVarFloat cvar_SpatialCullingOcclusionBoundsInlation("Spatial.Occlusion.Bounds
 ezCVarFloat cvar_SpatialCullingOcclusionFarPlane("Spatial.Occlusion.FarPlane", 50.0f, ezCVarFlags::Default, "Far plane distance for finding occluders.");
 
 ezRenderPipeline::ezRenderPipeline()
-  : m_PipelineState(PipelineState::Uninitialized)
+
 {
   m_CurrentExtractThread = (ezThreadID)0;
   m_CurrentRenderThread = (ezThreadID)0;
@@ -45,7 +45,7 @@ ezRenderPipeline::ezRenderPipeline()
   m_uiLastRenderFrame = -1;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  m_AverageCullingTime = ezTime::Seconds(0.1f);
+  m_AverageCullingTime = ezTime::MakeFromSeconds(0.1f);
 #endif
 }
 
@@ -54,8 +54,6 @@ ezRenderPipeline::~ezRenderPipeline()
   if (!m_hOcclusionDebugViewTexture.IsInvalidated())
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    const ezGALTexture* pTexture = pDevice->GetTexture(m_hOcclusionDebugViewTexture);
-
     pDevice->DestroyTexture(m_hOcclusionDebugViewTexture);
     m_hOcclusionDebugViewTexture.Invalidate();
   }
@@ -98,7 +96,7 @@ void ezRenderPipeline::RemovePass(ezRenderPipelinePass* pPass)
   }
 }
 
-void ezRenderPipeline::GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& ref_passes) const
+void ezRenderPipeline::GetPasses(ezDynamicArray<const ezRenderPipelinePass*>& ref_passes) const
 {
   ref_passes.Reserve(m_Passes.GetCount());
 
@@ -108,7 +106,7 @@ void ezRenderPipeline::GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>&
   }
 }
 
-void ezRenderPipeline::GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& ref_passes)
+void ezRenderPipeline::GetPasses(ezDynamicArray<ezRenderPipelinePass*>& ref_passes)
 {
   ref_passes.Reserve(m_Passes.GetCount());
 
@@ -260,7 +258,7 @@ bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedStr
   return true;
 }
 
-const ezRenderPipelinePassConnection* ezRenderPipeline::GetInputConnection(ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const
+const ezRenderPipelinePassConnection* ezRenderPipeline::GetInputConnection(const ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const
 {
   auto it = m_Connections.Find(pPass);
   if (!it.IsValid())
@@ -274,7 +272,7 @@ const ezRenderPipelinePassConnection* ezRenderPipeline::GetInputConnection(ezRen
   return data.m_Inputs[pPin->m_uiInputIndex];
 }
 
-const ezRenderPipelinePassConnection* ezRenderPipeline::GetOutputConnection(ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const
+const ezRenderPipelinePassConnection* ezRenderPipeline::GetOutputConnection(const ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const
 {
   auto it = m_Connections.Find(pPass);
   if (!it.IsValid())
@@ -398,6 +396,13 @@ bool ezRenderPipeline::SortPasses()
   if (done.GetCount() < m_Passes.GetCount())
   {
     ezLog::Error("Pipeline: Not all nodes could be initialized");
+    for (auto& pass : m_Passes)
+    {
+      if (!done.Contains(pass.Borrow()))
+      {
+        ezLog::Error("Failed to initialize node: {} - {}", pass->GetName(), pass->GetDynamicRTTI()->GetTypeName());
+      }
+    }
     return false;
   }
 
@@ -564,9 +569,17 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
           const ezGALTextureHandle* hTexture = pTargetPass->GetTextureHandle(renderTargets, pPass->GetInputPins()[j]);
           EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pConn), "");
 
-          if (!hTexture || !hTexture->IsInvalidated() || pConn->m_Desc.CalculateHash() == defaultTextureDescHash)
+          ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
+          if (!hTexture)
           {
-            ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
+            m_TextureUsage[uiDataIdx].m_iTargetTextureIndex = -1;
+            for (auto pUsedByConn : m_TextureUsage[uiDataIdx].m_UsedBy)
+            {
+              pUsedByConn->m_TextureHandle.Invalidate();
+            }
+          }
+          else if (!hTexture->IsInvalidated() || pConn->m_Desc.CalculateHash() == defaultTextureDescHash)
+          {
             m_TextureUsage[uiDataIdx].m_iTargetTextureIndex = static_cast<ezInt32>(hTexture - reinterpret_cast<const ezGALTextureHandle*>(&renderTargets));
             EZ_ASSERT_DEV(reinterpret_cast<const ezGALTextureHandle*>(&renderTargets)[m_TextureUsage[uiDataIdx].m_iTargetTextureIndex] == *hTexture, "Offset computation broken.");
 
@@ -663,7 +676,7 @@ void ezRenderPipeline::SortExtractors()
   ezUInt32 uiIndex = 0;
   while (!m_Extractors.IsEmpty())
   {
-    auto& extractor = m_Extractors[uiIndex];
+    ezUniquePtr<ezExtractor>& extractor = m_Extractors[uiIndex];
 
     bool allDependenciesFound = true;
     for (auto& sDependency : extractor->m_DependsOn)
@@ -726,7 +739,7 @@ void ezRenderPipeline::RemoveExtractor(ezExtractor* pExtractor)
   }
 }
 
-void ezRenderPipeline::GetExtractors(ezHybridArray<const ezExtractor*, 16>& ref_extractors) const
+void ezRenderPipeline::GetExtractors(ezDynamicArray<const ezExtractor*>& ref_extractors) const
 {
   ref_extractors.Reserve(m_Extractors.GetCount());
 
@@ -736,7 +749,7 @@ void ezRenderPipeline::GetExtractors(ezHybridArray<const ezExtractor*, 16>& ref_
   }
 }
 
-void ezRenderPipeline::GetExtractors(ezHybridArray<ezExtractor*, 16>& ref_extractors)
+void ezRenderPipeline::GetExtractors(ezDynamicArray<ezExtractor*>& ref_extractors)
 {
   ref_extractors.Reserve(m_Extractors.GetCount());
 
@@ -971,8 +984,8 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const bool bRecordStats = cvar_SpatialCullingShowStats && bIsMainView;
   ezSpatialSystem::QueryStats stats;
 #endif
@@ -987,10 +1000,12 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
   ezFrustum limitedFrustum = frustum;
   const ezPlane farPlane = limitedFrustum.GetPlane(ezFrustum::PlaneType::FarPlane);
-  limitedFrustum.AccessPlane(ezFrustum::PlaneType::FarPlane).SetFromNormalAndPoint(farPlane.m_vNormal, view.GetCullingCamera()->GetCenterPosition() + farPlane.m_vNormal * cvar_SpatialCullingOcclusionFarPlane.GetValue()); // only use occluders closer than this
+  limitedFrustum.AccessPlane(ezFrustum::PlaneType::FarPlane) = ezPlane::MakeFromNormalAndPoint(farPlane.m_vNormal, view.GetCullingCamera()->GetCenterPosition() + farPlane.m_vNormal * cvar_SpatialCullingOcclusionFarPlane.GetValue()); // only use occluders closer than this
 
   ezRasterizerView* pRasterizer = PrepareOcclusionCulling(limitedFrustum, view);
   EZ_SCOPE_EXIT(g_pRasterizerViewPool->ReturnRasterizerView(pRasterizer));
+
+  const ezVisibilityState visType = bIsMainView ? ezVisibilityState::Direct : ezVisibilityState::Indirect;
 
   if (pRasterizer != nullptr && pRasterizer->HasRasterizedAnyOccluders())
   {
@@ -999,21 +1014,20 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
     auto IsOccluded = [=](const ezSimdBBox& aabb) {
       // grow the bbox by some percent to counter the lower precision of the occlusion buffer
 
-      ezSimdBBox aabb2;
       const ezSimdVec4f c = aabb.GetCenter();
       const ezSimdVec4f e = aabb.GetHalfExtents();
-      aabb2.SetCenterAndHalfExtents(c, e.CompMul(ezSimdVec4f(1.0f + cvar_SpatialCullingOcclusionBoundsInlation)));
+      const ezSimdBBox aabb2 = ezSimdBBox::MakeFromCenterAndHalfExtents(c, e.CompMul(ezSimdVec4f(1.0f + cvar_SpatialCullingOcclusionBoundsInlation)));
 
       return !pRasterizer->IsVisible(aabb2);
     };
 
     m_VisibleObjects.Clear();
-    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, IsOccluded);
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, IsOccluded, visType);
   }
   else
   {
     m_VisibleObjects.Clear();
-    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {});
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {}, visType);
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -1038,25 +1052,25 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   {
     ezStringBuilder sb;
 
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", "Visibility Culling Stats", ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", "Visibility Culling Stats", ezColor::LimeGreen);
 
     sb.Format("Total Num Objects: {0}", stats.m_uiTotalNumObjects);
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     sb.Format("Num Objects Tested: {0}", stats.m_uiNumObjectsTested);
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     sb.Format("Num Objects Passed: {0}", stats.m_uiNumObjectsPassed);
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     // Exponential moving average for better readability.
     m_AverageCullingTime = ezMath::Lerp(m_AverageCullingTime, stats.m_TimeTaken, 0.05f);
 
     sb.Format("Time Taken: {0}ms", m_AverageCullingTime.GetMilliseconds());
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     view.GetWorld()->GetSpatialSystem()->GetInternalStats(sb);
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::AntiqueWhite);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::AntiqueWhite);
   }
 #endif
 }
@@ -1349,7 +1363,7 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
     queryParams.m_ExcludeTags = view.m_ExcludeTags;
 
     m_VisibleObjects.Clear();
-    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {});
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {}, ezVisibilityState::Indirect);
   }
 
   pRasterizer->BeginScene();

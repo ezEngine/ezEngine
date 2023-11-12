@@ -205,8 +205,11 @@ public:
 
   // *** Static Functions ***
 public:
+  /// \brief Returns a color with all four RGBA components set to Not-A-Number (NaN).
+  [[nodiscard]] static ezColor MakeNaN();
+
   /// \brief Returns a color with all four RGBA components set to zero. This is different to ezColor::Black, which has alpha still set to 1.0.
-  static ezColor ZeroColor();
+  [[nodiscard]] static ezColor MakeZero();
 
   // *** Constructors ***
 public:
@@ -226,7 +229,7 @@ public:
 
   /// \brief Initializes this color from a ezColorGammaUB object.
   ///
-  /// This should be the preferred method when hardcoding colors in source code.
+  /// This should be the preferred method when hard-coding colors in source code.
   ezColor(const ezColorGammaUB& cc); // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
@@ -243,15 +246,12 @@ public:
   /// \brief Sets all four RGBA components.
   void SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
 
-  /// \brief Sets all four RGBA components to zero.
-  void SetZero();
-
   // *** Conversion Operators/Functions ***
 public:
   /// \brief Sets this color from a HSV (hue, saturation, value) format.
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
-  void SetHSV(float fHue, float fSat, float fVal); // [tested]
+  [[nodiscard]] static ezColor MakeHSV(float fHue, float fSat, float fVal); // [tested]
 
   /// \brief Converts the color part to HSV format.
   ///
@@ -315,6 +315,9 @@ public:
 
   /// \brief If this is an HDR color, the largest component value is used to normalize RGB to LDR range. Alpha is unaffected.
   void NormalizeToLdrRange();
+
+  /// \brief Returns a darker color by converting the color to HSV, dividing the *value* by fFactor and converting it back.
+  ezColor GetDarker(float fFactor = 2.0f) const;
 
   // *** Numeric properties ***
 public:

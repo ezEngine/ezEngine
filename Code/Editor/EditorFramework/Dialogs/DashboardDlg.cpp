@@ -115,7 +115,8 @@ void ezQtDashboardDlg::FillSampleProjectsList()
   for (const ezString& path : samples)
   {
     tmp = path;
-    tmp.TrimWordEnd("/ezProject");
+    const bool bIsLocal = tmp.TrimWordEnd("/ezProject");
+    const bool bIsRemote = tmp.TrimWordEnd("/ezRemoteProject");
 
     QIcon projectIcon;
 
@@ -166,7 +167,20 @@ void ezQtDashboardDlg::FindSampleProjects(ezDynamicArray<ezString>& out_Projects
     }
     else
     {
-      fsIt.Next();
+      fsIt.GetStats().GetFullPath(path);
+      path.AppendPath("ezRemoteProject");
+
+      if (ezOSFile::ExistsFile(path))
+      {
+        out_Projects.PushBack(path);
+
+        // no need to go deeper
+        fsIt.SkipFolder();
+      }
+      else
+      {
+        fsIt.Next();
+      }
     }
   }
 }

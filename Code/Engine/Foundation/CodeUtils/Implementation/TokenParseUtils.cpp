@@ -52,14 +52,14 @@ namespace ezTokenParseUtils
       ref_destination.PopBack();
   }
 
-  bool Accept(const TokenStream& tokens, ezUInt32& ref_uiCurToken, const char* szToken, ezUInt32* pAccepted)
+  bool Accept(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezStringView sToken, ezUInt32* pAccepted)
   {
     SkipWhitespace(tokens, ref_uiCurToken);
 
     if (ref_uiCurToken >= tokens.GetCount())
       return false;
 
-    if (tokens[ref_uiCurToken]->m_DataView == szToken)
+    if (tokens[ref_uiCurToken]->m_DataView == sToken)
     {
       if (pAccepted)
         *pAccepted = ref_uiCurToken;
@@ -90,14 +90,14 @@ namespace ezTokenParseUtils
     return false;
   }
 
-  bool Accept(const TokenStream& tokens, ezUInt32& ref_uiCurToken, const char* szToken1, const char* szToken2, ezUInt32* pAccepted)
+  bool Accept(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezStringView sToken1, ezStringView sToken2, ezUInt32* pAccepted)
   {
     SkipWhitespace(tokens, ref_uiCurToken);
 
     if (ref_uiCurToken + 1 >= tokens.GetCount())
       return false;
 
-    if (tokens[ref_uiCurToken]->m_DataView == szToken1 && tokens[ref_uiCurToken + 1]->m_DataView == szToken2)
+    if (tokens[ref_uiCurToken]->m_DataView == sToken1 && tokens[ref_uiCurToken + 1]->m_DataView == sToken2)
     {
       if (pAccepted)
         *pAccepted = ref_uiCurToken;
@@ -109,14 +109,14 @@ namespace ezTokenParseUtils
     return false;
   }
 
-  bool AcceptUnless(const TokenStream& tokens, ezUInt32& ref_uiCurToken, const char* szToken1, const char* szToken2, ezUInt32* pAccepted)
+  bool AcceptUnless(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezStringView sToken1, ezStringView sToken2, ezUInt32* pAccepted)
   {
     SkipWhitespace(tokens, ref_uiCurToken);
 
     if (ref_uiCurToken + 1 >= tokens.GetCount())
       return false;
 
-    if (tokens[ref_uiCurToken]->m_DataView == szToken1 && tokens[ref_uiCurToken + 1]->m_DataView != szToken2)
+    if (tokens[ref_uiCurToken]->m_DataView == sToken1 && tokens[ref_uiCurToken + 1]->m_DataView != sToken2)
     {
       if (pAccepted)
         *pAccepted = ref_uiCurToken;

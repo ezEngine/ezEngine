@@ -3,7 +3,7 @@
 
 #include <Foundation/Strings/HashedString.h>
 
-typedef ezUInt64 ezTagSetBlockStorage;
+using ezTagSetBlockStorage = ezUInt64;
 
 /// \brief The tag class stores the necessary lookup information for a single tag which can be used in conjunction with the tag set.
 ///
@@ -34,8 +34,8 @@ private:
 
   ezHashedString m_sTagString;
 
-  ezUInt32 m_uiBitIndex;
-  ezUInt32 m_uiBlockIndex;
+  ezUInt32 m_uiBitIndex = 0xFFFFFFFEu;
+  ezUInt32 m_uiBlockIndex = 0xFFFFFFFEu;
 };
 
 #include <Foundation/Types/TagSet.h>

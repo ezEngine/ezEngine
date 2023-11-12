@@ -200,11 +200,6 @@ ezOpenDdlWriter::ezOpenDdlWriter()
   EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesFloat == (int)ezOpenDdlPrimitiveType::Float);
   EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesString == (int)ezOpenDdlPrimitiveType::String);
 
-  m_bCompactMode = false;
-  m_TypeStringMode = TypeStringMode::ShortenedUnsignedInt;
-  m_FloatPrecisionMode = FloatPrecisionMode::Exact;
-  m_iIndentation = 0;
-
   m_StateStack.ExpandAndGetRef().m_State = State::Invalid;
   m_StateStack.ExpandAndGetRef().m_State = State::Empty;
 }
@@ -216,7 +211,7 @@ ezOpenDdlWriter::ezOpenDdlWriter()
 // None,             ///< No whitespace, not even newlines, is output. This should be used when DDL is used for data exchange, but probably not read
 // by humans.
 
-void ezOpenDdlWriter::BeginObject(const char* szType, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/, bool bSingleLine /*= false*/)
+void ezOpenDdlWriter::BeginObject(ezStringView sType, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/, bool bSingleLine /*= false*/)
 {
   {
     const auto state = m_StateStack.PeekBack().m_State;
@@ -235,9 +230,9 @@ void ezOpenDdlWriter::BeginObject(const char* szType, const char* szName /*= nul
   }
 
   OutputIndentation();
-  OutputString(szType);
+  OutputString(sType);
 
-  OutputObjectName(szName, bGlobalName);
+  OutputObjectName(sName, bGlobalName);
 
   if (bSingleLine)
   {
@@ -285,20 +280,20 @@ void ezOpenDdlWriter::OutputObjectBeginning()
   m_iIndentation++;
 }
 
-bool IsDdlIdentifierCharacter(ezUInt8 uiByte);
+bool IsDdlIdentifierCharacter(ezUInt32 uiByte);
 
-void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
+void ezOpenDdlWriter::OutputObjectName(ezStringView sName, bool bGlobalName)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szName))
+  if (!sName.IsEmpty())
   {
     // EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '{0}'", szName);
 
 
     /// \test This code path is untested
     bool bEscape = false;
-    for (const char* szNameCpy = szName; *szNameCpy != '\0'; ++szNameCpy)
+    for (auto nameIt = sName.GetIteratorFront(); nameIt.IsValid(); ++nameIt)
     {
-      if (!IsDdlIdentifierCharacter(*szNameCpy))
+      if (!IsDdlIdentifierCharacter(nameIt.GetCharacter()))
       {
         bEscape = true;
         break;
@@ -325,7 +320,7 @@ void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
     if (bEscape)
       OutputString("\'", 1);
 
-    OutputString(szName);
+    OutputString(sName);
 
     if (bEscape)
       OutputString("\'", 1);
@@ -372,7 +367,7 @@ void ezOpenDdlWriter::EndObject()
   m_StateStack.PopBack();
 }
 
-void ezOpenDdlWriter::BeginPrimitiveList(ezOpenDdlPrimitiveType type, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlWriter::BeginPrimitiveList(ezOpenDdlPrimitiveType type, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   OutputObjectBeginning();
 
@@ -392,7 +387,7 @@ void ezOpenDdlWriter::BeginPrimitiveList(ezOpenDdlPrimitiveType type, const char
   else
     OutputPrimitiveTypeNameCompliant(type);
 
-  OutputObjectName(szName, bGlobalName);
+  OutputObjectName(sName, bGlobalName);
 
   // more compact
   // if (m_bCompactMode)

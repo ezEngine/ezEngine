@@ -11,7 +11,6 @@ class ezGameStateBase;
 class ezGameModeMsgToEngine;
 class ezWorldSettingsMsgToEngine;
 class ezObjectsForDebugVisMsgToEngine;
-struct ezVisualScriptComponentActivityEvent;
 class ezGridSettingsMsgToEngine;
 class ezSimulationSettingsMsgToEngine;
 struct ezResourceManagerEvent;
@@ -69,7 +68,7 @@ protected:
   virtual void OnThumbnailViewContextCreated() override;
   virtual void OnDestroyThumbnailViewContext() override;
   virtual void UpdateDocumentContext() override;
-  virtual ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, const char* szProperty) const override;
+  virtual ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, ezStringView sProperty) const override;
 
 private:
   struct TagGameObject
@@ -106,7 +105,6 @@ private:
   void OnSimulationDisabled();
   void OnPlayTheGameModeStarted(const ezTransform* pStartPosition);
 
-  void OnVisualScriptActivity(const ezVisualScriptComponentActivityEvent& e);
   void OnResourceManagerEvent(const ezResourceManagerEvent& e);
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
 

@@ -22,8 +22,8 @@ template <typename PropertyType, typename BaseClass = ezAssetDocument>
 class ezSimpleAssetDocument : public BaseClass
 {
 public:
-  ezSimpleAssetDocument(const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
-    : BaseClass(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), engineConnectionType)
+  ezSimpleAssetDocument(ezStringView sDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
+    : BaseClass(sDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), engineConnectionType)
     , m_LightSettings(bEnableDefaultLighting)
   {
     if (bEnableDefaultLighting)
@@ -33,8 +33,8 @@ public:
     }
   }
 
-  ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
-    : BaseClass(szDocumentPath, pObjectManager, engineConnectionType)
+  ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, ezStringView sDocumentPath, ezAssetDocEngineConnection engineConnectionType, bool bEnableDefaultLighting = false)
+    : BaseClass(sDocumentPath, pObjectManager, engineConnectionType)
     , m_LightSettings(bEnableDefaultLighting)
   {
     if (bEnableDefaultLighting)

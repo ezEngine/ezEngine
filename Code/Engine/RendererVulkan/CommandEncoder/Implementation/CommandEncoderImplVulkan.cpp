@@ -625,7 +625,7 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
   m_pPipelineBarrier->EnsureImageLayout(pVulkanTexture, pVulkanTexture->GetPreferredLayout(), pVulkanTexture->GetUsedByPipelineStage(), pVulkanTexture->GetAccessMask());
 
   //#TODO_VULKAN readback fence
-  m_GALDeviceVulkan.Submit({}, {}, {});
+  m_GALDeviceVulkan.Submit();
   m_vkDevice.waitIdle();
   m_pPipelineBarrier = &m_GALDeviceVulkan.GetCurrentPipelineBarrier();
   m_pCommandBuffer = &m_GALDeviceVulkan.GetCurrentCommandBuffer();
@@ -695,7 +695,7 @@ void ezGALCommandEncoderImplVulkan::CopyTextureReadbackResultPlatform(const ezGA
   else // One of the buffer variants.
   {
     const ezGALBufferVulkan* pStagingBuffer = static_cast<const ezGALBufferVulkan*>(m_GALDeviceVulkan.GetBuffer(pVulkanTexture->GetStagingBuffer()));
-    const vk::Format stagingFormat = m_GALDeviceVulkan.GetFormatLookupTable().GetFormatInfo(pVulkanTexture->GetDescription().m_Format).m_eStorage;
+    const vk::Format stagingFormat = m_GALDeviceVulkan.GetFormatLookupTable().GetFormatInfo(pVulkanTexture->GetDescription().m_Format).m_readback;
 
     ezHybridArray<ezGALTextureVulkan::SubResourceOffset, 8> subResourceOffsets;
     const ezUInt32 uiBufferSize = pVulkanTexture->ComputeSubResourceOffsets(subResourceOffsets);
@@ -897,27 +897,35 @@ void ezGALCommandEncoderImplVulkan::FlushPlatform()
 
 void ezGALCommandEncoderImplVulkan::PushMarkerPlatform(const char* szMarker)
 {
-  // TODO early out if device doesn't support debug markers
-  constexpr float markerColor[4] = {1, 1, 1, 1};
-  vk::DebugUtilsLabelEXT markerInfo = {};
-  ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
-  markerInfo.pLabelName = szMarker;
+  if (m_GALDeviceVulkan.GetExtensions().m_bDebugUtilsMarkers)
+  {
+    constexpr float markerColor[4] = {1, 1, 1, 1};
+    vk::DebugUtilsLabelEXT markerInfo = {};
+    ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
+    markerInfo.pLabelName = szMarker;
 
-  m_pCommandBuffer->beginDebugUtilsLabelEXT(markerInfo);
+    m_pCommandBuffer->beginDebugUtilsLabelEXT(markerInfo);
+  }
 }
 
 void ezGALCommandEncoderImplVulkan::PopMarkerPlatform()
 {
-  m_pCommandBuffer->endDebugUtilsLabelEXT();
+  if (m_GALDeviceVulkan.GetExtensions().m_bDebugUtilsMarkers)
+  {
+    m_pCommandBuffer->endDebugUtilsLabelEXT();
+  }
 }
 
 void ezGALCommandEncoderImplVulkan::InsertEventMarkerPlatform(const char* szMarker)
 {
-  constexpr float markerColor[4] = {1, 1, 1, 1};
-  vk::DebugUtilsLabelEXT markerInfo = {};
-  ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
-  markerInfo.pLabelName = szMarker;
-  m_pCommandBuffer->insertDebugUtilsLabelEXT(markerInfo);
+  if (m_GALDeviceVulkan.GetExtensions().m_bDebugUtilsMarkers)
+  {
+    constexpr float markerColor[4] = {1, 1, 1, 1};
+    vk::DebugUtilsLabelEXT markerInfo = {};
+    ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
+    markerInfo.pLabelName = szMarker;
+    m_pCommandBuffer->insertDebugUtilsLabelEXT(markerInfo);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1093,16 +1101,6 @@ void ezGALCommandEncoderImplVulkan::DrawAutoPlatform()
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezGALCommandEncoderImplVulkan::BeginStreamOutPlatform()
-{
-  FlushDeferredStateChanges();
-}
-
-void ezGALCommandEncoderImplVulkan::EndStreamOutPlatform()
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-}
-
 void ezGALCommandEncoderImplVulkan::SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer)
 {
   if (m_pIndexBuffer != pIndexBuffer)
@@ -1205,11 +1203,6 @@ void ezGALCommandEncoderImplVulkan::SetScissorRectPlatform(const ezRectU32& rect
     m_scissor = scissor;
     m_bViewportDirty = true;
   }
-}
-
-void ezGALCommandEncoderImplVulkan::SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer, ezUInt32 uiOffset)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 //////////////////////////////////////////////////////////////////////////

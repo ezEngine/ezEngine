@@ -26,6 +26,7 @@ enum class ezAnimPoseGeneratorCommandType
 {
   Invalid,
   SampleTrack,
+  RestPose,
   CombinePoses,
   LocalToModelPose,
   ModelPoseToOutput,
@@ -66,6 +67,19 @@ private:
   ezAnimPoseGeneratorCommandType m_Type = ezAnimPoseGeneratorCommandType::Invalid;
 };
 
+/// \brief Returns the rest pose (also often called 'bind pose').
+///
+/// The command has to be added as an input to one of
+/// * ezAnimPoseGeneratorCommandCombinePoses
+/// * ezAnimPoseGeneratorCommandLocalToModelPose
+struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandRestPose final : public ezAnimPoseGeneratorCommand
+{
+private:
+  friend class ezAnimPoseGenerator;
+
+  ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
+};
+
 /// \brief Samples an animation clip at a given time and optionally also its event track.
 ///
 /// The command has to be added as an input to one of
@@ -96,6 +110,7 @@ private:
 /// The input commands must be of type
 /// * ezAnimPoseGeneratorCommandSampleTrack
 /// * ezAnimPoseGeneratorCommandCombinePoses
+/// * ezAnimPoseGeneratorCommandRestPose
 ///
 /// Every input pose gets both an overall weight, as well as optionally a per-bone weight mask.
 /// If a per-bone mask is used, the respective input pose will only affect those bones.
@@ -115,6 +130,7 @@ private:
 /// The input command must be of type
 /// * ezAnimPoseGeneratorCommandSampleTrack
 /// * ezAnimPoseGeneratorCommandCombinePoses
+/// * ezAnimPoseGeneratorCommandRestPose
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandLocalToModelPose final : public ezAnimPoseGeneratorCommand
 {
   ezGameObject* m_pSendLocalPoseMsgTo = nullptr;
@@ -166,6 +182,7 @@ public:
   void Reset(const ezSkeletonResource* pSkeleton);
 
   ezAnimPoseGeneratorCommandSampleTrack& AllocCommandSampleTrack(ezUInt32 uiDeterministicID);
+  ezAnimPoseGeneratorCommandRestPose& AllocCommandRestPose();
   ezAnimPoseGeneratorCommandCombinePoses& AllocCommandCombinePoses();
   ezAnimPoseGeneratorCommandLocalToModelPose& AllocCommandLocalToModelPose();
   ezAnimPoseGeneratorCommandModelPoseToOutput& AllocCommandModelPoseToOutput();
@@ -181,8 +198,9 @@ private:
 
   void Execute(ezAnimPoseGeneratorCommand& cmd, const ezGameObject* pSendAnimationEventsTo);
   void ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd, const ezGameObject* pSendAnimationEventsTo);
+  void ExecuteCmd(ezAnimPoseGeneratorCommandRestPose& cmd);
   void ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd);
-  void ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd);
+  void ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd, const ezGameObject* pSendAnimationEventsTo);
   void ExecuteCmd(ezAnimPoseGeneratorCommandModelPoseToOutput& cmd);
   void ExecuteCmd(ezAnimPoseGeneratorCommandSampleEventTrack& cmd, const ezGameObject* pSendAnimationEventsTo);
   void SampleEventTrack(const ezAnimationClipResource* pResource, ezAnimPoseEventTrackSampleMode mode, const ezGameObject* pSendAnimationEventsTo, float fPrevPos, float fCurPos);
@@ -201,6 +219,7 @@ private:
   ezHybridArray<ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper>, 2> m_UsedModelTransforms;
 
   ezHybridArray<ezAnimPoseGeneratorCommandSampleTrack, 4> m_CommandsSampleTrack;
+  ezHybridArray<ezAnimPoseGeneratorCommandRestPose, 1> m_CommandsRestPose;
   ezHybridArray<ezAnimPoseGeneratorCommandCombinePoses, 1> m_CommandsCombinePoses;
   ezHybridArray<ezAnimPoseGeneratorCommandLocalToModelPose, 1> m_CommandsLocalToModelPose;
   ezHybridArray<ezAnimPoseGeneratorCommandModelPoseToOutput, 1> m_CommandsModelPoseToOutput;

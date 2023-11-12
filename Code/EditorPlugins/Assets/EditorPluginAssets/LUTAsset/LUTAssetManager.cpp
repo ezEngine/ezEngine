@@ -21,16 +21,17 @@ ezLUTAssetDocumentManager::ezLUTAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "LUT";
   m_DocTypeDesc.m_sFileExtension = "ezLUTAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/LUT.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/LUT.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezLUTAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_sResourceFileExtension = "ezLUT";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_3D");
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/LUT.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/LUT.svg"));
 
-  // ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/Render_Target.png"));
+  // ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/Render_Target.svg"));
 }
 
 ezLUTAssetDocumentManager::~ezLUTAssetDocumentManager()
@@ -46,7 +47,7 @@ void ezLUTAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezLUTAssetDocument>())
       {
-        ezQtLUTAssetDocumentWindow* pDocWnd = new ezQtLUTAssetDocumentWindow(static_cast<ezLUTAssetDocument*>(e.m_pDocument));
+        new ezQtLUTAssetDocumentWindow(static_cast<ezLUTAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -57,9 +58,9 @@ void ezLUTAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::
 }
 
 void ezLUTAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  ezLUTAssetDocument* pDoc = new ezLUTAssetDocument(szPath);
+  ezLUTAssetDocument* pDoc = new ezLUTAssetDocument(sPath);
   out_pDocument = pDoc;
 }
 

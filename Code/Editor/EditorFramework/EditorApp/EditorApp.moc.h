@@ -1,7 +1,6 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
-#include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
@@ -30,6 +29,7 @@ using QStringList = QList<QString>;
 class ezTranslatorFromFiles;
 class ezDynamicStringEnum;
 class QSplashScreen;
+class ezQtVersionChecker;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
@@ -53,7 +53,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtEditorApp : public QObject
 public:
   struct StartupFlags
   {
-    typedef ezUInt8 StorageType;
+    using StorageType = ezUInt8;
     enum Enum
     {
       Headless = EZ_BIT(0),   ///< The app does not do any rendering.
@@ -69,7 +69,6 @@ public:
       StorageType Headless : 1;
       StorageType SafeMode : 1;
       StorageType NoRecent : 1;
-      StorageType Debug : 1;
       StorageType UnitTest : 1;
       StorageType Background : 1;
     };
@@ -171,13 +170,20 @@ public:
   ezDocument* OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
   ezDocument* CreateDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
 
-  ezResult CreateOrOpenProject(bool bCreate, const char* szFile);
+  ezResult CreateOrOpenProject(bool bCreate, ezStringView sFile);
+
+  /// \brief If this project is remote, ie coming from another repository that is not checked-out by default, make sure it exists locally on disk.
+  ///
+  /// Adjusts inout_sFilePath from pointing to an ezRemoteProject file to a ezProject file, if necessary.
+  /// If the project is already local, it always succeeds.
+  /// If checking out fails or is user canceled, the function returns failure.
+  ezStatus MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath);
 
   bool ExistsPluginSelectionStateDDL(const char* szProjectDir = ":project");
   void WritePluginSelectionStateDDL(const char* szProjectDir = ":project");
   void CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate);
   void LoadPluginBundleDlls(const char* szProjectFile);
-  void DetectAvailablePluginBundles();
+  void DetectAvailablePluginBundles(ezStringView sSearchDirectory);
 
   /// \brief Launches a new instance of the editor to open the given project.
   void LaunchEditor(const char* szProject, bool bCreate);
@@ -211,6 +217,7 @@ public:
   void ReloadEngineResources();
 
   void RestartEngineProcessIfPluginsChanged(bool bForce);
+  void SetStyleSheet();
 
 Q_SIGNALS:
   void IdleEvent();
@@ -254,7 +261,6 @@ private:
   void ReadTagRegistry();
 
   void SetupDataDirectories();
-  void SetStyleSheet();
   void CreatePanels();
 
   void SetupAndShowSplashScreen();
@@ -311,9 +317,9 @@ private:
 
   // *** Dynamic Enum Strings ***
   ezSet<ezString> m_DynamicEnumStringsToClear;
-  void OnDemandDynamicStringEnumLoad(const char* szEnum, ezDynamicStringEnum& e);
+  void OnDemandDynamicStringEnumLoad(ezStringView sEnumName, ezDynamicStringEnum& e);
 
-  ezQtVersionChecker m_VersionChecker;
+  ezUniquePtr<ezQtVersionChecker> m_pVersionChecker;
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezQtEditorApp::StartupFlags);

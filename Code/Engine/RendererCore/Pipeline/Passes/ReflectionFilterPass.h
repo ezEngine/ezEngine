@@ -16,6 +16,8 @@ public:
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
 
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
   ezUInt32 GetInputCubemap() const;
   void SetInputCubemap(ezUInt32 uiCubemapHandle);
@@ -28,10 +30,10 @@ protected:
   ezRenderPipelineNodeOutputPin m_PinAvgLuminance;
   ezRenderPipelineNodeOutputPin m_PinIrradianceData;
 
-  float m_fIntensity;
-  float m_fSaturation;
-  ezUInt32 m_uiSpecularOutputIndex;
-  ezUInt32 m_uiIrradianceOutputIndex;
+  float m_fIntensity = 1.0f;
+  float m_fSaturation = 1.0f;
+  ezUInt32 m_uiSpecularOutputIndex = 0;
+  ezUInt32 m_uiIrradianceOutputIndex = 0;
 
   ezGALTextureHandle m_hInputCubemap;
 

@@ -138,6 +138,11 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     szString = "-2147483649"; // invalid
     EZ_TEST_BOOL(ezConversionUtils::StringToInt(szString, iRes, &szResultPos) == EZ_FAILURE);
     EZ_TEST_INT(iRes, 42);
+
+    iRes = 42;
+    szString = "100'000"; // valid with c++ separator
+    EZ_TEST_BOOL(ezConversionUtils::StringToInt(szString, iRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(iRes, 100'000);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToUInt")
@@ -414,6 +419,11 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, -2314565.345789, 0.000001);
     EZ_TEST_BOOL(szResultPos == szString + 25);
+
+    fRes = 42;
+    szString = "100'000.0";
+    EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_DOUBLE(fRes, 100'000.0, 0.000001);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToBool")
@@ -726,7 +736,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 
     for (ezUInt32 i = 0; i < 100; ++i)
     {
-      guid.CreateNewUuid();
+      guid = ezUuid::MakeUuid();
 
       ezConversionUtils::ToString(guid, sGuid);
 

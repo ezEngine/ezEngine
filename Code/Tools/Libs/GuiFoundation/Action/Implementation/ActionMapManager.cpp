@@ -30,19 +30,19 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // ezActionMapManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezResult ezActionMapManager::RegisterActionMap(const char* szMapping)
+ezResult ezActionMapManager::RegisterActionMap(ezStringView sMapping)
 {
-  auto it = s_Mappings.Find(szMapping);
+  auto it = s_Mappings.Find(sMapping);
   if (it.IsValid())
     return EZ_FAILURE;
 
-  s_Mappings.Insert(szMapping, EZ_DEFAULT_NEW(ezActionMap));
+  s_Mappings.Insert(sMapping, EZ_DEFAULT_NEW(ezActionMap));
   return EZ_SUCCESS;
 }
 
-ezResult ezActionMapManager::UnregisterActionMap(const char* szMapping)
+ezResult ezActionMapManager::UnregisterActionMap(ezStringView sMapping)
 {
-  auto it = s_Mappings.Find(szMapping);
+  auto it = s_Mappings.Find(sMapping);
   if (!it.IsValid())
     return EZ_FAILURE;
 
@@ -51,9 +51,9 @@ ezResult ezActionMapManager::UnregisterActionMap(const char* szMapping)
   return EZ_SUCCESS;
 }
 
-ezActionMap* ezActionMapManager::GetActionMap(const char* szMapping)
+ezActionMap* ezActionMapManager::GetActionMap(ezStringView sMapping)
 {
-  auto it = s_Mappings.Find(szMapping);
+  auto it = s_Mappings.Find(sMapping);
   if (!it.IsValid())
     return nullptr;
 
@@ -68,7 +68,7 @@ ezActionMap* ezActionMapManager::GetActionMap(const char* szMapping)
 void ezActionMapManager::Startup()
 {
   ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu").IgnoreResult();
-  ezDocumentActions::MapActions("DocumentWindowTabMenu", "", false);
+  ezDocumentActions::MapMenuActions("DocumentWindowTabMenu", "");
 }
 
 void ezActionMapManager::Shutdown()

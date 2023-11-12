@@ -5,11 +5,10 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
+#include <Shaders/Common/ObjectConstants.h>
 
 ezInstanceData::ezInstanceData(ezUInt32 uiMaxInstanceCount /*= 1024*/)
-  : m_uiBufferSize(0)
-  , m_uiBufferOffset(0)
+
 {
   CreateBuffer(uiMaxInstanceCount);
 
@@ -94,9 +93,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstanceDataProvider, 1, ezRTTIDefaultAllocato
   }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezInstanceDataProvider::ezInstanceDataProvider() {}
+ezInstanceDataProvider::ezInstanceDataProvider() = default;
 
-ezInstanceDataProvider::~ezInstanceDataProvider() {}
+ezInstanceDataProvider::~ezInstanceDataProvider() = default;
 
 void* ezInstanceDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
 {

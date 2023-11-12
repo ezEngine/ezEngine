@@ -39,7 +39,7 @@ public:
   {
   }
 
-  virtual ~ezMessage() {}
+  virtual ~ezMessage() = default;
 
   /// \brief Derived message types can override this method to influence sorting order. Smaller keys are processed first.
   virtual ezInt32 GetSortingKey() const { return 0; }
@@ -142,5 +142,5 @@ public:                                                     \
 template <typename T>
 struct ezMessageSenderBase
 {
-  typedef T MessageType;
+  using MessageType = T;
 };

@@ -22,7 +22,7 @@ ezRotateGizmo::ezRotateGizmo()
   m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneZ.obj");
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezRotateGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
@@ -117,7 +117,7 @@ ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, vMousePos, vPosOnNearPlane, &vRayDir).IgnoreResult();
 
     ezPlane plane;
-    plane.SetFromNormalAndPoint(vAxisWS, vGizmoPosWS);
+    plane = ezPlane::MakeFromNormalAndPoint(vAxisWS, vGizmoPosWS);
 
     ezVec3 vPointOnGizmoWS;
     if (!plane.GetRayIntersection(vPosOnNearPlane, vRayDir, nullptr, &vPointOnGizmoWS))
@@ -180,18 +180,20 @@ ezEditorInput ezRotateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
-  const ezVec2 vNewMousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
+  const QPoint mousePosition = e->globalPosition().toPoint();
+
+  const ezVec2 vNewMousePos = ezVec2(mousePosition.x(), mousePosition.y());
   ezVec2 vDiff = vNewMousePos - ezVec2(m_vLastMousePos.x, m_vLastMousePos.y);
 
   m_vLastMousePos = UpdateMouseMode(e);
 
   const float dv = m_vScreenTangent.Dot(vDiff);
-  m_Rotation += ezAngle::Degree(dv);
+  m_Rotation += ezAngle::MakeFromDegree(dv);
 
   ezAngle rot = m_Rotation;
 
@@ -199,7 +201,7 @@ ezEditorInput ezRotateGizmo::DoMouseMoveEvent(QMouseEvent* e)
   if (!e->modifiers().testFlag(Qt::AltModifier))
     ezSnapProvider::SnapRotation(rot);
 
-  m_qCurrentRotation.SetFromAxisAndAngle(m_vRotationAxis, rot);
+  m_qCurrentRotation = ezQuat::MakeFromAxisAndAngle(m_vRotationAxis, rot);
 
   ezTransform mTrans = GetTransformation();
   mTrans.m_qRotation = m_qCurrentRotation * m_qStartRotation;

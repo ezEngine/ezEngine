@@ -70,7 +70,7 @@ private:
   bool m_bShowDebugOverlay = false;
   bool m_bShowDebugProbes = false;
   bool m_bUseTestPosition = false;
-  ezVec3 m_vTestPosition = ezVec3::ZeroVector();
+  ezVec3 m_vTestPosition = ezVec3::MakeZero();
 
   struct RenderDebugViewTask;
   ezSharedPtr<RenderDebugViewTask> m_pRenderDebugViewTask;

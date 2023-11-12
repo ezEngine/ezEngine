@@ -14,14 +14,14 @@ ezUInt32 ezDocumentObject::GetChildIndex(const ezDocumentObject* pChild) const
   return m_Children.IndexOf(const_cast<ezDocumentObject*>(pChild));
 }
 
-void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, const char* szProperty, const ezVariant& index)
+void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& index)
 {
   EZ_ASSERT_DEV(pObject != nullptr, "");
-  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szProperty), "Child objects must have a parent property to insert into");
+  EZ_ASSERT_DEV(!sProperty.IsEmpty(), "Child objects must have a parent property to insert into");
   ezIReflectedTypeAccessor& accessor = GetTypeAccessor();
 
   const ezRTTI* pType = accessor.GetType();
-  auto* pProp = pType->FindPropertyByName(szProperty);
+  auto* pProp = pType->FindPropertyByName(sProperty);
   EZ_ASSERT_DEV(pProp && pProp->GetFlags().IsSet(ezPropertyFlags::Class) &&
                   (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)),
     "Only class type or pointer to class type that own the object can be inserted, everything else is handled by value.");
@@ -30,30 +30,30 @@ void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, const char* sz
   {
     if (!index.IsValid() || (index.CanConvertTo<ezInt32>() && index.ConvertTo<ezInt32>() == -1))
     {
-      ezVariant newIndex = accessor.GetCount(szProperty);
-      bool bRes = accessor.InsertValue(szProperty, newIndex, pObject->GetGuid());
+      ezVariant newIndex = accessor.GetCount(sProperty);
+      bool bRes = accessor.InsertValue(sProperty, newIndex, pObject->GetGuid());
       EZ_ASSERT_DEV(bRes, "");
     }
     else
     {
-      bool bRes = accessor.InsertValue(szProperty, index, pObject->GetGuid());
+      bool bRes = accessor.InsertValue(sProperty, index, pObject->GetGuid());
       EZ_ASSERT_DEV(bRes, "");
     }
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Map)
   {
     EZ_ASSERT_DEV(index.IsA<ezString>(), "Map key must be a string.");
-    bool bRes = accessor.InsertValue(szProperty, index, pObject->GetGuid());
+    bool bRes = accessor.InsertValue(sProperty, index, pObject->GetGuid());
     EZ_ASSERT_DEV(bRes, "");
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Member)
   {
-    bool bRes = accessor.SetValue(szProperty, pObject->GetGuid());
+    bool bRes = accessor.SetValue(sProperty, pObject->GetGuid());
     EZ_ASSERT_DEV(bRes, "");
   }
 
   // Object patching
-  pObject->m_sParentProperty = szProperty;
+  pObject->m_sParentProperty = sProperty;
   pObject->m_pParent = this;
   m_Children.PushBack(pObject);
 }
@@ -116,7 +116,7 @@ const ezDocumentObject* ezDocumentObject::GetChild(const ezUuid& guid) const
   return nullptr;
 }
 
-ezAbstractProperty* ezDocumentObject::GetParentPropertyType() const
+const ezAbstractProperty* ezDocumentObject::GetParentPropertyType() const
 {
   if (!m_pParent)
     return nullptr;

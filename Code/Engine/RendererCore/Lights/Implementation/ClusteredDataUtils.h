@@ -38,7 +38,10 @@ namespace
     return ezMath::Clamp((ezInt32)(ezMath::Log2(fLinearDepth) * s_fDepthSliceScale + s_fDepthSliceBias), 0, NUM_CLUSTERS_Z - 1);
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 GetClusterIndexFromCoord(ezUInt32 x, ezUInt32 y, ezUInt32 z) { return z * NUM_CLUSTERS_XY + y * NUM_CLUSTERS_X + x; }
+  EZ_ALWAYS_INLINE ezUInt32 GetClusterIndexFromCoord(ezUInt32 x, ezUInt32 y, ezUInt32 z)
+  {
+    return z * NUM_CLUSTERS_XY + y * NUM_CLUSTERS_X + x;
+  }
 
   // in order: tlf, trf, blf, brf, tln, trn, bln, brn
   EZ_FORCE_INLINE void GetClusterCornerPoints(
@@ -119,7 +122,7 @@ namespace
     ezSimdVec4f dirUp = ezSimdConversion::ToVec3(camera.GetDirUp());
 
 
-    ezSimdVec4f fZn = ezSimdVec4f::ZeroVector();
+    ezSimdVec4f fZn = ezSimdVec4f::MakeZero();
     ezSimdVec4f cc[8];
 
     for (ezInt32 z = 0; z < NUM_CLUSTERS_Z; z++)
@@ -150,10 +153,7 @@ namespace
           cc[6] = cc[4] - dirUp * steps.w();
           cc[7] = cc[6] + dirRight * steps.z();
 
-          ezSimdBSphere s;
-          s.SetFromPoints(cc, 8);
-
-          clusterBoundingSpheres[GetClusterIndexFromCoord(x, y, z)] = s;
+          clusterBoundingSpheres[GetClusterIndexFromCoord(x, y, z)] = ezSimdBSphere::MakeFromPoints(cc, 8);
         }
       }
 
@@ -215,8 +215,7 @@ namespace
     scale = ezVec3(1.0f).CompDiv(scale.CompMax(ezVec3(0.00001f)));
 
     const ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(position, position + dirForwards, dirUp);
-    ezMat4 scaleMat;
-    scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
+    ezMat4 scaleMat = ezMat4::MakeScaling(ezVec3(scale.y, -scale.z, scale.x));
 
     ref_perDecalData.worldToDecalMatrix = scaleMat * lookAt;
     ref_perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;
@@ -301,8 +300,7 @@ namespace
   }
 
   template <typename Cluster, typename IntersectionFunc>
-  EZ_FORCE_INLINE void FillCluster(
-    const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask, Cluster* pClusters, IntersectionFunc func)
+  EZ_FORCE_INLINE void FillCluster(const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask, Cluster* pClusters, IntersectionFunc func)
   {
     ezSimdVec4f scale = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, -0.5f * NUM_CLUSTERS_Y, 1.0f, 1.0f);
     ezSimdVec4f bias = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, 0.5f * NUM_CLUSTERS_Y, 0.0f, 0.0f);
@@ -314,7 +312,7 @@ namespace
 
     ezSimdVec4i maxClusterIndex = ezSimdVec4i(NUM_CLUSTERS_X, NUM_CLUSTERS_Y, NUM_CLUSTERS_X, NUM_CLUSTERS_Y);
     minXY_maxXY = minXY_maxXY.CompMin(maxClusterIndex - ezSimdVec4i(1));
-    minXY_maxXY = minXY_maxXY.CompMax(ezSimdVec4i::ZeroVector());
+    minXY_maxXY = minXY_maxXY.CompMax(ezSimdVec4i::MakeZero());
 
     ezUInt32 xMin = minXY_maxXY.x();
     ezUInt32 yMin = minXY_maxXY.w();
@@ -405,8 +403,7 @@ namespace
       bool frontCull = projected > clusterRadius + range;
       bool backCull = projected < -clusterRadius;
 
-      return !(angleCull || frontCull || backCull);
-    });
+      return !(angleCull || frontCull || backCull); });
   }
 
   template <typename Cluster>
@@ -429,18 +426,17 @@ namespace
     ezSimdMat4f worldToDecal = decalToWorld.GetInverse();
 
     ezVec3 corners[8];
-    ezBoundingBox(ezVec3(-1), ezVec3(1)).GetCorners(corners);
+    ezBoundingBox::MakeFromMinMax(ezVec3(-1), ezVec3(1)).GetCorners(corners);
 
     ezSimdMat4f decalToScreen = mViewProjectionMatrix * decalToWorld;
-    ezSimdBBox screenSpaceBounds;
-    screenSpaceBounds.SetInvalid();
+    ezSimdBBox screenSpaceBounds = ezSimdBBox::MakeInvalid();
     bool bInsideBox = false;
     for (ezUInt32 i = 0; i < 8; ++i)
     {
       ezSimdVec4f corner = ezSimdConversion::ToVec3(corners[i]);
       ezSimdVec4f screenSpaceCorner = decalToScreen.TransformPosition(corner);
       ezSimdFloat depth = screenSpaceCorner.w();
-      bInsideBox |= depth < ezSimdFloat::Zero();
+      bInsideBox |= depth < ezSimdFloat::MakeZero();
 
       screenSpaceCorner /= depth;
       screenSpaceCorner = screenSpaceCorner.GetCombined<ezSwizzle::XYZW>(ezSimdVec4f(depth));
@@ -465,7 +461,6 @@ namespace
       ezSimdBSphere clusterSphere = pClusterBoundingSpheres[uiClusterIndex];
       clusterSphere.Transform(worldToDecal);
 
-      return localDecalBounds.Overlaps(clusterSphere);
-    });
+      return localDecalBounds.Overlaps(clusterSphere); });
   }
 } // namespace

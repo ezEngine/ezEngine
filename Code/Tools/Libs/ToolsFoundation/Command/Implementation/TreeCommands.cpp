@@ -156,22 +156,20 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ////////////////////////////////////////////////////////////////////////
 
 ezAddObjectCommand::ezAddObjectCommand()
-  : m_pType(nullptr)
-  , m_pObject(nullptr)
-{
-}
 
-const char* ezAddObjectCommand::GetType() const
+  = default;
+
+ezStringView ezAddObjectCommand::GetType() const
 {
   if (m_pType == nullptr)
-    return "";
+    return {};
 
   return m_pType->GetTypeName();
 }
 
-void ezAddObjectCommand::SetType(const char* szType)
+void ezAddObjectCommand::SetType(ezStringView sType)
 {
-  m_pType = ezRTTI::FindTypeByName(szType);
+  m_pType = ezRTTI::FindTypeByName(sType);
 }
 
 ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
@@ -181,7 +179,7 @@ ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
   if (!bRedo)
   {
     if (!m_NewObjectGuid.IsValid())
-      m_NewObjectGuid.CreateNewUuid();
+      m_NewObjectGuid = ezUuid::MakeUuid();
   }
 
   ezDocumentObject* pParent = nullptr;
@@ -228,7 +226,7 @@ void ezAddObjectCommand::CleanupInternal(CommandState state)
 // ezPasteObjectsCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezPasteObjectsCommand::ezPasteObjectsCommand() {}
+ezPasteObjectsCommand::ezPasteObjectsCommand() = default;
 
 ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
 {
@@ -253,9 +251,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
     }
 
     // Remap
-    ezUuid seed;
-    seed.CreateNewUuid();
-    graph.ReMapNodeGuids(seed);
+    graph.ReMapNodeGuids(ezUuid::MakeUuid());
 
     ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
 
@@ -264,7 +260,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
     {
       auto* pNode = it.Value();
-      if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
+      if (pNode->GetNodeName() == "root")
       {
         RootNodes.PushBack(pNode);
       }
@@ -277,8 +273,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       {
         return pOrderA->m_Value.ConvertTo<ezUInt32>() < pOrderB->m_Value.ConvertTo<ezUInt32>();
       }
-      return a < b;
-    });
+      return a < b; });
 
     ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
     for (ezAbstractObjectNode* pNode : RootNodes)
@@ -380,7 +375,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
   {
     // TODO: this is hard-coded, it only works for scene documents !
     const ezRTTI* pRootObjectType = ezRTTI::FindTypeByName("ezGameObject");
-    const char* szParentProperty = "Children";
+    ezStringView sParentProperty = "Children"_ezsv;
 
     ezDocumentObject* pRootObject = nullptr;
     ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
@@ -388,7 +383,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
 
     // create root object
     {
-      EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(pRootObjectType, pParent, szParentProperty, m_Index));
+      EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(pRootObjectType, pParent, sParentProperty, m_Index));
 
       // use the same GUID for the root object ID as the remap GUID, this way the object ID is deterministic and reproducible
       m_CreatedRootObject = m_RemapGuid;
@@ -463,7 +458,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
         reader.ApplyPropertiesToObject(pPrefabRoot, pNewObject);
 
         // attach all prefab nodes to the main group node
-        pDocument->GetObjectManager()->AddObject(pNewObject, pRootObject, szParentProperty, -1);
+        pDocument->GetObjectManager()->AddObject(pNewObject, pRootObject, sParentProperty, -1);
       }
     }
   }
@@ -567,10 +562,8 @@ ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
 ////////////////////////////////////////////////////////////////////////
 
 ezRemoveObjectCommand::ezRemoveObjectCommand()
-  : m_pParent(nullptr)
-  , m_pObject(nullptr)
-{
-}
+
+  = default;
 
 ezStatus ezRemoveObjectCommand::DoInternal(bool bRedo)
 {
@@ -723,7 +716,7 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
     m_OldValue = accessor0.GetValue(m_sProperty, m_Index, &res);
     if (res.Failed())
       return res;
-    ezAbstractProperty* pProp = accessor0.GetType()->FindPropertyByName(m_sProperty);
+    const ezAbstractProperty* pProp = accessor0.GetType()->FindPropertyByName(m_sProperty);
     if (pProp == nullptr)
       return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty));
 
@@ -798,7 +791,7 @@ ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
       ins.m_Index = i;
       ins.m_NewValue = ezReflectionUtils::GetDefaultVariantFromType(m_NewValue.GetType());
 
-      AddSubCommand(ins);
+      AddSubCommand(ins).AssertSuccess();
     }
 
     ezSetObjectPropertyCommand set;
@@ -807,7 +800,7 @@ ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
     set.m_NewValue = m_NewValue;
     set.m_Object = m_Object;
 
-    AddSubCommand(set);
+    AddSubCommand(set).AssertSuccess();
   }
 
   return ezStatus(EZ_SUCCESS);

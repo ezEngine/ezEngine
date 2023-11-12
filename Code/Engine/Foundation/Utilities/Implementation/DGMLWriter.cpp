@@ -10,16 +10,16 @@ ezDGMLGraph::ezDGMLGraph(ezDGMLGraph::Direction graphDirection /*= LeftToRight*/
 {
 }
 
-ezDGMLGraph::NodeId ezDGMLGraph::AddNode(const char* szTitle, const NodeDesc* pDesc)
+ezDGMLGraph::NodeId ezDGMLGraph::AddNode(ezStringView sTitle, const NodeDesc* pDesc)
 {
-  return AddGroup(szTitle, GroupType::None, pDesc);
+  return AddGroup(sTitle, GroupType::None, pDesc);
 }
 
-ezDGMLGraph::NodeId ezDGMLGraph::AddGroup(const char* szTitle, GroupType type, const NodeDesc* pDesc /*= nullptr*/)
+ezDGMLGraph::NodeId ezDGMLGraph::AddGroup(ezStringView sTitle, GroupType type, const NodeDesc* pDesc /*= nullptr*/)
 {
   ezDGMLGraph::Node& Node = m_Nodes.ExpandAndGetRef();
 
-  Node.m_Title = szTitle;
+  Node.m_Title = sTitle;
   Node.m_GroupType = type;
 
   if (pDesc)
@@ -37,21 +37,21 @@ void ezDGMLGraph::AddNodeToGroup(NodeId node, NodeId group)
   m_Nodes[node].m_ParentGroup = group;
 }
 
-ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId source, ezDGMLGraph::NodeId target, const char* szLabel)
+ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId source, ezDGMLGraph::NodeId target, ezStringView sLabel)
 {
   ezDGMLGraph::Connection& connection = m_Connections.ExpandAndGetRef();
 
   connection.m_Source = source;
   connection.m_Target = target;
-  connection.m_sLabel = szLabel;
+  connection.m_sLabel = sLabel;
 
   return m_Connections.GetCount() - 1;
 }
 
-ezDGMLGraph::PropertyId ezDGMLGraph::AddPropertyType(const char* szName)
+ezDGMLGraph::PropertyId ezDGMLGraph::AddPropertyType(ezStringView sName)
 {
   auto& prop = m_PropertyTypes.ExpandAndGetRef();
-  prop.m_Name = szName;
+  prop.m_Name = sName;
   return m_PropertyTypes.GetCount() - 1;
 }
 

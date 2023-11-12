@@ -6,7 +6,7 @@ namespace
 {
   ezSimdVec4f SimdDegree(float fDegree)
   {
-    return ezSimdVec4f(ezAngle::Degree(fDegree));
+    return ezSimdVec4f(ezAngle::MakeFromDegree(fDegree));
   }
 } // namespace
 
@@ -113,7 +113,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMath)
     EZ_TEST_BOOL((ezSimdMath::Tan(SimdDegree(89.9999f)) > ezSimdVec4f(100000.0f)).AllSet());
 
     // Testing the period of tan(x) centered at 0 and the adjacent ones
-    ezAngle angle = ezAngle::Degree(-89.0f);
+    ezAngle angle = ezAngle::MakeFromDegree(-89.0f);
     while (angle.GetDegree() < 89.0f)
     {
       ezSimdVec4f simdAngle(angle.GetRadian());
@@ -124,10 +124,10 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMath)
       ezSimdVec4f fSin = ezSimdMath::Sin(simdAngle);
       ezSimdVec4f fCos = ezSimdMath::Cos(simdAngle);
 
-      EZ_TEST_BOOL((fTan - fTanPrev).IsEqual(ezSimdVec4f::ZeroVector(), 0.002f).AllSet());
-      EZ_TEST_BOOL((fTan - fTanNext).IsEqual(ezSimdVec4f::ZeroVector(), 0.002f).AllSet());
-      EZ_TEST_BOOL((fTan - fSin.CompDiv(fCos)).IsEqual(ezSimdVec4f::ZeroVector(), 0.0005f).AllSet());
-      angle += ezAngle::Degree(1.234f);
+      EZ_TEST_BOOL((fTan - fTanPrev).IsEqual(ezSimdVec4f::MakeZero(), 0.002f).AllSet());
+      EZ_TEST_BOOL((fTan - fTanNext).IsEqual(ezSimdVec4f::MakeZero(), 0.002f).AllSet());
+      EZ_TEST_BOOL((fTan - fSin.CompDiv(fCos)).IsEqual(ezSimdVec4f::MakeZero(), 0.0005f).AllSet());
+      angle += ezAngle::MakeFromDegree(1.234f);
     }
   }
 

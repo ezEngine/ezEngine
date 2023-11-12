@@ -1,5 +1,6 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <GameEngine/Physics/CollisionFilter.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 #include <JoltPlugin/Actors/JoltQueryShapeActorComponent.h>
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
@@ -13,6 +14,7 @@
 #include <JoltPlugin/System/JoltCore.h>
 #include <JoltPlugin/System/JoltDebugRenderer.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
+#include <Physics/Collision/Shape/Shape.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
@@ -35,7 +37,7 @@ ezJoltWorldModule::ezJoltWorldModule(ezWorld* pWorld)
   : ezPhysicsWorldModuleInterface(pWorld)
 //, m_FreeObjectFilterIDs(ezJolt::GetSingleton()->GetAllocator()) // could use a proxy allocator to bin those
 {
-  m_pSimulateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezJoltWorldModule::Simulate, this));
+  m_pSimulateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Jolt::Simulate", ezTaskNesting::Never, ezMakeDelegate(&ezJoltWorldModule::Simulate, this));
   m_pSimulateTask->ConfigureTask("Jolt Simulate", ezTaskNesting::Maybe);
 }
 
@@ -47,9 +49,19 @@ public:
   virtual void OnBodyActivated(const JPH::BodyID& bodyID, JPH::uint64 inBodyUserData) override
   {
     const ezJoltUserData* pUserData = reinterpret_cast<const ezJoltUserData*>(inBodyUserData);
-    if (ezJoltActorComponent* pActor = ezJoltUserData::GetActorComponent(pUserData))
+    if (ezJoltDynamicActorComponent* pActor = ezJoltUserData::GetDynamicActorComponent(pUserData))
     {
-      m_pActiveActors->Insert(pActor, bodyID.GetIndexAndSequenceNumber());
+      m_pActiveActors->Insert(pActor);
+    }
+
+    if (ezJoltRagdollComponent* pActor = ezJoltUserData::GetRagdollComponent(pUserData))
+    {
+      (*m_pActiveRagdolls)[pActor]++;
+    }
+
+    if (ezJoltRopeComponent* pActor = ezJoltUserData::GetRopeComponent(pUserData))
+    {
+      (*m_pActiveRopes)[pActor]++;
     }
   }
 
@@ -60,9 +72,29 @@ public:
     {
       m_pActiveActors->Remove(pActor);
     }
+
+    if (ezJoltRagdollComponent* pActor = ezJoltUserData::GetRagdollComponent(pUserData))
+    {
+      if (--(*m_pActiveRagdolls)[pActor] == 0)
+      {
+        m_pActiveRagdolls->Remove(pActor);
+        m_pRagdollsPutToSleep->PushBack(pActor);
+      }
+    }
+
+    if (ezJoltRopeComponent* pActor = ezJoltUserData::GetRopeComponent(pUserData))
+    {
+      if (--(*m_pActiveRopes)[pActor] == 0)
+      {
+        m_pActiveRopes->Remove(pActor);
+      }
+    }
   }
 
-  ezMap<ezJoltActorComponent*, ezUInt32>* m_pActiveActors = nullptr;
+  ezSet<ezJoltDynamicActorComponent*>* m_pActiveActors = nullptr;
+  ezMap<ezJoltRagdollComponent*, ezInt32>* m_pActiveRagdolls = nullptr; // value is a ref-count
+  ezMap<ezJoltRopeComponent*, ezInt32>* m_pActiveRopes = nullptr;       // value is a ref-count
+  ezDynamicArray<ezJoltRagdollComponent*>* m_pRagdollsPutToSleep = nullptr;
 };
 
 class ezJoltGroupFilter : public JPH::GroupFilter
@@ -101,7 +133,10 @@ void ezJoltWorldModule::Deinitialize()
   m_pContactListener = nullptr;
 
   m_pGroupFilter->Release();
+  m_pGroupFilter = nullptr;
+
   m_pGroupFilterIgnoreSame->Release();
+  m_pGroupFilterIgnoreSame = nullptr;
 }
 
 class ezJoltTempAlloc : public JPH::TempAllocator
@@ -224,6 +259,9 @@ void ezJoltWorldModule::Initialize()
     ezJoltBodyActivationListener* pListener = EZ_DEFAULT_NEW(ezJoltBodyActivationListener);
     m_pActivationListener = pListener;
     pListener->m_pActiveActors = &m_ActiveActors;
+    pListener->m_pActiveRagdolls = &m_ActiveRagdolls;
+    pListener->m_pActiveRopes = &m_ActiveRopes;
+    pListener->m_pRagdollsPutToSleep = &m_RagdollsPutToSleep;
     m_pSystem->SetBodyActivationListener(pListener);
   }
 
@@ -273,7 +311,7 @@ void ezJoltWorldModule::OnSimulationStarted()
   UpdateSettingsCfg();
   ApplySettingsCfg();
 
-  m_AccumulatedTimeSinceUpdate.SetZero();
+  m_AccumulatedTimeSinceUpdate = ezTime::MakeZero();
 }
 
 ezUInt32 ezJoltWorldModule::CreateObjectFilterID()
@@ -342,6 +380,11 @@ void ezJoltWorldModule::SetGravity(const ezVec3& vObjectGravity, const ezVec3& v
   {
     m_pSystem->SetGravity(ezJoltConversionUtils::ToVec3(m_Settings.m_vObjectGravity));
   }
+}
+
+ezUInt32 ezJoltWorldModule::GetCollisionLayerByName(ezStringView sName) const
+{
+  return ezJoltCollisionFiltering::GetCollisionFilterConfig().GetFilterGroupByName(sName);
 }
 
 void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize)
@@ -586,36 +629,9 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
   FreeUserDataAfterSimulationStep();
 }
 
-// void ezJoltWorldModule::HandleBrokenConstraints()
-//{
-//   EZ_PROFILE_SCOPE("HandleBrokenConstraints");
-//
-//   for (auto pConstraint : m_pSimulationEventCallback->m_BrokenConstraints)
-//   {
-//     auto it = m_BreakableJoints.Find(pConstraint);
-//     if (it.IsValid())
-//     {
-//       ezJoltConstraintComponent* pJoint = nullptr;
-//
-//       if (m_pWorld->TryGetComponent(it.Value(), pJoint))
-//       {
-//         ezMsgPhysicsJointBroke msg;
-//         msg.m_hJointObject = pJoint->GetOwner()->GetHandle();
-//
-//         pJoint->GetOwner()->PostEventMessage(msg, pJoint, ezTime::Zero());
-//       }
-//
-//       // it can't break twice
-//       m_BreakableJoints.Remove(it);
-//     }
-//   }
-//
-//   m_pSimulationEventCallback->m_BrokenConstraints.Clear();
-// }
-
 ezTime ezJoltWorldModule::CalculateUpdateSteps()
 {
-  ezTime tSimulatedTimeStep = ezTime::Zero();
+  ezTime tSimulatedTimeStep = ezTime::MakeZero();
   m_AccumulatedTimeSinceUpdate += GetWorld()->GetClock().GetTimeDiff();
   m_UpdateSteps.Clear();
 
@@ -625,11 +641,11 @@ ezTime ezJoltWorldModule::CalculateUpdateSteps()
     m_UpdateSteps.PushBack(m_AccumulatedTimeSinceUpdate);
 
     tSimulatedTimeStep = m_AccumulatedTimeSinceUpdate;
-    m_AccumulatedTimeSinceUpdate.SetZero();
+    m_AccumulatedTimeSinceUpdate = ezTime::MakeZero();
   }
   else if (m_Settings.m_SteppingMode == ezJoltSteppingMode::Fixed)
   {
-    const ezTime tFixedStep = ezTime::Seconds(1.0 / m_Settings.m_fFixedFrameRate);
+    const ezTime tFixedStep = ezTime::MakeFromSeconds(1.0 / m_Settings.m_fFixedFrameRate);
 
     ezUInt32 uiNumSubSteps = 0;
 
@@ -644,7 +660,7 @@ ezTime ezJoltWorldModule::CalculateUpdateSteps()
   }
   else if (m_Settings.m_SteppingMode == ezJoltSteppingMode::SemiFixed)
   {
-    ezTime tFixedStep = ezTime::Seconds(1.0 / m_Settings.m_fFixedFrameRate);
+    ezTime tFixedStep = ezTime::MakeFromSeconds(1.0 / m_Settings.m_fFixedFrameRate);
     const ezTime tMinStep = tFixedStep * 0.25;
 
     if (tFixedStep * m_Settings.m_uiMaxSubSteps < m_AccumulatedTimeSinceUpdate) // in case too much time has passed
@@ -679,6 +695,8 @@ void ezJoltWorldModule::Simulate()
   ezTime tDelta = m_UpdateSteps[0];
   ezUInt32 uiSteps = 1;
 
+  m_RagdollsPutToSleep.Clear();
+
   for (ezUInt32 i = 1; i < m_UpdateSteps.GetCount(); ++i)
   {
     EZ_PROFILE_SCOPE("Physics Sim Step");
@@ -692,14 +710,14 @@ void ezJoltWorldModule::Simulate()
       // do a single Update call with multiple sub-steps, if possible
       // this saves a bit of time compared to just doing multiple Update calls
 
-      m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, 1, m_pTempAllocator.get(), ezJoltCore::GetJoltJobSystem());
+      m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, m_pTempAllocator.get(), ezJoltCore::GetJoltJobSystem());
 
       tDelta = m_UpdateSteps[i];
       uiSteps = 1;
     }
   }
 
-  m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, 1, m_pTempAllocator.get(), ezJoltCore::GetJoltJobSystem());
+  m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, m_pTempAllocator.get(), ezJoltCore::GetJoltJobSystem());
 }
 
 void ezJoltWorldModule::UpdateSettingsCfg()

@@ -2,6 +2,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
+#  include <Foundation/IO/TypeVersionContext.h>
 #  include <GameEngine/DearImgui/DearImgui.h>
 #  include <GameEngine/DearImgui/DearImguiRenderer.h>
 #  include <Imgui/imgui_internal.h>
@@ -26,6 +27,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezImguiExtractor::ezImguiExtractor(const char* szName)
   : ezExtractor(szName)
 {
+  m_DependsOn.PushBack(ezMakeHashedString("ezVisibleObjectsExtractor"));
 }
 
 void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
@@ -68,7 +70,7 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
       ezImguiRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezImguiRenderData>(nullptr);
       pRenderData->m_uiSortingKey = draw;
       pRenderData->m_GlobalTransform.SetIdentity();
-      pRenderData->m_GlobalBounds.SetInvalid();
+      pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
 
       // copy the vertex data
       // uses the frame allocator to prevent unnecessary deallocations
@@ -113,6 +115,20 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
       ref_extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI);
     }
   }
+}
+
+ezResult ezImguiExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return EZ_SUCCESS;
+}
+
+ezResult ezImguiExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  return EZ_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////

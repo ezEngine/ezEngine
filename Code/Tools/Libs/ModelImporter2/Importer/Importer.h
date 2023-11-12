@@ -19,11 +19,13 @@ namespace ezModelImporter2
     bool m_bImportSkinningData = false;
     bool m_bRecomputeNormals = false;
     bool m_bRecomputeTangents = false;
-    ezMat3 m_RootTransform = ezMat3::IdentityMatrix();
+    bool m_bNormalizeWeights = false;
+    ezMat3 m_RootTransform = ezMat3::MakeIdentity();
 
     ezMeshResourceDescriptor* m_pMeshOutput = nullptr;
     ezEnum<ezMeshNormalPrecision> m_MeshNormalsPrecision = ezMeshNormalPrecision::Default;
     ezEnum<ezMeshTexCoordPrecision> m_MeshTexCoordsPrecision = ezMeshTexCoordPrecision::Default;
+    ezEnum<ezMeshBoneWeigthPrecision> m_MeshBoneWeightPrecision = ezMeshBoneWeigthPrecision::Default;
 
     ezEditableSkeleton* m_pSkeletonOutput = nullptr;
 
@@ -62,7 +64,11 @@ namespace ezModelImporter2
 
   struct EZ_MODELIMPORTER2_DLL OutputTexture
   {
-    ezDataBuffer m_EmbeddedData; ///< Not yet used / implemented
+    ezString m_sFilename;
+    ezString m_sFileFormatExtension;
+    ezConstByteArrayPtr m_RawData;
+
+    void GenerateFileName(ezStringBuilder& out_sName) const;
   };
 
   struct EZ_MODELIMPORTER2_DLL OutputMaterial

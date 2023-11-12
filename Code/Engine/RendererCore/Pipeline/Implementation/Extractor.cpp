@@ -3,6 +3,7 @@
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/Extractor.h>
@@ -266,6 +267,25 @@ void ezExtractor::PostSortAndBatch(
 {
 }
 
+
+ezResult ezExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  inout_stream << m_bActive;
+  inout_stream << m_sName;
+  return EZ_SUCCESS;
+}
+
+
+ezResult ezExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_ASSERT_DEBUG(uiVersion == 1, "Unknown version encountered");
+
+  inout_stream >> m_bActive;
+  inout_stream >> m_sName;
+  return EZ_SUCCESS;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisibleObjectsExtractor, 1, ezRTTIDefaultAllocator<ezVisibleObjectsExtractor>)
@@ -319,15 +339,29 @@ void ezVisibleObjectsExtractor::Extract(
 
     ezStringBuilder sb;
 
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "ExtractionStats", "Extraction Stats:");
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "ExtractionStats", "Extraction Stats:");
 
     sb.Format("Num Cached Render Data: {0}", m_uiNumCachedRenderData);
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "ExtractionStats", sb);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "ExtractionStats", sb);
 
     sb.Format("Num Uncached Render Data: {0}", m_uiNumUncachedRenderData);
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "ExtractionStats", sb);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "ExtractionStats", sb);
   }
 #endif
+}
+
+ezResult ezVisibleObjectsExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return EZ_SUCCESS;
+}
+
+ezResult ezVisibleObjectsExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  return EZ_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -447,6 +481,20 @@ const ezDeque<ezGameObjectHandle>* ezSelectedObjectsExtractor::GetSelection()
     return &m_pSelectionContext->m_Objects;
 
   return nullptr;
+}
+
+ezResult ezSelectedObjectsExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return EZ_SUCCESS;
+}
+
+ezResult ezSelectedObjectsExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  return EZ_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////

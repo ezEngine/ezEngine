@@ -49,11 +49,22 @@ struct ezPhysicsOverlapResult
   ezGameObjectHandle m_hShapeObject;            ///< The game object to which the hit physics shape is attached.
   ezGameObjectHandle m_hActorObject;            ///< The game object to which the parent actor of the hit physics shape is attached.
   ezUInt32 m_uiObjectFilterID = ezInvalidIndex; ///< The shape id of the hit physics shape
+  ezVec3 m_vCenterPosition;                     ///< The center position of the reported object in world space.
+
+  // Physics-engine specific information, may be available or not.
+  void* m_pInternalPhysicsShape = nullptr;
+  void* m_pInternalPhysicsActor = nullptr;
 };
 
 struct ezPhysicsOverlapResultArray
 {
   ezHybridArray<ezPhysicsOverlapResult, 16> m_Results;
+};
+
+struct ezPhysicsTriangle
+{
+  ezVec3 m_Vertices[3];
+  const ezSurfaceResource* m_pSurface = nullptr;
 };
 
 /// \brief Flags for selecting which types of physics shapes should be included in things like overlap queries and raycasts.
@@ -107,6 +118,11 @@ protected:
   }
 
 public:
+  /// \brief Searches for a collision layer with the given name and returns its index.
+  ///
+  /// Returns ezInvalidIndex if no such collision layer exists.
+  virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const = 0;
+
   virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 
   virtual bool RaycastAll(ezPhysicsCastResultArray& out_results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const = 0;
@@ -125,6 +141,8 @@ public:
 
   virtual ezVec3 GetGravity() const = 0;
 
+  virtual void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_triangles) const = 0;
+
   //////////////////////////////////////////////////////////////////////////
   // ABSTRACTION HELPERS
   //
@@ -139,8 +157,8 @@ public:
   {
     ezGameObjectHandle m_hActorA;
     ezGameObjectHandle m_hActorB;
-    ezTransform m_LocalFrameA = ezTransform::IdentityTransform();
-    ezTransform m_LocalFrameB = ezTransform::IdentityTransform();
+    ezTransform m_LocalFrameA = ezTransform::MakeIdentity();
+    ezTransform m_LocalFrameB = ezTransform::MakeIdentity();
   };
 
   struct FixedJointConfig : JointConfig

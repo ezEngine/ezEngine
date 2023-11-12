@@ -125,7 +125,7 @@ using ezWindowInternalHandle = ezWindowHandle;
 class EZ_CORE_DLL ezWindowBase
 {
 public:
-  virtual ~ezWindowBase() {}
+  virtual ~ezWindowBase() = default;
 
   virtual ezSizeU32 GetClientAreaSize() const = 0;
   virtual ezWindowHandle GetNativeWindowHandle() const = 0;
@@ -323,7 +323,7 @@ public:
   ///   Will be called <i>after</i> the On[...] callbacks!
   ///
   /// \see OnResizeMessage
-  virtual void OnWindowMessage(ezMinWindows::HWND pWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam);
+  virtual void OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam);
 
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
 

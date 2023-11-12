@@ -7,7 +7,7 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-typedef ezComponentManagerSimple<class ezBeamComponent, ezComponentUpdateType::Always> ezBeamComponentManager;
+using ezBeamComponentManager = ezComponentManagerSimple<class ezBeamComponent, ezComponentUpdateType::Always>;
 
 struct ezMsgExtractRenderData;
 class ezGeometry;
@@ -75,8 +75,8 @@ protected:
   // State
   ezMeshResourceHandle m_hMesh;
 
-  ezVec3 m_vLastOwnerPosition = ezVec3::ZeroVector();
-  ezVec3 m_vLastTargetPosition = ezVec3::ZeroVector();
+  ezVec3 m_vLastOwnerPosition = ezVec3::MakeZero();
+  ezVec3 m_vLastTargetPosition = ezVec3::MakeZero();
 
   void CreateMeshes();
   void BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc) const;

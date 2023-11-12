@@ -14,11 +14,11 @@ bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALReso
 
 ezGALResourceViewDX11::ezGALResourceViewDX11(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
   : ezGALResourceView(pResource, Description)
-  , m_pDXResourceView(nullptr)
+
 {
 }
 
-ezGALResourceViewDX11::~ezGALResourceViewDX11() {}
+ezGALResourceViewDX11::~ezGALResourceViewDX11() = default;
 
 ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
@@ -91,6 +91,7 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
     {
       case ezGALTextureType::Texture2D:
       case ezGALTextureType::Texture2DProxy:
+      case ezGALTextureType::Texture2DShared:
 
         if (!bIsArrayView)
         {

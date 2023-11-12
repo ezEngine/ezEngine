@@ -181,5 +181,5 @@ private:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
 
   float m_fLength = 1.0f;
-  ezAngle m_Angle = ezAngle::Degree(45);
+  ezAngle m_Angle = ezAngle::MakeFromDegree(45);
 };

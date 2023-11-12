@@ -98,8 +98,8 @@ private:
 
 struct ezProcGenBoxExtents
 {
-  ezVec3 m_vOffset = ezVec3::ZeroVector();
-  ezQuat m_Rotation = ezQuat::IdentityQuaternion();
+  ezVec3 m_vOffset = ezVec3::MakeZero();
+  ezQuat m_Rotation = ezQuat::MakeIdentity();
   ezVec3 m_vExtents = ezVec3(10);
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;

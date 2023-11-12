@@ -85,7 +85,9 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
     const ezVec3 vLastTranslationResult = m_vTranslationResult;
 
-    const ezVec2I32 diff = ezVec2I32(e->globalX(), e->globalY()) - m_vLastMousePos;
+    const QPoint mousePosition = e->globalPosition().toPoint();
+
+    const ezVec2I32 diff = ezVec2I32(mousePosition.x(), mousePosition.y()) - m_vLastMousePos;
 
     m_vUnsnappedTranslationResult += m_pCamera->GetDirRight() * (float)diff.x * fDistPerPixel;
     m_vUnsnappedTranslationResult -= m_pCamera->GetDirUp() * (float)diff.y * fDistPerPixel;
@@ -98,7 +100,7 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
     m_vTranslationDiff = m_vTranslationResult - vLastTranslationResult;
 
-    m_UnsnappedRotationResult += ezAngle::Degree(-diff.x);
+    m_UnsnappedRotationResult += ezAngle::MakeFromDegree(-diff.x);
 
     ezAngle snappedRotation = m_UnsnappedRotationResult;
 
@@ -106,7 +108,7 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
     if (!e->modifiers().testFlag(Qt::AltModifier))
       ezSnapProvider::SnapRotation(snappedRotation);
 
-    m_qRotationResult.SetFromAxisAndAngle(m_pCamera->GetDirForwards(), snappedRotation);
+    m_qRotationResult = ezQuat::MakeFromAxisAndAngle(m_pCamera->GetDirForwards(), snappedRotation);
 
     {
       m_fScaleMouseMove += diff.x;
@@ -143,7 +145,7 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
     m_vTranslationResult.SetZero();
     m_vUnsnappedTranslationResult.SetZero();
     m_qRotationResult.SetIdentity();
-    m_UnsnappedRotationResult = ezAngle::Radian(0.0f);
+    m_UnsnappedRotationResult = ezAngle::MakeFromRadian(0.0f);
     m_fScalingResult = 1.0f;
     m_fUnsnappedScalingResult = 1.0f;
     m_fScaleMouseMove = 0.0f;

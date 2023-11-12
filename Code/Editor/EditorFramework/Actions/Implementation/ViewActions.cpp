@@ -12,8 +12,8 @@ ezActionDescriptorHandle ezViewActions::s_hLinkDeviceCamera;
 
 void ezViewActions::RegisterActions()
 {
-  s_hRenderMode = EZ_REGISTER_DYNAMIC_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.png");
-  s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
+  s_hRenderMode = EZ_REGISTER_DYNAMIC_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.svg");
+  s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.svg");
   s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1(
     "View.ActivateRemoteProcess", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::ActivateRemoteProcess);
   s_hLinkDeviceCamera =
@@ -28,21 +28,21 @@ void ezViewActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hLinkDeviceCamera);
 }
 
-void ezViewActions::MapActions(const char* szMapping, const char* szPath, ezUInt32 uiFlags)
+void ezViewActions::MapToolbarActions(ezStringView sMapping, ezUInt32 uiFlags)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   if (uiFlags & Flags::PerspectiveMode)
-    pMap->MapAction(s_hPerspective, szPath, 1.0f);
+    pMap->MapAction(s_hPerspective, "", 1.0f);
 
   if (uiFlags & Flags::RenderMode)
-    pMap->MapAction(s_hRenderMode, szPath, 2.0f);
+    pMap->MapAction(s_hRenderMode, "", 2.0f);
 
   if (uiFlags & Flags::ActivateRemoteProcess)
   {
-    pMap->MapAction(s_hActivateRemoteProcess, szPath, 4.0f);
-    pMap->MapAction(s_hLinkDeviceCamera, szPath, 5.0f);
+    pMap->MapAction(s_hActivateRemoteProcess, "", 4.0f);
+    pMap->MapAction(s_hLinkDeviceCamera, "", 5.0f);
   }
 }
 
@@ -124,17 +124,17 @@ ezViewAction::ezViewAction(const ezActionContext& context, const char* szName, B
   switch (m_ButtonType)
   {
     case ezViewAction::ButtonType::ActivateRemoteProcess:
-      SetIconPath(":/EditorFramework/Icons/SwitchToRemoteProcess16.png");
+      SetIconPath(":/EditorFramework/Icons/SwitchToRemoteProcess.svg");
       break;
     case ezViewAction::ButtonType::LinkDeviceCamera:
-      SetIconPath(":/EditorFramework/Icons/LinkDeviceCamera16.png");
+      SetIconPath(":/EditorFramework/Icons/LinkDeviceCamera.svg");
       SetCheckable(true);
       SetChecked(pView->m_pViewConfig->m_bUseCameraTransformOnDevice);
       break;
   }
 }
 
-ezViewAction::~ezViewAction() {}
+ezViewAction::~ezViewAction() = default;
 
 void ezViewAction::Execute(const ezVariant& value)
 {

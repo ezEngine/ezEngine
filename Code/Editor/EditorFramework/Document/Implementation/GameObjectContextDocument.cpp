@@ -13,8 +13,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezGameObjectContextDocument::ezGameObjectContextDocument(
-  const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
-  : ezGameObjectDocument(szDocumentPath, pObjectManager, engineConnectionType)
+  ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+  : ezGameObjectDocument(sDocumentPath, pObjectManager, engineConnectionType)
 {
 }
 
@@ -118,7 +118,7 @@ void ezGameObjectContextDocument::ClearContext()
   m_ContextObject = ezUuid();
   ezDocumentObject* pRoot = GetObjectManager()->GetRootObject();
   ezHybridArray<ezVariant, 16> values;
-  GetObjectAccessor()->GetValues(pRoot, "TempObjects", values);
+  GetObjectAccessor()->GetValues(pRoot, "TempObjects", values).AssertSuccess();
   for (ezInt32 i = (ezInt32)values.GetCount() - 1; i >= 0; --i)
   {
     ezDocumentObject* pChild = GetObjectManager()->GetObject(values[i].Get<ezUuid>());

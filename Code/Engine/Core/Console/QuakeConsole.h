@@ -12,7 +12,7 @@ struct ezLoggingEventData;
 /// easily.
 /// The default implementation uses ezConsoleInterpreter::Lua as the interpreter for commands typed into it.
 /// The interpreter can be replaced with custom implementations.
-class EZ_CORE_DLL ezQuakeConsole : public ezConsole
+class EZ_CORE_DLL ezQuakeConsole final : public ezConsole
 {
 public:
   ezQuakeConsole();
@@ -55,13 +55,13 @@ public:
   /// You can, however, also use names for input buttons, such as 'Key_Left', but then you also need to call ExecuteBoundKey() with those
   /// names.
   /// If you use such virtual key names, it makes also sense to listen to the auto-complete event and suggest those key names there.
-  void BindKey(const char* szKey, const char* szCommand);
+  void BindKey(ezStringView sKey, ezStringView sCommand);
 
   /// \brief Removes the key binding.
-  void UnbindKey(const char* szKey);
+  void UnbindKey(ezStringView sKey);
 
   /// \brief Executes the command that was bound to this key.
-  void ExecuteBoundKey(const char* szKey);
+  void ExecuteBoundKey(ezStringView sKey);
 
   /// @}
 
@@ -78,7 +78,7 @@ public:
   void ClearInputLine();
 
   /// \brief Returns the current content of the input line.
-  const char* GetInputLine() const { return m_sInputLine.GetData(); }
+  ezStringView GetInputLine() const { return m_sInputLine; }
 
   /// \brief Returns the position (in characters) of the caret.
   ezInt32 GetCaretPosition() const { return m_iCaretPosition; }

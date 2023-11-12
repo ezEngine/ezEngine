@@ -4,13 +4,13 @@
 #include <ToolsFoundation/Object/DocumentObjectVisitor.h>
 
 ezDocumentObjectVisitor::ezDocumentObjectVisitor(
-  const ezDocumentObjectManager* pManager, const char* szChildrenProperty /*= "Children"*/, const char* szRootProperty /*= "Children"*/)
+  const ezDocumentObjectManager* pManager, ezStringView sChildrenProperty /*= "Children"*/, ezStringView sRootProperty /*= "Children"*/)
   : m_pManager(pManager)
-  , m_sChildrenProperty(szChildrenProperty)
-  , m_sRootProperty(szRootProperty)
+  , m_sChildrenProperty(sChildrenProperty)
+  , m_sRootProperty(sRootProperty)
 {
-  const ezAbstractProperty* pRootProp = m_pManager->GetRootObject()->GetType()->FindPropertyByName(szRootProperty);
-  EZ_ASSERT_DEV(pRootProp, "Given root property '{0}' does not exist on root object", szRootProperty);
+  const ezAbstractProperty* pRootProp = m_pManager->GetRootObject()->GetType()->FindPropertyByName(sRootProperty);
+  EZ_ASSERT_DEV(pRootProp, "Given root property '{0}' does not exist on root object", sRootProperty);
   EZ_ASSERT_DEV(pRootProp->GetCategory() == ezPropertyCategory::Set || pRootProp->GetCategory() == ezPropertyCategory::Array,
     "Traverser only works on arrays and sets.");
 
@@ -22,25 +22,25 @@ ezDocumentObjectVisitor::ezDocumentObjectVisitor(
 
 void ezDocumentObjectVisitor::Visit(const ezDocumentObject* pObject, bool bVisitStart, VisitorFunction function)
 {
-  const char* szProperty = m_sChildrenProperty;
+  ezStringView sProperty = m_sChildrenProperty;
   if (pObject == nullptr || pObject == m_pManager->GetRootObject())
   {
     pObject = m_pManager->GetRootObject();
-    szProperty = m_sRootProperty;
+    sProperty = m_sRootProperty;
   }
 
   if (!bVisitStart || function(pObject))
   {
-    TraverseChildren(pObject, szProperty, function);
+    TraverseChildren(pObject, sProperty, function);
   }
 }
 
-void ezDocumentObjectVisitor::TraverseChildren(const ezDocumentObject* pObject, const char* szProperty, VisitorFunction& function)
+void ezDocumentObjectVisitor::TraverseChildren(const ezDocumentObject* pObject, ezStringView sProperty, VisitorFunction& function)
 {
-  const ezInt32 iChildren = pObject->GetTypeAccessor().GetCount(szProperty);
+  const ezInt32 iChildren = pObject->GetTypeAccessor().GetCount(sProperty);
   for (ezInt32 i = 0; i < iChildren; i++)
   {
-    ezVariant obj = pObject->GetTypeAccessor().GetValue(szProperty, i);
+    ezVariant obj = pObject->GetTypeAccessor().GetValue(sProperty, i);
     EZ_ASSERT_DEBUG(obj.IsValid() && obj.IsA<ezUuid>(), "null obj found during traversal.");
     const ezDocumentObject* pChild = m_pManager->GetObject(obj.Get<ezUuid>());
     if (function(pChild))

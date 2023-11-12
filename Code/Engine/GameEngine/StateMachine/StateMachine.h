@@ -6,6 +6,8 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
 
+class ezComponent;
+class ezWorld;
 class ezBlackboard;
 class ezStateMachineInstance;
 
@@ -35,10 +37,38 @@ public:
   /// \brief Returns whether this state needs additional instance data and if so fills the out_desc.
   ///
   /// \see ezStateMachineInstanceDataDesc
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc);
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc);
 
 private:
+  // These are dummy functions for the scripting reflection
+  void Reflection_OnEnter(ezStateMachineInstance* pStateMachineInstance, const ezStateMachineState* pFromState);
+  void Reflection_OnExit(ezStateMachineInstance* pStateMachineInstance, const ezStateMachineState* pToState);
+  void Reflection_Update(ezStateMachineInstance* pStateMachineInstance, ezTime deltaTime);
+
   ezHashedString m_sName;
+};
+
+class EZ_GAMEENGINE_DLL ezStateMachineState_Empty final : public ezStateMachineState
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_Empty, ezStateMachineState);
+
+public:
+  ezStateMachineState_Empty(ezStringView sName = ezStringView());
+  ~ezStateMachineState_Empty() = default;
+
+  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override {}
+};
+
+struct ezStateMachineState_ScriptBaseClassFunctions
+{
+  enum Enum
+  {
+    OnEnter,
+    OnExit,
+    Update,
+
+    Count
+  };
 };
 
 /// \brief Base class for a transition in a state machine. The target state of a transition is automatically set
@@ -59,7 +89,7 @@ class EZ_GAMEENGINE_DLL ezStateMachineTransition : public ezReflectedClass
   /// \brief Returns whether this transition needs additional instance data and if so fills the out_desc.
   ///
   /// \see ezStateMachineInstanceDataDesc
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc);
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc);
 };
 
 /// \brief The state machine description defines the structure of a state machine like e.g.
@@ -105,7 +135,7 @@ private:
   ezDynamicArray<StateContext> m_States;
   ezHashTable<ezHashedString, ezUInt32> m_StateNameToIndexTable;
 
-  ezStateMachineInternal::InstanceDataAllocator m_InstanceDataAllocator;
+  ezInstanceDataAllocator m_InstanceDataAllocator;
 };
 
 /// \brief The state machine instance represents the actual state machine.
@@ -127,6 +157,7 @@ public:
   void Update(ezTime deltaTime);
 
   ezReflectedClass& GetOwner() { return m_Owner; }
+  ezWorld* GetOwnerWorld();
 
   void SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard);
   const ezSharedPtr<ezBlackboard>& GetBlackboard() const { return m_pBlackboard; }
@@ -134,7 +165,18 @@ public:
   /// \brief Returns how long the state machine is in its current state
   ezTime GetTimeInCurrentState() const { return m_TimeInCurrentState; }
 
+  /// \brief Sends a named event that state transitions can react to.
+  void FireTransitionEvent(ezStringView sEvent);
+
+  ezStringView GetCurrentTransitionEvent() const { return m_sCurrentTransitionEvent; }
+
 private:
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezStateMachineInstance);
+
+  bool Reflection_SetState(const ezHashedString& sStateName);
+  ezComponent* Reflection_GetOwnerComponent() const;
+  ezBlackboard* Reflection_GetBlackboard() const { return m_pBlackboard.Borrow(); }
+
   void SetStateInternal(ezUInt32 uiStateIndex);
   void EnterCurrentState(const ezStateMachineState* pFromState);
   void ExitCurrentState(const ezStateMachineState* pToState);
@@ -142,7 +184,7 @@ private:
 
   EZ_ALWAYS_INLINE void* GetInstanceData(ezUInt32 uiOffset)
   {
-    return ezStateMachineInternal::InstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), uiOffset);
+    return ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), uiOffset);
   }
 
   EZ_ALWAYS_INLINE void* GetCurrentStateInstanceData()
@@ -161,8 +203,11 @@ private:
   ezStateMachineState* m_pCurrentState = nullptr;
   ezUInt32 m_uiCurrentStateIndex = ezInvalidIndex;
   ezTime m_TimeInCurrentState;
+  ezStringView m_sCurrentTransitionEvent;
 
   const ezStateMachineDescription::TransitionArray* m_pCurrentTransitions = nullptr;
 
   ezBlob m_InstanceData;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezStateMachineInstance);

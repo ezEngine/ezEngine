@@ -52,6 +52,8 @@ public:
   void SetNormalizedPlaybackPosition(float fPosition);
   float GetNormalizedPlaybackPosition() const { return m_fNormalizedPlaybackPosition; }
 
+  ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
+
 protected:
   void Update();
   bool UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack, ezAnimPoseEventTrackSampleMode& out_trackSampling);
@@ -61,6 +63,7 @@ protected:
   ezTime m_Duration;
   ezAnimationClipResourceHandle m_hAnimationClip;
   ezSkeletonResourceHandle m_hSkeleton;
+  ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   ozz::vector<ozz::math::SoaTransform> m_OzzLocalTransforms; // TODO: could be frame allocated
 };

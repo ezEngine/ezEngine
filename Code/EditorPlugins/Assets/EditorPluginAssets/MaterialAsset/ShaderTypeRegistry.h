@@ -17,7 +17,7 @@ public:
   ezShaderTypeRegistry();
   ~ezShaderTypeRegistry();
 
-  const ezRTTI* GetShaderType(const char* szShaderPath);
+  const ezRTTI* GetShaderType(ezStringView sShaderPath);
   const ezRTTI* GetShaderBaseType() const { return m_pBaseType; }
 
 private:
@@ -25,15 +25,12 @@ private:
 
   struct ShaderData
   {
-    ShaderData()
-      : m_pType(nullptr)
-    {
-    }
+    ShaderData() = default;
 
     ezString m_sShaderPath;
     ezString m_sAbsShaderPath;
     ezTimestamp m_fileModifiedTime;
-    const ezRTTI* m_pType;
+    const ezRTTI* m_pType = nullptr;
   };
   void UpdateShaderType(ShaderData& data);
   void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);

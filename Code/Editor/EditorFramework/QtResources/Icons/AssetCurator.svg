@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+
+<svg
+   width="800px"
+   height="800px"
+   viewBox="0 0 24 24"
+   fill="none"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="AssetCurator.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.11375"
+     inkscape:cx="400"
+     inkscape:cy="400"
+     inkscape:window-width="1920"
+     inkscape:window-height="1129"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="SVGRepo_iconCarrier" />
+  <g
+     id="SVGRepo_bgCarrier"
+     stroke-width="0" />
+  <g
+     id="SVGRepo_tracerCarrier"
+     stroke-linecap="round"
+     stroke-linejoin="round" />
+  <g
+     id="SVGRepo_iconCarrier">
+    <path
+       fill-rule="evenodd"
+       clip-rule="evenodd"
+       d="M8.02649 1.99437C8.49593 1.99437 8.87649 2.37493 8.87649 2.84437V4.83114C8.87649 5.30058 8.49593 5.68114 8.02649 5.68114C7.55705 5.68114 7.17649 5.30058 7.17649 4.83114V2.84437C7.17649 2.37493 7.55705 1.99437 8.02649 1.99437ZM3.69438 5.91151C3.69438 5.11682 4.33861 4.4726 5.13329 4.4726H5.54303C6.01247 4.4726 6.39302 4.09204 6.39302 3.6226C6.39302 3.15316 6.01247 2.7726 5.54303 2.7726H5.13329C3.39972 2.7726 1.99438 4.17794 1.99438 5.91151V17.0381C1.99438 19.5302 4.01459 21.5504 6.50664 21.5504H17.4934C19.9854 21.5504 22.0056 19.5302 22.0056 17.0381V5.91151C22.0056 4.17794 20.6003 2.7726 18.8667 2.7726H18.457C17.9876 2.7726 17.607 3.15316 17.607 3.6226C17.607 4.09204 17.9876 4.4726 18.457 4.4726H18.8667C19.6614 4.4726 20.3056 5.11682 20.3056 5.91151V17.0381C20.3056 18.5913 19.0465 19.8504 17.4934 19.8504H6.50664C4.95347 19.8504 3.69438 18.5913 3.69438 17.0381V5.91151ZM10.8556 2.7726C10.3861 2.7726 10.0056 3.15316 10.0056 3.6226C10.0056 4.09204 10.3861 4.4726 10.8556 4.4726H12H13.2417C13.7112 4.4726 14.0917 4.09204 14.0917 3.6226C14.0917 3.15316 13.7112 2.7726 13.2417 2.7726H12H10.8556ZM15.5812 10.3991C15.9132 10.0672 15.9132 9.52898 15.5812 9.19703C15.2493 8.86509 14.7111 8.86509 14.3791 9.19703L10.6539 12.9222C10.5744 13.0017 10.4455 13.0017 10.366 12.9222L9.62091 12.1772C9.28897 11.8452 8.75078 11.8452 8.41883 12.1772C8.08689 12.5091 8.08689 13.0473 8.41883 13.3793L9.16387 14.1243C9.90729 14.8677 11.1126 14.8677 11.856 14.1243L15.5812 10.3991ZM16.8236 2.84437C16.8236 2.37493 16.443 1.99437 15.9736 1.99437C15.5041 1.99437 15.1236 2.37493 15.1236 2.84437V4.83114C15.1236 5.30058 15.5041 5.68114 15.9736 5.68114C16.443 5.68114 16.8236 5.30058 16.8236 4.83114V2.84437Z"
+       fill="#ffffff"
+       id="path1"
+       style="fill:#9a274e;fill-opacity:1" />
+  </g>
+</svg>

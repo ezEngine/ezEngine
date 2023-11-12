@@ -10,7 +10,7 @@ namespace ezRmlUiInternal
   {
     using ezGenericId::ezGenericId;
 
-    static GeometryId FromRml(Rml::CompiledGeometryHandle geometry) { return GeometryId(static_cast<ezUInt32>(geometry)); }
+    static GeometryId FromRml(Rml::CompiledGeometryHandle hGeometry) { return GeometryId(static_cast<ezUInt32>(hGeometry)); }
 
     Rml::CompiledGeometryHandle ToRml() const { return m_Data; }
   };
@@ -19,7 +19,7 @@ namespace ezRmlUiInternal
   {
     using ezGenericId::ezGenericId;
 
-    static TextureId FromRml(Rml::TextureHandle texture) { return TextureId(static_cast<ezUInt32>(texture)); }
+    static TextureId FromRml(Rml::TextureHandle hTexture) { return TextureId(static_cast<ezUInt32>(hTexture)); }
 
     Rml::TextureHandle ToRml() const { return m_Data; }
   };
@@ -32,18 +32,18 @@ namespace ezRmlUiInternal
     Extractor();
     virtual ~Extractor();
 
-    virtual void RenderGeometry(Rml::Vertex* pVertices, int iNum_vertices, int* pIndices, int iNum_indices, Rml::TextureHandle texture, const Rml::Vector2f& translation) override;
+    virtual void RenderGeometry(Rml::Vertex* pVertices, int iNum_vertices, int* pIndices, int iNum_indices, Rml::TextureHandle hTexture, const Rml::Vector2f& translation) override;
 
-    virtual Rml::CompiledGeometryHandle CompileGeometry(Rml::Vertex* pVertices, int iNum_vertices, int* pIndices, int iNum_indices, Rml::TextureHandle texture) override;
-    virtual void RenderCompiledGeometry(Rml::CompiledGeometryHandle geometry_handle, const Rml::Vector2f& translation) override;
-    virtual void ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry_handle) override;
+    virtual Rml::CompiledGeometryHandle CompileGeometry(Rml::Vertex* pVertices, int iNum_vertices, int* pIndices, int iNum_indices, Rml::TextureHandle hTexture) override;
+    virtual void RenderCompiledGeometry(Rml::CompiledGeometryHandle hGeometry_handle, const Rml::Vector2f& translation) override;
+    virtual void ReleaseCompiledGeometry(Rml::CompiledGeometryHandle hGeometry_handle) override;
 
     virtual void EnableScissorRegion(bool bEnable) override;
     virtual void SetScissorRegion(int x, int y, int iWidth, int iHeight) override;
 
-    virtual bool LoadTexture(Rml::TextureHandle& ref_texture_handle, Rml::Vector2i& ref_texture_dimensions, const Rml::String& sSource) override;
-    virtual bool GenerateTexture(Rml::TextureHandle& ref_texture_handle, const Rml::byte* pSource, const Rml::Vector2i& source_dimensions) override;
-    virtual void ReleaseTexture(Rml::TextureHandle texture_handle) override;
+    virtual bool LoadTexture(Rml::TextureHandle& ref_hTexture_handle, Rml::Vector2i& ref_texture_dimensions, const Rml::String& sSource) override;
+    virtual bool GenerateTexture(Rml::TextureHandle& ref_hTexture_handle, const Rml::byte* pSource, const Rml::Vector2i& source_dimensions) override;
+    virtual void ReleaseTexture(Rml::TextureHandle hTexture_handle) override;
 
     virtual void SetTransform(const Rml::Matrix4f* pTransform) override;
 
@@ -69,9 +69,9 @@ namespace ezRmlUiInternal
     ezIdTable<TextureId, ezTexture2DResourceHandle> m_Textures;
     ezTexture2DResourceHandle m_hFallbackTexture;
 
-    ezVec2 m_vOffset = ezVec2::ZeroVector();
+    ezVec2 m_vOffset = ezVec2::MakeZero();
 
-    ezMat4 m_mTransform = ezMat4::IdentityMatrix();
+    ezMat4 m_mTransform = ezMat4::MakeIdentity();
     ezRectFloat m_ScissorRect = ezRectFloat(0, 0);
     bool m_bEnableScissorRect = false;
 

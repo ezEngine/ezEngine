@@ -12,13 +12,14 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 1, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 2, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("AnimController", GetAnimationControllerFile, SetAnimationControllerFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph")),
+    EZ_ACCESSOR_PROPERTY("AnimGraph", GetAnimGraphFile, SetAnimGraphFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph")),
 
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
+    EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
   }
   EZ_END_PROPERTIES;
 
@@ -39,8 +40,9 @@ void ezAnimationControllerComponent::SerializeComponent(ezWorldWriter& inout_str
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
 
-  s << m_hAnimationController;
+  s << m_hAnimGraph;
   s << m_RootMotionMode;
+  s << m_InvisibleUpdateRate;
 }
 
 void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -49,11 +51,16 @@ void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_s
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
-  s >> m_hAnimationController;
+  s >> m_hAnimGraph;
   s >> m_RootMotionMode;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_InvisibleUpdateRate;
+  }
 }
 
-void ezAnimationControllerComponent::SetAnimationControllerFile(const char* szFile)
+void ezAnimationControllerComponent::SetAnimGraphFile(const char* szFile)
 {
   ezAnimGraphResourceHandle hResource;
 
@@ -62,23 +69,23 @@ void ezAnimationControllerComponent::SetAnimationControllerFile(const char* szFi
     hResource = ezResourceManager::LoadResource<ezAnimGraphResource>(szFile);
   }
 
-  m_hAnimationController = hResource;
+  m_hAnimGraph = hResource;
 }
 
 
-const char* ezAnimationControllerComponent::GetAnimationControllerFile() const
+const char* ezAnimationControllerComponent::GetAnimGraphFile() const
 {
-  if (!m_hAnimationController.IsValid())
+  if (!m_hAnimGraph.IsValid())
     return "";
 
-  return m_hAnimationController.GetResourceID();
+  return m_hAnimGraph.GetResourceID();
 }
 
 void ezAnimationControllerComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  if (!m_hAnimationController.IsValid())
+  if (!m_hAnimGraph.IsValid())
     return;
 
   ezMsgQueryAnimationSkeleton msg;
@@ -87,24 +94,36 @@ void ezAnimationControllerComponent::OnSimulationStarted()
   if (!msg.m_hSkeleton.IsValid())
     return;
 
-  ezResourceLock<ezAnimGraphResource> pAnimController(m_hAnimationController, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pAnimController.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
-
-  pAnimController->DeserializeAnimGraphState(m_AnimationGraph);
-
-  m_AnimationGraph.Configure(msg.m_hSkeleton, m_PoseGenerator, ezBlackboardComponent::FindBlackboard(GetOwner()));
+  m_AnimController.Initialize(msg.m_hSkeleton, m_PoseGenerator, ezBlackboardComponent::FindBlackboard(GetOwner()));
+  m_AnimController.AddAnimGraph(m_hAnimGraph);
 }
 
 void ezAnimationControllerComponent::Update()
 {
-  m_AnimationGraph.Update(GetWorld()->GetClock().GetTimeDiff(), GetOwner());
+  ezTime tMinStep = ezTime::MakeFromSeconds(0);
+  ezVisibilityState visType = GetOwner()->GetVisibilityState();
+
+  if (visType != ezVisibilityState::Direct)
+  {
+    if (m_InvisibleUpdateRate == ezAnimationInvisibleUpdateRate::Pause && visType == ezVisibilityState::Invisible)
+      return;
+
+    tMinStep = ezAnimationInvisibleUpdateRate::GetTimeStep(m_InvisibleUpdateRate);
+  }
+
+  m_ElapsedTimeSinceUpdate += GetWorld()->GetClock().GetTimeDiff();
+
+  if (m_ElapsedTimeSinceUpdate < tMinStep)
+    return;
+
+  m_AnimController.Update(m_ElapsedTimeSinceUpdate, GetOwner());
+  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   ezVec3 translation;
   ezAngle rotationX;
   ezAngle rotationY;
   ezAngle rotationZ;
-  m_AnimationGraph.GetRootMotion(translation, rotationX, rotationY, rotationZ);
+  m_AnimController.GetRootMotion(translation, rotationX, rotationY, rotationZ);
 
   ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), translation, rotationX, rotationY, rotationZ);
 }

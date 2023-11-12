@@ -88,7 +88,7 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int iRow, 
         auto pInfo = ezAssetCurator::GetSingleton()->GetSubAsset(prefab);
 
         if (pInfo)
-          return QString::fromUtf8(pInfo->m_pAssetInfo->m_sDataDirParentRelativePath, pInfo->m_pAssetInfo->m_sDataDirParentRelativePath.GetElementCount());
+          return ezMakeQString(pInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath());
 
         return QStringLiteral("Prefab asset could not be found");
       }
@@ -132,8 +132,7 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int iRow, 
 
       if (sName.IsEmpty())
       {
-        // uses an auto generated name
-        return QColor(128, 128, 128);
+        return QVariant();
       }
     }
     break;
@@ -217,4 +216,4 @@ ezQtGameObjectModel::ezQtGameObjectModel(const ezDocumentObjectManager* pObjectM
 {
 }
 
-ezQtGameObjectModel::~ezQtGameObjectModel() {}
+ezQtGameObjectModel::~ezQtGameObjectModel() = default;

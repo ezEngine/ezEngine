@@ -3,6 +3,7 @@
 #include <Core/System/Window.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
+#include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
@@ -49,18 +50,39 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
   CreateOrOpenProject(false, sProject.toUtf8().data()).IgnoreResult();
 }
 
-ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
+ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
 {
+  ezStringBuilder sFile = sFile0;
+  if (!bCreate)
+  {
+    const ezStatus status = MakeRemoteProjectLocal(sFile);
+    if (status.Failed())
+    {
+      // if the message is empty, the user decided not to continue, so don't show an error message in this case
+      if (!status.m_sMessage.IsEmpty())
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxStatus(status, "Opening remote project failed.");
+      }
+
+      return EZ_FAILURE;
+    }
+  }
+
   // check that we don't attempt to open a project from a different repository, due to code changes this often doesn't work too well
   if (!IsInHeadlessMode())
   {
-    ezStringBuilder sdkDir;
-    if (ezFileSystem::FindFolderWithSubPath(sdkDir, szFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
+    ezStringBuilder sdkDirFromProject;
+    if (ezFileSystem::FindFolderWithSubPath(sdkDirFromProject, sFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
     {
-      sdkDir.MakeCleanPath();
-      if (sdkDir != ezFileSystem::GetSdkRootDirectory())
+      sdkDirFromProject.MakeCleanPath();
+      sdkDirFromProject.Trim(nullptr, "/");
+
+      ezStringView sdkDir = ezFileSystem::GetSdkRootDirectory();
+      sdkDir.Trim(nullptr, "/");
+
+      if (sdkDirFromProject != sdkDir)
       {
-        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", ezFileSystem::GetSdkRootDirectory(), szFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", sdkDir, sFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
         {
           return EZ_FAILURE;
         }
@@ -74,7 +96,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
   CloseSplashScreen();
 
-  ezStringBuilder sProjectFile = szFile;
+  ezStringBuilder sProjectFile = sFile;
   sProjectFile.MakeCleanPath();
 
   if (bCreate == false && !sProjectFile.EndsWith_NoCase("/ezProject"))
@@ -135,8 +157,6 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
       // once we start loading any plugins, we can't reuse the same instance again for another project
       m_bAnyProjectOpened = true;
 
-      LoadPluginBundleDlls(sProjectFile);
-
       ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
       sTemp.AppendPath("ezEditorCrashIndicator");
       ezOSFile f;
@@ -145,6 +165,24 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
         f.Write(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
         f.Close();
         m_bWroteCrashIndicatorFile = true;
+      }
+
+      {
+        ezStringBuilder sProjectDir = sProjectFile;
+        sProjectDir.PathParentDirectory();
+
+        ezStringBuilder sSettingsFile = sProjectDir;
+        sSettingsFile.AppendPath("Editor/CppProject.ddl");
+
+        // first attempt to load project specific plugin bundles
+        ezCppSettings cppSettings;
+        if (cppSettings.Load(sSettingsFile).Succeeded())
+        {
+          ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezCppProject::GetPluginSourceDir(cppSettings, sProjectDir));
+        }
+
+        // now load the plugin DLLs
+        LoadPluginBundleDlls(sProjectFile);
       }
 
       res = ezToolsProject::OpenProject(sProjectFile);
@@ -266,11 +304,24 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest | ezQtEditorApp::StartupFlags::Background))
       {
+        if (ezCppProject::IsBuildRequired())
+        {
+          const auto clicked = ezQtUiServices::MessageBoxQuestion("<html>Compile this project's C++ plugin?<br><br>\
+Explanation: This project has <a href='https://ezengine.net/pages/docs/custom-code/cpp/cpp-project-generation.html'>a dedicated C++ plugin</a> with custom code. The plugin is currently not compiled and therefore the project won't fully work and certain assets will fail to transform.<br><br>\
+It is advised to compile the plugin now, but you can also do so later.</html>",
+            QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply);
+
+          if (clicked == QMessageBox::StandardButton::Ignore)
+            break;
+
+          QTimer::singleShot(1000, this, [this]() { ezCppProject::EnsureCppPluginReady().IgnoreResult(); });
+        }
+
         ezTimestamp lastTransform = ezAssetCurator::GetSingleton()->GetLastFullTransformDate().GetTimestamp();
 
         if (pPreferences->m_bBackgroundAssetProcessing)
         {
-          QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
+          QTimer::singleShot(2000, this, [this]() { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
         }
         else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
         {
@@ -285,7 +336,7 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
           }
 
           // check whether the project needs to be transformed
-          QTimer::singleShot(1000, this, [this]() { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
+          QTimer::singleShot(2000, this, [this]() { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default).IgnoreResult(); });
         }
       }
 
@@ -404,7 +455,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
     {
       if (ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(r.m_documentGuid))
       {
-        r.m_sAbsDocumentPath = pSubAsset->m_pAssetInfo->m_sAbsolutePath;
+        r.m_sAbsDocumentPath = pSubAsset->m_pAssetInfo->m_Path;
       }
     }
     break;

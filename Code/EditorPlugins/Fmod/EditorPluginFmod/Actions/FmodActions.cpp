@@ -19,12 +19,9 @@ ezActionDescriptorHandle ezFmodActions::s_hMasterVolume;
 void ezFmodActions::RegisterActions()
 {
   s_hCategoryFmod = EZ_REGISTER_CATEGORY("Fmod");
-  s_hProjectSettings =
-    EZ_REGISTER_ACTION_1("Fmod.Settings.Project", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::ProjectSettings);
+  s_hProjectSettings = EZ_REGISTER_ACTION_1("Fmod.Settings.Project", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::ProjectSettings);
   s_hMuteSound = EZ_REGISTER_ACTION_1("Fmod.Mute", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::MuteSound);
-
-  s_hMasterVolume = EZ_REGISTER_ACTION_1(
-    "Fmod.MasterVolume", ezActionScope::Document, "Volume", "", ezFmodSliderAction, ezFmodSliderAction::ActionType::MasterVolume);
+  s_hMasterVolume = EZ_REGISTER_ACTION_1("Fmod.MasterVolume", ezActionScope::Document, "Volume", "", ezFmodSliderAction, ezFmodSliderAction::ActionType::MasterVolume);
 }
 
 void ezFmodActions::UnregisterActions()
@@ -35,22 +32,22 @@ void ezFmodActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMasterVolume);
 }
 
-void ezFmodActions::MapMenuActions(const char* szMapping)
+void ezFmodActions::MapMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
-  pMap->MapAction(s_hCategoryFmod, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 9.0f);
-  pMap->MapAction(s_hProjectSettings, "Menu.Editor/ProjectCategory/Menu.ProjectSettings/Fmod", 0.0f);
+  pMap->MapAction(s_hCategoryFmod, "G.Plugins.Settings", 9.0f);
+  pMap->MapAction(s_hProjectSettings, "G.Plugins.Settings", "Fmod", 0.0f);
 
-  pMap->MapAction(s_hCategoryFmod, "Menu.Scene", 5.0f);
-  pMap->MapAction(s_hMuteSound, "Menu.Scene/Fmod", 0.0f);
-  pMap->MapAction(s_hMasterVolume, "Menu.Scene/Fmod", 1.0f);
+  pMap->MapAction(s_hCategoryFmod, "G.Scene", 5.0f);
+  pMap->MapAction(s_hMuteSound, "G.Scene", "Fmod", 0.0f);
+  pMap->MapAction(s_hMasterVolume, "G.Scene", "Fmod", 1.0f);
 }
 
-void ezFmodActions::MapToolbarActions(const char* szMapping)
+void ezFmodActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pSceneMap = ezActionMapManager::GetActionMap(szMapping);
+  ezActionMap* pSceneMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pSceneMap != nullptr, "Mapping the actions failed!");
 
   pSceneMap->MapAction(s_hCategoryFmod, "", 12.0f);
@@ -65,7 +62,7 @@ ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, A
   switch (m_Type)
   {
     case ActionType::ProjectSettings:
-      SetIconPath(":/AssetIcons/Sound_Event.png");
+      SetIconPath(":/AssetIcons/Sound_Event.svg");
       break;
 
     case ActionType::MuteSound:
@@ -76,9 +73,9 @@ ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, A
       pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezFmodAction::OnPreferenceChange, this));
 
       if (pPreferences->GetMute())
-        SetIconPath(":/Icons/SoundOff16.png");
+        SetIconPath(":/Icons/SoundOff.svg");
       else
-        SetIconPath(":/Icons/SoundOn16.png");
+        SetIconPath(":/Icons/SoundOn.svg");
 
       SetChecked(pPreferences->GetMute());
     }
@@ -122,9 +119,9 @@ void ezFmodAction::OnPreferenceChange(ezPreferences* pref)
   if (m_Type == ActionType::MuteSound)
   {
     if (pPreferences->GetMute())
-      SetIconPath(":/Icons/SoundOff16.png");
+      SetIconPath(":/Icons/SoundOff.svg");
     else
-      SetIconPath(":/Icons/SoundOn16.png");
+      SetIconPath(":/Icons/SoundOn.svg");
 
     SetChecked(pPreferences->GetMute());
   }

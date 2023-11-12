@@ -7,7 +7,7 @@ class ezSoundBankAssetProperties : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezSoundBankAssetProperties, ezReflectedClass);
 
 public:
-  ezSoundBankAssetProperties() {}
+  ezSoundBankAssetProperties() = default;
 
   ezString m_sSoundBank;
 };
@@ -17,10 +17,10 @@ class ezSoundBankAssetDocument : public ezSimpleAssetDocument<ezSoundBankAssetPr
   EZ_ADD_DYNAMIC_REFLECTION(ezSoundBankAssetDocument, ezSimpleAssetDocument<ezSoundBankAssetProperties>);
 
 public:
-  ezSoundBankAssetDocument(const char* szDocumentPath);
+  ezSoundBankAssetDocument(ezStringView sDocumentPath);
 
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 };

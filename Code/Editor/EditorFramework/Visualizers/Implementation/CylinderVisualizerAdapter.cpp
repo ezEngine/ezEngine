@@ -4,9 +4,9 @@
 #include <EditorFramework/Visualizers/CylinderVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezCylinderVisualizerAdapter::ezCylinderVisualizerAdapter() {}
+ezCylinderVisualizerAdapter::ezCylinderVisualizerAdapter() = default;
 
-ezCylinderVisualizerAdapter::~ezCylinderVisualizerAdapter() {}
+ezCylinderVisualizerAdapter::~ezCylinderVisualizerAdapter() = default;
 
 void ezCylinderVisualizerAdapter::Finalize()
 {
@@ -41,7 +41,7 @@ void ezCylinderVisualizerAdapter::Update()
       return;
 
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, pProp, value);
+    pObjectAccessor->GetValue(m_pObject, pProp, value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '{0}' bound to ezCylinderVisualizerAttribute 'radius'",
       pAttr->GetRadiusProperty());
@@ -51,7 +51,7 @@ void ezCylinderVisualizerAdapter::Update()
   if (!pAttr->GetHeightProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetHeightProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetHeightProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezCylinderVisualizerAttribute 'height'");
     m_fHeight = value.ConvertTo<float>();
@@ -60,7 +60,7 @@ void ezCylinderVisualizerAdapter::Update()
   if (!pAttr->GetColorProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezCylinderVisualizerAttribute 'color'");
     m_hCylinder.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
@@ -71,7 +71,7 @@ void ezCylinderVisualizerAdapter::Update()
   if (!pAttr->GetOffsetProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezVec3>(), "Invalid property bound to ezCylinderVisualizerAttribute 'offset'");
 
@@ -84,7 +84,7 @@ void ezCylinderVisualizerAdapter::Update()
   if (!pAttr->GetAxisProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezInt32>(), "Invalid property bound to ezCylinderVisualizerAttribute 'axis'");
 
@@ -100,8 +100,6 @@ void ezCylinderVisualizerAdapter::Update()
 
 void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
 {
-  const ezCylinderVisualizerAttribute* pAttr = static_cast<const ezCylinderVisualizerAttribute*>(m_pVisualizerAttr);
-
   const ezQuat axisRotation = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_Axis);
 
   ezTransform t;
@@ -109,7 +107,7 @@ void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
   t.m_vScale = ezVec3(m_fRadius, m_fRadius, m_fHeight);
   t.m_vPosition = m_vPositionOffset;
 
-  ezVec3 vOffset = ezVec3::ZeroVector();
+  ezVec3 vOffset = ezVec3::MakeZero();
 
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
     vOffset.x -= t.m_vScale.x;

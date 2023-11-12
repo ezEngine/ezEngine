@@ -12,10 +12,10 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath);
-  static void MapPrefabActions(const char* szMapping, const char* szPath, float fPriority);
-  static void MapContextMenuActions(const char* szMapping, const char* szPath);
-  static void MapViewContextMenuActions(const char* szMapping, const char* szPath);
+  static void MapActions(ezStringView sMapping);
+  static void MapPrefabActions(ezStringView sMapping, float fPriority);
+  static void MapContextMenuActions(ezStringView sMapping);
+  static void MapViewContextMenuActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hGroupSelectedItems;
   static ezActionDescriptorHandle s_hCreateEmptyChildObject;

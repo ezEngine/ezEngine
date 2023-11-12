@@ -10,7 +10,7 @@ ezVec3 ezBakingUtils::FibonacciSphere(ezUInt32 uiSampleIndex, ezUInt32 uiNumSamp
   float y = ((uiSampleIndex * offset) - 1) + (offset / 2);
   float r = ezMath::Sqrt(1 - y * y);
 
-  ezAngle phi = ezAngle::Radian(((uiSampleIndex + 1) % uiNumSamples) * increment);
+  ezAngle phi = ezAngle::MakeFromRadian(((uiSampleIndex + 1) % uiNumSamples) * increment);
 
   float x = ezMath::Cos(phi) * r;
   float z = ezMath::Sin(phi) * r;

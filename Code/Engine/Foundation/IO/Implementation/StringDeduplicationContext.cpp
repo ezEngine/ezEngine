@@ -88,12 +88,14 @@ ezStringDeduplicationReadContext::ezStringDeduplicationReadContext(ezStreamReade
   ezUInt64 uiNumEntries = 0;
   inout_stream >> uiNumEntries;
 
+  m_DeduplicatedStrings.Reserve(static_cast<ezUInt32>(uiNumEntries));
+
   for (ezUInt64 i = 0; i < uiNumEntries; ++i)
   {
-    ezStringBuilder Builder;
-    inout_stream >> Builder;
+    ezStringBuilder s;
+    inout_stream >> s;
 
-    m_DeduplicatedStrings.ExpandAndGetRef() = std::move(Builder);
+    m_DeduplicatedStrings.PushBackUnchecked(std::move(s));
   }
 
   SetContext(this);
@@ -103,8 +105,14 @@ ezStringDeduplicationReadContext::~ezStringDeduplicationReadContext() = default;
 
 ezStringView ezStringDeduplicationReadContext::DeserializeString(ezStreamReader& ref_reader)
 {
-  ezUInt32 uiIndex;
+  ezUInt32 uiIndex = ezInvalidIndex;
   ref_reader >> uiIndex;
+
+  if (uiIndex >= m_DeduplicatedStrings.GetCount())
+  {
+    EZ_ASSERT_DEBUG(uiIndex < m_DeduplicatedStrings.GetCount(), "Failed to read data from file.");
+    return {};
+  }
 
   return m_DeduplicatedStrings[uiIndex].GetView();
 }

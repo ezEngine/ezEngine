@@ -31,7 +31,7 @@ public:
   ezQtTreeSearchFilterModel* GetProxyFilterModel() const { return m_pFilterModel.get(); }
 
 protected:
-  virtual void keyPressEvent(QKeyEvent* e) override;
+  virtual bool event(QEvent* pEvent) override;
 
 private Q_SLOTS:
   void on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected);

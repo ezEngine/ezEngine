@@ -14,7 +14,7 @@ ezQtTestFramework::ezQtTestFramework(const char* szTestName, const char* szAbsTe
   Initialize();
 }
 
-ezQtTestFramework::~ezQtTestFramework() {}
+ezQtTestFramework::~ezQtTestFramework() = default;
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -26,10 +26,17 @@ void ezQtTestFramework::OutputImpl(ezTestOutput::Enum Type, const char* szMsg)
   ezTestFramework::OutputImpl(Type, szMsg);
 }
 
-void ezQtTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration)
+void ezQtTestFramework::TestResultImpl(ezUInt32 uiSubTestIndex, bool bSuccess, double fDuration)
 {
-  ezTestFramework::TestResultImpl(iSubTestIndex, bSuccess, fDuration);
-  Q_EMIT TestResultReceived(m_iCurrentTestIndex, iSubTestIndex);
+  ezTestFramework::TestResultImpl(uiSubTestIndex, bSuccess, fDuration);
+  Q_EMIT TestResultReceived(m_uiCurrentTestIndex, uiSubTestIndex);
+}
+
+
+void ezQtTestFramework::SetSubTestStatusImpl(ezUInt32 uiSubTestIndex, const char* szStatus)
+{
+  ezTestFramework::SetSubTestStatusImpl(uiSubTestIndex, szStatus);
+  Q_EMIT TestResultReceived(m_uiCurrentTestIndex, uiSubTestIndex);
 }
 
 #endif

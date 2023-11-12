@@ -22,7 +22,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezKrautTreeResource);
 ezKrautTreeResource::ezKrautTreeResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
 {
-  m_Details.m_Bounds.SetInvalid();
+  m_Details.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 }
 
 ezResourceLoadDesc ezKrautTreeResource::UnloadData(Unload WhatToUnload)
@@ -201,7 +201,7 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& inout_stream0) const
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd stream(&inout_stream0, ezCompressedStreamWriterZstd::Compression::Average);
+  ezCompressedStreamWriterZstd stream(&inout_stream0, 0, ezCompressedStreamWriterZstd::Compression::Average);
 #else
   ezStreamWriter& stream = stream0;
 #endif

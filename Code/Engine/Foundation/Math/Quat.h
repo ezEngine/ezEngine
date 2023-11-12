@@ -25,7 +25,9 @@ public:
 
   // *** Data ***
 public:
-  ezVec3Template<Type> v;
+  Type x;
+  Type y;
+  Type z;
   Type w;
 
   // *** Constructors ***
@@ -44,7 +46,7 @@ public:
 #endif
 
   /// \brief Static function that returns a quaternion that represents the identity rotation (none).
-  static const ezQuatTemplate<Type> IdentityQuaternion(); // [tested]
+  [[nodiscard]] static const ezQuatTemplate<Type> MakeIdentity(); // [tested]
 
   // *** Functions to create a quaternion ***
 public:
@@ -55,16 +57,16 @@ public:
   /// angle.
   ///
   /// Use this function only if you have good understanding of quaternion math and know exactly what you are doing.
-  void SetElements(Type x, Type y, Type z, Type w); // [tested]
+  [[nodiscard]] static ezQuatTemplate<Type> MakeFromElements(Type x, Type y, Type z, Type w); // [tested]
 
   /// \brief Creates a quaternion from a rotation-axis and an angle.
-  void SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle); // [tested]
+  [[nodiscard]] static ezQuatTemplate<Type> MakeFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle); // [tested]
 
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
-  void SetShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo); // [tested]
+  [[nodiscard]] static ezQuatTemplate<Type> MakeShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo); // [tested]
 
   /// \brief Creates a quaternion from the given matrix.
-  void SetFromMat3(const ezMat3Template<Type>& m); // [tested]
+  [[nodiscard]] static ezQuatTemplate<Type> MakeFromMat3(const ezMat3Template<Type>& m); // [tested]
 
   /// \brief Reconstructs a rotation quaternion from a matrix that may contain scaling and mirroring.
   ///
@@ -79,8 +81,8 @@ public:
   /// \sa ReconstructFromMat3()
   void ReconstructFromMat4(const ezMat4Template<Type>& m);
 
-  /// \brief Sets this quaternion to be the spherical linear interpolation of the other two.
-  void SetSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t); // [tested]
+  /// \brief Returns a quaternion that is the spherical linear interpolation of the other two.
+  [[nodiscard]] static ezQuatTemplate<Type> MakeSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t); // [tested]
 
   // *** Common Functions ***
 public:
@@ -88,7 +90,10 @@ public:
   void Normalize(); // [tested]
 
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
-  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngle& out_angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+  void GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngle& out_angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+
+  /// \brief Returns the x,y,z components as a vector.
+  ezVec3Template<Type> GetVectorPart() const { return ezVec3Template<Type>(x, y, z); }
 
   /// \brief Returns the Quaternion as a matrix.
   const ezMat3Template<Type> GetAsMat3() const; // [tested]
@@ -109,7 +114,7 @@ public:
   /// representations for 'identity', so it's difficult to check for it).
   bool IsEqualRotation(const ezQuatTemplate& qOther, Type fEpsilon) const; // [tested]
 
-  /// \brief Inverts the rotation, so instead of rotating N degrees around its axis, the quaternion will rotate -N degrees around that axis.
+  /// \brief Inverts the rotation, so instead of rotating N degrees around an axis, the quaternion will rotate -N degrees around its axis.
   ///
   /// This modifies the quaternion in place. If you want to get the inverse as a copy, use the negation operator (-).
   void Invert();
@@ -127,10 +132,10 @@ public:
   // *** Euler Angle Conversions ***
 public:
   /// \brief Converts the quaternion to Euler angles
-  void GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAngle& out_z) const;
+  void GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAngle& out_z) const; // [tested]
 
   /// \brief Sets the quaternion from Euler angles
-  void SetFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z);
+  [[nodiscard]] static ezQuatTemplate<Type> MakeFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z); // [tested]
 };
 
 /// \brief Rotates v by q

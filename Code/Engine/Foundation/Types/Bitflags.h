@@ -41,7 +41,7 @@
 /// \code{.cpp}
 ///   struct SimpleRenderFlags
 ///   {
-///     typedef ezUInt32 StorageType;
+///     using StorageType = ezUInt32;
 ///
 ///     enum Enum
 ///     {
@@ -80,7 +80,7 @@ template <typename T>
 struct ezBitflags
 {
 private:
-  typedef typename T::Enum Enum;
+  using Enum = typename T::Enum;
   using Bits = typename T::Bits;
   using StorageType = typename T::StorageType;
 
@@ -265,7 +265,7 @@ private:
   struct BitflagsTypeName                                                                       \
   {                                                                                             \
     static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                  \
-    typedef InternalStorageType StorageType;                                                    \
+    using StorageType = InternalStorageType;                                                    \
     enum Enum                                                                                   \
     {                                                                                           \
       EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__) Default = DefaultValue    \

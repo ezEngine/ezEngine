@@ -8,9 +8,9 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
-ezEditorEngineProcessAppUWP::ezEditorEngineProcessAppUWP() {}
+ezEditorEngineProcessAppUWP::ezEditorEngineProcessAppUWP() = default;
 
-ezEditorEngineProcessAppUWP::~ezEditorEngineProcessAppUWP() {}
+ezEditorEngineProcessAppUWP::~ezEditorEngineProcessAppUWP() = default;
 
 ezViewHandle ezEditorEngineProcessAppUWP::CreateRemoteWindowAndView(ezCamera* pCamera)
 {

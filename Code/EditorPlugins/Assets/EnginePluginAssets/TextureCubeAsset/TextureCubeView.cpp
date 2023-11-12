@@ -5,6 +5,7 @@
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/RendererReflection.h>
 
 ezTextureCubeViewContext::ezTextureCubeViewContext(ezTextureCubeContext* pContext)
   : ezEngineProcessViewContext(pContext)
@@ -12,12 +13,13 @@ ezTextureCubeViewContext::ezTextureCubeViewContext(ezTextureCubeContext* pContex
   m_pTextureContext = pContext;
 }
 
-ezTextureCubeViewContext::~ezTextureCubeViewContext() {}
+ezTextureCubeViewContext::~ezTextureCubeViewContext() = default;
 
 ezViewHandle ezTextureCubeViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Texture Cube Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
   pView->SetRenderPassProperty("DepthPrePass", "Active", false);
@@ -46,8 +48,6 @@ void ezTextureCubeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     ezGALResourceFormat::Enum format = pResource->GetFormat();
     ezUInt32 uiWidthAndHeight = pResource->GetWidthAndHeight();
 
-    const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
-
     ezStringBuilder sText;
     if (!ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, sText, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
     {
@@ -56,6 +56,6 @@ void ezTextureCubeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
     sText.PrependFormat("{0}x{1}x6 - ", uiWidthAndHeight, uiWidthAndHeight);
 
-    ezDebugRenderer::DrawInfoText(m_hView, ezDebugRenderer::ScreenPlacement::BottomLeft, "AssetStats", sText);
+    ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "AssetStats", sText);
   }
 }

@@ -70,7 +70,7 @@ void SampleGameState::AfterWorldUpdate()
   // BEGIN-DOCS-CODE-SNIPPET: cvar-2
   if (cvar_DebugDisplay)
   {
-    ezDebugRenderer::DrawLineSphere(m_pMainWorld, ezBoundingSphere(ezVec3::ZeroVector(), 1.0f), ezColor::Orange);
+    ezDebugRenderer::DrawLineSphere(m_pMainWorld, ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 1.0f), ezColor::Orange);
   }
   // END-DOCS-CODE-SNIPPET
 

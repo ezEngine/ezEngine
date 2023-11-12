@@ -83,7 +83,7 @@ class Base : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(Base, ezReflectedClass);
 
 public:
-  virtual ~Base() {}
+  virtual ~Base() = default;
 
   virtual ezInt32 Virtual() = 0;
 };

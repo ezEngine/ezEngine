@@ -2,14 +2,14 @@
 
 #include <Foundation/Time/Clock.h>
 
-inline void ezClock::SetClockName(const char* szName)
+inline void ezClock::SetClockName(ezStringView sName)
 {
-  m_sName = szName;
+  m_sName = sName;
 }
 
-inline const char* ezClock::GetClockName() const
+inline ezStringView ezClock::GetClockName() const
 {
-  return m_sName.GetData();
+  return m_sName;
 }
 
 inline void ezClock::SetTimeStepSmoothing(ezTimeStepSmoothing* pSmoother)
@@ -61,14 +61,14 @@ inline double ezClock::GetSpeed() const
 
 inline void ezClock::SetMinimumTimeStep(ezTime min)
 {
-  EZ_ASSERT_DEV(min >= ezTime::Seconds(0.0), "Time flows in one direction only.");
+  EZ_ASSERT_DEV(min >= ezTime::MakeFromSeconds(0.0), "Time flows in one direction only.");
 
   m_MinTimeStep = min;
 }
 
 inline void ezClock::SetMaximumTimeStep(ezTime max)
 {
-  EZ_ASSERT_DEV(max >= ezTime::Seconds(0.0), "Time flows in one direction only.");
+  EZ_ASSERT_DEV(max >= ezTime::MakeFromSeconds(0.0), "Time flows in one direction only.");
 
   m_MaxTimeStep = max;
 }

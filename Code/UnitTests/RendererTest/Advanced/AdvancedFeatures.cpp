@@ -2,35 +2,37 @@
 
 #include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <RendererTest/Advanced/AdvancedFeatures.h>
 
-namespace
+#undef CreateWindow
+
+
+void ezRendererTestAdvancedFeatures::SetupSubTests()
 {
-  ezMat4 CreateSimpleMVP(float fAspectRatio)
+  ezStartup::StartupCoreSystems();
+  SetupRenderer().AssertSuccess();
+  const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+
+  AddSubTest("01 - ReadRenderTarget", SubTests::ST_ReadRenderTarget);
+  AddSubTest("02 - VertexShaderRenderTargetArrayIndex", SubTests::ST_VertexShaderRenderTargetArrayIndex);
+
+  if (caps.m_bSharedTextures)
   {
-    ezCamera cam;
-    cam.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90, 0.5f, 1000.0f);
-    cam.LookAt(ezVec3(0, 0, 0), ezVec3(0, 0, -1), ezVec3(0, 1, 0));
-    ezMat4 mProj;
-    cam.GetProjectionMatrix(fAspectRatio, mProj);
-    ezMat4 mView = cam.GetViewMatrix();
-
-    ezMat4 mTransform;
-    mTransform.SetTranslationMatrix(ezVec3(0.0f, 0.0f, -1.2f));
-    return mProj * mView * mTransform;
+    AddSubTest("03 - SharedTexture", SubTests::ST_SharedTexture);
   }
-} // namespace
-
-
+  ShutdownRenderer();
+  ezStartup::ShutdownCoreSystems();
+}
 
 ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
 {
-  m_iFrame = -1;
-  m_bCaptureImage = false;
-  m_ImgCompFrames.Clear();
-
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
-  EZ_SUCCEED_OR_RETURN(SetupRenderer());
   EZ_SUCCEED_OR_RETURN(CreateWindow(320, 240));
 
   if (iIdentifier == ST_ReadRenderTarget)
@@ -70,18 +72,86 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StereoPreview.ezShader");
   }
 
+  if (iIdentifier == ST_SharedTexture)
   {
-    // Cube mesh
-    ezGeometry geom;
-    geom.AddBox(ezVec3(1.0f), true);
+    ezCVarFloat* pProfilingThreshold = (ezCVarFloat*)ezCVar::FindCVarByName("Profiling.DiscardThresholdMS");
+    EZ_ASSERT_DEBUG(pProfilingThreshold, "Profiling.cpp cvar was renamed");
+    m_fOldProfilingThreshold = *pProfilingThreshold;
+    *pProfilingThreshold = 0.0f;
 
-    ezGALPrimitiveTopology::Enum Topology = ezGALPrimitiveTopology::Triangles;
-    ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::RGFloat);
-    desc.AllocateStreamsFromGeometry(geom, Topology);
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
 
-    m_hCubeUV = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("Texture2DBox", std::move(desc), "Texture2DBox");
+    const ezStringBuilder pathToSelf = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
+
+    ezProcessOptions opt;
+    opt.m_sProcess = pathToSelf;
+
+    ezStringBuilder sIPC;
+    ezConversionUtils::ToString(ezUuid::MakeUuid(), sIPC);
+
+    ezStringBuilder sPID;
+    ezConversionUtils::ToString(ezProcess::GetCurrentProcessID(), sPID);
+
+#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+    constexpr const char* szDefaultRenderer = "Vulkan";
+#else
+    constexpr const char* szDefaultRenderer = "DX11";
+#endif
+    ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+
+    opt.m_Arguments.PushBack("-offscreen");
+    opt.m_Arguments.PushBack("-IPC");
+    opt.m_Arguments.PushBack(sIPC);
+    opt.m_Arguments.PushBack("-PID");
+    opt.m_Arguments.PushBack(sPID);
+    opt.m_Arguments.PushBack("-renderer");
+    opt.m_Arguments.PushBack(sRendererName);
+    opt.m_Arguments.PushBack("-outputDir");
+    opt.m_Arguments.PushBack(ezTestFramework::GetInstance()->GetAbsOutputPath());
+
+
+    m_pOffscreenProcess = EZ_DEFAULT_NEW(ezProcess);
+    EZ_SUCCEED_OR_RETURN(m_pOffscreenProcess->Launch(opt));
+
+    m_bExiting = false;
+    m_uiReceivedTextures = 0;
+    m_pChannel = ezIpcChannel::CreatePipeChannel(sIPC, ezIpcChannel::Mode::Server);
+    m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
+    m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc, this));
+    m_pChannel->Connect();
+    while (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connecting)
+    {
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
+    }
+    m_SharedTextureDesc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
+    m_SharedTextureDesc.m_Type = ezGALTextureType::Texture2DShared;
+
+    m_SharedTextureQueue.Clear();
+    for (ezUInt32 i = 0; i < s_SharedTextureCount; i++)
+    {
+      m_hSharedTextures[i] = m_pDevice->CreateSharedTexture(m_SharedTextureDesc);
+      EZ_TEST_BOOL(!m_hSharedTextures[i].IsInvalidated());
+      m_SharedTextureQueue.PushBack({i, 0});
+    }
+
+    while (!m_pChannel->IsConnected())
+    {
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
+    }
+
+    ezOffscreenTest_OpenMsg msg;
+    msg.m_TextureDesc = m_SharedTextureDesc;
+    for (auto& hSharedTexture : m_hSharedTextures)
+    {
+      const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(hSharedTexture);
+      if (pSharedTexture == nullptr)
+      {
+        return EZ_FAILURE;
+      }
+
+      msg.m_TextureHandles.PushBack(pSharedTexture->GetSharedHandle());
+    }
+    m_pProtocol->Send(&msg);
   }
 
   switch (iIdentifier)
@@ -91,6 +161,9 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
       break;
     case SubTests::ST_VertexShaderRenderTargetArrayIndex:
       m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      break;
+    case SubTests::ST_SharedTexture:
+      m_ImgCompFrames.PushBack(100000000);
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -102,6 +175,34 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier)
 {
+  if (iIdentifier == ST_SharedTexture)
+  {
+    EZ_TEST_BOOL(m_pOffscreenProcess->WaitToFinish(ezTime::MakeFromSeconds(5)).Succeeded());
+    EZ_TEST_BOOL(m_pOffscreenProcess->GetState() == ezProcessState::Finished);
+    EZ_TEST_INT(m_pOffscreenProcess->GetExitCode(), 0);
+    m_pOffscreenProcess = nullptr;
+
+    m_pProtocol = nullptr;
+    m_pChannel = nullptr;
+
+    for (ezUInt32 i = 0; i < s_SharedTextureCount; i++)
+    {
+      m_pDevice->DestroySharedTexture(m_hSharedTextures[i]);
+      m_hSharedTextures[i].Invalidate();
+    }
+    m_SharedTextureQueue.Clear();
+
+    ezStringView sPath = ":imgout/Profiling/sharedTexture.json"_ezsv;
+    EZ_TEST_RESULT(ezProfilingUtils::SaveProfilingCapture(sPath));
+    ezStringView sPath2 = ":imgout/Profiling/offscreenProfiling.json"_ezsv;
+    ezStringView sMergedFile = ":imgout/Profiling/sharedTexturesMerged.json"_ezsv;
+    EZ_TEST_RESULT(ezProfilingUtils::MergeProfilingCaptures(sPath, sPath2, sMergedFile));
+
+    ezCVarFloat* pProfilingThreshold = (ezCVarFloat*)ezCVar::FindCVarByName("Profiling.DiscardThresholdMS");
+    EZ_ASSERT_DEBUG(pProfilingThreshold, "Profiling.cpp cvar was renamed");
+    *pProfilingThreshold = m_fOldProfilingThreshold;
+  }
+
   m_hShader2.Invalidate();
 
   if (!m_hTexture2D.IsInvalidated())
@@ -116,11 +217,7 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
     m_hTexture2DArray.Invalidate();
   }
 
-  m_hCubeUV.Invalidate();
-  m_hShader.Invalidate();
-
   DestroyWindow();
-  ShutdownRenderer();
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::DeInitializeSubTest(iIdentifier));
   return EZ_SUCCESS;
 }
@@ -129,8 +226,13 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
 {
   m_iFrame = uiInvocationCount;
   m_bCaptureImage = false;
-  m_pDevice->BeginFrame(uiInvocationCount);
-  m_pDevice->BeginPipeline("GraphicsTest", m_hSwapChain);
+
+  if (iIdentifier == ST_SharedTexture)
+  {
+    return SharedTexture();
+  }
+
+  BeginFrame();
 
   switch (iIdentifier)
   {
@@ -147,12 +249,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
       break;
   }
 
-  ezRenderContext::GetDefaultInstance()->ResetContextState();
-  m_pDevice->EndPipeline(m_hSwapChain);
-  m_pDevice->EndFrame();
-  m_pWindow->ProcessWindowMessages();
-
-  ezTaskSystem::FinishFrameTasks();
+  EndFrame();
 
   if (m_ImgCompFrames.IsEmpty() || m_ImgCompFrames.PeekBack() == m_iFrame)
   {
@@ -161,45 +258,9 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
   return ezTestAppRun::Continue;
 }
 
-void ezRendererTestAdvancedFeatures::RenderToScreen(ezUInt32 uiRenderTargetClearMask, ezRectFloat viewport, ezDelegate<void(ezGALRenderCommandEncoder*)> func)
-{
-  const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
-
-  ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
-  renderingSetup.m_ClearColor = ezColor::RebeccaPurple;
-  renderingSetup.m_uiRenderTargetClearMask = uiRenderTargetClearMask;
-  if (!m_hDepthStencilTexture.IsInvalidated())
-  {
-    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
-    renderingSetup.m_bClearDepth = true;
-    renderingSetup.m_bClearStencil = true;
-  }
-
-  ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
-
-  SetClipSpace();
-
-  func(pCommandEncoder);
-
-  ezRenderContext::GetDefaultInstance()->EndRendering();
-}
-
-void ezRendererTestAdvancedFeatures::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALResourceViewHandle hSRV)
-{
-  RenderToScreen(uiRenderTargetClearMask, viewport, [&](ezGALRenderCommandEncoder* pEncoder) {
-    ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hSRV);
-    RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
-    if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
-    {
-      EZ_TEST_IMAGE(m_iFrame, 100);
-    }
-  });
-}
-
 void ezRendererTestAdvancedFeatures::ReadRenderTarget()
 {
-  m_pPass = m_pDevice->BeginPass("Offscreen");
+  BeginPass("Offscreen");
   {
     ezGALRenderingSetup renderingSetup;
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2D));
@@ -216,8 +277,8 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
   }
-  m_pDevice->EndPass(m_pPass);
-  m_pPass = nullptr;
+  EndPass();
+
 
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
@@ -227,7 +288,7 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
   const float fElementHeight = fHeight / uiRows;
 
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
-  m_pPass = m_pDevice->BeginPass("Texture2D");
+  BeginPass("Texture2D");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DMips[0]);
@@ -239,15 +300,14 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2DMips[0]);
   }
-  m_pDevice->EndPass(m_pPass);
-  m_pPass = nullptr;
+  EndPass();
 }
 
 void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
 {
   m_bCaptureImage = true;
   const ezMat4 mMVP = CreateSimpleMVP((m_pWindow->GetClientAreaSize().width / 2.0f) / (float)m_pWindow->GetClientAreaSize().height);
-  m_pPass = m_pDevice->BeginPass("Offscreen Stereo");
+  BeginPass("Offscreen Stereo");
   {
     ezGALRenderingSetup renderingSetup;
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2DArray));
@@ -268,28 +328,117 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
   }
-  m_pDevice->EndPass(m_pPass);
-  m_pPass = nullptr;
+  EndPass();
 
-  m_pPass = m_pDevice->BeginPass("Texture2DArray");
+
+  BeginPass("Texture2DArray");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
 
-    RenderToScreen(0xFFFFFFFF, viewport, [&](ezGALRenderCommandEncoder* pEncoder) {
-      ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hTexture2DArray));
+    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
-      ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
-      ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-      ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+    ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hTexture2DArray));
 
-      if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
-      {
-        EZ_TEST_IMAGE(m_iFrame, 100);
-      }
-    });
+    ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+
+    if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
+    {
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
+
+    EndRendering();
   }
-  m_pDevice->EndPass(m_pPass);
-  m_pPass = nullptr;
+  EndPass();
+}
+
+ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
+{
+  if (m_pOffscreenProcess->GetState() != ezProcessState::Running)
+  {
+    EZ_TEST_BOOL(m_bExiting);
+    return ezTestAppRun::Quit;
+  }
+
+  m_pProtocol->WaitForMessages(ezTime::MakeFromMilliseconds(16)).IgnoreResult();
+
+  ezOffscreenTest_SharedTexture texture = m_SharedTextureQueue.PeekFront();
+  m_SharedTextureQueue.PopFront();
+
+  ezStringBuilder sTemp;
+  sTemp.Format("Render {}:{}|{}", m_uiReceivedTextures, texture.m_uiCurrentTextureIndex, texture.m_uiCurrentSemaphoreValue);
+  EZ_PROFILE_SCOPE(sTemp);
+  BeginFrame(sTemp);
+  {
+    const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(m_hSharedTextures[texture.m_uiCurrentTextureIndex]);
+    EZ_ASSERT_DEV(pSharedTexture != nullptr, "Shared texture did not resolve");
+
+    pSharedTexture->WaitSemaphoreGPU(texture.m_uiCurrentSemaphoreValue);
+
+    const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+    const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+    const ezUInt32 uiColumns = 1;
+    const ezUInt32 uiRows = 1;
+    const float fElementWidth = fWidth / uiColumns;
+    const float fElementHeight = fHeight / uiRows;
+
+    const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+    BeginPass("Texture2D");
+    {
+      ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+      m_bCaptureImage = true;
+      viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+
+      ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+
+      ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hSharedTextures[texture.m_uiCurrentTextureIndex]));
+      RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+
+
+      if (!m_bExiting && m_uiReceivedTextures > 10)
+      {
+        EZ_TEST_IMAGE(0, 10);
+
+        ezOffscreenTest_CloseMsg msg;
+        EZ_TEST_BOOL(m_pProtocol->Send(&msg));
+        m_bExiting = true;
+      }
+      EndRendering();
+    }
+    EndPass();
+
+    texture.m_uiCurrentSemaphoreValue++;
+    pSharedTexture->SignalSemaphoreGPU(texture.m_uiCurrentSemaphoreValue);
+    ezRenderContext::GetDefaultInstance()->ResetContextState();
+  }
+  EndFrame();
+
+  if (m_SharedTextureQueue.IsEmpty() || !m_pChannel->IsConnected())
+  {
+    m_SharedTextureQueue.PushBack(texture);
+  }
+  else if (!m_bExiting)
+  {
+    ezOffscreenTest_RenderMsg msg;
+    msg.m_Texture = texture;
+    EZ_TEST_BOOL(m_pProtocol->Send(&msg));
+  }
+
+  return ezTestAppRun::Continue;
+}
+
+
+void ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc(const ezProcessMessage* pMsg)
+{
+  if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderResponseMsg*>(pMsg))
+  {
+    m_uiReceivedTextures++;
+    ezStringBuilder sTemp;
+    sTemp.Format("Receive {}|{}", pAction->m_Texture.m_uiCurrentTextureIndex, pAction->m_Texture.m_uiCurrentSemaphoreValue);
+    EZ_PROFILE_SCOPE(sTemp);
+    m_SharedTextureQueue.PushBack(pAction->m_Texture);
+  }
 }
 
 static ezRendererTestAdvancedFeatures g_AdvancedFeaturesTest;

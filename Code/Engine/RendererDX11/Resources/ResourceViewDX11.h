@@ -22,7 +22,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11ShaderResourceView* m_pDXResourceView;
+  ID3D11ShaderResourceView* m_pDXResourceView = nullptr;
 };
 
 #include <RendererDX11/Resources/Implementation/ResourceViewDX11_inl.h>

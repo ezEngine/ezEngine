@@ -3,7 +3,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 
-ezExtractedRenderData::ezExtractedRenderData() {}
+ezExtractedRenderData::ezExtractedRenderData() = default;
 
 void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category)
 {

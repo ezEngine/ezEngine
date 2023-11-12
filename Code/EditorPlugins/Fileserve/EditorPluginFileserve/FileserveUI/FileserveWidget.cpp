@@ -351,7 +351,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
 
     case ezFileserverEvent::Type::FileDownloading:
     {
-      if (ezTime::Now() - m_LastProgressUpdate > ezTime::Milliseconds(100))
+      if (ezTime::Now() - m_LastProgressUpdate > ezTime::MakeFromMilliseconds(100))
       {
         m_LastProgressUpdate = ezTime::Now();
         Progress->setValue((int)(100.0 * e.m_uiSentTotal / e.m_uiSizeTotal));
@@ -380,7 +380,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
 
     case ezFileserverEvent::Type::FileUploading:
     {
-      if (ezTime::Now() - m_LastProgressUpdate > ezTime::Milliseconds(100))
+      if (ezTime::Now() - m_LastProgressUpdate > ezTime::MakeFromMilliseconds(100))
       {
         m_LastProgressUpdate = ezTime::Now();
         Progress->setValue((int)(100.0 * e.m_uiSentTotal / e.m_uiSizeTotal));
@@ -408,7 +408,7 @@ void ezQtFileserveWidget::LogActivity(const ezFormatString& text, ezFileserveAct
   auto& item = m_pActivityModel->AppendItem();
 
   ezStringBuilder tmp;
-  item.m_Text = text.GetText(tmp);
+  item.m_Text = text.GetTextCStr(tmp);
   item.m_Type = type;
 }
 

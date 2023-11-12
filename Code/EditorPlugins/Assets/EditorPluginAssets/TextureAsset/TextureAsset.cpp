@@ -19,8 +19,8 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+ezTextureAssetDocument::ezTextureAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezTextureAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   m_iTextureLod = -1;
 }
@@ -373,16 +373,16 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
     if (GetProperties()->m_bIsRenderTarget == false)
     {
       GetCommandHistory()->StartTransaction("MakeRenderTarget");
-      GetObjectAccessor()->SetValue(GetPropertyObject(), "IsRenderTarget", true);
+      GetObjectAccessor()->SetValue(GetPropertyObject(), "IsRenderTarget", true).AssertSuccess();
       GetCommandHistory()->FinishTransaction();
       GetCommandHistory()->ClearUndoHistory();
     }
   }
 }
 
-ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  if (ezStringUtils::IsEqual(szOutputTag, "LOWRES"))
+  if (sOutputTag.IsEqual("LOWRES"))
   {
     // no need to generate this file, it will be generated together with the main output
     return ezTransformStatus();
@@ -615,63 +615,63 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
     case TextureType::Diffuse:
     {
       info.m_sName = "TextureImport.Diffuse";
-      info.m_sIcon = ":/AssetIcons/Texture_2D.png";
+      info.m_sIcon = ":/AssetIcons/Texture_2D.svg";
       break;
     }
 
     case TextureType::Normal:
     {
       info.m_sName = "TextureImport.Normal";
-      info.m_sIcon = ":/AssetIcons/Texture_Normals.png";
+      info.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
       break;
     }
 
     case TextureType::Roughness:
     {
       info.m_sName = "TextureImport.Roughness";
-      info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+      info.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
       break;
     }
 
     case TextureType::Occlusion:
     {
       info.m_sName = "TextureImport.Occlusion";
-      info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+      info.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
       break;
     }
 
     case TextureType::Metalness:
     {
       info.m_sName = "TextureImport.Metalness";
-      info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+      info.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
       break;
     }
 
     case TextureType::ORM:
     {
       info.m_sName = "TextureImport.ORM";
-      info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+      info.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
       break;
     }
 
     case TextureType::Height:
     {
       info.m_sName = "TextureImport.Height";
-      info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+      info.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
       break;
     }
 
     case TextureType::HDR:
     {
       info.m_sName = "TextureImport.HDR";
-      info.m_sIcon = ":/AssetIcons/Texture_2D.png";
+      info.m_sIcon = ":/AssetIcons/Texture_2D.svg";
       break;
     }
 
     case TextureType::Linear:
     {
       info.m_sName = "TextureImport.Linear";
-      info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+      info.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
       break;
     }
   }
@@ -684,7 +684,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Diffuse";
-    info2.m_sIcon = ":/AssetIcons/Texture_2D.png";
+    info2.m_sIcon = ":/AssetIcons/Texture_2D.svg";
   }
 
   if (tt != TextureType::Linear)
@@ -693,7 +693,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Linear";
-    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Normal)
@@ -702,7 +702,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Normal";
-    info2.m_sIcon = ":/AssetIcons/Texture_Normals.png";
+    info2.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
   }
 
   if (tt != TextureType::Metalness)
@@ -711,7 +711,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Metalness";
-    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Roughness)
@@ -720,7 +720,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Roughness";
-    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Occlusion)
@@ -729,7 +729,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Occlusion";
-    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::ORM)
@@ -738,7 +738,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.ORM";
-    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Height)
@@ -747,7 +747,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Height";
-    info2.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 }
 

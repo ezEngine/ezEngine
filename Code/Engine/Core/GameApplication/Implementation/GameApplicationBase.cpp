@@ -15,13 +15,14 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Texture/Image/Image.h>
 
 ezGameApplicationBase* ezGameApplicationBase::s_pGameApplicationBaseInstance = nullptr;
 
-ezGameApplicationBase::ezGameApplicationBase(const char* szAppName)
-  : ezApplication(szAppName)
+ezGameApplicationBase::ezGameApplicationBase(ezStringView sAppName)
+  : ezApplication(sAppName)
   , m_ConFunc_TakeScreenshot("TakeScreenshot", "()", ezMakeDelegate(&ezGameApplicationBase::TakeScreenshot, this))
   , m_ConFunc_CaptureFrame("CaptureFrame", "()", ezMakeDelegate(&ezGameApplicationBase::CaptureFrame, this))
 {
@@ -35,7 +36,7 @@ ezGameApplicationBase::~ezGameApplicationBase()
 
 void AppendCurrentTimestamp(ezStringBuilder& out_sString)
 {
-  const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+  const ezDateTime dt = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
 
   out_sString.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
@@ -84,7 +85,7 @@ void ezGameApplicationBase::TakeScreenshot()
   m_bTakeScreenshot = true;
 }
 
-void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szContext /*= nullptr*/)
+void ezGameApplicationBase::StoreScreenshot(ezImage&& image, ezStringView sContext /*= {} */)
 {
   class WriteFileTask final : public ezTask
   {
@@ -114,7 +115,7 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
 
   pWriteTask->m_sPath.Format(":appdata/Screenshots/{0}", ezApplication::GetApplicationInstance()->GetApplicationName());
   AppendCurrentTimestamp(pWriteTask->m_sPath);
-  pWriteTask->m_sPath.Append(szContext);
+  pWriteTask->m_sPath.Append(sContext);
   pWriteTask->m_sPath.Append(".png");
 
   // we move the file writing off to another thread to save some time
@@ -123,7 +124,7 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
   ezTaskSystem::StartSingleTask(pWriteTask, ezTaskPriority::LongRunning);
 }
 
-void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, const char* szContext /* = nullptr*/)
+void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, ezStringView sContext /* = {} */)
 {
   if (m_bTakeScreenshot)
   {
@@ -131,7 +132,7 @@ void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOut
     ezImage img;
     if (pOutputTarget->CaptureImage(img).Succeeded())
     {
-      StoreScreenshot(std::move(img), szContext);
+      StoreScreenshot(std::move(img), sContext);
     }
   }
 }
@@ -161,7 +162,7 @@ ezResult ezGameApplicationBase::GetAbsFrameCaptureOutputPath(ezStringBuilder& re
   return ezFileSystem::ResolvePath(sPath, &ref_sOutputPath, nullptr);
 }
 
-void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandle, const char* szContext /*= nullptr*/)
+void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandle, ezStringView sContext /*= {} */)
 {
   ezFrameCaptureInterface* pCaptureInterface = ezSingletonRegistry::GetSingletonInstance<ezFrameCaptureInterface>();
   if (!pCaptureInterface)
@@ -178,7 +179,7 @@ void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandl
       ezStringBuilder sOutputPath;
       if (GetAbsFrameCaptureOutputPath(sOutputPath).Succeeded())
       {
-        sOutputPath.Append(szContext);
+        sOutputPath.Append(sContext);
         pCaptureInterface->SetAbsCaptureFilePathTemplate(sOutputPath);
       }
 
@@ -268,22 +269,19 @@ ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState(ezWorld* pWo
   {
     ezInt32 iBestPriority = -1;
 
-    for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-    {
-      if (!pRtti->IsDerivedFrom<ezGameStateBase>() || !pRtti->GetAllocator()->CanAllocate())
-        continue;
+    ezRTTI::ForEachDerivedType<ezGameStateBase>(
+      [&](const ezRTTI* pRtti) {
+        ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
 
-      ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
+        const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);
+        if (iPriority > iBestPriority)
+        {
+          iBestPriority = iPriority;
 
-      const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);
-
-      if (iPriority > iBestPriority)
-      {
-        iBestPriority = iPriority;
-
-        pCurState = std::move(pState);
-      }
-    }
+          pCurState = std::move(pState);
+        }
+      },
+      ezRTTI::ForEachOptions::ExcludeNonAllocatable);
   }
 
   return pCurState;
@@ -378,16 +376,22 @@ EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
 
 ezApplication::Execution ezGameApplicationBase::Run()
 {
-  EZ_PROFILE_SCOPE("Run");
   if (m_bWasQuitRequested)
     return ezApplication::Execution::Quit;
 
+  RunOneFrame();
+  return ezApplication::Execution::Continue;
+}
+
+void ezGameApplicationBase::RunOneFrame()
+{
+  EZ_PROFILE_SCOPE("Run");
   s_bUpdatePluginsExecuted = false;
 
   ezActorManager::GetSingleton()->Update();
 
   if (!IsGameUpdateEnabled())
-    return ezApplication::Execution::Continue;
+    return;
 
   {
     // for plugins that need to hook into this without a link dependency on this lib
@@ -445,7 +449,6 @@ ezApplication::Execution ezGameApplicationBase::Run()
     EZ_PROFILE_SCOPE("Run_FinishFrame");
     Run_FinishFrame();
   }
-  return ezApplication::Execution::Continue;
 }
 
 void ezGameApplicationBase::Run_InputUpdate()
@@ -529,7 +532,7 @@ void ezGameApplicationBase::Run_FinishFrame()
   ezProfilingSystem::StartNewFrame();
 
   // if many messages have been logged, make sure they get written to disk
-  ezLog::Flush(100, ezTime::Seconds(10));
+  ezLog::Flush(100, ezTime::MakeFromSeconds(10));
 
   // reset this state
   m_bTakeScreenshot = false;

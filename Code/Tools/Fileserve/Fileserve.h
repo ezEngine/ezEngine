@@ -17,7 +17,7 @@
 class ezFileserverApp : public ezApplication
 {
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezFileserverApp()
     : ezApplication("Fileserve")

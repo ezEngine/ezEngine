@@ -20,18 +20,21 @@ struct ezPrefabInstantiationOptions
 
   bool m_bForceDynamic = false;
 
+  /// \brief If the prefab has a single root node with this non-empty name, rather than creating a new object, instead the m_hParent object is used.
+  ezTempHashedString m_ReplaceNamedRootWithParent;
+
   enum class RandomSeedMode
   {
-    DeterministicFromParent,
-    CompletelyRandom,
-    FixedFromSerialization,
-    CustomRootValue,
+    DeterministicFromParent, ///< ezWorld::CreateObject() will either derive a deterministic value from the parent object, or assign a random value, if no parent exists
+    CompletelyRandom,        ///< ezWorld::CreateObject() will assign a random value to this object
+    FixedFromSerialization,  ///< Keep deserialized random seed value
+    CustomRootValue,         ///< Use the given seed root value to assign a deterministic (but different) value to each game object.
   };
 
   RandomSeedMode m_RandomSeedMode = RandomSeedMode::DeterministicFromParent;
   ezUInt32 m_uiCustomRandomSeedRootValue = 0;
 
-  ezTime m_MaxStepTime = ezTime::Zero();
+  ezTime m_MaxStepTime = ezTime::MakeZero();
 
   ezProgress* m_pProgress = nullptr;
 };
@@ -58,7 +61,7 @@ public:
       Finished,          ///< The instantiation is finished and you can delete the context. Don't call 'Step()' on it again.
     };
 
-    virtual ~InstantiationContextBase() {}
+    virtual ~InstantiationContextBase() = default;
 
     /// \Brief Advance the instantiation by one step
     /// \return Whether the operation is finished or needs to be repeated.
@@ -95,7 +98,7 @@ public:
   ///
   /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The ezProgress object
   /// has to be valid as long as the instantiation is in progress.
-  ezUniquePtr<InstantiationContextBase> InstantiateWorld(ezWorld& ref_world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::Zero(), ezProgress* pProgress = nullptr);
+  ezUniquePtr<InstantiationContextBase> InstantiateWorld(ezWorld& ref_world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::MakeZero(), ezProgress* pProgress = nullptr);
 
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
@@ -134,7 +137,7 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const;
 
-  using FindComponentTypeCallback = ezDelegate<const ezRTTI*(const char* szTypeName)>;
+  using FindComponentTypeCallback = ezDelegate<const ezRTTI*(ezStringView sTypeName)>;
 
   /// \brief An optional callback to redirect the lookup of a component type name to an ezRTTI type.
   ///

@@ -1,9 +1,9 @@
 #pragma once
 
 ezTag::ezTag()
-  : m_uiBlockIndex(0xFFFFFFFEu)
-{
-}
+
+
+  = default;
 
 bool ezTag::operator==(const ezTag& rhs) const
 {

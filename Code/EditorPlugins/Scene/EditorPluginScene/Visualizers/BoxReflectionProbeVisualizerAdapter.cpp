@@ -6,8 +6,8 @@
 
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezBoxReflectionProbeVisualizerAdapter::ezBoxReflectionProbeVisualizerAdapter() {}
-ezBoxReflectionProbeVisualizerAdapter::~ezBoxReflectionProbeVisualizerAdapter() {}
+ezBoxReflectionProbeVisualizerAdapter::ezBoxReflectionProbeVisualizerAdapter() = default;
+ezBoxReflectionProbeVisualizerAdapter::~ezBoxReflectionProbeVisualizerAdapter() = default;
 
 void ezBoxReflectionProbeVisualizerAdapter::Finalize()
 {

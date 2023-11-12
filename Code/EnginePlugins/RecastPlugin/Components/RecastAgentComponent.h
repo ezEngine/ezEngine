@@ -2,8 +2,8 @@
 
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
-#include <Recast/DetourNavMeshQuery.h>
-#include <Recast/DetourPathCorridor.h>
+#include <DetourNavMeshQuery.h>
+#include <DetourPathCorridor.h>
 #include <RecastPlugin/Components/AgentSteeringComponent.h>
 #include <RecastPlugin/Components/RecastNavMeshComponent.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
@@ -17,7 +17,7 @@ struct ezResourceEvent;
 
 class EZ_RECASTPLUGIN_DLL ezRcAgentComponentManager : public ezComponentManager<class ezRcAgentComponent, ezBlockStorageType::FreeList>
 {
-  typedef ezComponentManager<class ezRcAgentComponent, ezBlockStorageType::FreeList> SUPER;
+  using SUPER = ezComponentManager<class ezRcAgentComponent, ezBlockStorageType::FreeList>;
 
 public:
   ezRcAgentComponentManager(ezWorld* pWorld);

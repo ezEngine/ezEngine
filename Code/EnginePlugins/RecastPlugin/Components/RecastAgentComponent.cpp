@@ -4,8 +4,8 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <DetourCrowd.h>
 #include <GameEngine/Physics/CharacterControllerComponent.h>
-#include <Recast/DetourCrowd.h>
 #include <RecastPlugin/Components/RecastAgentComponent.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
 #include <RecastPlugin/Utils/RcMath.h>
@@ -26,8 +26,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 2, ezComponentMode::Dynamic)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezRcAgentComponent::ezRcAgentComponent() {}
-ezRcAgentComponent::~ezRcAgentComponent() {}
+ezRcAgentComponent::ezRcAgentComponent() = default;
+ezRcAgentComponent::~ezRcAgentComponent() = default;
 
 void ezRcAgentComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -263,7 +263,7 @@ void ezRcAgentComponent::PlanNextSteps()
   dtPolyRef stepPolys[16];
 
   m_iFirstNextStep = 0;
-  m_iNumNextSteps = m_pCorridor->findCorners(&m_vNextSteps[0].x, stepFlags, stepPolys, 4, m_pQuery.Borrow(), &m_QueryFilter);
+  m_iNumNextSteps = m_pCorridor->findCorners(&m_vNextSteps[0].x, stepFlags, stepPolys, 4, m_pQuery.Borrow());
 
   // convert from Recast convention (Y up) to ez (Z up)
   for (ezInt32 i = 0; i < m_iNumNextSteps; ++i)
@@ -301,8 +301,7 @@ void ezRcAgentComponent::ApplySteering(const ezVec3& vDirection, float fSpeed)
 {
   // compute new rotation
   {
-    ezQuat qDesiredNewRotation;
-    qDesiredNewRotation.SetShortestRotation(ezVec3(1, 0, 0), vDirection);
+    ezQuat qDesiredNewRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vDirection);
 
     /// \todo Pass through character controller
     GetOwner()->SetGlobalRotation(qDesiredNewRotation);
@@ -449,7 +448,7 @@ void ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
 
   ezVec3 vDirection = m_vNextSteps[m_iFirstNextStep] - vCurPos;
   vDirection.z = 0;
-  vDirection.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+  vDirection.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
   m_vCurrentSteeringDirection = vDirection;
 }
@@ -468,8 +467,7 @@ void ezRcAgentComponent::VisualizePathCorridorPosition()
   const float* pos = m_pCorridor->getPos();
   const ezVec3 vPos(pos[0], pos[2], pos[1]);
 
-  ezBoundingBox box;
-  box.SetCenterAndHalfExtents(ezVec3(0, 0, 1.0f), ezVec3(0.3f, 0.3f, 1.0f));
+  ezBoundingBox box = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(0, 0, 1.0f), ezVec3(0.3f, 0.3f, 1.0f));
 
   ezTransform t;
   t.SetIdentity();
@@ -565,7 +563,7 @@ ezRcAgentComponentManager::ezRcAgentComponentManager(ezWorld* pWorld)
   : SUPER(pWorld)
 {
 }
-ezRcAgentComponentManager::~ezRcAgentComponentManager() {}
+ezRcAgentComponentManager::~ezRcAgentComponentManager() = default;
 
 void ezRcAgentComponentManager::Initialize()
 {

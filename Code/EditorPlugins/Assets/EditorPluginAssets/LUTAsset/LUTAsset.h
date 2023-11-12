@@ -11,15 +11,15 @@ class ezLUTAssetDocument : public ezSimpleAssetDocument<ezLUTAssetProperties>
   EZ_ADD_DYNAMIC_REFLECTION(ezLUTAssetDocument, ezSimpleAssetDocument<ezLUTAssetProperties>);
 
 public:
-  ezLUTAssetDocument(const char* szDocumentPath);
+  ezLUTAssetDocument(ezStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override
   {
     return ezStatus(EZ_SUCCESS);
   }
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 };
 

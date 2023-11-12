@@ -11,33 +11,23 @@ class ezTestBaseClass;
 /// \brief Stores the identification of a sub-test.
 struct ezSubTestEntry
 {
-  ezSubTestEntry()
-    : m_iSubTestIdentifier(-1)
-    , m_szSubTestName("")
-    , m_bEnableTest(true)
-  {
-  }
+  ezSubTestEntry() = default;
 
-  ezInt32 m_iSubTestIdentifier;
-  const char* m_szSubTestName;
-  bool m_bEnableTest;
+  ezInt32 m_iSubTestIdentifier = -1;
+  const char* m_szSubTestName = "";
+  bool m_bEnableTest = true;
 };
 
 /// \brief Stores the identification of a test.
 struct ezTestEntry
 {
-  ezTestEntry()
-    : m_pTest(nullptr)
-    , m_szTestName("")
-    , m_bEnableTest(true)
-  {
-  }
+  ezTestEntry() = default;
 
-  ezTestBaseClass* m_pTest;
-  const char* m_szTestName;
+  ezTestBaseClass* m_pTest = nullptr;
+  const char* m_szTestName = "";
   std::deque<ezSubTestEntry> m_SubTests;
   std::string m_sNotAvailableReason;
-  bool m_bEnableTest;
+  bool m_bEnableTest = true;
 };
 
 enum class AssertOnTestFail

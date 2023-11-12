@@ -28,13 +28,19 @@ macro(ez_find_qt)
 		Svg
 	)
 
+	# ezEngine requires at least Qt 6.3 because earlier versions have a bug which prevents the 3d viewport in the 
+	# Editor from working correctly.
+	SET(EZ_REQUIRED_QT_VERSION "6.3")
+
 	if(EZ_ENABLE_QT_SUPPORT)
 		if(EZ_QT_DIR)
-			find_package(Qt6 COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED PATHS ${EZ_QT_DIR})
+			find_package(Qt6 ${EZ_REQUIRED_QT_VERSION} COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED PATHS ${EZ_QT_DIR})
 		else()
-			find_package(Qt6 COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED)
+			find_package(Qt6 ${EZ_REQUIRED_QT_VERSION} COMPONENTS ${EZ_QT_COMPONENTS} REQUIRED)
 		endif()
 	endif()
+
+	message(STATUS "Found Qt6 Version ${Qt6_VERSION} in ${Qt6_DIR}")
 	
 	mark_as_advanced(FORCE Qt6_DIR)
 	mark_as_advanced(FORCE Qt6Core_DIR)

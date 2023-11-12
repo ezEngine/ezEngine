@@ -13,18 +13,34 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
+  //////////////////////////////////////////////////////////////////////////
+  // ezLogAnimNode
+
+protected:
+  ezString m_sText;                                        // [ property ]
+  ezAnimGraphTriggerInputPin m_InActivate;                 // [ property ]
+  ezUInt8 m_uiNumberCount = 1;                             // [ property ]
+  ezHybridArray<ezAnimGraphNumberInputPin, 2> m_InNumbers; // [ property ]
+};
+
+class EZ_RENDERERCORE_DLL ezLogInfoAnimNode : public ezLogAnimNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLogInfoAnimNode, ezLogAnimNode);
 
   //////////////////////////////////////////////////////////////////////////
   // ezLogAnimNode
 
-public:
-  ezString m_sText;
+protected:
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+};
 
-private:
-  ezAnimGraphTriggerInputPin m_ActivePin; // [ property ]
-  ezAnimGraphTriggerInputPin m_Input0;    // [ property ]
-  ezAnimGraphTriggerInputPin m_Input1;    // [ property ]
-  ezAnimGraphNumberInputPin m_Input2;     // [ property ]
-  ezAnimGraphNumberInputPin m_Input3;     // [ property ]
+class EZ_RENDERERCORE_DLL ezLogErrorAnimNode : public ezLogAnimNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLogErrorAnimNode, ezLogAnimNode);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezLogAnimNode
+
+protected:
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 };

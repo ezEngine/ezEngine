@@ -15,7 +15,7 @@ class ezWindowBase;
 
 struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceType
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
   enum Enum : ezUInt8
   {
     Unknown = 0,
@@ -46,7 +46,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceType
 /// \sa ezGALWindowSwapChainCreationDescription
 struct EZ_RENDERERFOUNDATION_DLL ezGALPresentMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -149,8 +149,8 @@ struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRa
   float m_fDepthBiasClamp = 0.0f;                         ///< The pixel depth bias clamp. Default is 0
   float m_fSlopeScaledDepthBias = 0.0f;                   ///< The pixel slope scaled depth bias clamp. Default is 0
   bool m_bWireFrame = false;                              ///< Whether triangles are rendered filled or as wireframe. Default is false
-  bool m_bFrontCounterClockwise = false; ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle
-                                         ///< is the one where the vertices appear in counter clockwise order. Default is false
+  bool m_bFrontCounterClockwise = false;                  ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle
+                                                          ///< is the one where the vertices appear in counter clockwise order. Default is false
   bool m_bScissorTest = false;
   bool m_bConservativeRasterization = false; ///< Whether conservative rasterization is enabled
 };
@@ -242,7 +242,7 @@ struct ezGALResourceAccess
 
 struct ezGALBufferType
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -267,7 +267,6 @@ struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreat
   bool m_bUseForIndirectArguments = false;
   bool m_bUseAsStructuredBuffer = false;
   bool m_bAllowRawViews = false;
-  bool m_bStreamOutputTarget = false;
   bool m_bAllowShaderResourceView = false;
   bool m_bAllowUAV = false;
 
@@ -360,7 +359,7 @@ struct ezGALUnorderedAccessViewCreationDescription : public ezHashableStruct<ezG
 
 struct ezGALQueryType
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -401,6 +400,31 @@ struct ezGALDeviceEvent
 
   Type m_Type;
   class ezGALDevice* m_pDevice;
+};
+
+// Type of the shared texture
+struct ezGALSharedTextureType
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : ezUInt8
+  {
+    None,     ///< Not shared
+    Exported, ///< Allocation owned by this process
+    Imported, ///< Allocation owned by a different process
+    Default = None
+  };
+};
+
+// Opaque platform specific handle
+// Typically holds a platform specific handle for the texture and it's synchronization primitive
+struct ezGALPlatformSharedHandle : public ezHashableStruct<ezGALPlatformSharedHandle>
+{
+  ezUInt64 m_hSharedTexture = 0;
+  ezUInt64 m_hSemaphore = 0;
+  ezUInt32 m_uiProcessId = 0;
+  ezUInt32 m_uiMemoryTypeIndex = 0;
+  ezUInt64 m_uiSize = 0;
 };
 
 #include <RendererFoundation/Descriptors/Implementation/Descriptors_inl.h>

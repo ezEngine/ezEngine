@@ -33,9 +33,15 @@ EZ_ALWAYS_INLINE ezSimdFloat::operator float() const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Zero()
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeZero()
 {
   return ezSimdFloat(0.0f);
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeNaN()
+{
+  return ezSimdFloat(ezMath::NaN<float>());
 }
 
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator+(const ezSimdFloat& f) const

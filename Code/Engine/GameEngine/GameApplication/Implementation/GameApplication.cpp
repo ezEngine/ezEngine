@@ -38,7 +38,7 @@ ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjec
   : ezGameApplicationBase(szAppName)
   , m_sAppProjectPath(szProjectPath)
 {
-  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this));
+  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "UpdateWorldsAndExtractViews", ezTaskNesting::Never, ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this));
   m_pUpdateTask->ConfigureTask("GameApplication.Update", ezTaskNesting::Maybe);
 
   s_pGameApplicationInstance = this;
@@ -247,9 +247,9 @@ void ezGameApplication::RenderFps()
   ++uiFrames;
   tAccumTime += m_FrameTime;
 
-  if (tAccumTime >= ezTime::Seconds(0.5))
+  if (tAccumTime >= ezTime::MakeFromSeconds(0.5))
   {
-    tAccumTime -= ezTime::Seconds(0.5);
+    tAccumTime -= ezTime::MakeFromSeconds(0.5);
     tDisplayedFrameTime = m_FrameTime;
 
     uiFPS = uiFrames * 2;
@@ -260,7 +260,7 @@ void ezGameApplication::RenderFps()
   {
     if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView))
     {
-      ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugRenderer::ScreenPlacement::BottomLeft, "FPS", ezFmt("{0} fps, {1} ms", uiFPS, ezArgF(tDisplayedFrameTime.GetMilliseconds(), 1, false, 4)));
+      ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugTextPlacement::BottomLeft, "FPS", ezFmt("{0} fps, {1} ms", uiFPS, ezArgF(tDisplayedFrameTime.GetMilliseconds(), 1, false, 4)));
     }
   }
 }
@@ -380,6 +380,11 @@ void ezGameApplication::Init_ConfigureInput()
       ezGameAppInputConfig::ApplyAll(InputActions);
     }
   }
+
+  if (m_pConsole)
+  {
+    m_pConsole->LoadInputHistory(":appdata/ConsoleInputHistory.cfg");
+  }
 }
 
 bool ezGameApplication::Run_ProcessApplicationInput()
@@ -392,7 +397,10 @@ bool ezGameApplication::Run_ProcessApplicationInput()
     if (m_bShowConsole)
       ezInputManager::SetExclusiveInputSet("Console");
     else
+    {
       ezInputManager::SetExclusiveInputSet("");
+      m_pConsole->SaveInputHistory(":appdata/ConsoleInputHistory.cfg").IgnoreResult();
+    }
   }
 
   if (ezInputManager::GetInputActionState(s_szInputSet, s_szShowFpsAction) == ezKeyState::Pressed)

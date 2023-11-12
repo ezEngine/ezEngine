@@ -33,7 +33,7 @@ ezAttributeHolder::~ezAttributeHolder()
 {
   for (auto pAttr : m_Attributes)
   {
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
   }
 }
 
@@ -53,7 +53,7 @@ ezUInt32 ezAttributeHolder::GetCount() const
   return ezMath::Max(m_ReferenceAttributes.GetCount(), m_Attributes.GetCount());
 }
 
-ezPropertyAttribute* ezAttributeHolder::GetValue(ezUInt32 uiIndex) const
+const ezPropertyAttribute* ezAttributeHolder::GetValue(ezUInt32 uiIndex) const
 {
   if (!m_ReferenceAttributes.IsEmpty())
     return m_ReferenceAttributes[uiIndex];
@@ -61,12 +61,12 @@ ezPropertyAttribute* ezAttributeHolder::GetValue(ezUInt32 uiIndex) const
   return m_Attributes[uiIndex];
 }
 
-void ezAttributeHolder::SetValue(ezUInt32 uiIndex, ezPropertyAttribute* value)
+void ezAttributeHolder::SetValue(ezUInt32 uiIndex, const ezPropertyAttribute* value)
 {
   m_Attributes[uiIndex] = value;
 }
 
-void ezAttributeHolder::Insert(ezUInt32 uiIndex, ezPropertyAttribute* value)
+void ezAttributeHolder::Insert(ezUInt32 uiIndex, const ezPropertyAttribute* value)
 {
   m_Attributes.Insert(value, uiIndex);
 }
@@ -142,29 +142,28 @@ public:
 ezReflectedPropertyDescriptorPatch_1_2 g_ezReflectedPropertyDescriptorPatch_1_2;
 
 
-ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(
-  ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags)
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, ezStringView sName, ezStringView sType, ezBitflags<ezPropertyFlags> flags)
   : m_Category(category)
-  , m_sName(szName)
-  , m_sType(szType)
+  , m_sName(sName)
+  , m_sType(sType)
   , m_Flags(flags)
 {
 }
 
-ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType,
-  ezBitflags<ezPropertyFlags> flags, const ezArrayPtr<ezPropertyAttribute* const> attributes)
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, ezStringView sName, ezStringView sType,
+  ezBitflags<ezPropertyFlags> flags, ezArrayPtr<const ezPropertyAttribute* const> attributes)
   : m_Category(category)
-  , m_sName(szName)
-  , m_sType(szType)
+  , m_sName(sName)
+  , m_sType(sType)
   , m_Flags(flags)
 {
   m_ReferenceAttributes = attributes;
 }
 
 ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(
-  const char* szName, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes)
+  ezStringView sName, const ezVariant& constantValue, ezArrayPtr<const ezPropertyAttribute* const> attributes)
   : m_Category(ezPropertyCategory::Constant)
-  , m_sName(szName)
+  , m_sName(sName)
   , m_sType()
   , m_Flags(ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly)
   , m_ConstantValue(constantValue)
@@ -193,7 +192,7 @@ void ezReflectedPropertyDescriptor::operator=(const ezReflectedPropertyDescripto
   ezAttributeHolder::operator=(rhs);
 }
 
-ezReflectedPropertyDescriptor::~ezReflectedPropertyDescriptor() {}
+ezReflectedPropertyDescriptor::~ezReflectedPropertyDescriptor() = default;
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -213,10 +212,10 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFunctionArgumentDescriptor, ezNoBase, 1, ezRTTI
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezFunctionArgumentDescriptor::ezFunctionArgumentDescriptor() {}
+ezFunctionArgumentDescriptor::ezFunctionArgumentDescriptor() = default;
 
-ezFunctionArgumentDescriptor::ezFunctionArgumentDescriptor(const char* szType, ezBitflags<ezPropertyFlags> flags)
-  : m_sType(szType)
+ezFunctionArgumentDescriptor::ezFunctionArgumentDescriptor(ezStringView sType, ezBitflags<ezPropertyFlags> flags)
+  : m_sType(sType)
   , m_Flags(flags)
 {
 }
@@ -242,11 +241,10 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedFunctionDescriptor, ezAttributeHolder,
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor() {}
+ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor() = default;
 
-ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor(
-  const char* szName, ezBitflags<ezPropertyFlags> flags, ezEnum<ezFunctionType> type, const ezArrayPtr<ezPropertyAttribute* const> attributes)
-  : m_sName(szName)
+ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor(ezStringView sName, ezBitflags<ezPropertyFlags> flags, ezEnum<ezFunctionType> type, ezArrayPtr<const ezPropertyAttribute* const> attributes)
+  : m_sName(sName)
   , m_Flags(flags)
   , m_Type(type)
 {
@@ -258,12 +256,13 @@ ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor(const ezReflectedFu
   operator=(rhs);
 }
 
-ezReflectedFunctionDescriptor::~ezReflectedFunctionDescriptor() {}
+ezReflectedFunctionDescriptor::~ezReflectedFunctionDescriptor() = default;
 
 void ezReflectedFunctionDescriptor::operator=(const ezReflectedFunctionDescriptor& rhs)
 {
   m_sName = rhs.m_sName;
   m_Flags = rhs.m_Flags;
+  m_Type = rhs.m_Type;
   m_ReturnValue = rhs.m_ReturnValue;
   m_Arguments = rhs.m_Arguments;
   ezAttributeHolder::operator=(rhs);
@@ -291,4 +290,4 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezAttributeHolder, 1, 
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezReflectedTypeDescriptor::~ezReflectedTypeDescriptor() {}
+ezReflectedTypeDescriptor::~ezReflectedTypeDescriptor() = default;

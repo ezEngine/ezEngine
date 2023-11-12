@@ -142,26 +142,6 @@ ImGuiContext* ezImgui::CreateContext()
   cfg.DisplaySize.x = 1650;
   cfg.DisplaySize.y = 1080;
 
-  cfg.KeyMap[ImGuiKey_Tab] = ImGuiKey_Tab;
-  cfg.KeyMap[ImGuiKey_LeftArrow] = ImGuiKey_LeftArrow;
-  cfg.KeyMap[ImGuiKey_RightArrow] = ImGuiKey_RightArrow;
-  cfg.KeyMap[ImGuiKey_UpArrow] = ImGuiKey_UpArrow;
-  cfg.KeyMap[ImGuiKey_DownArrow] = ImGuiKey_DownArrow;
-  cfg.KeyMap[ImGuiKey_PageUp] = ImGuiKey_PageUp;
-  cfg.KeyMap[ImGuiKey_PageDown] = ImGuiKey_PageDown;
-  cfg.KeyMap[ImGuiKey_Home] = ImGuiKey_Home;
-  cfg.KeyMap[ImGuiKey_End] = ImGuiKey_End;
-  cfg.KeyMap[ImGuiKey_Delete] = ImGuiKey_Delete;
-  cfg.KeyMap[ImGuiKey_Backspace] = ImGuiKey_Backspace;
-  cfg.KeyMap[ImGuiKey_Enter] = ImGuiKey_Enter;
-  cfg.KeyMap[ImGuiKey_Escape] = ImGuiKey_Escape;
-  cfg.KeyMap[ImGuiKey_A] = ImGuiKey_A;
-  cfg.KeyMap[ImGuiKey_C] = ImGuiKey_C;
-  cfg.KeyMap[ImGuiKey_V] = ImGuiKey_V;
-  cfg.KeyMap[ImGuiKey_X] = ImGuiKey_X;
-  cfg.KeyMap[ImGuiKey_Y] = ImGuiKey_Y;
-  cfg.KeyMap[ImGuiKey_Z] = ImGuiKey_Z;
-
   if (m_ConfigStyleCallback.IsValid())
   {
     m_ConfigStyleCallback(ImGui::GetStyle());
@@ -218,26 +198,27 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
     cfg.KeySuper = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftWin) >= ezKeyState::Pressed ||
                    ezInputManager::GetInputSlotState(ezInputSlot_KeyRightWin) >= ezKeyState::Pressed;
 
-    cfg.KeysDown[ImGuiKey_Tab] = ezInputManager::GetInputSlotState(ezInputSlot_KeyTab) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_LeftArrow] = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeft) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_RightArrow] = ezInputManager::GetInputSlotState(ezInputSlot_KeyRight) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_UpArrow] = ezInputManager::GetInputSlotState(ezInputSlot_KeyUp) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_DownArrow] = ezInputManager::GetInputSlotState(ezInputSlot_KeyDown) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_PageUp] = ezInputManager::GetInputSlotState(ezInputSlot_KeyPageUp) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_PageDown] = ezInputManager::GetInputSlotState(ezInputSlot_KeyPageDown) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_Home] = ezInputManager::GetInputSlotState(ezInputSlot_KeyHome) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_End] = ezInputManager::GetInputSlotState(ezInputSlot_KeyEnd) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_Delete] = ezInputManager::GetInputSlotState(ezInputSlot_KeyDelete) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_Backspace] = ezInputManager::GetInputSlotState(ezInputSlot_KeyBackspace) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_Enter] = ezInputManager::GetInputSlotState(ezInputSlot_KeyReturn) >= ezKeyState::Pressed ||
-                                   ezInputManager::GetInputSlotState(ezInputSlot_KeyNumpadEnter) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_Escape] = ezInputManager::GetInputSlotState(ezInputSlot_KeyEscape) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_A] = ezInputManager::GetInputSlotState(ezInputSlot_KeyA) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_C] = ezInputManager::GetInputSlotState(ezInputSlot_KeyC) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_V] = ezInputManager::GetInputSlotState(ezInputSlot_KeyV) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_X] = ezInputManager::GetInputSlotState(ezInputSlot_KeyX) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_Y] = ezInputManager::GetInputSlotState(ezInputSlot_KeyY) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_Z] = ezInputManager::GetInputSlotState(ezInputSlot_KeyZ) >= ezKeyState::Pressed;
+    cfg.AddKeyEvent(ImGuiKey_Tab, ezInputManager::GetInputSlotState(ezInputSlot_KeyTab) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_LeftArrow, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeft) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_RightArrow, ezInputManager::GetInputSlotState(ezInputSlot_KeyRight) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_UpArrow, ezInputManager::GetInputSlotState(ezInputSlot_KeyUp) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_DownArrow, ezInputManager::GetInputSlotState(ezInputSlot_KeyDown) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_PageUp, ezInputManager::GetInputSlotState(ezInputSlot_KeyPageUp) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_PageDown, ezInputManager::GetInputSlotState(ezInputSlot_KeyPageDown) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Home, ezInputManager::GetInputSlotState(ezInputSlot_KeyHome) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_End, ezInputManager::GetInputSlotState(ezInputSlot_KeyEnd) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Delete, ezInputManager::GetInputSlotState(ezInputSlot_KeyDelete) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Backspace, ezInputManager::GetInputSlotState(ezInputSlot_KeyBackspace) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Enter, ezInputManager::GetInputSlotState(ezInputSlot_KeyReturn) >= ezKeyState::Pressed ||
+                                      ezInputManager::GetInputSlotState(ezInputSlot_KeyNumpadEnter) >= ezKeyState::Pressed);
+
+    cfg.AddKeyEvent(ImGuiKey_Escape, ezInputManager::GetInputSlotState(ezInputSlot_KeyEscape) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_A, ezInputManager::GetInputSlotState(ezInputSlot_KeyA) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_C, ezInputManager::GetInputSlotState(ezInputSlot_KeyC) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_V, ezInputManager::GetInputSlotState(ezInputSlot_KeyV) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_X, ezInputManager::GetInputSlotState(ezInputSlot_KeyX) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Y, ezInputManager::GetInputSlotState(ezInputSlot_KeyY) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_Z, ezInputManager::GetInputSlotState(ezInputSlot_KeyZ) >= ezKeyState::Pressed);
   }
   else
   {
@@ -256,9 +237,6 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
     cfg.KeyCtrl = false;
     cfg.KeyShift = false;
     cfg.KeySuper = false;
-
-    for (int i = 0; i <= ImGuiKey_COUNT; ++i)
-      cfg.KeysDown[i] = false;
   }
 
   ImGui::NewFrame();

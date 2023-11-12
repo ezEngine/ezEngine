@@ -93,8 +93,7 @@ void ezInputComponent::Update()
 
     if (pBlackboard)
     {
-      // we don't mind if the entry doesn't exist, that just means nobody is interested in reading the value
-      pBlackboard->SetEntryValue(ezTempHashedString(actionName), fValue).IgnoreResult();
+      pBlackboard->SetEntryValue(actionName, fValue);
     }
 
     if (state == ezKeyState::Up)
@@ -122,11 +121,6 @@ float ezInputComponent::GetCurrentInputState(const char* szInputAction, bool bOn
 
   if (bOnlyKeyPressed && state != ezKeyState::Pressed)
     return 0;
-
-  if (state != ezKeyState::Up)
-  {
-    return fValue;
-  }
 
   return fValue;
 }

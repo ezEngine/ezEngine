@@ -61,7 +61,7 @@ public:
 
   void ExtractSystemRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const;
 
-  typedef ezEvent<const ezStreamGroupElementRemovedEvent&>::Handler ParticleDeathHandler;
+  using ParticleDeathHandler = ezEvent<const ezStreamGroupElementRemovedEvent&>::Handler;
 
   void AddParticleDeathEventHandler(ParticleDeathHandler handler);
   void RemoveParticleDeathEventHandler(ParticleDeathHandler handler);

@@ -42,15 +42,14 @@ EZ_END_STATIC_REFLECTED_TYPE;
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget()
   : QWidget(nullptr)
-  , m_pGrid(nullptr)
-  , m_pProp(nullptr)
+
 {
   m_bUndead = false;
   m_bIsDefault = true;
   setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 }
 
-ezQtPropertyWidget::~ezQtPropertyWidget() {}
+ezQtPropertyWidget::~ezQtPropertyWidget() = default;
 
 void ezQtPropertyWidget::Init(
   ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType, const ezAbstractProperty* pProp)
@@ -217,7 +216,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
     else
     {
       QByteArray ba = mimedata->data(szMimeType);
-      ezRawMemoryStreamReader memoryReader(ba.data(), ba.count());
+      ezRawMemoryStreamReader memoryReader(ba.data(), ba.size());
 
       ezPropertyClipboard content;
       ezReflectionSerializer::ReadObjectPropertiesFromDDL(memoryReader, *ezGetStaticRTTI<ezPropertyClipboard>(), &content);
@@ -298,7 +297,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
       clipboard->setMimeData(mimeData);
 
       ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
-        ezFmt("Copied Property Name: {}", m_pProp->GetPropertyName()), ezTime::Seconds(5));
+        ezFmt("Copied Property Name: {}", m_pProp->GetPropertyName()), ezTime::MakeFromSeconds(5));
     };
 
     QAction* pAction = m.addAction("Copy Internal Property Name:");
@@ -356,13 +355,13 @@ bool ezQtPropertyWidget::GetCommonVariantSubType(
     {
       bFirst = false;
       ezVariant value;
-      m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index);
+      m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index).AssertSuccess();
       out_type = value.GetType();
     }
     else
     {
       ezVariant valueNext;
-      m_pObjectAccessor->GetValue(item.m_pObject, pProperty, valueNext, item.m_Index);
+      m_pObjectAccessor->GetValue(item.m_pObject, pProperty, valueNext, item.m_Index).AssertSuccess();
       if (valueNext.GetType() != out_type)
       {
         out_type = ezVariantType::Invalid;
@@ -384,12 +383,12 @@ ezVariant ezQtPropertyWidget::GetCommonValue(const ezHybridArray<ezPropertySelec
       const auto& item = items[i];
       if (i == 0)
       {
-        m_pObjectAccessor->GetValues(item.m_pObject, pProperty, values);
+        m_pObjectAccessor->GetValues(item.m_pObject, pProperty, values).AssertSuccess();
       }
       else
       {
         ezVariantArray valuesNext;
-        m_pObjectAccessor->GetValues(item.m_pObject, pProperty, valuesNext);
+        m_pObjectAccessor->GetValues(item.m_pObject, pProperty, valuesNext).AssertSuccess();
         if (values != valuesNext)
         {
           return ezVariant();
@@ -406,12 +405,12 @@ ezVariant ezQtPropertyWidget::GetCommonValue(const ezHybridArray<ezPropertySelec
     {
       if (!value.IsValid())
       {
-        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index);
+        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index).AssertSuccess();
       }
       else
       {
         ezVariant valueNext;
-        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, valueNext, item.m_Index);
+        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, valueNext, item.m_Index).AssertSuccess();
         if (value != valueNext)
         {
           value = ezVariant();
@@ -539,7 +538,8 @@ void ezQtUnsupportedPropertyWidget::OnInit()
 {
   ezQtScopedBlockSignals bs(m_pWidget);
 
-  QString sMessage = QStringLiteral("Unsupported Type: ") % QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName());
+  ezStringBuilder tmp;
+  QString sMessage = QStringLiteral("Unsupported Type: ") % QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName().GetData(tmp));
   if (!m_sMessage.IsEmpty())
     sMessage += QStringLiteral(" (") % QString::fromUtf8(m_sMessage, m_sMessage.GetElementCount()) % QStringLiteral(")");
   m_pWidget->setText(sMessage);
@@ -698,7 +698,8 @@ void ezQtPropertyPointerWidget::UpdateTitle(const ezRTTI* pType /*= nullptr*/)
   ezStringBuilder sb = ezTranslate(m_pProp->GetPropertyName());
   if (pType != nullptr)
   {
-    sb.Append(": ", ezTranslate(pType->GetTypeName()));
+    ezStringBuilder tmp;
+    sb.Append(": ", ezTranslate(pType->GetTypeName().GetData(tmp)));
   }
   m_pGroup->SetTitle(sb);
 }
@@ -755,8 +756,7 @@ void ezQtPropertyPointerWidget::StructureEventHandler(const ezDocumentObjectStru
 
 ezQtEmbeddedClassPropertyWidget::ezQtEmbeddedClassPropertyWidget()
   : ezQtPropertyWidget()
-  , m_bTemporaryCommand(false)
-  , m_pResolvedType(nullptr)
+
 {
 }
 
@@ -891,7 +891,7 @@ ezQtPropertyTypeWidget::ezQtPropertyTypeWidget(bool bAddCollapsibleGroup)
   m_pTypeWidget = nullptr;
 }
 
-ezQtPropertyTypeWidget::~ezQtPropertyTypeWidget() {}
+ezQtPropertyTypeWidget::~ezQtPropertyTypeWidget() = default;
 
 void ezQtPropertyTypeWidget::OnInit()
 {
@@ -966,7 +966,7 @@ void ezQtPropertyTypeWidget::DoPrepareToDie()
 
 ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
   : ezQtPropertyWidget()
-  , m_pAddButton(nullptr)
+
 {
   m_Pal = palette();
   setAutoFillBackground(true);
@@ -1101,7 +1101,7 @@ bool ezQtPropertyContainerWidget::updateDropIndex(QDropEvent* pEvent)
         pEvent->accept();
         ezInt32 iNewDropTarget = -1;
         // Find closest drop target.
-        const ezInt32 iGlobalYPos = mapToGlobal(pEvent->pos()).y();
+        const ezInt32 iGlobalYPos = mapToGlobal(pEvent->position().toPoint()).y();
         for (ezUInt32 j = 0; j < m_Elements.GetCount(); j++)
         {
           const QRect rect(m_Elements[j].m_pSubGroup->mapToGlobal(QPoint(0, 0)), m_Elements[j].m_pSubGroup->size());
@@ -1216,7 +1216,6 @@ void ezQtPropertyContainerWidget::OnCustomElementContextMenu(const QPoint& pt)
 ezQtGroupBoxBase* ezQtPropertyContainerWidget::CreateElement(QWidget* pParent)
 {
   auto pBox = new ezQtCollapsibleGroupBox(pParent);
-  pBox->SetFillColor(palette().window().color());
   return pBox;
 }
 
@@ -1233,7 +1232,7 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
   connect(pSubGroup, &QWidget::customContextMenuRequested, this, &ezQtPropertyContainerWidget::OnCustomElementContextMenu);
 
   QVBoxLayout* pSubLayout = new QVBoxLayout(nullptr);
-  pSubLayout->setContentsMargins(5, 0, 0, 0);
+  pSubLayout->setContentsMargins(5, 0, 5, 0);
   pSubLayout->setSpacing(1);
   pSubGroup->GetContent()->setLayout(pSubLayout);
 
@@ -1387,7 +1386,7 @@ void ezQtPropertyContainerWidget::UpdatePropertyMetaState()
       element.m_pSubGroup->SetBoldTitle(!bIsDefault);
 
       // If the fill color is invalid that means no border is drawn and we don't want to change the color then.
-      if (element.m_pSubGroup->GetFillColor().isValid())
+      if (!element.m_pSubGroup->GetFillColor().isValid())
       {
         element.m_pSubGroup->SetFillColor(qColor);
       }
@@ -1523,7 +1522,7 @@ ezQtPropertyStandardTypeContainerWidget::ezQtPropertyStandardTypeContainerWidget
 {
 }
 
-ezQtPropertyStandardTypeContainerWidget::~ezQtPropertyStandardTypeContainerWidget() {}
+ezQtPropertyStandardTypeContainerWidget::~ezQtPropertyStandardTypeContainerWidget() = default;
 
 ezQtGroupBoxBase* ezQtPropertyStandardTypeContainerWidget::CreateElement(QWidget* pParent)
 {
@@ -1578,9 +1577,8 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
 /// *** ezQtPropertyTypeContainerWidget ***
 
 ezQtPropertyTypeContainerWidget::ezQtPropertyTypeContainerWidget()
-  : m_bNeedsUpdate(false)
-{
-}
+
+  = default;
 
 ezQtPropertyTypeContainerWidget::~ezQtPropertyTypeContainerWidget()
 {
@@ -1630,8 +1628,8 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
 
     // Label
     {
-      ezStringBuilder sTitle;
-      sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName()));
+      ezStringBuilder sTitle, tmp;
+      sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName().GetData(tmp)));
 
       if (auto pInDev = pCommonType->GetAttributeByType<ezInDevelopmentAttribute>())
       {
@@ -1641,16 +1639,35 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
       elem.m_pSubGroup->SetTitle(sTitle);
     }
 
+    ezColor borderIconColor = ezColor::MakeZero();
+
+    if (const ezColorAttribute* pColorAttrib = pCommonType->GetAttributeByType<ezColorAttribute>())
+    {
+      borderIconColor = pColorAttrib->GetColor();
+      elem.m_pSubGroup->SetFillColor(ezToQtColor(pColorAttrib->GetColor()));
+    }
+    else if (const ezCategoryAttribute* pCatAttrib = pCommonType->GetAttributeByType<ezCategoryAttribute>())
+    {
+      borderIconColor = ezColorScheme::GetCategoryColor(pCatAttrib->GetCategory(), ezColorScheme::CategoryColorUsage::BorderIconColor);
+      elem.m_pSubGroup->SetFillColor(ezToQtColor(ezColorScheme::GetCategoryColor(pCatAttrib->GetCategory(), ezColorScheme::CategoryColorUsage::BorderColor)));
+    }
+    else
+    {
+      const QPalette& pal = palette();
+      elem.m_pSubGroup->SetFillColor(pal.mid().color());
+    }
+
     // Icon
     {
       ezStringBuilder sIconName;
-      sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName());
-      elem.m_pSubGroup->SetIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData()));
+      sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName(), ".svg");
+      elem.m_pSubGroup->SetIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData(), borderIconColor));
     }
 
     // help URL
     {
-      QString url = ezTranslateHelpURL(pCommonType->GetTypeName());
+      ezStringBuilder tmp;
+      QString url = ezTranslateHelpURL(pCommonType->GetTypeName().GetData(tmp));
 
       if (!url.isEmpty())
       {
@@ -1726,37 +1743,34 @@ void ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler(const ezCommand
 
 ezQtVariantPropertyWidget::ezQtVariantPropertyWidget()
 {
-  m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setContentsMargins(0, 0, 0, 0);
+  m_pLayout = new QVBoxLayout(this);
+  m_pLayout->setContentsMargins(0, 0, 0, 4);
+  m_pLayout->setSpacing(1);
   setLayout(m_pLayout);
+
+  m_pTypeList = new QComboBox(this);
+  m_pTypeList->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+  m_pLayout->addWidget(m_pTypeList);
 }
 
+ezQtVariantPropertyWidget::~ezQtVariantPropertyWidget() = default;
 
-ezQtVariantPropertyWidget::~ezQtVariantPropertyWidget() {}
-
-void ezQtVariantPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtVariantPropertyWidget::OnInit()
 {
-  ezQtStandardPropertyWidget::SetSelection(items);
-}
-
-void ezQtVariantPropertyWidget::ExtendContextMenu(QMenu& ref_menu)
-{
-  ezQtStandardPropertyWidget::ExtendContextMenu(ref_menu);
-
-  QMenu* ctm = ref_menu.addMenu(QStringLiteral("Change Type"));
-  for (int i = ezVariantType::FirstStandardType + 1; i < ezVariantType::LastStandardType; ++i)
+  ezStringBuilder sName;
+  for (int i = ezVariantType::Invalid; i < ezVariantType::LastExtendedType; ++i)
   {
-    if (i == ezVariantType::StringView || i == ezVariantType::DataBuffer)
-      continue;
     auto type = static_cast<ezVariantType::Enum>(i);
-    const ezRTTI* pVariantEnum = ezRTTI::FindTypeByName("ezVariantType");
-    ezStringBuilder sName;
-    bool res = ezReflectionUtils::EnumerationToString(pVariantEnum, type, sName);
-    QAction* action = ctm->addAction(sName.GetData(), [this, type]()
-      { ChangeVariantType(type); });
-    if (m_OldValue.GetType() == type)
-      action->setChecked(true);
+    if (GetVariantTypeDisplayName(type, sName).Succeeded())
+    {
+      m_pTypeList->addItem(ezTranslate(sName), i);
+    }
   }
+
+  connect(m_pTypeList, &QComboBox::currentIndexChanged,
+    [this](int iIndex) {
+      ChangeVariantType(static_cast<ezVariantType::Enum>(m_pTypeList->itemData(iIndex).toInt()));
+    });
 }
 
 void ezQtVariantPropertyWidget::InternalSetValue(const ezVariant& value)
@@ -1781,23 +1795,43 @@ void ezQtVariantPropertyWidget::InternalSetValue(const ezVariant& value)
     }
     else if (!sameType)
     {
-      m_pWidget = new ezQtUnsupportedPropertyWidget("Multi-selection has varying types, RMB to change.");
+      m_pWidget = new ezQtUnsupportedPropertyWidget("Multi-selection has varying types");
     }
     else
     {
-      m_pWidget = new ezQtUnsupportedPropertyWidget("Variant set to invalid, RMB to change.");
+      m_pWidget = new ezQtUnsupportedPropertyWidget("<Invalid>");
     }
     m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     m_pWidget->setParent(this);
     m_pLayout->addWidget(m_pWidget);
     m_pWidget->Init(m_pGrid, m_pObjectAccessor, m_pType, m_pProp);
+
+    UpdateTypeListSelection(commonType);
   }
   m_pWidget->SetSelection(m_Items);
 }
 
+void ezQtVariantPropertyWidget::DoPrepareToDie()
+{
+  if (m_pWidget)
+    m_pWidget->PrepareToDie();
+}
+
+void ezQtVariantPropertyWidget::UpdateTypeListSelection(ezVariantType::Enum type)
+{
+  ezQtScopedBlockSignals bs(m_pTypeList);
+  for (int i = 0; i < m_pTypeList->count(); ++i)
+  {
+    if (m_pTypeList->itemData(i).toInt() == type)
+    {
+      m_pTypeList->setCurrentIndex(i);
+      break;
+    }
+  }
+}
+
 void ezQtVariantPropertyWidget::ChangeVariantType(ezVariantType::Enum type)
 {
-
   m_pObjectAccessor->StartTransaction("Change variant type");
   // check if we have multiple values
   for (const auto& item : m_Items)
@@ -1817,8 +1851,15 @@ void ezQtVariantPropertyWidget::ChangeVariantType(ezVariantType::Enum type)
   m_pObjectAccessor->FinishTransaction();
 }
 
-void ezQtVariantPropertyWidget::DoPrepareToDie()
+ezResult ezQtVariantPropertyWidget::GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const
 {
-  if (m_pWidget)
-    m_pWidget->PrepareToDie();
+  if (type == ezVariantType::FirstStandardType || type >= ezVariantType::LastStandardType ||
+      type == ezVariantType::StringView || type == ezVariantType::DataBuffer || type == ezVariantType::TempHashedString)
+    return EZ_FAILURE;
+
+  const ezRTTI* pVariantEnum = ezGetStaticRTTI<ezVariantType>();
+  if (ezReflectionUtils::EnumerationToString(pVariantEnum, type, out_sName) == false)
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
 }

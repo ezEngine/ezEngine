@@ -7,14 +7,15 @@ class ezAbstractObjectGraph;
 
 struct ezDocumentFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
     None = 0,
-    RequestWindow = EZ_BIT(0),
-    AddToRecentFilesList = EZ_BIT(1),
-    AsyncSave = EZ_BIT(2),
+    RequestWindow = EZ_BIT(0),        ///< Open the document visibly (not just internally)
+    AddToRecentFilesList = EZ_BIT(1), ///< Add the document path to the recently used list for users
+    AsyncSave = EZ_BIT(2),            ///<
+    EmptyDocument = EZ_BIT(3),        ///< Don't populate a new document with default state (templates etc)
     Default = None,
   };
 
@@ -37,6 +38,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
   ezString m_sIcon;
   const ezRTTI* m_pDocumentType = nullptr;
   ezDocumentManager* m_pManager = nullptr;
+  ezStringView m_sAssetCategory; // passed to ezColorScheme::GetCategoryColor() with CategoryColorUsage::AssetMenuIcon
 
   /// This list is used to decide which asset types can be picked from the asset browser for a property.
   /// The strings are arbitrary and don't need to be registered anywhere else.
@@ -55,13 +57,14 @@ struct ezDocumentEvent
     ReadOnlyChanged,
     EnsureVisible,
     DocumentSaved,
+    DocumentRenamed,
     DocumentStatusMsg,
   };
 
   Type m_Type;
   const ezDocument* m_pDocument;
 
-  const char* m_szStatusMsg;
+  ezStringView m_sStatusMsg;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentInfo : public ezReflectedClass

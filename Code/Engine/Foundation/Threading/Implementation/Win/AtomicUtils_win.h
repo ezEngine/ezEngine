@@ -17,8 +17,8 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Read(volatile const ezInt64& iSrc)
   ezInt64 old;
   do
   {
-    old = src;
-  } while (_InterlockedCompareExchange64(const_cast<volatile ezInt64*>(&src), old, old) != old);
+    old = iSrc;
+  } while (_InterlockedCompareExchange64(const_cast<volatile ezInt64*>(&iSrc), old, old) != old);
   return old;
 #else
   return _InterlockedOr64(const_cast<volatile ezInt64*>(&iSrc), 0);
@@ -36,8 +36,8 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Increment(volatile ezInt64& ref_iDest)
   ezInt64 old;
   do
   {
-    old = dest;
-  } while (_InterlockedCompareExchange64(&dest, old + 1, old) != old);
+    old = ref_iDest;
+  } while (_InterlockedCompareExchange64(&ref_iDest, old + 1, old) != old);
   return old + 1;
 #else
   return _InterlockedIncrement64(&ref_iDest);
@@ -55,8 +55,8 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Decrement(volatile ezInt64& ref_iDest)
   ezInt64 old;
   do
   {
-    old = dest;
-  } while (_InterlockedCompareExchange64(&dest, old - 1, old) != old);
+    old = ref_iDest;
+  } while (_InterlockedCompareExchange64(&ref_iDest, old - 1, old) != old);
   return old - 1;
 #else
   return _InterlockedDecrement64(&ref_iDest);
@@ -74,8 +74,8 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostIncrement(volatile ezInt64& ref_iDes
   ezInt64 old;
   do
   {
-    old = dest;
-  } while (_InterlockedCompareExchange64(&dest, old + 1, old) != old);
+    old = ref_iDest;
+  } while (_InterlockedCompareExchange64(&ref_iDest, old + 1, old) != old);
   return old;
 #else
   return _InterlockedExchangeAdd64(&ref_iDest, 1);
@@ -93,8 +93,8 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostDecrement(volatile ezInt64& ref_iDes
   ezInt64 old;
   do
   {
-    old = dest;
-  } while (_InterlockedCompareExchange64(&dest, old - 1, old) != old);
+    old = ref_iDest;
+  } while (_InterlockedCompareExchange64(&ref_iDest, old - 1, old) != old);
   return old;
 #else
   return _InterlockedExchangeAdd64(&ref_iDest, -1);
@@ -112,8 +112,8 @@ EZ_ALWAYS_INLINE void ezAtomicUtils::Add(volatile ezInt64& ref_iDest, ezInt64 va
   ezInt64 old;
   do
   {
-    old = dest;
-  } while (_InterlockedCompareExchange64(&dest, old + value, old) != old);
+    old = ref_iDest;
+  } while (_InterlockedCompareExchange64(&ref_iDest, old + value, old) != old);
 #else
   _InterlockedExchangeAdd64(&ref_iDest, value);
 #endif
@@ -131,8 +131,8 @@ EZ_ALWAYS_INLINE void ezAtomicUtils::And(volatile ezInt64& ref_iDest, ezInt64 va
   ezInt64 old;
   do
   {
-    old = dest;
-  } while (_InterlockedCompareExchange64(&dest, old & value, old) != old);
+    old = ref_iDest;
+  } while (_InterlockedCompareExchange64(&ref_iDest, old & value, old) != old);
 #else
   _InterlockedAnd64(&ref_iDest, value);
 #endif
@@ -150,8 +150,8 @@ EZ_ALWAYS_INLINE void ezAtomicUtils::Or(volatile ezInt64& ref_iDest, ezInt64 val
   ezInt64 old;
   do
   {
-    old = dest;
-  } while (_InterlockedCompareExchange64(&dest, old | value, old) != old);
+    old = ref_iDest;
+  } while (_InterlockedCompareExchange64(&ref_iDest, old | value, old) != old);
 #else
   _InterlockedOr64(&ref_iDest, value);
 #endif
@@ -169,8 +169,8 @@ EZ_ALWAYS_INLINE void ezAtomicUtils::Xor(volatile ezInt64& ref_iDest, ezInt64 va
   ezInt64 old;
   do
   {
-    old = dest;
-  } while (_InterlockedCompareExchange64(&dest, old ^ value, old) != old);
+    old = ref_iDest;
+  } while (_InterlockedCompareExchange64(&ref_iDest, old ^ value, old) != old);
 #else
   _InterlockedXor64(&ref_iDest, value);
 #endif
@@ -241,8 +241,8 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Set(volatile ezInt64& ref_iDest, ezInt64
   ezInt64 old;
   do
   {
-    old = dest;
-  } while (_InterlockedCompareExchange64(&dest, value, old) != old);
+    old = ref_iDest;
+  } while (_InterlockedCompareExchange64(&ref_iDest, value, old) != old);
   return old;
 #else
   return _InterlockedExchange64(&ref_iDest, value);

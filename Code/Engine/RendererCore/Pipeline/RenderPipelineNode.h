@@ -12,7 +12,7 @@ struct ezRenderPipelineNodePin
 
   struct Type
   {
-    typedef ezUInt8 StorageType;
+    using StorageType = ezUInt8;
 
     enum Enum
     {
@@ -57,7 +57,7 @@ class EZ_RENDERERCORE_DLL ezRenderPipelineNode : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineNode, ezReflectedClass);
 
 public:
-  virtual ~ezRenderPipelineNode() {}
+  virtual ~ezRenderPipelineNode() = default;
 
   void InitializePins();
 

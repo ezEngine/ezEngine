@@ -12,7 +12,7 @@ class ezMat4Template
 public:
   EZ_DECLARE_POD_TYPE();
 
-  typedef Type ComponentType;
+  using ComponentType = Type;
 
   // *** Data ***
 public:
@@ -55,22 +55,45 @@ public:
   }
 #endif
 
-  /// \brief Copies 16 values from pData into the matrix. Can handle the data in row-major or column-major order.
-  ///
-  /// \param pData
-  ///   The array of Type values from which to set the matrix data.
-  /// \param layout
-  ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
-  ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
-  void SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
+  /// \brief Returns a zero matrix.
+  [[nodiscard]] static ezMat4Template<Type> MakeZero();
+
+  /// \brief Returns an identity matrix.
+  [[nodiscard]] static ezMat4Template<Type> MakeIdentity();
+
+  /// \brief Creates a matrix from 16 values that are in row-major layout.
+  [[nodiscard]] static ezMat4Template<Type> MakeFromRowMajorArray(const Type* const pData);
+
+  /// \brief Creates a matrix from 16 values that are in column-major layout.
+  [[nodiscard]] static ezMat4Template<Type> MakeFromColumnMajorArray(const Type* const pData);
+
+  /// \brief Creates a matrix from 16 values. Naming is "column-n row-m"
+  [[nodiscard]] static ezMat4Template<Type> MakeFromValues(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3, Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4);
+
+  /// \brief Creates a matrix with all zero values, except the last column, which is set to x, y, z, 1
+  [[nodiscard]] static ezMat4Template<Type> MakeTranslation(const ezVec3Template<Type>& vTranslation);
+
+  /// \brief Creates a transformation matrix from a rotation and a translation.
+  [[nodiscard]] static ezMat4Template<Type> MakeTransformation(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation);
+
+  /// \brief Creates a matrix with all zero values, except along the diagonal, which is set to x, y, z, 1
+  [[nodiscard]] static ezMat4Template<Type> MakeScaling(const ezVec3Template<Type>& vScale);
+
+  /// \brief Creates a matrix that is a rotation matrix around the X-axis.
+  [[nodiscard]] static ezMat4Template<Type> MakeRotationX(ezAngle angle);
+
+  /// \brief Creates a matrix that is a rotation matrix around the Y-axis.
+  [[nodiscard]] static ezMat4Template<Type> MakeRotationY(ezAngle angle);
+
+  /// \brief Creates a matrix that is a rotation matrix around the Z-axis.
+  [[nodiscard]] static ezMat4Template<Type> MakeRotationZ(ezAngle angle);
+
+  /// \brief Creates a matrix that is a rotation matrix around the given axis.
+  [[nodiscard]] static ezMat4Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle);
 
   /// \brief Copies the 16 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or
   /// row-major format.
   void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
-
-  /// \brief Sets each element manually: Naming is "column-n row-m"
-  void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3, Type c4r3,
-    Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
 
   /// \brief Sets a transformation matrix from a rotation and a translation.
   void SetTransformationMatrix(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation); // [tested]
@@ -83,31 +106,8 @@ public:
   /// \brief Sets all elements to zero, except the diagonal, which is set to one.
   void SetIdentity(); // [tested]
 
-  /// \brief Sets the matrix to all zero, except the last column, which is set to x,y,z,1
-  void SetTranslationMatrix(const ezVec3Template<Type>& vTranslation); // [tested]
-
-  /// \brief Sets the matrix to all zero, except the diagonal, which is set to x,y,z,1
-  void SetScalingMatrix(const ezVec3Template<Type>& vScale); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the X-axis.
-  void SetRotationMatrixX(ezAngle angle); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the Y-axis.
-  void SetRotationMatrixY(ezAngle angle); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the Z-axis.
-  void SetRotationMatrixZ(ezAngle angle); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the given axis.
-  void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
-
   // *** Common Matrix Operations ***
 public:
-  /// \brief Returns an Identity Matrix.
-  static const ezMat4Template<Type> IdentityMatrix(); // [tested]
-
-  /// \brief Returns a Zero Matrix.
-  static const ezMat4Template<Type> ZeroMatrix(); // [tested]
 
   /// \brief Transposes this matrix.
   void Transpose(); // [tested]
@@ -208,7 +208,6 @@ public:
   /// \brief Equality Check with epsilon
   bool IsEqual(const ezMat4Template<Type>& rhs, Type fEpsilon) const; // [tested]
 };
-
 
 // *** free functions ***
 

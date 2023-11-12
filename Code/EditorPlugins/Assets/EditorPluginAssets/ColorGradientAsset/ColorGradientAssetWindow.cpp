@@ -106,31 +106,31 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(double posX, c
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "ColorCPs";
   cmdAdd.m_pType = ezGetStaticRTTI<ezColorControlPoint>();
   cmdAdd.m_Index = -1;
 
-  history->AddCommand(cmdAdd);
+  history->AddCommand(cmdAdd).AssertSuccess();
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::Seconds(posX));
-  history->AddCommand(cmdSet);
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(posX));
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Red";
   cmdSet.m_NewValue = color.r;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Green";
   cmdSet.m_NewValue = color.g;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Blue";
   cmdSet.m_NewValue = color.b;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -145,23 +145,23 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(double posX, e
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "AlphaCPs";
   cmdAdd.m_pType = ezGetStaticRTTI<ezAlphaControlPoint>();
   cmdAdd.m_Index = -1;
 
-  history->AddCommand(cmdAdd);
+  history->AddCommand(cmdAdd).AssertSuccess();
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::Seconds(posX));
-  history->AddCommand(cmdSet);
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(posX));
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Alpha";
   cmdSet.m_NewValue = alpha;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -176,23 +176,23 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(double pos
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "IntensityCPs";
   cmdAdd.m_pType = ezGetStaticRTTI<ezIntensityControlPoint>();
   cmdAdd.m_Index = -1;
 
-  history->AddCommand(cmdAdd);
+  history->AddCommand(cmdAdd).AssertSuccess();
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::Seconds(posX));
-  history->AddCommand(cmdSet);
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(posX));
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Intensity";
   cmdSet.m_NewValue = intensity;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -212,8 +212,8 @@ void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, double newPosX, c
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::Seconds(newPosX));
-  history->AddCommand(cmdSet);
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(newPosX));
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -247,7 +247,7 @@ void ezQtColorGradientAssetDocumentWindow::RemoveCP(ezInt32 idx, const char* szA
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -285,15 +285,15 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx,
 
   cmdSet.m_sProperty = "Red";
   cmdSet.m_NewValue = color.r;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Green";
   cmdSet.m_NewValue = color.g;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Blue";
   cmdSet.m_NewValue = color.b;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -314,7 +314,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx,
 
   cmdSet.m_sProperty = "Alpha";
   cmdSet.m_NewValue = alpha;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -334,7 +334,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 
 
   cmdSet.m_sProperty = "Intensity";
   cmdSet.m_NewValue = intensity;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -451,7 +451,7 @@ void ezQtColorGradientAssetDocumentWindow::SendLiveResourcePreview()
     return;
 
   ezResourceUpdateMsgToEngine msg;
-  msg.m_sResourceType = "Color Gradient";
+  msg.m_sResourceType = "ColorGradient";
 
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
@@ -482,7 +482,7 @@ void ezQtColorGradientAssetDocumentWindow::SendLiveResourcePreview()
 void ezQtColorGradientAssetDocumentWindow::RestoreResource()
 {
   ezRestoreResourceMsgToEngine msg;
-  msg.m_sResourceType = "Color Gradient";
+  msg.m_sResourceType = "ColorGradient";
 
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);

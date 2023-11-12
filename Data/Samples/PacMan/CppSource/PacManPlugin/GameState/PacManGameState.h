@@ -14,6 +14,11 @@ class PacManGameState : public ezFallbackGameState
   EZ_ADD_DYNAMIC_REFLECTION(PacManGameState, ezFallbackGameState);
 
 public:
+  static ezHashedString s_sStats;
+  static ezHashedString s_sCoinsEaten;
+  static ezHashedString s_sPacManState;
+
+public:
   PacManGameState();
   ~PacManGameState();
 

@@ -40,14 +40,14 @@ namespace ezSimdConversion
   EZ_ALWAYS_INLINE ezQuat ToQuat(const ezSimdQuat& q)
   {
     ezQuat tmp;
-    q.m_v.Store<4>(&tmp.v.x);
+    q.m_v.Store<4>(&tmp.x);
     return tmp;
   }
 
   EZ_ALWAYS_INLINE ezSimdQuat ToQuat(const ezQuat& q)
   {
     ezSimdVec4f tmp;
-    tmp.Load<4>(&q.v.x);
+    tmp.Load<4>(&q.x);
     return ezSimdQuat(tmp);
   }
 
@@ -70,32 +70,30 @@ namespace ezSimdConversion
 
   EZ_ALWAYS_INLINE ezSimdMat4f ToMat4(const ezMat4& m)
   {
-    ezSimdMat4f tmp;
-    tmp.SetFromArray(m.m_fElementsCM, ezMatrixLayout::ColumnMajor);
-    return tmp;
+    return ezSimdMat4f::MakeFromColumnMajorArray(m.m_fElementsCM);
   }
 
   EZ_ALWAYS_INLINE ezBoundingBoxSphere ToBBoxSphere(const ezSimdBBoxSphere& b)
   {
     ezVec4 centerAndRadius = ToVec4(b.m_CenterAndRadius);
-    return ezBoundingBoxSphere(centerAndRadius.GetAsVec3(), ToVec3(b.m_BoxHalfExtents), centerAndRadius.w);
+    return ezBoundingBoxSphere::MakeFromCenterExtents(centerAndRadius.GetAsVec3(), ToVec3(b.m_BoxHalfExtents), centerAndRadius.w);
   }
 
   EZ_ALWAYS_INLINE ezSimdBBoxSphere ToBBoxSphere(const ezBoundingBoxSphere& b)
   {
-    return ezSimdBBoxSphere(ToVec3(b.m_vCenter), ToVec3(b.m_vBoxHalfExtends), b.m_fSphereRadius);
+    return ezSimdBBoxSphere::MakeFromCenterExtents(ToVec3(b.m_vCenter), ToVec3(b.m_vBoxHalfExtends), b.m_fSphereRadius);
   }
 
   EZ_ALWAYS_INLINE ezBoundingSphere ToBSphere(const ezSimdBSphere& s)
   {
     ezVec4 centerAndRadius = ToVec4(s.m_CenterAndRadius);
-    return ezBoundingSphere(centerAndRadius.GetAsVec3(), centerAndRadius.w);
+    return ezBoundingSphere::MakeFromCenterAndRadius(centerAndRadius.GetAsVec3(), centerAndRadius.w);
   }
 
   EZ_ALWAYS_INLINE ezSimdBSphere ToBSphere(const ezBoundingSphere& s) { return ezSimdBSphere(ToVec3(s.m_vCenter), s.m_fRadius); }
 
   EZ_ALWAYS_INLINE ezSimdBBox ToBBox(const ezBoundingBox& b) { return ezSimdBBox(ToVec3(b.m_vMin), ToVec3(b.m_vMax)); }
 
-  EZ_ALWAYS_INLINE ezBoundingBox ToBBox(const ezSimdBBox& b) { return ezBoundingBox(ToVec3(b.m_Min), ToVec3(b.m_Max)); }
+  EZ_ALWAYS_INLINE ezBoundingBox ToBBox(const ezSimdBBox& b) { return ezBoundingBox::MakeFromMinMax(ToVec3(b.m_Min), ToVec3(b.m_Max)); }
 
 }; // namespace ezSimdConversion

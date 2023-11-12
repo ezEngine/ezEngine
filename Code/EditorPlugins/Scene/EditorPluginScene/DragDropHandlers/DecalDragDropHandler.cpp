@@ -26,7 +26,7 @@ void ezDecalComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   {
     CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decals", var, ezUuid(), -1);
 
-    m_vAlignAxisWithNormal = -ezVec3::UnitXAxis();
+    m_vAlignAxisWithNormal = -ezVec3::MakeAxisX();
   }
   else
     CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decals", var, pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);

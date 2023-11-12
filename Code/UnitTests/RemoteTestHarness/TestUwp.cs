@@ -112,7 +112,7 @@ namespace ezUwpTestHarness
 
       fullPackageName = "";
 
-      string absSlnPath = Path.Combine(_ezWorkspace, "ezVs2019.sln");
+      string absSlnPath = Path.Combine(_ezWorkspace, "ezVs2022.sln");
 
       if (!File.Exists(absSlnPath))
       {
@@ -122,9 +122,9 @@ namespace ezUwpTestHarness
 
       // Just hard-code the string as any other solution will break with the next VS version anyway.
       // Use ".com" version which writes into stdout
-      string[] devEnvPathOptions = new string[] { @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.com",
-        @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\devenv.com",
-        @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\devenv.com"};
+      string[] devEnvPathOptions = new string[] { @"C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.com",
+        @"C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\Common7\IDE\devenv.com",
+        @"C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.com"};
 
       string devEnvPath = null;
       foreach (string location in devEnvPathOptions)

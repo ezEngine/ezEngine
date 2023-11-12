@@ -298,7 +298,7 @@ public:
   /// \brief Sets the target frame time that is supposed to not be exceeded.
   ///
   /// \see FinishFrameTasks() for more details.
-  static void SetTargetFrameTime(ezTime targetFrameTime = ezTime::Seconds(1.0 / 40.0) /* 40 FPS -> 25 ms */);
+  static void SetTargetFrameTime(ezTime targetFrameTime = ezTime::MakeFromSeconds(1.0 / 40.0) /* 40 FPS -> 25 ms */);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);

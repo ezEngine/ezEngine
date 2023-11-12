@@ -16,9 +16,9 @@ struct ezActionDescriptor;
 class ezAction;
 struct ezActionContext;
 
-typedef ezGenericId<24, 8> ezActionId;
-typedef ezAction* (*CreateActionFunc)(const ezActionContext& context);
-typedef void (*DeleteActionFunc)(ezAction* pAction);
+using ezActionId = ezGenericId<24, 8>;
+using CreateActionFunc = ezAction* (*)(const ezActionContext&);
+using DeleteActionFunc = void (*)(ezAction*);
 
 /// \brief Handle for a ezAction.
 ///
@@ -26,7 +26,8 @@ typedef void (*DeleteActionFunc)(ezAction* pAction);
 class EZ_GUIFOUNDATION_DLL ezActionDescriptorHandle
 {
 public:
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
+
   EZ_DECLARE_HANDLE_TYPE(ezActionDescriptorHandle, ezActionId);
   friend class ezActionManager;
 
@@ -44,7 +45,7 @@ struct ezActionScope
     Window,
     Default = Global
   };
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 };
 
 ///
@@ -58,7 +59,7 @@ struct ezActionType
     ActionAndMenu,
     Default = Action
   };
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 };
 
 ///
@@ -76,7 +77,8 @@ struct EZ_GUIFOUNDATION_DLL ezActionContext
 ///
 struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
 {
-  ezActionDescriptor(){};
+  ezActionDescriptor() = default;
+  ;
   ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath, const char* szShortcut,
     CreateActionFunc createAction, DeleteActionFunc deleteAction = nullptr);
 

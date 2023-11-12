@@ -14,8 +14,8 @@
    <string>Jolt Project Settings</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-    <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
+   <iconset resource="../QtResources/resources.qrc">
+    <normaloff>:/JoltPlugin/JoltPlugin.svg</normaloff>:/JoltPlugin/JoltPlugin.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

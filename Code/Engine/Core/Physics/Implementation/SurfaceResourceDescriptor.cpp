@@ -16,10 +16,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultA
   {
     EZ_MEMBER_PROPERTY("Type", m_sInteractionType)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
-    // this does not work yet (asset transform fails)
-    //EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("CompatibleAsset_Prefab")),
+    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
     EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
-    EZ_MEMBER_PROPERTY("Deviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezVariant(ezAngle::Degree(0.0f)), ezVariant(ezAngle::Degree(90.0f)))),
+    EZ_MEMBER_PROPERTY("Deviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezVariant(ezAngle::MakeFromDegree(0.0f)), ezVariant(ezAngle::MakeFromDegree(90.0f)))),
     EZ_MEMBER_PROPERTY("ImpulseThreshold", m_fImpulseThreshold),
     EZ_MEMBER_PROPERTY("ImpulseScale", m_fImpulseScale)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
@@ -35,6 +34,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("Restitution", m_fPhysicsRestitution)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
     EZ_MEMBER_PROPERTY("StaticFriction", m_fPhysicsFrictionStatic)->AddAttributes(new ezDefaultValueAttribute(0.6f)),
     EZ_MEMBER_PROPERTY("DynamicFriction", m_fPhysicsFrictionDynamic)->AddAttributes(new ezDefaultValueAttribute(0.4f)),
+    EZ_MEMBER_PROPERTY("GroundType", m_iGroundType)->AddAttributes(new ezDefaultValueAttribute(-1), new ezDynamicEnumAttribute("AiGroundType")),
     EZ_ACCESSOR_PROPERTY("OnCollideInteraction", GetCollisionInteraction, SetCollisionInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_ACCESSOR_PROPERTY("SlideReaction", GetSlideReactionPrefabFile, SetSlideReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("RollReaction", GetRollReactionPrefabFile, SetRollReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
@@ -106,7 +106,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& inout_stream)
   ezUInt8 uiVersion = 0;
 
   inout_stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 7, "Invalid version {0} for surface resource", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 8, "Invalid version {0} for surface resource", uiVersion);
 
   inout_stream >> m_fPhysicsRestitution;
   inout_stream >> m_fPhysicsFrictionStatic;
@@ -173,11 +173,16 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& inout_stream)
       }
     }
   }
+
+  if (uiVersion >= 8)
+  {
+    inout_stream >> m_iGroundType;
+  }
 }
 
 void ezSurfaceResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 7;
+  const ezUInt8 uiVersion = 8;
 
   inout_stream << uiVersion;
   inout_stream << m_fPhysicsRestitution;
@@ -215,6 +220,9 @@ void ezSurfaceResourceDescriptor::Save(ezStreamWriter& inout_stream) const
       inout_stream << ia.m_Parameters.GetValue(i);
     }
   }
+
+  // version 8
+  inout_stream << m_iGroundType;
 }
 
 void ezSurfaceResourceDescriptor::SetBaseSurfaceFile(const char* szFile)

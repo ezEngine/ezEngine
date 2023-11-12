@@ -9,7 +9,7 @@ struct ezPropertyMetaStateEvent;
 
 struct ezMeshPrimitive
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum
   {
@@ -47,7 +47,7 @@ public:
   float m_fRadius = 0.5f;
   float m_fRadius2 = 0.5f;
   float m_fHeight = 1.0f;
-  ezAngle m_Angle = ezAngle::Degree(360.0f);
+  ezAngle m_Angle = ezAngle::MakeFromDegree(360.0f);
   ezUInt16 m_uiDetail = 0;
   ezUInt16 m_uiDetail2 = 0;
   bool m_bCap = true;
@@ -57,7 +57,7 @@ public:
   ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveZ;
   bool m_bFlipForwardDir = false;
 
-  ezMeshPrimitive::Enum m_PrimitiveType;
+  ezMeshPrimitive::Enum m_PrimitiveType = ezMeshPrimitive::Default;
 
   bool m_bRecalculateNormals = false;
   bool m_bRecalculateTrangents = true;

@@ -305,8 +305,7 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bo
 {
   if (m_EffectController.IsAlive())
   {
-    ezBoundingBoxSphere volume;
-    volume.SetInvalid();
+    ezBoundingBoxSphere volume = ezBoundingBoxSphere::MakeInvalid();
 
     m_EffectController.GetBoundingVolume(volume);
 
@@ -374,13 +373,13 @@ void ezParticleComponent::Update()
 
     if (m_RestartTime == ezTime())
     {
-      const ezTime tDiff = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
+      const ezTime tDiff = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
 
       m_RestartTime = tNow + tDiff;
     }
     else if (m_RestartTime <= tNow)
     {
-      m_RestartTime.SetZero();
+      m_RestartTime = ezTime::MakeZero();
       StartEffect();
     }
   }
@@ -419,7 +418,9 @@ void ezParticleComponent::Update()
 
 const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); }, [this](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
+    [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
+    [this](ezUInt32& ref_uiIt) { ++ref_uiIt; },
     [this](const ezUInt32& uiIt) -> const char* {
       if (uiIt < m_FloatParams.GetCount())
         return m_FloatParams[uiIt].m_sName.GetData();
@@ -548,7 +549,7 @@ ezTransform ezParticleComponent::GetPfxTransform() const
 
 void ezParticleComponent::UpdatePfxTransform()
 {
-  m_EffectController.SetTransform(GetPfxTransform(), GetOwner()->GetVelocity());
+  m_EffectController.SetTransform(GetPfxTransform(), GetOwner()->GetLinearVelocity());
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);

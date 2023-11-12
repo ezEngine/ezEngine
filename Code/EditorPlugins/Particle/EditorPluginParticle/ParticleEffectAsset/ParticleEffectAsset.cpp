@@ -16,8 +16,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 6, ezRTTINoAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezParticleEffectDescriptor>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
   ezVisualizerManager::GetSingleton()->SetVisualizersActive(this, m_bRenderVisualizers);
 }
@@ -250,7 +250,7 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
   }
 }
 
-ezTransformStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
+ezTransformStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag,
   const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   WriteResource(stream);

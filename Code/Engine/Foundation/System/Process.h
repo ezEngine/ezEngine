@@ -8,8 +8,8 @@
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
 
-typedef void* ezOsProcessHandle;
-typedef ezUInt32 ezOsProcessID;
+using ezOsProcessHandle = void*;
+using ezOsProcessID = ezUInt32;
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 enum class ezProcessState
@@ -49,15 +49,15 @@ struct EZ_FOUNDATION_DLL ezProcessOptions
 
   /// \brief Overload of AddArgument(ezFormatString) for convenience.
   template <typename... ARGS>
-  void AddArgument(const char* szFormat, ARGS&&... args)
+  void AddArgument(ezStringView sFormat, ARGS&&... args)
   {
-    AddArgument(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    AddArgument(ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Takes a full command line and appends it as individual arguments by splitting it along white-space and quotation marks.
   ///
   /// Brief, use this, if arguments are already pre-built as a full command line.
-  void AddCommandLine(const char* szCmdLine);
+  void AddCommandLine(ezStringView sCmdLine);
 
   /// \brief Builds the command line from the process arguments and appends it to \a out_sCmdLine.
   void BuildCommandLineString(ezStringBuilder& out_sCmdLine) const;
@@ -66,7 +66,7 @@ struct EZ_FOUNDATION_DLL ezProcessOptions
 /// \brief Flags for ezProcess::Launch()
 struct ezProcessLaunchFlags
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {
@@ -119,11 +119,11 @@ public:
 
   /// \brief Waits the given amount of time for the previously launched process to finish.
   ///
-  /// Pass in ezTime::Zero() to wait indefinitely.
+  /// Pass in ezTime::MakeZero() to wait indefinitely.
   /// Returns EZ_FAILURE, if the process did not finish within the given time.
   ///
   /// \note Asserts that the ezProcess instance was used to successfully launch a process before.
-  ezResult WaitToFinish(ezTime timeout = ezTime::Zero());
+  ezResult WaitToFinish(ezTime timeout = ezTime::MakeZero());
 
   /// \brief Kills the detached process, if possible.
   ezResult Terminate();
@@ -152,7 +152,7 @@ public:
   static ezOsProcessID GetCurrentProcessID();
 
 private:
-  void BuildFullCommandLineString(const ezProcessOptions& opt, const char* szProcess, ezStringBuilder& cmd) const;
+  void BuildFullCommandLineString(const ezProcessOptions& opt, ezStringView sProcess, ezStringBuilder& cmd) const;
 
   ezUniquePtr<struct ezProcessImpl> m_pImpl;
 
@@ -162,5 +162,6 @@ private:
   ezString m_sProcess;
   ezDelegate<void(ezStringView)> m_OnStdOut;
   ezDelegate<void(ezStringView)> m_OnStdError;
+  mutable ezTime m_ProcessExited = ezTime::MakeZero();
 };
 #endif

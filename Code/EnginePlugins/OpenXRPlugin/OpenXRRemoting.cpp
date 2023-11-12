@@ -82,7 +82,7 @@ ezResult ezOpenXRRemoting::Connect(const char* remoteHostName, uint16_t remotePo
   contextProperties.maxBitrateKbps = maxBitrateKbps;
   contextProperties.videoCodec = XR_REMOTING_VIDEO_CODEC_ANY_MSFT;
   contextProperties.depthBufferStreamResolution = XR_REMOTING_DEPTH_BUFFER_STREAM_RESOLUTION_HALF_MSFT;
-  XrResult res = m_pOpenXR->m_extensions.pfn_xrRemotingSetContextPropertiesMSFT(m_pOpenXR->m_instance, m_pOpenXR->m_systemId, &contextProperties);
+  XrResult res = m_pOpenXR->m_Extensions.pfn_xrRemotingSetContextPropertiesMSFT(m_pOpenXR->m_pInstance, m_pOpenXR->m_SystemId, &contextProperties);
   if (res != XrResult::XR_SUCCESS)
   {
     XR_LOG_ERROR(res);
@@ -93,7 +93,7 @@ ezResult ezOpenXRRemoting::Connect(const char* remoteHostName, uint16_t remotePo
   connectInfo.remoteHostName = remoteHostName;
   connectInfo.remotePort = remotePort;
   connectInfo.secureConnection = false;
-  res = m_pOpenXR->m_extensions.pfn_xrRemotingConnectMSFT(m_pOpenXR->m_instance, m_pOpenXR->m_systemId, &connectInfo);
+  res = m_pOpenXR->m_Extensions.pfn_xrRemotingConnectMSFT(m_pOpenXR->m_pInstance, m_pOpenXR->m_SystemId, &connectInfo);
   if (res != XrResult::XR_SUCCESS)
   {
     return EZ_FAILURE;
@@ -113,7 +113,7 @@ ezResult ezOpenXRRemoting::Disconnect()
     return EZ_SUCCESS;
 
   XrRemotingDisconnectInfoMSFT disconnectInfo;
-  XrResult res = m_pOpenXR->m_extensions.pfn_xrRemotingDisconnectMSFT(m_pOpenXR->m_instance, m_pOpenXR->m_systemId, &disconnectInfo);
+  XrResult res = m_pOpenXR->m_Extensions.pfn_xrRemotingDisconnectMSFT(m_pOpenXR->m_pInstance, m_pOpenXR->m_SystemId, &disconnectInfo);
   if (res != XrResult::XR_SUCCESS)
   {
     return EZ_FAILURE;
@@ -127,7 +127,7 @@ ezEnum<ezXRRemotingConnectionState> ezOpenXRRemoting::GetConnectionState() const
     return ezXRRemotingConnectionState::Disconnected;
 
   XrRemotingConnectionStateMSFT connectionState;
-  XrResult res = m_pOpenXR->m_extensions.pfn_xrRemotingGetConnectionStateMSFT(m_pOpenXR->m_instance, m_pOpenXR->m_systemId, &connectionState, nullptr);
+  XrResult res = m_pOpenXR->m_Extensions.pfn_xrRemotingGetConnectionStateMSFT(m_pOpenXR->m_pInstance, m_pOpenXR->m_SystemId, &connectionState, nullptr);
   if (res != XrResult::XR_SUCCESS)
   {
     return ezXRRemotingConnectionState::Disconnected;

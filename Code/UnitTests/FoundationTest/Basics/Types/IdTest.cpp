@@ -7,7 +7,7 @@
 
 struct TestId
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   EZ_DECLARE_ID_TYPE(TestId, 20, 6);
 
@@ -31,7 +31,11 @@ struct TestId
   };
 };
 
-typedef ezGenericId<32, 10> LargeTestId;
+using LargeTestId = ezGenericId<32, 10>;
+
+#pragma warning(disable : 4068)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-constant-conversion"
 
 EZ_CREATE_SIMPLE_TEST(Basics, Id)
 {
@@ -67,3 +71,4 @@ EZ_CREATE_SIMPLE_TEST(Basics, Id)
   EZ_TEST_INT(id4.m_InstanceIndex, 1);
   EZ_TEST_INT(id4.m_Generation, 200);
 }
+#pragma GCC diagnostic pop

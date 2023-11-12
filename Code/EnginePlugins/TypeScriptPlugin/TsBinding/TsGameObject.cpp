@@ -48,7 +48,7 @@ namespace GameObject_X
     GlobalDirForwards,
     GlobalDirRight,
     GlobalDirUp,
-    Velocity,
+    LinearVelocity,
     ActiveFlag,
     Active,
     ChildCount,
@@ -91,8 +91,7 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirForwards", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirForwards);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirRight", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirRight);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirUp", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirUp);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetVelocity", __CPP_GameObject_SetX_Vec3, 2, GameObject_X::Velocity);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetVelocity", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::Velocity);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetLinearVelocity", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::LinearVelocity);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetName", __CPP_GameObject_SetString, 2, 0);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetName", __CPP_GameObject_GetString, 1, 0);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetGlobalKey", __CPP_GameObject_SetString, 2, 1);
@@ -254,10 +253,6 @@ static int __CPP_GameObject_SetX_Vec3(duk_context* pDuk)
       pGameObject->SetGlobalScaling(value);
       break;
 
-    case GameObject_X::Velocity:
-      pGameObject->SetVelocity(value);
-      break;
-
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
   }
@@ -303,8 +298,8 @@ static int __CPP_GameObject_GetX_Vec3(duk_context* pDuk)
       value = pGameObject->GetGlobalDirUp();
       break;
 
-    case GameObject_X::Velocity:
-      value = pGameObject->GetVelocity();
+    case GameObject_X::LinearVelocity:
+      value = pGameObject->GetLinearVelocity();
       break;
 
     default:
@@ -621,7 +616,7 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
 
   if (duk.GetFunctionMagicValue() == 0) // SendMessage
   {
-    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::MakeZero());
 
     if (duk.GetBoolValue(3))
       pGameObject->SendMessageRecursive(*pMsg);
@@ -636,7 +631,7 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
   }
   else // PostMessage
   {
-    const ezTime delay = ezTime::Seconds(duk.GetNumberValue(4));
+    const ezTime delay = ezTime::MakeFromSeconds(duk.GetNumberValue(4));
 
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
 
@@ -660,7 +655,7 @@ static int __CPP_GameObject_SendEventMessage(duk_context* pDuk)
 
   if (duk.GetFunctionMagicValue() == 0) // SendEventMessage
   {
-    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::MakeZero());
 
     pGameObject->SendEventMessage(ezStaticCast<ezEventMessage&>(*pMsg), pSender);
 
@@ -672,7 +667,7 @@ static int __CPP_GameObject_SendEventMessage(duk_context* pDuk)
   }
   else // PostEventMessage
   {
-    const ezTime delay = ezTime::Seconds(duk.GetNumberValue(4));
+    const ezTime delay = ezTime::MakeFromSeconds(duk.GetNumberValue(4));
 
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
 

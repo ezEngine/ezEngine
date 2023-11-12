@@ -122,113 +122,115 @@ void ezPxBoneColliderComponent::RecreatePhysicsShapes()
   DestroyPhysicsShapes();
   CreatePhysicsShapes(msg.m_hSkeleton);
 
-  m_LastUpdate.SetZero();
+  m_LastUpdate = ezTime::MakeZero();
 }
 
 void ezPxBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton)
 {
-  ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  EZ_ASSERT_NOT_IMPLEMENTED;
 
-  const auto& desc = pSkeleton->GetDescriptor();
+  //ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
 
-  EZ_ASSERT_DEV(m_Shapes.IsEmpty(), "");
-  m_Shapes.Reserve(desc.m_Geometry.GetCount());
+  //const auto& desc = pSkeleton->GetDescriptor();
 
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-  m_uiShapeID = pModule->CreateShapeId();
+  //EZ_ASSERT_DEV(m_Shapes.IsEmpty(), "");
+  //m_Shapes.Reserve(desc.m_Geometry.GetCount());
 
-  const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
-  const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
+  //ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+  //m_uiShapeID = pModule->CreateShapeId();
 
-  const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
+  //const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
+  //const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
 
-  ezQuat qRotZtoX; // the capsule should extend along X, but the capsule shape goes along Z
-  qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+  //const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
 
-  for (ezUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
-  {
-    const auto& geo = desc.m_Geometry[idx];
+  //ezQuat qRotZtoX; // the capsule should extend along X, but the capsule shape goes along Z
+  //qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
 
-    if (geo.m_Type == ezSkeletonJointGeometryType::None)
-      continue;
+  //for (ezUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
+  //{
+  //  const auto& geo = desc.m_Geometry[idx];
 
-    auto& shape = m_Shapes.ExpandAndGetRef();
+  //  if (geo.m_Type == ezSkeletonJointGeometryType::None)
+  //    continue;
 
-    ezGameObject* pGO = nullptr;
+  //  auto& shape = m_Shapes.ExpandAndGetRef();
 
-    {
-      ezGameObjectDesc god;
-      god.m_bDynamic = true;
-      god.m_hParent = GetOwner()->GetHandle();
-      god.m_sName = geo.m_sName;
-      god.m_uiTeamID = GetOwner()->GetTeamID();
+  //  ezGameObject* pGO = nullptr;
 
-      shape.m_hActorObject = GetWorld()->CreateObject(god, pGO);
+  //  {
+  //    ezGameObjectDesc god;
+  //    god.m_bDynamic = true;
+  //    god.m_hParent = GetOwner()->GetHandle();
+  //    god.m_sName = geo.m_sName;
+  //    god.m_uiTeamID = GetOwner()->GetTeamID();
 
-      if (m_bQueryShapeOnly)
-      {
-        ezPxQueryShapeActorComponent* pDynAct = nullptr;
-        ezPxQueryShapeActorComponent::CreateComponent(pGO, pDynAct);
-      }
-      else
-      {
-        ezPxDynamicActorComponent* pDynAct = nullptr;
-        ezPxDynamicActorComponent::CreateComponent(pGO, pDynAct);
-        pDynAct->SetKinematic(true);
-      }
-    }
+  //    shape.m_hActorObject = GetWorld()->CreateObject(god, pGO);
 
-    shape.m_uiAttachedToBone = geo.m_uiAttachedToJoint;
-    shape.m_vOffsetPos = /*boneTrans.GetTranslationVector() +*/ qFinalBoneRot * geo.m_Transform.m_vPosition;
-    shape.m_qOffsetRot = qFinalBoneRot * geo.m_Transform.m_qRotation;
+  //    if (m_bQueryShapeOnly)
+  //    {
+  //      ezPxQueryShapeActorComponent* pDynAct = nullptr;
+  //      ezPxQueryShapeActorComponent::CreateComponent(pGO, pDynAct);
+  //    }
+  //    else
+  //    {
+  //      ezPxDynamicActorComponent* pDynAct = nullptr;
+  //      ezPxDynamicActorComponent::CreateComponent(pGO, pDynAct);
+  //      pDynAct->SetKinematic(true);
+  //    }
+  //  }
+
+  //  shape.m_uiAttachedToBone = geo.m_uiAttachedToJoint;
+  //  shape.m_vOffsetPos = /*boneTrans.GetTranslationVector() +*/ qFinalBoneRot * geo.m_Transform.m_vPosition;
+  //  shape.m_qOffsetRot = qFinalBoneRot * geo.m_Transform.m_qRotation;
 
 
-    ezPxShapeComponent* pShape = nullptr;
+  //  ezPxShapeComponent* pShape = nullptr;
 
-    if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
-    {
-      ezPxShapeSphereComponent* pShapeComp = nullptr;
-      ezPxShapeSphereComponent::CreateComponent(pGO, pShapeComp);
-      pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
-      pShape = pShapeComp;
-    }
-    else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
-    {
-      ezVec3 ext;
-      ext.x = geo.m_Transform.m_vScale.x;
-      ext.y = geo.m_Transform.m_vScale.y;
-      ext.z = geo.m_Transform.m_vScale.z;
+  //  if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
+  //  {
+  //    ezPxShapeSphereComponent* pShapeComp = nullptr;
+  //    ezPxShapeSphereComponent::CreateComponent(pGO, pShapeComp);
+  //    pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
+  //    pShape = pShapeComp;
+  //  }
+  //  else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
+  //  {
+  //    ezVec3 ext;
+  //    ext.x = geo.m_Transform.m_vScale.x;
+  //    ext.y = geo.m_Transform.m_vScale.y;
+  //    ext.z = geo.m_Transform.m_vScale.z;
 
-      // TODO: if offset desired
-      shape.m_vOffsetPos += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+  //    // TODO: if offset desired
+  //    shape.m_vOffsetPos += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
-      ezPxShapeBoxComponent* pShapeComp = nullptr;
-      ezPxShapeBoxComponent::CreateComponent(pGO, pShapeComp);
-      pShapeComp->SetExtents(ext);
-      pShape = pShapeComp;
-    }
-    else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
-    {
-      shape.m_qOffsetRot = shape.m_qOffsetRot * qRotZtoX;
+  //    ezPxShapeBoxComponent* pShapeComp = nullptr;
+  //    ezPxShapeBoxComponent::CreateComponent(pGO, pShapeComp);
+  //    pShapeComp->SetExtents(ext);
+  //    pShape = pShapeComp;
+  //  }
+  //  else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
+  //  {
+  //    shape.m_qOffsetRot = shape.m_qOffsetRot * qRotZtoX;
 
-      // TODO: if offset desired
-      shape.m_vOffsetPos += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+  //    // TODO: if offset desired
+  //    shape.m_vOffsetPos += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
-      ezPxShapeCapsuleComponent* pShapeComp = nullptr;
-      ezPxShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);
-      pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
-      pShapeComp->SetHeight(geo.m_Transform.m_vScale.x);
-      pShape = pShapeComp;
-    }
-    else
-    {
-      EZ_ASSERT_NOT_IMPLEMENTED;
-    }
+  //    ezPxShapeCapsuleComponent* pShapeComp = nullptr;
+  //    ezPxShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);
+  //    pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
+  //    pShapeComp->SetHeight(geo.m_Transform.m_vScale.x);
+  //    pShape = pShapeComp;
+  //  }
+  //  else
+  //  {
+  //    EZ_ASSERT_NOT_IMPLEMENTED;
+  //  }
 
-    pShape->SetInitialShapeId(m_uiShapeID);
-    pShape->m_uiCollisionLayer = geo.m_uiCollisionLayer;
-    pShape->m_hSurface = geo.m_hSurface;
-  }
+  //  pShape->SetInitialShapeId(m_uiShapeID);
+  ////pShape->m_uiCollisionLayer = geo.m_uiCollisionLayer;
+  ////pShape->m_hSurface = geo.m_hSurface;
+  //}
 }
 
 void ezPxBoneColliderComponent::DestroyPhysicsShapes()

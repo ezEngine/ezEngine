@@ -36,7 +36,8 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Texture 2D";
   m_DocTypeDesc.m_sFileExtension = "ezTextureAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_2D.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_sResourceFileExtension = "ezTexture2D";
@@ -45,7 +46,8 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
 
   m_DocTypeDesc2.m_sDocumentTypeName = "Render Target";
   m_DocTypeDesc2.m_sFileExtension = "ezRenderTargetAsset";
-  m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Render_Target.png";
+  m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Render_Target.svg";
+  m_DocTypeDesc2.m_sAssetCategory = "Rendering";
   m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_DocTypeDesc2.m_pManager = this;
   m_DocTypeDesc2.m_sResourceFileExtension = "ezRenderTarget";
@@ -53,7 +55,7 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D"); // render targets can also be used as 2D textures
   m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_Target");
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.svg"));
 }
 
 ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
@@ -74,7 +76,7 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTextureAssetDocument>())
       {
-        ezQtTextureAssetDocumentWindow* pDocWnd = new ezQtTextureAssetDocumentWindow(static_cast<ezTextureAssetDocument*>(e.m_pDocument));
+        new ezQtTextureAssetDocumentWindow(static_cast<ezTextureAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -84,12 +86,12 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-void ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezTextureAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(szPath);
+  ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(sPath);
   out_pDocument = pDoc;
 
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "Render Target"))
+  if (sDocumentTypeName.IsEqual("Render Target"))
   {
     pDoc->m_bIsRenderTarget = true;
   }
@@ -101,17 +103,17 @@ void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicA
   inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
 }
 
-ezString ezTextureAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
+ezString ezTextureAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
-  if (ezStringUtils::IsEqual(szOutputTag, "LOWRES"))
+  if (sOutputTag.IsEqual("LOWRES"))
   {
-    ezStringBuilder sRelativePath(szDocumentPath);
-    sRelativePath.MakeRelativeTo(szDataDirectory).IgnoreResult();
+    ezStringBuilder sRelativePath(sDocumentPath);
+    sRelativePath.MakeRelativeTo(sDataDirectory).IgnoreResult();
     sRelativePath.RemoveFileExtension();
     sRelativePath.Append("-lowres");
     ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "ezTexture2D", true);
     return sRelativePath;
   }
 
-  return SUPER::GetRelativeOutputFileName(pTypeDescriptor, szDataDirectory, szDocumentPath, szOutputTag, pAssetProfile);
+  return SUPER::GetRelativeOutputFileName(pTypeDescriptor, sDataDirectory, sDocumentPath, sOutputTag, pAssetProfile);
 }

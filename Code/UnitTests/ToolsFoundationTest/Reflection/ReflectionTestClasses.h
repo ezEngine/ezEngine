@@ -49,8 +49,8 @@ public:
   {
     m_fFloat = 1.0f;
     m_fDouble = 1.0;
-    m_Time = ezTime::Seconds(1.0);
-    m_Angle = ezAngle::Degree(45.0f);
+    m_Time = ezTime::MakeFromSeconds(1.0);
+    m_Angle = ezAngle::MakeFromDegree(45.0f);
   }
 
   void SetFloat(float f) { m_fFloat = f; }
@@ -85,7 +85,7 @@ public:
     m_Buffer.PushBack(0xFF);
     m_Buffer.PushBack(0x0);
     m_Buffer.PushBack(0xCD);
-    m_VarianceAngle = {0.1f, ezAngle::Degree(90.0f)};
+    m_VarianceAngle = {0.1f, ezAngle::MakeFromDegree(90.0f)};
   }
 
   ezIntegerStruct m_IntegerStruct;
@@ -161,7 +161,7 @@ private:
 
 struct ezExampleEnum
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
   enum Enum
   {
     Value1 = 0,      // normal value
@@ -175,7 +175,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleEnum);
 
 struct ezExampleBitflags
 {
-  typedef ezUInt64 StorageType;
+  using StorageType = ezUInt64;
   enum Enum : ezUInt64
   {
     Value1 = EZ_BIT(0),  // normal value
@@ -250,7 +250,7 @@ class ezObjectTest : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezObjectTest, ezReflectedClass);
 
 public:
-  ezObjectTest() {}
+  ezObjectTest() = default;
   ~ezObjectTest()
   {
     for (OuterClass* pTest : m_ClassPtrArray)
@@ -291,7 +291,7 @@ class ezMirrorTest : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezMirrorTest, ezReflectedClass);
 
 public:
-  ezMirrorTest() {}
+  ezMirrorTest() = default;
 
   ezMathClass m_math;
   ezObjectTest m_object;

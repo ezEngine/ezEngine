@@ -1,5 +1,6 @@
 #include <Core/CorePCH.h>
 
+#include <Core/Scripting/ScriptAttributes.h>
 #include <Core/World/World.h>
 
 // clang-format off
@@ -10,6 +11,22 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
     EZ_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsActive),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsActiveAndInitialized),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsActiveAndSimulating),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOwner),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetWorld),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetUniqueID),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Initialize)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Initialize)),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Deinitialize)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Deinitialize)),
+    EZ_SCRIPT_FUNCTION_PROPERTY(OnActivated)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnActivated)),
+    EZ_SCRIPT_FUNCTION_PROPERTY(OnDeactivated)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnDeactivated)),
+    EZ_SCRIPT_FUNCTION_PROPERTY(OnSimulationStarted)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted)),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_Update)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Update)),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -24,34 +41,6 @@ void ezComponent::SetActiveFlag(bool bEnabled)
   }
 }
 
-void ezComponent::UpdateActiveState(bool bOwnerActive)
-{
-  const bool bSelfActive = bOwnerActive && m_ComponentFlags.IsSet(ezObjectFlags::ActiveFlag);
-
-  if (m_ComponentFlags.IsSet(ezObjectFlags::ActiveState) != bSelfActive)
-  {
-    m_ComponentFlags.AddOrRemove(ezObjectFlags::ActiveState, bSelfActive);
-
-    if (IsInitialized())
-    {
-      if (bSelfActive)
-      {
-        // Don't call OnActivated & EnsureSimulationStarted here since there might be other components
-        // that are needed in the OnSimulation callback but are activated right after this component.
-        // Instead add the component to the initialization batch again.
-        // There initialization will be skipped since the component is already initialized.
-        GetWorld()->AddComponentToInitialize(GetHandle());
-      }
-      else
-      {
-        OnDeactivated();
-
-        m_ComponentFlags.Remove(ezObjectFlags::SimulationStarted);
-      }
-    }
-  }
-}
-
 ezWorld* ezComponent::GetWorld()
 {
   return m_pManager->GetWorld();
@@ -62,9 +51,13 @@ const ezWorld* ezComponent::GetWorld() const
   return m_pManager->GetWorld();
 }
 
-void ezComponent::SerializeComponent(ezWorldWriter& inout_stream) const {}
+void ezComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+{
+}
 
-void ezComponent::DeserializeComponent(ezWorldReader& inout_stream) {}
+void ezComponent::DeserializeComponent(ezWorldReader& inout_stream)
+{
+}
 
 void ezComponent::EnsureInitialized()
 {
@@ -109,6 +102,103 @@ void ezComponent::EnsureSimulationStarted()
     m_ComponentFlags.Remove(ezObjectFlags::SimulationStarting);
     m_ComponentFlags.Add(ezObjectFlags::SimulationStarted);
   }
+}
+
+void ezComponent::PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+{
+  GetWorld()->PostMessage(GetHandle(), msg, delay, queueType);
+}
+
+bool ezComponent::HandlesMessage(const ezMessage& msg) const
+{
+  return m_pMessageDispatchType->CanHandleMessage(msg.GetId());
+}
+
+void ezComponent::SetUserFlag(ezUInt8 uiFlagIndex, bool bSet)
+{
+  EZ_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
+
+  m_ComponentFlags.AddOrRemove(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << uiFlagIndex), bSet);
+}
+
+bool ezComponent::GetUserFlag(ezUInt8 uiFlagIndex) const
+{
+  EZ_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
+
+  return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << uiFlagIndex));
+}
+
+void ezComponent::Initialize() {}
+
+void ezComponent::Deinitialize()
+{
+  EZ_ASSERT_DEV(m_pOwner != nullptr, "Owner must still be valid");
+
+  SetActiveFlag(false);
+}
+
+void ezComponent::OnActivated() {}
+
+void ezComponent::OnDeactivated() {}
+
+void ezComponent::OnSimulationStarted() {}
+
+void ezComponent::EnableUnhandledMessageHandler(bool enable)
+{
+  m_ComponentFlags.AddOrRemove(ezObjectFlags::UnhandledMessageHandler, enable);
+}
+
+bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
+{
+  return false;
+}
+
+bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
+{
+  return false;
+}
+
+void ezComponent::UpdateActiveState(bool bOwnerActive)
+{
+  const bool bSelfActive = bOwnerActive && m_ComponentFlags.IsSet(ezObjectFlags::ActiveFlag);
+
+  if (m_ComponentFlags.IsSet(ezObjectFlags::ActiveState) != bSelfActive)
+  {
+    m_ComponentFlags.AddOrRemove(ezObjectFlags::ActiveState, bSelfActive);
+
+    if (IsInitialized())
+    {
+      if (bSelfActive)
+      {
+        // Don't call OnActivated & EnsureSimulationStarted here since there might be other components
+        // that are needed in the OnSimulation callback but are activated right after this component.
+        // Instead add the component to the initialization batch again.
+        // There initialization will be skipped since the component is already initialized.
+        GetWorld()->AddComponentToInitialize(GetHandle());
+      }
+      else
+      {
+        OnDeactivated();
+
+        m_ComponentFlags.Remove(ezObjectFlags::SimulationStarted);
+      }
+    }
+  }
+}
+
+ezGameObject* ezComponent::Reflection_GetOwner() const
+{
+  return m_pOwner;
+}
+
+ezWorld* ezComponent::Reflection_GetWorld() const
+{
+  return m_pManager->GetWorld();
+}
+
+void ezComponent::Reflection_Update()
+{
+  // This is just a dummy function for the scripting reflection
 }
 
 bool ezComponent::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
@@ -164,60 +254,6 @@ bool ezComponent::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
 #endif
 
   return false;
-}
-
-void ezComponent::PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
-{
-  GetWorld()->PostMessage(GetHandle(), msg, delay, queueType);
-}
-
-bool ezComponent::HandlesMessage(const ezMessage& msg) const
-{
-  return m_pMessageDispatchType->CanHandleMessage(msg.GetId());
-}
-
-void ezComponent::Initialize() {}
-
-void ezComponent::Deinitialize()
-{
-  EZ_ASSERT_DEV(m_pOwner != nullptr, "Owner must still be valid");
-
-  SetActiveFlag(false);
-}
-
-void ezComponent::OnActivated() {}
-
-void ezComponent::OnDeactivated() {}
-
-void ezComponent::OnSimulationStarted() {}
-
-void ezComponent::EnableUnhandledMessageHandler(bool enable)
-{
-  m_ComponentFlags.AddOrRemove(ezObjectFlags::UnhandledMessageHandler, enable);
-}
-
-bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
-{
-  return false;
-}
-
-bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
-{
-  return false;
-}
-
-void ezComponent::SetUserFlag(ezUInt8 uiFlagIndex, bool bSet)
-{
-  EZ_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
-
-  m_ComponentFlags.AddOrRemove(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << uiFlagIndex), bSet);
-}
-
-bool ezComponent::GetUserFlag(ezUInt8 uiFlagIndex) const
-{
-  EZ_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
-
-  return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << uiFlagIndex));
 }
 
 

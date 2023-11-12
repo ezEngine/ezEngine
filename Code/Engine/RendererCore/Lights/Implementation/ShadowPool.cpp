@@ -441,8 +441,8 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
   const char* viewNames[4] = {"DirLightViewC0", "DirLightViewC1", "DirLightViewC2", "DirLightViewC3"};
 
   const ezGameObject* pOwner = pDirLight->GetOwner();
-  ezVec3 vForward = pOwner->GetGlobalDirForwards();
-  ezVec3 vUp = pOwner->GetGlobalDirUp();
+  const ezVec3 vLightDirForwards = pOwner->GetGlobalDirForwards();
+  const ezVec3 vLightDirUp = pOwner->GetGlobalDirUp();
 
   float fAspectRatio = pReferenceView->GetViewport().width / pReferenceView->GetViewport().height;
 
@@ -499,20 +499,20 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 
       if (false)
       {
-        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere(center, radius), ezColor::OrangeRed);
+        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(center, radius), ezColor::OrangeRed);
       }
 
       float fCameraToCenterDistance = radius + fNearPlaneOffset;
-      ezVec3 shadowCameraPos = center - vForward * fCameraToCenterDistance;
+      ezVec3 shadowCameraPos = center - vLightDirForwards * fCameraToCenterDistance;
       float fFarPlane = radius + fCameraToCenterDistance;
 
       ezCamera& camera = shadowView.m_Camera;
-      camera.LookAt(shadowCameraPos, center, vUp);
+      camera.LookAt(shadowCameraPos, center, vLightDirUp);
       camera.SetCameraMode(ezCameraMode::OrthoFixedWidth, radius * 2.0f, 0.0f, fFarPlane);
 
       // stabilize
       ezMat4 worldToLightMatrix = pView->GetViewMatrix(ezCameraEye::Left);
-      ezVec3 offset = worldToLightMatrix.TransformPosition(ezVec3::ZeroVector());
+      ezVec3 offset = worldToLightMatrix.TransformPosition(ezVec3::MakeZero());
       float texelInWorld = (2.0f * radius) / s_uiShadowMapSize;
       offset.x -= ezMath::Floor(offset.x / texelInWorld) * texelInWorld;
       offset.y -= ezMath::Floor(offset.y / texelInWorld) * texelInWorld;
@@ -568,7 +568,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
   ezVec3 vUp = ezVec3(0.0f, 0.0f, 1.0f);
 
   float fPenumbraSize = ezMath::Max(pPointLight->GetPenumbraSize(), (0.5f / s_uiMinShadowMapSize)); // at least one texel for hardware pcf
-  float fFov = AddSafeBorder(ezAngle::Degree(90.0f), fPenumbraSize);
+  float fFov = AddSafeBorder(ezAngle::MakeFromDegree(90.0f), fPenumbraSize);
 
   float fNearPlane = 0.1f; ///\todo expose somewhere
   float fFarPlane = pPointLight->GetEffectiveRange();
@@ -736,8 +736,8 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
   if (cvar_RenderingShadowsShowPoolStats)
   {
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", "Shadow Pool Stats:", ezColor::LightSteelBlue);
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", "Details (Name: Size - Atlas Offset)", ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", "Shadow Pool Stats:", ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", "Details (Name: Size - Atlas Offset)", ezColor::LightSteelBlue);
   }
 
 #endif
@@ -781,7 +781,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       if (cvar_RenderingShadowsShowPoolStats)
       {
-        ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", ezFmt("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y), ezColor::LightSteelBlue);
+        ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", ezFmt("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y), ezColor::LightSteelBlue);
 
         uiUsedAtlasSize += atlasRect.width * atlasRect.height;
       }
@@ -958,7 +958,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (cvar_RenderingShadowsShowPoolStats)
   {
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", ezFmt("Atlas Utilization: {0}%%", ezArgF(100.0 * (double)uiUsedAtlasSize / uiTotalAtlasSize, 2)), ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", ezFmt("Atlas Utilization: {0}%%", ezArgF(100.0 * (double)uiUsedAtlasSize / uiTotalAtlasSize, 2)), ezColor::LightSteelBlue);
   }
 #endif
 

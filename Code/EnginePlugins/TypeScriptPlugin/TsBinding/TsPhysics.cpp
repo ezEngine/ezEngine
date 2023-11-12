@@ -79,7 +79,7 @@ static int __CPP_Physics_Raycast(duk_context* pDuk)
   const ezPhysicsShapeType::Enum shapeTypes = static_cast<ezPhysicsShapeType::Enum>(duk.GetUIntValue(4));
   const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(5);
 
-  if (vDir.NormalizeIfNotZero(ezVec3::UnitXAxis()).Failed())
+  if (vDir.NormalizeIfNotZero(ezVec3::MakeAxisX()).Failed())
   {
     ezLog::Warning("TS: ez.Physics.Raycast() called with degenerate ray direction.");
     return duk.ReturnNull();

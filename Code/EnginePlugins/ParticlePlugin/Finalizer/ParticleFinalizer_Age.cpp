@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_Age, 1, ezRTTIDefaultAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleFinalizerFactory_Age::ezParticleFinalizerFactory_Age() {}
+ezParticleFinalizerFactory_Age::ezParticleFinalizerFactory_Age() = default;
 
 const ezRTTI* ezParticleFinalizerFactory_Age::GetFinalizerType() const
 {

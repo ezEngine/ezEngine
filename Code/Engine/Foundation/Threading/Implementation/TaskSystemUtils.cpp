@@ -59,7 +59,7 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& ref_graph)
   szTaskPriorityNames[ezTaskPriority::NextFrame] = "NextFrame";
   szTaskPriorityNames[ezTaskPriority::LateNextFrame] = "LateNextFrame";
   szTaskPriorityNames[ezTaskPriority::In2Frames] = "In 2 Frames";
-  szTaskPriorityNames[ezTaskPriority::In2Frames] = "In 3 Frames";
+  szTaskPriorityNames[ezTaskPriority::In3Frames] = "In 3 Frames";
   szTaskPriorityNames[ezTaskPriority::In4Frames] = "In 4 Frames";
   szTaskPriorityNames[ezTaskPriority::In5Frames] = "In 5 Frames";
   szTaskPriorityNames[ezTaskPriority::In6Frames] = "In 6 Frames";
@@ -143,7 +143,7 @@ void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
   {
     sPath = ":appdata/TaskGraphs/";
 
-    const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+    const ezDateTime dt = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
 
     sPath.AppendFormat("{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 

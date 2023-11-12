@@ -153,7 +153,7 @@ ezResult ezAssetCurator::SaveAssetProfiles()
     ddl.BeginObject("Config", pCfg->m_sName);
 
     // make sure to create the same GUID every time, otherwise the serialized file changes all the time
-    const ezUuid guid = ezUuid::StableUuidForString(pCfg->GetConfigName());
+    const ezUuid guid = ezUuid::MakeStableUuidFromString(pCfg->GetConfigName());
 
     ezReflectionSerializer::WriteObjectToDDL(ddl, pCfg->GetDynamicRTTI(), pCfg, guid);
 

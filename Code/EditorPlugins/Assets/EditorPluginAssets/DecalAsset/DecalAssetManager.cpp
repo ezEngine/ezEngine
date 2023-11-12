@@ -27,7 +27,8 @@ ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Decal";
   m_DocTypeDesc.m_sFileExtension = "ezDecalAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Decal.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Decal.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Effects";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezDecalAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Decal");
@@ -41,19 +42,19 @@ ezDecalAssetDocumentManager::~ezDecalAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDecalAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const
+void ezDecalAssetDocumentManager::AddEntriesToAssetTable(ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const
 {
   ezStringBuilder projectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
   projectDir.MakeCleanPath();
   projectDir.Append("/");
 
-  if (projectDir.StartsWith_NoCase(szDataDirectory))
+  if (projectDir.StartsWith_NoCase(sDataDirectory))
   {
     addEntry("{ ProjectDecalAtlas }", "PC/Decals.ezTextureAtlas", "Decal Atlas");
   }
 }
 
-ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
+ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   // means NO table entry will be written, because for decals we don't need a redirection
   return ezString();
@@ -67,7 +68,7 @@ void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezDecalAssetDocument>())
       {
-        ezQtDecalAssetDocumentWindow* pDocWnd = new ezQtDecalAssetDocumentWindow(static_cast<ezDecalAssetDocument*>(e.m_pDocument));
+        new ezQtDecalAssetDocumentWindow(static_cast<ezDecalAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -77,9 +78,9 @@ void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
   }
 }
 
-void ezDecalAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezDecalAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezDecalAssetDocument(szPath);
+  out_pDocument = new ezDecalAssetDocument(sPath);
 }
 
 void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
@@ -138,18 +139,18 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
       if (asset.m_pAssetInfo->GetManager() != this)
         continue;
 
-      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_sDataDirParentRelativePath);
+      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_Path.GetDataDirParentRelativePath());
 
       // does the document already exist and is it open ?
       bool bWasOpen = false;
-      ezDocument* pDoc = GetDocumentByPath(asset.m_pAssetInfo->m_sAbsolutePath);
+      ezDocument* pDoc = GetDocumentByPath(asset.m_pAssetInfo->m_Path.GetAbsolutePath());
       if (pDoc)
         bWasOpen = true;
       else
-        pDoc = pEditorApp->OpenDocument(asset.m_pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None);
+        pDoc = pEditorApp->OpenDocument(asset.m_pAssetInfo->m_Path.GetAbsolutePath(), ezDocumentFlags::None);
 
       if (pDoc == nullptr)
-        return ezStatus(ezFmt("Could not open asset document '{0}'", asset.m_pAssetInfo->m_sDataDirParentRelativePath));
+        return ezStatus(ezFmt("Could not open asset document '{0}'", asset.m_pAssetInfo->m_Path.GetDataDirParentRelativePath()));
 
       ezDecalAssetDocument* pDecalAsset = static_cast<ezDecalAssetDocument*>(pDoc);
 

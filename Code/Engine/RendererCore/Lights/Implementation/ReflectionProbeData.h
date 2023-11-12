@@ -7,7 +7,7 @@
 
 struct ezReflectionProbeMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -36,10 +36,10 @@ struct EZ_RENDERERCORE_DLL ezReflectionProbeDesc
   float m_fSaturation = 1.0f;
   float m_fNearPlane = 0.0f;
   float m_fFarPlane = 100.0f;
-  ezVec3 m_vCaptureOffset = ezVec3::ZeroVector();
+  ezVec3 m_vCaptureOffset = ezVec3::MakeZero();
 };
 
-typedef ezGenericId<24, 8> ezReflectionProbeId;
+using ezReflectionProbeId = ezGenericId<24, 8>;
 
 template <>
 struct ezHashHelper<ezReflectionProbeId>
@@ -95,7 +95,7 @@ struct ezHashHelper<ezReflectionProbeRef>
 /// \brief Flags that describe a reflection probe.
 struct ezProbeFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

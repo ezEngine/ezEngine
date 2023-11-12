@@ -58,7 +58,7 @@ struct ezRenderViewContext
   const ezDebugRendererContext* m_pViewDebugContext;
 };
 
-typedef ezGenericId<24, 8> ezViewId;
+using ezViewId = ezGenericId<24, 8>;
 
 class ezViewHandle
 {
@@ -79,7 +79,7 @@ struct ezHashHelper<ezViewHandle>
 /// \brief Usage hint of a camera/view.
 struct EZ_RENDERERCORE_DLL ezCameraUsageHint
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

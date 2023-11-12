@@ -2,7 +2,7 @@
 
 #include <Core/Input/InputManager.h>
 
-const char* ezInputManager::ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey)
+ezStringView ezInputManager::ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey)
 {
   const ezUInt8 uiFinalScanCode = bIsExtendedKey ? (uiScanCode + 128) : uiScanCode;
 

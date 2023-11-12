@@ -81,7 +81,7 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
 
     for (int i = 0; i < 10; ++i)
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
       ProcessEvents();
     }
 
@@ -99,7 +99,7 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
     auto pAccessor = pScene->GetObjectAccessor();
     auto pRoot = pScene->GetObjectManager()->GetRootObject();
     ezHybridArray<ezVariant, 16> values;
-    pAccessor->GetValues(pRoot, "Children", values);
+    pAccessor->GetValues(pRoot, "Children", values).AssertSuccess();
 
     ezDeque<const ezDocumentObject*> assets;
     for (auto& value : values)

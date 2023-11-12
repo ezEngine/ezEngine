@@ -28,9 +28,9 @@ private:
   void UpdateView();
 
 private:
-  ezQtNodeScene* m_pScene;
-  bool m_bPanning;
-  ezInt32 m_iPanCounter;
+  ezQtNodeScene* m_pScene = nullptr;
+  bool m_bPanning = false;
+  ezInt32 m_iPanCounter = 0;
 
   QPointF m_ViewPos;
   QPointF m_ViewScale;

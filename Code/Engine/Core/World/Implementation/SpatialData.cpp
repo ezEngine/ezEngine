@@ -11,6 +11,9 @@ ezHybridArray<ezSpatialData::CategoryData, 32>& ezSpatialData::GetCategoryData()
 // static
 ezSpatialData::Category ezSpatialData::RegisterCategory(ezStringView sCategoryName, const ezBitflags<Flags>& flags)
 {
+  if (sCategoryName.IsEmpty())
+    return ezInvalidSpatialDataCategory;
+
   Category oldCategory = FindCategory(sCategoryName);
   if (oldCategory != ezInvalidSpatialDataCategory)
   {
@@ -24,7 +27,7 @@ ezSpatialData::Category ezSpatialData::RegisterCategory(ezStringView sCategoryNa
     return ezInvalidSpatialDataCategory;
   }
 
-  Category newCategory = Category(GetCategoryData().GetCount());
+  Category newCategory = Category(static_cast<ezUInt16>(GetCategoryData().GetCount()));
 
   auto& data = GetCategoryData().ExpandAndGetRef();
   data.m_sName.Assign(sCategoryName);
@@ -41,10 +44,22 @@ ezSpatialData::Category ezSpatialData::FindCategory(ezStringView sCategoryName)
   for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < GetCategoryData().GetCount(); ++uiCategoryIndex)
   {
     if (GetCategoryData()[uiCategoryIndex].m_sName == categoryName)
-      return Category(uiCategoryIndex);
+      return Category(static_cast<ezUInt16>(uiCategoryIndex));
   }
 
   return ezInvalidSpatialDataCategory;
+}
+
+// static
+const ezHashedString& ezSpatialData::GetCategoryName(Category category)
+{
+  if (category.m_uiValue < GetCategoryData().GetCount())
+  {
+    return GetCategoryData()[category.m_uiValue].m_sName;
+  }
+
+  static ezHashedString sInvalidSpatialDataCategoryName;
+  return sInvalidSpatialDataCategoryName;
 }
 
 // static

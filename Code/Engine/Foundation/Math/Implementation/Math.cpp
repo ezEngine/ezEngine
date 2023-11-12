@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Math/CurveFunctions.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Quat.h>
@@ -237,6 +238,30 @@ void ezAngle::NormalizeRange()
   }
 }
 
+float ezMath::ReplaceNaN(float fValue, float fFallback)
+{
+  // ATTENTION: if this is a template, inline or constexpr function, the current MSVC (17.6)
+  // seems to generate incorrect code and the IsNaN check doesn't detect NaNs.
+  // As an out-of-line function it works.
+
+  if (ezMath::IsNaN(fValue))
+    return fFallback;
+
+  return fValue;
+}
+
+double ezMath::ReplaceNaN(double fValue, double fFallback)
+{
+  // ATTENTION: if this is a template, inline or constexpr function, the current MSVC (17.6)
+  // seems to generate incorrect code and the IsNaN check doesn't detect NaNs.
+  // As an out-of-line function it works.
+
+  if (ezMath::IsNaN(fValue))
+    return fFallback;
+
+  return fValue;
+}
+
 ezVec3 ezBasisAxis::GetBasisVector(Enum basisAxis)
 {
   switch (basisAxis)
@@ -261,7 +286,7 @@ ezVec3 ezBasisAxis::GetBasisVector(Enum basisAxis)
 
     default:
       EZ_REPORT_FAILURE("Invalid basis dir {0}", basisAxis);
-      return ezVec3::ZeroVector();
+      return ezVec3::MakeZero();
   }
 }
 
@@ -285,19 +310,19 @@ ezQuat ezBasisAxis::GetBasisRotation_PosX(Enum axis)
       rotAxis.SetIdentity();
       break;
     case ezBasisAxis::PositiveY:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
       break;
     case ezBasisAxis::PositiveZ:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
       break;
     case ezBasisAxis::NegativeX:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
       break;
     case ezBasisAxis::NegativeY:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
       break;
     case ezBasisAxis::NegativeZ:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
       break;
   }
 
@@ -313,19 +338,19 @@ ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
       rotId.SetIdentity();
       break;
     case ezBasisAxis::PositiveY:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
       break;
     case ezBasisAxis::PositiveZ:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
       break;
     case ezBasisAxis::NegativeX:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
       break;
     case ezBasisAxis::NegativeY:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
       break;
     case ezBasisAxis::NegativeZ:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
       break;
   }
 
@@ -336,19 +361,19 @@ ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
       rotAxis.SetIdentity();
       break;
     case ezBasisAxis::PositiveY:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
       break;
     case ezBasisAxis::PositiveZ:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
       break;
     case ezBasisAxis::NegativeX:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
       break;
     case ezBasisAxis::NegativeY:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
       break;
     case ezBasisAxis::NegativeZ:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
       break;
   }
 
@@ -365,19 +390,19 @@ ezBasisAxis::Enum ezBasisAxis::GetOrthogonalAxis(Enum axis1, Enum axis2, bool bF
   if (bFlip)
     c = -c;
 
-  if (c.IsEqual(ezVec3::UnitXAxis(), 0.01f))
+  if (c.IsEqual(ezVec3::MakeAxisX(), 0.01f))
     return ezBasisAxis::PositiveX;
-  if (c.IsEqual(-ezVec3::UnitXAxis(), 0.01f))
+  if (c.IsEqual(-ezVec3::MakeAxisX(), 0.01f))
     return ezBasisAxis::NegativeX;
 
-  if (c.IsEqual(ezVec3::UnitYAxis(), 0.01f))
+  if (c.IsEqual(ezVec3::MakeAxisY(), 0.01f))
     return ezBasisAxis::PositiveY;
-  if (c.IsEqual(-ezVec3::UnitYAxis(), 0.01f))
+  if (c.IsEqual(-ezVec3::MakeAxisY(), 0.01f))
     return ezBasisAxis::NegativeY;
 
-  if (c.IsEqual(ezVec3::UnitZAxis(), 0.01f))
+  if (c.IsEqual(ezVec3::MakeAxisZ(), 0.01f))
     return ezBasisAxis::PositiveZ;
-  if (c.IsEqual(-ezVec3::UnitZAxis(), 0.01f))
+  if (c.IsEqual(-ezVec3::MakeAxisZ(), 0.01f))
     return ezBasisAxis::NegativeZ;
 
   return axis1;
@@ -391,31 +416,46 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezComparisonOperator, 1)
   EZ_ENUM_CONSTANTS(ezComparisonOperator::Less, ezComparisonOperator::LessEqual)
   EZ_ENUM_CONSTANTS(ezComparisonOperator::Greater, ezComparisonOperator::GreaterEqual)
 EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveFunction, 1)
+ EZ_ENUM_CONSTANT(ezCurveFunction::Linear),
+ EZ_ENUM_CONSTANT(ezCurveFunction::ConstantZero),
+ EZ_ENUM_CONSTANT(ezCurveFunction::ConstantOne),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInSine),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutSine),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutSine),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInQuad),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutQuad),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutQuad),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInCubic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutCubic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutCubic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInQuartic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutQuartic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutQuartic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInQuintic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutQuintic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutQuintic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInExpo),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutExpo),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutExpo),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInCirc),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutCirc),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutCirc),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInBack),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutBack),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutBack), 
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInElastic), 
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutElastic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutElastic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInBounce),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutBounce),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutBounce),
+ EZ_ENUM_CONSTANT(ezCurveFunction::Conical),
+ EZ_ENUM_CONSTANT(ezCurveFunction::FadeInHoldFadeOut),
+ EZ_ENUM_CONSTANT(ezCurveFunction::FadeInFadeOut),
+ EZ_ENUM_CONSTANT(ezCurveFunction::Bell),
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
-
-// static
-bool ezComparisonOperator::Compare(ezComparisonOperator::Enum cmp, double f1, double f2)
-{
-  switch (cmp)
-  {
-    case ezComparisonOperator::Equal:
-      return f1 == f2;
-    case ezComparisonOperator::NotEqual:
-      return f1 != f2;
-    case ezComparisonOperator::Less:
-      return f1 < f2;
-    case ezComparisonOperator::LessEqual:
-      return f1 <= f2;
-    case ezComparisonOperator::Greater:
-      return f1 > f2;
-    case ezComparisonOperator::GreaterEqual:
-      return f1 >= f2;
-
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
-
-  return false;
-}
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);

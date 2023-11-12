@@ -28,7 +28,7 @@ inline Type ezBoundingBoxTemplate<Type>::GetDistanceTo(const ezBoundingSphereTem
 template <typename Type>
 inline const ezBoundingSphereTemplate<Type> ezBoundingBoxTemplate<Type>::GetBoundingSphere() const
 {
-  return ezBoundingSphereTemplate<Type>(GetCenter(), (m_vMax - m_vMin).GetLength() * (Type)0.5);
+  return ezBoundingSphereTemplate<Type>::MakeFromCenterAndRadius(GetCenter(), (m_vMax - m_vMin).GetLength() * (Type)0.5);
 }
 
 template <typename Type>
@@ -87,7 +87,7 @@ bool ezBoundingSphereTemplate<Type>::Overlaps(const ezBoundingBoxTemplate<Type>&
 template <typename Type>
 const ezBoundingBoxTemplate<Type> ezBoundingSphereTemplate<Type>::GetBoundingBox() const
 {
-  return ezBoundingBoxTemplate<Type>(m_vCenter - ezVec3Template<Type>(m_fRadius), m_vCenter + ezVec3Template<Type>(m_fRadius));
+  return ezBoundingBoxTemplate<Type>::MakeFromMinMax(m_vCenter - ezVec3Template<Type>(m_fRadius), m_vCenter + ezVec3Template<Type>(m_fRadius));
 }
 
 
@@ -184,8 +184,9 @@ Type ezPlaneTemplate<Type>::GetMaximumDistanceTo(const ezBoundingBoxTemplate<Typ
   return GetDistanceTo(vPos);
 }
 
+
 template <typename Type>
-void ezMat3Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle)
+ezMat3Template<Type> ezMat3Template<Type>::MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle)
 {
   EZ_ASSERT_DEBUG(vAxis.IsNormalized(0.1f), "vAxis must be normalized.");
 
@@ -205,20 +206,24 @@ void ezMat3Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, 
   const Type onecos_xz = oneminuscos * xz;
   const Type onecos_yz = oneminuscos * yz;
 
+  ezMat3Template<Type> res;
+
   // Column 1
-  Element(0, 0) = cos + (oneminuscos * (vAxis.x * vAxis.x));
-  Element(0, 1) = onecos_xy + zsin;
-  Element(0, 2) = onecos_xz - ysin;
+  res.Element(0, 0) = cos + (oneminuscos * (vAxis.x * vAxis.x));
+  res.Element(0, 1) = onecos_xy + zsin;
+  res.Element(0, 2) = onecos_xz - ysin;
 
   // Column 2  )
-  Element(1, 0) = onecos_xy - zsin;
-  Element(1, 1) = cos + (oneminuscos * (vAxis.y * vAxis.y));
-  Element(1, 2) = onecos_yz + xsin;
+  res.Element(1, 0) = onecos_xy - zsin;
+  res.Element(1, 1) = cos + (oneminuscos * (vAxis.y * vAxis.y));
+  res.Element(1, 2) = onecos_yz + xsin;
 
   // Column 3  )
-  Element(2, 0) = onecos_xz + ysin;
-  Element(2, 1) = onecos_yz - xsin;
-  Element(2, 2) = cos + (oneminuscos * (vAxis.z * vAxis.z));
+  res.Element(2, 0) = onecos_xz + ysin;
+  res.Element(2, 1) = onecos_yz - xsin;
+  res.Element(2, 2) = cos + (oneminuscos * (vAxis.z * vAxis.z));
+
+  return res;
 }
 
 template <typename Type>
@@ -252,7 +257,7 @@ ezResult ezMat3Template<Type>::Invert(Type fEpsilon)
 }
 
 template <typename Type>
-void ezMat4Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle)
+ezMat4Template<Type> ezMat4Template<Type>::MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle)
 {
   EZ_ASSERT_DEBUG(vAxis.IsNormalized(), "vAxis must be normalized.");
 
@@ -272,29 +277,33 @@ void ezMat4Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, 
   const Type onecos_xz = oneminuscos * xz;
   const Type onecos_yz = oneminuscos * yz;
 
+  ezMat4Template<Type> res;
+
   // Column 1
-  Element(0, 0) = cos + (oneminuscos * (vAxis.x * vAxis.x));
-  Element(0, 1) = onecos_xy + zsin;
-  Element(0, 2) = onecos_xz - ysin;
-  Element(0, 3) = 0;
+  res.Element(0, 0) = cos + (oneminuscos * (vAxis.x * vAxis.x));
+  res.Element(0, 1) = onecos_xy + zsin;
+  res.Element(0, 2) = onecos_xz - ysin;
+  res.Element(0, 3) = 0;
 
   // Column 2
-  Element(1, 0) = onecos_xy - zsin;
-  Element(1, 1) = cos + (oneminuscos * (vAxis.y * vAxis.y));
-  Element(1, 2) = onecos_yz + xsin;
-  Element(1, 3) = 0;
+  res.Element(1, 0) = onecos_xy - zsin;
+  res.Element(1, 1) = cos + (oneminuscos * (vAxis.y * vAxis.y));
+  res.Element(1, 2) = onecos_yz + xsin;
+  res.Element(1, 3) = 0;
 
   // Column 3
-  Element(2, 0) = onecos_xz + ysin;
-  Element(2, 1) = onecos_yz - xsin;
-  Element(2, 2) = cos + (oneminuscos * (vAxis.z * vAxis.z));
-  Element(2, 3) = 0;
+  res.Element(2, 0) = onecos_xz + ysin;
+  res.Element(2, 1) = onecos_yz - xsin;
+  res.Element(2, 2) = cos + (oneminuscos * (vAxis.z * vAxis.z));
+  res.Element(2, 3) = 0;
 
   // Column 4
-  Element(3, 0) = 0;
-  Element(3, 1) = 0;
-  Element(3, 2) = 0;
-  Element(3, 3) = 1;
+  res.Element(3, 0) = 0;
+  res.Element(3, 1) = 0;
+  res.Element(3, 2) = 0;
+  res.Element(3, 3) = 1;
+
+  return res;
 }
 
 template <typename Type>
@@ -323,4 +332,31 @@ ezResult ezMat4Template<Type>::Invert(Type fEpsilon)
 
   *this = Inverse;
   return EZ_SUCCESS;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// static
+template <typename T>
+bool ezComparisonOperator::Compare(ezComparisonOperator::Enum cmp, const T& a, const T& b)
+{
+  switch (cmp)
+  {
+    case ezComparisonOperator::Equal:
+      return a == b;
+    case ezComparisonOperator::NotEqual:
+      return !(a == b);
+    case ezComparisonOperator::Less:
+      return a < b;
+    case ezComparisonOperator::LessEqual:
+      return !(b < a);
+    case ezComparisonOperator::Greater:
+      return b < a;
+    case ezComparisonOperator::GreaterEqual:
+      return !(a < b);
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return false;
 }

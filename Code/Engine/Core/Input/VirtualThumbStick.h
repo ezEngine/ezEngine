@@ -11,7 +11,7 @@
 /// allows easier control over a game. The virtual thumb-stick takes input inside a certain screen area. It tracks the users finger
 /// movements inside this area and translates those into input from a controller thumb-stick, which it then feeds back into the input
 /// system. That makes it then possible to be mapped to input actions again. This way a game controller type of input is emulated.
-class EZ_CORE_DLL ezVirtualThumbStick : public ezInputDevice
+class EZ_CORE_DLL ezVirtualThumbStick final : public ezInputDevice
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVirtualThumbStick, ezInputDevice);
 
@@ -89,8 +89,7 @@ public:
   ///
   /// If \a Output is 'Custom' the remaining parameters define which input slots the thumb-stick triggers for which direction.
   /// Otherwise the remaining parameters are ignored.
-  void SetThumbstickOutput(Output::Enum output, const char* szOutputLeft = nullptr, const char* szOutputRight = nullptr,
-    const char* szOutputUp = nullptr, const char* szOutputDown = nullptr);
+  void SetThumbstickOutput(Output::Enum output, ezStringView sOutputLeft = {}, ezStringView sOutputRight = {}, ezStringView sOutputUp = {}, ezStringView sOutputDown = {});
 
   /// \brief Specifies what happens when the input slots that trigger the thumb-stick are active while entering or leaving the input area.
   void SetAreaFocusMode(ezInputActionConfig::OnEnterArea onEnter, ezInputActionConfig::OnLeaveArea onLeave);
@@ -112,10 +111,10 @@ protected:
   float m_fRadius;
 
   ezInputActionConfig m_ActionConfig;
-  const char* m_szOutputLeft;
-  const char* m_szOutputRight;
-  const char* m_szOutputUp;
-  const char* m_szOutputDown;
+  ezStringView m_sOutputLeft;
+  ezStringView m_sOutputRight;
+  ezStringView m_sOutputUp;
+  ezStringView m_sOutputDown;
 
   bool m_bEnabled;
   bool m_bConfigChanged;

@@ -19,6 +19,29 @@ static void SetDiff(const ezImageView& imageA, const ezImageView& imageB, ezImag
     pR[i] = pB[i] > pA[i] ? (pB[i] - pA[i]) : (pA[i] - pB[i]);
 }
 
+template <typename TYPE, typename ACCU, int COMP>
+static void SetCompMinDiff(const ezImageView& newDifference, ezImage& out_minDifference, ezUInt32 w, ezUInt32 h, ezUInt32 d, ezUInt32 uiComp)
+{
+  const TYPE* pNew = newDifference.GetPixelPointer<TYPE>(0, 0, 0, w, h, d);
+  TYPE* pR = out_minDifference.GetPixelPointer<TYPE>(0, 0, 0, w, h, d);
+
+  for (ezUInt32 i = 0; i < uiComp; i += COMP)
+  {
+    ACCU minDiff = 0;
+    ACCU newDiff = 0;
+    for (ezUInt32 c = 0; c < COMP; c++)
+    {
+      minDiff += pR[i + c];
+      newDiff += pNew[i + c];
+    }
+    if (minDiff > newDiff)
+    {
+      for (ezUInt32 c = 0; c < COMP; c++)
+        pR[i + c] = pNew[i + c];
+    }
+  }
+}
+
 template <typename TYPE>
 static ezUInt32 GetError(const ezImageView& difference, ezUInt32 w, ezUInt32 h, ezUInt32 d, ezUInt32 uiComp, ezUInt32 uiPixel)
 {
@@ -99,14 +122,75 @@ void ezImageUtils::ComputeImageDifferenceABS(const ezImageView& imageA, const ez
   }
 }
 
+
+void ezImageUtils::ComputeImageDifferenceABSRelaxed(const ezImageView& imageA, const ezImageView& imageB, ezImage& out_difference)
+{
+  EZ_ASSERT_ALWAYS(imageA.GetDepth() == 1 && imageA.GetNumMipLevels() == 1, "Depth slices and mipmaps are not supported");
+
+  EZ_PROFILE_SCOPE("ezImageUtils::ComputeImageDifferenceABSRelaxed");
+
+  ComputeImageDifferenceABS(imageA, imageB, out_difference);
+
+  ezImage tempB;
+  tempB.ResetAndCopy(imageB);
+  ezImage tempDiff;
+  tempDiff.ResetAndCopy(out_difference);
+
+  for (ezInt32 yOffset = -1; yOffset <= 1; ++yOffset)
+  {
+    for (ezInt32 xOffset = -1; xOffset <= 1; ++xOffset)
+    {
+      if (yOffset == 0 && xOffset == 0)
+        continue;
+
+      ezImageUtils::Copy(imageB, ezRectU32(ezMath::Max(xOffset, 0), ezMath::Max(yOffset, 0), imageB.GetWidth() - ezMath::Abs(xOffset), imageB.GetHeight() - ezMath::Abs(yOffset)), tempB, ezVec3U32(-ezMath::Min(xOffset, 0), -ezMath::Min(yOffset, 0), 0)).AssertSuccess("");
+
+      ComputeImageDifferenceABS(imageA, tempB, tempDiff);
+
+      const ezUInt32 uiSize2D = imageA.GetHeight() * imageA.GetWidth();
+      switch (imageA.GetImageFormat())
+      {
+        case ezImageFormat::R8G8B8A8_UNORM:
+        case ezImageFormat::R8G8B8A8_UNORM_SRGB:
+        case ezImageFormat::R8G8B8A8_UINT:
+        case ezImageFormat::R8G8B8A8_SNORM:
+        case ezImageFormat::R8G8B8A8_SINT:
+        case ezImageFormat::B8G8R8A8_UNORM:
+        case ezImageFormat::B8G8R8X8_UNORM:
+        case ezImageFormat::B8G8R8A8_UNORM_SRGB:
+        case ezImageFormat::B8G8R8X8_UNORM_SRGB:
+        {
+          SetCompMinDiff<ezUInt8, ezUInt32, 4>(tempDiff, out_difference, 0, 0, 0, 4 * uiSize2D);
+        }
+        break;
+
+        case ezImageFormat::B8G8R8_UNORM:
+        {
+          SetCompMinDiff<ezUInt8, ezUInt32, 3>(tempDiff, out_difference, 0, 0, 0, 3 * uiSize2D);
+        }
+        break;
+
+        default:
+          EZ_REPORT_FAILURE("The ezImageFormat {0} is not implemented", (ezUInt32)imageA.GetImageFormat());
+          return;
+      }
+    }
+  }
+}
+
 ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImageView& differenceImage, ezUInt8 uiBlockSize, ezUInt32 uiOffsetx, ezUInt32 uiOffsety)
 {
   EZ_PROFILE_SCOPE("ezImageUtils::ComputeMeanSquareError(detail)");
 
   EZ_ASSERT_DEV(uiBlockSize > 1, "Blocksize must be at least 2");
 
+  ezUInt32 uiNumComponents = ezImageFormat::GetNumChannels(differenceImage.GetImageFormat());
+
   ezUInt32 uiWidth = ezMath::Min(differenceImage.GetWidth(), uiOffsetx + uiBlockSize) - uiOffsetx;
   ezUInt32 uiHeight = ezMath::Min(differenceImage.GetHeight(), uiOffsety + uiBlockSize) - uiOffsety;
+
+  // Treat image as single-component format and scale the width instead
+  uiWidth *= uiNumComponents;
 
   if (uiWidth == 0 || uiHeight == 0)
     return 0;
@@ -134,10 +218,6 @@ ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImageView& differenceImage
 
   ezUInt64 uiRowPitch = differenceImage.GetRowPitch();
   ezUInt64 uiDepthPitch = differenceImage.GetDepthPitch();
-  ezUInt32 uiNumComponents = ezImageFormat::GetNumChannels(differenceImage.GetImageFormat());
-
-  // Treat image as single-component format and scale the width instead
-  uiWidth *= uiNumComponents;
 
   const ezUInt32 uiSize2D = uiWidth * uiHeight;
   const ezUInt8* pSlicePointer = differenceImage.GetPixelPointer<ezUInt8>(0, 0, 0, uiOffsetx, uiOffsety);
@@ -657,6 +737,7 @@ inline static void FilterLine(
 static void DownScaleFastLine(ezUInt32 uiPixelStride, const ezUInt8* pSrc, ezUInt8* pDest, ezUInt32 uiLengthIn, ezUInt32 uiStrideIn, ezUInt32 uiLengthOut, ezUInt32 uiStrideOut)
 {
   const ezUInt32 downScaleFactor = uiLengthIn / uiLengthOut;
+  EZ_ASSERT_DEBUG(downScaleFactor >= 1, "Can't upscale");
 
   const ezUInt32 downScaleFactorLog2 = ezMath::Log2i(static_cast<ezUInt32>(downScaleFactor));
   const ezUInt32 roundOffset = downScaleFactor / 2;

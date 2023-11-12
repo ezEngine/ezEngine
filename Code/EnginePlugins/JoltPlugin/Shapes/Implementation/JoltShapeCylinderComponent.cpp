@@ -46,7 +46,7 @@ void ezJoltShapeCylinderComponent::SerializeComponent(ezWorldWriter& inout_strea
 void ezJoltShapeCylinderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
   auto& s = inout_stream.GetStream();
@@ -56,7 +56,8 @@ void ezJoltShapeCylinderComponent::DeserializeComponent(ezWorldReader& inout_str
 
 void ezJoltShapeCylinderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingBox(ezVec3(-m_fRadius, -m_fRadius, -m_fHeight * 0.5f), ezVec3(m_fRadius, m_fRadius, m_fHeight * 0.5f)), ezInvalidSpatialDataCategory);
+  ezBoundingBox box = ezBoundingBox::MakeFromMinMax(ezVec3(-m_fRadius, -m_fRadius, -m_fHeight * 0.5f), ezVec3(m_fRadius, m_fRadius, m_fHeight * 0.5f));
+  msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(box), ezInvalidSpatialDataCategory);
 }
 
 void ezJoltShapeCylinderComponent::SetRadius(float f)
@@ -95,7 +96,7 @@ void ezJoltShapeCylinderComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& 
 
   ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
   sub.m_pShape = pNewShape;
-  sub.m_Transform.SetLocalTransform(rootTransform, tOwn);
+  sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, tOwn);
 }
 
 

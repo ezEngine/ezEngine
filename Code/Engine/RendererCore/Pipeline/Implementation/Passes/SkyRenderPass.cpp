@@ -10,7 +10,7 @@ ezSkyRenderPass::ezSkyRenderPass(const char* szName)
 {
 }
 
-ezSkyRenderPass::~ezSkyRenderPass() {}
+ezSkyRenderPass::~ezSkyRenderPass() = default;
 
 void ezSkyRenderPass::RenderObjects(const ezRenderViewContext& renderViewContext)
 {

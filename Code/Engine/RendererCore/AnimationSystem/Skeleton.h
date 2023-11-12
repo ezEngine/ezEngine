@@ -13,6 +13,8 @@ class ezStreamReader;
 class ezSkeletonBuilder;
 class ezSkeleton;
 
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+
 namespace ozz::animation
 {
   class Skeleton;
@@ -24,7 +26,7 @@ namespace ozz::animation
 class EZ_RENDERERCORE_DLL ezSkeletonJoint
 {
 public:
-  const ezTransform& GetBindPoseLocalTransform() const { return m_BindPoseLocal; }
+  const ezTransform& GetRestPoseLocalTransform() const { return m_RestPoseLocal; }
 
   /// \brief Returns ezInvalidJointIndex if no parent
   ezUInt16 GetParentIndex() const { return m_uiParentIndex; }
@@ -38,22 +40,34 @@ public:
   ezAngle GetTwistLimitCenterAngle() const { return m_TwistLimitCenterAngle; }
   ezAngle GetTwistLimitLow() const;
   ezAngle GetTwistLimitHigh() const;
+  ezEnum<ezSkeletonJointType> GetJointType() const { return m_JointType; }
 
   ezQuat GetLocalOrientation() const { return m_qLocalJointOrientation; }
 
-protected:
+  ezSurfaceResourceHandle GetSurface() const { return m_hSurface; }
+  ezUInt8 GetCollisionLayer() const { return m_uiCollisionLayer; }
+
+  float GetStiffness() const { return m_fStiffness; }
+  void SetStiffness(float fValue) { m_fStiffness = fValue; }
+
+private:
   friend ezSkeleton;
   friend ezSkeletonBuilder;
 
-  ezTransform m_BindPoseLocal;
+  ezTransform m_RestPoseLocal;
   ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
   ezHashedString m_sName;
 
-  ezQuat m_qLocalJointOrientation = ezQuat::IdentityQuaternion();
+  ezSurfaceResourceHandle m_hSurface;
+  ezUInt8 m_uiCollisionLayer = 0;
+
+  ezEnum<ezSkeletonJointType> m_JointType;
+  ezQuat m_qLocalJointOrientation = ezQuat::MakeIdentity();
   ezAngle m_HalfSwingLimitY;
   ezAngle m_HalfSwingLimitZ;
   ezAngle m_TwistLimitHalfAngle;
   ezAngle m_TwistLimitCenterAngle;
+  float m_fStiffness = 0.0f;
 };
 
 /// \brief The skeleton class encapsulates the information about the joint structure for a model.

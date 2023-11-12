@@ -41,7 +41,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 5, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("General"),
+    new ezCategoryAttribute("Construction"),
     new ezNonUniformBoxManipulatorAttribute("SizeNegX", "SizePosX", "SizeNegY", "SizePosY", "SizeNegZ", "SizePosZ"),
   }
   EZ_END_ATTRIBUTES;
@@ -207,19 +207,7 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
       if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
         bDontCacheYet = true;
 
-      ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-      if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-      {
-        category = ezDefaultRenderDataCategories::LitOpaque;
-      }
-      else if (blendModeValue == "BLEND_MODE_MASKED")
-      {
-        category = ezDefaultRenderDataCategories::LitMasked;
-      }
-      else
-      {
-        category = ezDefaultRenderDataCategories::LitTransparent;
-      }
+      category = pMaterial->GetRenderDataCategory();
     }
 
     msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
@@ -296,7 +284,7 @@ void ezGreyBoxComponent::SetDetail(ezUInt32 uiDetail)
 
 void ezGreyBoxComponent::SetCurvature(ezAngle curvature)
 {
-  m_Curvature = ezAngle::Degree(ezMath::RoundToMultiple(curvature.GetDegree(), 5.0f));
+  m_Curvature = ezAngle::MakeFromDegree(ezMath::RoundToMultiple(curvature.GetDegree(), 5.0f));
   InvalidateMesh();
 }
 
@@ -447,10 +435,20 @@ void ezGreyBoxComponent::InvalidateMesh()
 
 void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, bool bOnlyRoughDetails) const
 {
+  ezGeometry::GeoOptions opt;
+  opt.m_Color = m_Color;
+
   ezVec3 size;
   size.x = m_fSizeNegX + m_fSizePosX;
   size.y = m_fSizeNegY + m_fSizePosY;
   size.z = m_fSizeNegZ + m_fSizePosZ;
+
+  if (size.x == 0 || size.y == 0 || size.z == 0)
+  {
+    // create a tiny dummy box, so that we have valid geometry
+    geom.AddBox(ezVec3(0.01f), true, opt);
+    return;
+  }
 
   ezVec3 offset(0);
   offset.x = (m_fSizePosX - m_fSizeNegX) * 0.5f;
@@ -459,9 +457,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
 
   ezMat4 t2, t3;
 
-  ezGeometry::GeoOptions opt;
-  opt.m_Color = m_Color;
-  opt.m_Transform.SetTranslationMatrix(offset);
+  opt.m_Transform = ezMat4::MakeTranslation(offset);
 
   switch (shape)
   {
@@ -475,7 +471,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
 
     case ezGreyBoxShape::RampY:
       ezMath::Swap(size.x, size.y);
-      opt.m_Transform.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
+      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90.0f));
       opt.m_Transform.SetTranslationVector(offset);
       geom.AddTexturedRamp(size, opt);
       break;
@@ -491,7 +487,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
 
     case ezGreyBoxShape::StairsY:
       ezMath::Swap(size.x, size.y);
-      opt.m_Transform.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
+      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90.0f));
       opt.m_Transform.SetTranslationVector(offset);
       geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, opt);
       break;
@@ -502,8 +498,8 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
       size.z = size.x;
       size.x = size.y;
       size.y = tmp;
-      opt.m_Transform.SetRotationMatrixY(ezAngle::Degree(-90));
-      t2.SetRotationMatrixX(ezAngle::Degree(90));
+      opt.m_Transform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(-90));
+      t2 = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
       opt.m_Transform = t2 * opt.m_Transform;
       opt.m_Transform.SetTranslationVector(offset);
       geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, !bOnlyRoughDetails, opt);
@@ -512,9 +508,9 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
 
     case ezGreyBoxShape::ArchY:
     {
-      opt.m_Transform.SetRotationMatrixY(ezAngle::Degree(-90));
-      t2.SetRotationMatrixX(ezAngle::Degree(90));
-      t3.SetRotationMatrixZ(ezAngle::Degree(90));
+      opt.m_Transform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(-90));
+      t2 = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
+      t3 = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
       ezMath::Swap(size.y, size.z);
       opt.m_Transform = t3 * t2 * opt.m_Transform;
       opt.m_Transform.SetTranslationVector(offset);

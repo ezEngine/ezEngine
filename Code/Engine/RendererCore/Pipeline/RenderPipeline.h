@@ -31,8 +31,8 @@ public:
 
   void AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass);
   void RemovePass(ezRenderPipelinePass* pPass);
-  void GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& ref_passes) const;
-  void GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& ref_passes);
+  void GetPasses(ezDynamicArray<const ezRenderPipelinePass*>& ref_passes) const;
+  void GetPasses(ezDynamicArray<ezRenderPipelinePass*>& ref_passes);
   ezRenderPipelinePass* GetPassByName(const ezStringView& sPassName);
   ezHashedString GetViewName() const;
 
@@ -40,13 +40,13 @@ public:
   bool Connect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
   bool Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
 
-  const ezRenderPipelinePassConnection* GetInputConnection(ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const;
-  const ezRenderPipelinePassConnection* GetOutputConnection(ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const;
+  const ezRenderPipelinePassConnection* GetInputConnection(const ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const;
+  const ezRenderPipelinePassConnection* GetOutputConnection(const ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const;
 
   void AddExtractor(ezUniquePtr<ezExtractor>&& pExtractor);
   void RemoveExtractor(ezExtractor* pExtractor);
-  void GetExtractors(ezHybridArray<const ezExtractor*, 16>& ref_extractors) const;
-  void GetExtractors(ezHybridArray<ezExtractor*, 16>& ref_extractors);
+  void GetExtractors(ezDynamicArray<const ezExtractor*>& ref_extractors) const;
+  void GetExtractors(ezDynamicArray<ezExtractor*>& ref_extractors);
   ezExtractor* GetExtractorByName(const ezStringView& sExtractorName);
 
   template <typename T>
@@ -115,7 +115,7 @@ private: // Member data
   ezUInt64 m_uiLastRenderFrame;
 
   // Render pass graph data
-  PipelineState m_PipelineState;
+  PipelineState m_PipelineState = PipelineState::Uninitialized;
 
   struct ConnectionData
   {

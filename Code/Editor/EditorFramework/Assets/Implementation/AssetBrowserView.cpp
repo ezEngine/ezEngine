@@ -13,8 +13,6 @@ ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* pParent)
   m_pDelegate = new ezQtIconViewDelegate(this);
 
   SetDialogMode(false);
-
-  setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
   setViewMode(QListView::ViewMode::IconMode);
   setUniformItemSizes(true);
   setResizeMode(QListView::ResizeMode::Adjust);
@@ -29,12 +27,14 @@ void ezQtAssetBrowserView::SetDialogMode(bool bDialogMode)
 
   if (m_bDialogMode)
   {
+    setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_pDelegate->SetDrawTransformState(false);
     setDragDropMode(QAbstractItemView::DragDropMode::NoDragDrop);
     setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
   }
   else
   {
+    setEditTriggers(QAbstractItemView::EditKeyPressed);
     m_pDelegate->SetDrawTransformState(true);
     setDragDropMode(QAbstractItemView::DragOnly);
     setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
@@ -104,10 +104,14 @@ void ezQtIconViewDelegate::SetIconScale(ezInt32 iIconSizePercentage)
 
 bool ezQtIconViewDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& opt, const QModelIndex& index)
 {
+  const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+  if (!itemType.IsSet(ezAssetBrowserItemFlags::Asset))
+    return false;
+
   const ezUInt32 uiThumbnailSize = ThumbnailSize();
   QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
   thumbnailRect.setSize(QSize(16, 16));
-  if (thumbnailRect.contains(pEvent->localPos().toPoint()))
+  if (thumbnailRect.contains(pEvent->position().toPoint()))
   {
     pEvent->accept();
     return true;
@@ -117,10 +121,14 @@ bool ezQtIconViewDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOpti
 
 bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& opt, const QModelIndex& index)
 {
+  const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+  if (!itemType.IsSet(ezAssetBrowserItemFlags::Asset))
+    return false;
+
   const ezUInt32 uiThumbnailSize = ThumbnailSize();
   QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
   thumbnailRect.setSize(QSize(16, 16));
-  if (thumbnailRect.contains(pEvent->localPos().toPoint()))
+  if (thumbnailRect.contains(pEvent->position().toPoint()))
   {
     ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
 
@@ -142,6 +150,32 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOp
   return false;
 }
 
+QWidget* ezQtIconViewDelegate::createEditor(QWidget* pParent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+  ezStringBuilder sAbsPath = index.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().constData();
+
+  QLineEdit* editor = new QLineEdit(pParent);
+  editor->setValidator(new ezFileNameValidator(editor, sAbsPath.GetFileDirectory(), sAbsPath.GetFileNameAndExtension()));
+  return editor;
+}
+
+void ezQtIconViewDelegate::setModelData(QWidget* pEditor, QAbstractItemModel* pModel, const QModelIndex& index) const
+{
+  QString sOldName = index.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+  QLineEdit* pLineEdit = qobject_cast<QLineEdit*>(pEditor);
+  pModel->setData(index, pLineEdit->text());
+}
+
+void ezQtIconViewDelegate::updateEditorGeometry(QWidget* pEditor, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+  if (!pEditor)
+    return;
+
+  const ezUInt32 uiThumbnailSize = ThumbnailSize();
+  const QRect textRect = option.rect.adjusted(ItemSideMargin, ItemSideMargin + uiThumbnailSize + TextSpacing, -ItemSideMargin, -ItemSideMargin - TextSpacing);
+  pEditor->setGeometry(textRect);
+}
+
 void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& opt, const QModelIndex& index) const
 {
   if (!IsInIconMode())
@@ -151,6 +185,7 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
   }
 
   const ezUInt32 uiThumbnailSize = ThumbnailSize();
+  const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
 
   // Prepare painter.
   {
@@ -159,6 +194,18 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
       pPainter->setClipRect(opt.rect);
 
     pPainter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+  }
+
+  // Draw assets with a background to distinguish them easily from normal files / folders.
+  if (itemType.IsAnySet(ezAssetBrowserItemFlags::Asset | ezAssetBrowserItemFlags::SubAsset))
+  {
+    QPalette::ColorGroup cg = opt.state & QStyle::State_Enabled ? QPalette::Normal : QPalette::Disabled;
+    if (cg == QPalette::Normal && !(opt.state & QStyle::State_Active))
+      cg = QPalette::Inactive;
+
+    ezInt32 border = ItemSideMargin - HighlightBorderWidth;
+    QRect assetRect = opt.rect.adjusted(border, border, -border, -border);
+    pPainter->fillRect(assetRect, opt.palette.brush(cg, QPalette::AlternateBase));
   }
 
   // Draw highlight background (copy of QItemDelegate::drawBackground)
@@ -188,61 +235,74 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
     }
   }
 
-  // Draw thumbnail.
+  if (!itemType.IsAnySet(ezAssetBrowserItemFlags::Asset | ezAssetBrowserItemFlags::SubAsset))
   {
-    QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin, ItemSideMargin, 0, 0);
-    thumbnailRect.setSize(QSize(uiThumbnailSize, uiThumbnailSize));
-    QPixmap pixmap = qvariant_cast<QPixmap>(index.data(Qt::DecorationRole));
-    pPainter->drawPixmap(thumbnailRect, pixmap);
-  }
-
-  // Draw icon.
-  {
-    QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
-    thumbnailRect.setSize(QSize(16, 16));
-    QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIconPath));
-    icon.paint(pPainter, thumbnailRect);
-  }
-
-  // Draw Transform State Icon
-  if (m_bDrawTransformState)
-  {
-    QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
-    thumbnailRect.setSize(QSize(16, 16));
-
-    ezAssetInfo::TransformState state = (ezAssetInfo::TransformState)index.data(ezQtAssetBrowserModel::UserRoles::TransformState).toInt();
-
-    switch (state)
+    // Draw icon.
     {
-      case ezAssetInfo::TransformState::Unknown:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(pPainter, thumbnailRect);
-        break;
-      case ezAssetInfo::TransformState::NeedsThumbnail:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail16.png").paint(pPainter, thumbnailRect);
-        break;
-      case ezAssetInfo::TransformState::NeedsTransform:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(pPainter, thumbnailRect);
-        break;
-      case ezAssetInfo::TransformState::UpToDate:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(pPainter, thumbnailRect);
-        break;
-      case ezAssetInfo::TransformState::MissingTransformDependency:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png").paint(pPainter, thumbnailRect);
-        break;
-      case ezAssetInfo::TransformState::MissingThumbnailDependency:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png").paint(pPainter, thumbnailRect);
-        break;
-      case ezAssetInfo::TransformState::CircularDependency:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(pPainter, thumbnailRect);
-        break;
-      case ezAssetInfo::TransformState::TransformError:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(pPainter, thumbnailRect);
-        break;
-      case ezAssetInfo::TransformState::NeedsImport:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsImport16.png").paint(pPainter, thumbnailRect);
-        break;
-      case ezAssetInfo::TransformState::COUNT:
-        break;
+      QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin, ItemSideMargin, 0, 0);
+      thumbnailRect.setSize(QSize(uiThumbnailSize, uiThumbnailSize));
+      QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIcon));
+      icon.paint(pPainter, thumbnailRect);
+    }
+  }
+  else
+  {
+    // Draw thumbnail.
+    {
+      QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin, ItemSideMargin, 0, 0);
+      thumbnailRect.setSize(QSize(uiThumbnailSize, uiThumbnailSize));
+      QPixmap pixmap = qvariant_cast<QPixmap>(index.data(Qt::DecorationRole));
+      pPainter->drawPixmap(thumbnailRect, pixmap);
+    }
+
+    // Draw icon.
+    {
+      QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
+      thumbnailRect.setSize(QSize(16, 16));
+      QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIcon));
+      icon.paint(pPainter, thumbnailRect);
+    }
+
+    // Draw Transform State Icon
+    if (m_bDrawTransformState)
+    {
+      QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
+      thumbnailRect.setSize(QSize(16, 16));
+
+      ezAssetInfo::TransformState state = (ezAssetInfo::TransformState)index.data(ezQtAssetBrowserModel::UserRoles::TransformState).toInt();
+
+      switch (state)
+      {
+        case ezAssetInfo::TransformState::Unknown:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::NeedsThumbnail:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::NeedsTransform:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::UpToDate:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::MissingTransformDependency:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::MissingThumbnailDependency:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::CircularDependency:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::TransformError:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::NeedsImport:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsImport.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::COUNT:
+          break;
+      }
     }
   }
 

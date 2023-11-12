@@ -4,7 +4,7 @@
 
 struct RtsMsgSetTarget;
 
-typedef ezComponentManagerSimple<class RtsTorpedoComponent, ezComponentUpdateType::WhenSimulating> RtsTorpedoComponentManager;
+using RtsTorpedoComponentManager = ezComponentManagerSimple<class RtsTorpedoComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_RTSGAMEPLUGIN_DLL RtsTorpedoComponent : public ezComponent
 {

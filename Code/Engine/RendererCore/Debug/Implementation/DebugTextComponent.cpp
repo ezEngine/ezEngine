@@ -27,7 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Debug"),
+    new ezCategoryAttribute("Utilities/Debug"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -36,10 +36,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDebugTextComponent::ezDebugTextComponent()
   : m_sText("Value0: {0}, Value1: {1}, Value2: {2}, Value3: {3}")
-  , m_fValue0(0.0f)
-  , m_fValue1(0.0f)
-  , m_fValue2(0.0f)
-  , m_fValue3(0.0f)
   , m_Color(ezColor::White)
 {
 }
@@ -84,8 +80,7 @@ void ezDebugTextComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     ezStringBuilder sb;
     sb.Format(m_sText, m_fValue0, m_fValue1, m_fValue2, m_fValue3);
 
-    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), m_Color, 16,
-      ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
+    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), m_Color);
   }
 }
 

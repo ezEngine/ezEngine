@@ -71,7 +71,7 @@ public:
     ezUInt16 m_uiReserved = 0;
   };
 
-  ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType);
+  ezAssetDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType);
   ~ezAssetDocument();
 
   /// \name Asset Functions
@@ -122,7 +122,7 @@ public:
   virtual ezVariant GetCreateEngineMetaData() const { return ezVariant(); }
 
   /// \brief Sends a message to the corresponding ezEngineProcessDocumentContext on the engine process.
-  void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
+  bool SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
 
   /// \brief Handles all messages received from the corresponding ezEngineProcessDocumentContext on the engine process.
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
@@ -180,6 +180,7 @@ protected:
   /// \brief Implements auto transform on save
   virtual void InternalAfterSaveDocument() override;
 
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void InitializeAfterLoadingAndSaving() override;
 
   ///@}
@@ -202,7 +203,7 @@ protected:
   /// \param szPlatform Platform for which is the output is to be created. Default is 'PC'.
   /// \param AssetHeader Header already written to the stream, provided for reference.
   /// \param transformFlags flags that affect the transform process, see ezTransformFlags.
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) = 0;
 
   /// \brief Only override this function, if the transformed file for the given szOutputTag must be written from another process.
@@ -210,7 +211,7 @@ protected:
   /// szTargetFile is where the transformed asset should be written to. The overriding function must ensure to first
   /// write \a AssetHeader to the file, to make it a valid asset file or provide a custom ezAssetDocumentManager::IsOutputUpToDate function.
   /// See ezTransformFlags for definition of transform flags.
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags);
 
   ezStatus RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const;
@@ -223,10 +224,10 @@ protected:
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo);
 
   /// \brief Returns the full path to the jpg file in which the thumbnail for this asset is supposed to be
-  ezString GetThumbnailFilePath() const;
+  ezString GetThumbnailFilePath(ezStringView sSubAssetName = ezStringView()) const;
 
   /// \brief Should be called after manually changing the thumbnail, such that the system will reload it
-  void InvalidateAssetThumbnail() const;
+  void InvalidateAssetThumbnail(ezStringView sSubAssetName = ezStringView()) const;
 
   /// \brief Requests the engine side to render a thumbnail, will call SaveThumbnail on success.
   ezStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo, ezArrayPtr<ezStringView> viewExclusionTags /*= ezStringView("SkyLight")*/) const;
@@ -243,7 +244,7 @@ protected:
   ezStatus SaveThumbnail(const QImage& img, const ThumbnailInfo& thumbnailInfo) const;
 
   /// \brief Appends an asset header containing the thumbnail hash to the file. Each thumbnail is appended by it to check up-to-date state.
-  void AppendThumbnailInfo(const char* szThumbnailFile, const ThumbnailInfo& thumbnailInfo) const;
+  void AppendThumbnailInfo(ezStringView sThumbnailFile, const ThumbnailInfo& thumbnailInfo) const;
 
   ///@}
   /// \name Common Asset States
@@ -276,11 +277,10 @@ protected:
   void AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const;
 
 protected:
-  ezIPCObjectMirrorEditor m_Mirror;
+  ezUniquePtr<ezIPCObjectMirrorEditor> m_pMirror;
 
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
-private:
   ezTransformStatus DoTransformAsset(const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
 
   EngineStatus m_EngineStatus;

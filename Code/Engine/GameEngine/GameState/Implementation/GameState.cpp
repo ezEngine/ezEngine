@@ -32,9 +32,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
 // clang-format on
 
-ezGameState::ezGameState() {}
+ezGameState::ezGameState() = default;
 
-ezGameState::~ezGameState() {}
+ezGameState::~ezGameState() = default;
 
 void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
@@ -202,7 +202,6 @@ void ezGameState::SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewp
   if (m_bXREnabled)
   {
     const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
-    ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
 
     auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sXRRenderPipeline);
     pView->SetRenderPipelineResource(renderPipeline);

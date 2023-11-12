@@ -62,7 +62,7 @@ private Q_SLOTS:
   void onFlattenTangents();
   void onSelectionChanged();
   void onMoveCurve(ezInt32 iCurve, double moveY);
-  void onGenerateCurve(ezMath::ezCurveFunction function, bool inverse);
+  void onGenerateCurve(ezCurveFunction::Enum function, bool inverse);
   void onSaveAsPreset();
   void onLoadPreset();
 

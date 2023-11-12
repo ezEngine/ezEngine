@@ -282,7 +282,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>(const ezSimdVec4u& v) const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::ZeroVector()
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::MakeZero()
 {
   return _mm_setzero_si128();
 }

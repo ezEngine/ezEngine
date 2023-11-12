@@ -11,9 +11,7 @@ ezQtWaitForOperationDlg::ezQtWaitForOperationDlg(QWidget* pParent)
   QTimer::singleShot(10, this, &ezQtWaitForOperationDlg::onIdle);
 }
 
-ezQtWaitForOperationDlg::~ezQtWaitForOperationDlg()
-{
-}
+ezQtWaitForOperationDlg::~ezQtWaitForOperationDlg() = default;
 
 void ezQtWaitForOperationDlg::on_ButtonCancel_clicked()
 {

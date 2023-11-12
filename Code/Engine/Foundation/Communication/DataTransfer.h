@@ -27,7 +27,7 @@ public:
   /// \param szFileExtension
   ///   The file extension that should be used when the user wants to store the data on disk. This is separate from the mime type,
   ///   as you might want to send data with mime type 'text/json' but store it on disk as '.savegame'.
-  ezDataTransferObject(ezDataTransfer& ref_belongsTo, const char* szObjectName, const char* szMimeType, const char* szFileExtension);
+  ezDataTransferObject(ezDataTransfer& ref_belongsTo, ezStringView sObjectName, ezStringView sMimeType, ezStringView sFileExtension);
 
   /// \brief The destructor will assert if the data has not been transmitted.
   ~ezDataTransferObject();
@@ -84,7 +84,7 @@ public:
   void DisableDataTransfer();
 
   /// \brief Enables the data transfer. It will show up with the given name in ezInspector.
-  void EnableDataTransfer(const char* szDataName);
+  void EnableDataTransfer(ezStringView sDataName);
 
   /// \brief Sets the IsTransferRequested() state to true. Ignored if the data transfer is disabled.
   void RequestDataTransfer();

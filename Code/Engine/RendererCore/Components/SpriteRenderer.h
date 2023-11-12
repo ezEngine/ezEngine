@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Pipeline/Renderer.h>
 
-struct SpriteData;
+struct ezPerSpriteData;
 class ezRenderDataBatch;
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
@@ -24,10 +24,10 @@ public:
     const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
-  ezGALBufferHandle CreateSpriteDataBuffer() const;
+  ezGALBufferHandle CreateSpriteDataBuffer(ezUInt32 uiBufferSize) const;
   void DeleteSpriteDataBuffer(ezGALBufferHandle hBuffer) const;
-  virtual void FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32 uiCount) const;
+  virtual void FillSpriteData(const ezRenderDataBatch& batch) const;
 
   ezShaderResourceHandle m_hShader;
-  mutable ezDynamicArray<SpriteData, ezAlignedAllocatorWrapper> m_SpriteData;
+  mutable ezDynamicArray<ezPerSpriteData, ezAlignedAllocatorWrapper> m_SpriteData;
 };

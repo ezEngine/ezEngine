@@ -1,16 +1,16 @@
 <RCC>
   <qresource prefix="AssetIcons">
-    <file>Sound_Bank.png</file>
-	<file>Sound_Event.png</file>
+    <file>Sound_Bank.svg</file>
+	<file>Sound_Event.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-	<file>ezFmodEventComponent.png</file>
-	<file>ezFmodListenerComponent.png</file>
-	<file>ezFmodReverbComponent.png</file>
+	<file>ezFmodEventComponent.svg</file>
+	<file>ezFmodListenerComponent.svg</file>
+	<file>ezFmodReverbComponent.svg</file>
   </qresource>  
   <qresource prefix="Icons">
-	<file>SoundOn16.png</file>
-	<file>SoundOff16.png</file>
+	<file>SoundOn.svg</file>
+	<file>SoundOff.svg</file>
   </qresource>  
 </RCC>
 

@@ -9,7 +9,6 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoRenderData : public ezMeshRende
 
 public:
   ezColor m_GizmoColor;
-  bool m_bUseDepthPrepass;
   bool m_bIsPickable;
 };
 
@@ -41,6 +40,5 @@ public:
   ~ezGizmoComponent();
 
   ezColor m_GizmoColor;
-  bool m_bUseDepthPrepass = false;
   bool m_bIsPickable = true;
 };

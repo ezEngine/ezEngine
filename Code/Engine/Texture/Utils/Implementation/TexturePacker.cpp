@@ -2,9 +2,9 @@
 
 #include <Texture/Utils/TexturePacker.h>
 
-ezTexturePacker::ezTexturePacker() {}
+ezTexturePacker::ezTexturePacker() = default;
 
-ezTexturePacker::~ezTexturePacker() {}
+ezTexturePacker::~ezTexturePacker() = default;
 
 void ezTexturePacker::SetTextureSize(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiReserveTextures /*= 0*/)
 {

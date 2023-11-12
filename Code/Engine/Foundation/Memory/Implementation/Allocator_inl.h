@@ -4,7 +4,7 @@ namespace ezInternal
   class ezAllocatorImpl : public ezAllocatorBase
   {
   public:
-    ezAllocatorImpl(const char* szName, ezAllocatorBase* pParent);
+    ezAllocatorImpl(ezStringView sName, ezAllocatorBase* pParent);
     ~ezAllocatorImpl();
 
     // ezAllocatorBase implementation
@@ -27,20 +27,20 @@ namespace ezInternal
   class ezAllocatorMixinReallocate : public ezAllocatorImpl<AllocationPolicy, TrackingFlags>
   {
   public:
-    ezAllocatorMixinReallocate(const char* szName, ezAllocatorBase* pParent);
+    ezAllocatorMixinReallocate(ezStringView sName, ezAllocatorBase* pParent);
   };
 
   template <typename AllocationPolicy, ezUInt32 TrackingFlags>
   class ezAllocatorMixinReallocate<AllocationPolicy, TrackingFlags, true> : public ezAllocatorImpl<AllocationPolicy, TrackingFlags>
   {
   public:
-    ezAllocatorMixinReallocate(const char* szName, ezAllocatorBase* pParent);
+    ezAllocatorMixinReallocate(ezStringView sName, ezAllocatorBase* pParent);
     virtual void* Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign) override;
   };
 }; // namespace ezInternal
 
 template <typename A, ezUInt32 TrackingFlags>
-EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(const char* szName, ezAllocatorBase* pParent /* = nullptr */)
+EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(ezStringView sName, ezAllocatorBase* pParent /* = nullptr */)
   : m_allocator(pParent)
   , m_ThreadID(ezThreadUtils::GetCurrentThreadID())
 {
@@ -49,7 +49,7 @@ EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(c
     EZ_CHECK_AT_COMPILETIME_MSG((TrackingFlags & ~ezMemoryTrackingFlags::All) == 0, "Invalid tracking flags");
     const ezUInt32 uiTrackingFlags = TrackingFlags;
     ezBitflags<ezMemoryTrackingFlags> flags = *reinterpret_cast<const ezBitflags<ezMemoryTrackingFlags>*>(&uiTrackingFlags);
-    this->m_Id = ezMemoryTracker::RegisterAllocator(szName, flags, pParent != nullptr ? pParent->GetId() : ezAllocatorId());
+    this->m_Id = ezMemoryTracker::RegisterAllocator(sName, flags, pParent != nullptr ? pParent->GetId() : ezAllocatorId());
   }
 }
 
@@ -135,14 +135,14 @@ EZ_ALWAYS_INLINE ezAllocatorBase* ezInternal::ezAllocatorImpl<A, TrackingFlags>:
 }
 
 template <typename A, ezUInt32 TrackingFlags, bool HasReallocate>
-ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, HasReallocate>::ezAllocatorMixinReallocate(const char* szName, ezAllocatorBase* pParent)
-  : ezAllocatorImpl<A, TrackingFlags>(szName, pParent)
+ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, HasReallocate>::ezAllocatorMixinReallocate(ezStringView sName, ezAllocatorBase* pParent)
+  : ezAllocatorImpl<A, TrackingFlags>(sName, pParent)
 {
 }
 
 template <typename A, ezUInt32 TrackingFlags>
-ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::ezAllocatorMixinReallocate(const char* szName, ezAllocatorBase* pParent)
-  : ezAllocatorImpl<A, TrackingFlags>(szName, pParent)
+ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::ezAllocatorMixinReallocate(ezStringView sName, ezAllocatorBase* pParent)
+  : ezAllocatorImpl<A, TrackingFlags>(sName, pParent)
 {
 }
 

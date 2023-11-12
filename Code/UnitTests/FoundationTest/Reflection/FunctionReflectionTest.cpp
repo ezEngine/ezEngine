@@ -45,12 +45,12 @@ struct FunctionTest
       EZ_TEST_BOOL(m_values[4] == *pPv);
       EZ_TEST_BOOL(m_values[5] == *pCpv);
     }
-    ref_rv = {2.0f, ezAngle::Degree(200.0f)};
+    ref_rv = {2.0f, ezAngle::MakeFromDegree(200.0f)};
     if (pPv)
     {
-      *pPv = {4.0f, ezAngle::Degree(400.0f)};
+      *pPv = {4.0f, ezAngle::MakeFromDegree(400.0f)};
     }
-    return {0.6f, ezAngle::Degree(60.0f)};
+    return {0.6f, ezAngle::MakeFromDegree(60.0f)};
   }
 
   ezVarianceTypeAngle CustomTypeFunction2(ezVarianceTypeAngle v, const ezVarianceTypeAngle cv, ezVarianceTypeAngle& ref_rv, const ezVarianceTypeAngle& crv, ezVarianceTypeAngle* pPv, const ezVarianceTypeAngle* pCpv)
@@ -69,12 +69,12 @@ struct FunctionTest
       EZ_TEST_BOOL(*m_values[4].Get<ezVarianceTypeAngle*>() == *pPv);
       EZ_TEST_BOOL(*m_values[5].Get<ezVarianceTypeAngle*>() == *pCpv);
     }
-    ref_rv = {2.0f, ezAngle::Degree(200.0f)};
+    ref_rv = {2.0f, ezAngle::MakeFromDegree(200.0f)};
     if (pPv)
     {
-      *pPv = {4.0f, ezAngle::Degree(400.0f)};
+      *pPv = {4.0f, ezAngle::MakeFromDegree(400.0f)};
     }
-    return {0.6f, ezAngle::Degree(60.0f)};
+    return {0.6f, ezAngle::MakeFromDegree(60.0f)};
   }
 
   const char* StringTypeFunction(const char* szString, ezString& ref_sString, ezStringView sView)
@@ -216,6 +216,70 @@ struct FunctionTest
     return 5;
   }
 
+  ezVariantArray VariantArrayFunction(ezVariantArray a, const ezVariantArray ca, ezVariantArray& ref_a, const ezVariantArray& cra, ezVariantArray* pA, const ezVariantArray* pCa)
+  {
+    EZ_TEST_BOOL(m_values[0].Get<ezVariantArray>() == a);
+    EZ_TEST_BOOL(m_values[1].Get<ezVariantArray>() == ca);
+    EZ_TEST_BOOL(m_values[2].Get<ezVariantArray>() == ref_a);
+    EZ_TEST_BOOL(m_values[3].Get<ezVariantArray>() == cra);
+    if (m_bPtrAreNull)
+    {
+      EZ_TEST_BOOL(!pA);
+      EZ_TEST_BOOL(!pCa);
+    }
+    else
+    {
+      EZ_TEST_BOOL(m_values[4] == *pA);
+      EZ_TEST_BOOL(m_values[5] == *pCa);
+    }
+    ref_a.Clear();
+    ref_a.PushBack(1.0f);
+    ref_a.PushBack("Test");
+    if (pA)
+    {
+      pA->Clear();
+      pA->PushBack(2.0f);
+      pA->PushBack("Test2");
+    }
+
+    ezVariantArray ret;
+    ret.PushBack(3.0f);
+    ret.PushBack("RetTest");
+    return ret;
+  }
+
+  ezVariantDictionary VariantDictionaryFunction(ezVariantDictionary a, const ezVariantDictionary ca, ezVariantDictionary& ref_a, const ezVariantDictionary& cra, ezVariantDictionary* pA, const ezVariantDictionary* pCa)
+  {
+    EZ_TEST_BOOL(m_values[0].Get<ezVariantDictionary>() == a);
+    EZ_TEST_BOOL(m_values[1].Get<ezVariantDictionary>() == ca);
+    EZ_TEST_BOOL(m_values[2].Get<ezVariantDictionary>() == ref_a);
+    EZ_TEST_BOOL(m_values[3].Get<ezVariantDictionary>() == cra);
+    if (m_bPtrAreNull)
+    {
+      EZ_TEST_BOOL(!pA);
+      EZ_TEST_BOOL(!pCa);
+    }
+    else
+    {
+      EZ_TEST_BOOL(m_values[4] == *pA);
+      EZ_TEST_BOOL(m_values[5] == *pCa);
+    }
+    ref_a.Clear();
+    ref_a.Insert("f", 1.0f);
+    ref_a.Insert("s", "Test");
+    if (pA)
+    {
+      pA->Clear();
+      pA->Insert("f", 2.0f);
+      pA->Insert("s", "Test2");
+    }
+
+    ezVariantDictionary ret;
+    ret.Insert("f", 3.0f);
+    ret.Insert("s", "RetTest");
+    return ret;
+  }
+
   static void StaticFunction(bool b, ezVariant v)
   {
     EZ_TEST_BOOL(b == true);
@@ -228,7 +292,7 @@ struct FunctionTest
   ezDynamicArray<ezVariant> m_values;
 };
 
-typedef std::tuple<const ezRTTI*, ezBitflags<ezPropertyFlags>> ParamSig;
+using ParamSig = std::tuple<const ezRTTI*, ezBitflags<ezPropertyFlags>>;
 
 void VerifyFunctionSignature(const ezAbstractFunctionProperty* pFunc, ezArrayPtr<ParamSig> params, ParamSig ret)
 {
@@ -298,19 +362,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
 
     {
       FunctionTest test;
-      test.m_values.PushBack(ezVarianceTypeAngle{0.0f, ezAngle::Degree(0.0f)});
-      test.m_values.PushBack(ezVarianceTypeAngle{0.1f, ezAngle::Degree(10.0f)});
-      test.m_values.PushBack(ezVarianceTypeAngle{0.2f, ezAngle::Degree(20.0f)});
-      test.m_values.PushBack(ezVarianceTypeAngle{0.3f, ezAngle::Degree(30.0f)});
-      test.m_values.PushBack(ezVarianceTypeAngle{0.4f, ezAngle::Degree(40.0f)});
-      test.m_values.PushBack(ezVarianceTypeAngle{0.5f, ezAngle::Degree(50.0f)});
+      test.m_values.PushBack(ezVarianceTypeAngle{0.0f, ezAngle::MakeFromDegree(0.0f)});
+      test.m_values.PushBack(ezVarianceTypeAngle{0.1f, ezAngle::MakeFromDegree(10.0f)});
+      test.m_values.PushBack(ezVarianceTypeAngle{0.2f, ezAngle::MakeFromDegree(20.0f)});
+      test.m_values.PushBack(ezVarianceTypeAngle{0.3f, ezAngle::MakeFromDegree(30.0f)});
+      test.m_values.PushBack(ezVarianceTypeAngle{0.4f, ezAngle::MakeFromDegree(40.0f)});
+      test.m_values.PushBack(ezVarianceTypeAngle{0.5f, ezAngle::MakeFromDegree(50.0f)});
 
       ezVariant ret;
       funccall.Execute(&test, test.m_values, ret);
       EZ_TEST_BOOL(ret.GetType() == ezVariantType::TypedObject);
-      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::Degree(60.0f)}));
-      EZ_TEST_BOOL(test.m_values[2] == ezVariant(ezVarianceTypeAngle{2.0f, ezAngle::Degree(200.0f)}));
-      EZ_TEST_BOOL(test.m_values[4] == ezVariant(ezVarianceTypeAngle{4.0f, ezAngle::Degree(400.0f)}));
+      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::MakeFromDegree(60.0f)}));
+      EZ_TEST_BOOL(test.m_values[2] == ezVariant(ezVarianceTypeAngle{2.0f, ezAngle::MakeFromDegree(200.0f)}));
+      EZ_TEST_BOOL(test.m_values[4] == ezVariant(ezVarianceTypeAngle{4.0f, ezAngle::MakeFromDegree(400.0f)}));
 
       test.m_bPtrAreNull = true;
       test.m_values[4] = ezVariant();
@@ -318,19 +382,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
       ret = ezVariant();
       funccall.Execute(&test, test.m_values, ret);
       EZ_TEST_BOOL(ret.GetType() == ezVariantType::TypedObject);
-      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::Degree(60.0f)}));
+      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::MakeFromDegree(60.0f)}));
     }
 
     {
       ezFunctionProperty<decltype(&FunctionTest::CustomTypeFunction2)> funccall2("", &FunctionTest::CustomTypeFunction2);
 
       FunctionTest test;
-      ezVarianceTypeAngle v0{0.0f, ezAngle::Degree(0.0f)};
-      ezVarianceTypeAngle v1{0.1f, ezAngle::Degree(10.0f)};
-      ezVarianceTypeAngle v2{0.2f, ezAngle::Degree(20.0f)};
-      ezVarianceTypeAngle v3{0.3f, ezAngle::Degree(30.0f)};
-      ezVarianceTypeAngle v4{0.4f, ezAngle::Degree(40.0f)};
-      ezVarianceTypeAngle v5{0.5f, ezAngle::Degree(50.0f)};
+      ezVarianceTypeAngle v0{0.0f, ezAngle::MakeFromDegree(0.0f)};
+      ezVarianceTypeAngle v1{0.1f, ezAngle::MakeFromDegree(10.0f)};
+      ezVarianceTypeAngle v2{0.2f, ezAngle::MakeFromDegree(20.0f)};
+      ezVarianceTypeAngle v3{0.3f, ezAngle::MakeFromDegree(30.0f)};
+      ezVarianceTypeAngle v4{0.4f, ezAngle::MakeFromDegree(40.0f)};
+      ezVarianceTypeAngle v5{0.5f, ezAngle::MakeFromDegree(50.0f)};
       test.m_values.PushBack(&v0);
       test.m_values.PushBack(&v1);
       test.m_values.PushBack(&v2);
@@ -341,9 +405,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
       ezVariant ret;
       funccall2.Execute(&test, test.m_values, ret);
       EZ_TEST_BOOL(ret.GetType() == ezVariantType::TypedObject);
-      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::Degree(60.0f)}));
-      EZ_TEST_BOOL((*test.m_values[2].Get<ezVarianceTypeAngle*>() == ezVarianceTypeAngle{2.0f, ezAngle::Degree(200.0f)}));
-      EZ_TEST_BOOL((*test.m_values[4].Get<ezVarianceTypeAngle*>() == ezVarianceTypeAngle{4.0f, ezAngle::Degree(400.0f)}));
+      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::MakeFromDegree(60.0f)}));
+      EZ_TEST_BOOL((*test.m_values[2].Get<ezVarianceTypeAngle*>() == ezVarianceTypeAngle{2.0f, ezAngle::MakeFromDegree(200.0f)}));
+      EZ_TEST_BOOL((*test.m_values[4].Get<ezVarianceTypeAngle*>() == ezVarianceTypeAngle{4.0f, ezAngle::MakeFromDegree(400.0f)}));
 
       test.m_bPtrAreNull = true;
       test.m_values[4] = ezVariant();
@@ -351,7 +415,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
       ret = ezVariant();
       funccall2.Execute(&test, test.m_values, ret);
       EZ_TEST_BOOL(ret.GetType() == ezVariantType::TypedObject);
-      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::Degree(60.0f)}));
+      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::MakeFromDegree(60.0f)}));
     }
   }
 
@@ -370,7 +434,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     FunctionTest test;
     test.m_values.PushBack(ezVariant(ezString("String0")));
     test.m_values.PushBack(ezVariant(ezString("String1")));
-    test.m_values.PushBack(ezStringView("String2"));
+    test.m_values.PushBack(ezVariant(ezStringView("String2"), false));
 
     ezVariant ret;
     funccall.Execute(&test, test.m_values, ret);
@@ -487,7 +551,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     test.m_values.PushBack(ezVariant(&value));
 
     // ezVariantAdapter<ezTestStruct3 const*> aa(ezVariant(&value));
-    //auto bla = ezIsStandardType<ezTestStruct3 const*>::value;
+    // auto bla = ezIsStandardType<ezTestStruct3 const*>::value;
 
     ezVariant ret(&retS);
     funccall.Execute(&test, test.m_values, ret);
@@ -594,6 +658,115 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     funccall.Execute(&test, test.m_values, ret);
     EZ_TEST_BOOL(ret.GetType() == ezVariantType::Int32);
     EZ_TEST_BOOL(ret == 5);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Member Functions - VariantArray")
+  {
+    ezFunctionProperty<decltype(&FunctionTest::VariantArrayFunction)> funccall("", &FunctionTest::VariantArrayFunction);
+    ParamSig testSet[] = {
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class),
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class),
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class | ezPropertyFlags::Reference),
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer),
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
+    };
+    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class));
+    EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
+
+    ezVariantArray testA;
+    testA.PushBack(ezVec3(3));
+    testA.PushBack(ezTime::MakeFromHours(22));
+    testA.PushBack("Hello");
+
+    FunctionTest test;
+    for (ezUInt32 i = 0; i < 6; ++i)
+    {
+      test.m_values.PushBack(testA);
+      testA.PushBack(i);
+    }
+
+    ezVariantArray expectedOutRef;
+    expectedOutRef.PushBack(1.0f);
+    expectedOutRef.PushBack("Test");
+
+    ezVariantArray expectedOutPtr;
+    expectedOutPtr.PushBack(2.0f);
+    expectedOutPtr.PushBack("Test2");
+
+    ezVariantArray expectedRet;
+    expectedRet.PushBack(3.0f);
+    expectedRet.PushBack("RetTest");
+
+    ezVariant ret;
+    funccall.Execute(&test, test.m_values, ret);
+    EZ_TEST_BOOL(ret.GetType() == ezVariantType::VariantArray);
+    EZ_TEST_BOOL(ret.Get<ezVariantArray>() == expectedRet);
+    EZ_TEST_BOOL(test.m_values[2] == expectedOutRef);
+    EZ_TEST_BOOL(test.m_values[4] == expectedOutPtr);
+
+    test.m_bPtrAreNull = true;
+    test.m_values[4] = ezVariant();
+    test.m_values[5] = ezVariant();
+    ret = ezVariant();
+    funccall.Execute(&test, test.m_values, ret);
+    EZ_TEST_BOOL(ret.GetType() == ezVariantType::VariantArray);
+    EZ_TEST_BOOL(ret.Get<ezVariantArray>() == expectedRet);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Member Functions - VariantDictionary")
+  {
+    ezFunctionProperty<decltype(&FunctionTest::VariantDictionaryFunction)> funccall("", &FunctionTest::VariantDictionaryFunction);
+    ParamSig testSet[] = {
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class),
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class),
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class | ezPropertyFlags::Reference),
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer),
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
+    };
+    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class));
+    EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
+
+    ezVariantDictionary testA;
+    testA.Insert("v", ezVec3(3));
+    testA.Insert("t", ezTime::MakeFromHours(22));
+    testA.Insert("s", "Hello");
+
+    ezStringBuilder tmp;
+    FunctionTest test;
+    for (ezUInt32 i = 0; i < 6; ++i)
+    {
+      test.m_values.PushBack(testA);
+      testA.Insert(ezConversionUtils::ToString(i, tmp), i);
+    }
+
+    ezVariantDictionary expectedOutRef;
+    expectedOutRef.Insert("f", 1.0f);
+    expectedOutRef.Insert("s", "Test");
+
+    ezVariantDictionary expectedOutPtr;
+    expectedOutPtr.Insert("f", 2.0f);
+    expectedOutPtr.Insert("s", "Test2");
+
+    ezVariantDictionary expectedRet;
+    expectedRet.Insert("f", 3.0f);
+    expectedRet.Insert("s", "RetTest");
+
+    ezVariant ret;
+    funccall.Execute(&test, test.m_values, ret);
+    EZ_TEST_BOOL(ret.GetType() == ezVariantType::VariantDictionary);
+    EZ_TEST_BOOL(ret.Get<ezVariantDictionary>() == expectedRet);
+    EZ_TEST_BOOL(test.m_values[2] == expectedOutRef);
+    EZ_TEST_BOOL(test.m_values[4] == expectedOutPtr);
+
+    test.m_bPtrAreNull = true;
+    test.m_values[4] = ezVariant();
+    test.m_values[5] = ezVariant();
+    ret = ezVariant();
+    funccall.Execute(&test, test.m_values, ret);
+    EZ_TEST_BOOL(ret.GetType() == ezVariantType::VariantDictionary);
+    EZ_TEST_BOOL(ret.Get<ezVariantDictionary>() == expectedRet);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Static Functions")

@@ -40,7 +40,7 @@ ezQtCVarWidget::ezQtCVarWidget(QWidget* pParent)
   ConsoleInput->setPlaceholderText("> TAB to auto-complete");
 }
 
-ezQtCVarWidget::~ezQtCVarWidget() {}
+ezQtCVarWidget::~ezQtCVarWidget() = default;
 
 void ezQtCVarWidget::Clear()
 {
@@ -290,7 +290,10 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int iRole) const
         return e->m_sDisplayString;
 
       case 1:
-        return e->m_Value.ConvertTo<ezString>().GetData();
+        if (e->m_Value.IsValid())
+          return e->m_Value.ConvertTo<ezString>().GetData();
+        else
+          return QVariant();
 
       case 2:
         return e->m_sDescription;
@@ -301,7 +304,7 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int iRole) const
   {
     if (e->m_Value.IsValid())
     {
-      return ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.png");
+      return ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.svg");
     }
   }
 
@@ -516,7 +519,7 @@ void ezQtCVarItemDelegate::setEditorData(QWidget* pEditor, const QModelIndex& in
 
   if (QLineEdit* pLine = qobject_cast<QLineEdit*>(pEditor))
   {
-    if (value.type() == QVariant::Type::Double)
+    if (value.typeId() == QMetaType::Double)
     {
       double f = value.toDouble();
 

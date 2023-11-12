@@ -9,7 +9,7 @@
 template <typename T>
 struct ezContainerSubTypeResolver<ezTagSetTemplate<T>>
 {
-  typedef const char* Type;
+  using Type = const char*;
 };
 
 // Template specialization to be able to use ezTagSet properties as EZ_SET_MEMBER_PROPERTY.
@@ -17,11 +17,11 @@ template <typename Class>
 class ezMemberSetProperty<Class, ezTagSet, const char*> : public ezTypedSetProperty<typename ezTypeTraits<const char*>::NonConstReferenceType>
 {
 public:
-  typedef ezTagSet Container;
-  typedef ezConstCharPtr Type;
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
-  typedef const Container& (*GetConstContainerFunc)(const Class* pInstance);
-  typedef Container& (*GetContainerFunc)(Class* pInstance);
+  using Container = ezTagSet;
+  using Type = ezConstCharPtr;
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using GetConstContainerFunc = const Container& (*)(const Class*);
+  using GetContainerFunc = Container& (*)(Class*);
 
   ezMemberSetProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
     : ezTypedSetProperty<RealType>(szPropertyName)
@@ -37,19 +37,19 @@ public:
 
   virtual bool IsEmpty(const void* pInstance) const override { return m_ConstGetter(static_cast<const Class*>(pInstance)).IsEmpty(); }
 
-  virtual void Clear(void* pInstance) override
+  virtual void Clear(void* pInstance) const override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
-  virtual void Insert(void* pInstance, const void* pObject) override
+  virtual void Insert(void* pInstance, const void* pObject) const override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).SetByName(*static_cast<const RealType*>(pObject));
   }
 
-  virtual void Remove(void* pInstance, const void* pObject) override
+  virtual void Remove(void* pInstance, const void* pObject) const override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).RemoveByName(*static_cast<const RealType*>(pObject));
@@ -79,8 +79,8 @@ template <typename Class>
 class ezAccessorSetProperty<Class, const char*, const ezTagSet&> : public ezTypedSetProperty<const char*>
 {
 public:
-  typedef const ezTagSet& Container;
-  typedef ezConstCharPtr Type;
+  using Container = const ezTagSet&;
+  using Type = ezConstCharPtr;
 
   using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
   using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
@@ -105,7 +105,7 @@ public:
 
   virtual bool IsEmpty(const void* pInstance) const override { return (static_cast<const Class*>(pInstance)->*m_GetValues)().IsEmpty(); }
 
-  virtual void Clear(void* pInstance) override
+  virtual void Clear(void* pInstance) const override
   {
     EZ_ASSERT_DEBUG(m_Insert != nullptr && m_Remove != nullptr, "The property '{0}' has no remove and insert function, thus it is read-only",
       ezAbstractProperty::GetPropertyName());
@@ -122,13 +122,13 @@ public:
     }
   }
 
-  virtual void Insert(void* pInstance, const void* pObject) override
+  virtual void Insert(void* pInstance, const void* pObject) const override
   {
     EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(*static_cast<const RealType*>(pObject));
   }
 
-  virtual void Remove(void* pInstance, const void* pObject) override
+  virtual void Remove(void* pInstance, const void* pObject) const override
   {
     EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(*static_cast<const RealType*>(pObject));
@@ -158,7 +158,7 @@ private:
 template <typename BlockStorageAllocator>
 ezTagSetTemplate<BlockStorageAllocator>::Iterator::Iterator(const ezTagSetTemplate<BlockStorageAllocator>* pSet, bool bEnd)
   : m_pTagSet(pSet)
-  , m_uiIndex(0)
+
 {
   if (!bEnd)
   {
@@ -346,25 +346,25 @@ void ezTagSetTemplate<BlockStorageAllocator>::Clear()
 }
 
 template <typename BlockStorageAllocator>
-void ezTagSetTemplate<BlockStorageAllocator>::SetByName(const char* szTag)
+void ezTagSetTemplate<BlockStorageAllocator>::SetByName(ezStringView sTag)
 {
-  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag);
+  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(sTag);
   Set(tag);
 }
 
 template <typename BlockStorageAllocator>
-void ezTagSetTemplate<BlockStorageAllocator>::RemoveByName(const char* szTag)
+void ezTagSetTemplate<BlockStorageAllocator>::RemoveByName(ezStringView sTag)
 {
-  if (const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTag)))
+  if (const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(sTag)))
   {
     Remove(*tag);
   }
 }
 
 template <typename BlockStorageAllocator>
-bool ezTagSetTemplate<BlockStorageAllocator>::IsSetByName(const char* szTag) const
+bool ezTagSetTemplate<BlockStorageAllocator>::IsSetByName(ezStringView sTag) const
 {
-  if (const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTag)))
+  if (const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(sTag)))
   {
     return IsSet(*tag);
   }

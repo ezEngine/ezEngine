@@ -10,7 +10,7 @@ EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezCommandLineOption);
 
 void ezCommandLineOption::GetSortingGroup(ezStringBuilder& ref_sOut) const
 {
-  ref_sOut = m_szSortingGroup;
+  ref_sOut = m_sSortingGroup;
 }
 
 void ezCommandLineOption::GetSplitOptions(ezStringBuilder& out_sAll, ezDynamicArray<ezStringView>& ref_splitOptions) const
@@ -24,10 +24,10 @@ bool ezCommandLineOption::IsHelpRequested(const ezCommandLineUtils* pUtils /*= e
   return pUtils->GetBoolOption("-help") || pUtils->GetBoolOption("--help") || pUtils->GetBoolOption("-h") || pUtils->GetBoolOption("-?");
 }
 
-ezResult ezCommandLineOption::RequireOptions(const char* szRequiredOptions, ezString* pMissingOption /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+ezResult ezCommandLineOption::RequireOptions(ezStringView sRequiredOptions, ezString* pMissingOption /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
 {
   ezStringBuilder tmp;
-  ezStringBuilder allOpts = szRequiredOptions;
+  ezStringBuilder allOpts = sRequiredOptions;
   ezHybridArray<ezStringView, 16> options;
   allOpts.Split(false, options, ";");
 
@@ -54,7 +54,7 @@ ezResult ezCommandLineOption::RequireOptions(const char* szRequiredOptions, ezSt
   return EZ_SUCCESS;
 }
 
-bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, const char* szGroupFilter /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, ezStringView sGroupFilter0 /*= {} */, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
 {
   if (mode == LogAvailableModes::IfHelpRequested)
   {
@@ -65,9 +65,9 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, const char
   ezMap<ezString, ezHybridArray<ezCommandLineOption*, 16>> sorted;
 
   ezStringBuilder sGroupFilter;
-  if (!ezStringUtils::IsNullOrEmpty(szGroupFilter))
+  if (!sGroupFilter0.IsEmpty())
   {
-    sGroupFilter.Set(";", szGroupFilter, ";");
+    sGroupFilter.Set(";", sGroupFilter0, ";");
   }
 
   for (ezCommandLineOption* pOpt = ezCommandLineOption::GetFirstInstance(); pOpt != nullptr; pOpt = pOpt->GetNextInstance())
@@ -157,12 +157,12 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, const char
 }
 
 
-bool ezCommandLineOption::LogAvailableOptionsToBuffer(ezStringBuilder& out_sBuffer, LogAvailableModes mode, const char* szGroupFilter /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+bool ezCommandLineOption::LogAvailableOptionsToBuffer(ezStringBuilder& out_sBuffer, LogAvailableModes mode, ezStringView sGroupFilter /*= {} */, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
 {
   ezLogSystemToBuffer log;
   ezLogSystemScope ls(&log);
 
-  const bool res = ezCommandLineOption::LogAvailableOptions(mode, szGroupFilter, pUtils);
+  const bool res = ezCommandLineOption::LogAvailableOptions(mode, sGroupFilter, pUtils);
 
   out_sBuffer = log.m_sBuffer;
 
@@ -173,34 +173,34 @@ bool ezCommandLineOption::LogAvailableOptionsToBuffer(ezStringBuilder& out_sBuff
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionDoc::ezCommandLineOptionDoc(const char* szSortingGroup, const char* szArgument, const char* szParamShortDesc, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOption(szSortingGroup)
+ezCommandLineOptionDoc::ezCommandLineOptionDoc(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sParamShortDesc, ezStringView sLongDesc, ezStringView sDefaultValue, bool bCaseSensitive /*= false*/)
+  : ezCommandLineOption(sSortingGroup)
 {
-  m_szArgument = szArgument;
-  m_szParamShortDesc = szParamShortDesc;
-  m_szParamDefaultValue = szDefaultValue;
-  m_szLongDesc = szLongDesc;
+  m_sArgument = sArgument;
+  m_sParamShortDesc = sParamShortDesc;
+  m_sParamDefaultValue = sDefaultValue;
+  m_sLongDesc = sLongDesc;
   m_bCaseSensitive = bCaseSensitive;
 }
 
 void ezCommandLineOptionDoc::GetOptions(ezStringBuilder& ref_sOut) const
 {
-  ref_sOut = m_szArgument;
+  ref_sOut = m_sArgument;
 }
 
 void ezCommandLineOptionDoc::GetParamShortDesc(ezStringBuilder& ref_sOut) const
 {
-  ref_sOut = m_szParamShortDesc;
+  ref_sOut = m_sParamShortDesc;
 }
 
 void ezCommandLineOptionDoc::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
 {
-  ref_sOut = m_szParamDefaultValue;
+  ref_sOut = m_sParamDefaultValue;
 }
 
 void ezCommandLineOptionDoc::GetLongDesc(ezStringBuilder& ref_sOut) const
 {
-  ref_sOut = m_szLongDesc;
+  ref_sOut = m_sLongDesc;
 }
 
 bool ezCommandLineOptionDoc::IsOptionSpecified(ezStringBuilder* out_pWhich, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
@@ -224,7 +224,7 @@ bool ezCommandLineOptionDoc::IsOptionSpecified(ezStringBuilder* out_pWhich, cons
 
   if (out_pWhich)
   {
-    *out_pWhich = m_szArgument;
+    *out_pWhich = m_sArgument;
   }
 
   return false;
@@ -245,17 +245,17 @@ bool ezCommandLineOptionDoc::ShouldLog(LogMode mode, bool bWasSpecified) const
   return true;
 }
 
-void ezCommandLineOptionDoc::LogOption(const char* szOption, const char* szValue, bool bWasSpecified) const
+void ezCommandLineOptionDoc::LogOption(ezStringView sOption, ezStringView sValue, bool bWasSpecified) const
 {
   m_bLoggedOnce = true;
 
   if (bWasSpecified)
   {
-    ezLog::Info("Option '{}' is set to '{}'", szOption, szValue);
+    ezLog::Info("Option '{}' is set to '{}'", sOption, sValue);
   }
   else
   {
-    ezLog::Info("Option '{}' is not set, default value is '{}'", szOption, szValue);
+    ezLog::Info("Option '{}' is not set, default value is '{}'", sOption, sValue);
   }
 }
 
@@ -263,8 +263,8 @@ void ezCommandLineOptionDoc::LogOption(const char* szOption, const char* szValue
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionBool::ezCommandLineOptionBool(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, bool bDefaultValue, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(szSortingGroup, szArgument, "<bool>", szLongDesc, bDefaultValue ? "true" : "false", bCaseSensitive)
+ezCommandLineOptionBool::ezCommandLineOptionBool(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, bool bDefaultValue, bool bCaseSensitive /*= false*/)
+  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<bool>", sLongDesc, bDefaultValue ? "true" : "false", bCaseSensitive)
 {
   m_bDefaultValue = bDefaultValue;
 }
@@ -293,8 +293,8 @@ bool ezCommandLineOptionBool::GetOptionValue(LogMode logMode, const ezCommandLin
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionInt::ezCommandLineOptionInt(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, int iDefaultValue, int iMinValue /*= ezMath::MinValue<int>()*/, int iMaxValue /*= ezMath::MaxValue<int>()*/, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(szSortingGroup, szArgument, "<int>", szLongDesc, "0", bCaseSensitive)
+ezCommandLineOptionInt::ezCommandLineOptionInt(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, int iDefaultValue, int iMinValue /*= ezMath::MinValue<int>()*/, int iMaxValue /*= ezMath::MaxValue<int>()*/, bool bCaseSensitive /*= false*/)
+  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<int>", sLongDesc, "0", bCaseSensitive)
 {
   m_iDefaultValue = iDefaultValue;
   m_iMinValue = iMinValue;
@@ -356,8 +356,8 @@ int ezCommandLineOptionInt::GetOptionValue(LogMode logMode, const ezCommandLineU
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionFloat::ezCommandLineOptionFloat(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, float fDefaultValue, float fMinValue /*= ezMath::MinValue<float>()*/, float fMaxValue /*= ezMath::MaxValue<float>()*/, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(szSortingGroup, szArgument, "<float>", szLongDesc, "0", bCaseSensitive)
+ezCommandLineOptionFloat::ezCommandLineOptionFloat(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, float fDefaultValue, float fMinValue /*= ezMath::MinValue<float>()*/, float fMaxValue /*= ezMath::MaxValue<float>()*/, bool bCaseSensitive /*= false*/)
+  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<float>", sLongDesc, "0", bCaseSensitive)
 {
   m_fDefaultValue = fDefaultValue;
   m_fMinValue = fMinValue;
@@ -418,22 +418,22 @@ float ezCommandLineOptionFloat::GetOptionValue(LogMode logMode, const ezCommandL
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionString::ezCommandLineOptionString(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(szSortingGroup, szArgument, "<string>", szLongDesc, szDefaultValue, bCaseSensitive)
+ezCommandLineOptionString::ezCommandLineOptionString(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, ezStringView sDefaultValue, bool bCaseSensitive /*= false*/)
+  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<string>", sLongDesc, sDefaultValue, bCaseSensitive)
 {
-  m_szDefaultValue = szDefaultValue;
+  m_sDefaultValue = sDefaultValue;
 }
 
-const char* ezCommandLineOptionString::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+ezStringView ezCommandLineOptionString::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
 {
-  const char* result = m_szDefaultValue;
+  ezStringView result = m_sDefaultValue;
 
   ezStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
 
   if (bSpecified)
   {
-    result = pUtils->GetStringOption(sOption, 0, m_szDefaultValue, m_bCaseSensitive);
+    result = pUtils->GetStringOption(sOption, 0, m_sDefaultValue, m_bCaseSensitive);
   }
 
   if (ShouldLog(logMode, bSpecified))
@@ -448,22 +448,22 @@ const char* ezCommandLineOptionString::GetOptionValue(LogMode logMode, const ezC
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezCommandLineOptionPath::ezCommandLineOptionPath(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(szSortingGroup, szArgument, "<path>", szLongDesc, szDefaultValue, bCaseSensitive)
+ezCommandLineOptionPath::ezCommandLineOptionPath(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, ezStringView sDefaultValue, bool bCaseSensitive /*= false*/)
+  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<path>", sLongDesc, sDefaultValue, bCaseSensitive)
 {
-  m_szDefaultValue = szDefaultValue;
+  m_sDefaultValue = sDefaultValue;
 }
 
 ezString ezCommandLineOptionPath::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
 {
-  ezString result = m_szDefaultValue;
+  ezString result = m_sDefaultValue;
 
   ezStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
 
   if (bSpecified)
   {
-    result = pUtils->GetAbsolutePathOption(sOption, 0, m_szDefaultValue, m_bCaseSensitive);
+    result = pUtils->GetAbsolutePathOption(sOption, 0, m_sDefaultValue, m_bCaseSensitive);
   }
 
   if (ShouldLog(logMode, bSpecified))
@@ -474,11 +474,11 @@ ezString ezCommandLineOptionPath::GetOptionValue(LogMode logMode, const ezComman
   return result;
 }
 
-ezCommandLineOptionEnum::ezCommandLineOptionEnum(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szEnumKeysAndValues, ezInt32 iDefaultValue, bool bCaseSensitive /*= false*/)
-  : ezCommandLineOptionDoc(szSortingGroup, szArgument, "<enum>", szLongDesc, "", bCaseSensitive)
+ezCommandLineOptionEnum::ezCommandLineOptionEnum(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, ezStringView sEnumKeysAndValues, ezInt32 iDefaultValue, bool bCaseSensitive /*= false*/)
+  : ezCommandLineOptionDoc(sSortingGroup, sArgument, "<enum>", sLongDesc, "", bCaseSensitive)
 {
   m_iDefaultValue = iDefaultValue;
-  m_szEnumKeysAndValues = szEnumKeysAndValues;
+  m_sEnumKeysAndValues = sEnumKeysAndValues;
 }
 
 ezInt32 ezCommandLineOptionEnum::GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
@@ -493,7 +493,7 @@ ezInt32 ezCommandLineOptionEnum::GetOptionValue(LogMode logMode, const ezCommand
 
   if (bSpecified)
   {
-    const char* selected = pUtils->GetStringOption(sOption, 0, "", m_bCaseSensitive);
+    ezStringView selected = pUtils->GetStringOption(sOption, 0, "", m_bCaseSensitive);
 
     for (const auto& e : keysAndValues)
     {
@@ -562,7 +562,7 @@ void ezCommandLineOptionEnum::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut
 
 void ezCommandLineOptionEnum::GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>& out_keysAndValues) const
 {
-  ezStringBuilder tmp = m_szEnumKeysAndValues;
+  ezStringBuilder tmp = m_sEnumKeysAndValues;
 
   ezHybridArray<ezStringView, 16> enums;
   tmp.Split(false, enums, ";", "|");
@@ -587,7 +587,7 @@ void ezCommandLineOptionEnum::GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>&
 
     eName.Trim(" \n\r\t=");
 
-    const char* pStart = m_szEnumKeysAndValues;
+    const char* pStart = m_sEnumKeysAndValues.GetStartPointer();
     pStart += (ezInt64)eName.GetStartPointer();
     pStart -= (ezInt64)tmp.GetData();
 

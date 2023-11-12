@@ -4,12 +4,12 @@
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (Array Data)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromColumnMajorArray / MakeFromRowMajorArray")
   {
     const float data[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     {
-      ezSimdMat4f m(data, ezMatrixLayout::ColumnMajor);
+      ezSimdMat4f m = ezSimdMat4f::MakeFromColumnMajorArray(data);
 
       EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(1, 2, 3, 4)).AllSet());
       EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(5, 6, 7, 8)).AllSet());
@@ -18,7 +18,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
     }
 
     {
-      ezSimdMat4f m(data, ezMatrixLayout::RowMajor);
+      ezSimdMat4f m = ezSimdMat4f::MakeFromRowMajorArray(data);
 
       EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(1, 5, 9, 13)).AllSet());
       EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(2, 6, 10, 14)).AllSet());
@@ -27,14 +27,14 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (Columns)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromColumns")
   {
     ezSimdVec4f c0(1, 2, 3, 4);
     ezSimdVec4f c1(5, 6, 7, 8);
     ezSimdVec4f c2(9, 10, 11, 12);
     ezSimdVec4f c3(13, 14, 15, 16);
 
-    ezSimdMat4f m(c0, c1, c2, c3);
+    ezSimdMat4f m = ezSimdMat4f::MakeFromColumns(c0, c1, c2, c3);
 
     EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(1, 2, 3, 4)).AllSet());
     EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(5, 6, 7, 8)).AllSet());
@@ -47,8 +47,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
     const float data[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     {
-      ezSimdMat4f m;
-      m.SetFromArray(data, ezMatrixLayout::ColumnMajor);
+      ezSimdMat4f m = ezSimdMat4f::MakeFromColumnMajorArray(data);
 
       EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(1, 2, 3, 4)).AllSet());
       EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(5, 6, 7, 8)).AllSet());
@@ -57,8 +56,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
     }
 
     {
-      ezSimdMat4f m;
-      m.SetFromArray(data, ezMatrixLayout::RowMajor);
+      ezSimdMat4f m = ezSimdMat4f::MakeFromRowMajorArray(data);
 
       EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(1, 5, 9, 13)).AllSet());
       EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(2, 6, 10, 14)).AllSet());
@@ -69,7 +67,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsArray")
   {
-    ezSimdMat4f m(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+    ezSimdMat4f m = ezSimdMat4f::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
     float data[16];
 
@@ -110,10 +108,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
     EZ_TEST_FLOAT(data[15], 16, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetIdentity")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeIdentity")
   {
-    ezSimdMat4f m;
-    m.SetIdentity();
+    ezSimdMat4f m = ezSimdMat4f::MakeIdentity();
 
     EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(1, 0, 0, 0)).AllSet());
     EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(0, 1, 0, 0)).AllSet());
@@ -121,19 +118,19 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
     EZ_TEST_BOOL((m.m_col3 == ezSimdVec4f(0, 0, 0, 1)).AllSet());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IdentityMatrix")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeZero")
   {
-    ezSimdMat4f m = ezSimdMat4f::IdentityMatrix();
+    ezSimdMat4f m = ezSimdMat4f::MakeZero();
 
-    EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(1, 0, 0, 0)).AllSet());
-    EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(0, 1, 0, 0)).AllSet());
-    EZ_TEST_BOOL((m.m_col2 == ezSimdVec4f(0, 0, 1, 0)).AllSet());
-    EZ_TEST_BOOL((m.m_col3 == ezSimdVec4f(0, 0, 0, 1)).AllSet());
+    EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
+    EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
+    EZ_TEST_BOOL((m.m_col2 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
+    EZ_TEST_BOOL((m.m_col3 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transpose")
   {
-    ezSimdMat4f m(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+    ezSimdMat4f m = ezSimdMat4f::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
     m.Transpose();
 
@@ -145,7 +142,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetTranspose")
   {
-    ezSimdMat4f m0(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+    ezSimdMat4f m0 = ezSimdMat4f::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
     ezSimdMat4f m = m0.GetTranspose();
 
@@ -163,8 +160,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
       {
         for (float z = 3.0f; z < 360.0f; z += 33.0f)
         {
-          ezSimdQuat q;
-          q.SetFromAxisAndAngle(ezSimdVec4f(x, y, z).GetNormalized<3>(), ezAngle::Degree(19.0f));
+          ezSimdQuat q = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(x, y, z).GetNormalized<3>(), ezAngle::MakeFromDegree(19.0f));
 
           ezSimdTransform t(q);
 
@@ -190,8 +186,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
       {
         for (float z = 3.0f; z < 360.0f; z += 31.0f)
         {
-          ezSimdQuat q;
-          q.SetFromAxisAndAngle(ezSimdVec4f(x, y, z).GetNormalized<3>(), ezAngle::Degree(83.0f));
+          ezSimdQuat q = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(x, y, z).GetNormalized<3>(), ezAngle::MakeFromDegree(83.0f));
 
           ezSimdTransform t(q);
 
@@ -210,7 +205,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
-    ezSimdMat4f m(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+    ezSimdMat4f m = ezSimdMat4f::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
     ezSimdMat4f m2 = m;
 
@@ -223,9 +218,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentity")
   {
-    ezSimdMat4f m;
+    ezSimdMat4f m = ezSimdMat4f::MakeIdentity();
 
-    m.SetIdentity();
     EZ_TEST_BOOL(m.IsIdentity());
 
     m.m_col0.SetZero();
@@ -234,9 +228,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid")
   {
-    ezSimdMat4f m;
+    ezSimdMat4f m = ezSimdMat4f::MakeIdentity();
 
-    m.SetIdentity();
     EZ_TEST_BOOL(m.IsValid());
 
     m.m_col0.SetX(ezMath::NaN<float>());
@@ -245,19 +238,18 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
   {
-    ezSimdMat4f m;
+    ezSimdMat4f m = ezSimdMat4f::MakeIdentity();
 
-    m.SetIdentity();
     EZ_TEST_BOOL(!m.IsNaN());
 
     float data[16];
 
     for (ezUInt32 i = 0; i < 16; ++i)
     {
-      m.SetIdentity();
+      m = ezSimdMat4f::MakeIdentity();
       m.GetAsArray(data, ezMatrixLayout::ColumnMajor);
       data[i] = ezMath::NaN<float>();
-      m.SetFromArray(data, ezMatrixLayout::ColumnMajor);
+      m = ezSimdMat4f::MakeFromColumnMajorArray(data);
 
       EZ_TEST_BOOL(m.IsNaN());
     }
@@ -281,7 +273,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRows")
   {
-    ezSimdMat4f m(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+    ezSimdMat4f m = ezSimdMat4f::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
     ezSimdVec4f r0, r1, r2, r3;
     m.GetRows(r0, r1, r2, r3);
@@ -294,7 +286,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformPosition")
   {
-    ezSimdMat4f m(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+    ezSimdMat4f m = ezSimdMat4f::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
     const ezSimdVec4f r = m.TransformPosition(ezSimdVec4f(1, 2, 3));
 
@@ -303,7 +295,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformDirection")
   {
-    ezSimdMat4f m(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+    ezSimdMat4f m = ezSimdMat4f::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
     const ezSimdVec4f r = m.TransformDirection(ezSimdVec4f(1, 2, 3));
 
@@ -312,9 +304,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, mat)")
   {
-    ezSimdMat4f m1(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+    ezSimdMat4f m1 = ezSimdMat4f::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
-    ezSimdMat4f m2(-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12, -13, -14, -15, -16);
+    ezSimdMat4f m2 = ezSimdMat4f::MakeFromValues(-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12, -13, -14, -15, -16);
 
     ezSimdMat4f r = m1 * m2;
 
@@ -334,7 +326,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== (mat, mat) | operator!= (mat, mat)")
   {
-    ezSimdMat4f m(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+    ezSimdMat4f m = ezSimdMat4f::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
     ezSimdMat4f m2 = m;
 

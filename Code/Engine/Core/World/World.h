@@ -89,7 +89,7 @@ public:
   /// \brief Defines a visitor function that is called for every game-object when using the traverse method.
   /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort
   /// (false) traversal.
-  typedef ezInternal::WorldData::VisitorFunc VisitorFunc;
+  using VisitorFunc = ezInternal::WorldData::VisitorFunc;
 
   enum TraversalMethod
   {
@@ -255,6 +255,8 @@ public:
   /// \brief Returns a task implementation that calls Update on this world.
   const ezSharedPtr<ezTask>& GetUpdateTask();
 
+  /// \brief Returns the number of update calls. Can be used to determine whether an operation has already been done during a frame.
+  ezUInt32 GetUpdateCounter() const;
 
   /// \brief Returns the spatial system that is associated with this world.
   ezSpatialSystem* GetSpatialSystem();
@@ -314,7 +316,7 @@ public:
   /// \brief Returns the associated user data.
   void* GetUserData() const;
 
-  using ReferenceResolver = ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle hThis, const char* szProperty)>;
+  using ReferenceResolver = ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle hThis, ezStringView sProperty)>;
 
   /// \brief If set, this delegate can be used to map some data (GUID or string) to an ezGameObjectHandle.
   ///
@@ -323,6 +325,13 @@ public:
 
   /// \sa SetGameObjectReferenceResolver()
   const ReferenceResolver& GetGameObjectReferenceResolver() const;
+
+  using ResourceReloadContext = ezInternal::WorldData::ResourceReloadContext;
+  using ResourceReloadFunc = ezInternal::WorldData::ResourceReloadFunc;
+
+  /// \brief Add a function that is called when the given resource has been reloaded.
+  void AddResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData, ResourceReloadFunc function);
+  void RemoveResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData);
 
   /// \name Helper methods to query ezWorld limits
   ///@{
@@ -352,6 +361,10 @@ private:
   friend class ezWorldModule;
   friend class ezComponentManagerBase;
   friend class ezComponent;
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezWorld);
+
+  ezGameObject* Reflection_TryGetObjectWithGlobalKey(ezTempHashedString sGlobalKey);
+  ezClock* Reflection_GetClock();
 
   void CheckForReadAccess() const;
   void CheckForWriteAccess() const;
@@ -396,16 +409,22 @@ private:
   void PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve);
   void RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic);
 
+  void ProcessResourceReloadFunctions();
+
   bool ReportErrorWhenStaticObjectMoves() const;
+
+  float GetInvDeltaSeconds() const;
 
   ezSharedPtr<ezTask> m_pUpdateTask;
 
   ezInternal::WorldData m_Data;
 
-  typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
+  using QueuedMsgMetaData = ezInternal::WorldData::QueuedMsgMetaData;
 
   ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, EZ_MAX_WORLDS> s_Worlds;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezWorld);
 
 #include <Core/World/Implementation/World_inl.h>

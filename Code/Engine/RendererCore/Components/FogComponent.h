@@ -6,7 +6,7 @@
 
 struct ezMsgUpdateLocalBounds;
 
-typedef ezSettingsComponentManager<class ezFogComponent> ezFogComponentManager;
+using ezFogComponentManager = ezSettingsComponentManager<class ezFogComponent>;
 
 /// \brief The render data object for ambient light.
 class EZ_RENDERERCORE_DLL ezFogRenderData : public ezRenderData

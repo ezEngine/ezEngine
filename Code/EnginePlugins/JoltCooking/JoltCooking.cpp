@@ -48,7 +48,11 @@ private:
 
 ezResult ezJoltCooking::CookTriangleMesh(const ezJoltCookingMesh& mesh, ezStreamWriter& ref_outputStream)
 {
-  JPH::RegisterDefaultAllocator();
+  if (JPH::Allocate == nullptr)
+  {
+    // make sure an allocator exists
+    JPH::RegisterDefaultAllocator();
+  }
 
   JPH::VertexList vertexList;
   JPH::IndexedTriangleList triangleList;
@@ -183,7 +187,11 @@ EZ_DEFINE_AS_POD_TYPE(JPH::Vec3);
 
 ezResult ezJoltCooking::CookSingleConvexJoltMesh(const ezJoltCookingMesh& mesh, ezStreamWriter& OutputStream)
 {
-  JPH::RegisterDefaultAllocator();
+  if (JPH::Allocate == nullptr)
+  {
+    // make sure an allocator exists
+    JPH::RegisterDefaultAllocator();
+  }
 
   ezHybridArray<JPH::Vec3, 256> verts;
   verts.SetCountUninitialized(mesh.m_Vertices.GetCount());
@@ -242,8 +250,8 @@ ezResult ezJoltCooking::ComputeConvexHull(const ezJoltCookingMesh& mesh, ezJoltC
   if (faces.GetCount() >= 255)
   {
     ezConvexHullGenerator gen2;
-    gen2.SetSimplificationMinTriangleAngle(ezAngle::Degree(30));
-    gen2.SetSimplificationFlatVertexNormalThreshold(ezAngle::Degree(10));
+    gen2.SetSimplificationMinTriangleAngle(ezAngle::MakeFromDegree(30));
+    gen2.SetSimplificationFlatVertexNormalThreshold(ezAngle::MakeFromDegree(10));
     gen2.SetSimplificationMinTriangleEdgeLength(0.08f);
 
     if (gen2.Build(out_mesh.m_Vertices).Failed())
@@ -289,8 +297,7 @@ ezStatus ezJoltCooking::WriteResourceToStream(ezChunkStreamWriter& inout_stream,
   {
     inout_stream.BeginChunk("Details", 1);
 
-    ezBoundingBoxSphere aabb;
-    aabb.SetFromPoints(mesh.m_Vertices.GetData(), mesh.m_Vertices.GetCount());
+    ezBoundingBoxSphere aabb = ezBoundingBoxSphere::MakeFromPoints(mesh.m_Vertices.GetData(), mesh.m_Vertices.GetCount());
 
     inout_stream << aabb;
 

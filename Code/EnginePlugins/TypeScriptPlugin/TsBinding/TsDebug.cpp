@@ -115,11 +115,11 @@ static int __CPP_Debug_DrawBox(duk_context* pDuk)
   switch (duk.GetFunctionMagicValue())
   {
     case 0:
-      ezDebugRenderer::DrawLineBox(pWorld, ezBoundingBox(vMin, vMax), color, transform);
+      ezDebugRenderer::DrawLineBox(pWorld, ezBoundingBox::MakeFromMinMax(vMin, vMax), color, transform);
       break;
 
     case 1:
-      ezDebugRenderer::DrawSolidBox(pWorld, ezBoundingBox(vMin, vMax), color, transform);
+      ezDebugRenderer::DrawSolidBox(pWorld, ezBoundingBox::MakeFromMinMax(vMin, vMax), color, transform);
       break;
   }
 
@@ -139,7 +139,7 @@ static int __CPP_Debug_DrawSphere(duk_context* pDuk)
   switch (duk.GetFunctionMagicValue())
   {
     case 0:
-      ezDebugRenderer::DrawLineSphere(pWorld, ezBoundingSphere(vCenter, fRadius), color, transform);
+      ezDebugRenderer::DrawLineSphere(pWorld, ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fRadius), color, transform);
       break;
   }
 
@@ -155,9 +155,9 @@ static int __CPP_Debug_Draw2DText(duk_context* pDuk)
   const ezVec2 vPos = ezTypeScriptBinding::GetVec2(pDuk, 1);
   const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 2);
   const float fSize = duk.GetFloatValue(3, 16.0f);
-  ezDebugRenderer::HorizontalAlignment halign = (ezDebugRenderer::HorizontalAlignment)duk.GetIntValue(4);
+  ezDebugTextHAlign::Enum halign = static_cast<ezDebugTextHAlign::Enum>(duk.GetIntValue(4));
 
-  ezDebugRenderer::Draw2DText(pWorld, szText, ezVec2I32((int)vPos.x, (int)vPos.y), color, (ezUInt32)fSize, halign, ezDebugRenderer::VerticalAlignment::Top);
+  ezDebugRenderer::Draw2DText(pWorld, szText, ezVec2I32((int)vPos.x, (int)vPos.y), color, (ezUInt32)fSize, halign);
 
   return duk.ReturnVoid();
 }
@@ -186,7 +186,7 @@ static int __CPP_Debug_DrawInfoText(duk_context* pDuk)
   const char* szText = duk.GetStringValue(1);
   const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 2);
 
-  ezDebugRenderer::DrawInfoText(pWorld, static_cast<ezDebugRenderer::ScreenPlacement>(corner), "Script", szText, color);
+  ezDebugRenderer::DrawInfoText(pWorld, static_cast<ezDebugTextPlacement::Enum>(corner), "Script", szText, color);
 
   return duk.ReturnVoid();
 }
@@ -194,7 +194,6 @@ static int __CPP_Debug_DrawInfoText(duk_context* pDuk)
 static int __CPP_Debug_GetResolution(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
-  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
 
   ezVec2 resolution;
 

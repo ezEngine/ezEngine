@@ -10,7 +10,7 @@
 
 ezCopyOnBroadcastEvent<const ezPhantomRttiManagerEvent&> ezPhantomRttiManager::s_Events;
 
-ezHashTable<const char*, ezPhantomRTTI*> ezPhantomRttiManager::s_NameToPhantom;
+ezHashTable<ezStringView, ezPhantomRTTI*> ezPhantomRttiManager::s_NameToPhantom;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeManager)
@@ -39,7 +39,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& ref_desc)
 {
   EZ_PROFILE_SCOPE("RegisterType");
-  ezRTTI* pType = ezRTTI::FindTypeByName(ref_desc.m_sTypeName);
+  const ezRTTI* pType = ezRTTI::FindTypeByName(ref_desc.m_sTypeName);
   ezPhantomRTTI* pPhantom = nullptr;
   s_NameToPhantom.TryGetValue(ref_desc.m_sTypeName, pPhantom);
 

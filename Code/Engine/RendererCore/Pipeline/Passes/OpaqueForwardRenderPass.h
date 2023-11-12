@@ -23,7 +23,7 @@ protected:
   // ezRenderPipelineNodeOutputPin m_PinNormal;
   // ezRenderPipelineNodeOutputPin m_PinSpecularColorRoughness;
 
-  bool m_bWriteDepth;
+  bool m_bWriteDepth = true;
 
   ezTexture2DResourceHandle m_hWhiteTexture;
 };

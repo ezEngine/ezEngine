@@ -238,7 +238,7 @@ void ezGameApplicationBase::Init_ConfigureCVars()
 void ezGameApplicationBase::Init_SetupDefaultResources()
 {
   // continuously unload resources that are not in use anymore
-  ezResourceManager::SetAutoFreeUnused(ezTime::Microseconds(100), ezTime::Seconds(10.0f));
+  ezResourceManager::SetAutoFreeUnused(ezTime::MakeFromMicroseconds(100), ezTime::MakeFromSeconds(10.0f));
 }
 
 //////////////////////////////////////////////////////////////////////////

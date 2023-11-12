@@ -6,50 +6,54 @@
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
+ezActionDescriptorHandle ezStandardMenus::s_hMenuProject;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuFile;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuEdit;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuPanels;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuProject;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuScene;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuView;
+ezActionDescriptorHandle ezStandardMenus::s_hMenuTools;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
 ezActionDescriptorHandle ezStandardMenus::s_hCheckForUpdates;
 ezActionDescriptorHandle ezStandardMenus::s_hReportProblem;
 
 void ezStandardMenus::RegisterActions()
 {
-  s_hMenuFile = EZ_REGISTER_MENU("Menu.File");
-  s_hMenuEdit = EZ_REGISTER_MENU("Menu.Edit");
-  s_hMenuPanels = EZ_REGISTER_DYNAMIC_MENU("Menu.Panels", ezApplicationPanelsMenuAction, "");
-  s_hMenuProject = EZ_REGISTER_MENU("Menu.Project");
-  s_hMenuScene = EZ_REGISTER_MENU("Menu.Scene");
-  s_hMenuView = EZ_REGISTER_MENU("Menu.View");
-  s_hMenuHelp = EZ_REGISTER_MENU("Menu.Help");
-  s_hCheckForUpdates =
-    EZ_REGISTER_ACTION_1("Help.CheckForUpdates", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::CheckForUpdates);
-  s_hReportProblem =
-    EZ_REGISTER_ACTION_1("Help.ReportProblem", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::ReportProblem);
+  s_hMenuProject = EZ_REGISTER_MENU("G.Project");
+  s_hMenuFile = EZ_REGISTER_MENU("G.File");
+  s_hMenuEdit = EZ_REGISTER_MENU("G.Edit");
+  s_hMenuPanels = EZ_REGISTER_DYNAMIC_MENU("G.Panels", ezApplicationPanelsMenuAction, "");
+  s_hMenuScene = EZ_REGISTER_MENU("G.Scene");
+  s_hMenuView = EZ_REGISTER_MENU("G.View");
+  s_hMenuTools = EZ_REGISTER_MENU("G.Tools");
+  s_hMenuHelp = EZ_REGISTER_MENU("G.Help");
+  s_hCheckForUpdates = EZ_REGISTER_ACTION_1("Help.CheckForUpdates", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::CheckForUpdates);
+  s_hReportProblem = EZ_REGISTER_ACTION_1("Help.ReportProblem", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::ReportProblem);
 }
 
 void ezStandardMenus::UnregisterActions()
 {
+  ezActionManager::UnregisterAction(s_hMenuProject);
   ezActionManager::UnregisterAction(s_hMenuFile);
   ezActionManager::UnregisterAction(s_hMenuEdit);
   ezActionManager::UnregisterAction(s_hMenuPanels);
-  ezActionManager::UnregisterAction(s_hMenuProject);
   ezActionManager::UnregisterAction(s_hMenuScene);
   ezActionManager::UnregisterAction(s_hMenuView);
+  ezActionManager::UnregisterAction(s_hMenuTools);
   ezActionManager::UnregisterAction(s_hMenuHelp);
   ezActionManager::UnregisterAction(s_hCheckForUpdates);
   ezActionManager::UnregisterAction(s_hReportProblem);
 }
 
-void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStandardMenuTypes>& menus)
+void ezStandardMenus::MapActions(ezStringView sMapping, const ezBitflags<ezStandardMenuTypes>& menus)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "'{0}' does not exist", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "'{0}' does not exist", sMapping);
 
   ezActionMapDescriptor md;
+
+  if (menus.IsAnySet(ezStandardMenuTypes::Project))
+    pMap->MapAction(s_hMenuProject, "", -10000.0f);
 
   if (menus.IsAnySet(ezStandardMenuTypes::File))
     pMap->MapAction(s_hMenuFile, "", 1.0f);
@@ -57,14 +61,14 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
   if (menus.IsAnySet(ezStandardMenuTypes::Edit))
     pMap->MapAction(s_hMenuEdit, "", 2.0f);
 
-  if (menus.IsAnySet(ezStandardMenuTypes::Project))
-    pMap->MapAction(s_hMenuProject, "", 3.0f);
-
   if (menus.IsAnySet(ezStandardMenuTypes::Scene))
-    pMap->MapAction(s_hMenuScene, "", 4.0f);
+    pMap->MapAction(s_hMenuScene, "", 3.0f);
 
   if (menus.IsAnySet(ezStandardMenuTypes::View))
-    pMap->MapAction(s_hMenuView, "", 5.0f);
+    pMap->MapAction(s_hMenuView, "", 4.0f);
+
+  if (menus.IsAnySet(ezStandardMenuTypes::Tools))
+    pMap->MapAction(s_hMenuTools, "", 5.0f);
 
   if (menus.IsAnySet(ezStandardMenuTypes::Panels))
     pMap->MapAction(s_hMenuPanels, "", 6.0f);
@@ -72,8 +76,8 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
   if (menus.IsAnySet(ezStandardMenuTypes::Help))
   {
     pMap->MapAction(s_hMenuHelp, "", 7.0f);
-    pMap->MapAction(s_hReportProblem, "Menu.Help", 3.0f);
-    pMap->MapAction(s_hCheckForUpdates, "Menu.Help", 10.0f);
+    pMap->MapAction(s_hReportProblem, "G.Help", 3.0f);
+    pMap->MapAction(s_hCheckForUpdates, "G.Help", 10.0f);
   }
 }
 
@@ -147,7 +151,7 @@ ezHelpActions::ezHelpActions(const ezActionContext& context, const char* szName,
 
   if (button == ButtonType::ReportProblem)
   {
-    SetIconPath(":/EditorFramework/Icons/GitHub-Light.png");
+    SetIconPath(":/EditorFramework/Icons/GitHub-Light.svg");
   }
 }
 

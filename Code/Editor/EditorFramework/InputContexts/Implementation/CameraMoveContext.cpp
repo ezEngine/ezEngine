@@ -148,13 +148,13 @@ void ezCameraMoveContext::UpdateContext()
   if (m_bMoveDown)
     m_pCamera->MoveGlobally(0, 0, -1 * fSpeedFactor);
   if (m_bRotateLeft)
-    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Degree(-fRotateHorizontal));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(0), ezAngle::MakeFromDegree(-fRotateHorizontal));
   if (m_bRotateRight)
-    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Degree(fRotateHorizontal));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(0), ezAngle::MakeFromDegree(fRotateHorizontal));
   if (m_bRotateUp)
-    m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Degree(fRotateVertical), ezAngle::Radian(0));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromDegree(fRotateVertical), ezAngle::MakeFromRadian(0));
   if (m_bRotateDown)
-    m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Degree(-fRotateVertical), ezAngle::Radian(0));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromDegree(-fRotateVertical), ezAngle::MakeFromRadian(0));
 
   if (m_bMoveForwardsInPlane)
   {
@@ -162,7 +162,7 @@ void ezCameraMoveContext::UpdateContext()
     {
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
-      vDir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+      vDir.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
       m_pCamera->MoveGlobally(vDir.x * fSpeedFactor, vDir.y * fSpeedFactor, vDir.z * fSpeedFactor);
     }
     else
@@ -177,7 +177,7 @@ void ezCameraMoveContext::UpdateContext()
     {
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
-      vDir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+      vDir.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
       m_pCamera->MoveGlobally(vDir.x * -fSpeedFactor, vDir.y * -fSpeedFactor, vDir.z * -fSpeedFactor);
     }
     else
@@ -447,7 +447,7 @@ ezEditorInput ezCameraMoveContext::DoMouseReleaseEvent(QMouseEvent* e)
 
       if (!m_bDidMoveMouse[1] && m_bOpenMenuOnMouseUp)
       {
-        GetOwnerView()->OpenContextMenu(e->globalPos());
+        GetOwnerView()->OpenContextMenu(e->globalPosition().toPoint());
       }
       return ezEditorInput::WasExclusivelyHandled;
     }
@@ -474,7 +474,7 @@ ezEditorInput ezCameraMoveContext::DoMouseReleaseEvent(QMouseEvent* e)
 
       if (!m_bDidMoveMouse[1] && m_bOpenMenuOnMouseUp)
       {
-        GetOwnerView()->OpenContextMenu(e->globalPos());
+        GetOwnerView()->OpenContextMenu(e->globalPosition().toPoint());
       }
 
       return ezEditorInput::WasExclusivelyHandled;
@@ -624,8 +624,8 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       float fRotateHorizontal = diff.x * fMouseRotateSensitivityX;
       float fRotateVertical = -diff.y * fMouseRotateSensitivityY;
 
-      m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Radian(fRotateVertical), ezAngle::Radian(0));
-      m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Radian(fRotateHorizontal));
+      m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(fRotateVertical), ezAngle::MakeFromRadian(0));
+      m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(fRotateHorizontal));
 
       if (m_bOrbitCamera)
       {
@@ -660,7 +660,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
-      vDir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+      vDir.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
       m_vOrbitPoint += vDir * fMoveForward;
       m_pCamera->MoveGlobally(vDir.x * fMoveForward, vDir.y * fMoveForward, vDir.z * fMoveForward);

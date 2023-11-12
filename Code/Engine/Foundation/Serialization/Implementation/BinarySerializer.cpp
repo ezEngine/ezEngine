@@ -32,7 +32,7 @@ static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& inou
     inout_stream << uiProps;
     for (const ezAbstractObjectNode::Property& prop : properties)
     {
-      inout_stream << prop.m_szPropertyName;
+      inout_stream << prop.m_sPropertyName;
       inout_stream << prop.m_Value;
     }
   }

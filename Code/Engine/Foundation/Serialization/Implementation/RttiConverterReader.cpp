@@ -13,7 +13,7 @@ ezRttiConverterReader::ezRttiConverterReader(const ezAbstractObjectGraph* pGraph
 
 ezInternal::NewInstance<void> ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode)
 {
-  const ezRTTI* pRtti = ezRTTI::FindTypeByName(pNode->GetType());
+  const ezRTTI* pRtti = m_pContext->FindTypeByName(pNode->GetType());
   if (pRtti == nullptr)
   {
     m_pContext->OnUnknownTypeError(pNode->GetType());
@@ -47,7 +47,7 @@ void ezRttiConverterReader::ApplyPropertiesToObject(const ezAbstractObjectNode* 
   }
 }
 
-void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource)
+void ezRttiConverterReader::ApplyProperty(void* pObject, const ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource)
 {
   const ezRTTI* pPropType = pProp->GetSpecificType();
 
@@ -60,7 +60,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
   {
     case ezPropertyCategory::Member:
     {
-      ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
+      auto pSpecific = static_cast<const ezAbstractMemberProperty*>(pProp);
 
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
@@ -132,7 +132,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
     break;
     case ezPropertyCategory::Array:
     {
-      ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
+      auto pSpecific = static_cast<const ezAbstractArrayProperty*>(pProp);
       if (!pSource->m_Value.IsA<ezVariantArray>())
         return;
       const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
@@ -191,8 +191,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
         }
         else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Class))
         {
-          ezUuid temp;
-          temp.CreateNewUuid();
+          const ezUuid temp = ezUuid::MakeUuid();
+
           void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
 
           for (ezUInt32 i = 0; i < array.GetCount(); ++i)
@@ -215,7 +215,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
     break;
     case ezPropertyCategory::Set:
     {
-      ezAbstractSetProperty* pSpecific = static_cast<ezAbstractSetProperty*>(pProp);
+      auto pSpecific = static_cast<const ezAbstractSetProperty*>(pProp);
       if (!pSource->m_Value.IsA<ezVariantArray>())
         return;
 
@@ -275,8 +275,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
         }
         else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Class))
         {
-          ezUuid temp;
-          temp.CreateNewUuid();
+          const ezUuid temp = ezUuid::MakeUuid();
+
           void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
 
           for (ezUInt32 i = 0; i < array.GetCount(); ++i)
@@ -299,7 +299,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
     break;
     case ezPropertyCategory::Map:
     {
-      ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
+      auto pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
       if (!pSource->m_Value.IsA<ezVariantDictionary>())
         return;
 
@@ -363,8 +363,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
         }
         else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Class))
         {
-          ezUuid temp;
-          temp.CreateNewUuid();
+          const ezUuid temp = ezUuid::MakeUuid();
+
           void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
 
           for (auto it = dict.GetIterator(); it.IsValid(); ++it)
@@ -394,8 +394,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
 
 void ezRttiConverterReader::CallOnObjectCreated(const ezAbstractObjectNode* pNode, const ezRTTI* pRtti, void* pObject)
 {
-  ezArrayPtr<ezAbstractFunctionProperty*> functions = pRtti->GetFunctions();
-  for (ezAbstractFunctionProperty* pFunc : functions)
+  auto functions = pRtti->GetFunctions();
+  for (auto pFunc : functions)
   {
     // TODO: Make this compare faster
     if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "OnObjectCreated"))

@@ -43,7 +43,7 @@
         <widget class="QWidget" name="tab_2">
          <attribute name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/Icons/Icons/InputActions.png</normaloff>:/Icons/Icons/InputActions.png</iconset>
+           <normaloff>:/Icons/Icons/InputActions.svg</normaloff>:/Icons/Icons/InputActions.svg</iconset>
          </attribute>
          <attribute name="title">
           <string>Input Actions</string>
@@ -132,7 +132,7 @@
               </property>
               <property name="icon">
                <iconset resource="resources.qrc">
-                <normaloff>:/Icons/Icons/ClearList.png</normaloff>:/Icons/Icons/ClearList.png</iconset>
+                <normaloff>:/Icons/Icons/ClearList.svg</normaloff>:/Icons/Icons/ClearList.svg</iconset>
               </property>
              </widget>
             </item>
@@ -143,7 +143,7 @@
         <widget class="QWidget" name="tab">
          <attribute name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/Icons/Icons/InputSlots.png</normaloff>:/Icons/Icons/InputSlots.png</iconset>
+           <normaloff>:/Icons/Icons/InputSlots.svg</normaloff>:/Icons/Icons/InputSlots.svg</iconset>
          </attribute>
          <attribute name="title">
           <string>Input Slots</string>
@@ -246,7 +246,7 @@
               </property>
               <property name="icon">
                <iconset resource="resources.qrc">
-                <normaloff>:/Icons/Icons/ClearList.png</normaloff>:/Icons/Icons/ClearList.png</iconset>
+                <normaloff>:/Icons/Icons/ClearList.svg</normaloff>:/Icons/Icons/ClearList.svg</iconset>
               </property>
              </widget>
             </item>

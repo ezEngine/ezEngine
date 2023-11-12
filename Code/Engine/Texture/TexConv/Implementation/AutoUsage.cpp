@@ -50,9 +50,9 @@ static FileSuffixToUsage suffixToUsageMap[] = {
 };
 
 
-static ezTexConvUsage::Enum DetectUsageFromFilename(const char* szFile)
+static ezTexConvUsage::Enum DetectUsageFromFilename(ezStringView sFile)
 {
-  ezStringBuilder name = ezPathUtils::GetFileName(szFile);
+  ezStringBuilder name = ezPathUtils::GetFileName(sFile);
   name.ToLower();
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(suffixToUsageMap); ++i)
@@ -121,6 +121,7 @@ static ezTexConvUsage::Enum DetectUsageFromImage(const ezImage& image)
     ezUInt32 uiExtremeNormals = 0;
 
     ezUInt32 uiNumPixels = header.GetWidth() * header.GetHeight();
+    EZ_ASSERT_DEBUG(uiNumPixels > 0, "Unexpected empty image");
 
     // Sample no more than 10000 pixels
     ezUInt32 uiStride = ezMath::Max(1U, uiNumPixels / 10000);
@@ -141,9 +142,9 @@ static ezTexConvUsage::Enum DetectUsageFromImage(const ezImage& image)
     }
 
     // the average color in the image
-    sr /= uiNumPixels;
-    sg /= uiNumPixels;
-    sb /= uiNumPixels;
+    sr /= uiNumPixels; // NOLINT: not a division by zero
+    sg /= uiNumPixels; // NOLINT: not a division by zero
+    sb /= uiNumPixels; // NOLINT: not a division by zero
 
     if (sb < 230 || sr < 128 - 60 || sr > 128 + 60 || sg < 128 - 60 || sg > 128 + 60)
     {
@@ -162,13 +163,13 @@ static ezTexConvUsage::Enum DetectUsageFromImage(const ezImage& image)
   }
 }
 
-ezResult ezTexConvProcessor::AdjustUsage(const char* szFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage)
+ezResult ezTexConvProcessor::AdjustUsage(ezStringView sFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage)
 {
   EZ_PROFILE_SCOPE("AdjustUsage");
 
   if (inout_Usage == ezTexConvUsage::Auto)
   {
-    inout_Usage = DetectUsageFromFilename(szFilename);
+    inout_Usage = DetectUsageFromFilename(sFilename);
   }
 
   if (inout_Usage == ezTexConvUsage::Auto)

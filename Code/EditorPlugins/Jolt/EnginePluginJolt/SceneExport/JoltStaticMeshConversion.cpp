@@ -105,7 +105,11 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
   ezChunkStreamWriter chunk(file);
   chunk.BeginStream(1);
 
-  ezJoltCooking::WriteResourceToStream(chunk, xMesh, surfaces, ezJoltCooking::MeshType::Triangle);
+  if (ezJoltCooking::WriteResourceToStream(chunk, xMesh, surfaces, ezJoltCooking::MeshType::Triangle).LogFailure())
+  {
+    ezLog::Error("Could not write to global collision mesh file");
+    return;
+  }
 
   chunk.EndStream();
 

@@ -22,9 +22,12 @@ public:
 
 class ezPreferencesDocument : public ezDocument
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezPreferencesDocument, ezDocument);
+
+
 public:
-  ezPreferencesDocument(const char* szDocumentPath)
-    : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
+  ezPreferencesDocument(ezStringView sDocumentPath)
+    : ezDocument(sDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
   {
   }
 
@@ -32,7 +35,8 @@ public:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 };
 
-
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferencesDocument, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* pParent)
   : QDialog(pParent)
@@ -82,8 +86,7 @@ ezUuid ezQtPreferencesDlg::NativeToObject(ezPreferences* pPreferences)
   ezRttiConverterContext context;
   ezRttiConverterWriter conv(&graph, &context, true, true);
 
-  ezUuid guid;
-  guid.CreateNewUuid();
+  const ezUuid guid = ezUuid::MakeUuid();
   context.RegisterObject(guid, pType, pPreferences);
   ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pType, pPreferences, "root");
 
@@ -106,7 +109,8 @@ void ezQtPreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPr
 
   // Write object to graph.
   ezAbstractObjectGraph graph;
-  auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool {
+  auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool
+  {
     if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       return false;
     return true;
@@ -151,7 +155,7 @@ void ezQtPreferencesDlg::AllPreferencesToObject()
   ezHybridArray<ezPreferences*, 16> AllPrefs;
   ezPreferences::GatherAllPreferences(AllPrefs);
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
 
   ezMap<ezString, ezPreferences*> appPref;
   ezMap<ezString, ezPreferences*> projPref;

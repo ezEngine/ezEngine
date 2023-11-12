@@ -17,7 +17,7 @@ namespace
   static ezVariantArray GetDefaultTags()
   {
     ezVariantArray value(ezStaticAllocatorWrapper::GetAllocator());
-    value.PushBack(ezStringView("SkyLight"));
+    value.PushBack("SkyLight");
     return value;
   }
 } // namespace
@@ -48,7 +48,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 3, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering/Lighting"),
+    new ezCategoryAttribute("Lighting"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -57,7 +57,7 @@ EZ_END_COMPONENT_TYPE
 
 ezSkyLightComponent::ezSkyLightComponent()
 {
-  m_Desc.m_uniqueID.CreateNewUuid();
+  m_Desc.m_uniqueID = ezUuid::MakeUuid();
 }
 
 ezSkyLightComponent::~ezSkyLightComponent() = default;
@@ -286,7 +286,7 @@ public:
         {
           for (auto pProp : pSubNode->GetProperties())
           {
-            pNode->AddProperty(pProp.m_szPropertyName, pProp.m_Value);
+            pNode->AddProperty(pProp.m_sPropertyName, pProp.m_Value);
           }
         }
       }

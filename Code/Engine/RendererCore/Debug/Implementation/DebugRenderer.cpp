@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
+#include <Core/Scripting/ScriptAttributes.h>
 #include <Core/World/World.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -23,6 +24,27 @@ ezDebugRendererContext::ezDebugRendererContext(const ezViewHandle& hView)
   : m_uiId(hView.GetInternalID().m_Data)
 {
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDebugTextHAlign, 1)
+  EZ_ENUM_CONSTANTS(ezDebugTextHAlign::Left, ezDebugTextHAlign::Center, ezDebugTextHAlign::Right)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDebugTextVAlign, 1)
+  EZ_ENUM_CONSTANTS(ezDebugTextVAlign::Top, ezDebugTextVAlign::Center, ezDebugTextVAlign::Bottom)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDebugTextPlacement, 1)
+  EZ_ENUM_CONSTANTS(ezDebugTextPlacement::TopLeft, ezDebugTextPlacement::TopCenter, ezDebugTextPlacement::TopRight)
+  EZ_ENUM_CONSTANTS(ezDebugTextPlacement::BottomLeft, ezDebugTextPlacement::BottomCenter, ezDebugTextPlacement::BottomRight)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +117,7 @@ namespace
     ezMap<ezGALResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle2DVertices;
     ezMap<ezGALResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle3DVertices;
 
-    ezDynamicArray<InfoTextData> m_infoTextData[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT];
+    ezDynamicArray<InfoTextData> m_infoTextData[(int)ezDebugTextPlacement::ENUM_COUNT];
     ezDynamicArray<TextLineData2D> m_textLines2D;
     ezDynamicArray<TextLineData3D> m_textLines3D;
     ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper> m_glyphs;
@@ -152,7 +174,7 @@ namespace
         pData->m_textLines2D.Clear();
         pData->m_textLines3D.Clear();
 
-        for (ezUInt32 i = 0; i < (ezUInt32)ezDebugRenderer::ScreenPlacement::ENUM_COUNT; ++i)
+        for (ezUInt32 i = 0; i < (ezUInt32)ezDebugTextPlacement::ENUM_COUNT; ++i)
         {
           pData->m_infoTextData[i].Clear();
         }
@@ -252,7 +274,7 @@ namespace
   }
 
   template <typename AddFunc>
-  static ezUInt32 AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& vPositionInPixel, float fSizeInPixel, ezDebugRenderer::HorizontalAlignment horizontalAlignment, ezDebugRenderer::VerticalAlignment verticalAlignment, AddFunc func)
+  static ezUInt32 AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& vPositionInPixel, float fSizeInPixel, ezDebugTextHAlign::Enum horizontalAlignment, ezDebugTextVAlign::Enum verticalAlignment, AddFunc func)
   {
     if (text0.IsEmpty())
       return 0;
@@ -312,13 +334,13 @@ namespace
     const float fLineHeight = ezMath::Ceil(fSizeInPixel * (20.0f / 16.0f));
 
     float screenPosX = (float)vPositionInPixel.x;
-    if (horizontalAlignment == ezDebugRenderer::HorizontalAlignment::Right)
+    if (horizontalAlignment == ezDebugTextHAlign::Right)
       screenPosX -= maxLineLength * fGlyphWidth;
 
     float screenPosY = (float)vPositionInPixel.y;
-    if (verticalAlignment == ezDebugRenderer::VerticalAlignment::Center)
+    if (verticalAlignment == ezDebugTextVAlign::Center)
       screenPosY -= ezMath::Ceil(lines.GetCount() * fLineHeight * 0.5f);
-    else if (verticalAlignment == ezDebugRenderer::VerticalAlignment::Bottom)
+    else if (verticalAlignment == ezDebugTextVAlign::Bottom)
       screenPosY -= lines.GetCount() * fLineHeight;
 
     {
@@ -331,7 +353,7 @@ namespace
       for (ezStringView line : lines)
       {
         currentPos.x = screenPosX;
-        if (horizontalAlignment == ezDebugRenderer::HorizontalAlignment::Center)
+        if (horizontalAlignment == ezDebugTextHAlign::Center)
           currentPos.x -= ezMath::Ceil(line.GetElementCount() * fGlyphWidth * 0.5f);
 
         if (isTabular)
@@ -449,7 +471,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 // static
-void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform /*= ezTransform::MakeIdentity()*/)
 {
   if (lines.IsEmpty())
     return;
@@ -495,15 +517,15 @@ void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArray
 }
 
 // static
-void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& vGlobalPosition, float fLineLength, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& vGlobalPosition, float fLineLength, const ezColor& color, const ezTransform& transform /*= ezTransform::MakeIdentity()*/)
 {
   if (fLineLength <= 0.0f)
     return;
 
   const float fHalfLineLength = fLineLength * 0.5f;
-  const ezVec3 xAxis = ezVec3::UnitXAxis() * fHalfLineLength;
-  const ezVec3 yAxis = ezVec3::UnitYAxis() * fHalfLineLength;
-  const ezVec3 zAxis = ezVec3::UnitZAxis() * fHalfLineLength;
+  const ezVec3 xAxis = ezVec3::MakeAxisX() * fHalfLineLength;
+  const ezVec3 yAxis = ezVec3::MakeAxisY() * fHalfLineLength;
+  const ezVec3 zAxis = ezVec3::MakeAxisZ() * fHalfLineLength;
 
   EZ_LOCK(s_Mutex);
 
@@ -528,7 +550,7 @@ void ezDebugRenderer::DrawLineBox(const ezDebugRendererContext& context, const e
 
   auto& boxData = data.m_lineBoxes.ExpandAndGetRef();
 
-  ezTransform boxTransform(box.GetCenter(), ezQuat::IdentityQuaternion(), box.GetHalfExtents());
+  ezTransform boxTransform(box.GetCenter(), ezQuat::MakeIdentity(), box.GetHalfExtents());
 
   boxData.m_transform = transform * boxTransform;
   boxData.m_color = color;
@@ -579,7 +601,7 @@ void ezDebugRenderer::DrawLineBoxCorners(const ezDebugRendererContext& context, 
 }
 
 // static
-void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, const ezTransform& transform /*= ezTransform::MakeIdentity()*/)
 {
   enum
   {
@@ -588,7 +610,7 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
 
   const ezVec3 vCenter = sphere.m_vCenter;
   const float fRadius = sphere.m_fRadius;
-  const ezAngle stepAngle = ezAngle::Degree(360.0f / NUM_SEGMENTS);
+  const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / NUM_SEGMENTS);
 
   EZ_LOCK(s_Mutex);
 
@@ -617,7 +639,7 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
 }
 
 
-void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, const ezTransform& transform /*= ezTransform::MakeIdentity()*/)
 {
   enum
   {
@@ -626,7 +648,7 @@ void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, fl
     NUM_LINES = NUM_SEGMENTS + NUM_SEGMENTS + NUM_SEGMENTS + NUM_SEGMENTS + 4,
   };
 
-  const ezAngle stepAngle = ezAngle::Degree(360.0f / NUM_SEGMENTS);
+  const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / NUM_SEGMENTS);
 
   Line lines[NUM_LINES];
 
@@ -789,7 +811,7 @@ void ezDebugRenderer::DrawSolidBox(const ezDebugRendererContext& context, const 
 
   auto& boxData = data.m_solidBoxes.ExpandAndGetRef();
 
-  ezTransform boxTransform(box.GetCenter(), ezQuat::IdentityQuaternion(), box.GetHalfExtents());
+  ezTransform boxTransform(box.GetCenter(), ezQuat::MakeIdentity(), box.GetHalfExtents());
 
   boxData.m_transform = transform * boxTransform;
   boxData.m_color = color;
@@ -904,19 +926,18 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hResourceView].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Top*/)
+ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, ezDebugTextHAlign::Enum horizontalAlignment /*= ezDebugTextHAlign::Left*/, ezDebugTextVAlign::Enum verticalAlignment /*= ezDebugTextVAlign::Top*/)
 {
   return AddTextLines(context, text, vPositionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner) {
     auto& textLine = ref_data.m_textLines2D.ExpandAndGetRef();
     textLine.m_text = sLine;
     textLine.m_topLeftCorner = vTopLeftCorner;
     textLine.m_color = color;
-    textLine.m_uiSizeInPixel = uiSizeInPixel;
-  });
+    textLine.m_uiSizeInPixel = uiSizeInPixel; });
 }
 
 
-void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, ScreenPlacement placement, const char* szGroupName, const ezFormatString& text, const ezColor& color)
+void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, ezDebugTextPlacement::Enum placement, ezStringView sGroupName, const ezFormatString& text, const ezColor& color)
 {
   EZ_LOCK(s_Mutex);
 
@@ -925,12 +946,12 @@ void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, Screen
   ezStringBuilder tmp;
 
   auto& e = data.m_infoTextData[(int)placement].ExpandAndGetRef();
-  e.m_group = szGroupName;
+  e.m_group = sGroupName;
   e.m_text = text.GetText(tmp);
   e.m_color = color;
 }
 
-ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Center*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Bottom*/)
+ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, ezDebugTextHAlign::Enum horizontalAlignment /*= ezDebugTextHAlign::Center*/, ezDebugTextVAlign::Enum verticalAlignment /*= ezDebugTextVAlign::Bottom*/)
 {
   return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [&](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner) {
     auto& textLine = ref_data.m_textLines3D.ExpandAndGetRef();
@@ -938,8 +959,7 @@ ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, cons
     textLine.m_topLeftCorner = vTopLeftCorner;
     textLine.m_color = color;
     textLine.m_uiSizeInPixel = uiSizeInPixel;
-    textLine.m_position = vGlobalPosition;
-  });
+    textLine.m_position = vGlobalPosition; });
 }
 
 void ezDebugRenderer::AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration)
@@ -978,7 +998,7 @@ void ezDebugRenderer::AddPersistentLineBox(const ezDebugRendererContext& context
   item.m_Timeout = data.m_Now + duration;
 }
 
-void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::UnitXAxis()*/, ezVec3 vRotationAxis /*= ezVec3::UnitZAxis()*/)
+void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/, ezVec3 vRotationAxis /*= ezVec3::MakeAxisZ()*/)
 {
   ezHybridArray<Triangle, 64> tris;
   ezHybridArray<Line, 64> lines;
@@ -987,17 +1007,15 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
   endAngle.NormalizeRange();
 
   if (startAngle > endAngle)
-    startAngle -= ezAngle::Degree(360);
+    startAngle -= ezAngle::MakeFromDegree(360);
 
   const ezAngle range = endAngle - startAngle;
-  const ezUInt32 uiTesselation = ezMath::Max(1u, (ezUInt32)(range / ezAngle::Degree(5)));
+  const ezUInt32 uiTesselation = ezMath::Max(1u, (ezUInt32)(range / ezAngle::MakeFromDegree(5)));
   const ezAngle step = range / (float)uiTesselation;
 
-  ezQuat qStart;
-  qStart.SetFromAxisAndAngle(vRotationAxis, startAngle);
+  ezQuat qStart = ezQuat::MakeFromAxisAndAngle(vRotationAxis, startAngle);
 
-  ezQuat qStep;
-  qStep.SetFromAxisAndAngle(vRotationAxis, step);
+  ezQuat qStep = ezQuat::MakeFromAxisAndAngle(vRotationAxis, step);
 
   ezVec3 vCurDir = qStart * vForwardAxis;
 
@@ -1043,23 +1061,21 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
   DrawLines(context, lines, lineColor, transform);
 }
 
-void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::UnitXAxis()*/)
+void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/)
 {
   ezHybridArray<Triangle, 64> trisInside;
   ezHybridArray<Triangle, 64> trisOutside;
 
-  halfAngle = ezMath::Clamp(halfAngle, ezAngle(), ezAngle::Degree(180));
+  halfAngle = ezMath::Clamp(halfAngle, ezAngle(), ezAngle::MakeFromDegree(180));
 
-  const ezAngle refAngle = halfAngle <= ezAngle::Degree(90) ? halfAngle : ezAngle::Degree(180) - halfAngle;
-  const ezUInt32 uiTesselation = ezMath::Max(8u, (ezUInt32)(refAngle / ezAngle::Degree(2)));
+  const ezAngle refAngle = halfAngle <= ezAngle::MakeFromDegree(90) ? halfAngle : ezAngle::MakeFromDegree(180) - halfAngle;
+  const ezUInt32 uiTesselation = ezMath::Max(8u, (ezUInt32)(refAngle / ezAngle::MakeFromDegree(2)));
 
   const ezVec3 tangentAxis = vForwardAxis.GetOrthogonalVector().GetNormalized();
 
-  ezQuat tilt;
-  tilt.SetFromAxisAndAngle(tangentAxis, halfAngle);
+  ezQuat tilt = ezQuat::MakeFromAxisAndAngle(tangentAxis, halfAngle);
 
-  ezQuat step;
-  step.SetFromAxisAndAngle(vForwardAxis, ezAngle::Degree(360) / (float)uiTesselation);
+  ezQuat step = ezQuat::MakeFromAxisAndAngle(vForwardAxis, ezAngle::MakeFromDegree(360) / (float)uiTesselation);
 
   ezVec3 vCurDir = tilt * vForwardAxis;
 
@@ -1109,7 +1125,7 @@ void ezDebugRenderer::DrawLimitCone(const ezDebugRendererContext& context, ezAng
     for (ezUInt32 i = 0; i <= NUM_LINES; i++)
     {
       const float angle = 2 * ezMath::Pi<float>() / NUM_LINES * i;
-      const float c = ezMath::Cos(ezAngle::Radian(angle)), s = ezMath::Sin(ezAngle::Radian(angle));
+      const float c = ezMath::Cos(ezAngle::MakeFromRadian(angle)), s = ezMath::Sin(ezAngle::MakeFromRadian(angle));
       const ezVec3 rv(0, -tanQSwingZ * s, tanQSwingY * c);
       const float rv2 = rv.GetLengthSquared();
       const float r = (1 / (1 + rv2));
@@ -1154,7 +1170,7 @@ void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float 
   ezHybridArray<Line, NUM_SEGMENTS * 3> lines;
   ezHybridArray<Triangle, NUM_SEGMENTS * 2 * 2> tris;
 
-  const ezAngle step = ezAngle::Degree(360) / NUM_SEGMENTS;
+  const ezAngle step = ezAngle::MakeFromDegree(360) / NUM_SEGMENTS;
   ezAngle angle = {};
 
   ezVec3 vCurCircle(0, 1 /*ezMath::Cos(angle)*/, 0 /*ezMath::Sin(angle)*/);
@@ -1245,7 +1261,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
         else
         {
-          ezDebugRenderer::DrawCross(context, ezVec3::ZeroVector(), item.m_fSize, item.m_Color, item.m_Transform);
+          ezDebugRenderer::DrawCross(context, ezVec3::MakeZero(), item.m_fSize, item.m_Color, item.m_Transform);
 
           ++i;
         }
@@ -1266,7 +1282,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
         else
         {
-          ezDebugRenderer::DrawLineSphere(context, ezBoundingSphere(ezVec3::ZeroVector(), item.m_fRadius), item.m_Color, item.m_Transform);
+          ezDebugRenderer::DrawLineSphere(context, ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), item.m_fRadius), item.m_Color, item.m_Transform);
 
           ++i;
         }
@@ -1287,7 +1303,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
         else
         {
-          ezDebugRenderer::DrawLineBox(context, ezBoundingBox(-item.m_vHalfSize, item.m_vHalfSize), item.m_Color, item.m_Transform);
+          ezDebugRenderer::DrawLineBox(context, ezBoundingBox::MakeFromMinMax(-item.m_vHalfSize, item.m_vHalfSize), item.m_Color, item.m_Transform);
 
           ++i;
         }
@@ -1309,30 +1325,30 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
   // draw info text
   {
-    static_assert((int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT == 6);
+    static_assert((int)ezDebugTextPlacement::ENUM_COUNT == 6);
 
-    HorizontalAlignment ha[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
-      HorizontalAlignment::Left,
-      HorizontalAlignment::Center,
-      HorizontalAlignment::Right,
-      HorizontalAlignment::Left,
-      HorizontalAlignment::Center,
-      HorizontalAlignment::Right};
+    ezDebugTextHAlign::Enum ha[(int)ezDebugTextPlacement::ENUM_COUNT] = {
+      ezDebugTextHAlign::Left,
+      ezDebugTextHAlign::Center,
+      ezDebugTextHAlign::Right,
+      ezDebugTextHAlign::Left,
+      ezDebugTextHAlign::Center,
+      ezDebugTextHAlign::Right};
 
-    VerticalAlignment va[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
-      VerticalAlignment::Top,
-      VerticalAlignment::Top,
-      VerticalAlignment::Top,
-      VerticalAlignment::Bottom,
-      VerticalAlignment::Bottom,
-      VerticalAlignment::Bottom};
+    ezDebugTextVAlign::Enum va[(int)ezDebugTextPlacement::ENUM_COUNT] = {
+      ezDebugTextVAlign::Top,
+      ezDebugTextVAlign::Top,
+      ezDebugTextVAlign::Top,
+      ezDebugTextVAlign::Bottom,
+      ezDebugTextVAlign::Bottom,
+      ezDebugTextVAlign::Bottom};
 
-    int offs[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {20, 20, 20, -20, -20, -20};
+    int offs[(int)ezDebugTextPlacement::ENUM_COUNT] = {20, 20, 20, -20, -20, -20};
 
     ezInt32 resX = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.width;
     ezInt32 resY = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.height;
 
-    ezVec2I32 anchor[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
+    ezVec2I32 anchor[(int)ezDebugTextPlacement::ENUM_COUNT] = {
       ezVec2I32(10, 10),
       ezVec2I32(resX / 2, 10),
       ezVec2I32(resX - 10, 10),
@@ -1340,7 +1356,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       ezVec2I32(resX / 2, resY - 10),
       ezVec2I32(resX - 10, resY - 10)};
 
-    for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugRenderer::ScreenPlacement::ENUM_COUNT; ++corner)
+    for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugTextPlacement::ENUM_COUNT; ++corner)
     {
       auto& cd = pData->m_infoTextData[corner];
 
@@ -1773,6 +1789,126 @@ void ezDebugRenderer::OnEngineShutdown()
   s_PerContextData.Clear();
 
   s_PersistentPerContextData.Clear();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Debug, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawCross, In, "World", In, "Position", In, "Size", In, "Color", In, "Transform")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(0.1f)),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute())),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawLineBox, In, "World", In, "Position", In, "HalfExtents", In, "Color", In, "Transform")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(ezVec3(1))),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute())),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawLineSphere, In, "World", In, "Position", In, "Radius", In, "Color", In, "Transform")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(1.0f)),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute())),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawSolidBox, In, "World", In, "Position", In, "HalfExtents", In, "Color", In, "Transform")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(ezVec3(1))),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute())),
+    
+    EZ_SCRIPT_FUNCTION_PROPERTY(Draw2DText, In, "World", In, "Text", In, "Position", In, "Color", In, "SizeInPixel", In, "HAlign")->AddAttributes(
+      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(16))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Draw3DText, In, "World", In, "Text", In, "Position", In, "Color", In, "SizeInPixel")->AddAttributes(
+      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(16))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawInfoText, In, "World", In, "Text", In, "Placement", In, "Group", In, "Color"),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddPersistentCross, In, "World", In, "Position", In, "Size", In, "Color", In, "Transform", In, "Duration")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(0.1f)),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
+      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1)))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddPersistentLineBox, In, "World", In, "Position", In, "HalfExtents", In, "Color", In, "Transform", In, "Duration")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(ezVec3(1))),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
+      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1)))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddPersistentLineSphere, In, "World", In, "Position", In, "Radius", In, "Color", In, "Transform", In, "Duration")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(1.0f)),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
+      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1)))),
+  }
+  EZ_END_FUNCTIONS;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezScriptExtensionAttribute("Debug"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
+// static
+void ezScriptExtensionClass_Debug::DrawCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform)
+{
+  ezDebugRenderer::DrawCross(pWorld, vPosition, fSize, color, transform);
+}
+
+// static
+void ezScriptExtensionClass_Debug::DrawLineBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform)
+{
+  ezDebugRenderer::DrawLineBox(pWorld, ezBoundingBox::MakeFromCenterAndHalfExtents(vPosition, vHalfExtents), color, transform);
+}
+
+// static
+void ezScriptExtensionClass_Debug::DrawLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform)
+{
+  ezDebugRenderer::DrawLineSphere(pWorld, ezBoundingSphere::MakeFromCenterAndRadius(vPosition, fRadius), color, transform);
+}
+
+// static
+void ezScriptExtensionClass_Debug::DrawSolidBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform)
+{
+  ezDebugRenderer::DrawSolidBox(pWorld, ezBoundingBox::MakeFromCenterAndHalfExtents(vPosition, vHalfExtents), color, transform);
+}
+
+// static
+void ezScriptExtensionClass_Debug::Draw2DText(const ezWorld* pWorld, ezStringView sText, const ezVec3& vPosition, const ezColor& color, ezUInt32 uiSizeInPixel, ezEnum<ezDebugTextHAlign> horizontalAlignment)
+{
+  ezVec2I32 vPositionInPixel = ezVec2I32(static_cast<int>(ezMath::Round(vPosition.x)), static_cast<int>(ezMath::Round(vPosition.y)));
+  ezDebugRenderer::Draw2DText(pWorld, sText, vPositionInPixel, color, uiSizeInPixel, horizontalAlignment);
+}
+
+// static
+void ezScriptExtensionClass_Debug::Draw3DText(const ezWorld* pWorld, ezStringView sText, const ezVec3& vPosition, const ezColor& color, ezUInt32 uiSizeInPixel)
+{
+  ezDebugRenderer::Draw3DText(pWorld, sText, vPosition, color, uiSizeInPixel);
+}
+
+// static
+void ezScriptExtensionClass_Debug::DrawInfoText(const ezWorld* pWorld, ezStringView sText, ezEnum<ezDebugTextPlacement> placement, ezStringView sGroupName, const ezColor& color)
+{
+  ezDebugRenderer::DrawInfoText(pWorld, placement, sGroupName, sText, color);
+}
+
+// static
+void ezScriptExtensionClass_Debug::AddPersistentCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration)
+{
+  ezTransform t = transform;
+  t.m_vPosition += vPosition;
+
+  ezDebugRenderer::AddPersistentCross(pWorld, fSize, color, t, duration);
+}
+
+// static
+void ezScriptExtensionClass_Debug::AddPersistentLineBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform, ezTime duration)
+{
+  ezTransform t = transform;
+  t.m_vPosition += vPosition;
+
+  ezDebugRenderer::AddPersistentLineBox(pWorld, vHalfExtents, color, t, duration);
+}
+
+// static
+void ezScriptExtensionClass_Debug::AddPersistentLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform, ezTime duration)
+{
+  ezTransform t = transform;
+  t.m_vPosition += vPosition;
+
+  ezDebugRenderer::AddPersistentLineSphere(pWorld, fRadius, color, t, duration);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugRenderer);

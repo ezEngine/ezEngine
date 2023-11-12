@@ -26,8 +26,8 @@ static ezMat3 CalculateTransformationMatrix(const ezJoltCollisionMeshAssetProper
   return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
 }
 
-ezJoltCollisionMeshAssetDocument::ezJoltCollisionMeshAssetDocument(const char* szDocumentPath, bool bConvexMesh)
-  : ezSimpleAssetDocument<ezJoltCollisionMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+ezJoltCollisionMeshAssetDocument::ezJoltCollisionMeshAssetDocument(ezStringView sDocumentPath, bool bConvexMesh)
+  : ezSimpleAssetDocument<ezJoltCollisionMeshAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   m_bIsConvexMesh = bConvexMesh;
 }
@@ -54,7 +54,7 @@ void ezJoltCollisionMeshAssetDocument::InitializeAfterLoading(bool bFirstTimeCre
 //////////////////////////////////////////////////////////////////////////
 
 
-ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -67,7 +67,7 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd compressor(&stream, ezCompressedStreamWriterZstd::Compression::Average);
+  ezCompressedStreamWriterZstd compressor(&stream, 0, ezCompressedStreamWriterZstd::Compression::Average);
   ezChunkStreamWriter chunk(compressor);
 #else
   ezChunkStreamWriter chunk(stream);
@@ -94,7 +94,7 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
 
       ezGeometry geom;
       ezGeometry::GeoOptions opt;
-      opt.m_Transform = ezMat4(mTransformation, ezVec3::ZeroVector());
+      opt.m_Transform = ezMat4(mTransformation, ezVec3::MakeZero());
 
       if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::Cylinder)
       {
@@ -242,7 +242,6 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
     }
 
     ApplyNativePropertyChangesToObjectManager();
-    pProp = GetProperties();
   }
 
   return ezStatus(EZ_SUCCESS);
@@ -267,6 +266,7 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, 
 
       // Need to reacquire pProp pointer since it might be reallocated.
       pProp = GetProperties();
+      EZ_IGNORE_UNUSED(pProp);
     }
   }
 
@@ -370,7 +370,7 @@ void ezJoltCollisionMeshAssetDocumentGenerator::GetImportModes(ezStringView sPar
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "Jolt_Colmesh_Triangle";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh.png";
+    info.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh.svg";
   }
 }
 
@@ -418,7 +418,7 @@ void ezJoltConvexCollisionMeshAssetDocumentGenerator::GetImportModes(ezStringVie
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "Jolt_Colmesh_Convex";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh_Convex.png";
+    info.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh_Convex.svg";
   }
 }
 

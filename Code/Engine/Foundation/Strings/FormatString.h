@@ -56,8 +56,9 @@ class EZ_FOUNDATION_DLL ezFormatString
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFormatString); // pass by reference, never pass by value
 
 public:
-  EZ_ALWAYS_INLINE ezFormatString() { m_szString = nullptr; }
-  EZ_ALWAYS_INLINE ezFormatString(const char* szString) { m_szString = szString; }
+  EZ_ALWAYS_INLINE ezFormatString() = default;
+  EZ_ALWAYS_INLINE ezFormatString(const char* szString) { m_sString = szString; }
+  EZ_ALWAYS_INLINE ezFormatString(ezStringView sString) { m_sString = sString; }
   ezFormatString(const ezStringBuilder& s);
   virtual ~ezFormatString() = default;
 
@@ -68,18 +69,21 @@ public:
   ///
   /// \note Do not assume that the result is stored in \a sb. Always only use the return value. The string builder is only used
   /// when necessary.
-  [[nodiscard]] virtual const char* GetText(ezStringBuilder&) const { return m_szString; }
+  [[nodiscard]] virtual ezStringView GetText(ezStringBuilder&) const { return m_sString; }
 
-  bool IsEmpty() const { return ezStringUtils::IsNullOrEmpty(m_szString); }
+  /// \brief Similar to GetText() but guaranteed to copy the string into the given string builder,
+  /// and thus guaranteeing that the generated string is zero terminated.
+  virtual const char* GetTextCStr(ezStringBuilder& out_sString) const;
+
+  bool IsEmpty() const { return m_sString.IsEmpty(); }
+
+  /// \brief Helper function to build the formatted text with the given arguments.
+  ///
+  /// \note We can't use ezArrayPtr here because of include order.
+  ezStringView BuildFormattedText(ezStringBuilder& ref_sStorage, ezStringView* pArgs, ezUInt32 uiNumArgs) const;
 
 protected:
-  // out of line function so that we don't need to include ezStringBuilder here, to break include dependency cycle
-  static void SBAppendView(ezStringBuilder& sb, const ezStringView& sub);
-  static void SBClear(ezStringBuilder& sb);
-  static void SBAppendChar(ezStringBuilder& sb, ezUInt32 uiChar);
-  static const char* SBReturn(ezStringBuilder& sb);
-
-  const char* m_szString;
+  ezStringView m_sString;
 };
 
 #include <Foundation/Strings/Implementation/FormatStringImpl.h>

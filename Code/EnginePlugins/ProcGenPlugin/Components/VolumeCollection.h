@@ -14,7 +14,7 @@ class EZ_PROCGENPLUGIN_DLL ezVolumeCollection : public ezReflectedClass
 public:
   struct ShapeType
   {
-    typedef ezUInt8 StorageType;
+    using StorageType = ezUInt8;
 
     enum Enum
     {
@@ -63,8 +63,6 @@ public:
   };
 
   bool IsEmpty() { return m_Spheres.IsEmpty() && m_Boxes.IsEmpty(); }
-
-  static ezUInt32 ComputeSortingKey(float fSortOrder, float fMaxScale);
 
   float EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const;
 

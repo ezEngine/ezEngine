@@ -25,6 +25,9 @@ public:
   /// \brief Passed through to the QLineEdit
   void setPlaceholderText(const QString& sText);
 
+  /// \brief Passed through to the QLineEdit
+  void selectAll();
+
 Q_SIGNALS:
   /// \brief Passed through from the QLineEdit
   void textChanged(const QString& sText);

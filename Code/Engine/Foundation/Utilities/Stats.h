@@ -14,12 +14,12 @@
 class EZ_FOUNDATION_DLL ezStats
 {
 public:
-  typedef ezMap<ezString, ezVariant> MapType;
+  using MapType = ezMap<ezString, ezVariant>;
 
   /// \brief Removes the stat with the given name.
   ///
   /// This will also send a 'remove' message through ezTelemetry, such that external tools can remove it from their list.
-  static void RemoveStat(const char* szStatName);
+  static void RemoveStat(ezStringView sStatName);
 
   /// \brief Sets the value of the given stat, adds it if it did not exist before.
   ///
@@ -27,10 +27,10 @@ public:
   /// to display the stats in a hierarchical way.
   /// This function will also send the name and value of the stat through ezTelemetry, such that tools like ezInspector will show the
   /// changed value.
-  static void SetStat(const char* szStatName, const ezVariant& value);
+  static void SetStat(ezStringView sStatName, const ezVariant& value);
 
   /// \brief Returns the value of the given stat. Returns an invalid ezVariant, if the stat did not exist before.
-  static const ezVariant& GetStat(const char* szStatName) { return s_Stats[szStatName]; }
+  static const ezVariant& GetStat(ezStringView sStatName) { return s_Stats[sStatName]; }
 
   /// \brief Returns the entire map of stats, can be used to display them.
   static const MapType& GetAllStats() { return s_Stats; }
@@ -47,11 +47,11 @@ public:
     };
 
     EventType m_EventType;
-    const char* m_szStatName;
+    ezStringView m_sStatName;
     ezVariant m_NewStatValue;
   };
 
-  typedef ezEvent<const StatsEventData&, ezMutex> ezEventStats;
+  using ezEventStats = ezEvent<const StatsEventData&, ezMutex>;
 
   /// \brief Adds an event handler that is called every time a stat is changed.
   static void AddEventHandler(ezEventStats::Handler handler) { s_StatsEvents.AddEventHandler(handler); }

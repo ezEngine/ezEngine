@@ -12,9 +12,9 @@ public:
   ~ezDecalAssetDocumentManager();
 
   virtual void AddEntriesToAssetTable(
-    const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const override;
+    ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const override;
   virtual ezString GetAssetTableEntry(
-    const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const override;
+    const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const override;
 
   /// \brief There is only a single decal texture per project. This function creates it, in case any decal asset was modified.
   ezStatus GenerateDecalTexture(const ezPlatformProfile* pAssetProfile);
@@ -26,7 +26,7 @@ private:
   ezStatus RunTexConv(const char* szTargetFile, const char* szInputFile, const ezAssetFileHeader& AssetHeader);
 
   virtual void InternalCreateDocument(
-    const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
+    ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return true; }

@@ -31,15 +31,19 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "TypeScript";
   m_DocTypeDesc.m_sFileExtension = "ezTypeScriptAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/TypeScript.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/TypeScript.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Scripting";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Code_TypeScript");
 
+  // Typescript doesn't fully work with the new scripting infrastructure yet. Uncomment at your own risk.
+  // m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ScriptClass");
+
   m_DocTypeDesc.m_sResourceFileExtension = "ezTypeScriptRes";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.svg"));
 
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
 
@@ -68,7 +72,7 @@ void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTypeScriptAssetDocument>())
       {
-        ezQtTypeScriptAssetDocumentWindow* pDocWnd = new ezQtTypeScriptAssetDocumentWindow(static_cast<ezTypeScriptAssetDocument*>(e.m_pDocument));
+        new ezQtTypeScriptAssetDocumentWindow(static_cast<ezTypeScriptAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -78,9 +82,9 @@ void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-void ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezTypeScriptAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezTypeScriptAssetDocument(szPath);
+  out_pDocument = new ezTypeScriptAssetDocument(sPath);
 }
 
 void ezTypeScriptAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
@@ -368,7 +372,7 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   {
     for (auto pAssetInfo : allTsAssets)
     {
-      const ezString& docPath = pAssetInfo->m_sDataDirParentRelativePath;
+      const ezString& docPath = pAssetInfo->m_Path.GetDataDirParentRelativePath();
       const ezUuid& docGuid = pAssetInfo->m_Info->m_DocumentID;
 
       sFilename = ezPathUtils::GetFileName(docPath);

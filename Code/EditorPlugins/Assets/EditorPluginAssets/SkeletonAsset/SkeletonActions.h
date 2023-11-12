@@ -13,7 +13,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath);
+  static void MapActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hCategory;
   static ezActionDescriptorHandle s_hRenderBones;
@@ -21,6 +21,7 @@ public:
   static ezActionDescriptorHandle s_hRenderJoints;
   static ezActionDescriptorHandle s_hRenderSwingLimits;
   static ezActionDescriptorHandle s_hRenderTwistLimits;
+  static ezActionDescriptorHandle s_hRenderPreviewMesh;
 };
 
 class ezSkeletonAction : public ezButtonAction
@@ -35,6 +36,7 @@ public:
     RenderJoints,
     RenderSwingLimits,
     RenderTwistLimits,
+    RenderPreviewMesh,
   };
 
   ezSkeletonAction(const ezActionContext& context, const char* szName, ActionType type);

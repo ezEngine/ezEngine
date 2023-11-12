@@ -125,10 +125,11 @@ void ezQtShaderTemplateDlg::on_Buttons_accepted()
   ezPreprocessor pp;
   pp.SetPassThroughLine(false);
   pp.SetPassThroughPragma(false);
-  pp.SetFileOpenFunction([code](const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification) {
+  pp.SetFileOpenFunction([code](ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification) {
     ref_fileContent.SetCountUninitialized(code.GetElementCount());
     ezMemoryUtils::RawByteCopy(ref_fileContent.GetData(), code.GetData(), code.GetElementCount());
     return EZ_SUCCESS;
+    //
   });
 
   QTableWidget* pTable = TemplateVars;

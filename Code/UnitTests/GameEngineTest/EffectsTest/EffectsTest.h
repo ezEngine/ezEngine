@@ -19,7 +19,8 @@ protected:
     Heightfield,
     WindClothRopes,
     Reflections,
-    StressTest
+    StressTest,
+    AdvancedMeshes,
   };
 
   virtual void SetupSubTests() override;

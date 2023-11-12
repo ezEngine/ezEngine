@@ -20,9 +20,9 @@ public:
   /// \param szRootProperty
   ///   Same as szChildrenProperty, but for the root object of the document.
   ezDocumentObjectVisitor(
-    const ezDocumentObjectManager* pManager, const char* szChildrenProperty = "Children", const char* szRootProperty = "Children");
+    const ezDocumentObjectManager* pManager, ezStringView sChildrenProperty = "Children", ezStringView sRootProperty = "Children");
 
-  typedef ezDelegate<bool(const ezDocumentObject*)> VisitorFunction;
+  using VisitorFunction = ezDelegate<bool(const ezDocumentObject*)>;
   /// \brief Executes depth first traversal starting at the given node.
   ///
   /// \param pObject
@@ -34,7 +34,7 @@ public:
   void Visit(const ezDocumentObject* pObject, bool bVisitStart, VisitorFunction function);
 
 private:
-  void TraverseChildren(const ezDocumentObject* pObject, const char* szProperty, VisitorFunction& function);
+  void TraverseChildren(const ezDocumentObject* pObject, ezStringView sProperty, VisitorFunction& function);
 
   const ezDocumentObjectManager* m_pManager = nullptr;
   ezString m_sChildrenProperty;

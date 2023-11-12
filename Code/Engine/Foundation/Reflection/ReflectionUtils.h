@@ -30,43 +30,44 @@ public:
   static double GetComponent(const ezVariant& vector, ezUInt32 uiComponent);
 
   static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject);        // [tested] via ToolsFoundation
-  static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation
+  static void SetMemberPropertyValue(const ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation
 
   static ezVariant GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex);
-  static void SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
+  static void SetArrayPropertyValue(const ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
 
-  static void InsertSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value);
-  static void RemoveSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value);
+  static void InsertSetPropertyValue(const ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value);
+  static void RemoveSetPropertyValue(const ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value);
 
   static ezVariant GetMapPropertyValue(const ezAbstractMapProperty* pProp, const void* pObject, const char* szKey);
-  static void SetMapPropertyValue(ezAbstractMapProperty* pProp, void* pObject, const char* szKey, const ezVariant& value);
+  static void SetMapPropertyValue(const ezAbstractMapProperty* pProp, void* pObject, const char* szKey, const ezVariant& value);
 
-  static void InsertArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, const ezVariant& value, ezUInt32 uiIndex);
-  static void RemoveArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex);
+  static void InsertArrayPropertyValue(const ezAbstractArrayProperty* pProp, void* pObject, const ezVariant& value, ezUInt32 uiIndex);
+  static void RemoveArrayPropertyValue(const ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex);
 
-  static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex);
-  static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, const char* szPropertyName); // [tested] via ToolsFoundation
+  static const ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex);
+  static const ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, const char* szPropertyName); // [tested] via ToolsFoundation
 
   /// \brief Gathers all RTTI types that are derived from pRtti.
   ///
   /// This includes all classes that have pRtti as a base class, either direct or indirect.
-  /// If bIncludeDependencies is set to true, the resulting set will also contain all dependent types.
   ///
   /// \sa GatherDependentTypes
-  static void GatherTypesDerivedFromClass(const ezRTTI* pRtti, ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies);
+  static void GatherTypesDerivedFromClass(const ezRTTI* pRtti, ezSet<const ezRTTI*>& out_types);
 
   /// \brief Gathers all RTTI types that pRtti depends on and adds them to inout_types.
   ///
   /// Dependencies are either member properties or base classes. The output contains the transitive closure of the dependencies.
-  /// Note that inout_types is not cleared when this function is called.
-  static void GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_types);
+  /// Note that inout_typesAsSet is not cleared when this function is called.
+  /// out_pTypesAsStack is all the dependencies sorted by their appearance in the dependency chain.
+  /// The last entry is the lowest in the chain and has no dependencies on its own.
+  static void GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_typesAsSet, ezDynamicArray<const ezRTTI*>* out_pTypesAsStack = nullptr);
 
   /// \brief Sorts the input types according to their dependencies.
   ///
   /// Types that have no dependences come first in the output followed by types that have their dependencies met by
   /// the previous entries in the output.
-  /// If circular dependencies are found the function returns false.
-  static bool CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes);
+  /// If a dependent type is not in the given types set the function will fail.
+  static ezResult CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes);
 
   struct EnumConversionMode
   {
@@ -148,10 +149,10 @@ public:
   static bool IsEqual(const void* pObject, const void* pObject2, const ezRTTI* pType); // [tested]
 
   /// \brief Compares property pProp of pObject and pObject2 and returns whether it is equal in both.
-  static bool IsEqual(const void* pObject, const void* pObject2, ezAbstractProperty* pProp);
+  static bool IsEqual(const void* pObject, const void* pObject2, const ezAbstractProperty* pProp);
 
   /// \brief Deletes pObject using the allocator found in the owning property's type.
-  static void DeleteObject(void* pObject, ezAbstractProperty* pOwnerProperty);
+  static void DeleteObject(void* pObject, const ezAbstractProperty* pOwnerProperty);
 
   /// \brief Returns a global default initialization value for the given variant type.
   static ezVariant GetDefaultVariantFromType(ezVariant::Type::Enum type); // [tested]

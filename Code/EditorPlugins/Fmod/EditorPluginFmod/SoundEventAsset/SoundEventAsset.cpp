@@ -10,22 +10,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundEventAssetProperties, 1, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSoundEventAssetDocument::ezSoundEventAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezSoundEventAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
+ezSoundEventAssetDocument::ezSoundEventAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezSoundEventAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
 void ezSoundEventAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
-
-  const ezSoundEventAssetProperties* pProp = GetProperties();
 }
 
-ezTransformStatus ezSoundEventAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+ezTransformStatus ezSoundEventAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
   const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  const ezSoundEventAssetProperties* pProp = GetProperties();
-
   return ezStatus(EZ_SUCCESS);
 }

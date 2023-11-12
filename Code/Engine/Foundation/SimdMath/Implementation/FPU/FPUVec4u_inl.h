@@ -62,7 +62,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ToFloat() const
 // static
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Truncate(const ezSimdVec4f& f)
 {
-  ezSimdVec4f clampedF = f.CompMax(ezSimdVec4f::ZeroVector());
+  ezSimdVec4f clampedF = f.CompMax(ezSimdVec4f::MakeZero());
 
   ezSimdVec4u result;
   result.m_v.x = (ezUInt32)clampedF.m_v.x;
@@ -310,7 +310,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>(const ezSimdVec4u& v) const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::ZeroVector()
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::MakeZero()
 {
-  return ezVec4U32::ZeroVector();
+  return ezVec4U32::MakeZero();
 }

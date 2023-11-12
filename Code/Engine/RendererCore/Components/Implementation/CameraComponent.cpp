@@ -167,7 +167,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 10, ezComponentMode::Static)
     EZ_SET_MEMBER_PROPERTY("ExcludeTags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_ACCESSOR_PROPERTY("CameraRenderPipeline", GetRenderPipelineEnum, SetRenderPipelineEnum)->AddAttributes(new ezDynamicStringEnumAttribute("CameraPipelines")),
     EZ_ACCESSOR_PROPERTY("Aperture", GetAperture, SetAperture)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f, 32.0f), new ezSuffixAttribute(" f-stop(s)")),
-    EZ_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1.0)), new ezClampValueAttribute(ezTime::Seconds(1.0f / 100000.0f), ezTime::Seconds(600.0f))),
+    EZ_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1.0)), new ezClampValueAttribute(ezTime::MakeFromSeconds(1.0f / 100000.0f), ezTime::MakeFromSeconds(600.0f))),
     EZ_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(50.0f, 64000.0f)),
     EZ_ACCESSOR_PROPERTY("ExposureCompensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     EZ_MEMBER_PROPERTY("ShowStats", m_bShowStats),
@@ -260,7 +260,7 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> m_fAperture;
     float shutterTime;
     s >> shutterTime;
-    m_ShutterTime = ezTime::Seconds(shutterTime);
+    m_ShutterTime = ezTime::MakeFromSeconds(shutterTime);
     s >> m_fISO;
     s >> m_fExposureCompensation;
   }
@@ -333,7 +333,7 @@ void ezCameraComponent::ShowStats(ezView* pView)
 
     ezStringBuilder sb;
     sb.Format("Camera '{0}':\nEV100: {1}, Exposure: {2}", sName.IsEmpty() ? pView->GetName() : sName, GetEV100(), GetExposure());
-    ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugRenderer::ScreenPlacement::TopLeft, "CamStats", sb, ezColor::White);
+    ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugTextPlacement::TopLeft, "CamStats", sb, ezColor::White);
   }
 
   // draw frustum
@@ -348,8 +348,7 @@ void ezCameraComponent::ShowStats(ezView* pView)
     ezMat4 projectionMatrix = pView->GetProjectionMatrix(ezCameraEye::Left); // todo: Stereo support
     ezMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
 
-    ezFrustum frustum;
-    frustum.SetFrustum(viewProjectionMatrix);
+    ezFrustum frustum = ezFrustum::MakeFromMVP(viewProjectionMatrix);
 
     // TODO: limit far plane to 10 meters
 
@@ -469,6 +468,11 @@ void ezCameraComponent::SetOrthoDimension(float fVal)
 ezRenderPipelineResourceHandle ezCameraComponent::GetRenderPipeline() const
 {
   return m_hCachedRenderPipeline;
+}
+
+ezViewHandle ezCameraComponent::GetRenderTargetView() const
+{
+  return m_hRenderTargetView;
 }
 
 const char* ezCameraComponent::GetRenderPipelineEnum() const
@@ -768,7 +772,7 @@ public:
       if (pProp->m_Value.IsA<float>())
       {
         const float shutterTime = pProp->m_Value.Get<float>();
-        pProp->m_Value = ezTime::Seconds(shutterTime);
+        pProp->m_Value = ezTime::MakeFromSeconds(shutterTime);
       }
     }
   }

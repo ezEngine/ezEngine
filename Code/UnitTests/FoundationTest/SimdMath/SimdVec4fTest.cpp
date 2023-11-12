@@ -178,7 +178,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     ezSimdVec4f vCopy(vInit4F);
     EZ_TEST_BOOL(vCopy.x() == 1.0f && vCopy.y() == 2.0f && vCopy.z() == 3.0f && vCopy.w() == 4.0f);
 
-    ezSimdVec4f vZero = ezSimdVec4f::ZeroVector();
+    ezSimdVec4f vZero = ezSimdVec4f::MakeZero();
     EZ_TEST_BOOL(vZero.x() == 0.0f && vZero.y() == 0.0f && vZero.z() == 0.0f && vZero.w() == 0.0f);
   }
 
@@ -207,6 +207,19 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     ezSimdVec4f c;
     c.SetZero();
     EZ_TEST_BOOL(c.x() == 0.0f && c.y() == 0.0f && c.z() == 0.0f && c.w() == 0.0f);
+
+    {
+      ezSimdVec4f z = ezSimdVec4f::MakeZero();
+      EZ_TEST_BOOL(z.x() == 0.0f && z.y() == 0.0f && z.z() == 0.0f && z.w() == 0.0f);
+    }
+
+    {
+      ezSimdVec4f z = ezSimdVec4f::MakeNaN();
+      EZ_TEST_BOOL(ezMath::IsNaN((float)z.x()));
+      EZ_TEST_BOOL(ezMath::IsNaN((float)z.y()));
+      EZ_TEST_BOOL(ezMath::IsNaN((float)z.z()));
+      EZ_TEST_BOOL(ezMath::IsNaN((float)z.w()));
+    }
 
     {
       float testBlock[4] = {1, 2, 3, 4};

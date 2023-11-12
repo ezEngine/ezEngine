@@ -8,6 +8,12 @@
 #include <ozz/animation/offline/skeleton_builder.h>
 #include <ozz/animation/runtime/skeleton.h>
 
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointType, 1)
+  EZ_ENUM_CONSTANTS(ezSkeletonJointType::None, ezSkeletonJointType::Fixed, ezSkeletonJointType::SwingTwist)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
 ezSkeleton::ezSkeleton() = default;
 ezSkeleton::~ezSkeleton() = default;
 
@@ -36,30 +42,9 @@ ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
   return ezInvalidJointIndex;
 }
 
-//bool ezSkeleton::IsCompatibleWith(const ezSkeleton& other) const
-//{
-//  if (this == &other)
-//    return true;
-//
-//  if (other.GetJointCount() != GetJointCount())
-//    return false;
-//
-//  // TODO: This only checks the joint hierarchy, maybe it should check names or hierarchy based on names
-//  const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_Joints.GetCount());
-//  for (ezUInt32 i = 0; i < uiNumJoints; ++i)
-//  {
-//    if (other.m_Joints[i].GetParentIndex() != m_Joints[i].GetParentIndex())
-//    {
-//      return false;
-//    }
-//  }
-//
-//  return true;
-//}
-
 void ezSkeleton::Save(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(5);
+  inout_stream.WriteVersion(7);
 
   const ezUInt32 uiNumJoints = m_Joints.GetCount();
   inout_stream << uiNumJoints;
@@ -68,13 +53,18 @@ void ezSkeleton::Save(ezStreamWriter& inout_stream) const
   {
     inout_stream << m_Joints[i].m_sName;
     inout_stream << m_Joints[i].m_uiParentIndex;
-    inout_stream << m_Joints[i].m_BindPoseLocal;
+    inout_stream << m_Joints[i].m_RestPoseLocal;
 
     inout_stream << m_Joints[i].m_qLocalJointOrientation;
     inout_stream << m_Joints[i].m_HalfSwingLimitZ;
     inout_stream << m_Joints[i].m_HalfSwingLimitY;
     inout_stream << m_Joints[i].m_TwistLimitHalfAngle;
     inout_stream << m_Joints[i].m_TwistLimitCenterAngle;
+
+    inout_stream << m_Joints[i].m_JointType;
+    inout_stream << m_Joints[i].m_hSurface;
+    inout_stream << m_Joints[i].m_uiCollisionLayer;
+    inout_stream << m_Joints[i].m_fStiffness;
   }
 
   inout_stream << m_BoneDirection;
@@ -82,7 +72,7 @@ void ezSkeleton::Save(ezStreamWriter& inout_stream) const
 
 void ezSkeleton::Load(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion version = inout_stream.ReadVersion(5);
+  const ezTypeVersion version = inout_stream.ReadVersion(7);
   if (version < 3)
     return;
 
@@ -99,7 +89,7 @@ void ezSkeleton::Load(ezStreamReader& inout_stream)
 
     inout_stream >> joint.m_sName;
     inout_stream >> joint.m_uiParentIndex;
-    inout_stream >> joint.m_BindPoseLocal;
+    inout_stream >> joint.m_RestPoseLocal;
 
     if (version >= 5)
     {
@@ -108,6 +98,18 @@ void ezSkeleton::Load(ezStreamReader& inout_stream)
       inout_stream >> m_Joints[i].m_HalfSwingLimitY;
       inout_stream >> m_Joints[i].m_TwistLimitHalfAngle;
       inout_stream >> m_Joints[i].m_TwistLimitCenterAngle;
+    }
+
+    if (version >= 6)
+    {
+      inout_stream >> m_Joints[i].m_JointType;
+      inout_stream >> m_Joints[i].m_hSurface;
+      inout_stream >> m_Joints[i].m_uiCollisionLayer;
+    }
+
+    if (version >= 7)
+    {
+      inout_stream >> m_Joints[i].m_fStiffness;
     }
   }
 
@@ -150,7 +152,7 @@ static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedP
   for (ezUInt16 i = 0; i < children.GetCount(); ++i)
   {
     const auto& srcJoint = skeleton.GetJointByIndex(children[i]);
-    const auto& srcTransform = srcJoint.GetBindPoseLocalTransform();
+    const auto& srcTransform = srcJoint.GetRestPoseLocalTransform();
     auto& dstJoint = ref_dstBones[i];
 
     dstJoint.name = srcJoint.GetName().GetData();
@@ -158,9 +160,9 @@ static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedP
     dstJoint.transform.translation.x = srcTransform.m_vPosition.x;
     dstJoint.transform.translation.y = srcTransform.m_vPosition.y;
     dstJoint.transform.translation.z = srcTransform.m_vPosition.z;
-    dstJoint.transform.rotation.x = srcTransform.m_qRotation.v.x;
-    dstJoint.transform.rotation.y = srcTransform.m_qRotation.v.y;
-    dstJoint.transform.rotation.z = srcTransform.m_qRotation.v.z;
+    dstJoint.transform.rotation.x = srcTransform.m_qRotation.x;
+    dstJoint.transform.rotation.y = srcTransform.m_qRotation.y;
+    dstJoint.transform.rotation.z = srcTransform.m_qRotation.z;
     dstJoint.transform.rotation.w = srcTransform.m_qRotation.w;
     dstJoint.transform.scale.x = srcTransform.m_vScale.x;
     dstJoint.transform.scale.y = srcTransform.m_vScale.y;
@@ -206,12 +208,12 @@ ezUInt64 ezSkeleton::GetHeapMemoryUsage() const
 
 ezAngle ezSkeletonJoint::GetTwistLimitLow() const
 {
-  return ezMath::Max(ezAngle::Degree(-179), m_TwistLimitCenterAngle - m_TwistLimitHalfAngle);
+  return ezMath::Max(ezAngle::MakeFromDegree(-179), m_TwistLimitCenterAngle - m_TwistLimitHalfAngle);
 }
 
 ezAngle ezSkeletonJoint::GetTwistLimitHigh() const
 {
-  return ezMath::Min(ezAngle::Degree(179), m_TwistLimitCenterAngle + m_TwistLimitHalfAngle);
+  return ezMath::Min(ezAngle::MakeFromDegree(179), m_TwistLimitCenterAngle + m_TwistLimitHalfAngle);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_Skeleton);

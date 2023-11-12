@@ -11,26 +11,26 @@ struct CreatorFuncInfo
 
 static ezHashTable<ezString, CreatorFuncInfo> s_CreatorFuncs;
 
-CreatorFuncInfo* GetCreatorFuncInfo(const char* szRendererName)
+CreatorFuncInfo* GetCreatorFuncInfo(ezStringView sRendererName)
 {
-  auto pFuncInfo = s_CreatorFuncs.GetValue(szRendererName);
+  auto pFuncInfo = s_CreatorFuncs.GetValue(sRendererName);
   if (pFuncInfo == nullptr)
   {
     ezStringBuilder sPluginName = "ezRenderer";
-    sPluginName.Append(szRendererName);
+    sPluginName.Append(sRendererName);
 
     EZ_VERIFY(ezPlugin::LoadPlugin(sPluginName).Succeeded(), "Renderer plugin '{}' not found", sPluginName);
 
-    pFuncInfo = s_CreatorFuncs.GetValue(szRendererName);
-    EZ_ASSERT_DEV(pFuncInfo != nullptr, "Renderer '{}' is not registered", szRendererName);
+    pFuncInfo = s_CreatorFuncs.GetValue(sRendererName);
+    EZ_ASSERT_DEV(pFuncInfo != nullptr, "Renderer '{}' is not registered", sRendererName);
   }
 
   return pFuncInfo;
 }
 
-ezInternal::NewInstance<ezGALDevice> ezGALDeviceFactory::CreateDevice(const char* szRendererName, ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& desc)
+ezInternal::NewInstance<ezGALDevice> ezGALDeviceFactory::CreateDevice(ezStringView sRendererName, ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& desc)
 {
-  if (auto pFuncInfo = GetCreatorFuncInfo(szRendererName))
+  if (auto pFuncInfo = GetCreatorFuncInfo(sRendererName))
   {
     return pFuncInfo->m_Func(pAllocator, desc);
   }
@@ -38,9 +38,9 @@ ezInternal::NewInstance<ezGALDevice> ezGALDeviceFactory::CreateDevice(const char
   return ezInternal::NewInstance<ezGALDevice>(nullptr, pAllocator);
 }
 
-void ezGALDeviceFactory::GetShaderModelAndCompiler(const char* szRendererName, const char*& ref_szShaderModel, const char*& ref_szShaderCompiler)
+void ezGALDeviceFactory::GetShaderModelAndCompiler(ezStringView sRendererName, const char*& ref_szShaderModel, const char*& ref_szShaderCompiler)
 {
-  if (auto pFuncInfo = GetCreatorFuncInfo(szRendererName))
+  if (auto pFuncInfo = GetCreatorFuncInfo(sRendererName))
   {
     ref_szShaderModel = pFuncInfo->m_sShaderModel;
     ref_szShaderCompiler = pFuncInfo->m_sShaderCompiler;

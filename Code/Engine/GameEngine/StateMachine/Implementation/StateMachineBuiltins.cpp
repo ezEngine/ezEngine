@@ -85,6 +85,7 @@ ezResult ezStateMachineState_NestedStateMachine::Deserialize(ezStreamReader& ino
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
 
   inout_stream >> m_hResource;
   inout_stream >> m_sInitialState;
@@ -92,7 +93,7 @@ ezResult ezStateMachineState_NestedStateMachine::Deserialize(ezStreamReader& ino
   return EZ_SUCCESS;
 }
 
-bool ezStateMachineState_NestedStateMachine::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+bool ezStateMachineState_NestedStateMachine::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 {
   out_desc.FillFromType<InstanceData>();
   return true;
@@ -214,6 +215,7 @@ ezResult ezStateMachineState_Compound::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
 
   ezUInt32 uiNumSubStates = 0;
   inout_stream >> uiNumSubStates;
@@ -240,7 +242,7 @@ ezResult ezStateMachineState_Compound::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-bool ezStateMachineState_Compound::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+bool ezStateMachineState_Compound::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 {
   return m_Compound.GetInstanceDataDesc(m_SubStates.GetArrayPtr(), out_desc);
 }
@@ -411,6 +413,7 @@ ezResult ezStateMachineTransition_Compound::Deserialize(ezStreamReader& inout_st
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
 
   inout_stream >> m_Operator;
 
@@ -439,9 +442,48 @@ ezResult ezStateMachineTransition_Compound::Deserialize(ezStreamReader& inout_st
   return EZ_SUCCESS;
 }
 
-bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 {
   return m_Compound.GetInstanceDataDesc(m_SubTransitions.GetArrayPtr(), out_desc);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_TransitionEvent, 1, ezRTTIDefaultAllocator<ezStateMachineTransition_TransitionEvent>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("EventName", m_sEventName),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezStateMachineTransition_TransitionEvent::ezStateMachineTransition_TransitionEvent() = default;
+ezStateMachineTransition_TransitionEvent::~ezStateMachineTransition_TransitionEvent() = default;
+
+bool ezStateMachineTransition_TransitionEvent::IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const
+{
+  return ref_instance.GetCurrentTransitionEvent() == m_sEventName;
+}
+
+ezResult ezStateMachineTransition_TransitionEvent::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+
+  inout_stream << m_sEventName;
+  return EZ_SUCCESS;
+}
+
+ezResult ezStateMachineTransition_TransitionEvent::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+
+  inout_stream >> m_sEventName;
+  return EZ_SUCCESS;
 }
 
 

@@ -17,7 +17,7 @@ using namespace ozz::animation;
 using namespace ozz::math;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 1, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 2, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -25,6 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 1, ezComponentMode::Static);
     EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
+    EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
   }
   EZ_END_PROPERTIES;
 
@@ -49,6 +50,7 @@ void ezSimpleAnimationComponent::SerializeComponent(ezWorldWriter& inout_stream)
   s << m_fSpeed;
   s << m_hAnimationClip;
   s << m_RootMotionMode;
+  s << m_InvisibleUpdateRate;
 }
 
 void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -61,6 +63,11 @@ void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& inout_strea
   s >> m_fSpeed;
   s >> m_hAnimationClip;
   s >> m_RootMotionMode;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_InvisibleUpdateRate;
+  }
 }
 
 void ezSimpleAnimationComponent::OnSimulationStarted()
@@ -119,21 +126,49 @@ void ezSimpleAnimationComponent::Update()
   if (m_fSpeed == 0.0f && !GetUserFlag(1))
     return;
 
+  ezTime tMinStep = ezTime::MakeFromSeconds(0);
+  ezVisibilityState visType = GetOwner()->GetVisibilityState();
+
+  if (visType != ezVisibilityState::Direct)
+  {
+    if (m_InvisibleUpdateRate == ezAnimationInvisibleUpdateRate::Pause && visType == ezVisibilityState::Invisible)
+      return;
+
+    tMinStep = ezAnimationInvisibleUpdateRate::GetTimeStep(m_InvisibleUpdateRate);
+  }
+
+  m_ElapsedTimeSinceUpdate += GetWorld()->GetClock().GetTimeDiff();
+
+  if (m_ElapsedTimeSinceUpdate < tMinStep)
+    return;
+
+  const bool bVisible = visType != ezVisibilityState::Invisible;
+
   ezResourceLock<ezAnimationClipResource> pAnimation(m_hAnimationClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pAnimation.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
+  const ezTime tDiff = m_ElapsedTimeSinceUpdate;
+  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+
   const ezAnimationClipResourceDescriptor& animDesc = pAnimation->GetDescriptor();
 
   m_Duration = animDesc.GetDuration();
-
-  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
 
   const float fPrevPlaybackPos = m_fNormalizedPlaybackPosition;
 
   ezAnimPoseEventTrackSampleMode mode = ezAnimPoseEventTrackSampleMode::None;
 
   if (!UpdatePlaybackTime(tDiff, animDesc.m_EventTrack, mode))
+    return;
+
+  if (animDesc.m_EventTrack.IsEmpty())
+  {
+    mode = ezAnimPoseEventTrackSampleMode::None;
+  }
+
+  // no need to do anything, if we can't get events and are currently invisible
+  if (!bVisible && mode == ezAnimPoseEventTrackSampleMode::None && m_RootMotionMode == ezRootMotionMode::Ignore)
     return;
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
@@ -149,29 +184,29 @@ void ezSimpleAnimationComponent::Update()
   cmdSample.m_fPreviousNormalizedSamplePos = fPrevPlaybackPos;
   cmdSample.m_EventSampling = mode;
 
-  auto& cmdL2M = poseGen.AllocCommandLocalToModelPose();
-  cmdL2M.m_pSendLocalPoseMsgTo = GetOwner();
-
-  if (animDesc.m_bAdditive)
+  if (bVisible)
   {
-    auto& cmdComb = poseGen.AllocCommandCombinePoses();
-    cmdComb.m_Inputs.PushBack(cmdSample.GetCommandID());
-    cmdComb.m_InputWeights.PushBack(1.0f);
+    auto& cmdL2M = poseGen.AllocCommandLocalToModelPose();
+    cmdL2M.m_pSendLocalPoseMsgTo = GetOwner();
 
-    cmdL2M.m_Inputs.PushBack(cmdComb.GetCommandID());
-  }
-  else
-  {
-    cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
-  }
+    if (animDesc.m_bAdditive)
+    {
+      auto& cmdComb = poseGen.AllocCommandCombinePoses();
+      cmdComb.m_Inputs.PushBack(cmdSample.GetCommandID());
+      cmdComb.m_InputWeights.PushBack(1.0f);
 
-  auto& cmdOut = poseGen.AllocCommandModelPoseToOutput();
-  cmdOut.m_Inputs.PushBack(cmdL2M.GetCommandID());
+      cmdL2M.m_Inputs.PushBack(cmdComb.GetCommandID());
+    }
+    else
+    {
+      cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
+    }
+
+    auto& cmdOut = poseGen.AllocCommandModelPoseToOutput();
+    cmdOut.m_Inputs.PushBack(cmdL2M.GetCommandID());
+  }
 
   auto pose = poseGen.GeneratePose(GetOwner());
-
-  if (pose.IsEmpty())
-    return;
 
   if (m_RootMotionMode != ezRootMotionMode::Ignore)
   {
@@ -187,6 +222,9 @@ void ezSimpleAnimationComponent::Update()
     ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion, ezAngle(), ezAngle(), ezAngle());
   }
 
+  if (pose.IsEmpty())
+    return;
+
   // inform child nodes/components that a new pose is available
   {
     ezMsgAnimationPoseProposal msg1;
@@ -194,7 +232,7 @@ void ezSimpleAnimationComponent::Update()
     msg1.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
     msg1.m_ModelTransforms = pose;
 
-    GetOwner()->SendMessageRecursive(msg1);
+    GetOwner()->SendMessage(msg1);
 
     if (msg1.m_bContinueAnimating)
     {
@@ -203,6 +241,8 @@ void ezSimpleAnimationComponent::Update()
       msg2.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
       msg2.m_ModelTransforms = pose;
 
+      // recursive, so that objects below the mesh can also listen in on these changes
+      // for example bone attachments
       GetOwner()->SendMessageRecursive(msg2);
 
       if (msg2.m_bContinueAnimating == false)

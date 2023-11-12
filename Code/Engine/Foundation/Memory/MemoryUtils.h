@@ -129,6 +129,10 @@ public:
   template <typename T>
   static void ZeroFill(T* pDestination, size_t uiCount = 1); // [tested]
 
+  /// \brief Overload to prevent confusing calling this on a single object or a static array of objects. Use ZeroFillArray() instead.
+  template <typename T, size_t N>
+  static void ZeroFill(T (&destination)[N]) = delete;
+
   /// \brief Zeros every byte in the provided memory buffer.
   template <typename T, size_t N>
   static void ZeroFillArray(T (&destination)[N]); // [tested]
@@ -136,6 +140,10 @@ public:
   /// \brief Fills every byte of the provided buffer with the given value
   template <typename T>
   static void PatternFill(T* pDestination, ezUInt8 uiBytePattern, size_t uiCount = 1); // [tested]
+
+  /// \brief Overload to prevent confusing calling this on a single object or a static array of objects. Use PatternFillArray() instead.
+  template <typename T, size_t N>
+  static void PatternFill(T (&destination)[N], ezUInt8 uiBytePattern) = delete;
 
   /// \brief Fills every byte of the provided buffer with the given value
   template <typename T, size_t N>

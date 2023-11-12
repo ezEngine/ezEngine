@@ -23,11 +23,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgMoveCharacterController, 1, ezRTTIDefaultAl
     EZ_MEMBER_PROPERTY("Crouch", m_bCrouch),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -37,7 +32,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
+    new ezCategoryAttribute("Physics"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS
@@ -58,7 +53,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
 EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezCharacterControllerComponent::ezCharacterControllerComponent() {}
+ezCharacterControllerComponent::ezCharacterControllerComponent() = default;
 
 void ezCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {

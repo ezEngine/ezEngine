@@ -202,7 +202,7 @@ void CharacterVirtual::ContactCastCollector::AddHit(const ShapeCastResult &inRes
 			// Convert the hit result into a contact
 			sFillContactProperties(mCharacter, contact, body, mUp, mBaseOffset, *this, inResult);
 		}
-			
+
 		contact.mFraction = inResult.mFraction;
 
 		// Check if the contact that will make us penetrate more than the allowed tolerance
@@ -340,10 +340,14 @@ bool CharacterVirtual::GetFirstContactForSweep(RVec3Arg inPosition, Vec3Arg inDi
 	settings.mUseShrunkenShapeAndConvexRadius = true;
 	settings.mReturnDeepestPoint = false;
 
+	// Calculate how much extra fraction we need to add to the cast to account for the character padding
+	float character_padding_fraction = mCharacterPadding / sqrt(displacement_len_sq);
+
 	// Cast shape
 	Contact contact;
-	contact.mFraction = 1.0f + FLT_EPSILON;
+	contact.mFraction = 1.0f + character_padding_fraction;
 	ContactCastCollector collector(mSystem, this, inDisplacement, mUp, inIgnoredContacts, start.GetTranslation(), contact);
+	collector.ResetEarlyOutFraction(contact.mFraction);
 	RShapeCast shape_cast(mShape, Vec3::sReplicate(1.0f), start, inDisplacement);
 	mSystem->GetNarrowPhaseQuery().CastShape(shape_cast, settings, start.GetTranslation(), collector, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter);
 	if (contact.mBodyB.IsInvalid())
@@ -371,13 +375,16 @@ bool CharacterVirtual::GetFirstContactForSweep(RVec3Arg inPosition, Vec3Arg inDi
 	{
 		// When there's only a single contact point or when we were unable to correct the fraction,
 		// we can just move the fraction back so that the character and its padding don't hit the contact point anymore
-		outContact.mFraction = max(0.0f, outContact.mFraction - mCharacterPadding / sqrt(displacement_len_sq));
+		outContact.mFraction = max(0.0f, outContact.mFraction - character_padding_fraction);
 	}
+
+	// Ensure that we never return a fraction that's bigger than 1 (which could happen due to float precision issues).
+	outContact.mFraction = min(outContact.mFraction, 1.0f);
 
 	return true;
 }
 
-void CharacterVirtual::DetermineConstraints(TempContactList &inContacts, ConstraintList &outConstraints) const
+void CharacterVirtual::DetermineConstraints(TempContactList &inContacts, float inDeltaTime, ConstraintList &outConstraints) const
 {
 	for (Contact &c : inContacts)
 	{
@@ -385,7 +392,7 @@ void CharacterVirtual::DetermineConstraints(TempContactList &inContacts, Constra
 
 		// Penetrating contact: Add a contact velocity that pushes the character out at the desired speed
 		if (c.mDistance < 0.0f)
-			contact_velocity -= c.mContactNormal * c.mDistance * mPenetrationRecoverySpeed;
+			contact_velocity -= c.mContactNormal * c.mDistance * mPenetrationRecoverySpeed / inDeltaTime;
 
 		// Convert to a constraint
 		outConstraints.emplace_back();
@@ -397,11 +404,14 @@ void CharacterVirtual::DetermineConstraints(TempContactList &inContacts, Constra
 		// Next check if the angle is too steep and if it is add an additional constraint that holds the character back
 		if (IsSlopeTooSteep(c.mSurfaceNormal))
 		{
-			// Only take planes that point up. 
+			// Only take planes that point up.
 			// Note that we use the contact normal to allow for better sliding as the surface normal may be in the opposite direction of movement.
 			float dot = c.mContactNormal.Dot(mUp);
 			if (dot > 1.0e-3f) // Add a little slack, if the normal is perfectly horizontal we already have our vertical plane.
 			{
+				// Mark the slope constraint as steep
+				constraint.mIsSteepSlope = true;
+
 				// Make horizontal normal
 				Vec3 normal = (c.mContactNormal - dot * mUp).Normalized();
 
@@ -627,6 +637,20 @@ void CharacterVirtual::SolveConstraints(Vec3Arg inVelocity, float inDeltaTime, f
 
 		// Get the normal of the plane we're hitting
 		Vec3 plane_normal = constraint->mPlane.GetNormal();
+
+		// If we're hitting a steep slope we cancel the velocity towards the slope first so that we don't end up slidinng up the slope
+		// (we may hit the slope before the vertical wall constraint we added which will result in a small movement up causing jitter in the character movement)
+		if (constraint->mIsSteepSlope)
+		{
+			// We're hitting a steep slope, create a vertical plane that blocks any further movement up the slope (note: not normalized)
+			Vec3 vertical_plane_normal = plane_normal - plane_normal.Dot(mUp) * mUp;
+
+			// Get the relative velocity between the character and the constraint
+			Vec3 relative_velocity = velocity - constraint->mLinearVelocity;
+
+			// Remove velocity towards the slope
+			velocity = velocity - min(0.0f, relative_velocity.Dot(vertical_plane_normal)) * vertical_plane_normal / vertical_plane_normal.LengthSq();
+		}
 
 		// Get the relative velocity between the character and the constraint
 		Vec3 relative_velocity = velocity - constraint->mLinearVelocity;
@@ -863,27 +887,35 @@ void CharacterVirtual::UpdateSupportingContact(bool inSkipContactVelocityCheck, 
 	}
 	else if (num_sliding > 0)
 	{
-		// If we're sliding we may actually be standing on multiple sliding contacts in such a way that we can't slide off, in this case we're also supported
-
-		// Convert the contacts into constraints
-		TempContactList contacts(mActiveContacts.begin(), mActiveContacts.end(), inAllocator);
-		ConstraintList constraints(inAllocator);
-		constraints.reserve(contacts.size() * 2);
-		DetermineConstraints(contacts, constraints);
-
-		// Solve the displacement using these constraints, this is used to check if we didn't move at all because we are supported
-		Vec3 displacement;
-		float time_simulated;
-		IgnoredContactList ignored_contacts(inAllocator);
-		ignored_contacts.reserve(contacts.size());
-		SolveConstraints(-mUp, 1.0f, 1.0f, constraints, ignored_contacts, time_simulated, displacement, inAllocator);
-
-		// If we're blocked then we're supported, otherwise we're sliding
-		float min_required_displacement_sq = Square(0.6f * mLastDeltaTime);
-		if (time_simulated < 0.001f || displacement.LengthSq() < min_required_displacement_sq)
-			mGroundState = EGroundState::OnGround;
-		else
+		if ((mLinearVelocity - deepest_contact->mLinearVelocity).Dot(mUp) > 1.0e-4f)
+		{
+			// We cannot be on ground if we're moving upwards relative to the ground
 			mGroundState = EGroundState::OnSteepGround;
+		}
+		else
+		{
+			// If we're sliding down, we may actually be standing on multiple sliding contacts in such a way that we can't slide off, in this case we're also supported
+
+			// Convert the contacts into constraints
+			TempContactList contacts(mActiveContacts.begin(), mActiveContacts.end(), inAllocator);
+			ConstraintList constraints(inAllocator);
+			constraints.reserve(contacts.size() * 2);
+			DetermineConstraints(contacts, mLastDeltaTime, constraints);
+
+			// Solve the displacement using these constraints, this is used to check if we didn't move at all because we are supported
+			Vec3 displacement;
+			float time_simulated;
+			IgnoredContactList ignored_contacts(inAllocator);
+			ignored_contacts.reserve(contacts.size());
+			SolveConstraints(-mUp, 1.0f, 1.0f, constraints, ignored_contacts, time_simulated, displacement, inAllocator);
+
+			// If we're blocked then we're supported, otherwise we're sliding
+			float min_required_displacement_sq = Square(0.6f * mLastDeltaTime);
+			if (time_simulated < 0.001f || displacement.LengthSq() < min_required_displacement_sq)
+				mGroundState = EGroundState::OnGround;
+			else
+				mGroundState = EGroundState::OnSteepGround;
+		}
 	}
 	else
 	{
@@ -923,7 +955,7 @@ void CharacterVirtual::MoveShape(RVec3 &ioPosition, Vec3Arg inVelocity, float in
 		// Convert contacts into constraints
 		ConstraintList constraints(inAllocator);
 		constraints.reserve(contacts.size() * 2);
-		DetermineConstraints(contacts, constraints);
+		DetermineConstraints(contacts, inDeltaTime, constraints);
 
 #ifdef JPH_DEBUG_RENDERER
 		bool draw_constraints = inDrawConstraints && iteration == 0;
@@ -1168,12 +1200,42 @@ bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inStepUp, Vec3Arg i
 		DebugRenderer::sInstance->DrawArrow(mPosition, up_position, Color::sWhite, 0.01f);
 #endif // JPH_DEBUG_RENDERER
 
+	// Collect normals of steep slopes that we would like to walk stairs on.
+	// We need to do this before calling MoveShape because it will update mActiveContacts.
+	Vec3 character_velocity = inStepForward / inDeltaTime;
+	Vec3 horizontal_velocity = character_velocity - character_velocity.Dot(mUp) * mUp;
+	std::vector<Vec3, STLTempAllocator<Vec3>> steep_slope_normals(inAllocator);
+	steep_slope_normals.reserve(mActiveContacts.size());
+	for (const Contact &c : mActiveContacts)
+		if (c.mHadCollision
+			&& c.mSurfaceNormal.Dot(horizontal_velocity - c.mLinearVelocity) < 0.0f // Pushing into the contact
+			&& IsSlopeTooSteep(c.mSurfaceNormal)) // Slope too steep
+			steep_slope_normals.push_back(c.mSurfaceNormal);
+	if (steep_slope_normals.empty())
+		return false; // No steep slopes, cancel
+
 	// Horizontal movement
 	RVec3 new_position = up_position;
-	MoveShape(new_position, inStepForward / inDeltaTime, inDeltaTime, nullptr, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter, inAllocator);
-	float horizontal_movement_sq = Vec3(new_position - up_position).LengthSq();
+	MoveShape(new_position, character_velocity, inDeltaTime, nullptr, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter, inAllocator);
+	Vec3 horizontal_movement = Vec3(new_position - up_position);
+	float horizontal_movement_sq = horizontal_movement.LengthSq();
 	if (horizontal_movement_sq < 1.0e-8f)
 		return false; // No movement, cancel
+
+	// Check if we made any progress towards any of the steep slopes, if not we just slid along the slope
+	// so we need to cancel the stair walk or else we will move faster than we should as we've done
+	// normal movement first and then stair walk.
+	bool made_progress = false;
+	float max_dot = -0.05f * inStepForward.Length();
+	for (const Vec3 &normal : steep_slope_normals)
+		if (normal.Dot(horizontal_movement) < max_dot)
+		{
+			// We moved more than 5% of the forward step against a steep slope, accept this as progress
+			made_progress = true;
+			break;
+		}
+	if (!made_progress)
+		return false;
 
 #ifdef JPH_DEBUG_RENDERER
 	// Draw horizontal sweep
@@ -1182,9 +1244,8 @@ bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inStepUp, Vec3Arg i
 #endif // JPH_DEBUG_RENDERER
 
 	// Move down towards the floor.
-	// Note that we travel the same amount down as we travelled up with the character padding and the specified extra
-	// If we don't add the character padding, we may miss the floor (note that GetFirstContactForSweep will subtract the padding when it finds a hit)
-	Vec3 down = -up - mCharacterPadding * mUp + inStepDownExtra;
+	// Note that we travel the same amount down as we travelled up with the specified extra
+	Vec3 down = -up + inStepDownExtra;
 	if (!GetFirstContactForSweep(new_position, down, contact, dummy_ignored_contacts, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter))
 		return false; // No floor found, we're in mid air, cancel stair walk
 

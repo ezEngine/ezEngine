@@ -2,7 +2,6 @@
 
 # UI
 
-Menu.Recast;Recast
 NavMesh.Generate;Generate NavMesh
 
 # Component Types

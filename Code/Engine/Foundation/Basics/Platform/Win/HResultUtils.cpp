@@ -6,15 +6,22 @@
 #  include <Foundation/Strings/StringBuilder.h>
 #  include <Foundation/Strings/StringConversion.h>
 
-#  include <comdef.h>
-
 EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
 {
-  _com_error error(result, nullptr);
-  const TCHAR* messageW = error.ErrorMessage();
+  wchar_t buffer[4096];
+  if (::FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM,
+        nullptr,
+        result,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
+        buffer,
+        EZ_ARRAY_SIZE(buffer),
+        nullptr) == 0)
+  {
+    return {};
+  }
 
   // Com error tends to put /r/n at the end. Remove it.
-  ezStringBuilder message(ezStringUtf8(messageW).GetData());
+  ezStringBuilder message(ezStringUtf8(&buffer[0]).GetData());
   message.ReplaceAll("\n", "");
   message.ReplaceAll("\r", "");
 

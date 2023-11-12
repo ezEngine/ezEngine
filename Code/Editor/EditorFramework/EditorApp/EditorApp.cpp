@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
@@ -8,6 +9,7 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
+#include <QFileDialog>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
@@ -20,6 +22,7 @@ ezQtEditorApp::ezQtEditorApp()
   , m_RecentDocuments(100)
 {
   m_bSavePreferencesAfterOpenProject = false;
+  m_pVersionChecker = EZ_DEFAULT_NEW(ezQtVersionChecker);
 
   m_pTimer = new QTimer(nullptr);
 }
@@ -56,17 +59,6 @@ void ezQtEditorApp::SlotTimedUpdate()
 
   RestartEngineProcessIfPluginsChanged(false);
 
-  if (m_bWroteCrashIndicatorFile)
-  {
-    m_bWroteCrashIndicatorFile = false;
-    QTimer::singleShot(2000, []() {
-      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-      sTemp.AppendPath("ezEditorCrashIndicator");
-      ezOSFile::DeleteFile(sTemp).IgnoreResult();
-      //
-    });
-  }
-
   m_pTimer->start(1);
 }
 
@@ -82,26 +74,26 @@ void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bFo
 
   if (bForced || bNewVersionReleased)
   {
-    if (m_VersionChecker.IsLatestNewer())
+    if (m_pVersionChecker->IsLatestNewer())
     {
       ezQtUiServices::GetSingleton()->MessageBoxInformation(
         ezFmt("<html>A new version is available: {}<br><br>Your version is: {}<br><br>Please check the <A "
               "href=\"https://github.com/ezEngine/ezEngine/releases\">Releases</A> for details.</html>",
-          m_VersionChecker.GetKnownLatestVersion(), m_VersionChecker.GetOwnVersion()));
+          m_pVersionChecker->GetKnownLatestVersion(), m_pVersionChecker->GetOwnVersion()));
     }
     else
     {
       ezStringBuilder tmp("You have the latest version: \n");
-      tmp.Append(m_VersionChecker.GetOwnVersion());
+      tmp.Append(m_pVersionChecker->GetOwnVersion());
 
       ezQtUiServices::GetSingleton()->MessageBoxInformation(tmp);
     }
   }
 
-  if (m_VersionChecker.IsLatestNewer())
+  if (m_pVersionChecker->IsLatestNewer())
   {
     ezQtUiServices::GetSingleton()->ShowGlobalStatusBarMessage(
-      ezFmt("New version '{}' available, please update.", m_VersionChecker.GetKnownLatestVersion()));
+      ezFmt("New version '{}' available, please update.", m_pVersionChecker->GetKnownLatestVersion()));
   }
 }
 
@@ -111,10 +103,18 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
   {
     case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
     {
-      if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezUpdateReflectionTypeMsgToEditor>())
+      if (auto pTypeMsg = ezDynamicCast<const ezUpdateReflectionTypeMsgToEditor*>(e.m_pMsg))
       {
-        const ezUpdateReflectionTypeMsgToEditor* pMsg = static_cast<const ezUpdateReflectionTypeMsgToEditor*>(e.m_pMsg);
-        ezPhantomRttiManager::RegisterType(pMsg->m_desc);
+        ezPhantomRttiManager::RegisterType(pTypeMsg->m_desc);
+      }
+      if (auto pDynEnumMsg = ezDynamicCast<const ezDynamicStringEnumMsgToEditor*>(e.m_pMsg))
+      {
+        auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum(pDynEnumMsg->m_sEnumName);
+        for (auto& sEnumValue : pDynEnumMsg->m_EnumValues)
+        {
+          dynEnum.AddValidValue(sEnumValue);
+        }
+        dynEnum.SortValues();
       }
       else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezProjectReadyMsgToEditor>())
       {
@@ -136,7 +136,7 @@ void ezQtEditorApp::UiServicesEvents(const ezQtUiServices::Event& e)
 {
   if (e.m_Type == ezQtUiServices::Event::Type::CheckForUpdates)
   {
-    m_VersionChecker.Check(true);
+    m_pVersionChecker->Check(true);
   }
 }
 
@@ -156,7 +156,7 @@ void ezQtEditorApp::SaveAllOpenDocuments()
       // There might be no window for this document.
       else
       {
-        pDoc->SaveDocument();
+        pDoc->SaveDocument().LogFailure();
       }
     }
   }
@@ -167,16 +167,16 @@ bool ezQtEditorApp::IsProgressBarProcessingEvents() const
   return m_pQtProgressbar != nullptr && m_pQtProgressbar->IsProcessingEvents();
 }
 
-void ezQtEditorApp::OnDemandDynamicStringEnumLoad(const char* szEnumName, ezDynamicStringEnum& e)
+void ezQtEditorApp::OnDemandDynamicStringEnumLoad(ezStringView sEnumName, ezDynamicStringEnum& e)
 {
   ezStringBuilder sFile;
-  sFile.Format(":project/Editor/{}.txt", szEnumName);
+  sFile.Format(":project/Editor/{}.txt", sEnumName);
 
   // enums loaded this way are user editable
   e.SetStorageFile(sFile);
   e.ReadFromStorage();
 
-  m_DynamicEnumStringsToClear.Insert(szEnumName);
+  m_DynamicEnumStringsToClear.Insert(sEnumName);
 }
 
 bool ContainsPlugin(const ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& all, const char* szPlugin)
@@ -247,6 +247,157 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConf
   }
 
   return EZ_SUCCESS;
+}
+
+ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
+{
+  // already a local project?
+  if (inout_sFilePath.EndsWith_NoCase("ezProject"))
+    return ezStatus(EZ_SUCCESS);
+
+  {
+    ezStringBuilder tmp = inout_sFilePath;
+    tmp.AppendPath("ezProject");
+
+    if (ezOSFile::ExistsFile(tmp))
+    {
+      inout_sFilePath = tmp;
+      return ezStatus(EZ_SUCCESS);
+    }
+  }
+
+  EZ_LOG_BLOCK("Open Remote Project", inout_sFilePath.GetData());
+
+  ezStringBuilder sRedirFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder(inout_sFilePath);
+  sRedirFile.AppendPath("LocalCheckout.txt");
+
+  // read redirection file, if available
+  {
+    ezOSFile file;
+    if (file.Open(sRedirFile, ezFileOpenMode::Read).Succeeded())
+    {
+      ezDataBuffer content;
+      file.ReadAll(content);
+
+      const ezStringView sContent((const char*)content.GetData(), content.GetCount());
+
+      if (sContent.EndsWith_NoCase("ezProject") && ezOSFile::ExistsFile(sContent))
+      {
+        inout_sFilePath = sContent;
+        return ezStatus(EZ_SUCCESS);
+      }
+    }
+  }
+
+  ezString sName;
+  ezString sType;
+  ezString sUrl;
+  ezString sProjectFile;
+
+  // read the info about the remote project from the OpenDDL config file
+  {
+    ezOSFile file;
+    if (file.Open(inout_sFilePath, ezFileOpenMode::Read).Failed())
+    {
+      return ezStatus(ezFmt("Remote project file '{}' doesn't exist.", inout_sFilePath));
+    }
+
+    ezDataBuffer content;
+    file.ReadAll(content);
+
+    ezMemoryStreamContainerWrapperStorage<ezDataBuffer> storage(&content);
+    ezMemoryStreamReader reader(&storage);
+
+    ezOpenDdlReader ddl;
+    if (ddl.ParseDocument(reader).Failed())
+    {
+      return ezStatus("Error in remote project DDL config file");
+    }
+
+    if (auto pRoot = ddl.GetRootElement())
+    {
+      if (auto pProject = pRoot->FindChildOfType("RemoteProject"))
+      {
+        if (auto pName = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "Name"))
+        {
+          sName = pName->GetPrimitivesString()[0];
+        }
+        if (auto pType = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "Type"))
+        {
+          sType = pType->GetPrimitivesString()[0];
+        }
+        if (auto pUrl = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "Url"))
+        {
+          sUrl = pUrl->GetPrimitivesString()[0];
+        }
+        if (auto pProjectFile = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "ProjectFile"))
+        {
+          sProjectFile = pProjectFile->GetPrimitivesString()[0];
+        }
+      }
+    }
+  }
+
+  if (sType.IsEmpty() || sName.IsEmpty())
+  {
+    return ezStatus(ezFmt("Remote project '{}' DDL configuration is invalid.", inout_sFilePath));
+  }
+
+  ezQtUiServices::GetSingleton()->MessageBoxInformation("This is a 'remote' project, meaning the data is not yet available on your machine.\n\nPlease select a folder where the project should be downloaded to.");
+
+  static QString sPreviousFolder = ezOSFile::GetUserDocumentsFolder().GetData();
+
+  QString sSelectedDir = QFileDialog::getExistingDirectory(QApplication::activeWindow(), QLatin1String("Choose Folder"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
+
+  if (sSelectedDir.isEmpty())
+  {
+    return ezStatus("");
+  }
+
+  sPreviousFolder = sSelectedDir;
+  ezStringBuilder sTargetDir = sSelectedDir.toUtf8().data();
+
+  // if it is a git repository, clone it
+  if (sType == "git" && !sUrl.IsEmpty())
+  {
+    QStringList args;
+    args << "clone";
+    args << ezMakeQString(sUrl);
+    args << ezMakeQString(sName);
+
+    QProcess proc;
+    proc.setWorkingDirectory(sTargetDir.GetData());
+    proc.start("git.exe", args);
+
+    if (!proc.waitForStarted())
+    {
+      return ezStatus(ezFmt("Running 'git' to download the remote project failed."));
+    }
+
+    proc.waitForFinished(60 * 1000);
+
+    if (proc.exitStatus() != QProcess::ExitStatus::NormalExit)
+    {
+      return ezStatus(ezFmt("Failed to git clone the remote project '{}' from '{}'", sName, sUrl));
+    }
+
+    ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
+
+    inout_sFilePath.Format("{}/{}/{}", sTargetDir, sName, sProjectFile);
+
+    // write redirection file
+    {
+      ezOSFile file;
+      if (file.Open(sRedirFile, ezFileOpenMode::Write).Succeeded())
+      {
+        file.Write(inout_sFilePath.GetData(), inout_sFilePath.GetElementCount()).AssertSuccess();
+      }
+    }
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  return ezStatus(ezFmt("Unknown remote project type '{}' or invalid URL '{}'", sType, sUrl));
 }
 
 bool ezQtEditorApp::ExistsPluginSelectionStateDDL(const char* szProjectDir /*= ":project"*/)
@@ -394,6 +545,15 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
 
 void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
 {
+  if (m_bWroteCrashIndicatorFile)
+  {
+    // orderly shutdown -> make sure the crash indicator file is gone
+    ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+    sTemp.AppendPath("ezEditorCrashIndicator");
+    ezOSFile::DeleteFile(sTemp).IgnoreResult();
+    m_bWroteCrashIndicatorFile = false;
+  }
+
   ezStringBuilder app;
   app = ezOSFile::GetApplicationDirectory();
   app.AppendPath("Editor");

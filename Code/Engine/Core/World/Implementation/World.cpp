@@ -11,7 +11,7 @@
 
 ezStaticArray<ezWorld*, ezWorld::GetMaxNumWorlds()> ezWorld::s_Worlds;
 
-static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, ezComponentHandle hThis, const char* szProperty)
+static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, ezComponentHandle hThis, ezStringView sProperty)
 {
   const char* szRef = reinterpret_cast<const char*>(pData);
 
@@ -34,10 +34,27 @@ static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, 
   return ezGameObjectHandle();
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezWorld, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(DeleteObjectDelayed, In, "GameObject", In, "DeleteEmptyParents")->AddAttributes(
+      new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_TryGetObjectWithGlobalKey, In, "GlobalKey")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetClock)->AddFlags(ezPropertyFlags::Const),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
 ezWorld::ezWorld(ezWorldDesc& ref_desc)
   : m_Data(ref_desc)
 {
-  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezWorld::UpdateFromThread, this));
+  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "WorldUpdate", ezTaskNesting::Never, ezMakeDelegate(&ezWorld::UpdateFromThread, this));
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 
   ezStringBuilder sb = ref_desc.m_sName.GetString();
@@ -122,16 +139,6 @@ void ezWorld::SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemPr
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 }
 
-void ezWorld::SetGameObjectReferenceResolver(const ReferenceResolver& resolver)
-{
-  m_Data.m_GameObjectReferenceResolver = resolver;
-}
-
-const ezWorld::ReferenceResolver& ezWorld::GetGameObjectReferenceResolver() const
-{
-  return m_Data.m_GameObjectReferenceResolver;
-}
-
 // a super simple, but also efficient random number generator
 inline static ezUInt32 NextStableRandomSeed(ezUInt32& ref_uiSeed)
 {
@@ -189,12 +196,13 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_localPosition = ezSimdConversion::ToVec3(desc.m_LocalPosition);
   pTransformationData->m_localRotation = ezSimdConversion::ToQuat(desc.m_LocalRotation);
   pTransformationData->m_localScaling = ezSimdConversion::ToVec4(desc.m_LocalScaling.GetAsVec4(desc.m_LocalUniformScaling));
-  pTransformationData->m_globalTransform.SetIdentity();
+  pTransformationData->m_globalTransform = ezSimdTransform::MakeIdentity();
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  pTransformationData->m_velocity.SetZero();
+  pTransformationData->m_lastGlobalTransform = ezSimdTransform::MakeIdentity();
+  pTransformationData->m_uiLastGlobalTransformUpdateCounter = ezInvalidIndex;
 #endif
-  pTransformationData->m_localBounds.SetInvalid();
-  pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(ezSimdFloat::Zero());
+  pTransformationData->m_localBounds = ezSimdBBoxSphere::MakeInvalid();
+  pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(ezSimdFloat::MakeZero());
   pTransformationData->m_globalBounds = pTransformationData->m_localBounds;
   pTransformationData->m_hSpatialData.Invalidate();
   pTransformationData->m_uiSpatialDataCategoryBitmask = 0;
@@ -218,11 +226,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pTransformationData->m_uiStableRandomSeed = GetRandomNumberGenerator().UInt();
   }
 
-  pTransformationData->UpdateGlobalTransformNonRecursive();
-
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  pTransformationData->m_lastGlobalPosition = pTransformationData->m_globalTransform.m_Position;
-#endif
+  pTransformationData->UpdateGlobalTransformNonRecursive(0);
 
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
@@ -301,7 +305,7 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoD
 {
   ezMsgDeleteGameObject msg;
   msg.m_bDeleteEmptyParents = bAlsoDeleteEmptyParents;
-  PostMessage(hObject, msg, ezTime::Zero());
+  PostMessage(hObject, msg, ezTime::MakeZero());
 }
 
 ezComponentInitBatchHandle ezWorld::CreateComponentInitBatch(ezStringView sBatchName, bool bMustFinishWithinOneFrame /*= true*/)
@@ -374,8 +378,13 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMess
   metaData.m_uiReceiverIsComponent = false;
   metaData.m_uiRecursive = bRecursive;
 
+  if (m_Data.m_ProcessingMessageQueue == queueType)
+  {
+    delay = ezMath::Max(delay, ezTime::MakeFromMilliseconds(1));
+  }
+
   ezRTTIAllocator* pMsgRTTIAllocator = msg.GetDynamicRTTI()->GetAllocator();
-  if (delay.GetSeconds() > 0.0)
+  if (delay.IsPositive())
   {
     ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, &m_Data.m_Allocator);
 
@@ -400,8 +409,13 @@ void ezWorld::PostMessage(const ezComponentHandle& hReceiverComponent, const ezM
   metaData.m_uiReceiverIsComponent = true;
   metaData.m_uiRecursive = false;
 
+  if (m_Data.m_ProcessingMessageQueue == queueType)
+  {
+    delay = ezMath::Max(delay, ezTime::MakeFromMilliseconds(1));
+  }
+
   ezRTTIAllocator* pMsgRTTIAllocator = msg.GetDynamicRTTI()->GetAllocator();
-  if (delay.GetSeconds() > 0.0)
+  if (delay.IsPositive())
   {
     ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, &m_Data.m_Allocator);
 
@@ -439,6 +453,8 @@ void ezWorld::Update()
     ezStats::SetStat(sStatName, GetObjectCount());
   }
 
+  ++m_Data.m_uiUpdateCounter;
+
   if (!m_Data.m_bSimulateWorld)
   {
     // only change the pause mode temporarily
@@ -457,6 +473,12 @@ void ezWorld::Update()
   if (m_Data.m_pSpatialSystem != nullptr)
   {
     m_Data.m_pSpatialSystem->StartNewFrame();
+  }
+
+  // reload resources
+  {
+    EZ_PROFILE_SCOPE("Reload Resources");
+    ProcessResourceReloadFunctions();
   }
 
   // initialize phase
@@ -503,15 +525,8 @@ void ezWorld::Update()
 
   // update transforms
   {
-    float fInvDelta = 0.0f;
-
-    // when the clock is paused just use zero
-    const float fDelta = (float)m_Data.m_Clock.GetTimeDiff().GetSeconds();
-    if (fDelta > 0.0f)
-      fInvDelta = 1.0f / fDelta;
-
     EZ_PROFILE_SCOPE("Update Transforms");
-    m_Data.UpdateGlobalTransforms(fInvDelta);
+    m_Data.UpdateGlobalTransforms();
   }
 
   // post-transform phase
@@ -526,7 +541,7 @@ void ezWorld::Update()
     EZ_PROFILE_SCOPE("Initialize Phase 2");
     // Only process the default init batch here since it contains the components created at runtime.
     // Also make sure that all initialization is finished after this call by giving it enough time.
-    ProcessInitializationBatch(*m_Data.m_pDefaultInitBatch, ezTime::Now() + ezTime::Hours(10000));
+    ProcessInitializationBatch(*m_Data.m_pDefaultInitBatch, ezTime::Now() + ezTime::MakeFromHours(10000));
 
     ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
   }
@@ -604,6 +619,19 @@ const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
   }
 
   return nullptr;
+}
+
+ezGameObject* ezWorld::Reflection_TryGetObjectWithGlobalKey(ezTempHashedString sGlobalKey)
+{
+  ezGameObject* pObject = nullptr;
+  bool res = TryGetObjectWithGlobalKey(sGlobalKey, pObject);
+  EZ_IGNORE_UNUSED(res);
+  return pObject;
+}
+
+ezClock* ezWorld::Reflection_GetClock()
+{
+  return &m_Data.m_Clock;
 }
 
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
@@ -860,12 +888,14 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
     ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueues[queueType];
     queue.Sort(MessageComparer());
 
+    m_Data.m_ProcessingMessageQueue = queueType;
     for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
     {
       ProcessQueuedMessage(queue[i]);
 
       // no need to deallocate these messages, they are allocated through a frame allocator
     }
+    m_Data.m_ProcessingMessageQueue = ezObjectMsgQueueType::COUNT;
 
     queue.Clear();
   }
@@ -877,6 +907,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
     const ezTime now = m_Data.m_Clock.GetAccumulatedTime();
 
+    m_Data.m_ProcessingMessageQueue = queueType;
     while (!queue.IsEmpty())
     {
       auto& entry = queue.Peek();
@@ -889,6 +920,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
       queue.Dequeue();
     }
+    m_Data.m_ProcessingMessageQueue = ezObjectMsgQueueType::COUNT;
   }
 }
 
@@ -1207,7 +1239,7 @@ void ezWorld::ProcessComponentsToInitialize()
     auto& pInitBatch = it.Value();
     if (pInitBatch->m_bIsReady && pInitBatch->m_bMustFinishWithinOneFrame)
     {
-      ProcessInitializationBatch(*pInitBatch, ezTime::Now() + ezTime::Hours(10000));
+      ProcessInitializationBatch(*pInitBatch, ezTime::Now() + ezTime::MakeFromHours(10000));
     }
   }
 
@@ -1383,7 +1415,7 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
   {
     // Explicitly trigger transform AND bounds update, otherwise bounds would be outdated for static objects
     // Don't call pObject->UpdateGlobalTransformAndBounds() here since that would recursively update the parent global transform which is already up-to-date.
-    pObject->m_pTransformationData->UpdateGlobalTransformNonRecursive();
+    pObject->m_pTransformationData->UpdateGlobalTransformNonRecursive(GetUpdateCounter());
 
     pObject->m_pTransformationData->UpdateGlobalBounds(GetSpatialSystem());
   }
@@ -1425,11 +1457,75 @@ void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
   }
 }
 
+void ezWorld::ProcessResourceReloadFunctions()
+{
+  ResourceReloadContext context;
+  context.m_pWorld = this;
+
+  for (auto& hResource : m_Data.m_NeedReload)
+  {
+    if (m_Data.m_ReloadFunctions.TryGetValue(hResource, m_Data.m_TempReloadFunctions))
+    {
+      for (auto& data : m_Data.m_TempReloadFunctions)
+      {
+        EZ_VERIFY(data.m_hComponent.IsInvalidated() || TryGetComponent(data.m_hComponent, context.m_pComponent), "Reload function called on dead component");
+        context.m_pUserData = data.m_pUserData;
+
+        data.m_Func(context);
+      }
+    }
+  }
+
+  m_Data.m_NeedReload.Clear();
+}
+
 void ezWorld::SetMaxInitializationTimePerFrame(ezTime maxInitTime)
 {
   CheckForWriteAccess();
 
   m_Data.m_MaxInitializationTimePerFrame = maxInitTime;
+}
+
+void ezWorld::SetGameObjectReferenceResolver(const ReferenceResolver& resolver)
+{
+  m_Data.m_GameObjectReferenceResolver = resolver;
+}
+
+const ezWorld::ReferenceResolver& ezWorld::GetGameObjectReferenceResolver() const
+{
+  return m_Data.m_GameObjectReferenceResolver;
+}
+
+void ezWorld::AddResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData, ResourceReloadFunc function)
+{
+  CheckForWriteAccess();
+
+  if (hResource.IsValid() == false)
+    return;
+
+  auto& data = m_Data.m_ReloadFunctions[hResource].ExpandAndGetRef();
+  data.m_hComponent = hComponent;
+  data.m_pUserData = pUserData;
+  data.m_Func = function;
+}
+
+void ezWorld::RemoveResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData)
+{
+  CheckForWriteAccess();
+
+  ezInternal::WorldData::ReloadFunctionList* pReloadFunctions = nullptr;
+  if (m_Data.m_ReloadFunctions.TryGetValue(hResource, pReloadFunctions))
+  {
+    for (ezUInt32 i = 0; i < pReloadFunctions->GetCount(); ++i)
+    {
+      auto& data = (*pReloadFunctions)[i];
+      if (data.m_hComponent == hComponent && data.m_pUserData == pUserData)
+      {
+        pReloadFunctions->RemoveAtAndSwap(i);
+        break;
+      }
+    }
+  }
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);

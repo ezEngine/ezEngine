@@ -38,7 +38,10 @@ class EZ_FOUNDATION_DLL ezCategoryAttribute : public ezPropertyAttribute
 
 public:
   ezCategoryAttribute() = default;
-  ezCategoryAttribute(const char* szCategory) { m_sCategory = szCategory; }
+  ezCategoryAttribute(const char* szCategory)
+    : m_sCategory(szCategory)
+  {
+  }
 
   const char* GetCategory() const { return m_sCategory; }
 
@@ -76,7 +79,10 @@ class EZ_FOUNDATION_DLL ezTitleAttribute : public ezPropertyAttribute
 
 public:
   ezTitleAttribute() = default;
-  ezTitleAttribute(const char* szTitle) { m_sTitle = szTitle; }
+  ezTitleAttribute(const char* szTitle)
+    : m_sTitle(szTitle)
+  {
+  }
 
   const char* GetTitle() const { return m_sTitle; }
 
@@ -91,8 +97,10 @@ class EZ_FOUNDATION_DLL ezColorAttribute : public ezPropertyAttribute
 
 public:
   ezColorAttribute() = default;
-  ezColorAttribute(const ezColor& color) { m_Color = color; }
-
+  ezColorAttribute(const ezColor& color)
+    : m_Color(color)
+  {
+  }
   const ezColor& GetColor() const { return m_Color; }
 
 private:
@@ -112,7 +120,10 @@ class EZ_FOUNDATION_DLL ezSuffixAttribute : public ezPropertyAttribute
 
 public:
   ezSuffixAttribute() = default;
-  ezSuffixAttribute(const char* szSuffix) { m_sSuffix = szSuffix; }
+  ezSuffixAttribute(const char* szSuffix)
+    : m_sSuffix(szSuffix)
+  {
+  }
 
   const char* GetSuffix() const { return m_sSuffix; }
 
@@ -127,7 +138,10 @@ class EZ_FOUNDATION_DLL ezMinValueTextAttribute : public ezPropertyAttribute
 
 public:
   ezMinValueTextAttribute() = default;
-  ezMinValueTextAttribute(const char* szText) { m_sText = szText; }
+  ezMinValueTextAttribute(const char* szText)
+    : m_sText(szText)
+  {
+  }
 
   const char* GetText() const { return m_sText; }
 
@@ -142,7 +156,36 @@ class EZ_FOUNDATION_DLL ezDefaultValueAttribute : public ezPropertyAttribute
 
 public:
   ezDefaultValueAttribute() = default;
-  ezDefaultValueAttribute(const ezVariant& value) { m_Value = value; }
+
+  ezDefaultValueAttribute(const ezVariant& value)
+    : m_Value(value)
+  {
+  }
+
+  ezDefaultValueAttribute(ezInt32 value)
+    : m_Value(value)
+  {
+  }
+
+  ezDefaultValueAttribute(float value)
+    : m_Value(value)
+  {
+  }
+
+  ezDefaultValueAttribute(double value)
+    : m_Value(value)
+  {
+  }
+
+  ezDefaultValueAttribute(ezStringView value)
+    : m_Value(ezVariant(value, false))
+  {
+  }
+
+  ezDefaultValueAttribute(const char* value)
+    : m_Value(ezVariant(ezStringView(value), false))
+  {
+  }
 
   const ezVariant& GetValue() const { return m_Value; }
 
@@ -159,9 +202,9 @@ class EZ_FOUNDATION_DLL ezClampValueAttribute : public ezPropertyAttribute
 public:
   ezClampValueAttribute() = default;
   ezClampValueAttribute(const ezVariant& min, const ezVariant& max)
+    : m_MinValue(min)
+    , m_MaxValue(max)
   {
-    m_MinValue = min;
-    m_MaxValue = max;
   }
 
   const ezVariant& GetMinValue() const { return m_MinValue; }
@@ -224,12 +267,21 @@ class EZ_FOUNDATION_DLL ezTagSetWidgetAttribute : public ezContainerWidgetAttrib
 
 public:
   ezTagSetWidgetAttribute() = default;
-  ezTagSetWidgetAttribute(const char* szTagFilter) { m_sTagFilter = szTagFilter; }
+  ezTagSetWidgetAttribute(const char* szTagFilter)
+    : m_sTagFilter(szTagFilter)
+  {
+  }
 
   const char* GetTagFilter() const { return m_sTagFilter; }
 
 private:
   ezUntrackedString m_sTagFilter;
+};
+
+/// \brief This attribute indicates that a widget should not use temporary transactions when changing the value.
+class EZ_FOUNDATION_DLL ezNoTemporaryTransactionsAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezNoTemporaryTransactionsAttribute, ezPropertyAttribute);
 };
 
 /// \brief Add this attribute to a variant map property to make it map to the exposed parameters
@@ -245,7 +297,10 @@ class EZ_FOUNDATION_DLL ezExposedParametersAttribute : public ezContainerWidgetA
 
 public:
   ezExposedParametersAttribute() = default;
-  ezExposedParametersAttribute(const char* szParametersSource) { m_sParametersSource = szParametersSource; }
+  ezExposedParametersAttribute(const char* szParametersSource)
+    : m_sParametersSource(szParametersSource)
+  {
+  }
 
   const char* GetParametersSource() const { return m_sParametersSource; }
 
@@ -271,11 +326,12 @@ class EZ_FOUNDATION_DLL ezDynamicDefaultValueAttribute : public ezTypeWidgetAttr
 
 public:
   ezDynamicDefaultValueAttribute() = default;
-  ezDynamicDefaultValueAttribute(const char* szClassSource, const char* szClassType, const char* szClassProperty = nullptr)
+  ezDynamicDefaultValueAttribute(const char* szClassSource,
+    const char* szClassType, const char* szClassProperty = nullptr)
+    : m_sClassSource(szClassSource)
+    , m_sClassType(szClassType)
+    , m_sClassProperty(szClassProperty)
   {
-    m_sClassSource = szClassSource;
-    m_sClassType = szClassType;
-    m_sClassProperty = szClassProperty;
   }
 
   const char* GetClassSource() const { return m_sClassSource; }
@@ -313,29 +369,6 @@ private:
   bool m_bCanMove = false;
 };
 
-/// \brief Limits setting of pointer properties to derived types that have the given constant property and value
-///
-/// The szConstantValueProperty is a sibling property of the property this attribute is assigned to,
-class EZ_FOUNDATION_DLL ezConstrainPointerAttribute : public ezPropertyAttribute
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezConstrainPointerAttribute, ezPropertyAttribute);
-
-public:
-  ezConstrainPointerAttribute() = default;
-  ezConstrainPointerAttribute(const char* szConstantName, const char* szConstantValueProperty)
-  {
-    m_sConstantName = szConstantName;
-    m_sConstantValueProperty = szConstantValueProperty;
-  }
-
-  const ezUntrackedString& GetConstantName() const { return m_sConstantName; }
-  const ezUntrackedString& GetConstantValueProperty() const { return m_sConstantValueProperty; }
-
-private:
-  ezUntrackedString m_sConstantName;
-  ezUntrackedString m_sConstantValueProperty;
-};
-
 /// \brief Defines how a reference set by ezFileBrowserAttribute and ezAssetBrowserAttribute is treated.
 ///
 /// A few examples to explain the flags:
@@ -352,21 +385,21 @@ private:
 /// ## Surface on hit prefab: **Package**
 /// * Transforming a surface is not affected if the prefab it spawns on impact changes. Only the reference is stored.
 /// * The set prefab does not show up in the thumbnail so it is not needed.
-/// * We do however need to package it or otherwise the runtime would fail to spawn the prefab on impact.
+/// * We do, however, need to package it or otherwise the runtime would fail to spawn the prefab on impact.
 ///
 /// As a rule of thumb (also the default for each):
 /// * ezFileBrowserAttribute are mostly Transform and Thumbnail.
 /// * ezAssetBrowserAttribute are mostly Thumbnail and Package.
 struct ezDependencyFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
     None = 0,              ///< The reference is not needed for anything in production. An example of this is editor references that are only used at edit time, e.g. a default animation clip for a skeleton.
     Thumbnail = EZ_BIT(0), ///< This reference is a dependency to generating a thumbnail. The material references of a mesh for example.
     Transform = EZ_BIT(1), ///< This reference is a dependency to transforming this asset. The input model of a mesh for example.
-    Package = EZ_BIT(2),   ///< This reference is needs to be packaged as it is used at runtime by this asset. All sounds or debris generated on impact of a surface are common examples of this.
+    Package = EZ_BIT(2),   ///< This reference needs to be packaged as it is used at runtime by this asset. All sounds or debris generated on impact of a surface are common examples of this.
     Default = 0
   };
 
@@ -399,12 +432,14 @@ public:
   static constexpr const char* CubemapsLdrAndHdr = "*.dds;*.hdr";
 
   ezFileBrowserAttribute() = default;
-  ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter, const char* szCustomAction = nullptr, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail)
+  ezFileBrowserAttribute(const char* szDialogTitle,
+    const char* szTypeFilter, const char* szCustomAction = nullptr,
+    ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail)
+    : m_sDialogTitle(szDialogTitle)
+    , m_sTypeFilter(szTypeFilter)
+    , m_sCustomAction(szCustomAction)
+    , m_DependencyFlags(depencyFlags)
   {
-    m_sDialogTitle = szDialogTitle;
-    m_sTypeFilter = szTypeFilter;
-    m_sCustomAction = szCustomAction;
-    m_DependencyFlags = depencyFlags;
   }
 
   const char* GetDialogTitle() const { return m_sDialogTitle; }
@@ -429,9 +464,10 @@ class EZ_FOUNDATION_DLL ezAssetBrowserAttribute : public ezTypeWidgetAttribute
 
 public:
   ezAssetBrowserAttribute() = default;
-  ezAssetBrowserAttribute(const char* szTypeFilter, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+  ezAssetBrowserAttribute(const char* szTypeFilter,
+    ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+    : m_DependencyFlags(depencyFlags)
   {
-    m_DependencyFlags = depencyFlags;
     SetTypeFilter(szTypeFilter);
   }
 
@@ -457,7 +493,10 @@ class EZ_FOUNDATION_DLL ezDynamicEnumAttribute : public ezTypeWidgetAttribute
 
 public:
   ezDynamicEnumAttribute() = default;
-  ezDynamicEnumAttribute(const char* szDynamicEnumName) { m_sDynamicEnumName = szDynamicEnumName; }
+  ezDynamicEnumAttribute(const char* szDynamicEnumName)
+    : m_sDynamicEnumName(szDynamicEnumName)
+  {
+  }
 
   const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
 
@@ -474,7 +513,10 @@ class EZ_FOUNDATION_DLL ezDynamicStringEnumAttribute : public ezTypeWidgetAttrib
 
 public:
   ezDynamicStringEnumAttribute() = default;
-  ezDynamicStringEnumAttribute(const char* szDynamicEnumName) { m_sDynamicEnumName = szDynamicEnumName; }
+  ezDynamicStringEnumAttribute(const char* szDynamicEnumName)
+    : m_sDynamicEnumName(szDynamicEnumName)
+  {
+  }
 
   const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
 
@@ -482,6 +524,23 @@ private:
   ezUntrackedString m_sDynamicEnumName;
 };
 
+/// \brief Can be used on integer properties to display them as bitflags. The valid bitflags and their names may change at runtime.
+class EZ_FOUNDATION_DLL ezDynamicBitflagsAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicBitflagsAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezDynamicBitflagsAttribute() = default;
+  ezDynamicBitflagsAttribute(ezStringView sDynamicName)
+    : m_sDynamicBitflagsName(sDynamicName)
+  {
+  }
+
+  ezStringView GetDynamicBitflagsName() const { return m_sDynamicBitflagsName; }
+
+private:
+  ezUntrackedString m_sDynamicBitflagsName;
+};
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -692,7 +751,7 @@ class EZ_FOUNDATION_DLL ezBoxVisualizerAttribute : public ezVisualizerAttribute
 
 public:
   ezBoxVisualizerAttribute();
-  ezBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale = 1.0f, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
+  ezBoxVisualizerAttribute(const char* szSizeProperty, float fSizeScale = 1.0f, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::MakeZero(), const char* szOffsetProperty = nullptr, const char* szRotationProperty = nullptr);
 
   const ezUntrackedString& GetSizeProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
@@ -712,7 +771,7 @@ class EZ_FOUNDATION_DLL ezSphereVisualizerAttribute : public ezVisualizerAttribu
 
 public:
   ezSphereVisualizerAttribute();
-  ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
+  ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::MakeZero(), const char* szOffsetProperty = nullptr);
 
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
@@ -748,8 +807,8 @@ class EZ_FOUNDATION_DLL ezCylinderVisualizerAttribute : public ezVisualizerAttri
 
 public:
   ezCylinderVisualizerAttribute();
-  ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
-  ezCylinderVisualizerAttribute(const char* szAxisProperty, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::ZeroVector(), const char* szOffsetProperty = nullptr);
+  ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::MakeZero(), const char* szOffsetProperty = nullptr);
+  ezCylinderVisualizerAttribute(const char* szAxisProperty, const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr, ezBitflags<ezVisualizerAnchor> anchor = ezVisualizerAnchor::Center, ezVec3 vOffsetOrScale = ezVec3::MakeZero(), const char* szOffsetProperty = nullptr);
 
   const ezUntrackedString& GetAxisProperty() const { return m_sProperty5; }
   const ezUntrackedString& GetHeightProperty() const { return m_sProperty1; }
@@ -887,18 +946,10 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Attribute for ezMessages to instruct the visual script framework to automatically generate a node for sending this type of
-/// message
-class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgSender : public ezPropertyAttribute
+/// \brief Attribute for types that should not be exposed to the scripting framework
+class EZ_FOUNDATION_DLL ezExcludeFromScript : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgSender, ezPropertyAttribute);
-};
-
-/// \brief Attribute for ezMessages to instruct the visual script framework to automatically generate a node for handling this type of
-/// message
-class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgHandler : public ezPropertyAttribute
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgHandler, ezPropertyAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezExcludeFromScript, ezPropertyAttribute);
 };
 
 /// \brief Attribute to mark a function up to be exposed to the scripting system. Arguments specify the names of the function parameters.
@@ -917,37 +968,44 @@ class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribu
     ArgType argType3 = In, const char* szArg3 = nullptr, ArgType argType4 = In, const char* szArg4 = nullptr, ArgType argType5 = In,
     const char* szArg5 = nullptr, ArgType argType6 = In, const char* szArg6 = nullptr);
 
-  const char* GetArgumentName(ezUInt32 uiIndex) const;
+  const char* GetArgumentName(ezUInt32 uiIndex) const { return m_ArgNames[uiIndex]; }
 
-  ArgType GetArgumentType(ezUInt32 uiIndex) const;
+  ArgType GetArgumentType(ezUInt32 uiIndex) const { return static_cast<ArgType>(m_ArgTypes[uiIndex]); }
 
-  ezUntrackedString m_sArg1;
-  ezUntrackedString m_sArg2;
-  ezUntrackedString m_sArg3;
-  ezUntrackedString m_sArg4;
-  ezUntrackedString m_sArg5;
-  ezUntrackedString m_sArg6;
-
-  ezUInt8 m_ArgType1;
-  ezUInt8 m_ArgType2;
-  ezUInt8 m_ArgType3;
-  ezUInt8 m_ArgType4;
-  ezUInt8 m_ArgType5;
-  ezUInt8 m_ArgType6;
+private:
+  ezHybridArray<ezUntrackedString, 6> m_ArgNames;
+  ezHybridArray<ezUInt8, 6> m_ArgTypes;
 };
 
-/// \brief Used to annotate properties to which pin or function parameter they belong (if necessary)
-class EZ_FOUNDATION_DLL ezVisScriptMappingAttribute : public ezPropertyAttribute
+/// \brief Wrapper Attribute to add an attribute to a function argument
+class EZ_FOUNDATION_DLL ezFunctionArgumentAttributes : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisScriptMappingAttribute, ezPropertyAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezFunctionArgumentAttributes, ezPropertyAttribute);
 
-  ezVisScriptMappingAttribute() = default;
-  ezVisScriptMappingAttribute(ezInt32 iMapping)
-    : m_iMapping(iMapping)
-  {
-  }
+  ezFunctionArgumentAttributes() = default;
+  ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, const ezPropertyAttribute* pAttribute1, const ezPropertyAttribute* pAttribute2 = nullptr, const ezPropertyAttribute* pAttribute3 = nullptr, const ezPropertyAttribute* pAttribute4 = nullptr);
 
-  ezInt32 m_iMapping = 0;
+  ezUInt32 GetArgumentIndex() const { return m_uiArgIndex; }
+  ezArrayPtr<const ezPropertyAttribute* const> GetArgumentAttributes() const { return m_ArgAttributes; }
+
+private:
+  ezUInt32 m_uiArgIndex = 0;
+  ezHybridArray<const ezPropertyAttribute*, 4> m_ArgAttributes;
+};
+
+/// \brief Used to mark an array or (unsigned)int property as source for dynamic pin generation on nodes
+class EZ_FOUNDATION_DLL ezDynamicPinAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicPinAttribute, ezPropertyAttribute);
+
+public:
+  ezDynamicPinAttribute() = default;
+  ezDynamicPinAttribute(const char* szProperty);
+
+  const ezUntrackedString& GetProperty() const { return m_sProperty; }
+
+private:
+  ezUntrackedString m_sProperty;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -964,7 +1022,10 @@ class EZ_FOUNDATION_DLL ezLongOpAttribute : public ezPropertyAttribute
 
 public:
   ezLongOpAttribute() = default;
-  ezLongOpAttribute(const char* szOpTypeName) { m_sOpTypeName = szOpTypeName; }
+  ezLongOpAttribute(const char* szOpTypeName)
+    : m_sOpTypeName(szOpTypeName)
+  {
+  }
 
   ezUntrackedString m_sOpTypeName;
 };

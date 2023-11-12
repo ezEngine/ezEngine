@@ -35,7 +35,7 @@ public:
   bool IsRemoteMode() const { return m_Mode == ezEditorEngineProcessMode::Remote; }
 
   virtual ezViewHandle CreateRemoteWindowAndView(ezCamera* pCamera);
-  virtual void DestroyRemoteWindow();
+  void DestroyRemoteWindow();
 
   virtual ezRenderPipelineResourceHandle CreateDefaultMainRenderPipeline();
   virtual ezRenderPipelineResourceHandle CreateDefaultDebugRenderPipeline();

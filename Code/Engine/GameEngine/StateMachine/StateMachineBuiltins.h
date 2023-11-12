@@ -19,7 +19,7 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
 
   void SetResource(const ezStateMachineResourceHandle& hResource);
   const ezStateMachineResourceHandle& GetResource() const { return m_hResource; }
@@ -66,7 +66,7 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
 
   ezSmallArray<ezStateMachineState*, 2> m_SubStates;
 
@@ -150,11 +150,30 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
 
   ezEnum<ezStateMachineLogicOperator> m_Operator;
   ezSmallArray<ezStateMachineTransition*, 2> m_SubTransitions;
 
 private:
   ezStateMachineInternal::Compound m_Compound;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief A state machine transition implementation that triggers when a 'transition event' is sent.
+class EZ_GAMEENGINE_DLL ezStateMachineTransition_TransitionEvent : public ezStateMachineTransition
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_TransitionEvent, ezStateMachineTransition);
+
+public:
+  ezStateMachineTransition_TransitionEvent();
+  ~ezStateMachineTransition_TransitionEvent();
+
+  virtual bool IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const override;
+
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+
+  ezHashedString m_sEventName;
 };

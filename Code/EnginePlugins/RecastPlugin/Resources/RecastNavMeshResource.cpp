@@ -1,10 +1,10 @@
 #include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <DetourNavMesh.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <Recast/DetourNavMesh.h>
-#include <Recast/Recast.h>
-#include <Recast/RecastAlloc.h>
+#include <Recast.h>
+#include <RecastAlloc.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
 
 // clang-format off
@@ -89,6 +89,7 @@ ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& inout_st
   Clear();
 
   const ezTypeVersion version = inout_stream.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
   EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_DetourNavmeshData));
 
   bool hasPolygons = false;
@@ -156,6 +157,7 @@ ezResourceLoadDesc ezRecastNavMeshResource::UnloadData(Unload WhatToUnload)
   res.m_State = ezResourceState::Unloaded;
 
   m_DetourNavmeshData.Clear();
+  m_DetourNavmeshData.Compact();
   EZ_DEFAULT_DELETE(m_pNavMesh);
   EZ_DEFAULT_DELETE(m_pNavMeshPolygons);
 

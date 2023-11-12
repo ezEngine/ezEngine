@@ -26,42 +26,42 @@ ezQtNodeScene::ezQtNodeScene(QObject* pParent)
 
 ezQtNodeScene::~ezQtNodeScene()
 {
-  SetDocumentNodeManager(nullptr);
-}
-
-void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager)
-{
-  if (pManager == m_pManager)
-    return;
+  disconnect(this, &QGraphicsScene::selectionChanged, this, &ezQtNodeScene::OnSelectionChanged);
 
   Clear();
+
   if (m_pManager != nullptr)
   {
     m_pManager->m_NodeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
     m_pManager->GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
     m_pManager->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
   }
+}
+
+void ezQtNodeScene::InitScene(const ezDocumentNodeManager* pManager)
+{
+  EZ_ASSERT_DEV(pManager != nullptr, "Invalid node manager");
 
   m_pManager = pManager;
 
-  if (pManager != nullptr)
-  {
-    pManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
-    m_pManager->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
-    m_pManager->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
+  m_pManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
+  m_pManager->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
+  m_pManager->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
 
-    // Create Nodes
-    const auto& rootObjects = pManager->GetRootObject()->GetChildren();
-    for (const auto& pObject : rootObjects)
+  // Create Nodes
+  const auto& rootObjects = pManager->GetRootObject()->GetChildren();
+  for (const auto& pObject : rootObjects)
+  {
+    if (pManager->IsNode(pObject))
     {
-      if (pManager->IsNode(pObject))
-      {
-        CreateQtNode(pObject);
-      }
-      else if (pManager->IsConnection(pObject))
-      {
-        CreateQtConnection(pObject);
-      }
+      CreateQtNode(pObject);
+    }
+  }
+  for (const auto& pObject : rootObjects)
+  {
+    if (pManager->IsConnection(pObject))
+    {
+      CreateQtConnection(pObject);
     }
   }
 }
@@ -240,8 +240,8 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     if (it.Value()->GetFlags().IsSet(ezNodeFlags::Moved))
     {
       moved.Insert(it.Key());
+      it.Value()->ResetFlags();
     }
-    it.Value()->ResetFlags();
   }
 
   if (!moved.IsEmpty())
@@ -417,6 +417,10 @@ void ezQtNodeScene::CreateQtConnection(const ezDocumentObject* pObject)
   pOutput->AddConnection(pQtConnection);
   pInput->AddConnection(pQtConnection);
   m_Connections[pObject] = pQtConnection;
+
+  // reset flags to update the node's title to reflect connection changes
+  pSource->ResetFlags();
+  pTarget->ResetFlags();
 }
 
 void ezQtNodeScene::DeleteQtConnection(const ezDocumentObject* pObject)
@@ -441,6 +445,18 @@ void ezQtNodeScene::DeleteQtConnection(const ezDocumentObject* pObject)
 
   removeItem(pQtConnection);
   delete pQtConnection;
+
+  // reset flags to update the node's title to reflect connection changes
+  pSource->ResetFlags();
+  pTarget->ResetFlags();
+}
+
+void ezQtNodeScene::RecreateQtPins(const ezDocumentObject* pObject)
+{
+  ezQtNode* pNode = m_Nodes[pObject];
+  pNode->CreatePins();
+  pNode->UpdateState();
+  pNode->UpdateGeometry();
 }
 
 void ezQtNodeScene::CreateNodeObject(const ezRTTI* pRtti)
@@ -452,7 +468,7 @@ void ezQtNodeScene::CreateNodeObject(const ezRTTI* pRtti)
   {
     ezAddObjectCommand cmd;
     cmd.m_pType = pRtti;
-    cmd.m_NewObjectGuid.CreateNewUuid();
+    cmd.m_NewObjectGuid = ezUuid::MakeUuid();
     cmd.m_Index = -1;
 
     res = history->AddCommand(cmd);
@@ -492,6 +508,13 @@ void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
       DeleteQtConnection(e.m_pObject);
       break;
 
+    case ezDocumentNodeManagerEvent::Type::BeforePinsChanged:
+      break;
+
+    case ezDocumentNodeManagerEvent::Type::AfterPinsChanged:
+      RecreateQtPins(e.m_pObject);
+      break;
+
     case ezDocumentNodeManagerEvent::Type::AfterNodeAdded:
       CreateQtNode(e.m_pObject);
       break;
@@ -508,11 +531,11 @@ void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
 void ezQtNodeScene::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
 {
   auto it = m_Nodes.Find(e.m_pObject);
-
-  if (!it.IsValid())
-    return;
-
-  it.Value()->UpdateState();
+  if (it.IsValid())
+  {
+    it.Value()->ResetFlags();
+    it.Value()->update();
+  }
 }
 
 void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)
@@ -607,9 +630,9 @@ void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
         ezDocumentNodeManager::CanConnectResult res;
 
         if (bConnectForward)
-          m_pManager->CanConnect(pConnectionType, *pSourcePin, *pin, res);
+          m_pManager->CanConnect(pConnectionType, *pSourcePin, *pin, res).IgnoreResult();
         else
-          m_pManager->CanConnect(pConnectionType, *pin, *pSourcePin, res);
+          m_pManager->CanConnect(pConnectionType, *pin, *pSourcePin, res).IgnoreResult();
 
         if (res == ezDocumentNodeManager::CanConnectResult::ConnectNever)
         {
@@ -675,42 +698,39 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
   connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, &ezQtNodeScene::OnMenuItemTriggered);
   connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]() { menu.close(); });
 
-  ezStringBuilder sFullName, sCleanName;
+  ezStringBuilder tmp;
+  ezStringBuilder sFullPath;
 
   ezHybridArray<const ezRTTI*, 32> types;
   m_pManager->GetCreateableTypes(types);
 
   for (const ezRTTI* pRtti : types)
   {
-    const char* szCleanName = pRtti->GetTypeName();
+    ezStringView sCleanName = pRtti->GetTypeName();
 
-    const char* szColonColon = ezStringUtils::FindLastSubString(szCleanName, "::");
-    if (szColonColon != nullptr)
-      szCleanName = szColonColon + 2;
-
-    const char* szUnderscore = ezStringUtils::FindLastSubString(szCleanName, "_");
-    if (szUnderscore != nullptr)
-      szCleanName = szUnderscore + 1;
-
-    sCleanName = szCleanName;
-    if (const char* szBracket = sCleanName.FindLastSubString("<"))
+    if (const char* szUnderscore = sCleanName.FindLastSubString("_"))
     {
-      sCleanName.SetSubString_FromTo(sCleanName.GetData(), szBracket);
+      sCleanName.SetStartPosition(szUnderscore + 1);
     }
 
-    sFullName = m_pManager->GetTypeCategory(pRtti);
+    if (const char* szBracket = sCleanName.FindLastSubString("<"))
+    {
+      sCleanName = ezStringView(sCleanName.GetStartPointer(), szBracket);
+    }
 
-    if (sFullName.IsEmpty())
+    sFullPath = m_pManager->GetTypeCategory(pRtti);
+
+    if (sFullPath.IsEmpty())
     {
       if (auto pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
       {
-        sFullName = pAttr->GetCategory();
+        sFullPath = pAttr->GetCategory();
       }
     }
 
-    sFullName.AppendPath(ezTranslate(sCleanName));
+    sFullPath.AppendPath(sCleanName);
 
-    pSearchMenu->AddItem(sFullName, QVariant::fromValue((void*)pRtti));
+    pSearchMenu->AddItem(ezTranslate(sCleanName.GetData(tmp)), sFullPath, QVariant::fromValue((void*)pRtti));
   }
 
   pSearchMenu->Finalize(m_sContextMenuSearchText);

@@ -18,18 +18,15 @@ ezString ezAssetDragDropHandler::GetAssetGuidString(const ezDragDropInfo* pInfo)
   QByteArray ba = pInfo->m_pMimeData->data("application/ezEditor.AssetGuid");
   QDataStream stream(&ba, QIODevice::ReadOnly);
 
-  int iGuids = 0;
-  stream >> iGuids;
+  ezHybridArray<QString, 1> guids;
+  stream >> guids;
 
-  if (iGuids > 1)
+  if (guids.GetCount() > 1)
   {
     ezLog::Warning("Dragging more than one asset type is currently not supported");
   }
 
-  QString sGuid;
-  stream >> sGuid;
-
-  return sGuid.toUtf8().data();
+  return guids[0].toUtf8().data();
 }
 
 ezString ezAssetDragDropHandler::GetAssetsDocumentTypeName(const ezUuid& assetTypeGuid) const

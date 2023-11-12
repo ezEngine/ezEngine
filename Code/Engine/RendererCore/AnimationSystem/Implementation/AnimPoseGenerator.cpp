@@ -20,6 +20,7 @@ void ezAnimPoseGenerator::Reset(const ezSkeletonResource* pSkeleton)
   m_ModelPoseCounter = 0;
 
   m_CommandsSampleTrack.Clear();
+  m_CommandsRestPose.Clear();
   m_CommandsCombinePoses.Clear();
   m_CommandsLocalToModelPose.Clear();
   m_CommandsModelPoseToOutput.Clear();
@@ -29,8 +30,8 @@ void ezAnimPoseGenerator::Reset(const ezSkeletonResource* pSkeleton)
   m_OutputPose.Clear();
 
   // don't clear these arrays, they are reused
-  //m_UsedModelTransforms.Clear();
-  //m_SamplingCaches.Clear();
+  // m_UsedModelTransforms.Clear();
+  // m_SamplingCaches.Clear();
 }
 
 static EZ_ALWAYS_INLINE ezAnimPoseGeneratorCommandID CreateCommandID(ezAnimPoseGeneratorCommandType type, ezUInt32 uiIndex)
@@ -55,6 +56,16 @@ ezAnimPoseGeneratorCommandSampleTrack& ezAnimPoseGenerator::AllocCommandSampleTr
   cmd.m_CommandID = CreateCommandID(cmd.m_Type, m_CommandsSampleTrack.GetCount() - 1);
   cmd.m_LocalPoseOutput = m_LocalPoseCounter++;
   cmd.m_uiUniqueID = uiDeterministicID;
+
+  return cmd;
+}
+
+ezAnimPoseGeneratorCommandRestPose& ezAnimPoseGenerator::AllocCommandRestPose()
+{
+  auto& cmd = m_CommandsRestPose.ExpandAndGetRef();
+  cmd.m_Type = ezAnimPoseGeneratorCommandType::RestPose;
+  cmd.m_CommandID = CreateCommandID(cmd.m_Type, m_CommandsRestPose.GetCount() - 1);
+  cmd.m_LocalPoseOutput = m_LocalPoseCounter++;
 
   return cmd;
 }
@@ -115,20 +126,20 @@ void ezAnimPoseGenerator::Validate() const
   for (auto& cmd : m_CommandsSampleTrack)
   {
     EZ_ASSERT_DEV(cmd.m_hAnimationClip.IsValid(), "Invalid animation clips are not allowed.");
-    //EZ_ASSERT_DEV(cmd.m_Inputs.IsEmpty(), "Track samplers can't have inputs.");
+    // EZ_ASSERT_DEV(cmd.m_Inputs.IsEmpty(), "Track samplers can't have inputs.");
     EZ_ASSERT_DEV(cmd.m_LocalPoseOutput != ezInvalidIndex, "Output pose not allocated.");
   }
 
   for (auto& cmd : m_CommandsCombinePoses)
   {
-    //EZ_ASSERT_DEV(cmd.m_Inputs.GetCount() >= 1, "Must combine at least one pose.");
+    // EZ_ASSERT_DEV(cmd.m_Inputs.GetCount() >= 1, "Must combine at least one pose.");
     EZ_ASSERT_DEV(cmd.m_LocalPoseOutput != ezInvalidIndex, "Output pose not allocated.");
     EZ_ASSERT_DEV(cmd.m_Inputs.GetCount() == cmd.m_InputWeights.GetCount(), "Number of inputs and weights must match.");
 
     for (auto id : cmd.m_Inputs)
     {
       auto type = GetCommand(id).GetType();
-      EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::SampleTrack || type == ezAnimPoseGeneratorCommandType::CombinePoses, "Unsupported input type");
+      EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::SampleTrack || type == ezAnimPoseGeneratorCommandType::CombinePoses || type == ezAnimPoseGeneratorCommandType::RestPose, "Unsupported input type");
     }
   }
 
@@ -140,7 +151,7 @@ void ezAnimPoseGenerator::Validate() const
     for (auto id : cmd.m_Inputs)
     {
       auto type = GetCommand(id).GetType();
-      EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::SampleTrack || type == ezAnimPoseGeneratorCommandType::CombinePoses, "Unsupported input type");
+      EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::SampleTrack || type == ezAnimPoseGeneratorCommandType::CombinePoses || type == ezAnimPoseGeneratorCommandType::RestPose, "Unsupported input type");
     }
   }
 
@@ -174,6 +185,9 @@ ezAnimPoseGeneratorCommand& ezAnimPoseGenerator::GetCommand(ezAnimPoseGeneratorC
   {
     case ezAnimPoseGeneratorCommandType::SampleTrack:
       return m_CommandsSampleTrack[GetCommandIndex(id)];
+
+    case ezAnimPoseGeneratorCommandType::RestPose:
+      return m_CommandsRestPose[GetCommandIndex(id)];
 
     case ezAnimPoseGeneratorCommandType::CombinePoses:
       return m_CommandsCombinePoses[GetCommandIndex(id)];
@@ -231,12 +245,16 @@ void ezAnimPoseGenerator::Execute(ezAnimPoseGeneratorCommand& cmd, const ezGameO
       ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandSampleTrack&>(cmd), pSendAnimationEventsTo);
       break;
 
+    case ezAnimPoseGeneratorCommandType::RestPose:
+      ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandRestPose&>(cmd));
+      break;
+
     case ezAnimPoseGeneratorCommandType::CombinePoses:
       ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandCombinePoses&>(cmd));
       break;
 
     case ezAnimPoseGeneratorCommandType::LocalToModelPose:
-      ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandLocalToModelPose&>(cmd));
+      ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandLocalToModelPose&>(cmd), pSendAnimationEventsTo);
       break;
 
     case ezAnimPoseGeneratorCommandType::ModelPoseToOutput:
@@ -288,6 +306,15 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd,
   SampleEventTrack(pResource.GetPointer(), cmd.m_EventSampling, pSendAnimationEventsTo, cmd.m_fPreviousNormalizedSamplePos, cmd.m_fNormalizedSamplePos);
 }
 
+void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandRestPose& cmd)
+{
+  auto transforms = AcquireLocalPoseTransforms(cmd.m_LocalPoseOutput);
+
+  const auto restPose = m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().joint_rest_poses();
+
+  transforms.CopyFrom(ezArrayPtr<const ozz::math::SoaTransform>(restPose.begin(), (ezUInt32)restPose.size()));
+}
+
 void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd)
 {
   auto transforms = AcquireLocalPoseTransforms(cmd.m_LocalPoseOutput);
@@ -322,6 +349,15 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd
       }
       break;
 
+      case ezAnimPoseGeneratorCommandType::RestPose:
+      {
+        layer = &bl.ExpandAndGetRef();
+
+        auto transform = AcquireLocalPoseTransforms(static_cast<const ezAnimPoseGeneratorCommandRestPose&>(cmdIn).m_LocalPoseOutput);
+        layer->transform = ozz::span<const ozz::math::SoaTransform>(transform.GetPtr(), transform.GetCount());
+      }
+      break;
+
       case ezAnimPoseGeneratorCommandType::CombinePoses:
       {
         layer = &bl.ExpandAndGetRef();
@@ -352,7 +388,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd
   job.Run();
 }
 
-void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd)
+void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd, const ezGameObject* pSendAnimationEventsTo)
 {
   ozz::animation::LocalToModelJob job;
 
@@ -367,6 +403,13 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose&
     }
     break;
 
+    case ezAnimPoseGeneratorCommandType::RestPose:
+    {
+      auto transform = AcquireLocalPoseTransforms(static_cast<const ezAnimPoseGeneratorCommandRestPose&>(cmdIn).m_LocalPoseOutput);
+      job.input = ozz::span<const ozz::math::SoaTransform>(transform.GetPtr(), transform.GetCount());
+    }
+    break;
+
     case ezAnimPoseGeneratorCommandType::CombinePoses:
     {
       auto transform = AcquireLocalPoseTransforms(static_cast<const ezAnimPoseGeneratorCommandCombinePoses&>(cmdIn).m_LocalPoseOutput);
@@ -377,13 +420,16 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose&
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
-  if (cmd.m_pSendLocalPoseMsgTo)
+  if (cmd.m_pSendLocalPoseMsgTo || pSendAnimationEventsTo)
   {
     ezMsgAnimationPosePreparing msg;
     msg.m_pSkeleton = &m_pSkeleton->GetDescriptor().m_Skeleton;
     msg.m_LocalTransforms = ezMakeArrayPtr(const_cast<ozz::math::SoaTransform*>(job.input.data()), (ezUInt32)job.input.size());
 
-    cmd.m_pSendLocalPoseMsgTo->SendMessageRecursive(msg);
+    if (pSendAnimationEventsTo)
+      pSendAnimationEventsTo->SendMessageRecursive(msg);
+    else
+      cmd.m_pSendLocalPoseMsgTo->SendMessageRecursive(msg);
   }
 
   auto transforms = AcquireModelPoseTransforms(cmd.m_ModelPoseOutput);
@@ -426,8 +472,8 @@ void ezAnimPoseGenerator::SampleEventTrack(const ezAnimationClipResource* pResou
 
   const ezTime tPrev = fPrevPos * duration;
   const ezTime tNow = fCurPos * duration;
-  const ezTime tStart = ezTime::Zero();
-  const ezTime tEnd = duration + ezTime::Seconds(1.0); // sampling position is EXCLUSIVE
+  const ezTime tStart = ezTime::MakeZero();
+  const ezTime tEnd = duration + ezTime::MakeFromSeconds(1.0); // sampling position is EXCLUSIVE
 
   ezHybridArray<ezHashedString, 16> events;
 

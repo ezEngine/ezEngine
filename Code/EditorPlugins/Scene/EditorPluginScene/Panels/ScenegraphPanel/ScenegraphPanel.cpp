@@ -71,9 +71,7 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezScene2Document* pDo
   ActiveLayerChanged(pDocument->GetActiveLayer());
 }
 
-ezQtScenegraphPanel::~ezQtScenegraphPanel()
-{
-}
+ezQtScenegraphPanel::~ezQtScenegraphPanel() = default;
 
 void ezQtScenegraphPanel::LayerEventHandler(const ezScene2LayerEvent& e)
 {

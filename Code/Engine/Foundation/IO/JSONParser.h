@@ -15,7 +15,7 @@ public:
   /// \brief Constructor.
   ezJSONParser();
 
-  virtual ~ezJSONParser() {}
+  virtual ~ezJSONParser() = default;
 
   /// \brief Allows to specify an ezLogInterface through which errors and warnings are reported.
   void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }
@@ -44,9 +44,9 @@ protected:
   void SkipArray();
 
   /// \brief Outputs that a parsing error was detected (via OnParsingError) and stops further parsing, if bFatal is set to true.
-  void ParsingError(const char* szMessage, bool bFatal);
+  void ParsingError(ezStringView sMessage, bool bFatal);
 
-  ezLogInterface* m_pLogInterface;
+  ezLogInterface* m_pLogInterface = nullptr;
 
 private:
   /// \brief Called whenever a new variable is encountered. The variable name is passed along.
@@ -54,13 +54,13 @@ private:
   ///
   /// The entire variable (independent of whether it is a simple value, an array or an object) can
   /// be skipped by returning false.
-  virtual bool OnVariable(const char* szVarName) = 0;
+  virtual bool OnVariable(ezStringView sVarName) = 0;
 
   /// \brief Called whenever a new value is read.
   ///
   /// Directly following a call to OnVariable(), this means that the variable is a simple variable.
   /// In between calls to OnBeginArray() and OnEndArray() it is another value in the array.
-  virtual void OnReadValue(const char* szValue) = 0;
+  virtual void OnReadValue(ezStringView sValue) = 0;
 
   /// \brief \copydoc ezJSONParser::OnReadValue()
   virtual void OnReadValue(double fValue) = 0;
@@ -95,7 +95,7 @@ private:
   /// If bFatal is true, the error has left the parser in an unrecoverable state and thus it not continue parsing.
   /// In that case client code will need to clean up it's open state, as no further OnEndObject() / OnEndArray() will be called.
   /// If bFatal is false, the document does not contain valid JSON, but the parser is able to continue still.
-  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) {}
+  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) {}
 
 private:
   enum State

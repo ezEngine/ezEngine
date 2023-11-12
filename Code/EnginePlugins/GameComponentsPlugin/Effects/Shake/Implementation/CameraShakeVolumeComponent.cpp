@@ -78,7 +78,7 @@ void ezCameraShakeVolumeComponent::SerializeComponent(ezWorldWriter& inout_strea
 void ezCameraShakeVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_BurstDuration;
@@ -153,7 +153,7 @@ void ezCameraShakeVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout
 void ezCameraShakeVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
@@ -185,5 +185,5 @@ void ezCameraShakeVolumeSphereComponent::SetRadius(float fVal)
 
 void ezCameraShakeVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), ezCameraShakeVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), ezCameraShakeVolumeComponent::SpatialDataCategory);
 }

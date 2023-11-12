@@ -13,7 +13,7 @@ endfunction()
 # ## ez_set_build_flags_msvc(<target>)
 # #####################################
 function(ez_set_build_flags_msvc TARGET_NAME)
-	set(ARG_OPTIONS ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_CONTROLFLOWGUARD NO_DEBUG)
+	set(ARG_OPTIONS ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_COMPLIANCE NO_DEBUG)
 	set(ARG_ONEVALUEARGS "")
 	set(ARG_MULTIVALUEARGS "")
 	cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN})
@@ -58,7 +58,12 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 
 	# /WX: treat warnings as errors
 	if(NOT ${ARG_NO_WARNINGS_AS_ERRORS} AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-		target_compile_options(${TARGET_NAME} PRIVATE "/WX")
+		# target_compile_options(${TARGET_NAME} PRIVATE "/WX")
+		# switch Warning 4996 (deprecation warning) from warning level 3 to warning level 1
+		# since you can't mark warnings as "not errors" in MSVC, we must switch off
+		# the global warning-as-errors flag
+		# instead we could switch ON selected warnings as errors
+		target_compile_options(${TARGET_NAME} PRIVATE "/w14996")
 	endif()
 
 	if((CMAKE_SIZEOF_VOID_P EQUAL 4) AND EZ_CMAKE_ARCHITECTURE_X86)
@@ -148,8 +153,6 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# 'nodiscard': attribute is ignored in this syntactic position
 	target_compile_options(${TARGET_NAME} PRIVATE /wd5240)
     
-    # Disable deprecation warnings (qt, etc)
-    target_compile_options(${TARGET_NAME} PRIVATE /wd4996)
 
 endfunction()
 
@@ -230,7 +233,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 
 	# Ignore any warnings caused by headers inside the ThirdParty directory.
 	if(EZ_SUBMODULE_PREFIX_PATH)
-		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty\"")
+		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${EZ_ROOT}/Code/ThirdParty\"")
 	else()
 		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${CMAKE_SOURCE_DIR}/Code/ThirdParty\"")
 	endif()
@@ -306,9 +309,9 @@ function(ez_set_build_flags TARGET_NAME)
 
 	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 
-	# There is a bug in the cmake version used by visual studio 2019 which is 3.15.19101501-MSVC_2 that does not correctly pass the c++17 parameter to the compiler. So we need to specify it manually.
-	if(ANDROID AND(${CMAKE_VERSION} VERSION_LESS "3.16.0"))
-		target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>)
+	# On Android, we need to specify it manually.
+	if(ANDROID)
+		add_compile_options(-std=c++17)
 	endif()
 
 	if(EZ_CMAKE_COMPILER_MSVC)
@@ -321,5 +324,19 @@ function(ez_set_build_flags TARGET_NAME)
 
 	if(EZ_CMAKE_COMPILER_GCC)
 		ez_set_build_flags_gcc(${TARGET_NAME} ${ARGN})
+	endif()
+endfunction()
+
+# #####################################
+# ## ez_enable_strict_warnings(<target>)
+# #####################################
+function(ez_enable_strict_warnings TARGET_NAME)
+	if(MSVC)
+		# In case there is W3 already, remove it so it doesn't spam warnings when using Ninja builds.
+		get_target_property(TARGET_COMPILE_OPTS ${PROJECT_NAME} COMPILE_OPTIONS)
+		list(REMOVE_ITEM TARGET_COMPILE_OPTS /W3)
+		set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_OPTIONS "${TARGET_COMPILE_OPTS}")
+		
+		target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 	endif()
 endfunction()

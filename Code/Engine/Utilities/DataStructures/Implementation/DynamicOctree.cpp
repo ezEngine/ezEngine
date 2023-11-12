@@ -4,11 +4,7 @@
 
 const float ezDynamicOctree::s_fLooseOctreeFactor = 1.1f;
 
-ezDynamicOctree::ezDynamicOctree()
-  : m_uiMaxTreeDepth(0)
-  , m_uiAddIDTopLevel(0)
-{
-}
+ezDynamicOctree::ezDynamicOctree() = default;
 
 void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExtents, float fMinNodeSize)
 {
@@ -28,7 +24,7 @@ void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExten
   // the bounding box should be square, so use the maximum of the x, y and z extents
   float fMax = ezMath::Max(vHalfExtents.x, ezMath::Max(vHalfExtents.y, vHalfExtents.z));
 
-  m_BBox.SetCenterAndHalfExtents(vCenter, ezVec3(fMax));
+  m_BBox = ezBoundingBox::MakeFromCenterAndHalfExtents(vCenter, ezVec3(fMax));
 
   float fLength = fMax * 2.0f;
 

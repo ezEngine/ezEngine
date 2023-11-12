@@ -42,7 +42,7 @@ void ezVisualizeHandComponent::Update()
         for (ezUInt32 uiBone = 0; uiBone < bones.GetCount(); uiBone++)
         {
           const ezXRHandBone& bone = bones[uiBone];
-          ezBoundingSphere sphere(ezVec3::ZeroVector(), bone.m_fRadius);
+          ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), bone.m_fRadius);
           ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, ezColor::Aquamarine, bone.m_Transform);
 
           if (uiBone + 1 < bones.GetCount())

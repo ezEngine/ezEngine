@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/EditorPluginScene/Icons/Duplicate16.png</normaloff>:/EditorPluginScene/Icons/Duplicate16.png</iconset>
+    <normaloff>:/EditorPluginScene/Icons/Duplicate.svg</normaloff>:/EditorPluginScene/Icons/Duplicate.svg</iconset>
   </property>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">

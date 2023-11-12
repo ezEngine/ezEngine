@@ -62,7 +62,8 @@ QVariant ezQtDummyAdapter::data(const ezDocumentObject* pObject, int iRow, int i
       case Qt::DisplayRole:
       case Qt::EditRole:
       {
-        return QString::fromUtf8(pObject->GetTypeAccessor().GetType()->GetTypeName());
+        ezStringBuilder tmp;
+        return QString::fromUtf8(pObject->GetTypeAccessor().GetType()->GetTypeName().GetData(tmp));
       }
       break;
     }
@@ -119,7 +120,7 @@ ezQtNameableAdapter::ezQtNameableAdapter(
 {
 }
 
-ezQtNameableAdapter::~ezQtNameableAdapter() {}
+ezQtNameableAdapter::~ezQtNameableAdapter() = default;
 
 bool ezQtNameableAdapter::setData(const ezDocumentObject* pObject, int iRow, int iColumn, const QVariant& value, int iRole) const
 {
@@ -134,7 +135,7 @@ bool ezQtNameableAdapter::setData(const ezDocumentObject* pObject, int iRow, int
     cmd.m_Object = pObject->GetGuid();
     cmd.m_sProperty = m_sNameProperty;
 
-    pHistory->AddCommand(cmd);
+    pHistory->AddCommand(cmd).AssertSuccess();
 
     pHistory->FinishTransaction();
 
@@ -520,6 +521,7 @@ bool ezQtDocumentTreeModel::MoveObjects(const ezDragDropInfo& info)
   {
     auto pDoc = ezDocumentManager::GetDocumentByGuid(info.m_TargetDocument);
     const ezDocumentObject* pTarget = pDoc->GetObjectManager()->GetObject(info.m_TargetObject);
+    EZ_ASSERT_DEBUG(pTarget != nullptr, "object from info should always be valid");
 
     QByteArray encodedData = info.m_pMimeData->data("application/ezEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
@@ -597,30 +599,21 @@ QMimeData* ezQtDocumentTreeModel::mimeData(const QModelIndexList& indexes) const
   if (!m_bAllowDragDrop)
     return nullptr;
 
-  QMimeData* mimeData = new QMimeData();
-  QByteArray encodedData;
-
-  QDataStream stream(&encodedData, QIODevice::WriteOnly);
-
-  int iCount = 0;
-
-  foreach (QModelIndex index, indexes)
-  {
-    if (index.isValid())
-      ++iCount;
-  }
-
-  stream << iCount;
-
-  foreach (QModelIndex index, indexes)
+  ezHybridArray<void*, 1> ptrs;
+  for (const QModelIndex& index : indexes)
   {
     if (index.isValid())
     {
       void* pObject = index.internalPointer();
-      stream.writeRawData((const char*)&pObject, sizeof(void*));
+      ptrs.PushBack(pObject);
     }
   }
 
+  QByteArray encodedData;
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+  stream << ptrs;
+
+  QMimeData* mimeData = new QMimeData();
   mimeData->setData("application/ezEditor.ObjectSelection", encodedData);
   return mimeData;
 }

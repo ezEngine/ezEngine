@@ -13,7 +13,8 @@ ezColorGradientAssetDocumentManager::ezColorGradientAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "ColorGradient";
   m_DocTypeDesc.m_sFileExtension = "ezColorGradientAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ColorGradient.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ColorGradient.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Animation";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezColorGradientAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_Gradient");
@@ -35,7 +36,7 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezColorGradientAssetDocument>())
       {
-        ezQtColorGradientAssetDocumentWindow* pDocWnd = new ezQtColorGradientAssetDocumentWindow(e.m_pDocument);
+        new ezQtColorGradientAssetDocumentWindow(e.m_pDocument); // NOLINT: not a memory leak
       }
     }
     break;
@@ -46,9 +47,9 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
 }
 
 void ezColorGradientAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezColorGradientAssetDocument(szPath);
+  out_pDocument = new ezColorGradientAssetDocument(sPath);
 }
 
 void ezColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(

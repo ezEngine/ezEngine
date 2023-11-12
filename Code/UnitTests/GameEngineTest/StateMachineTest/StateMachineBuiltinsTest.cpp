@@ -31,7 +31,7 @@ namespace
       m_CounterTable[&ref_instance] = pData->m_Counter;
     }
 
-    virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override
+    virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override
     {
       out_desc.FillFromType<InstanceData>();
       return true;
@@ -76,7 +76,7 @@ namespace
       return pData->m_uiConditionCounter > 1;
     }
 
-    bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override
+    bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override
     {
       out_desc.FillFromType<InstanceData>();
       return true;
@@ -105,7 +105,7 @@ namespace
     TestTransition::InstanceData::s_uiDestructionCounter = 0;
   }
 
-  static ezTime s_TimeStep = ezTime::Milliseconds(10);
+  static ezTime s_TimeStep = ezTime::MakeFromMilliseconds(10);
 
 } // namespace
 
@@ -231,15 +231,15 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
 
     {
       ezSharedPtr<ezBlackboard> pBlackboard = ezBlackboard::Create();
-      pBlackboard->RegisterEntry(sTestVal, 2);
-      pBlackboard->RegisterEntry(sTestVal2, 0);
+      pBlackboard->SetEntryValue(sTestVal, 2);
+      pBlackboard->SetEntryValue(sTestVal2, 0);
 
       ezStateMachineInstance sm(fakeOwner, pDesc);
       sm.SetBlackboard(pBlackboard);
       EZ_TEST_BOOL(sm.SetState(pStateA).Succeeded());
 
       // no transition yet since only part of the conditions is true
-      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal, 3).Succeeded());
+      pBlackboard->SetEntryValue(sTestVal, 3);
       sm.Update(s_TimeStep);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiEnterCounter, 1);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiExitCounter, 0);
@@ -249,7 +249,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
       EZ_TEST_INT(pStateC->m_CounterTable[&sm].m_uiExitCounter, 0);
 
       // transition to B
-      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal2, 10).Succeeded());
+      pBlackboard->SetEntryValue(sTestVal2, 10);
       sm.Update(s_TimeStep);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiEnterCounter, 1);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiExitCounter, 1);
@@ -259,7 +259,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
       EZ_TEST_INT(pStateC->m_CounterTable[&sm].m_uiExitCounter, 0);
 
       // transition to C, only part of the condition needed because of 'OR' operator
-      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal2, 20).Succeeded());
+      pBlackboard->SetEntryValue(sTestVal2, 20);
       sm.Update(s_TimeStep);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiEnterCounter, 1);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiExitCounter, 1);
@@ -283,7 +283,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
     pDesc->AddState(pStateB);
 
     auto pTransition = EZ_DEFAULT_NEW(ezStateMachineTransition_Timeout);
-    pTransition->m_Timeout = ezTime::Milliseconds(5);
+    pTransition->m_Timeout = ezTime::MakeFromMilliseconds(5);
     pDesc->AddTransition(0, 1, pTransition);
 
     {
@@ -341,7 +341,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
       {
         auto pAllocator = ezGetStaticRTTI<ezStateMachineTransition_Timeout>()->GetAllocator();
         auto pSubTransition = pAllocator->Allocate<ezStateMachineTransition_Timeout>();
-        pSubTransition->m_Timeout = ezTime::Milliseconds(5);
+        pSubTransition->m_Timeout = ezTime::MakeFromMilliseconds(5);
 
         pCompoundTransition->m_SubTransitions.PushBack(pSubTransition);
       }
@@ -351,7 +351,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
 
     {
       ezSharedPtr<ezBlackboard> pBlackboard = ezBlackboard::Create();
-      pBlackboard->RegisterEntry(sTestVal, 2);
+      pBlackboard->SetEntryValue(sTestVal, 2);
 
       ezStateMachineInstance sm(fakeOwner, pDesc);
       sm.SetBlackboard(pBlackboard);
@@ -365,7 +365,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
       EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiExitCounter, 0);
 
       // no transition yet because timeout is not reached yet
-      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal, 3).Succeeded());
+      pBlackboard->SetEntryValue(sTestVal, 3);
       sm.Update(s_TimeStep);
       EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiEnterCounter, 0);
       EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiExitCounter, 0);

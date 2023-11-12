@@ -17,6 +17,8 @@ public:
 
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual void ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
   void SetFadeOutStart(float fStart);
   float GetFadeOutStart() const;
@@ -30,17 +32,17 @@ protected:
   ezRenderPipelineNodeInputPin m_PinDepthInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  float m_fRadius;
-  float m_fMaxScreenSpaceRadius;
-  float m_fContrast;
-  float m_fIntensity;
+  float m_fRadius = 1.0f;
+  float m_fMaxScreenSpaceRadius = 1.0f;
+  float m_fContrast = 2.0f;
+  float m_fIntensity = 0.7f;
 
-  float m_fFadeOutStart;
-  float m_fFadeOutEnd;
+  float m_fFadeOutStart = 80.0f;
+  float m_fFadeOutEnd = 100.0f;
 
-  float m_fPositionBias;
-  float m_fMipLevelScale;
-  float m_fDepthBlurThreshold;
+  float m_fPositionBias = 5.0f;
+  float m_fMipLevelScale = 10.0f;
+  float m_fDepthBlurThreshold = 2.0f;
 
   ezConstantBufferStorageHandle m_hDownscaleConstantBuffer;
   ezConstantBufferStorageHandle m_hSSAOConstantBuffer;

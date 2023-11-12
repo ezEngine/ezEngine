@@ -1,8 +1,8 @@
 #include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
-#include <Inspector/ResourceWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
+#include <Inspector/ResourceWidget.moc.h>
 #include <QComboBox>
 #include <qgraphicsitem.h>
 
@@ -13,7 +13,7 @@
 /// \todo Refcount ? (Max?)
 /// \todo Select Resource -> send to App for preview
 
-void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize);
+void FormatSize(ezStringBuilder& s, ezStringView sPrefix, ezUInt64 uiSize);
 
 ezQtResourceWidget* ezQtResourceWidget::s_pWidget = nullptr;
 
@@ -24,6 +24,8 @@ ezQtResourceWidget::ezQtResourceWidget(QWidget* pParent)
 
   setupUi(this);
   setWidget(ResourceWidgetFrame);
+
+  setIcon(QIcon(":/Icons/Icons/Resources.svg"));
 
   m_bShowDeleted = true;
 
@@ -36,7 +38,7 @@ void ezQtResourceWidget::ResetStats()
 
   m_bUpdateTable = true;
   m_bUpdateTypeBox = true;
-  m_LastTableUpdate = ezTime::Seconds(0);
+  m_LastTableUpdate = ezTime::MakeFromSeconds(0);
 
   Table->clear();
   Table->setRowCount(0);
@@ -91,7 +93,7 @@ void ezQtResourceWidget::UpdateTable()
   if (!m_bUpdateTable)
     return;
 
-  if (ezTime::Now() - m_LastTableUpdate < ezTime::Seconds(0.25))
+  if (ezTime::Now() - m_LastTableUpdate < ezTime::MakeFromSeconds(0.25))
     return;
 
   bool bResizeFirstColumn = false;
@@ -206,22 +208,22 @@ void ezQtResourceWidget::UpdateTable()
 
       if (res.m_LoadingState.m_State == ezResourceState::LoadedResourceMissing)
       {
-        pItem->setIcon(QIcon(":/Icons/Icons/ResourceMissing.png"));
+        pItem->setIcon(QIcon(":/Icons/Icons/ResourceMissing.svg"));
         pItem->setToolTip("The resource could not be loaded.");
       }
       else if (!res.m_Flags.IsAnySet(ezResourceFlags::IsReloadable))
       {
-        pItem->setIcon(QIcon(":/Icons/Icons/ResourceCreated.png"));
+        pItem->setIcon(QIcon(":/Icons/Icons/ResourceCreated.svg"));
         pItem->setToolTip("Resource is not reloadable.");
       }
       else if (res.m_Flags.IsAnySet(ezResourceFlags::ResourceHasFallback))
       {
-        pItem->setIcon(QIcon(":/Icons/Icons/ResourceFallback.png"));
+        pItem->setIcon(QIcon(":/Icons/Icons/ResourceFallback.svg"));
         pItem->setToolTip("A fallback resource is specified.");
       }
       else
       {
-        pItem->setIcon(QIcon(":/Icons/Icons/Resource.png"));
+        pItem->setIcon(QIcon(":/Icons/Icons/Resource.svg"));
         pItem->setToolTip("Resource is reloadable but no fallback is available.");
       }
 
@@ -315,7 +317,7 @@ void ezQtResourceWidget::UpdateTable()
 
       if (res.m_LoadingState.m_State == ezResourceState::Invalid)
       {
-        Table->item(iTableRow, 7)->setIcon(QIcon(":/Icons/Icons/ResourceDeleted.png"));
+        Table->item(iTableRow, 7)->setIcon(QIcon(":/Icons/Icons/ResourceDeleted.svg"));
         // Table->item(iTableRow, 1)->setText(""); // Priority
         // Table->item(iTableRow, 3)->setText(""); // QL D
         // Table->item(iTableRow, 4)->setText(""); // QL L
@@ -367,7 +369,7 @@ void ezQtResourceWidget::on_CheckShowDeleted_toggled(bool checked)
   UpdateAll();
 }
 
-static const char* StateToString(ezResourceState state)
+static ezStringView StateToString(ezResourceState state)
 {
   switch (state)
   {
@@ -384,7 +386,7 @@ static const char* StateToString(ezResourceState state)
   return "unknown";
 }
 
-static const char* PriorityToString(ezResourcePriority priority)
+static ezStringView PriorityToString(ezResourcePriority priority)
 {
   switch (priority)
   {

@@ -26,10 +26,10 @@ enum class EPathRotationConstraintType
 };
 
 /// Path constraint settings, used to constrain the degrees of freedom between two bodies to a path
-class PathConstraintSettings final : public TwoBodyConstraintSettings
+class JPH_EXPORT PathConstraintSettings final : public TwoBodyConstraintSettings
 {
 public:
-	JPH_DECLARE_SERIALIZABLE_VIRTUAL(PathConstraintSettings)
+	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, PathConstraintSettings)
 
 	// See: ConstraintSettings::SaveBinaryState
 	virtual void					SaveBinaryState(StreamOut &inStream) const override;
@@ -64,7 +64,7 @@ protected:
 };
 
 /// Path constraint, used to constrain the degrees of freedom between two bodies to a path
-class PathConstraint final : public TwoBodyConstraint
+class JPH_EXPORT PathConstraint final : public TwoBodyConstraint
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -74,6 +74,7 @@ public:
 
 	// Generic interface of a constraint
 	virtual EConstraintSubType		GetSubType() const override								{ return EConstraintSubType::Path; }
+	virtual void					NotifyShapeChanged(const BodyID &inBodyID, Vec3Arg inDeltaCOM) override;
 	virtual void					SetupVelocityConstraint(float inDeltaTime) override;
 	virtual void					WarmStartVelocityConstraint(float inWarmStartImpulseRatio) override;
 	virtual bool					SolveVelocityConstraint(float inDeltaTime) override;
@@ -98,7 +99,7 @@ public:
 
 	/// Access to the current fraction along the path e [0, GetPath()->GetMaxPathFraction()]
 	float							GetPathFraction() const									{ return mPathFraction; }
-	
+
 	/// Friction control
 	void							SetMaxFrictionForce(float inFrictionForce)				{ mMaxFrictionForce = inFrictionForce; }
 	float							GetMaxFrictionForce() const								{ return mMaxFrictionForce; }
@@ -115,7 +116,7 @@ public:
 	void							SetTargetPathFraction(float inFraction)					{ JPH_ASSERT(mPath->IsLooping() || (inFraction >= 0.0f && inFraction <= mPath->GetPathMaxFraction())); mTargetPathFraction = inFraction; }
 	float							GetTargetPathFraction() const							{ return mTargetPathFraction; }
 
-	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
+	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
 	inline Vector<2>				GetTotalLambdaPosition() const							{ return mPositionConstraintPart.GetTotalLambda(); }
 	inline float					GetTotalLambdaPositionLimits() const					{ return mPositionLimitsConstraintPart.GetTotalLambda(); }
 	inline float					GetTotalLambdaMotor() const								{ return mPositionMotorConstraintPart.GetTotalLambda(); }

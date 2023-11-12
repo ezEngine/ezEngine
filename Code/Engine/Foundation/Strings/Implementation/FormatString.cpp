@@ -9,28 +9,72 @@
 
 ezFormatString::ezFormatString(const ezStringBuilder& s)
 {
-  m_szString = s.GetData();
+  m_sString = s.GetView();
 }
 
-void ezFormatString::SBAppendView(ezStringBuilder& sb, const ezStringView& sub)
+const char* ezFormatString::GetTextCStr(ezStringBuilder& out_sString) const
 {
-  sb.Append(sub);
+  out_sString = m_sString;
+  return out_sString.GetData();
 }
 
-void ezFormatString::SBClear(ezStringBuilder& sb)
+ezStringView ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, ezStringView* pArgs, ezUInt32 uiNumArgs) const
 {
-  sb.Clear();
+  ezStringView sString = m_sString;
+
+  ezUInt32 uiLastParam = -1;
+
+  ref_sStorage.Clear();
+  while (!sString.IsEmpty())
+  {
+    if (sString.StartsWith("%"))
+    {
+      if (sString.TrimWordStart("%%"))
+      {
+        ref_sStorage.Append("%"_ezsv);
+      }
+      else
+      {
+        EZ_ASSERT_DEBUG(false, "Single percentage signs are not allowed in ezFormatString. Did you forgot to migrate a printf-style "
+                               "string? Use double percentage signs for the actual character.");
+      }
+    }
+    else if (sString.GetElementCount() >= 3 && *sString.GetStartPointer() == '{' && *(sString.GetStartPointer() + 1) >= '0' && *(sString.GetStartPointer() + 1) <= '9' && *(sString.GetStartPointer() + 2) == '}')
+    {
+      uiLastParam = *(sString.GetStartPointer() + 1) - '0';
+      EZ_ASSERT_DEV(uiLastParam < uiNumArgs, "Too many placeholders in format string");
+
+      if (uiLastParam < uiNumArgs)
+      {
+        ref_sStorage.Append(pArgs[uiLastParam]);
+      }
+
+      sString.ChopAwayFirstCharacterAscii();
+      sString.ChopAwayFirstCharacterAscii();
+      sString.ChopAwayFirstCharacterAscii();
+    }
+    else if (sString.TrimWordStart("{}"))
+    {
+      ++uiLastParam;
+      EZ_ASSERT_DEV(uiLastParam < uiNumArgs, "Too many placeholders in format string");
+
+      if (uiLastParam < uiNumArgs)
+      {
+        ref_sStorage.Append(pArgs[uiLastParam]);
+      }
+    }
+    else
+    {
+      const ezUInt32 character = sString.GetCharacter();
+      ref_sStorage.Append(character);
+      sString.ChopAwayFirstCharacterUtf8();
+    }
+  }
+
+  return ref_sStorage.GetView();
 }
 
-void ezFormatString::SBAppendChar(ezStringBuilder& sb, ezUInt32 uiChar)
-{
-  sb.Append(uiChar);
-}
-
-const char* ezFormatString::SBReturn(ezStringBuilder& sb)
-{
-  return sb.GetData();
-}
+//////////////////////////////////////////////////////////////////////////
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgI& arg)
 {
@@ -368,6 +412,18 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& a
   ezStringUtils::snprintf(FullMessage, EZ_ARRAY_SIZE(FullMessage), "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
   LocalFree(lpMsgBuf);
   return ezStringView(FullMessage);
+}
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <string.h>
+
+ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg)
+{
+  static thread_local char FullMessage[256];
+  const char* szErrorMsg = strerror_r(arg.m_iErrno, FullMessage, 256);
+  ezStringUtils::snprintf(szTmp, uiLength, "%i (\"%s\")", arg.m_iErrno, szErrorMsg);
+  return ezStringView(szTmp);
 }
 #endif
 

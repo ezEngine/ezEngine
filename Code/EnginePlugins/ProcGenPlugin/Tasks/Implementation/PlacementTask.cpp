@@ -171,7 +171,6 @@ void PlacementTask::ExecuteVM()
     }
 
     // Test density against point threshold and fill remaining input point data from expression
-    float fObjectCount = static_cast<float>(pOutput->m_ObjectsToPlace.GetCount());
     const Pattern* pPattern = pOutput->m_pPattern;
     for (ezUInt32 i = 0; i < uiNumInstances; ++i)
     {
@@ -224,25 +223,23 @@ void PlacementTask::ExecuteVM()
 
     ezSimdVec4f random = ezSimdRandom::FloatMinMax(ezSimdVec4i(placementPoint.m_uiPointIndex), vMinValue, vMaxValue, seed);
 
-    ezSimdVec4f offset = ezSimdVec4f::ZeroVector();
+    ezSimdVec4f offset = ezSimdVec4f::MakeZero();
     offset.SetZ(random.y());
     placementTransform.m_Transform.m_Position = ezSimdConversion::ToVec3(placementPoint.m_vPosition) + offset;
 
     ezSimdVec4f yaw = ezSimdVec4f(random.x());
     ezSimdVec4f roundedYaw = (yaw.CompDiv(vYawRotationSnap) + vHalf).Floor().CompMul(vYawRotationSnap);
-    yaw = ezSimdVec4f::Select(vYawRotationSnap == ezSimdVec4f::ZeroVector(), yaw, roundedYaw);
+    yaw = ezSimdVec4f::Select(vYawRotationSnap == ezSimdVec4f::MakeZero(), yaw, roundedYaw);
 
-    ezSimdQuat qYawRot;
-    qYawRot.SetFromAxisAndAngle(vUp, yaw.x());
+    ezSimdQuat qYawRot = ezSimdQuat::MakeFromAxisAndAngle(vUp, yaw.x());
     ezSimdVec4f vNormal = ezSimdConversion::ToVec3(placementPoint.m_vNormal);
-    ezSimdQuat qToNormalRot;
-    qToNormalRot.SetShortestRotation(vUp, ezSimdVec4f::Lerp(vUp, vNormal, vAlignToNormal));
+    ezSimdQuat qToNormalRot = ezSimdQuat::MakeShortestRotation(vUp, ezSimdVec4f::Lerp(vUp, vNormal, vAlignToNormal));
     placementTransform.m_Transform.m_Rotation = qToNormalRot * qYawRot;
 
     ezSimdVec4f scale = ezSimdVec4f(ezMath::Clamp(placementPoint.m_fScale, 0.0f, 1.0f));
     placementTransform.m_Transform.m_Scale = ezSimdVec4f::Lerp(vMinScale, vMaxScale, scale);
 
-    placementTransform.m_ObjectColor = ezColor::ZeroColor();
+    placementTransform.m_ObjectColor = ezColor::MakeZero();
     placementTransform.m_uiPointIndex = placementPoint.m_uiPointIndex;
     placementTransform.m_uiObjectIndex = placementPoint.m_uiObjectIndex;
     placementTransform.m_bHasValidColor = false;

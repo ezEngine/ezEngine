@@ -34,6 +34,7 @@ ezResult ezRmlUiResourceDescriptor::Load(ezStreamReader& inout_stream)
   EZ_SUCCEED_OR_RETURN(m_DependencyFile.ReadDependencyFile(inout_stream));
 
   ezTypeVersion uiVersion = inout_stream.ReadVersion(s_RmlUiDescVersion);
+  EZ_IGNORE_UNUSED(uiVersion);
 
   inout_stream >> m_sRmlFile;
   inout_stream >> m_ScaleMode;

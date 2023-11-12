@@ -39,7 +39,6 @@ void ezMeshRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData
 
 void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
 
   const ezMeshRenderData* pRenderData = batch.GetFirstData<ezMeshRenderData>();

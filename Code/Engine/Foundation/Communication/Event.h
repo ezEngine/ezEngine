@@ -1,13 +1,12 @@
 #pragma once
 
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/Delegate.h>
 
 /// \brief Identifies an event subscription. Zero is always an invalid subscription ID.
-typedef ezUInt32 ezEventSubscriptionID;
+using ezEventSubscriptionID = ezUInt32;
 
 /// \brief Specifies the type of ezEvent implementation to use
 enum class ezEventType
@@ -139,6 +138,9 @@ public:
 
   /// \brief Removes all registered event handlers.
   void Clear();
+
+  /// \brief Returns true, if no event handlers are registered.
+  bool IsEmpty() const;
 
   // it would be a problem if the ezEvent moves in memory, for instance the Unsubscriber's would point to invalid memory
   EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);

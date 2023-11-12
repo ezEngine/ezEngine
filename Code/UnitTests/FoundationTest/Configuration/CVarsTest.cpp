@@ -12,14 +12,14 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 #define ezCVarValueRestart ezCVarValue::Restart
 
 // Interestingly using 'ezCVarValue::Default' directly inside a macro does not work. (?!)
-#define CHECK_CVAR(var, Current, Default, Stored, Restart)                                                                                           \
-  EZ_TEST_BOOL(var != nullptr);                                                                                                                      \
-  if (var != nullptr)                                                                                                                                \
-  {                                                                                                                                                  \
-    EZ_TEST_BOOL(var->GetValue() == Current);                                                                                                        \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueDefault) == Default);                                                                                      \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueStored) == Stored);                                                                                        \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueRestart) == Restart);                                                                                      \
+#define CHECK_CVAR(var, Current, Default, Stored, Restart)      \
+  EZ_TEST_BOOL(var != nullptr);                                 \
+  if (var != nullptr)                                           \
+  {                                                             \
+    EZ_TEST_BOOL(var->GetValue() == Current);                   \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueDefault) == Default); \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueStored) == Stored);   \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueRestart) == Restart); \
   }
 
 static ezInt32 iChangedValue = 0;
@@ -83,6 +83,129 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   ezCVar::SetStorageFolder(":output/CVars");
   ezCVar::LoadCVars(); // should do nothing (no settings files available)
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SaveCVarsToFile and LoadCVarsFromFile again")
+  {
+    const char* cvarConfigFileDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(cvarConfigFileDir, "CVarsTest", "CVarConfigTempDir", ezFileSystem::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", cvarConfigFileDir);
+    ezStringView cvarConfigFile = ":CVarConfigTempDir/CVars.cfg";
+
+    ezCVarInt testCVarInt("testCVarInt", 0, ezCVarFlags::Default, "Test");
+    ezCVarFloat testCVarFloat("testCVarFloat", 0.0f, ezCVarFlags::Default, "Test");
+    ezCVarBool testCVarBool("testCVarBool", false, ezCVarFlags::Save, "Test");
+    ezCVarString testCVarString("testCVarString", "", ezCVarFlags::Save, "Test");
+
+    // ignore save flag = false
+    {
+      testCVarInt = 481516;
+      testCVarFloat = 23.42f;
+      testCVarBool = true;
+      testCVarString = "Hello World!";
+
+      bool bIgnoreSaveFlag = false;
+      ezCVar::SaveCVarsToFile(cvarConfigFile, bIgnoreSaveFlag);
+      EZ_TEST_BOOL(ezFileSystem::ExistsFile(cvarConfigFile) == EZ_SUCCESS);
+
+      testCVarInt = 0;
+      testCVarFloat = 0.0f;
+      testCVarBool = false;
+      testCVarString = "";
+
+      ezDynamicArray<ezCVar*> outCVars;
+      constexpr bool bOnlyNewOnes = false;
+      constexpr bool bSetAsCurrentValue = true;
+      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+
+      EZ_TEST_INT(testCVarInt, 0);
+      EZ_TEST_FLOAT(testCVarFloat, 0.0f, ezMath::DefaultEpsilon<float>());
+      EZ_TEST_BOOL(testCVarBool == true);
+      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+
+      testCVarInt = 0;
+      testCVarFloat = 0.0f;
+      testCVarBool = false;
+      testCVarString = "";
+
+      // Even if we ignore the save flag the result should be same as above since we only stored CVars with the save flag in the file.
+      bIgnoreSaveFlag = true;
+      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+
+      EZ_TEST_INT(testCVarInt, 0);
+      EZ_TEST_FLOAT(testCVarFloat, 0.0f, ezMath::DefaultEpsilon<float>());
+      EZ_TEST_BOOL(testCVarBool == true);
+      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+
+      ezFileSystem::DeleteFile(cvarConfigFile);
+    }
+
+    // ignore save flag = true
+    {
+      testCVarInt = 481516;
+      testCVarFloat = 23.42f;
+      testCVarBool = true;
+      testCVarString = "Hello World!";
+
+      bool bIgnoreSaveFlag = true;
+      ezCVar::SaveCVarsToFile(cvarConfigFile, bIgnoreSaveFlag);
+      EZ_TEST_BOOL(ezFileSystem::ExistsFile(cvarConfigFile) == EZ_SUCCESS);
+
+      testCVarInt = 0;
+      testCVarFloat = 0.0f;
+      testCVarBool = false;
+      testCVarString = "";
+
+      ezDynamicArray<ezCVar*> outCVars;
+      constexpr bool bOnlyNewOnes = false;
+      constexpr bool bSetAsCurrentValue = true;
+      // Check whether the save flag is correctly checked during load now that we have saved all CVars to the file.
+      bIgnoreSaveFlag = false;
+      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+
+      EZ_TEST_INT(testCVarInt, 0);
+      EZ_TEST_FLOAT(testCVarFloat, 0.0f, ezMath::DefaultEpsilon<float>());
+      EZ_TEST_BOOL(testCVarBool == true);
+      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+
+      testCVarInt = 0;
+      testCVarFloat = 0.0f;
+      testCVarBool = false;
+      testCVarString = "";
+
+      // Now load all cvars stored in the file.
+      bIgnoreSaveFlag = true;
+      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+
+      EZ_TEST_INT(testCVarInt, 481516);
+      EZ_TEST_FLOAT(testCVarFloat, 23.42f, ezMath::DefaultEpsilon<float>());
+      EZ_TEST_BOOL(testCVarBool == true);
+      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+
+      ezFileSystem::DeleteFile(cvarConfigFile);
+    }
+
+
+    EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectory("CVarConfigTempDir"));
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded")
   {
@@ -186,8 +309,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       if (pInt)
       {
         EZ_TEST_BOOL(pInt->GetType() == ezCVarType::Int);
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pInt->GetName(), "test1_Int"));
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pInt->GetDescription(), "Desc: test1_Int"));
+        EZ_TEST_BOOL(pInt->GetName() == "test1_Int");
+        EZ_TEST_BOOL(pInt->GetDescription() == "Desc: test1_Int");
 
         pInt->m_CVarEvents.AddEventHandler(ChangedCVar);
 
@@ -208,8 +331,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       if (pFloat)
       {
         EZ_TEST_BOOL(pFloat->GetType() == ezCVarType::Float);
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pFloat->GetName(), "test1_Float"));
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pFloat->GetDescription(), "Desc: test1_Float"));
+        EZ_TEST_BOOL(pFloat->GetName() == "test1_Float");
+        EZ_TEST_BOOL(pFloat->GetDescription() == "Desc: test1_Float");
 
         pFloat->m_CVarEvents.AddEventHandler(ChangedCVar);
 
@@ -237,8 +360,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       if (pBool)
       {
         EZ_TEST_BOOL(pBool->GetType() == ezCVarType::Bool);
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pBool->GetName(), "test1_Bool"));
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pBool->GetDescription(), "Desc: test1_Bool"));
+        EZ_TEST_BOOL(pBool->GetName() == "test1_Bool");
+        EZ_TEST_BOOL(pBool->GetDescription() == "Desc: test1_Bool");
 
         *pBool = true;
         CHECK_CVAR(pBool, true, false, false, true);
@@ -250,8 +373,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       if (pString)
       {
         EZ_TEST_BOOL(pString->GetType() == ezCVarType::String);
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pString->GetName(), "test1_String"));
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pString->GetDescription(), "Desc: test1_String"));
+        EZ_TEST_BOOL(pString->GetName() == "test1_String");
+        EZ_TEST_BOOL(pString->GetDescription() == "Desc: test1_String");
 
         *pString = "test1_value2";
         CHECK_CVAR(pString, "test1_value2", "test1", "test1", "test1_value2");

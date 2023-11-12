@@ -14,15 +14,20 @@ public:
 
 class ezAssetProfilesDocument : public ezDocument
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezAssetProfilesDocument, ezDocument);
+
 public:
-  ezAssetProfilesDocument(const char* szDocumentPath)
-    : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezAssetProfilesObjectManager))
+  ezAssetProfilesDocument(ezStringView sDocumentPath)
+    : ezDocument(sDocumentPath, EZ_DEFAULT_NEW(ezAssetProfilesObjectManager))
   {
   }
 
 public:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 };
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetProfilesDocument, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 class ezQtAssetConfigAdapter : public ezQtNameableAdapter
 {
@@ -44,13 +49,13 @@ public:
         switch (iPlatform)
         {
           case ezProfileTargetPlatform::PC:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows16.png");
+            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg");
 
           case ezProfileTargetPlatform::UWP:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows16.png"); // TODO: icon
+            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg"); // TODO: icon
 
           case ezProfileTargetPlatform::Android:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid16.png");
+            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid.svg");
         }
       }
 
@@ -136,8 +141,7 @@ ezUuid ezQtAssetProfilesDlg::NativeToObject(ezPlatformProfile* pProfile)
   ezRttiConverterContext context;
   ezRttiConverterWriter conv(&graph, &context, true, true);
 
-  ezUuid guid;
-  guid.CreateNewUuid();
+  const ezUuid guid = ezUuid::MakeUuid();
   context.RegisterObject(guid, pType, pProfile);
   ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pType, pProfile, "root");
 
@@ -307,7 +311,7 @@ void ezQtAssetProfilesDlg::on_DeleteButton_clicked()
   ezRemoveObjectCommand cmd;
   cmd.m_Object = sel[0]->GetGuid();
 
-  m_pDocument->GetCommandHistory()->AddCommand(cmd);
+  m_pDocument->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
 
   m_pDocument->GetCommandHistory()->FinishTransaction();
 }
@@ -333,7 +337,7 @@ void ezQtAssetProfilesDlg::on_RenameButton_clicked()
   cmd.m_sProperty = "Name";
   cmd.m_NewValue = sProfileName;
 
-  m_pDocument->GetCommandHistory()->AddCommand(cmd);
+  m_pDocument->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
 
   m_pDocument->GetCommandHistory()->FinishTransaction();
 }

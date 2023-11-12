@@ -14,6 +14,7 @@ class QHBoxLayout;
 class QVBoxLayout;
 class QLabel;
 class QMenu;
+class QComboBox;
 class ezQtGroupBoxBase;
 class ezQtAddSubElementButton;
 class ezQtPropertyGridWidget;
@@ -156,8 +157,8 @@ private:
   void FlushQueuedChanges();
 
 protected:
-  bool m_bTemporaryCommand;
-  const ezRTTI* m_pResolvedType;
+  bool m_bTemporaryCommand = false;
+  const ezRTTI* m_pResolvedType = nullptr;
   ezHybridArray<ezPropertySelection, 8> m_ResolvedObjects;
 
   ezHybridArray<ezString, 1> m_QueuedChanges;
@@ -287,7 +288,7 @@ protected:
   QHBoxLayout* m_pLayout;
   ezQtGroupBoxBase* m_pGroup;
   QVBoxLayout* m_pGroupLayout;
-  ezQtAddSubElementButton* m_pAddButton;
+  ezQtAddSubElementButton* m_pAddButton = nullptr;
   QPalette m_Pal;
 
   mutable ezHybridArray<ezVariant, 16> m_Keys;
@@ -329,7 +330,7 @@ protected:
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
 
 private:
-  bool m_bNeedsUpdate;
+  bool m_bNeedsUpdate = false;
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtVariantPropertyWidget : public ezQtStandardPropertyWidget
@@ -340,18 +341,18 @@ public:
   ezQtVariantPropertyWidget();
   virtual ~ezQtVariantPropertyWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
-  virtual void ExtendContextMenu(QMenu& ref_menu) override;
-
 protected:
-  virtual void OnInit() override{};
+  virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
   virtual void DoPrepareToDie() override;
+  void UpdateTypeListSelection(ezVariantType::Enum type);
   void ChangeVariantType(ezVariantType::Enum type);
 
+  virtual ezResult GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const;
+
 protected:
-  QHBoxLayout* m_pLayout = nullptr;
-  QWidget* m_pSelectType = nullptr;
+  QVBoxLayout* m_pLayout = nullptr;
+  QComboBox* m_pTypeList = nullptr;
   ezQtPropertyWidget* m_pWidget = nullptr;
   const ezRTTI* m_pCurrentSubType = nullptr;
 };

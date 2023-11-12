@@ -16,8 +16,11 @@ void ezQtAssetCuratorFilter::SetFilterTransitive(bool bFilterTransitive)
   m_bFilterTransitive = bFilterTransitive;
 }
 
-bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
+bool ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const
 {
+  if (!pInfo)
+    return true;
+
   if (!pInfo->m_bMainAsset)
     return true;
 
@@ -46,23 +49,6 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
   return false;
 }
 
-bool ezQtAssetCuratorFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const
-{
-  // TODO: We can't sort on mutable data here as it destroys the set order, need to add a sorting model on top.
-  // if (pInfoA->m_pAssetInfo->m_TransformState != pInfoB->m_pAssetInfo->m_TransformState)
-  //  return pInfoA->m_pAssetInfo->m_TransformState < pInfoB->m_pAssetInfo->m_TransformState;
-
-  ezStringView sSortA = pInfoA->GetName();
-  ezStringView sSortB = pInfoB->GetName();
-
-  ezInt32 iValue = ezStringUtils::Compare_NoCase(sSortA.GetStartPointer(), sSortB.GetStartPointer(), sSortA.GetEndPointer(), sSortB.GetEndPointer());
-  if (iValue == 0)
-  {
-    return pInfoA->m_Data.m_Guid < pInfoB->m_Data.m_Guid;
-  }
-  return iValue < 0;
-}
-
 EZ_IMPLEMENT_SINGLETON(ezQtAssetCuratorPanel);
 
 ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
@@ -76,7 +62,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
 
   // using pDummy instead of 'this' breaks auto-connect for slots
   setWidget(pDummy);
-  setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
+  setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/AssetCurator.svg"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetCurator")));
 
   connect(ListAssets, &QTreeView::doubleClicked, this, &ezQtAssetCuratorPanel::onListAssetsDoubleClicked);
@@ -129,7 +115,6 @@ void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& select
 
 void ezQtAssetCuratorPanel::onListAssetsDoubleClicked(const QModelIndex& index)
 {
-  ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
   QString sAbsPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
 
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAbsPath.toUtf8().data());
@@ -175,7 +160,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
       auto assetInfoDep = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
       if (assetInfoDep)
       {
-        return assetInfoDep->m_pAssetInfo->m_sDataDirParentRelativePath;
+        return assetInfoDep->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
       }
 
       ezUInt64 uiLow;

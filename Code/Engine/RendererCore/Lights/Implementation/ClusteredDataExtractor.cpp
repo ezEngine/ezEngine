@@ -2,6 +2,7 @@
 
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Components/FogComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -30,7 +31,7 @@ namespace
     float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
 
     ezMat4 mProj;
-    pCamera->GetProjectionMatrix(view.GetViewport().width / (float)view.GetViewport().height, mProj);
+    pCamera->GetProjectionMatrix(fAspectRatio, mProj);
 
     ezAngle fFovLeft;
     ezAngle fFovRight;
@@ -170,7 +171,7 @@ ezClusteredDataExtractor::ezClusteredDataExtractor(const char* szName)
   m_ClusterBoundingSpheres.SetCountUninitialized(NUM_CLUSTERS);
 }
 
-ezClusteredDataExtractor::~ezClusteredDataExtractor() {}
+ezClusteredDataExtractor::~ezClusteredDataExtractor() = default;
 
 void ezClusteredDataExtractor::PostSortAndBatch(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
@@ -275,7 +276,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
         }
         else
         {
-          EZ_ASSERT_NOT_IMPLEMENTED;
+          ezLog::Warning("Unhandled render data type '{}' in 'Light' category", it->GetDynamicRTTI()->GetTypeName());
         }
       }
     }
@@ -317,7 +318,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
         }
         else
         {
-          EZ_ASSERT_NOT_IMPLEMENTED;
+          ezLog::Warning("Unhandled render data type '{}' in 'Decal' category", it->GetDynamicRTTI()->GetTypeName());
         }
       }
     }
@@ -390,7 +391,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
         }
         else
         {
-          EZ_ASSERT_NOT_IMPLEMENTED;
+          ezLog::Warning("Unhandled render data type '{}' in 'ReflectionProbe' category", it->GetDynamicRTTI()->GetTypeName());
         }
       }
     }
@@ -406,6 +407,21 @@ void ezClusteredDataExtractor::PostSortAndBatch(
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   VisualizeClusteredData(view, pData, m_ClusterBoundingSpheres);
 #endif
+}
+
+ezResult ezClusteredDataExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return EZ_SUCCESS;
+}
+
+
+ezResult ezClusteredDataExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  return EZ_SUCCESS;
 }
 
 namespace

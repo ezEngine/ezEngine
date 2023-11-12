@@ -310,7 +310,7 @@ ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(
 
   ClearHandles();
 
-  if (options.m_MaxStepTime <= ezTime::Zero())
+  if (options.m_MaxStepTime <= ezTime::MakeZero())
   {
     InstantiationContext context = InstantiationContext(*this, bUseTransform, rootTransform, options);
 
@@ -333,7 +333,7 @@ ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_wor
 
   if (m_Options.m_MaxStepTime.IsZeroOrNegative())
   {
-    m_Options.m_MaxStepTime = ezTime::Hours(24 * 365);
+    m_Options.m_MaxStepTime = ezTime::MakeFromHours(24 * 365);
   }
 
   if (options.m_MaxStepTime.IsPositive())
@@ -376,6 +376,31 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
 
   if (m_Phase == Phase::CreateRootObjects)
   {
+    if (!m_Options.m_ReplaceNamedRootWithParent.IsEmpty())
+    {
+      EZ_ASSERT_DEBUG(!m_Options.m_hParent.IsInvalidated(), "Parent must be provided when m_ReplaceNamedRootWithParent is specified.");
+
+      if (m_WorldReader.m_RootObjectsToCreate.GetCount() == 1 && m_WorldReader.m_RootObjectsToCreate[0].m_Desc.m_sName == m_Options.m_ReplaceNamedRootWithParent)
+      {
+        m_uiCurrentIndex = 1;
+        m_WorldReader.m_IndexToGameObjectHandle.PushBack(m_Options.m_hParent);
+
+        ezGameObject* pParent = nullptr;
+        if (m_WorldReader.m_pWorld->TryGetObject(m_Options.m_hParent, pParent))
+        {
+          if (m_Options.m_pCreatedRootObjectsOut)
+          {
+            m_Options.m_pCreatedRootObjectsOut->PushBack(pParent);
+          }
+
+          if (m_WorldReader.m_RootObjectsToCreate[0].m_Desc.m_bDynamic)
+          {
+            pParent->MakeDynamic();
+          }
+        }
+      }
+    }
+
     if (m_bUseTransform)
     {
       if (!CreateGameObjects<true>(m_WorldReader.m_RootObjectsToCreate, m_Options.m_hParent, m_Options.m_pCreatedRootObjectsOut, endTime))
@@ -531,7 +556,7 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
     {
       ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
       ezTransform tFinal;
-      tFinal.SetGlobalTransform(m_RootTransform, tChild);
+      tFinal = ezTransform::MakeGlobalTransform(m_RootTransform, tChild);
 
       desc.m_LocalPosition = tFinal.m_vPosition;
       desc.m_LocalRotation = tFinal.m_qRotation;

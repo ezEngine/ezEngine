@@ -6,7 +6,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) * 2 == sizeof(UUID));
 
-void ezUuid::CreateNewUuid()
+ezUuid ezUuid::MakeUuid()
 {
   ezUInt64 uiUuidData[2];
 
@@ -18,6 +18,5 @@ void ezUuid::CreateNewUuid()
   HRESULT hr = CoCreateGuid(guid);
   EZ_ASSERT_DEBUG(SUCCEEDED(hr), "CoCreateGuid failed, guid might be invalid!");
 
-  m_uiHigh = uiUuidData[0];
-  m_uiLow = uiUuidData[1];
+  return ezUuid(uiUuidData[1], uiUuidData[0]);
 }

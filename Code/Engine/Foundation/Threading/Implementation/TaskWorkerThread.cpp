@@ -122,7 +122,7 @@ void ezTaskWorkerThread::UpdateThreadUtilization(ezTime timePassed)
   // The thread keeps track of how much time it spends executing tasks.
   // Here we retrieve that time and resets it to zero.
   {
-    m_ThreadActiveTime = ezTime::Zero();
+    m_ThreadActiveTime = ezTime::MakeZero();
 
     if (m_bExecutingTask)
     {

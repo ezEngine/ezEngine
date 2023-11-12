@@ -13,7 +13,7 @@ bool ezOpenXRHandTracking::IsHandTrackingSupported(ezOpenXR* pOpenXR)
 {
   XrSystemHandTrackingPropertiesEXT handTrackingSystemProperties{XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT};
   XrSystemProperties systemProperties{XR_TYPE_SYSTEM_PROPERTIES, &handTrackingSystemProperties};
-  XrResult res = xrGetSystemProperties(pOpenXR->m_instance, pOpenXR->m_systemId, &systemProperties);
+  XrResult res = xrGetSystemProperties(pOpenXR->m_pInstance, pOpenXR->m_SystemId, &systemProperties);
   if (res == XrResult::XR_SUCCESS)
   {
     return handTrackingSystemProperties.supportsHandTracking;
@@ -30,7 +30,7 @@ ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
     const XrHandEXT uiHand = uiSide == 0 ? XR_HAND_LEFT_EXT : XR_HAND_RIGHT_EXT;
     XrHandTrackerCreateInfoEXT createInfo{XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT};
     createInfo.hand = uiHand;
-    XR_LOG_ERROR(m_pOpenXR->m_extensions.pfn_xrCreateHandTrackerEXT(pOpenXR->m_session, &createInfo, &m_HandTracker[uiSide]));
+    XR_LOG_ERROR(m_pOpenXR->m_Extensions.pfn_xrCreateHandTrackerEXT(pOpenXR->m_pSession, &createInfo, &m_HandTracker[uiSide]));
 
     m_Locations[uiSide].type = XR_TYPE_HAND_JOINT_LOCATIONS_EXT;
     m_Locations[uiSide].next = &m_Velocities;
@@ -93,7 +93,7 @@ ezOpenXRHandTracking::~ezOpenXRHandTracking()
 {
   for (ezUInt32 uiSide : {0, 1})
   {
-    XR_LOG_ERROR(m_pOpenXR->m_extensions.pfn_xrDestroyHandTrackerEXT(m_HandTracker[uiSide]));
+    XR_LOG_ERROR(m_pOpenXR->m_Extensions.pfn_xrDestroyHandTrackerEXT(m_HandTracker[uiSide]));
   }
 }
 
@@ -114,7 +114,10 @@ ezXRHandTrackingInterface::HandPartTrackingState ezOpenXRHandTracking::TryGetBon
 
   if (space == ezXRTransformSpace::Global)
   {
-    const ezWorld* pWorld = m_pOpenXR->m_pWorld;
+    ezWorld* pWorld = m_pOpenXR->GetWorld();
+    if (!pWorld)
+      return ezXRHandTrackingInterface::HandPartTrackingState::NotSupported;
+
     if (const ezStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<ezStageSpaceComponentManager>())
     {
       if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
@@ -123,7 +126,7 @@ ezXRHandTrackingInterface::HandPartTrackingState ezOpenXRHandTracking::TryGetBon
         for (ezXRHandBone& bone : out_bones)
         {
           ezTransform local = bone.m_Transform;
-          bone.m_Transform.SetGlobalTransform(globalStageTransform, local);
+          bone.m_Transform = ezTransform::MakeGlobalTransform(globalStageTransform, local);
         }
       }
     }
@@ -134,14 +137,14 @@ ezXRHandTrackingInterface::HandPartTrackingState ezOpenXRHandTracking::TryGetBon
 void ezOpenXRHandTracking::UpdateJointTransforms()
 {
   EZ_PROFILE_SCOPE("UpdateJointTransforms");
-  const XrTime time = m_pOpenXR->m_frameState.predictedDisplayTime;
+  const XrTime time = m_pOpenXR->m_FrameState.predictedDisplayTime;
   XrHandJointsLocateInfoEXT locateInfo{XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT};
   locateInfo.baseSpace = m_pOpenXR->GetBaseSpace();
   locateInfo.time = time;
 
   for (ezUInt32 uiSide : {0, 1})
   {
-    if (m_pOpenXR->m_extensions.pfn_xrLocateHandJointsEXT(m_HandTracker[uiSide], &locateInfo, &m_Locations[uiSide]) != XrResult::XR_SUCCESS)
+    if (m_pOpenXR->m_Extensions.pfn_xrLocateHandJointsEXT(m_HandTracker[uiSide], &locateInfo, &m_Locations[uiSide]) != XrResult::XR_SUCCESS)
       m_Locations[uiSide].isActive = false;
 
     if (m_Locations[uiSide].isActive)

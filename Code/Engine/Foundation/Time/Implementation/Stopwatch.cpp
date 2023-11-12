@@ -12,7 +12,7 @@ ezStopwatch::ezStopwatch()
 
 void ezStopwatch::StopAndReset()
 {
-  m_TotalDuration.SetZero();
+  m_TotalDuration = ezTime::MakeZero();
   m_bRunning = false;
 }
 

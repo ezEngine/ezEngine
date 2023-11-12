@@ -44,7 +44,7 @@ private:
     ezMap<ezString, TransferDataObject> m_Items;
   };
 
-  bool SaveToFile(TransferDataObject& item, const char* szFile);
+  bool SaveToFile(TransferDataObject& item, ezStringView sFile);
 
   TransferDataObject* GetCurrentItem();
   TransferData* GetCurrentTransfer();

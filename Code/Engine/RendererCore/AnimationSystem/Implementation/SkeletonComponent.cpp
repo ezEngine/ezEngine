@@ -48,7 +48,7 @@ ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bo
   if (m_MaxBounds.IsValid())
   {
     ezBoundingBox bbox = m_MaxBounds;
-    ref_bounds = bbox;
+    ref_bounds = ezBoundingBoxSphere::MakeFromBox(bbox);
     ref_bounds.Transform(m_RootTransform.GetAsMat4());
     return EZ_SUCCESS;
   }
@@ -93,17 +93,17 @@ void ezSkeletonComponent::Update()
 
     for (const auto& shape : m_AngleShapes)
     {
-      ezDebugRenderer::DrawAngle(GetWorld(), shape.m_StartAngle, shape.m_EndAngle, ezColor::ZeroColor(), shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform, vBoneTangent, vBoneDir);
+      ezDebugRenderer::DrawAngle(GetWorld(), shape.m_StartAngle, shape.m_EndAngle, ezColor::MakeZero(), shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform, vBoneTangent, vBoneDir);
     }
 
     for (const auto& shape : m_ConeLimitShapes)
     {
-      ezDebugRenderer::DrawLimitCone(GetWorld(), shape.m_Angle1, shape.m_Angle2, ezColor::ZeroColor(), shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform);
+      ezDebugRenderer::DrawLimitCone(GetWorld(), shape.m_Angle1, shape.m_Angle2, ezColor::MakeZero(), shape.m_Color, GetOwner()->GetGlobalTransform() * shape.m_Transform);
     }
 
     for (const auto& shape : m_CylinderShapes)
     {
-      ezDebugRenderer::DrawCylinder(GetWorld(), shape.m_fRadius1, shape.m_fRadius2, shape.m_fLength, shape.m_Color, ezColor::ZeroColor(), GetOwner()->GetGlobalTransform() * shape.m_Transform, false, false);
+      ezDebugRenderer::DrawCylinder(GetWorld(), shape.m_fRadius1, shape.m_fRadius2, shape.m_fLength, shape.m_Color, ezColor::MakeZero(), GetOwner()->GetGlobalTransform() * shape.m_Transform, false, false);
     }
   }
 }
@@ -146,7 +146,7 @@ void ezSkeletonComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  m_MaxBounds.SetInvalid();
+  m_MaxBounds = ezBoundingBox::MakeInvalid();
   VisualizeSkeletonDefaultState();
 }
 
@@ -177,7 +177,7 @@ void ezSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
   {
     m_hSkeleton = hResource;
 
-    m_MaxBounds.SetInvalid();
+    m_MaxBounds = ezBoundingBox::MakeInvalid();
     VisualizeSkeletonDefaultState();
   }
 }
@@ -216,7 +216,7 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
   BuildJointVisualization(msg);
 
   ezBoundingBox poseBounds;
-  poseBounds.SetInvalid();
+  poseBounds = ezBoundingBox::MakeInvalid();
 
   for (const auto& bone : msg.m_ModelTransforms)
   {
@@ -244,8 +244,8 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
 
   struct Bone
   {
-    ezVec3 pos = ezVec3::ZeroVector();
-    ezVec3 dir = ezVec3::ZeroVector();
+    ezVec3 pos = ezVec3::MakeZero();
+    ezVec3 dir = ezVec3::MakeZero();
     float distToParent = 0.0f;
     float minDistToChild = 10.0f;
     bool highlight = false;
@@ -271,16 +271,16 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
     bone.pos = v1;
     bone.distToParent = dirToBone.GetLength();
     bone.dir = *msg.m_pRootTransform * msg.m_ModelTransforms[iCurrentBone].TransformDirection(vBoneDir);
-    bone.dir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+    bone.dir.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
     auto& pb = bones[iParentBone];
 
-    if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::ZeroVector()).Succeeded())
+    if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::MakeZero()).Succeeded())
     {
-      if (pb.dir.GetAngleBetween(dirToBone) < ezAngle::Degree(45))
+      if (pb.dir.GetAngleBetween(dirToBone) < ezAngle::MakeFromDegree(45))
       {
         ezPlane plane;
-        plane.SetFromNormalAndPoint(pb.dir, pb.pos);
+        plane = ezPlane::MakeFromNormalAndPoint(pb.dir, pb.pos);
         pb.minDistToChild = ezMath::Min(pb.minDistToChild, plane.GetDistanceTo(v1));
       }
     }
@@ -409,7 +409,7 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
     bonesToHighlight.Clear();
 
   ezQuat qRotZtoX; // the capsule should extend along X, but the debug renderer draws them along Z
-  qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+  qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
 
   for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
   {
@@ -435,7 +435,7 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
     {
       auto& shape = m_SpheresShapes.ExpandAndGetRef();
       shape.m_Transform = st;
-      shape.m_Shape.SetElements(ezVec3::ZeroVector(), geo.m_Transform.m_vScale.z);
+      shape.m_Shape = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), geo.m_Transform.m_vScale.z);
       shape.m_Color = hlS;
     }
 
@@ -452,7 +452,7 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
       st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
       shape.m_Transform = st;
-      shape.m_Shape.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ext);
+      shape.m_Shape = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ext);
       shape.m_Color = hlS;
     }
 
@@ -468,6 +468,38 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
       shape.m_fLength = geo.m_Transform.m_vScale.x;
       shape.m_fRadius = geo.m_Transform.m_vScale.z;
       shape.m_Color = hlS;
+    }
+
+    if (geo.m_Type == ezSkeletonJointGeometryType::ConvexMesh)
+    {
+      st.SetIdentity();
+      st = *msg.m_pRootTransform;
+
+      for (ezUInt32 f = 0; f < geo.m_TriangleIndices.GetCount(); f += 3)
+      {
+        const ezUInt32 i0 = geo.m_TriangleIndices[f + 0];
+        const ezUInt32 i1 = geo.m_TriangleIndices[f + 1];
+        const ezUInt32 i2 = geo.m_TriangleIndices[f + 2];
+
+        {
+          auto& l = m_LinesSkeleton.ExpandAndGetRef();
+          l.m_startColor = l.m_endColor = hlS;
+          l.m_start = st * geo.m_VertexPositions[i0];
+          l.m_end = st * geo.m_VertexPositions[i1];
+        }
+        {
+          auto& l = m_LinesSkeleton.ExpandAndGetRef();
+          l.m_startColor = l.m_endColor = hlS;
+          l.m_start = st * geo.m_VertexPositions[i1];
+          l.m_end = st * geo.m_VertexPositions[i2];
+        }
+        {
+          auto& l = m_LinesSkeleton.ExpandAndGetRef();
+          l.m_startColor = l.m_endColor = hlS;
+          l.m_start = st * geo.m_VertexPositions[i2];
+          l.m_end = st * geo.m_VertexPositions[i0];
+        }
+      }
     }
   }
 }
@@ -580,7 +612,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     }
 
     // twist limit
-    if (m_bVisualizeTwistLimits && thisJoint.GetTwistLimitHalfAngle() > ezAngle::Degree(0))
+    if (m_bVisualizeTwistLimits && thisJoint.GetTwistLimitHalfAngle() > ezAngle::MakeFromDegree(0))
     {
       auto& shape = m_AngleShapes.ExpandAndGetRef();
       shape.m_StartAngle = thisJoint.GetTwistLimitLow();
@@ -609,8 +641,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
         vDirRef.Normalize();
 
         const ezVec3 vRotDir = shape.m_Transform.m_qRotation * qBoneDir * ezVec3(1, 0, 0);
-        ezQuat qRotRef;
-        qRotRef.SetFromAxisAndAngle(vRotDir, thisJoint.GetTwistLimitCenterAngle());
+        ezQuat qRotRef = ezQuat::MakeFromAxisAndAngle(vRotDir, thisJoint.GetTwistLimitCenterAngle());
         vDirRef = qRotRef * vDirRef;
 
         // if the current twist is outside the twist limit range, highlight the bone

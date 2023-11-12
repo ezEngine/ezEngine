@@ -29,7 +29,7 @@ public:
   ezTestFramework(const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int iArgc, const char** pArgv);
   virtual ~ezTestFramework();
 
-  typedef void (*OutputHandler)(ezTestOutput::Enum Type, const char* szMsg);
+  using OutputHandler = void (*)(ezTestOutput::Enum, const char*);
 
   // Test management
   void CreateOutputFolder();
@@ -73,8 +73,15 @@ public:
   void SetTestEnabled(ezUInt32 uiTestIndex, bool bEnabled);
   void SetSubTestEnabled(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, bool bEnabled);
 
-  ezInt32 GetCurrentTestIndex() const { return m_iCurrentTestIndex; }
-  ezInt32 GetCurrentSubTestIndex() const { return m_iCurrentSubTestIndex; }
+  ezUInt32 GetCurrentTestIndex() const { return m_uiCurrentTestIndex; }
+  ezUInt32 GetCurrentSubTestIndex() const { return m_uiCurrentSubTestIndex; }
+  ezInt32 GetCurrentSubTestIdentifier() const;
+
+  /// \brief Returns the index of the sub-test with the given identifier.
+  ///
+  /// Only looks at the currently running test, assuming that the identifier is unique among its sub-tests.
+  ezUInt32 FindSubTestIndexForSubTestIdentifier(ezInt32 iSubTestIdentifier) const;
+
   ezTestEntry* GetTest(ezUInt32 uiTestIndex);
   const ezTestEntry* GetTest(ezUInt32 uiTestIndex) const;
   bool GetTestsRunning() const { return m_bTestsRunning; }
@@ -108,15 +115,15 @@ public:
     ezImage& ref_capturedImgAlpha, ezImage& ref_diffImgRgb, ezImage& ref_diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb,
     ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha);
 
-  bool PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, char* szErrorMsg);
-  bool CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool bIsDepthImage = false);
+  bool PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, bool bIsLineImage, char* szErrorMsg);
+  bool CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool bIsDepthImage = false, bool bIsLineImage = false);
 
   /// \brief A function to be called to add extra info to image diff output, that is not available from here.
   /// E.g. device specific info like driver version.
-  typedef std::function<ezDynamicArray<std::pair<ezString, ezString>>()> ImageDiffExtraInfoCallback;
+  using ImageDiffExtraInfoCallback = std::function<ezDynamicArray<std::pair<ezString, ezString>>()>;
   void SetImageDiffExtraInfoCallback(ImageDiffExtraInfoCallback provider);
 
-  typedef std::function<void(bool)> ImageComparisonCallback; /// \brief A function to be called after every image comparison with a bool
+  using ImageComparisonCallback = std::function<void(bool)>; /// \brief A function to be called after every image comparison with a bool
                                                              /// indicating if the images matched or not.
   void SetImageComparisonCallback(const ImageComparisonCallback& callback);
 
@@ -131,7 +138,8 @@ protected:
   /// \brief Receives ezLog messages (via LogWriter) as well as test-framework internal logging. Any ezTestOutput::Error will
   /// cause the test to fail.
   virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg);
-  virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
+  virtual void TestResultImpl(ezUInt32 uiSubTestIndex, bool bSuccess, double fDuration);
+  virtual void SetSubTestStatusImpl(ezUInt32 uiSubTestIndex, const char* szStatus);
   void FlushAsserts();
   void TimeoutThread();
   void UpdateTestTimeout();
@@ -147,14 +155,15 @@ public:
 public:
   static EZ_ALWAYS_INLINE ezTestFramework* GetInstance() { return s_pInstance; }
 
-  /// \brief Returns whether to asset on test failure.
+  /// \brief Returns whether to assert on test failure.
   static bool GetAssertOnTestFail();
 
   static void Output(ezTestOutput::Enum type, const char* szMsg, ...);
   static void OutputArgs(ezTestOutput::Enum type, const char* szMsg, va_list szArgs);
   static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, ...);
   static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, va_list szArgs);
-  static void TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
+  static void TestResult(ezUInt32 uiSubTestIndex, bool bSuccess, double fDuration);
+  static void SetSubTestStatus(ezUInt32 uiSubTestIndex, const char* szStatus);
 
   // static members
 private:
@@ -185,8 +194,8 @@ private:
   std::condition_variable m_TimeoutCV;
   std::thread m_TimeoutThread;
 
-  ezInt32 m_iExecutingTest = 0;
-  ezInt32 m_iExecutingSubTest = 0;
+  ezUInt32 m_uiExecutingTest = 0;
+  ezUInt32 m_uiExecutingSubTest = 0;
   bool m_bSubTestInitialized = false;
   bool m_bAbortTests = false;
   ezUInt8 m_uiPassesLeft = 0;
@@ -210,8 +219,8 @@ private:
   std::string m_sImageReferenceOverrideFolderName;
 
 protected:
-  ezInt32 m_iCurrentTestIndex = -1;
-  ezInt32 m_iCurrentSubTestIndex = -1;
+  ezUInt32 m_uiCurrentTestIndex = ezInvalidIndex;
+  ezUInt32 m_uiCurrentSubTestIndex = ezInvalidIndex;
   bool m_bTestsRunning = false;
 };
 
@@ -454,15 +463,14 @@ EZ_TEST_DLL bool ezTestInt(
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL bool ezTestString(std::string s1, std::string s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine,
-  const char* szFunction, const char* szMsg, ...);
+EZ_TEST_DLL bool ezTestString(ezStringView s1, ezStringView s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output.
 #define EZ_TEST_STRING(i1, i2) EZ_TEST_STRING_MSG(i1, i2, "")
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                                   \
-  ezTestString(static_cast<const char*>(s1), static_cast<const char*>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, \
+#define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                                     \
+  ezTestString(static_cast<ezStringView>(s1), static_cast<ezStringView>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, \
     EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -541,13 +549,16 @@ EZ_TEST_DLL bool ezTestTextFiles(
 //////////////////////////////////////////////////////////////////////////
 
 EZ_TEST_DLL bool ezTestImage(
-  ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+  ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage, bool bIsLineImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Same as EZ_TEST_IMAGE_MSG but uses an empty error message.
 #define EZ_TEST_IMAGE(ImageNumber, MaxError) EZ_TEST_IMAGE_MSG(ImageNumber, MaxError, "")
 
 /// \brief Same as EZ_TEST_DEPTH_IMAGE_MSG but uses an empty error message.
 #define EZ_TEST_DEPTH_IMAGE(ImageNumber, MaxError) EZ_TEST_DEPTH_IMAGE_MSG(ImageNumber, MaxError, "")
+
+/// \brief Same as EZ_TEST_LINE_IMAGE_MSG but uses an empty error message.
+#define EZ_TEST_LINE_IMAGE(ImageNumber, MaxError) EZ_TEST_LINE_IMAGE_MSG(ImageNumber, MaxError, "")
 
 /// \brief Executes an image comparison right now.
 ///
@@ -567,10 +578,14 @@ EZ_TEST_DLL bool ezTestImage(
 /// \note Some tests need to know at the start, whether an image comparison will be done at the end, so they
 /// can capture the image first. For such use cases, use EZ_SCHEDULE_IMAGE_TEST at the start of a sub-test instead.
 #define EZ_TEST_IMAGE_MSG(ImageNumber, MaxError, msg, ...) \
-  ezTestImage(ImageNumber, MaxError, false, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+  ezTestImage(ImageNumber, MaxError, false, false, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 #define EZ_TEST_DEPTH_IMAGE_MSG(ImageNumber, MaxError, msg, ...) \
-  ezTestImage(ImageNumber, MaxError, true, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+  ezTestImage(ImageNumber, MaxError, true, false, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+
+/// \brief Same as EZ_TEST_IMAGE_MSG, but allows for pixels to shift in a 1-pixel radius to account for different line rasterization of GPU vendors.
+#define EZ_TEST_LINE_IMAGE_MSG(ImageNumber, MaxError, msg, ...) \
+  ezTestImage(ImageNumber, MaxError, false, true, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 /// \brief Schedules an EZ_TEST_IMAGE to be executed after the current sub-test execution finishes.
 ///

@@ -51,13 +51,13 @@ public:
   void SetIndentation(ezInt8 iIndentation) { m_iIndentation = iIndentation; }
 
   /// \brief Begins outputting an object.
-  void BeginObject(const char* szType, const char* szName = nullptr, bool bGlobalName = false, bool bSingleLine = false); // [tested]
+  void BeginObject(ezStringView sType, ezStringView sName = {}, bool bGlobalName = false, bool bSingleLine = false); // [tested]
 
   /// \brief Ends outputting an object.
   void EndObject(); // [tested]
 
   /// \brief Begins outputting a list of primitives of the given type.
-  void BeginPrimitiveList(ezOpenDdlPrimitiveType type, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  void BeginPrimitiveList(ezOpenDdlPrimitiveType type, ezStringView sName = {}, bool bGlobalName = false); // [tested]
 
   /// \brief Ends outputting the list of primitives.
   void EndPrimitiveList(); // [tested]
@@ -126,33 +126,27 @@ protected:
 
   struct DdlState
   {
-    DdlState()
-      : m_State(Empty)
-    {
-      m_bPrimitivesWritten = false;
-    }
-
-    State m_State;
-    bool m_bPrimitivesWritten;
+    State m_State = State::Empty;
+    bool m_bPrimitivesWritten = false;
   };
 
-  EZ_ALWAYS_INLINE void OutputString(const char* sz) { m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz)).IgnoreResult(); }
-  EZ_ALWAYS_INLINE void OutputString(const char* sz, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(sz, uiElementCount).IgnoreResult(); }
+  EZ_ALWAYS_INLINE void OutputString(ezStringView s) { m_pOutput->WriteBytes(s.GetStartPointer(), s.GetElementCount()).IgnoreResult(); }
+  EZ_ALWAYS_INLINE void OutputString(ezStringView s, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(s.GetStartPointer(), uiElementCount).IgnoreResult(); }
   void OutputEscapedString(const ezStringView& string);
   void OutputIndentation();
   void OutputPrimitiveTypeNameCompliant(ezOpenDdlPrimitiveType type);
   void OutputPrimitiveTypeNameShort(ezOpenDdlPrimitiveType type);
   void OutputPrimitiveTypeNameShortest(ezOpenDdlPrimitiveType type);
   void WritePrimitiveType(ezOpenDdlWriter::State exp);
-  void OutputObjectName(const char* szName, bool bGlobalName);
+  void OutputObjectName(ezStringView sName, bool bGlobalName);
   void WriteBinaryAsHex(const void* pData, ezUInt32 uiBytes);
   void OutputObjectBeginning();
 
-  ezInt32 m_iIndentation;
-  bool m_bCompactMode;
-  TypeStringMode m_TypeStringMode;
-  FloatPrecisionMode m_FloatPrecisionMode;
-  ezStreamWriter* m_pOutput;
+  ezInt32 m_iIndentation = 0;
+  bool m_bCompactMode = false;
+  TypeStringMode m_TypeStringMode = TypeStringMode::ShortenedUnsignedInt;
+  FloatPrecisionMode m_FloatPrecisionMode = FloatPrecisionMode::Exact;
+  ezStreamWriter* m_pOutput = nullptr;
   ezStringBuilder m_sTemp;
 
   ezHybridArray<DdlState, 16> m_StateStack;

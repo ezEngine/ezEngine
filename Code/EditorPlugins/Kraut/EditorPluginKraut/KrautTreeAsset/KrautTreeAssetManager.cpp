@@ -12,7 +12,8 @@ ezKrautTreeAssetDocumentManager::ezKrautTreeAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Kraut Tree";
   m_DocTypeDesc.m_sFileExtension = "ezKrautTreeAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Terrain";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezKrautTreeAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Kraut_Tree");
@@ -34,7 +35,7 @@ void ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezKrautTreeAssetDocument>())
       {
-        ezQtKrautTreeAssetDocumentWindow* pDocWnd = new ezQtKrautTreeAssetDocumentWindow(static_cast<ezKrautTreeAssetDocument*>(e.m_pDocument));
+        new ezQtKrautTreeAssetDocumentWindow(static_cast<ezKrautTreeAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -45,9 +46,9 @@ void ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
 }
 
 void ezKrautTreeAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezKrautTreeAssetDocument(szPath);
+  out_pDocument = new ezKrautTreeAssetDocument(sPath);
 }
 
 void ezKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

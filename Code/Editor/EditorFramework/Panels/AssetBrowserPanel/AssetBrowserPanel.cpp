@@ -26,7 +26,7 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
   dockWidgetContents->layout()->addWidget(m_pStatusBar);
   setWidget(pDummy);
 
-  setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
+  setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset.svg"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetBrowser")));
 
   EZ_VERIFY(connect(AssetBrowserWidget, &ezQtAssetBrowserWidget::ItemChosen, this, &ezQtAssetBrowserPanel::SlotAssetChosen) != nullptr,
@@ -56,5 +56,5 @@ void ezQtAssetBrowserPanel::SlotAssetSelected(ezUuid guid, QString sAssetPathRel
 
 void ezQtAssetBrowserPanel::SlotAssetCleared()
 {
-  m_LastSelected.SetInvalid();
+  m_LastSelected = ezUuid::MakeInvalid();
 }

@@ -98,8 +98,6 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
 
   if (m_hRemoteView.IsInvalidated())
   {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
     ezActorPluginWindowOwner* pWindowPlugin = m_pActor->GetPlugin<ezActorPluginWindowOwner>();
 
     // create output target

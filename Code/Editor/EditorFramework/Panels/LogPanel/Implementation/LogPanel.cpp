@@ -15,7 +15,7 @@ ezQtLogPanel::ezQtLogPanel()
   pDummy->setContentsMargins(0, 0, 0, 0);
   pDummy->layout()->setContentsMargins(0, 0, 0, 0);
 
-  setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.png"));
+  setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.svg"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.Log")));
   setWidget(pDummy);
 
@@ -90,7 +90,7 @@ void ezQtLogPanel::OnNewWarningsOrErrors(const char* szText, bool bError)
   }
   if (uiShowNumWarnings > 0)
   {
-    tmp.AppendWithSeparator(", ", "");
+    tmp.AppendWithSeparator(",", " ");
     tmp.AppendFormat("{} Warnings", uiShowNumWarnings);
   }
 
@@ -99,7 +99,7 @@ void ezQtLogPanel::OnNewWarningsOrErrors(const char* szText, bool bError)
   if (!ezStringUtils::IsNullOrEmpty(szText))
   {
     ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
-      ezFmt("{}: {}", bError ? "Error" : "Warning", szText), ezTime::Seconds(10));
+      ezFmt("{}: {}", bError ? "Error" : "Warning", szText), ezTime::MakeFromSeconds(10));
   }
 }
 
@@ -131,7 +131,7 @@ void ezQtLogPanel::LogWriter(const ezLoggingEventData& e)
 
   if (msg.m_sTag == "EditorStatus")
   {
-    ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt(msg.m_sMsg), ezTime::Seconds(5));
+    ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt(msg.m_sMsg), ezTime::MakeFromSeconds(5));
   }
 }
 

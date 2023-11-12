@@ -10,13 +10,14 @@ using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResourc
 
 struct ezSpriteBlendMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
     Masked,
     Transparent,
     Additive,
+    ShapeIcon,
 
     Default = Masked
   };
@@ -48,7 +49,7 @@ public:
   ezUInt32 m_uiUniqueID;
 };
 
-typedef ezComponentManager<class ezSpriteComponent, ezBlockStorageType::Compact> ezSpriteComponentManager;
+using ezSpriteComponentManager = ezComponentManager<class ezSpriteComponent, ezBlockStorageType::Compact>;
 
 class EZ_RENDERERCORE_DLL ezSpriteComponent : public ezRenderComponent
 {

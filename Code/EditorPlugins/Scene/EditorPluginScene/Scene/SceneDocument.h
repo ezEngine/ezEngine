@@ -31,7 +31,7 @@ public:
   };
 
 public:
-  ezSceneDocument(const char* szDocumentPath, DocumentType documentType);
+  ezSceneDocument(ezStringView sDocumentPath, DocumentType documentType);
   ~ezSceneDocument();
 
   enum class ShowOrHide
@@ -86,7 +86,7 @@ public:
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const override;
   virtual bool Paste(
-    const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
+    const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
   bool DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected);
   bool CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMap<ezUuid, ezUuid>* out_pParents) const;
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
@@ -98,7 +98,7 @@ public:
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection) override;
 
   virtual ezUuid ReplaceByPrefab(
-    const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab) override;
+    const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab) override;
 
   /// \brief Reverts all selected editor prefabs to their original template state
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject) override;
@@ -108,9 +108,7 @@ public:
   /// \brief Converts all objects in the selection that are editor prefabs to their respective engine prefab representation
   virtual void ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& selection);
 
-  virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType,
-    ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(),
-    ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>()) override;
+  virtual ezStatus CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = {}, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {}) override;
 
   GameMode::Enum GetGameMode() const { return m_GameMode; }
 
@@ -128,7 +126,6 @@ public:
 
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
-  void HandleVisualScriptActivityMsg(const ezVisualScriptActivityMsgToEditor* pMsg);
   void HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgToEditor* pMsg);
 
   void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
@@ -182,7 +179,7 @@ protected:
   void SetGameMode(GameMode::Enum mode);
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
-  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
+  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
   template <typename Func>
@@ -204,9 +201,9 @@ protected:
 
   ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);
 
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 

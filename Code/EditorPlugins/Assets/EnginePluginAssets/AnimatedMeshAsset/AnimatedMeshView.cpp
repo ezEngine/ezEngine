@@ -13,10 +13,10 @@ ezAnimatedMeshViewContext::ezAnimatedMeshViewContext(ezAnimatedMeshContext* pAni
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
-  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::MakeZero(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
-ezAnimatedMeshViewContext::~ezAnimatedMeshViewContext() {}
+ezAnimatedMeshViewContext::~ezAnimatedMeshViewContext() = default;
 
 bool ezAnimatedMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {
@@ -28,6 +28,7 @@ ezViewHandle ezAnimatedMeshViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("AnimatedMesh Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 
@@ -45,8 +46,6 @@ void ezAnimatedMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   }
 
   ezEngineProcessViewContext::SetCamera(pMsg);
-
-  const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
   auto hAnimatedMesh = m_pContext->GetAnimatedMesh();
   if (hAnimatedMesh.IsValid())
@@ -84,6 +83,6 @@ void ezAnimatedMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     sText.AppendFormat("Bounding Box: \twidth={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
       ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 
-    ezDebugRenderer::DrawInfoText(m_hView, ezDebugRenderer::ScreenPlacement::BottomLeft, "AssetStats", sText);
+    ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "AssetStats", sText);
   }
 }

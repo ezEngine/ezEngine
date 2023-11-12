@@ -25,7 +25,7 @@ void ezTypeScriptTranspiler::StartLoadTranspiler()
   if (m_LoadTaskGroup.IsValid())
     return;
 
-  ezSharedPtr<ezTask> pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "",
+  ezSharedPtr<ezTask> pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Load TypeScript Transpiler", ezTaskNesting::Never,
     [this]() //
     {
       EZ_PROFILE_SCOPE("Load TypeScript Transpiler");

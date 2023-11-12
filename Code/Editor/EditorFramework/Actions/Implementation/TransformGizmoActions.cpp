@@ -17,12 +17,12 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
 
   if (m_pGizmoType)
   {
-    ezStringBuilder sIcon(":/TypeIcons/", m_pGizmoType->GetTypeName());
+    ezStringBuilder sIcon(":/TypeIcons/", m_pGizmoType->GetTypeName(), ".svg");
     SetIconPath(sIcon);
   }
   else
   {
-    SetIconPath(":/EditorFramework/Icons/GizmoNone24.png");
+    SetIconPath(":/EditorFramework/Icons/GizmoNone.svg");
   }
 
   UpdateState();
@@ -86,7 +86,7 @@ ezActionDescriptorHandle ezTransformGizmoActions::s_SnapSettings;
 void ezTransformGizmoActions::RegisterActions()
 {
   s_hGizmoCategory = EZ_REGISTER_CATEGORY("GizmoCategory");
-  s_hGizmoMenu = EZ_REGISTER_MENU("Gizmo.Menu");
+  s_hGizmoMenu = EZ_REGISTER_MENU("G.Gizmos");
   s_hNoGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Select", ezActionScope::Document, "Gizmo", "Q", ezGizmoAction, nullptr);
   s_hTranslateGizmo = EZ_REGISTER_ACTION_1(
     "Gizmo.Mode.Translate", ezActionScope::Document, "Gizmo", "W", ezToggleWorldSpaceGizmo, ezGetStaticRTTI<ezTranslateGizmoEditTool>());
@@ -118,32 +118,32 @@ void ezTransformGizmoActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_SnapSettings);
 }
 
-void ezTransformGizmoActions::MapMenuActions(const char* szMapping, const char* szPath)
+void ezTransformGizmoActions::MapMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/Gizmo.Menu");
+  const ezStringView sTarget = "G.Gizmos";
 
-  pMap->MapAction(s_hGizmoMenu, szPath, 4.0f);
-  pMap->MapAction(s_hNoGizmo, sSubPath, 0.0f);
-  pMap->MapAction(s_hTranslateGizmo, sSubPath, 1.0f);
-  pMap->MapAction(s_hRotateGizmo, sSubPath, 2.0f);
-  pMap->MapAction(s_hScaleGizmo, sSubPath, 3.0f);
-  pMap->MapAction(s_hDragToPositionGizmo, sSubPath, 4.0f);
-  pMap->MapAction(s_hWorldSpace, sSubPath, 6.0f);
-  pMap->MapAction(s_hMoveParentOnly, sSubPath, 7.0f);
-  pMap->MapAction(s_SnapSettings, sSubPath, 8.0f);
+  pMap->MapAction(s_hGizmoMenu, "G.Edit", 4.0f);
+  pMap->MapAction(s_hNoGizmo, sTarget, 0.0f);
+  pMap->MapAction(s_hTranslateGizmo, sTarget, 1.0f);
+  pMap->MapAction(s_hRotateGizmo, sTarget, 2.0f);
+  pMap->MapAction(s_hScaleGizmo, sTarget, 3.0f);
+  pMap->MapAction(s_hDragToPositionGizmo, sTarget, 4.0f);
+  pMap->MapAction(s_hWorldSpace, sTarget, 6.0f);
+  pMap->MapAction(s_hMoveParentOnly, sTarget, 7.0f);
+  pMap->MapAction(s_SnapSettings, sTarget, 8.0f);
 }
 
-void ezTransformGizmoActions::MapToolbarActions(const char* szMapping, const char* szPath)
+void ezTransformGizmoActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/GizmoCategory");
+  const ezStringView sSubPath = "GizmoCategory";
 
-  pMap->MapAction(s_hGizmoCategory, szPath, 4.0f);
+  pMap->MapAction(s_hGizmoCategory, "", 4.0f);
   pMap->MapAction(s_hNoGizmo, sSubPath, 0.0f);
   pMap->MapAction(s_hTranslateGizmo, sSubPath, 1.0f);
   pMap->MapAction(s_hRotateGizmo, sSubPath, 2.0f);
@@ -169,14 +169,14 @@ ezTransformGizmoAction::ezTransformGizmoAction(const ezActionContext& context, c
   switch (m_Type)
   {
     case ActionType::GizmoToggleWorldSpace:
-      SetIconPath(":/EditorFramework/Icons/WorldSpace16.png");
+      SetIconPath(":/EditorFramework/Icons/WorldSpace.svg");
       break;
     case ActionType::GizmoToggleMoveParentOnly:
-      SetIconPath(":/EditorFramework/Icons/TransformParent16.png");
+      SetIconPath(":/EditorFramework/Icons/TransformParent.svg");
       break;
     case ActionType::GizmoSnapSettings:
       SetCheckable(false);
-      SetIconPath(":/EditorFramework/Icons/SnapSettings16.png");
+      SetIconPath(":/EditorFramework/Icons/SnapSettings.svg");
       break;
   }
 
@@ -259,10 +259,8 @@ ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapObjectsToGrid;
 void ezTranslateGizmoAction::RegisterActions()
 {
   s_hSnappingValueMenu = EZ_REGISTER_CATEGORY("Gizmo.Translate.Snap.Menu");
-  s_hSnapPivotToGrid = EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.PivotToGrid", ezActionScope::Document, "Gizmo - Position Snap", "Ctrl+End",
-    ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapSelectionPivotToGrid);
-  s_hSnapObjectsToGrid = EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.ObjectsToGrid", ezActionScope::Document, "Gizmo - Position Snap", "",
-    ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapEachSelectedObjectToGrid);
+  s_hSnapPivotToGrid = EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.PivotToGrid", ezActionScope::Document, "Gizmo - Position Snap", "Ctrl+End", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapSelectionPivotToGrid);
+  s_hSnapObjectsToGrid = EZ_REGISTER_ACTION_1("Gizmo.Translate.Snap.ObjectsToGrid", ezActionScope::Document, "Gizmo - Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapEachSelectedObjectToGrid);
 }
 
 void ezTranslateGizmoAction::UnregisterActions()
@@ -272,17 +270,15 @@ void ezTranslateGizmoAction::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSnapObjectsToGrid);
 }
 
-void ezTranslateGizmoAction::MapActions(const char* szMapping, const char* szPath)
+void ezTranslateGizmoAction::MapActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/Gizmo.Translate.Snap.Menu");
+  pMap->MapAction(s_hSnappingValueMenu, "G.Gizmos", 8.0f);
 
-  pMap->MapAction(s_hSnappingValueMenu, szPath, 8.0f);
-
-  pMap->MapAction(s_hSnapPivotToGrid, sSubPath, 0.0f);
-  pMap->MapAction(s_hSnapObjectsToGrid, sSubPath, 1.0f);
+  pMap->MapAction(s_hSnapPivotToGrid, "G.Gizmos", "Gizmo.Translate.Snap.Menu", 0.0f);
+  pMap->MapAction(s_hSnapObjectsToGrid, "G.Gizmos", "Gizmo.Translate.Snap.Menu", 1.0f);
 }
 
 ezTranslateGizmoAction::ezTranslateGizmoAction(const ezActionContext& context, const char* szName, ActionType type)

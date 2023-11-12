@@ -110,7 +110,7 @@ void ezClothSheetComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 void ezClothSheetComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_vSize;
@@ -139,7 +139,7 @@ void ezClothSheetComponent::OnSimulationStarted()
 
 void ezClothSheetComponent::SetupCloth()
 {
-  m_Bbox.SetInvalid();
+  m_Bbox = ezBoundingBox::MakeInvalid();
 
   if (IsActiveAndSimulating())
   {
@@ -241,18 +241,17 @@ ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, 
 {
   if (m_Bbox.IsValid())
   {
-    ref_bounds.ExpandToInclude(m_Bbox);
+    ref_bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromBox(m_Bbox));
   }
   else
   {
-    ezBoundingBox box;
-    box.SetInvalid();
-    box.ExpandToInclude(ezVec3::ZeroVector());
+    ezBoundingBox box = ezBoundingBox::MakeInvalid();
+    box.ExpandToInclude(ezVec3::MakeZero());
     box.ExpandToInclude(ezVec3(m_vSize.x, 0, -0.1f));
     box.ExpandToInclude(ezVec3(0, m_vSize.y, +0.1f));
     box.ExpandToInclude(ezVec3(m_vSize.x, m_vSize.y, 0));
 
-    ref_bounds.ExpandToInclude(box);
+    ref_bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromBox(box));
   }
 
   return EZ_SUCCESS;
@@ -339,20 +338,7 @@ void ezClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   if (m_hMaterial.IsValid())
   {
     ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-
-    ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-    if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-    {
-      category = ezDefaultRenderDataCategories::LitOpaque;
-    }
-    else if (blendModeValue == "BLEND_MODE_MASKED")
-    {
-      category = ezDefaultRenderDataCategories::LitMasked;
-    }
-    else
-    {
-      category = ezDefaultRenderDataCategories::LitTransparent;
-    }
+    category = pMaterial->GetRenderDataCategory();
   }
 
   msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
@@ -392,7 +378,7 @@ void ezClothSheetComponent::Update()
   --m_uiVisibleCounter;
 
   {
-    ezVec3 acc = -GetOwner()->GetVelocity();
+    ezVec3 acc = -GetOwner()->GetLinearVelocity();
 
     if (const ezPhysicsWorldModuleInterface* pModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
     {
@@ -492,7 +478,6 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
 
 
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   ezInstanceData* pInstanceData = pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
@@ -584,8 +569,8 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
           {
             pVertexData[vidx].m_vPosition = pRenderData->m_Positions[vidx];
             pVertexData[vidx].m_vTexCoord = ezVec2(x * fDivU, y * fDivY);
-            pVertexData[vidx].EncodeNormal(ezVec3::UnitZAxis());
-            pVertexData[vidx].EncodeTangent(ezVec3::UnitXAxis(), 1.0f);
+            pVertexData[vidx].EncodeNormal(ezVec3::MakeAxisZ());
+            pVertexData[vidx].EncodeTangent(ezVec3::MakeAxisX(), 1.0f);
           }
         }
       }

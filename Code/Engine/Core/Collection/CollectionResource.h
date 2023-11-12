@@ -49,6 +49,7 @@ class EZ_CORE_DLL ezCollectionResource : public ezResource
 
 public:
   ezCollectionResource();
+  ~ezCollectionResource();
 
   /// \brief Registers the named resources in the collection with the ezResourceManager, such that they can be loaded by those names.
   ///
@@ -83,6 +84,9 @@ public:
 
   /// \brief Returns the resource descriptor for this resource.
   const ezCollectionResourceDescriptor& GetDescriptor() const;
+
+  /// \brief Returns the current list of resources that have already been added to the preload list. See PreloadResources().
+  ezArrayPtr<const ezTypelessResourceHandle> GetPreloadedResources() const { return m_PreloadedResources; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

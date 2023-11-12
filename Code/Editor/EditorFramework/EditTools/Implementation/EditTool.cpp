@@ -6,7 +6,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectEditTool, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezGameObjectEditTool::ezGameObjectEditTool() {}
+ezGameObjectEditTool::ezGameObjectEditTool() = default;
 
 void ezGameObjectEditTool::ConfigureTool(
   ezGameObjectDocument* pDocument, ezQtGameObjectDocumentWindow* pWindow, ezGameObjectGizmoInterface* pInterface)

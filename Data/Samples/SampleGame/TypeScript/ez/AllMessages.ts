@@ -35,12 +35,6 @@ import Enum = require("./AllEnums")
 import Flags = require("./AllFlags")
 
 
-export class EventMsgPathChanged extends EventMessage
-{
-  public static GetTypeNameHash(): number { return 374572587; }
-  constructor() { super(); this.TypeNameHash = 374572587; }
-}
-
 export class MsgAnimationPosePreparing extends Message
 {
   public static GetTypeNameHash(): number { return 2419062254; }
@@ -205,6 +199,12 @@ export class MsgParentChanged extends Message
 {
   public static GetTypeNameHash(): number { return 2163082146; }
   constructor() { super(); this.TypeNameHash = 2163082146; }
+}
+
+export class MsgPathChanged extends EventMessage
+{
+  public static GetTypeNameHash(): number { return 1539147651; }
+  constructor() { super(); this.TypeNameHash = 1539147651; }
 }
 
 export class MsgPhysicsAddForce extends Message

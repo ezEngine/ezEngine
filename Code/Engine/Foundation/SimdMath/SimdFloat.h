@@ -29,7 +29,11 @@ public:
   /// \brief Returns the stored number as a standard float.
   operator float() const; // [tested]
 
-  static ezSimdFloat Zero(); // [tested]
+  /// \brief Creates an ezSimdFloat that is initialized to zero.
+  [[nodiscard]] static ezSimdFloat MakeZero(); // [tested]
+
+  /// \brief Creates an ezSimdFloat that is initialized to Not-A-Number (NaN).
+  [[nodiscard]] static ezSimdFloat MakeNaN(); // [tested]
 
 public:
   ezSimdFloat operator+(const ezSimdFloat& f) const; // [tested]
@@ -67,9 +71,9 @@ public:
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdFloat GetInvSqrt() const; // [tested]
 
-  ezSimdFloat Max(const ezSimdFloat& f) const; // [tested]
-  ezSimdFloat Min(const ezSimdFloat& f) const; // [tested]
-  ezSimdFloat Abs() const;                     // [tested]
+  [[nodiscard]] ezSimdFloat Max(const ezSimdFloat& f) const; // [tested]
+  [[nodiscard]] ezSimdFloat Min(const ezSimdFloat& f) const; // [tested]
+  [[nodiscard]] ezSimdFloat Abs() const;                     // [tested]
 
 public:
   ezInternal::QuadFloat m_v;
@@ -79,6 +83,8 @@ public:
 #  include <Foundation/SimdMath/Implementation/SSE/SSEFloat_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUFloat_inl.h>
+#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+#  include <Foundation/SimdMath/Implementation/NEON/NEONFloat_inl.h>
 #else
 #  error "Unknown SIMD implementation."
 #endif

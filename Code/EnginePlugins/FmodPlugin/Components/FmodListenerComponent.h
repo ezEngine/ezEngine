@@ -2,7 +2,18 @@
 
 #include <FmodPlugin/Components/FmodComponent.h>
 
-typedef ezComponentManagerSimple<class ezFmodListenerComponent, ezComponentUpdateType::WhenSimulating> ezFmodListenerComponentManager;
+class ezFmodListenerComponentManager : public ezComponentManager<class ezFmodListenerComponent, ezBlockStorageType::Compact>
+{
+public:
+  ezFmodListenerComponentManager(ezWorld* pWorld);
+
+  virtual void Initialize() override;
+
+private:
+  void UpdateListeners(const ezWorldModule::UpdateContext& context);
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 /// \brief Represents the position of the sound listener
 class EZ_FMODPLUGIN_DLL ezFmodListenerComponent : public ezFmodComponent

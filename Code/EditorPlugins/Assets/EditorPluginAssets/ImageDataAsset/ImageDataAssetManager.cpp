@@ -17,7 +17,8 @@ ezImageDataAssetDocumentManager::ezImageDataAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Image Data";
   m_DocTypeDesc.m_sFileExtension = "ezImageDataAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ImageData.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ImageData.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Utilities";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezImageDataAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_sResourceFileExtension = "ezImageData";
@@ -38,7 +39,7 @@ void ezImageDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezImageDataAssetDocument>())
       {
-        ezQtImageDataAssetDocumentWindow* pDocWnd = new ezQtImageDataAssetDocumentWindow(static_cast<ezImageDataAssetDocument*>(e.m_pDocument));
+        new ezQtImageDataAssetDocumentWindow(static_cast<ezImageDataAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -48,9 +49,9 @@ void ezImageDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-void ezImageDataAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezImageDataAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  ezImageDataAssetDocument* pDoc = new ezImageDataAssetDocument(szPath);
+  ezImageDataAssetDocument* pDoc = new ezImageDataAssetDocument(sPath);
   out_pDocument = pDoc;
 }
 

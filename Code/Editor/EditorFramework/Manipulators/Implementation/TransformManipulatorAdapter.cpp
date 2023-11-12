@@ -4,9 +4,9 @@
 #include <EditorFramework/Manipulators/TransformManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezTransformManipulatorAdapter::ezTransformManipulatorAdapter() {}
+ezTransformManipulatorAdapter::ezTransformManipulatorAdapter() = default;
 
-ezTransformManipulatorAdapter::~ezTransformManipulatorAdapter() {}
+ezTransformManipulatorAdapter::~ezTransformManipulatorAdapter() = default;
 
 void ezTransformManipulatorAdapter::Finalize()
 {
@@ -22,7 +22,6 @@ void ezTransformManipulatorAdapter::Finalize()
   m_ScaleGizmo.SetTransformation(GetObjectTransform());
 
   const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
   if (!pAttr->GetTranslateProperty().IsEmpty())
   {
@@ -59,7 +58,7 @@ void ezTransformManipulatorAdapter::Update()
 void ezTransformManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 {
   const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
-  ezObjectAccessorBase* pAccessor = GetObjectAccessor();
+
   switch (e.m_Type)
   {
     case ezGizmoEvent::Type::BeginInteractions:
@@ -82,7 +81,7 @@ void ezTransformManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
         const ezTransform tParent = GetObjectTransform();
         const ezTransform tGlobal = static_cast<const ezGizmo*>(e.m_pGizmo)->GetTransformation();
         ezTransform tLocal;
-        tLocal.SetLocalTransform(tParent, tGlobal);
+        tLocal = ezTransform::MakeLocalTransform(tParent, tGlobal);
         if (e.m_pGizmo == &m_TranslateGizmo)
         {
           ChangeProperties(pAttr->GetTranslateProperty(), tLocal.m_vPosition);
@@ -105,8 +104,6 @@ void ezTransformManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
 void ezTransformManipulatorAdapter::UpdateGizmoTransform()
 {
-  const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
-
   m_TranslateGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideTranslate);
   m_RotateGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideRotate);
   m_ScaleGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideScale);
@@ -121,7 +118,7 @@ void ezTransformManipulatorAdapter::UpdateGizmoTransform()
   tLocal.m_qRotation = vRot;
   tLocal.m_vScale = vScale;
   ezTransform tGlobal;
-  tGlobal.SetGlobalTransform(tParent, tLocal);
+  tGlobal = ezTransform::MakeGlobalTransform(tParent, tLocal);
   // Let's not apply scaling to the gizmos.
   tGlobal.m_vScale = ezVec3(1, 1, 1);
 
@@ -153,7 +150,7 @@ ezQuat ezTransformManipulatorAdapter::GetRotation()
     return pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotateProperty()));
   }
 
-  return ezQuat::IdentityQuaternion();
+  return ezQuat::MakeIdentity();
 }
 
 ezVec3 ezTransformManipulatorAdapter::GetScale()

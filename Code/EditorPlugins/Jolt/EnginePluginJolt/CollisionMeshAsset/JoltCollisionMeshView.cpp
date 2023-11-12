@@ -12,10 +12,10 @@ ezJoltCollisionMeshViewContext::ezJoltCollisionMeshViewContext(ezJoltCollisionMe
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
-  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::MakeZero(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
-ezJoltCollisionMeshViewContext::~ezJoltCollisionMeshViewContext() {}
+ezJoltCollisionMeshViewContext::~ezJoltCollisionMeshViewContext() = default;
 
 bool ezJoltCollisionMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {
@@ -27,6 +27,7 @@ ezViewHandle ezJoltCollisionMeshViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Collision Mesh Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 
@@ -45,8 +46,6 @@ void ezJoltCollisionMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pM
 
   ezEngineProcessViewContext::SetCamera(pMsg);
 
-  const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
-
   auto hResource = m_pContext->GetMesh();
   if (hResource.IsValid())
   {
@@ -63,6 +62,6 @@ void ezJoltCollisionMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pM
     sText.AppendFormat("Bounding Box: \twidth={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
       ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 
-    ezDebugRenderer::DrawInfoText(m_hView, ezDebugRenderer::ScreenPlacement::BottomLeft, "AssetStats", sText);
+    ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "AssetStats", sText);
   }
 }

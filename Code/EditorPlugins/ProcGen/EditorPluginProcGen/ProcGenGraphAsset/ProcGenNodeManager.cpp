@@ -49,10 +49,10 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
   if (!pType->IsDerivedFrom(pNodeBaseType))
     return;
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
-  for (ezAbstractProperty* pProp : properties)
+  for (auto pProp : properties)
   {
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
@@ -82,23 +82,19 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
 
 void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
-  const ezRTTI* pNodeBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
-
-  for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
-  {
-    if (it->IsDerivedFrom(pNodeBaseType) && !it->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
-      ref_types.PushBack(it);
-  }
+  ezRTTI::ForEachDerivedType<ezProcGenNodeBase>(
+    [&](const ezRTTI* pRtti) { ref_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
-const char* ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
+ezStringView ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
 {
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
   {
     return pAttr->GetCategory();
   }
 
-  return nullptr;
+  return {};
 }
 
 ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const

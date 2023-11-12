@@ -52,17 +52,26 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
 
       ezAnimatedMeshComponent* pAnimMesh;
       if (pWorld->TryGetComponent(m_hAnimMeshComponent, pAnimMesh))
+      {
         pAnimMesh->DeleteComponent();
+        m_hAnimMeshComponent.Invalidate();
+      }
 
       ezSimpleAnimationComponent* pAnimController;
       if (pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
+      {
         pAnimController->DeleteComponent();
+        m_hAnimControllerComponent.Invalidate();
+      }
 
-      m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
-      m_hAnimControllerComponent = ezSimpleAnimationComponent::CreateComponent(m_pGameObject, pAnimController);
+      if (!m_sAnimatedMeshToUse.IsEmpty())
+      {
+        m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
+        m_hAnimControllerComponent = ezSimpleAnimationComponent::CreateComponent(m_pGameObject, pAnimController);
 
-      pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
-      pAnimController->SetAnimationClipFile(sAnimClipGuid);
+        pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
+        pAnimController->SetAnimationClipFile(sAnimClipGuid);
+      }
     }
     else if (pMsg->m_sWhatToDo == "PlaybackPos")
     {
@@ -155,8 +164,7 @@ void ezAnimationClipContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg*
   if (m_pGameObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());

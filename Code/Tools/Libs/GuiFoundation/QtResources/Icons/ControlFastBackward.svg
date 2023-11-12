@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512"  xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FFFFFF;}
+</style>
+<g>
+	<path class="st0" d="M256,0C114.625,0,0,114.625,0,256s114.625,256,256,256c141.374,0,256-114.625,256-256S397.374,0,256,0z
+		 M350.031,255.992v76.922c0,1.078-0.594,2.094-1.5,2.625c-0.954,0.546-2.125,0.515-3.047-0.031L243.5,274.633v58.282
+		c0,1.078-0.578,2.094-1.5,2.625c-0.954,0.546-2.126,0.515-3.047-0.031l-128.859-76.922c-0.922-0.515-1.469-1.531-1.469-2.594
+		s0.547-2.046,1.469-2.578l128.859-76.922c0.922-0.546,2.094-0.578,3.047-0.015c0.922,0.515,1.5,1.515,1.5,2.625v58.266
+		l101.984-60.875c0.922-0.546,2.094-0.578,3.047-0.015c0.906,0.515,1.5,1.515,1.5,2.625V255.992z"/>
+</g>
+</svg>

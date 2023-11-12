@@ -85,7 +85,7 @@ void ezSkeletonPoseComponent::SerializeComponent(ezWorldWriter& inout_stream) co
 void ezSkeletonPoseComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -309,9 +309,9 @@ void ezSkeletonPoseComponent::SendCustomPose()
     const ezUInt32 idx1 = uiBone % 4;
 
     ozz::math::SoaQuaternion& q = ozzLocalTransforms[idx0].rotation;
-    reinterpret_cast<float*>(&q.x)[idx1] = boneRot.v.x;
-    reinterpret_cast<float*>(&q.y)[idx1] = boneRot.v.y;
-    reinterpret_cast<float*>(&q.z)[idx1] = boneRot.v.z;
+    reinterpret_cast<float*>(&q.x)[idx1] = boneRot.x;
+    reinterpret_cast<float*>(&q.y)[idx1] = boneRot.y;
+    reinterpret_cast<float*>(&q.z)[idx1] = boneRot.z;
     reinterpret_cast<float*>(&q.w)[idx1] = boneRot.w;
   }
 

@@ -5,9 +5,14 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/UniquePtr.h>
 
+static ezInt32 iCallPodConstructor = 0;
+static ezInt32 iCallPodDestructor = 0;
+static ezInt32 iCallNonPodConstructor = 0;
+static ezInt32 iCallNonPodDestructor = 0;
+
 namespace DynamicArrayTestDetail
 {
-  typedef ezConstructionCounter st;
+  using st = ezConstructionCounter;
 
   static int g_iDummyCounter = 0;
 
@@ -68,6 +73,11 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Containers);
 
 EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 {
+  iCallPodConstructor = 0;
+  iCallPodDestructor = 0;
+  iCallNonPodConstructor = 0;
+  iCallNonPodDestructor = 0;
+
   ezProxyAllocator proxy("DynamicArrayTestAllocator", ezFoundation::GetDefaultAllocator());
   DynamicArrayTestDetail::g_pTestAllocator = &proxy;
 
@@ -1249,6 +1259,77 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     for (ezUInt32 i = 1; i < list.GetCount(); i++)
     {
       EZ_TEST_BOOL(list[i - 1].m_iKey <= list[i].m_iKey);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCountUninitialized")
+  {
+    struct POD
+    {
+      EZ_DECLARE_POD_TYPE();
+
+      ezUInt32 a = 2;
+      ezUInt32 b = 4;
+
+      POD()
+      {
+        iCallPodConstructor++;
+      }
+
+      // this isn't allowed anymore in types that use EZ_DECLARE_POD_TYPE
+      // unfortunately that means we can't do this kind of check either
+      //~POD()
+      //{
+      //  iCallPodDestructor++;
+      //}
+    };
+
+    static_assert(std::is_trivial<POD>::value == 0);
+    static_assert(ezIsPodType<POD>::value == 1);
+
+    struct NonPOD
+    {
+      ezUInt32 a = 3;
+      ezUInt32 b = 5;
+
+      NonPOD()
+      {
+        iCallNonPodConstructor++;
+      }
+
+      ~NonPOD()
+      {
+        iCallNonPodDestructor++;
+      }
+    };
+
+    static_assert(std::is_trivial<NonPOD>::value == 0);
+    static_assert(ezIsPodType<NonPOD>::value == 0);
+
+    // check that SetCountUninitialized doesn't construct and Clear doesn't destruct POD types
+    {
+      ezDynamicArray<POD> s1a;
+
+      s1a.SetCountUninitialized(16);
+      EZ_TEST_INT(iCallPodConstructor, 0);
+      EZ_TEST_INT(iCallPodDestructor, 0);
+
+      s1a.Clear();
+      EZ_TEST_INT(iCallPodConstructor, 0);
+      EZ_TEST_INT(iCallPodDestructor, 0);
+    }
+
+    // check that SetCount constructs and Clear destructs Non-POD types
+    {
+      ezDynamicArray<NonPOD> s2a;
+
+      s2a.SetCount(16);
+      EZ_TEST_INT(iCallNonPodConstructor, 16);
+      EZ_TEST_INT(iCallNonPodDestructor, 0);
+
+      s2a.Clear();
+      EZ_TEST_INT(iCallNonPodConstructor, 16);
+      EZ_TEST_INT(iCallNonPodDestructor, 16);
     }
   }
 }

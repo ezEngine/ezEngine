@@ -33,8 +33,8 @@ public:
   };
 
   // Do NOT use a hash-table! The map does not relocate memory when it resizes, which is a vital aspect for the hashed strings to work.
-  typedef ezMap<ezUInt64, HashedData, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper> StringStorage;
-  typedef StringStorage::Iterator HashedType;
+  using StringStorage = ezMap<ezUInt64, HashedData, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper>;
+  using HashedType = StringStorage::Iterator;
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   /// \brief This will remove all hashed strings from the central storage, that are not referenced anymore.
@@ -60,8 +60,10 @@ public:
   /// \brief Moves the given ezHashedString.
   ezHashedString(ezHashedString&& rhs); // [tested]
 
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   /// \brief Releases the reference to the internal data. Does NOT deallocate any data, even if this held the last reference to some string.
   ~ezHashedString();
+#endif
 
   /// \brief Copies the given ezHashedString.
   void operator=(const ezHashedString& rhs); // [tested]

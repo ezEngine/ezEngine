@@ -13,7 +13,7 @@
 void TestFormat(const ezFormatString& str, const char* szExpected)
 {
   ezStringBuilder sb;
-  const char* szText = str.GetText(sb);
+  ezStringView szText = str.GetText(sb);
 
   EZ_TEST_STRING(szText, szExpected);
 }
@@ -21,7 +21,7 @@ void TestFormat(const ezFormatString& str, const char* szExpected)
 void TestFormatWChar(const ezFormatString& str, const wchar_t* pExpected)
 {
   ezStringBuilder sb;
-  const char* szText = str.GetText(sb);
+  ezStringView szText = str.GetText(sb);
 
   EZ_TEST_WSTRING(ezStringWChar(szText), pExpected);
 }
@@ -69,7 +69,7 @@ void CompareSnprintf(ezStringBuilder& ref_sLog, const ezFormatString& str, const
     sw.StopAndReset();
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
-      const char* szText = str.GetText(sb);
+      ezStringView sText = str.GetText(sb);
     }
 
     t3 = sw.Checkpoint();
@@ -175,6 +175,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Auto Increment")
   {
+    TestFormat(ezFmt("{}{}{}{}", ezInt8(1), ezInt16(2), ezInt32(3), ezInt64(4)), "1234");
+    TestFormat(ezFmt("{3}{2}{1}{0}", ezInt8(1), ezInt16(2), ezInt32(3), ezInt64(4)), "4321");
+
     TestFormat(ezFmt("{}, {}, {}, {}", ezInt8(-1), ezInt16(-2), ezInt32(-3), ezInt64(-4)), "-1, -2, -3, -4");
     TestFormat(ezFmt("{}, {}, {}, {}", ezUInt8(1), ezUInt16(2), ezUInt32(3), ezUInt64(4)), "1, 2, 3, 4");
 
@@ -188,20 +191,20 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTime")
   {
     TestFormat(ezFmt("{}", ezTime()), "0ns");
-    TestFormat(ezFmt("{}", ezTime::Nanoseconds(999)), "999ns");
-    TestFormat(ezFmt("{}", ezTime::Nanoseconds(999.1)), "999.1ns");
-    TestFormat(ezFmt("{}", ezTime::Microseconds(999)), u8"999\u00B5s");     // Utf-8 encoding for the microsecond sign
-    TestFormat(ezFmt("{}", ezTime::Microseconds(999.2)), u8"999.2\u00B5s"); // Utf-8 encoding for the microsecond sign
-    TestFormat(ezFmt("{}", ezTime::Milliseconds(-999)), "-999ms");
-    TestFormat(ezFmt("{}", ezTime::Milliseconds(-999.3)), "-999.3ms");
-    TestFormat(ezFmt("{}", ezTime::Seconds(59)), "59sec");
-    TestFormat(ezFmt("{}", ezTime::Seconds(-59.9)), "-59.9sec");
-    TestFormat(ezFmt("{}", ezTime::Seconds(75)), "1min 15sec");
-    TestFormat(ezFmt("{}", ezTime::Seconds(-75.4)), "-1min 15sec");
-    TestFormat(ezFmt("{}", ezTime::Minutes(59)), "59min 0sec");
-    TestFormat(ezFmt("{}", ezTime::Minutes(-1)), "-1min 0sec");
-    TestFormat(ezFmt("{}", ezTime::Minutes(90)), "1h 30min 0sec");
-    TestFormat(ezFmt("{}", ezTime::Minutes(-90.5)), "-1h 30min 30sec");
+    TestFormat(ezFmt("{}", ezTime::MakeFromNanoseconds(999)), "999ns");
+    TestFormat(ezFmt("{}", ezTime::MakeFromNanoseconds(999.1)), "999.1ns");
+    TestFormat(ezFmt("{}", ezTime::MakeFromMicroseconds(999)), u8"999\u00B5s");     // Utf-8 encoding for the microsecond sign
+    TestFormat(ezFmt("{}", ezTime::MakeFromMicroseconds(999.2)), u8"999.2\u00B5s"); // Utf-8 encoding for the microsecond sign
+    TestFormat(ezFmt("{}", ezTime::MakeFromMilliseconds(-999)), "-999ms");
+    TestFormat(ezFmt("{}", ezTime::MakeFromMilliseconds(-999.3)), "-999.3ms");
+    TestFormat(ezFmt("{}", ezTime::MakeFromSeconds(59)), "59sec");
+    TestFormat(ezFmt("{}", ezTime::MakeFromSeconds(-59.9)), "-59.9sec");
+    TestFormat(ezFmt("{}", ezTime::MakeFromSeconds(75)), "1min 15sec");
+    TestFormat(ezFmt("{}", ezTime::MakeFromSeconds(-75.4)), "-1min 15sec");
+    TestFormat(ezFmt("{}", ezTime::MakeFromMinutes(59)), "59min 0sec");
+    TestFormat(ezFmt("{}", ezTime::MakeFromMinutes(-1)), "-1min 0sec");
+    TestFormat(ezFmt("{}", ezTime::MakeFromMinutes(90)), "1h 30min 0sec");
+    TestFormat(ezFmt("{}", ezTime::MakeFromMinutes(-90.5)), "-1h 30min 30sec");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezDateTime")

@@ -14,7 +14,7 @@ class ezVariant;
 /// \brief Flags that describe a reflected type.
 struct ezTypeFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -157,7 +157,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 // internal helper macro
 #define EZ_RTTIINFO_DECL(Type, BaseType, Version) \
                                                   \
-  const char* GetTypeName(Type*)                  \
+  ezStringView GetTypeName(Type*)                 \
   {                                               \
     return #Type;                                 \
   }                                               \
@@ -176,9 +176,9 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
     using OwnBaseType = BaseType;                                                  \
     static AllocatorType Allocator;                                                \
     static ezBitflags<ezTypeFlags> flags = ezInternal::DetermineTypeFlags<Type>(); \
-    static ezArrayPtr<ezAbstractProperty*> Properties;                             \
-    static ezArrayPtr<ezAbstractProperty*> Functions;                              \
-    static ezArrayPtr<ezPropertyAttribute*> Attributes;                            \
+    static ezArrayPtr<const ezAbstractProperty*> Properties;                       \
+    static ezArrayPtr<const ezAbstractFunctionProperty*> Functions;                \
+    static ezArrayPtr<const ezPropertyAttribute*> Attributes;                      \
     static ezArrayPtr<ezAbstractMessageHandler*> MessageHandlers;                  \
     static ezArrayPtr<ezMessageSenderInfo> MessageSenders;
 
@@ -212,7 +212,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 
 /// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the properties.
-#define EZ_BEGIN_PROPERTIES static ezAbstractProperty* PropertyList[] =
+#define EZ_BEGIN_PROPERTIES static const ezAbstractProperty* PropertyList[] =
 
 
 
@@ -222,7 +222,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   Properties = PropertyList
 
 /// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the functions.
-#define EZ_BEGIN_FUNCTIONS static ezAbstractProperty* FunctionList[] =
+#define EZ_BEGIN_FUNCTIONS static const ezAbstractFunctionProperty* FunctionList[] =
 
 
 
@@ -232,7 +232,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   Functions = FunctionList
 
 /// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the attributes.
-#define EZ_BEGIN_ATTRIBUTES static ezPropertyAttribute* AttributeList[] =
+#define EZ_BEGIN_ATTRIBUTES static const ezPropertyAttribute* AttributeList[] =
 
 
 
@@ -385,7 +385,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   Range has to be an object that a ranged based for-loop can iterate over containing the keys
 ///   implicitly convertible to Type / ezString.
 /// \param GetValue
-///   Function signature: bool GetValue(const char* szKey, Type& value);
+///   Function signature: bool GetValue(const char* szKey, Type& value) const;
 ///   Returns whether the the key existed. value must be a non const ref as it is written to.
 /// \param Insert
 ///   Function signature: void Insert(const char* szKey, Type value);
@@ -572,7 +572,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_BEGIN_STATIC_REFLECTED_ENUM(Type, Version)                          \
   EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, ezEnumBase, Version, ezRTTINoAllocator) \
     ;                                                                          \
-    typedef Type::StorageType Storage;                                         \
+    using Storage = Type::StorageType;                                         \
     EZ_BEGIN_PROPERTIES                                                        \
       {                                                                        \
         EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),
@@ -595,7 +595,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(Type, Version)                          \
   EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, ezBitflagsBase, Version, ezRTTINoAllocator) \
     ;                                                                              \
-    typedef Type::StorageType Storage;                                             \
+    using Storage = Type::StorageType;                                             \
     EZ_BEGIN_PROPERTIES                                                            \
       {                                                                            \
         EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),

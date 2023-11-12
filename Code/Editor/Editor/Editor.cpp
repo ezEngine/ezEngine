@@ -3,14 +3,21 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <shellscalingapi.h>
+#endif
+
 class ezEditorApplication : public ezApplication
 {
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezEditorApplication()
     : ezApplication("ezEditor")
   {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+    SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+#endif
     EnableMemoryLeakReporting(true);
 
     m_pEditorApp = new ezQtEditorApp;

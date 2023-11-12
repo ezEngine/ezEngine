@@ -18,7 +18,7 @@ ezQtSearchWidget::ezQtSearchWidget(QWidget* pParent)
     m_pClearButton->setAutoDefault(false);
     m_pClearButton->setDefault(false);
     m_pClearButton->setEnabled(false);
-    m_pClearButton->setIcon(QIcon(":/GuiFoundation/Icons/Delete16.png"));
+    m_pClearButton->setIcon(QIcon(":/GuiFoundation/Icons/Delete.svg"));
   }
 
   {
@@ -49,6 +49,11 @@ QString ezQtSearchWidget::text() const
 void ezQtSearchWidget::setPlaceholderText(const QString& sText)
 {
   m_pLineEdit->setPlaceholderText(sText);
+}
+
+void ezQtSearchWidget::selectAll()
+{
+  QTimer::singleShot(0, m_pLineEdit, &QLineEdit::selectAll);
 }
 
 void ezQtSearchWidget::onLineEditTextChanged(const QString& text)

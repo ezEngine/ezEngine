@@ -1,0 +1,12 @@
+# Asset Types
+
+# Component Types
+
+ezAiNavMeshPathTestComponent;Navmesh Path Test;;https://ezengine.net/pages/docs/ai/AiPlugin/navmesh-path-test-component.html
+
+# UI
+
+Ai.Settings.Project;Ai Project Settings...
+
+# Enums
+

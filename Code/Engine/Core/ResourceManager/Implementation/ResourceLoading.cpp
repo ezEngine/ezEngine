@@ -144,7 +144,7 @@ void ezResourceManager::ReverseBubbleSortStep(ezDeque<LoadingInfo>& data)
     const ezUInt32 idx2 = i - 1;
     const ezUInt32 idx1 = i - 2;
 
-    if (data[idx1].m_fPriority > data[idx1].m_fPriority)
+    if (data[idx1].m_fPriority > data[idx2].m_fPriority)
     {
       ezMath::Swap(data[idx1], data[idx2]);
     }
@@ -203,7 +203,7 @@ void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResourc
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
   ezResource* pResource = hResource.m_pResource;
-  PreloadResource(hResource.m_pResource);
+  PreloadResource(pResource);
 }
 
 ezResourceState ezResourceManager::GetLoadingState(const ezTypelessResourceHandle& hResource)
@@ -337,7 +337,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
 
     // resources that have been in use recently will be put into the preload queue immediately
     // everything else will be loaded on demand
-    if (pResource->GetLastAcquireTime() >= tNow - ezTime::Seconds(30.0))
+    if (pResource->GetLastAcquireTime() >= tNow - ezTime::MakeFromSeconds(30.0))
     {
       PreloadResource(pResource);
     }
@@ -439,10 +439,9 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
     else
     {
       // do not use ezThreadUtils::YieldTimeSlice here, otherwise the thread is not tagged as 'blocked' in the TaskSystem
-      ezTaskSystem::WaitForCondition([=]() -> bool {
-        return (ezInt32)pResourceToLoad->GetLoadingState() >= (ezInt32)RequestedState ||
-               (pResourceToLoad->GetLoadingState() == ezResourceState::LoadedResourceMissing);
-      });
+      ezTaskSystem::WaitForCondition([=]() -> bool
+        { return (ezInt32)pResourceToLoad->GetLoadingState() >= (ezInt32)RequestedState ||
+                 (pResourceToLoad->GetLoadingState() == ezResourceState::LoadedResourceMissing); });
     }
   }
 }

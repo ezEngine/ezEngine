@@ -17,7 +17,7 @@ namespace JPH
 struct ezJoltSubShape
 {
   JPH::Shape* m_pShape = nullptr;
-  ezTransform m_Transform = ezTransform::IdentityTransform();
+  ezTransform m_Transform = ezTransform::MakeIdentity();
 };
 
 class EZ_JOLTPLUGIN_DLL ezJoltShapeComponent : public ezComponent

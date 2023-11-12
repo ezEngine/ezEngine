@@ -37,7 +37,7 @@ void ezBoxVisualizerAdapter::Update()
   if (!pAttr->GetColorProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezBoxVisualizerAttribute 'color'");
     m_hGizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
   }
@@ -47,7 +47,7 @@ void ezBoxVisualizerAdapter::Update()
   if (!pAttr->GetOffsetProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezVec3>(), "Invalid property bound to ezBoxVisualizerAttribute 'offset'");
 
@@ -74,7 +74,7 @@ void ezBoxVisualizerAdapter::UpdateGizmoTransform()
   t.m_vPosition = m_vPositionOffset;
   t.m_qRotation = m_qRotation;
 
-  ezVec3 vOffset = ezVec3::ZeroVector();
+  ezVec3 vOffset = ezVec3::MakeZero();
 
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
     vOffset.x -= t.m_vScale.x * 0.5f;

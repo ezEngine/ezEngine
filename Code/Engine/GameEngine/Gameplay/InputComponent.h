@@ -6,12 +6,12 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
-typedef ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating> ezInputComponentManager;
+using ezInputComponentManager = ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating>;
 
 /// \brief Which types of input events are broadcast
 struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   /// \brief Which types of input events are broadcast
   enum Enum
@@ -49,7 +49,7 @@ private:
 /// object.
 ///
 /// To deactivate input handling, just deactivate the entire component.
-/// To use the input data, add a message handler on another component and handle messages of type ezTriggerMessage.
+/// To use the input data, add a message handler on another component and handle messages of type ezMsgInputActionTriggered.
 /// For every input event, one such message is sent every frame.
 /// The granularity property defines for which input events (key pressed, released or down) messages are sent.
 class EZ_GAMEENGINE_DLL ezInputComponent : public ezComponent
@@ -71,6 +71,10 @@ public:
   ezInputComponent();
   ~ezInputComponent();
 
+  /// \brief Returns the amount to which szInputAction is active (0 to 1).
+  ///
+  /// If bOnlyKeyPressed is set to true, only key press events return a non-zero value,
+  /// ie key down and key released events are ignored.
   float GetCurrentInputState(const char* szInputAction, bool bOnlyKeyPressed = false) const; // [ scriptable ]
 
   ezString m_sInputSet;                            // [ property ]

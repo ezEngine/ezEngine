@@ -14,7 +14,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapContextMenuActions(const char* szMapping, const char* szPath);
+  static void MapContextMenuActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hLayerCategory;
   static ezActionDescriptorHandle s_hCreateLayer;

@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleWindComponent, 2, ezComponentMode::Static)
   {
     EZ_ENUM_MEMBER_PROPERTY("MinWindStrength", ezWindStrength, m_MinWindStrength),
     EZ_ENUM_MEMBER_PROPERTY("MaxWindStrength", ezWindStrength, m_MaxWindStrength),
-    EZ_MEMBER_PROPERTY("MaxDeviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(180))),
+    EZ_MEMBER_PROPERTY("MaxDeviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(180))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -95,7 +95,7 @@ void ezSimpleWindComponent::OnActivated()
   m_fNextStrength = ezWindStrength::GetInMetersPerSecond(m_MinWindStrength);
   m_vNextDirection = GetOwner()->GetGlobalDirForwards();
   m_NextChange = GetWorld()->GetClock().GetAccumulatedTime();
-  m_LastChange = m_NextChange - ezTime::Seconds(1);
+  m_LastChange = m_NextChange - ezTime::MakeFromSeconds(1);
 
   ComputeNextState();
 }
@@ -109,7 +109,7 @@ void ezSimpleWindComponent::OnDeactivated()
   if (pWindModule == nullptr)
     return;
 
-  pWindModule->SetFallbackWind(ezVec3::ZeroVector());
+  pWindModule->SetFallbackWind(ezVec3::MakeZero());
 }
 
 void ezSimpleWindComponent::ComputeNextState()
@@ -129,22 +129,22 @@ void ezSimpleWindComponent::ComputeNextState()
   float fStrengthDiff = fMaxStrength - fMinStrength;
   float fStrengthChange = fStrengthDiff * 0.2f;
 
-  m_NextChange = m_LastChange + ezTime::Seconds(rng.DoubleMinMax(2.0f, 5.0f));
+  m_NextChange = m_LastChange + ezTime::MakeFromSeconds(rng.DoubleMinMax(2.0f, 5.0f));
   m_fNextStrength = ezMath::Clamp<float>(m_fLastStrength + (float)rng.DoubleMinMax(-fStrengthChange, +fStrengthChange), fMinStrength, fMaxStrength);
 
   const ezVec3 vMainDir = GetOwner()->GetGlobalDirForwards();
 
-  if (m_Deviation < ezAngle::Degree(1))
+  if (m_Deviation < ezAngle::MakeFromDegree(1))
     m_vNextDirection = vMainDir;
   else
-    m_vNextDirection = ezVec3::CreateRandomDeviation(rng, m_Deviation, vMainDir);
+    m_vNextDirection = ezVec3::MakeRandomDeviation(rng, m_Deviation, vMainDir);
 
   ezCoordinateSystem cs;
   GetWorld()->GetCoordinateSystem(GetOwner()->GetGlobalPosition(), cs);
   const float fRemoveUp = m_vNextDirection.Dot(cs.m_vUpDir);
 
   m_vNextDirection -= cs.m_vUpDir * fRemoveUp;
-  m_vNextDirection.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+  m_vNextDirection.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 }
 
 void ezSimpleWindComponent::Initialize()

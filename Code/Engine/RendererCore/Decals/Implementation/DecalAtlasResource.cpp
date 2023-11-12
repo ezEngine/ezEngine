@@ -60,8 +60,8 @@ ezUInt32 ezDecalAtlasResource::s_uiDecalAtlasResources = 0;
 
 ezDecalAtlasResource::ezDecalAtlasResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
-  , m_vBaseColorSize(ezVec2U32::ZeroVector())
-  , m_vNormalSize(ezVec2U32::ZeroVector())
+  , m_vBaseColorSize(ezVec2U32::MakeZero())
+  , m_vNormalSize(ezVec2U32::MakeZero())
 {
 }
 

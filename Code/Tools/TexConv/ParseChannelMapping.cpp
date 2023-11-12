@@ -2,7 +2,7 @@
 
 #include <TexConv/TexConv.h>
 
-static const char* ToString(ezTexConvChannelValue::Enum e)
+static ezStringView ToString(ezTexConvChannelValue::Enum e)
 {
   switch (e)
   {
@@ -53,14 +53,10 @@ ezResult ezTexConv::ParseChannelMappings()
     ezLog::Info("Custom output channel mapping:");
     for (ezUInt32 m = 0; m < mappings.GetCount(); ++m)
     {
-      ezLog::Info(
-        "Slice {}, R -> Input file {}, {}", m, mappings[m].m_Channel[0].m_iInputImageIndex, ToString(mappings[m].m_Channel[0].m_ChannelValue));
-      ezLog::Info(
-        "Slice {}, G -> Input file {}, {}", m, mappings[m].m_Channel[1].m_iInputImageIndex, ToString(mappings[m].m_Channel[1].m_ChannelValue));
-      ezLog::Info(
-        "Slice {}, B -> Input file {}, {}", m, mappings[m].m_Channel[2].m_iInputImageIndex, ToString(mappings[m].m_Channel[2].m_ChannelValue));
-      ezLog::Info(
-        "Slice {}, A -> Input file {}, {}", m, mappings[m].m_Channel[3].m_iInputImageIndex, ToString(mappings[m].m_Channel[3].m_ChannelValue));
+      ezLog::Info("Slice {}, R -> Input file {}, {}", m, mappings[m].m_Channel[0].m_iInputImageIndex, ToString(mappings[m].m_Channel[0].m_ChannelValue));
+      ezLog::Info("Slice {}, G -> Input file {}, {}", m, mappings[m].m_Channel[1].m_iInputImageIndex, ToString(mappings[m].m_Channel[1].m_ChannelValue));
+      ezLog::Info("Slice {}, B -> Input file {}, {}", m, mappings[m].m_Channel[2].m_iInputImageIndex, ToString(mappings[m].m_Channel[2].m_ChannelValue));
+      ezLog::Info("Slice {}, A -> Input file {}, {}", m, mappings[m].m_Channel[3].m_iInputImageIndex, ToString(mappings[m].m_Channel[3].m_ChannelValue));
     }
   }
 
@@ -163,12 +159,12 @@ ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mapping, const char* szCfg, ezInt32 iChannelIndex, bool bSingleChannel)
+ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mapping, ezStringView sCfg, ezInt32 iChannelIndex, bool bSingleChannel)
 {
   out_mapping.m_iInputImageIndex = -1;
   out_mapping.m_ChannelValue = ezTexConvChannelValue::White;
 
-  ezStringBuilder tmp = szCfg;
+  ezStringBuilder tmp = sCfg;
 
   // '-r black' for setting it to zero
   if (tmp.IsEqual_NoCase("black"))
@@ -202,7 +198,7 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mappi
     const char* szLastPos = nullptr;
     if (ezConversionUtils::StringToInt(tmp, num, &szLastPos).Failed())
     {
-      ezLog::Error("Could not parse channel mapping '{0}'", szCfg);
+      ezLog::Error("Could not parse channel mapping '{0}'", sCfg);
       return EZ_FAILURE;
     }
 
@@ -232,7 +228,7 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mappi
 
   if (!tmp.StartsWith("."))
   {
-    ezLog::Error("Invalid channel mapping: Expected '.' after input file index in '{0}'", szCfg);
+    ezLog::Error("Invalid channel mapping: Expected '.' after input file index in '{0}'", sCfg);
     return EZ_FAILURE;
   }
 
@@ -249,7 +245,7 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mappi
   // no additional info, e.g. '-rgb in2.rg'
   if (tmp.IsEmpty())
   {
-    ezLog::Error("Invalid channel mapping: Too few channel identifiers '{0}'", szCfg);
+    ezLog::Error("Invalid channel mapping: Too few channel identifiers '{0}'", sCfg);
     return EZ_FAILURE;
   }
 
@@ -274,7 +270,7 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_mappi
     }
     else
     {
-      ezLog::Error("Invalid channel mapping: Unexpected channel identifier in '{}'", szCfg);
+      ezLog::Error("Invalid channel mapping: Unexpected channel identifier in '{}'", sCfg);
       return EZ_FAILURE;
     }
 

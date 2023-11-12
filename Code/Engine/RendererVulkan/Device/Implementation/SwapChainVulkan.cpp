@@ -4,6 +4,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/System/PlatformFeatures.h>
+#include <RendererFoundation/RendererReflection.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
@@ -22,17 +23,21 @@
 
 namespace
 {
-  ezResult GetAlternativeFormat(vk::Format& format, vk::ComponentMapping& componentMapping)
+  ezResult GetAlternativeFormat(ezGALResourceFormat::Enum& format)
   {
     switch (format)
     {
-      case vk::Format::eR8G8B8A8Srgb:
-        format = vk::Format::eB8G8R8A8Srgb;
-        componentMapping = vk::ComponentMapping{vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eA};
+      case ezGALResourceFormat::RGBAUByteNormalizedsRGB:
+        format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
         return EZ_SUCCESS;
-      case vk::Format::eR8G8B8A8Unorm:
-        format = vk::Format::eB8G8R8A8Unorm;
-        componentMapping = vk::ComponentMapping{vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eA};
+      case ezGALResourceFormat::RGBAUByteNormalized:
+        format = ezGALResourceFormat::BGRAUByteNormalized;
+        return EZ_SUCCESS;
+      case ezGALResourceFormat::BGRAUByteNormalizedsRGB:
+        format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+        return EZ_SUCCESS;
+      case ezGALResourceFormat::BGRAUByteNormalized:
+        format = ezGALResourceFormat::RGBAUByteNormalized;
         return EZ_SUCCESS;
       default:
         return EZ_FAILURE;
@@ -66,15 +71,49 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 
   if (m_swapChainImageInUseFences[m_uiCurrentSwapChainImage])
   {
-    //#TODO_VULKAN waiting for fence does not seem to be necessary, is it already done by acquireNextImageKHR?
-    // m_pVulkanDevice->GetVulkanDevice().waitForFences(1, &m_swapChainImageInUseFences[m_uiCurrentSwapChainImage], true, 1000000000ui64);
+    // #TODO_VULKAN waiting for fence does not seem to be necessary, is it already done by acquireNextImageKHR?
+    //  m_pVulkanDevice->GetVulkanDevice().waitForFences(1, &m_swapChainImageInUseFences[m_uiCurrentSwapChainImage], true, 1000000000ui64);
     m_swapChainImageInUseFences[m_uiCurrentSwapChainImage] = nullptr;
   }
 
-  vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_vulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_currentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
-  if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+  int retryCount = 0;
+  while (true)
   {
-    ezLog::Warning("Swap-chain does not match the target window size and should be recreated.");
+    vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_vulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_currentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
+    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+    {
+      const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
+      if (result == vk::Result::eSuboptimalKHR && (surfaceCapabilities.currentExtent.width != m_CurrentSize.width || surfaceCapabilities.currentExtent.height != m_CurrentSize.height))
+      {
+        ezLog::Warning("Swap-chain does not match the target window size and should be recreated. Expected size {0}x{1}, current size {2}x{3}.", surfaceCapabilities.currentExtent.width, surfaceCapabilities.currentExtent.height, m_CurrentSize.width, m_CurrentSize.height);
+        break;
+      }
+      else
+      {
+        if (retryCount > 0)
+        {
+          ezLog::Error("Automatic swap-chain re-creation didn't have an effect");
+          break;
+        }
+        else
+        {
+          // It is not a size issue, re-create automatically
+          if (CreateSwapChainInternal().Failed())
+          {
+            ezLog::Error("Failed automatic swapchain re-creation");
+          }
+          else
+          {
+            ezLog::Info("Automatic swapchain re-creation succeeded");
+          }
+          retryCount++;
+        }
+      }
+    }
+    else
+    {
+      break;
+    }
   }
 
 #ifdef VK_LOG_LAYOUT_CHANGES
@@ -98,7 +137,11 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
 
   // Submit command buffer
   vk::Semaphore currentPipelineRenderFinishedSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
-  vk::Fence renderFence = pVulkanDevice->Submit(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput, currentPipelineRenderFinishedSemaphore);
+
+  pVulkanDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput));
+  pVulkanDevice->AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(currentPipelineRenderFinishedSemaphore));
+  vk::Fence renderFence = pVulkanDevice->Submit();
+  //vk::Fence renderFence = pVulkanDevice->Submit(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput, currentPipelineRenderFinishedSemaphore);
   pVulkanDevice->ReclaimLater(m_currentPipelineImageAvailableSemaphore);
 
   {
@@ -211,7 +254,12 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   presentModes.SetCount(uiPresentModes);
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfacePresentModesKHR(m_vulkanSurface, &uiPresentModes, presentModes.GetData()));
 
-  const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
+  vk::SurfaceCapabilitiesKHR surfaceCapabilities;
+  vk::Result res = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface, &surfaceCapabilities);
+  if (res != vk::Result::eSuccess)
+  {
+    return EZ_FAILURE;
+  }
 
   uint32_t uiNumSurfaceFormats = 0;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR(m_vulkanSurface, &uiNumSurfaceFormats, nullptr));
@@ -219,7 +267,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   supportedFormats.resize(uiNumSurfaceFormats);
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR(m_vulkanSurface, &uiNumSurfaceFormats, supportedFormats.data()));
 
-  vk::Format desiredFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_eRenderTarget;
+  vk::Format desiredFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_format;
   vk::ColorSpaceKHR desiredColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
   vk::ComponentMapping backBufferComponentMapping;
 
@@ -233,8 +281,9 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     }
   }
 
-  if (!formatFound && GetAlternativeFormat(desiredFormat, backBufferComponentMapping).Succeeded())
+  if (!formatFound && GetAlternativeFormat(m_WindowDesc.m_BackBufferFormat).Succeeded())
   {
+    desiredFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_format;
     for (vk::SurfaceFormatKHR& supportedFormat : supportedFormats)
     {
       if (supportedFormat.format == desiredFormat && supportedFormat.colorSpace == desiredColorSpace)
@@ -276,7 +325,9 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   if (m_WindowDesc.m_bAllowScreenshots)
     swapChainCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
 
-  swapChainCreateInfo.minImageCount = ezMath::Max(m_WindowDesc.m_bDoubleBuffered ? 2u : 1u, surfaceCapabilities.minImageCount);
+  // #TODO_VULKAN Using only 2 images in the swapchain may trigger the following validation error when resizing the window. To prevent this we use 3 images instead. Technically m_bDoubleBuffered now means triple buffering - a problem for another time and creating a swapchain with only 1 texture is impossible anyways on most platforms.
+  // https://vulkan.lunarg.com/doc/view/1.3.239.0/windows/1.3-extensions/vkspec.html#VUID-vkAcquireNextImageKHR-surface-07783
+  swapChainCreateInfo.minImageCount = ezMath::Max(m_WindowDesc.m_bDoubleBuffered ? 3u : 2u, surfaceCapabilities.minImageCount);
   if (surfaceCapabilities.maxImageCount != 0)
     swapChainCreateInfo.minImageCount = ezMath::Min(swapChainCreateInfo.minImageCount, surfaceCapabilities.maxImageCount);
 
@@ -322,7 +373,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     TexDesc.m_bCreateRenderTarget = true;
     TexDesc.m_ResourceAccess.m_bImmutable = true;
     TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots;
-    m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>(), desiredFormat));
+    m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
   }
   m_CurrentSize = ezSizeU32(swapChainCreateInfo.imageExtent.width, swapChainCreateInfo.imageExtent.height);
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[0];

@@ -8,7 +8,7 @@
 
 class ezLongOpWorker;
 struct ezProgressEvent;
-typedef ezDynamicArray<ezUInt8> ezDataBuffer;
+using ezDataBuffer = ezDynamicArray<ezUInt8>;
 
 /// \brief The LongOp worker manager is active in the engine process of the editor.
 ///

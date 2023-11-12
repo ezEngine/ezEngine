@@ -216,7 +216,7 @@ ezWindow::~ezWindow()
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-void ezWindow::OnWindowMessage(ezMinWindows::HWND pWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
+void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
 {
 }
 #endif

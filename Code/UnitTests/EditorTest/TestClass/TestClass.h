@@ -18,7 +18,7 @@ class ezScene2Document;
 class ezEditorTestApplication : public ezApplication
 {
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezEditorTestApplication();
   virtual ezResult BeforeCoreSystemsStartup() override;
@@ -37,14 +37,14 @@ public:
 
 class ezEditorTest : public ezTestBaseClass
 {
-  typedef ezTestBaseClass SUPER;
+  using SUPER = ezTestBaseClass;
 
 public:
   ezEditorTest();
   ~ezEditorTest();
 
   virtual ezEditorTestApplication* CreateApplication();
-  virtual ezResult GetImage(ezImage& ref_img) override;
+  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;
 
 protected:
   virtual ezResult InitializeTest() override;
@@ -66,10 +66,12 @@ protected:
   std::unique_ptr<QMimeData> ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects);
   void MoveObjectsToLayer(ezScene2Document* pDoc, const ezDeque<const ezDocumentObject*>& objects, const ezUuid& layer, ezDeque<const ezDocumentObject*>& new_objects);
   const ezDocumentObject* DropAsset(ezScene2Document* pDoc, const char* szAssetGuidOrPath, bool bShift = false, bool bCtrl = false);
-  const ezDocumentObject* CreateGameObject(ezScene2Document* pDoc);
+  const ezDocumentObject* CreateGameObject(ezScene2Document* pDoc, const ezDocumentObject* pParent = nullptr, ezStringView sName = {});
 
 
   ezEditorTestApplication* m_pApplication = nullptr;
   ezString m_sProjectPath;
   ezImage m_CapturedImage;
+  ezDynamicArray<ezString> m_CommandLineArguments;
+  ezDynamicArray<const char*> m_CommandLineArgumentPointers;
 };

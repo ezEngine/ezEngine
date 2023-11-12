@@ -3,6 +3,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <Foundation/Communication/IpcChannel.h>
+#include <Foundation/Communication/IpcProcessMessageProtocol.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
@@ -49,13 +50,13 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
 
   if (!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
   {
-    if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC")))
+    if (ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC").IsEmpty())
     {
       EZ_REPORT_FAILURE("Command Line does not contain -IPC parameter");
       return EZ_FAILURE;
     }
 
-    if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID")))
+    if (ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID").IsEmpty())
     {
       EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
       return EZ_FAILURE;
@@ -72,8 +73,8 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
   {
     m_pChannel = ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Server);
   }
-
-  m_pChannel->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
+  m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
+  m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
   m_pChannel->Connect();
 
   return EZ_SUCCESS;

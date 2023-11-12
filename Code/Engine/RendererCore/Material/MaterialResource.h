@@ -4,6 +4,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
@@ -51,6 +52,7 @@ struct ezMaterialResourceDescriptor
   ezDynamicArray<Parameter> m_Parameters;
   ezDynamicArray<Texture2DBinding> m_Texture2DBindings;
   ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings;
+  ezRenderData::Category m_RenderDataCategory;
 };
 
 class EZ_RENDERERCORE_DLL ezMaterialResource final : public ezResource
@@ -77,6 +79,8 @@ public:
   void SetTextureCubeBinding(const ezHashedString& sName, const ezTextureCubeResourceHandle& value);
   void SetTextureCubeBinding(const char* szName, const ezTextureCubeResourceHandle& value);
   ezTextureCubeResourceHandle GetTextureCubeBinding(const ezTempHashedString& sName);
+
+  ezRenderData::Category GetRenderDataCategory();
 
   /// \brief Copies current desc to original desc so the material is not modified on reset
   void PreserveCurrentDesc();
@@ -114,7 +118,7 @@ private:
   void OnBaseMaterialModified(const ezMaterialResource* pModifiedMaterial);
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
 
-  void AddPermutationVar(const char* szName, const char* szValue);
+  void AddPermutationVar(ezStringView sName, ezStringView sValue);
 
   ezAtomicInteger32 m_iLastModified;
   ezAtomicInteger32 m_iLastConstantsModified;
@@ -135,14 +139,17 @@ private:
     ezHashTable<ezHashedString, ezVariant> m_Parameters;
     ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_Texture2DBindings;
     ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_TextureCubeBindings;
+    ezRenderData::Category m_RenderDataCategory;
+
+    void Reset();
   };
 
   ezUInt32 m_uiCacheIndex;
   CachedValues* m_pCachedValues;
 
   CachedValues* GetOrUpdateCachedValues();
-  CachedValues* AllocateCache();
-  void DeallocateCache(ezUInt32 uiCacheIndex);
+  static CachedValues* AllocateCache(ezUInt32& inout_uiCacheIndex);
+  static void DeallocateCache(ezUInt32 uiCacheIndex);
 
   ezMutex m_UpdateCacheMutex;
   static ezDeque<ezMaterialResource::CachedValues> s_CachedValues;

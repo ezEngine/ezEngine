@@ -81,7 +81,7 @@ void ezManipulatorAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMeta
 
 ezTransform ezManipulatorAdapter::GetOffsetTransform() const
 {
-  return ezTransform::IdentityTransform();
+  return ezTransform::MakeIdentity();
 }
 
 ezTransform ezManipulatorAdapter::GetObjectTransform() const
@@ -91,8 +91,7 @@ ezTransform ezManipulatorAdapter::GetObjectTransform() const
 
   const ezTransform offset = GetOffsetTransform();
 
-  ezTransform tGlobal;
-  tGlobal.SetGlobalTransform(tObj, offset);
+  ezTransform tGlobal = ezTransform::MakeGlobalTransform(tObj, offset);
 
   return tGlobal;
 }
@@ -165,37 +164,37 @@ void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant v
   if (!ezStringUtils::IsNullOrEmpty(szProperty1))
   {
     ClampProperty(szProperty1, value1);
-    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty1), value1);
+    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty1), value1).AssertSuccess();
   }
 
   if (!ezStringUtils::IsNullOrEmpty(szProperty2))
   {
     ClampProperty(szProperty2, value2);
-    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty2), value2);
+    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty2), value2).AssertSuccess();
   }
 
   if (!ezStringUtils::IsNullOrEmpty(szProperty3))
   {
     ClampProperty(szProperty3, value3);
-    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty3), value3);
+    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty3), value3).AssertSuccess();
   }
 
   if (!ezStringUtils::IsNullOrEmpty(szProperty4))
   {
     ClampProperty(szProperty4, value4);
-    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty4), value4);
+    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty4), value4).AssertSuccess();
   }
 
   if (!ezStringUtils::IsNullOrEmpty(szProperty5))
   {
     ClampProperty(szProperty5, value5);
-    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty5), value5);
+    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty5), value5).AssertSuccess();
   }
 
   if (!ezStringUtils::IsNullOrEmpty(szProperty6))
   {
     ClampProperty(szProperty6, value6);
-    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty6), value6);
+    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty6), value6).AssertSuccess();
   }
 
   pObjectAccessor->FinishTransaction();

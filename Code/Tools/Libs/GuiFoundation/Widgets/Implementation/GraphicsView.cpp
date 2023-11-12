@@ -44,7 +44,7 @@ void ezQtGraphicsView::mousePressEvent(QMouseEvent* e)
 {
   if (e->buttons() == Qt::RightButton) // right button only
   {
-    m_LastGlobalMouseMovePos = e->globalPos();
+    m_LastGlobalMouseMovePos = e->globalPosition().toPoint();
     m_bPanning = true;
     m_bForwardMouseEvents = false;
   }
@@ -96,8 +96,8 @@ void ezQtGraphicsView::mouseMoveEvent(QMouseEvent* e)
 {
   if (m_bPanning)
   {
-    const QPoint diff = e->globalPos() - m_LastGlobalMouseMovePos;
-    m_LastGlobalMouseMovePos = e->globalPos();
+    const QPoint diff = e->globalPosition().toPoint() - m_LastGlobalMouseMovePos;
+    m_LastGlobalMouseMovePos = e->globalPosition().toPoint();
 
     // Copied from QGraphicsView
     QScrollBar* hBar = horizontalScrollBar();

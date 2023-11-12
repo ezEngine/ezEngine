@@ -37,7 +37,7 @@ private:
 
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override
   {
-    ++m_iFrame;
+    m_iFrame = uiInvocationCount;
 
     switch (iIdentifier)
     {
@@ -58,5 +58,4 @@ private:
   }
 
   ezSizeU32 m_CurrentWindowSize = ezSizeU32(320, 240);
-  ezInt32 m_iFrame;
 };

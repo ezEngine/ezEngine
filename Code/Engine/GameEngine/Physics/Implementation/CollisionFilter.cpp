@@ -15,12 +15,13 @@ ezCollisionFilterConfig::ezCollisionFilterConfig()
   }
 }
 
-void ezCollisionFilterConfig::SetGroupName(ezUInt32 uiGroup, const char* szName)
+void ezCollisionFilterConfig::SetGroupName(ezUInt32 uiGroup, ezStringView sName)
 {
-  ezStringUtils::Copy(m_GroupNames[uiGroup], 32, szName);
+  ezStringBuilder tmp;
+  ezStringUtils::Copy(m_GroupNames[uiGroup], 32, sName.GetData(tmp));
 }
 
-const char* ezCollisionFilterConfig::GetGroupName(ezUInt32 uiGroup) const
+ezStringView ezCollisionFilterConfig::GetGroupName(ezUInt32 uiGroup) const
 {
   return m_GroupNames[uiGroup];
 }
@@ -71,21 +72,21 @@ ezUInt32 ezCollisionFilterConfig::GetNamedGroupIndex(ezUInt32 uiGroup) const
   }
 
   EZ_REPORT_FAILURE("Invalid index, there are not so many named collision filter groups");
-  return -1;
+  return ezInvalidIndex;
 }
 
-ezInt32 ezCollisionFilterConfig::GetFilterGroupByName(const char* szName) const
+ezUInt32 ezCollisionFilterConfig::GetFilterGroupByName(ezStringView sName) const
 {
   for (ezUInt32 i = 0; i < 32; ++i)
   {
-    if (ezStringUtils::IsEqual_NoCase(m_GroupNames[i], szName))
+    if (sName.IsEqual_NoCase(m_GroupNames[i]))
       return i;
   }
 
-  return -1;
+  return ezInvalidIndex;
 }
 
-ezInt32 ezCollisionFilterConfig::FindUnnamedGroup() const
+ezUInt32 ezCollisionFilterConfig::FindUnnamedGroup() const
 {
   for (ezUInt32 i = 0; i < 32; ++i)
   {
@@ -93,7 +94,7 @@ ezInt32 ezCollisionFilterConfig::FindUnnamedGroup() const
       return i;
   }
 
-  return -1;
+  return ezInvalidIndex;
 }
 
 ezResult ezCollisionFilterConfig::Save(ezStringView sFile) const

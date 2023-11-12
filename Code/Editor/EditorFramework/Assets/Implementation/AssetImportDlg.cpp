@@ -52,7 +52,7 @@ ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* pParent, ezDynamicArray<ezAssetD
   table->setColumnWidth(Columns::GeneratedDoc, table->columnWidth(Columns::GeneratedDoc) + 30);
 }
 
-ezQtAssetImportDlg::~ezQtAssetImportDlg() {}
+ezQtAssetImportDlg::~ezQtAssetImportDlg() = default;
 
 void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
 {
@@ -67,7 +67,7 @@ void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
   QComboBox* pCombo = new QComboBox();
   table->setCellWidget(uiRow, Columns::Method, pCombo);
 
-  pCombo->addItem(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/GuiFoundation/Icons/No16.png"), "No Import");
+  pCombo->addItem(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/GuiFoundation/Icons/NoEntry.svg"), "No Import");
   for (const auto& option : data2.m_ImportOptions)
   {
     QIcon icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(option.m_sIcon);

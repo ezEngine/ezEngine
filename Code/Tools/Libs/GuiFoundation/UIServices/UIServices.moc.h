@@ -72,8 +72,7 @@ public:
 
   /// \brief Shows a non-modal color dialog. The Qt slots are called when the selected color is changed or when the dialog is closed and the result
   /// accepted or rejected.
-  void ShowColorDialog(
-    const ezColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* szSlotCurColChanged, const char* szSlotAccept, const char* szSlotReject);
+  void ShowColorDialog(const ezColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* szSlotCurColChanged, const char* szSlotAccept, const char* szSlotReject);
 
   /// \brief Might show a message box depending on the given status. If the status is 'failure' the szFailureMsg is shown, including the message in
   /// ezStatus. If the status is success a message box with text szSuccessMsg is shown, but only if the status message is not empty or if
@@ -87,8 +86,7 @@ public:
   static void MessageBoxWarning(const ezFormatString& msg);
 
   /// \brief Shows a question message box and returns which button the user pressed
-  static QMessageBox::StandardButton MessageBoxQuestion(
-    const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
+  static QMessageBox::StandardButton MessageBoxQuestion(const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
 
   /// \brief Use this if you need to display a status bar message in any/all documents. Go directly through the document, if you only want to show a
   /// message in a single document window.
@@ -116,7 +114,12 @@ public:
 
   /// \brief Returns a cached QIcon that was created from an internal Qt resource (e.g. 'QIcon(":QtNamespace/MyIcon.png")' ). Prevents creating the
   /// object over and over.
-  static const QIcon& GetCachedIconResource(const char* szIdentifier);
+  ///
+  /// If svgTintColor is a non-zero color, and sIdentifier points to an .SVG file, then the first time the icon is requested with that color,
+  /// a copy is made, and the SVG content is modified such that white ("#FFFFFF") gets replaced by the requested color.
+  /// Thus multiple tints of the same icon can be created for different use cases.
+  /// Usually this is used to get different shades of the same icon, such that it looks good on the target background.
+  static const QIcon& GetCachedIconResource(ezStringView sIdentifier, ezColor svgTintColor = ezColor::MakeZero());
 
   /// \brief Returns a cached QImage that was created from an internal Qt resource (e.g. 'QImage(":QtNamespace/MyIcon.png")' ). Prevents creating the
   /// object over and over.

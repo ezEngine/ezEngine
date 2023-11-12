@@ -40,21 +40,35 @@ public:
   // *** Constructors ***
 public:
   /// \brief Default constructor: Does not do any initialization.
-  ezTransformTemplate(){}; // [tested]
+  ezTransformTemplate() = default;
 
-  /// \brief Sets position and rotation.
-  explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition,
-    const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion(),
+
+  /// \brief Initializes the transform from the given position, rotation and scale.
+  ezTransformTemplate(const ezVec3Template<Type>& vPosition,
+    const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::MakeIdentity(),
     const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1)); // [tested]
 
-  /// \brief Attempts to extract position, scale and rotation from the matrix. Negative scaling and shearing will get lost in the process.
-  void SetFromMat4(const ezMat4Template<Type>& mMat);
+  /// \brief Creates a transform from the given position, rotation and scale.
+  [[nodiscard]] static ezTransformTemplate<Type> Make(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::MakeIdentity(), const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1));
+
+  /// \brief Creates an identity transform.
+  [[nodiscard]] static ezTransformTemplate<Type> MakeIdentity();
+
+  /// \brief Creates a transform from the given matrix.
+  ///
+  /// \note This operation always succeeds, even though the matrix may be complete garbage (e.g. a zero matrix)
+  /// or may not be representable as a transform (containing shearing).
+  /// Also be careful with mirroring. The transform may or may not be able to represent that.
+  [[nodiscard]] static ezTransformTemplate<Type> MakeFromMat4(const ezMat4Template<Type>& mMat);
+
+  /// \brief Creates a transform that is the local transformation needed to get from the parent's transform to the child's.
+  [[nodiscard]] static ezTransformTemplate<Type> MakeLocalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& globalTransformChild); // [tested]
+
+  /// \brief Creates a transform that is the global transform, that is reached by applying the child's local transform to the parent's global one.
+  [[nodiscard]] static ezTransformTemplate<Type> MakeGlobalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& localTransformChild); // [tested]
 
   /// \brief Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]
-
-  /// \brief Returns an Identity Transform.
-  static const ezTransformTemplate<Type> IdentityTransform();
 
   /// \brief Returns the scale component with maximum magnitude.
   Type GetMaxScale() const;
@@ -81,19 +95,14 @@ public:
   /// \brief Returns the inverse of this transform.
   const ezTransformTemplate GetInverse() const; // [tested]
 
-  ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const;  // [tested]
-  ezVec3Template<Type> TransformDirection(const ezVec3Template<Type>& v) const; // [tested]
+  [[nodiscard]] ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const;  // [tested]
+  [[nodiscard]] ezVec3Template<Type> TransformDirection(const ezVec3Template<Type>& v) const; // [tested]
 
   void operator+=(const ezVec3Template<Type>& v); // [tested]
   void operator-=(const ezVec3Template<Type>& v); // [tested]
 
   // *** Conversion operations ***
 public:
-  /// \brief Sets this transform to be the local transformation needed to get from the parent's transform to the child's.
-  void SetLocalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& globalTransformChild); // [tested]
-
-  /// \brief Sets this transform to the global transform, that is reached by applying the child's local transform to the parent's global one.
-  void SetGlobalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& localTransformChild); // [tested]
 
   /// \brief Returns the transformation as a matrix.
   const ezMat4Template<Type> GetAsMat4() const; // [tested]

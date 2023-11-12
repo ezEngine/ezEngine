@@ -7,6 +7,7 @@
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/System/MiniDumpUtils.h>
 #include <Foundation/System/Process.h>
+#include <GameEngineTest/SubstanceTest/SubstanceTest.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -29,8 +30,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   else
   {
     // Assume to be relative to ez root.
-    sProjectDir = sBinPath;
-    sProjectDir.PathParentDirectory(3);
+    sProjectDir = ezFileSystem::GetSdkRootDirectory();
     sProjectDir.AppendPath(szProjectPath);
     sProjectDir.MakeCleanPath();
   }
@@ -91,7 +91,19 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
       ezLog::Error("Failed to create output directory: {}", sOutputPath);
   }
 
+  ezStringBuilder sStdout;
+  ezMutex mutex;
+
   ezProcessOptions opt;
+  opt.m_onStdOut = [&sStdout, &mutex](ezStringView sView) {
+    EZ_LOCK(mutex);
+    sStdout.Append(sView);
+  };
+  opt.m_onStdError = [&sStdout, &mutex](ezStringView sView) {
+    EZ_LOCK(mutex);
+    sStdout.Append(sView);
+  };
+
   opt.m_sProcess = sBinPath;
   opt.m_Arguments.PushBack("-project");
   opt.AddArgument("\"{0}\"", sProjectDir);
@@ -104,8 +116,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   opt.m_Arguments.PushBack("never");
   opt.m_Arguments.PushBack("-renderer");
   opt.m_Arguments.PushBack(ezGameApplication::GetActiveRenderer());
-
-
+  opt.m_Arguments.PushBack("-fullcrashdumps");
 
   ezProcess proc;
   ezLog::Info("Launching: '{0}'", sBinPath);
@@ -116,8 +127,9 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     ezLog::Error("Failed to start process: '{0}'", sBinPath);
   }
 
-  ezTime timeout = ezTime::Minutes(15);
+  ezTime timeout = ezTime::MakeFromMinutes(15);
   res = proc.WaitToFinish(timeout);
+  ezResult returnValue = EZ_SUCCESS;
   if (res.Failed())
   {
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -127,16 +139,29 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 #  endif
     proc.Terminate().IgnoreResult();
     ezLog::Error("Process timeout ({1}): '{0}'", sBinPath, timeout);
-    return EZ_FAILURE;
+    returnValue = EZ_FAILURE;
   }
-  if (proc.GetExitCode() != 0)
+  else if (proc.GetExitCode() != 0)
   {
     ezLog::Error("Process failure ({0}): ExitCode: '{1}'", sBinPath, proc.GetExitCode());
-    return EZ_FAILURE;
+    returnValue = EZ_FAILURE;
+  }
+  else
+  {
+    ezLog::Success("Executed Asset Processor to transform '{}'", szProjectPath);
   }
 
-  ezLog::Success("Executed Asset Processor to transform '{}'", szProjectPath);
-  return EZ_SUCCESS;
+  {
+    ezOSFile fileWriter;
+    ezStringBuilder sLogFile = sOutputPath;
+    sLogFile.AppendFormat("/EditorProcessor_{}.txt", proc.GetProcessID());
+    if (fileWriter.Open(sLogFile, ezFileOpenMode::Write, ezFileShareMode::Exclusive).Failed() || fileWriter.Write(sStdout.GetData(), sStdout.GetElementCount()).Failed())
+    {
+      ezLog::Error("Failed to write EditorProcessor log at '{}'", sLogFile);
+    }
+  }
+
+  return returnValue;
 }
 #endif
 
@@ -160,7 +185,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 3).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 4).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
@@ -170,12 +195,12 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformAnimations)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 6).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 7).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformStateMachine)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/StateMachine/ezProject", 6).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/StateMachine/ezProject", 7).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformPlatformWin)
@@ -186,6 +211,19 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformPlatformWin)
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformXR)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/XR/ezProject", 5).Succeeded());
+}
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformVisualScript)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/VisualScript/ezProject", 6).Succeeded());
+}
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformSubstance)
+{
+  if (ezGameEngineTestSubstance::HasSubstanceDesignerInstalled())
+  {
+    EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Substance/ezProject", 1).Succeeded());
+  }
 }
 
 #endif
@@ -392,7 +430,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurF
   pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 120.0f, 1.0f, 100.0f);
   ezVec3 pos = ezVec3(iCurFrame * 5.0f, 0, 0);
   pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
-  pCamera->RotateGlobally(ezAngle::Degree(0), ezAngle::Degree(0), ezAngle::Degree(iCurFrame * 80.0f));
+  pCamera->RotateGlobally(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(iCurFrame * 80.0f));
 
   if (Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;
@@ -431,24 +469,22 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
   // line box
   {
-    ezBoundingBox bbox;
-    bbox.SetCenterAndHalfExtents(ezVec3(10, -5, 1), ezVec3(1, 2, 3));
+    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(10, -5, 1), ezVec3(1, 2, 3));
 
     ezTransform t;
     t.SetIdentity();
-    t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(25));
+    t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(25));
     ezDebugRenderer::DrawLineBox(m_pWorld.Borrow(), bbox, ezColor::HotPink, t);
   }
 
   // line box
   {
-    ezBoundingBox bbox;
-    bbox.SetCenterAndHalfExtents(ezVec3(10, -3, 1), ezVec3(1, 2, 3));
+    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(10, -3, 1), ezVec3(1, 2, 3));
 
     ezTransform t;
     t.SetIdentity();
     t.m_vPosition.Set(0, 5, -2);
-    t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(25));
+    t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(25));
     ezDebugRenderer::DrawLineBoxCorners(m_pWorld.Borrow(), bbox, 0.5f, ezColor::DeepPink, t);
   }
 
@@ -459,15 +495,13 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
   // Sphere
   {
-    ezBoundingSphere sphere;
-    sphere.SetElements(ezVec3(8, -5, -4), 2);
+    ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(8, -5, -4), 2);
     ezDebugRenderer::DrawLineSphere(m_pWorld.Borrow(), sphere, ezColor::Tomato);
   }
 
   // Solid box
   {
-    ezBoundingBox bbox;
-    bbox.SetCenterAndHalfExtents(ezVec3(10, -5, 1), ezVec3(1, 2, 3));
+    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(10, -5, 1), ezVec3(1, 2, 3));
 
     ezDebugRenderer::DrawSolidBox(m_pWorld.Borrow(), bbox, ezColor::BurlyWood);
   }
@@ -480,8 +514,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
   // Frustum
   {
-    ezFrustum f;
-    f.SetFrustum(ezVec3(5, 7, 3), ezVec3(0, -1, 0), ezVec3(0, 0, 1), ezAngle::Degree(30), ezAngle::Degree(20), 0.1f, 5.0f);
+    ezFrustum f = ezFrustum::MakeFromFOV(ezVec3(5, 7, 3), ezVec3(0, -1, 0), ezVec3(0, 0, 1), ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(20), 0.1f, 5.0f);
     ezDebugRenderer::DrawLineFrustum(m_pWorld.Borrow(), f, ezColor::Cornsilk);
   }
 
@@ -526,8 +559,8 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec2(ezIn
   // Text
   {
     ezDebugRenderer::Draw2DText(m_pWorld.Borrow(), ezFmt("Frame# {}", ezRenderWorld::GetFrameCounter()), ezVec2I32(10, 10), ezColor::AntiqueWhite, 24);
-    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugRenderer::ScreenPlacement::BottomLeft, "test", ezFmt("Frame# {}", ezRenderWorld::GetFrameCounter()));
-    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugRenderer::ScreenPlacement::BottomRight, "test", "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|");
+    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugTextPlacement::BottomLeft, "test", ezFmt("Frame# {}", ezRenderWorld::GetFrameCounter()));
+    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugTextPlacement::BottomRight, "test", "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|");
   }
 
   if (Run() == ezApplication::Execution::Quit)

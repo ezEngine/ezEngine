@@ -8,20 +8,20 @@ EZ_IMPLEMENT_SINGLETON(ezVariantTypeRegistry);
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, VariantTypeRegistry)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"Reflection"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Reflection"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORESYSTEMS_STARTUP
-{
-  EZ_DEFAULT_NEW(ezVariantTypeRegistry);
-}
+  ON_CORESYSTEMS_STARTUP
+  {
+    EZ_DEFAULT_NEW(ezVariantTypeRegistry);
+  }
 
-ON_CORESYSTEMS_SHUTDOWN
-{
-  ezVariantTypeRegistry * pDummy = ezVariantTypeRegistry::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
-}
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    ezVariantTypeRegistry * pDummy = ezVariantTypeRegistry::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
+  }
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
@@ -77,9 +77,7 @@ void ezVariantTypeRegistry::UpdateTypes()
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezVariantTypeInfo);
 
-ezVariantTypeInfo::ezVariantTypeInfo()
-{
-}
+ezVariantTypeInfo::ezVariantTypeInfo() = default;
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_VariantTypeRegistry);

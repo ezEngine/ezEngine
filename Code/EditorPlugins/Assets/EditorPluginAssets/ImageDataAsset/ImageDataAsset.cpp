@@ -8,12 +8,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImageDataAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezImageDataAssetDocument::ezImageDataAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezImageDataAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
+ezImageDataAssetDocument::ezImageDataAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezImageDataAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
-ezTransformStatus ezImageDataAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezImageDataAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
 

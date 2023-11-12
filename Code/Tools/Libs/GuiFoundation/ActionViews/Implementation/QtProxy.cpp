@@ -88,9 +88,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* pEvent)
+bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* pEvent, bool bTestOnly)
 {
-  auto CheckActions = [](QKeyEvent* pEvent, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& ref_actions) -> bool {
+  auto CheckActions = [&](QKeyEvent* pEvent, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& ref_actions) -> bool {
     for (auto weakActionProxy : ref_actions)
     {
       if (auto pProxy = weakActionProxy.Value().toStrongRef())
@@ -110,7 +110,10 @@ bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* pEvent)
           QKeySequence ks = pQAction->shortcut();
           if (pQAction->isEnabled() && QKeySequence(pEvent->key() | pEvent->modifiers()) == ks)
           {
-            pQAction->trigger();
+            if (!bTestOnly)
+            {
+              pQAction->trigger();
+            }
             pEvent->accept();
             return true;
           }
@@ -328,7 +331,7 @@ void ezQtButtonProxy::Update()
     sTooltip.append(")");
   }
 
-  if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
+  if (!pButton->GetAdditionalDisplayString().IsEmpty())
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
   m_pQtAction->setIcon(ezQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
@@ -507,7 +510,7 @@ void ezQtDynamicActionAndMenuProxy::Update()
 
   ezStringBuilder sDisplay = ezTranslate(pButton->GetName());
 
-  if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
+  if (!pButton->GetAdditionalDisplayString().IsEmpty())
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
   const QString sDisplayShortcut = m_pQtAction->shortcut().toString(QKeySequence::NativeText);

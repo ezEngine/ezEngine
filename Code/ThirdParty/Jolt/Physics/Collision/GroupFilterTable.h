@@ -10,7 +10,7 @@
 JPH_NAMESPACE_BEGIN
 
 /// Implementation of GroupFilter that stores a bit table with one bit per sub shape ID pair to determine if they collide or not
-/// 
+///
 /// The collision rules:
 /// - If one of the objects is in the cInvalidGroup the objects will collide
 /// - If the objects are in different groups they will collide
@@ -32,9 +32,9 @@ JPH_NAMESPACE_BEGIN
 /// . is a bit we don't need to store because the table is symmetric, we take care that group 2 > group 1 always by swapping the elements if needed
 ///
 /// The total number of bits we need to store is (N * (N - 1)) / 2
-class GroupFilterTable final : public GroupFilter
+class JPH_EXPORT GroupFilterTable final : public GroupFilter
 {
-	JPH_DECLARE_SERIALIZABLE_VIRTUAL(GroupFilterTable)
+	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, GroupFilterTable)
 
 private:
 	using GroupID = CollisionGroup::GroupID;
@@ -52,7 +52,7 @@ private:
 		JPH_ASSERT(inSubGroup2 < mNumSubGroups);
 
 		// Calculate at which bit the entry for this pair resides
-		// We use the fact that a row always starts at inSubGroup2 * (inSubGroup2 - 1) / 2 
+		// We use the fact that a row always starts at inSubGroup2 * (inSubGroup2 - 1) / 2
 		// (this is the amount of bits needed to store a table of inSubGroup2 entries)
 		return (inSubGroup2 * (inSubGroup2 - 1)) / 2 + inSubGroup1;
 	}
@@ -94,7 +94,7 @@ public:
 
 	/// Checks if two CollisionGroups collide
 	virtual bool			CanCollide(const CollisionGroup &inGroup1, const CollisionGroup &inGroup2) const override
-	{	
+	{
 		// If one of the groups is cInvalidGroup the objects will collide (note that the if following this if will ensure that group2 is not cInvalidGroup)
 		if (inGroup1.GetGroupID() == CollisionGroup::cInvalidGroup)
 			return true;

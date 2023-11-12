@@ -12,8 +12,8 @@ class EZ_FOUNDATION_DLL ezUuid
 public:
   EZ_DECLARE_POD_TYPE();
 
-  /// \brief Default constructor. Constructed Uuid will be invalid. [tested]
-  EZ_ALWAYS_INLINE ezUuid();
+  /// \brief Default constructor. Constructed Uuid will be invalid.
+  EZ_ALWAYS_INLINE ezUuid(); // [tested]
 
   /// \brief Constructs the Uuid from existing values
   EZ_ALWAYS_INLINE ezUuid(ezUInt64 uiLow, ezUInt64 uiHigh)
@@ -34,11 +34,11 @@ public:
   /// \brief Returns true if this is a valid Uuid.
   EZ_ALWAYS_INLINE bool IsValid() const;
 
-  /// \brief Sets the Uuid to be invalid
-  EZ_ALWAYS_INLINE void SetInvalid();
+  /// \brief Returns an invalid UUID.
+  [[nodiscard]] EZ_ALWAYS_INLINE static ezUuid MakeInvalid() { return ezUuid(0, 0); }
 
-  /// \brief Creates a new Uuid and stores is it in this object.
-  void CreateNewUuid();
+  /// \brief Returns a new Uuid.
+  [[nodiscard]] static ezUuid MakeUuid();
 
   /// \brief Returns the internal 128 Bit of data
   void GetValues(ezUInt64& ref_uiLow, ezUInt64& ref_uiHigh) const
@@ -48,10 +48,10 @@ public:
   }
 
   /// \brief Creates a uuid from a string. The result is always the same for the same string.
-  static ezUuid StableUuidForString(ezStringView sString);
+  [[nodiscard]] static ezUuid MakeStableUuidFromString(ezStringView sString);
 
   /// \brief Creates a uuid from an integer. The result is always the same for the same input.
-  static ezUuid StableUuidForInt(ezInt64 iInt);
+  [[nodiscard]] static ezUuid MakeStableUuidFromInt(ezInt64 iInt);
 
   /// \brief Adds the given seed value to this guid, creating a new guid. The process is reversible.
   EZ_ALWAYS_INLINE void CombineWithSeed(const ezUuid& seed);

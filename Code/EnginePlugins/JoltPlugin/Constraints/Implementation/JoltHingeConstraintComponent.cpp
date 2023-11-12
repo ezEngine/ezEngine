@@ -18,8 +18,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltHingeConstraintComponent, 1, ezComponentMode::Stat
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("LimitMode", ezJoltConstraintLimitMode, GetLimitMode, SetLimitMode),
-    EZ_ACCESSOR_PROPERTY("LowerLimit", GetLowerLimitAngle, SetLowerLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(180))),
-    EZ_ACCESSOR_PROPERTY("UpperLimit", GetUpperLimitAngle, SetUpperLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(180))),
+    EZ_ACCESSOR_PROPERTY("LowerLimit", GetLowerLimitAngle, SetLowerLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(180))),
+    EZ_ACCESSOR_PROPERTY("UpperLimit", GetUpperLimitAngle, SetUpperLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(180))),
     EZ_ACCESSOR_PROPERTY("Friction", GetFriction, SetFriction)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_ACCESSOR_PROPERTY("DriveMode", ezJoltConstraintDriveMode, GetDriveMode, SetDriveMode),
     EZ_ACCESSOR_PROPERTY("DriveTargetValue", GetDriveTargetValue, SetDriveTargetValue),
@@ -58,7 +58,7 @@ void ezJoltHingeConstraintComponent::SerializeComponent(ezWorldWriter& inout_str
 void ezJoltHingeConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -81,13 +81,13 @@ void ezJoltHingeConstraintComponent::SetLimitMode(ezJoltConstraintLimitMode::Enu
 
 void ezJoltHingeConstraintComponent::SetLowerLimitAngle(ezAngle f)
 {
-  m_LowerLimit = ezMath::Clamp(f, ezAngle(), ezAngle::Degree(180));
+  m_LowerLimit = ezMath::Clamp(f, ezAngle(), ezAngle::MakeFromDegree(180));
   QueueApplySettings();
 }
 
 void ezJoltHingeConstraintComponent::SetUpperLimitAngle(ezAngle f)
 {
-  m_UpperLimit = ezMath::Clamp(f, ezAngle(), ezAngle::Degree(180));
+  m_UpperLimit = ezMath::Clamp(f, ezAngle(), ezAngle::MakeFromDegree(180));
   QueueApplySettings();
 }
 
@@ -146,7 +146,7 @@ void ezJoltHingeConstraintComponent::ApplySettings()
     float low = m_LowerLimit.GetRadian();
     float high = m_UpperLimit.GetRadian();
 
-    const float fLowest = ezAngle::Degree(1.0f).GetRadian();
+    const float fLowest = ezAngle::MakeFromDegree(1.0f).GetRadian();
 
     // there should be at least some slack
     if (low <= fLowest && high <= fLowest)
@@ -183,7 +183,8 @@ void ezJoltHingeConstraintComponent::ApplySettings()
 
       const float strength = (m_fDriveStrength == 0) ? FLT_MAX : m_fDriveStrength;
 
-      pConstraint->GetMotorSettings().mFrequency = 20.0f;
+      pConstraint->GetMotorSettings().mSpringSettings.mMode = JPH::ESpringMode::FrequencyAndDamping;
+      pConstraint->GetMotorSettings().mSpringSettings.mFrequency = 20.0f;
       pConstraint->GetMotorSettings().SetForceLimit(strength);
       pConstraint->GetMotorSettings().SetTorqueLimit(strength);
     }

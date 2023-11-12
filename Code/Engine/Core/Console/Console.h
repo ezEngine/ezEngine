@@ -51,10 +51,10 @@ public:
   virtual void AutoComplete(ezCommandInterpreterState& inout_state);
 
   /// \brief Iterates over all cvars and finds all that start with the string \a szVariable.
-  static void FindPossibleCVars(const char* szVariable, ezDeque<ezString>& ref_commonStrings, ezDeque<ezConsoleString>& ref_consoleStrings);
+  static void FindPossibleCVars(ezStringView sVariable, ezDeque<ezString>& ref_commonStrings, ezDeque<ezConsoleString>& ref_consoleStrings);
 
   /// \brief Iterates over all console functions and finds all that start with the string \a szVariable.
-  static void FindPossibleFunctions(const char* szVariable, ezDeque<ezString>& ref_commonStrings, ezDeque<ezConsoleString>& ref_consoleStrings);
+  static void FindPossibleFunctions(ezStringView sVariable, ezDeque<ezString>& ref_commonStrings, ezDeque<ezConsoleString>& ref_consoleStrings);
 
   /// \brief Returns the prefix string that is common to all strings in the \a vStrings array.
   static const ezString FindCommonString(const ezDeque<ezString>& strings);
@@ -164,6 +164,12 @@ public:
 
   /// \brief Replaces the input line by the next (or previous) history item.
   void RetrieveInputHistory(ezInt32 iHistoryUp, ezStringBuilder& ref_sResult);
+
+  /// \brief Writes the current input history to a text file.
+  ezResult SaveInputHistory(ezStringView sFile);
+
+  /// \brief Reads the text file and appends all lines to the input history.
+  void LoadInputHistory(ezStringView sFile);
 
 protected:
   ezInt32 m_iCurrentInputHistoryElement = -1;

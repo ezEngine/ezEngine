@@ -6,6 +6,38 @@
 #include <FmodPlugin/FmodIncludes.h>
 #include <FmodPlugin/FmodSingleton.h>
 
+ezFmodListenerComponentManager::ezFmodListenerComponentManager(ezWorld* pWorld)
+  : ezComponentManager(pWorld)
+{
+}
+
+void ezFmodListenerComponentManager::Initialize()
+{
+  SUPER::Initialize();
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodListenerComponentManager::UpdateListeners, this);
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+
+    this->RegisterUpdateFunction(desc);
+  }
+}
+
+void ezFmodListenerComponentManager::UpdateListeners(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->Update();
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezFmodListenerComponent, 1, ezComponentMode::Static)
 {
@@ -43,9 +75,9 @@ void ezFmodListenerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 void ezFmodListenerComponent::Update()
 {
   const auto pos = GetOwner()->GetGlobalPosition();
-  const auto vel = GetOwner()->GetVelocity();
-  const auto fwd = (GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0)).GetNormalized();
-  const auto up = (GetOwner()->GetGlobalRotation() * ezVec3(0, 0, 1)).GetNormalized();
+  const auto vel = GetOwner()->GetLinearVelocity();
+  const auto fwd = (GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisX()).GetNormalized();
+  const auto up = (GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisZ()).GetNormalized();
 
   ezFmod::GetSingleton()->SetListener(m_uiListenerIndex, pos, fwd, up, vel);
 }

@@ -15,7 +15,10 @@ const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] = {
   "String2",
   "Integer",
   "Float",
-};
+  "RawString1",
+  "RawString1Prefix",
+  "RawString1Postfix",
+  "EndOfFile"};
 
 namespace
 {
@@ -146,6 +149,10 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog)
         HandleString('\"');
         break;
 
+      case ezTokenType::RawString1:
+        HandleRawString();
+        break;
+
       case ezTokenType::String2:
         HandleString('\'');
         break;
@@ -175,6 +182,8 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog)
         HandleNonIdentifier();
         break;
 
+      case ezTokenType::RawString1Prefix:
+      case ezTokenType::RawString1Postfix:
       case ezTokenType::Newline:
       case ezTokenType::EndOfFile:
       case ezTokenType::ENUM_COUNT:
@@ -218,6 +227,14 @@ void ezTokenizer::HandleUnknown()
   if (m_uiCurChar == '\"')
   {
     m_CurMode = ezTokenType::String1;
+    NextChar();
+    return;
+  }
+
+  if (m_uiCurChar == 'R' && m_uiNextChar == '\"')
+  {
+    m_CurMode = ezTokenType::RawString1;
+    NextChar();
     NextChar();
     return;
   }
@@ -344,6 +361,71 @@ void ezTokenizer::HandleString(char terminator)
   AddToken();
 }
 
+void ezTokenizer::HandleRawString()
+{
+  const char* markerStart = m_szCurCharStart;
+  while (m_uiCurChar != '\0')
+  {
+    if (m_uiCurChar == '(')
+    {
+      m_sRawStringMarker = ezStringView(markerStart, m_szCurCharStart);
+      NextChar(); // consume '('
+      break;
+    }
+    NextChar();
+  }
+  if (m_uiCurChar == '\0')
+  {
+    ezLog::Error(m_pLog, "Failed to find '(' for raw string before end of file");
+    AddToken();
+    return;
+  }
+
+  m_CurMode = ezTokenType::RawString1Prefix;
+  AddToken();
+
+  m_CurMode = ezTokenType::RawString1;
+
+  while (m_uiCurChar != '\0')
+  {
+    if (m_uiCurChar == ')')
+    {
+      if (m_sRawStringMarker.GetElementCount() == 0 && m_uiNextChar == '\"')
+      {
+        AddToken();
+        NextChar();
+        NextChar();
+        m_CurMode = ezTokenType::RawString1Postfix;
+        AddToken();
+        return;
+      }
+      else if (m_szCurCharStart + m_sRawStringMarker.GetElementCount() + 2 <= m_sIterator.GetEndPointer())
+      {
+        if (ezStringUtils::CompareN(m_szCurCharStart + 1, m_sRawStringMarker.GetStartPointer(), m_sRawStringMarker.GetElementCount()) == 0 &&
+            m_szCurCharStart[m_sRawStringMarker.GetElementCount() + 1] == '\"')
+        {
+          AddToken();
+          for (ezUInt32 i = 0; i < m_sRawStringMarker.GetElementCount() + 2; ++i) // consume )marker"
+          {
+            NextChar();
+          }
+          m_CurMode = ezTokenType::RawString1Postfix;
+          AddToken();
+          return;
+        }
+      }
+      NextChar();
+    }
+    else
+    {
+      NextChar();
+    }
+  }
+
+  ezLog::Error(m_pLog, "Raw string not closed at end of file");
+  AddToken();
+}
+
 void ezTokenizer::HandleNumber()
 {
   if (m_uiCurChar == '0' && (m_uiNextChar == 'x' || m_uiNextChar == 'X'))
@@ -367,7 +449,7 @@ void ezTokenizer::HandleNumber()
   {
     NextChar();
 
-    while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+    while (ezStringUtils::IsDecimalDigit(m_uiCurChar) || m_uiCurChar == '\'') // integer literal: 100'000
     {
       NextChar();
     }

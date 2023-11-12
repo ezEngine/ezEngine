@@ -152,12 +152,12 @@ void ezPxSimulationEventCallback::SendContactReport(const PxContactPairHeader& p
 
   if (pObjectA != nullptr)
   {
-    pObjectA->PostMessage(msg, ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
+    pObjectA->PostMessage(msg, ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
   }
 
   if (pObjectB != nullptr && pObjectB != pObjectA)
   {
-    pObjectB->PostMessage(msg, ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
+    pObjectB->PostMessage(msg, ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
   }
 }
 
@@ -530,7 +530,7 @@ ezPxSimulationEventCallback::SlideAndRollInfo* ezPxSimulationEventCallback::Find
 void ezPxSimulationEventCallback::OnContact_RollReaction(const ezVec3& vAvgPos, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ref_contactFlags0, ezBitflags<ezOnPhysXContact>& ref_contactFlags1)
 {
   // only consider something 'rolling' when it turns faster than this (per second)
-  constexpr ezAngle rollThreshold = ezAngle::Degree(45);
+  constexpr ezAngle rollThreshold = ezAngle::MakeFromDegree(45);
 
   PxRigidDynamic* pRigid[2] = {pRigid0, pRigid1};
   ezBitflags<ezOnPhysXContact> contactFlags[2] = {ref_contactFlags0, ref_contactFlags1};
@@ -567,7 +567,7 @@ void ezPxSimulationEventCallback::OnContact_RollReaction(const ezVec3& vAvgPos, 
 
 void ezPxSimulationEventCallback::OnContact_SlideReaction(const ezVec3& vAvgPos, const ezVec3& vAvgNormal0, PxRigidDynamic* pRigid0, PxRigidDynamic* pRigid1, const PxContactPair& pair, ezBitflags<ezOnPhysXContact>& ref_contactFlags0, ezBitflags<ezOnPhysXContact>& ref_contactFlags1)
 {
-  ezVec3 vVelocity[2] = {ezVec3::ZeroVector(), ezVec3::ZeroVector()};
+  ezVec3 vVelocity[2] = {ezVec3::MakeZero(), ezVec3::MakeZero()};
 
   if (pRigid0)
   {
@@ -592,10 +592,10 @@ void ezPxSimulationEventCallback::OnContact_SlideReaction(const ezVec3& vAvgPos,
     const ezVec3 vRelativeVelocityDir = vRelativeVelocity.GetNormalized();
 
     ezVec3 vAvgNormal = vAvgNormal0;
-    vAvgNormal.NormalizeIfNotZero(ezVec3::UnitZAxis()).IgnoreResult();
+    vAvgNormal.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
 
     // an object is only 'sliding' if it moves at roughly 90 degree along another object
-    constexpr float slideAngle = 0.17f; // ezMath ::Cos(ezAngle::Degree(80));
+    constexpr float slideAngle = 0.17f; // ezMath ::Cos(ezAngle::MakeFromDegree(80));
 
     if (ezMath::Abs(vAvgNormal.Dot(vRelativeVelocityDir)) < slideAngle)
     {

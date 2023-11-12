@@ -5,8 +5,6 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
-#include <Foundation/Utilities/EnumerableClass.h>
-
 
 // *****************************************
 // ***** Runtime Type Information Data *****
@@ -18,24 +16,22 @@ class ezAbstractMessageHandler;
 struct ezMessageSenderInfo;
 class ezPropertyAttribute;
 class ezMessage;
-typedef ezUInt16 ezMessageId;
+using ezMessageId = ezUInt16;
 
-/// \brief This enumerable class holds information about reflected types. Each instance represents one type that is known to the reflection
+/// \brief This class holds information about reflected types. Each instance represents one type that is known to the reflection
 /// system.
 ///
 /// Instances of this class are typically created through the macros from the StaticRTTI.h header.
 /// Each instance represents one type. This class holds information about derivation hierarchies and exposed properties. You can thus find
 /// out whether a type is derived from some base class and what properties of which types are available. Properties can then be read and
 /// modified on instances of this type.
-class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
+class EZ_FOUNDATION_DLL ezRTTI
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezRTTI);
-
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
-  ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
-    ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractProperty*> functions,
-    ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers,
+  ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
+    ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<const ezAbstractProperty*> properties, ezArrayPtr<const ezAbstractFunctionProperty*> functions,
+    ezArrayPtr<const ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers,
     ezArrayPtr<ezMessageSenderInfo> messageSenders, const ezRTTI* (*fnVerifyParent)());
 
 
@@ -48,7 +44,7 @@ public:
   static void VerifyCorrectnessForAllTypes();
 
   /// \brief Returns the name of this type.
-  EZ_ALWAYS_INLINE const char* GetTypeName() const { return m_szTypeName; } // [tested]
+  EZ_ALWAYS_INLINE ezStringView GetTypeName() const { return m_sTypeName; } // [tested]
 
   /// \brief Returns the hash of the name of this type.
   EZ_ALWAYS_INLINE ezUInt64 GetTypeNameHash() const { return m_uiTypeNameHash; } // [tested]
@@ -79,18 +75,18 @@ public:
   EZ_ALWAYS_INLINE ezRTTIAllocator* GetAllocator() const { return m_pAllocator; } // [tested]
 
   /// \brief Returns the array of properties that this type has. Does NOT include properties from base classes.
-  EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractProperty*>& GetProperties() const { return m_Properties; } // [tested]
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezAbstractProperty* const> GetProperties() const { return m_Properties; } // [tested]
 
-  EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractFunctionProperty*>& GetFunctions() const { return m_Functions; }
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezAbstractFunctionProperty* const> GetFunctions() const { return m_Functions; }
 
-  EZ_ALWAYS_INLINE const ezArrayPtr<ezPropertyAttribute*>& GetAttributes() const { return m_Attributes; }
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezPropertyAttribute* const> GetAttributes() const { return m_Attributes; }
 
   /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
   template <typename Type>
   const Type* GetAttributeByType() const;
 
   /// \brief Returns the list of properties that this type has, including derived properties from all base classes.
-  void GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_properties) const; // [tested]
+  void GetAllProperties(ezDynamicArray<const ezAbstractProperty*>& out_properties) const; // [tested]
 
   /// \brief Returns the size (in bytes) of an instance of this type.
   EZ_ALWAYS_INLINE ezUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
@@ -102,17 +98,21 @@ public:
   EZ_ALWAYS_INLINE const ezBitflags<ezTypeFlags>& GetTypeFlags() const { return m_TypeFlags; } // [tested]
 
   /// \brief Searches all ezRTTI instances for the one with the given name, or nullptr if no such type exists.
-  static ezRTTI* FindTypeByName(const char* szName); // [tested]
+  static const ezRTTI* FindTypeByName(ezStringView sName); // [tested]
 
   /// \brief Searches all ezRTTI instances for the one with the given hashed name, or nullptr if no such type exists.
-  static ezRTTI* FindTypeByNameHash(ezUInt64 uiNameHash); // [tested]
-  static ezRTTI* FindTypeByNameHash32(ezUInt32 uiNameHash);
+  static const ezRTTI* FindTypeByNameHash(ezUInt64 uiNameHash); // [tested]
+  static const ezRTTI* FindTypeByNameHash32(ezUInt32 uiNameHash);
+
+  using PredicateFunc = ezDelegate<bool(const ezRTTI*), 48>;
+  /// \brief Searches all ezRTTI instances for one where the given predicate function returns true
+  static const ezRTTI* FindTypeIf(PredicateFunc func);
 
   /// \brief Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
-  ezAbstractProperty* FindPropertyByName(const char* szName, bool bSearchBaseTypes = true) const; // [tested]
+  const ezAbstractProperty* FindPropertyByName(ezStringView sName, bool bSearchBaseTypes = true) const; // [tested]
 
   /// \brief Returns the name of the plugin which this type is declared in.
-  EZ_ALWAYS_INLINE const char* GetPluginName() const { return m_szPluginName; } // [tested]
+  EZ_ALWAYS_INLINE ezStringView GetPluginName() const { return m_sPluginName; } // [tested]
 
   /// \brief Returns the array of message handlers that this type has.
   EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractMessageHandler*>& GetMessageHandlers() const { return m_MessageHandlers; }
@@ -135,66 +135,91 @@ public:
   /// \brief Returns whether this type can handle the message type with the given id.
   inline bool CanHandleMessage(ezMessageId id) const
   {
-    EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point.\n"
-                                                       "If this assert is triggered for a type loaded from a dynamic plugin,\n"
-                                                       "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
+    EZ_ASSERT_DEBUG(m_uiMsgIdOffset != ezSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
+                                                            "If this assert is triggered for a type loaded from a dynamic plugin,\n"
+                                                            "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
 
     const ezUInt32 uiIndex = id - m_uiMsgIdOffset;
-    return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers[uiIndex] != nullptr;
+    return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers.GetData()[uiIndex] != nullptr;
   }
 
   EZ_ALWAYS_INLINE const ezArrayPtr<ezMessageSenderInfo>& GetMessageSender() const { return m_MessageSenders; }
 
-  /// \brief Writes all types derived from \a pBaseType to the provided array. Optionally sorts the array by type name to yield a stable result.
-  ///
-  /// Returns the provided array, such that the function can be used in a foreach loop right away.
-  static const ezDynamicArray<const ezRTTI*>& GetAllTypesDerivedFrom(
-    const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_derivedTypes, bool bSortByName);
+  struct ForEachOptions
+  {
+    using StorageType = ezUInt8;
+
+    enum Enum
+    {
+      None = 0,
+      ExcludeNonAllocatable = EZ_BIT(0),
+      ExcludeAbstract = EZ_BIT(1),
+
+      Default = None
+    };
+
+    struct Bits
+    {
+      ezUInt8 ExcludeNonAllocatable : 1;
+    };
+  };
+
+  using VisitorFunc = ezDelegate<void(const ezRTTI*), 48>;
+  static void ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options = ForEachOptions::Default); // [tested]
+
+  static void ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBitflags<ForEachOptions> options = ForEachOptions::Default);
+
+  template <typename T>
+  static EZ_ALWAYS_INLINE void ForEachDerivedType(VisitorFunc func, ezBitflags<ForEachOptions> options = ForEachOptions::Default)
+  {
+    ForEachDerivedType(ezGetStaticRTTI<T>(), func, options);
+  }
 
 protected:
-  const char* m_szPluginName;
-  const char* m_szTypeName;
-  ezArrayPtr<ezAbstractProperty*> m_Properties;
-  ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
-  ezArrayPtr<ezPropertyAttribute*> m_Attributes;
-  void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
+  ezStringView m_sPluginName;
+  ezStringView m_sTypeName;
+  ezArrayPtr<const ezAbstractProperty* const> m_Properties;
+  ezArrayPtr<const ezAbstractFunctionProperty* const> m_Functions;
+  ezArrayPtr<const ezPropertyAttribute* const> m_Attributes;
+  void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType, ezBitflags<ezTypeFlags> flags);
   void RegisterType();
   void UnregisterType();
 
   void GatherDynamicMessageHandlers();
   void SetupParentHierarchy();
 
-  const ezRTTI* m_pParentType;
-  ezRTTIAllocator* m_pAllocator;
+  const ezRTTI* m_pParentType = nullptr;
+  ezRTTIAllocator* m_pAllocator = nullptr;
 
-  ezUInt32 m_uiVariantType;
-  ezUInt32 m_uiTypeSize;
+  ezUInt32 m_uiTypeSize = 0;
   ezUInt32 m_uiTypeVersion = 0;
   ezUInt64 m_uiTypeNameHash = 0;
+  ezUInt32 m_uiTypeIndex = 0;
   ezBitflags<ezTypeFlags> m_TypeFlags;
-  ezUInt32 m_uiMsgIdOffset;
+  ezUInt8 m_uiVariantType = 0;
+  ezUInt16 m_uiMsgIdOffset = ezSmallInvalidIndex;
 
-  bool m_bGatheredDynamicMessageHandlers;
   const ezRTTI* (*m_VerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
-  ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper>
-    m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
+  ezSmallArray<ezAbstractMessageHandler*, 1, ezStaticAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
 
   ezArrayPtr<ezMessageSenderInfo> m_MessageSenders;
-  ezHybridArray<const ezRTTI*, 8> m_ParentHierarchy;
+  ezSmallArray<const ezRTTI*, 7, ezStaticAllocatorWrapper> m_ParentHierarchy;
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);
 
   /// \brief Assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet.
-  static void AssignPlugin(const char* szPluginName);
+  static void AssignPlugin(ezStringView sPluginName);
 
   static void SanityCheckType(ezRTTI* pType);
 
   /// \brief Handles events by ezPlugin, to figure out which types were provided by which plugin
   static void PluginEventHandler(const ezPluginEvent& EventData);
 };
+
+EZ_DECLARE_FLAGS_OPERATORS(ezRTTI::ForEachOptions);
 
 
 // ***********************************
@@ -204,6 +229,8 @@ private:
 /// \brief The interface for an allocator that creates instances of reflected types.
 struct EZ_FOUNDATION_DLL ezRTTIAllocator
 {
+  virtual ~ezRTTIAllocator();
+
   /// \brief Returns whether the type that is represented by this allocator, can be dynamically allocated at runtime.
   virtual bool CanAllocate() const { return true; } // [tested]
 

@@ -9,15 +9,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLayerDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLayerDocument::ezLayerDocument(const char* szDocumentPath, ezScene2Document* pParentScene)
-  : ezSceneDocument(szDocumentPath, ezSceneDocument::DocumentType::Layer)
+ezLayerDocument::ezLayerDocument(ezStringView sDocumentPath, ezScene2Document* pParentScene)
+  : ezSceneDocument(sDocumentPath, ezSceneDocument::DocumentType::Layer)
 {
   m_pHostDocument = pParentScene;
 }
 
-ezLayerDocument::~ezLayerDocument()
-{
-}
+ezLayerDocument::~ezLayerDocument() = default;
 
 void ezLayerDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {

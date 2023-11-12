@@ -19,8 +19,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTypeScriptAssetDocument::ezTypeScriptAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezTypeScriptAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
+ezTypeScriptAssetDocument::ezTypeScriptAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezTypeScriptAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
@@ -234,10 +234,16 @@ void ezTypeScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pIn
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezTransformStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_SUCCEED_OR_RETURN(ValidateScriptCode());
   EZ_SUCCEED_OR_RETURN(AutoGenerateVariablesCode());
+
+  ezStringBuilder sTypeName = ezPathUtils::GetFileName(GetDocumentPath());
+  stream << sTypeName;
+
+  const ezUuid& docGuid = GetGuid();
+  stream << docGuid;
 
   {
     ezTypeScriptAssetDocumentEvent e;

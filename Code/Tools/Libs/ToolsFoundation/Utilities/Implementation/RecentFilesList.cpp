@@ -8,9 +8,9 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <ToolsFoundation/Utilities/RecentFilesList.h>
 
-void ezRecentFilesList::Insert(const char* szFile, ezInt32 iContainerWindow)
+void ezRecentFilesList::Insert(ezStringView sFile, ezInt32 iContainerWindow)
 {
-  ezStringBuilder sCleanPath = szFile;
+  ezStringBuilder sCleanPath = sFile;
   sCleanPath.MakeCleanPath();
 
   ezString s = sCleanPath;
@@ -29,13 +29,13 @@ void ezRecentFilesList::Insert(const char* szFile, ezInt32 iContainerWindow)
     m_Files.SetCount(m_uiMaxElements);
 }
 
-void ezRecentFilesList::Save(const char* szFile)
+void ezRecentFilesList::Save(ezStringView sFile)
 {
   if (m_Files.IsEmpty())
     return;
 
   ezDeferredFileWriter File;
-  File.SetOutput(szFile);
+  File.SetOutput(sFile);
 
   for (const RecentFile& file : m_Files)
   {
@@ -46,15 +46,15 @@ void ezRecentFilesList::Save(const char* szFile)
   }
 
   if (File.Close().Failed())
-    ezLog::Error("Unable to open file '{0}' for writing!", szFile);
+    ezLog::Error("Unable to open file '{0}' for writing!", sFile);
 }
 
-void ezRecentFilesList::Load(const char* szFile)
+void ezRecentFilesList::Load(ezStringView sFile)
 {
   m_Files.Clear();
 
   ezFileReader File;
-  if (File.Open(szFile).Failed())
+  if (File.Open(sFile).Failed())
     return;
 
   ezStringBuilder sAllLines;

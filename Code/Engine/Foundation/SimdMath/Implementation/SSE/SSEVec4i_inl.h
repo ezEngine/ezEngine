@@ -28,6 +28,11 @@ EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInternal::QuadInt v)
   m_v = v;
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::MakeZero()
+{
+  return _mm_setzero_si128();
+}
+
 EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 iXyzw)
 {
   m_v = _mm_set1_epi32(iXyzw);
@@ -353,12 +358,6 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>=(const ezSimdVec4i& v) const
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
 {
   return _mm_castsi128_ps(_mm_cmpgt_epi32(m_v, v.m_v));
-}
-
-// static
-EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
-{
-  return _mm_setzero_si128();
 }
 
 // static

@@ -148,13 +148,13 @@ void ezBoneManipulatorAdapter::RetrieveBones()
     EZ_ASSERT_DEV(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(), m_pObject->GetType()->GetTypeName());
 
     ezExposedParameterCommandAccessor proxy(pObjectAccessor, pProperty, pParameterSourceProp);
-    proxy.GetValues(m_pObject, pProperty, values);
-    proxy.GetKeys(m_pObject, pProperty, m_Keys);
+    proxy.GetValues(m_pObject, pProperty, values).AssertSuccess();
+    proxy.GetKeys(m_pObject, pProperty, m_Keys).AssertSuccess();
   }
   else
   {
-    pObjectAccessor->GetKeys(m_pObject, pProperty, m_Keys);
-    pObjectAccessor->GetValues(m_pObject, pProperty, values);
+    pObjectAccessor->GetKeys(m_pObject, pProperty, m_Keys).AssertSuccess();
+    pObjectAccessor->GetValues(m_pObject, pProperty, values).AssertSuccess();
   }
 
   m_RootTransform.SetIdentity();
@@ -275,7 +275,7 @@ void ezBoneManipulatorAdapter::SetTransform(ezUInt32 uiBone, const ezTransform& 
   // for some reason the first command in ezExposedParameterCommandAccessor returns failure 'the property X does not exist' and the insert
   // command than fails with 'the property X already exists' ???
 
-  proxy.SetValue(m_pObject, pProperty, var, m_Keys[uiBone]);
+  proxy.SetValue(m_pObject, pProperty, var, m_Keys[uiBone]).AssertSuccess();
 }
 
 ezMat4 ezBoneManipulatorAdapter::ComputeFullTransform(ezUInt32 uiBone) const
@@ -300,5 +300,5 @@ ezMat4 ezBoneManipulatorAdapter::ComputeParentTransform(ezUInt32 uiBone) const
     }
   }
 
-  return ezMat4::IdentityMatrix();
+  return ezMat4::MakeIdentity();
 }

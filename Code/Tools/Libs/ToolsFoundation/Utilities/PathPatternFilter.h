@@ -1,8 +1,6 @@
 #pragma once
 
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Strings/StringView.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
 /// \brief Describes a single path pattern.
@@ -45,7 +43,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezPathPatternFilter
   /// After preprocessing, every line represents a single pattern.
   /// Lines that contain '[INCLUDE]' or '[EXCLUDE]' are special and change whether the
   /// following lines are considered as include patterns or exclude patterns.
-  ezResult ReadConfigFile(const char* szFile, const ezDynamicArray<ezString>& preprocessorDefines);
+  ezResult ReadConfigFile(ezStringView sFile, const ezDynamicArray<ezString>& preprocessorDefines);
 
   /// \brief Adds a pattern.
   void AddFilter(ezStringView sText, bool bIncludeFilter);

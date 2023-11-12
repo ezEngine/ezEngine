@@ -38,7 +38,7 @@ ezQtImageWidget::ezQtImageWidget(QWidget* pParent, bool bShowButtons)
     ButtonBar->setVisible(false);
 }
 
-ezQtImageWidget::~ezQtImageWidget() {}
+ezQtImageWidget::~ezQtImageWidget() = default;
 
 void ezQtImageWidget::SetImageSize(float fScale)
 {
@@ -54,7 +54,6 @@ void ezQtImageWidget::ScaleImage(float fFactor)
   float fPrevScale = m_fCurrentScale;
   m_fCurrentScale = ezMath::Clamp(m_fCurrentScale * fFactor, 0.2f, 5.0f);
 
-  fFactor = m_fCurrentScale / fPrevScale;
   ImageApplyScale();
 }
 

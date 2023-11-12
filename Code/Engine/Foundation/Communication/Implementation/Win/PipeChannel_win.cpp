@@ -17,14 +17,13 @@ ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel)
   IsPending = false;
 }
 
-ezPipeChannel_win::State::~State() {}
+ezPipeChannel_win::State::~State() = default;
 
-ezPipeChannel_win::ezPipeChannel_win(const char* szAddress, Mode::Enum mode)
-  : ezIpcChannel(szAddress, mode)
+ezPipeChannel_win::ezPipeChannel_win(ezStringView sAddress, Mode::Enum mode)
+  : ezIpcChannel(sAddress, mode)
   , m_InputState(this)
   , m_OutputState(this)
 {
-  CreatePipe(szAddress);
   m_pOwner->AddChannel(this);
 }
 
@@ -34,17 +33,16 @@ ezPipeChannel_win::~ezPipeChannel_win()
   {
     Disconnect();
   }
-  while (m_bConnected)
+  while (IsConnected())
   {
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
   }
-
   m_pOwner->RemoveChannel(this);
 }
 
-bool ezPipeChannel_win::CreatePipe(const char* szAddress)
+bool ezPipeChannel_win::CreatePipe(ezStringView sAddress)
 {
-  ezStringBuilder sPipename("\\\\.\\pipe\\", szAddress);
+  ezStringBuilder sPipename("\\\\.\\pipe\\", sAddress);
 
   if (m_Mode == Mode::Server)
   {
@@ -68,39 +66,42 @@ bool ezPipeChannel_win::CreatePipe(const char* szAddress)
     return false;
   }
 
-  return true;
-}
-
-void ezPipeChannel_win::AddToMessageLoop(ezMessageLoop* pMsgLoop)
-{
   if (m_hPipeHandle != INVALID_HANDLE_VALUE)
   {
-    ezMessageLoop_win* pMsgLoopWin = static_cast<ezMessageLoop_win*>(pMsgLoop);
+    ezMessageLoop_win* pMsgLoopWin = static_cast<ezMessageLoop_win*>(m_pOwner);
 
     ULONG_PTR key = reinterpret_cast<ULONG_PTR>(this);
     HANDLE port = CreateIoCompletionPort(m_hPipeHandle, pMsgLoopWin->GetPort(), key, 1);
     EZ_ASSERT_DEBUG(pMsgLoopWin->GetPort() == port, "Failed to CreateIoCompletionPort: {0}", ezArgErrorCode(GetLastError()));
   }
+  return true;
 }
 
 void ezPipeChannel_win::InternalConnect()
 {
-  if (m_hPipeHandle == INVALID_HANDLE_VALUE)
+  if (GetConnectionState() != ConnectionState::Disconnected)
     return;
-  if (m_bConnected)
-    return;
+
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (m_ThreadId == 0)
     m_ThreadId = ezThreadUtils::GetCurrentThreadID();
 #  endif
 
+  if (!CreatePipe(m_sAddress))
+    return;
+
+  if (m_hPipeHandle == INVALID_HANDLE_VALUE)
+    return;
+
+  SetConnectionState(ConnectionState::Connecting);
   if (m_Mode == Mode::Server)
   {
     ProcessConnection();
   }
   else
   {
-    m_bConnected = true;
+    // If CreatePipe succeeded, we are already connected.
+    SetConnectionState(ConnectionState::Connected);
   }
 
   if (!m_InputState.IsPending)
@@ -108,10 +109,9 @@ void ezPipeChannel_win::InternalConnect()
     OnIOCompleted(&m_InputState.Context, 0, 0);
   }
 
-  if (m_bConnected)
+  if (IsConnected())
   {
     ProcessOutgoingMessages(0);
-    m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
   }
 
   return;
@@ -119,6 +119,9 @@ void ezPipeChannel_win::InternalConnect()
 
 void ezPipeChannel_win::InternalDisconnect()
 {
+  if (GetConnectionState() == ConnectionState::Disconnected)
+    return;
+
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (m_ThreadId != 0)
     EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
@@ -139,21 +142,24 @@ void ezPipeChannel_win::InternalDisconnect()
     FlushPendingOperations();
   }
 
+  bool bWasConnected = false;
   {
     EZ_LOCK(m_OutputQueueMutex);
     m_OutputQueue.Clear();
-    m_bConnected = false;
+    bWasConnected = IsConnected();
   }
 
-  m_Events.Broadcast(
-    ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::DisconnectedFromServer : ezIpcChannelEvent::DisconnectedFromClient, this));
-  // Raise in case another thread is waiting for new messages (as we would sleep forever otherwise).
-  m_IncomingMessages.RaiseSignal();
+  if (bWasConnected)
+  {
+    SetConnectionState(ConnectionState::Disconnected);
+    // Raise in case another thread is waiting for new messages (as we would sleep forever otherwise).
+    m_IncomingMessages.RaiseSignal();
+  }
 }
 
 void ezPipeChannel_win::InternalSend()
 {
-  if (!m_OutputState.IsPending && m_bConnected)
+  if (!m_OutputState.IsPending && IsConnected())
   {
     ProcessOutgoingMessages(0);
   }
@@ -185,8 +191,7 @@ bool ezPipeChannel_win::ProcessConnection()
       m_InputState.IsPending = true;
       break;
     case ERROR_PIPE_CONNECTED:
-      m_bConnected = true;
-      m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
+      SetConnectionState(ConnectionState::Connected);
       break;
     case ERROR_NO_DATA:
       return false;
@@ -237,7 +242,7 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
     }
 
     EZ_ASSERT_DEBUG(uiBytesRead != 0, "We really should have data at this point.");
-    ReceiveMessageData(ezArrayPtr<ezUInt8>(m_InputBuffer, uiBytesRead));
+    ReceiveData(ezArrayPtr<ezUInt8>(m_InputBuffer, uiBytesRead));
     uiBytesRead = 0;
   }
   return true;
@@ -245,7 +250,7 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
 
 bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
 {
-  EZ_ASSERT_DEBUG(m_bConnected, "Must be connected to process outgoing messages.");
+  EZ_ASSERT_DEBUG(IsConnected(), "Must be connected to process outgoing messages.");
   EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
 
   if (m_OutputState.IsPending)
@@ -315,7 +320,7 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
   bool bRes = true;
   if (pContext == &m_InputState.Context)
   {
-    if (!m_bConnected)
+    if (!IsConnected())
     {
       if (!ProcessConnection())
         return;

@@ -10,10 +10,10 @@
 JPH_NAMESPACE_BEGIN
 
 /// Class that constructs a BoxShape
-class BoxShapeSettings final : public ConvexShapeSettings
+class JPH_EXPORT BoxShapeSettings final : public ConvexShapeSettings
 {
 public:
-	JPH_DECLARE_SERIALIZABLE_VIRTUAL(BoxShapeSettings)
+	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, BoxShapeSettings)
 
 	/// Default constructor for deserialization
 							BoxShapeSettings() = default;
@@ -30,7 +30,7 @@ public:
 };
 
 /// A box, centered around the origin
-class BoxShape final : public ConvexShape
+class JPH_EXPORT BoxShape final : public ConvexShape
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -75,6 +75,9 @@ public:
 
 	// See: Shape::CollidePoint
 	virtual void			CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
+
+	// See: Shape::ColideSoftBodyVertices
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, SoftBodyVertex *ioVertices, uint inNumVertices, float inDeltaTime, Vec3Arg inDisplacementDueToGravity, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void			GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;

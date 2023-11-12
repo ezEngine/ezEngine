@@ -16,9 +16,9 @@ protected:
 private:
   friend class ezRenderPipeline;
 
-  const ezRenderPipeline* m_pOwnerPipeline;
-  void* m_pData;
-  ezUInt64 m_uiLastUpdateFrame;
+  const ezRenderPipeline* m_pOwnerPipeline = nullptr;
+  void* m_pData = nullptr;
+  ezUInt64 m_uiLastUpdateFrame = 0;
 };
 
 template <typename T>

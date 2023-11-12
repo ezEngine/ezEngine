@@ -11,6 +11,8 @@
 
 class ezJoltCharacterControllerComponent;
 class ezJoltContactListener;
+class ezJoltRagdollComponent;
+class ezJoltRopeComponent;
 
 namespace JPH
 {
@@ -49,6 +51,9 @@ public:
 
   //////////////////////////////////////////////////////////////////////////
   // ezPhysicsWorldModuleInterface
+  //
+
+  virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const override;
 
   virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
@@ -66,13 +71,18 @@ public:
 
   virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
 
+  virtual void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_triangles) const override;
+
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize) override;
 
   virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg) override;
 
   ezDeque<ezComponentHandle> m_RequireUpdate;
 
-  const ezMap<ezJoltActorComponent*, ezUInt32>& GetActiveActors() const { return m_ActiveActors; }
+  const ezSet<ezJoltDynamicActorComponent*>& GetActiveActors() const { return m_ActiveActors; }
+  const ezMap<ezJoltRagdollComponent*, ezInt32>& GetActiveRagdolls() const { return m_ActiveRagdolls; }
+  const ezMap<ezJoltRopeComponent*, ezInt32>& GetActiveRopes() const { return m_ActiveRopes; }
+  ezArrayPtr<ezJoltRagdollComponent*> GetRagdollsPutToSleep() { return m_RagdollsPutToSleep.GetArrayPtr(); }
 
   void QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
 
@@ -93,6 +103,7 @@ public:
   void CheckBreakableConstraints();
 
   ezSet<ezComponentHandle> m_BreakableConstraints;
+
 
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
@@ -136,7 +147,10 @@ private:
 
   void* m_pContactListener = nullptr;
   void* m_pActivationListener = nullptr;
-  ezMap<ezJoltActorComponent*, ezUInt32> m_ActiveActors;
+  ezSet<ezJoltDynamicActorComponent*> m_ActiveActors;
+  ezMap<ezJoltRagdollComponent*, ezInt32> m_ActiveRagdolls;
+  ezMap<ezJoltRopeComponent*, ezInt32> m_ActiveRopes;
+  ezDynamicArray<ezJoltRagdollComponent*> m_RagdollsPutToSleep;
 
   JPH::GroupFilter* m_pGroupFilter = nullptr;
   JPH::GroupFilter* m_pGroupFilterIgnoreSame = nullptr;

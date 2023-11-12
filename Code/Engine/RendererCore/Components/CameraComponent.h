@@ -87,7 +87,8 @@ public:
   float GetOrthoDimension() const { return m_fOrthoDimension; } // [ property ]
   void SetOrthoDimension(float fVal);                           // [ property ]
 
-  ezRenderPipelineResourceHandle GetRenderPipeline() const; // [ property ]
+  ezRenderPipelineResourceHandle GetRenderPipeline() const;
+  ezViewHandle GetRenderTargetView() const;
 
   const char* GetRenderPipelineEnum() const;      // [ property ]
   void SetRenderPipelineEnum(const char* szFile); // [ property ]
@@ -128,7 +129,7 @@ private:
   ezRenderPipelineResourceHandle m_hCachedRenderPipeline;
 
   float m_fAperture = 1.0f;
-  ezTime m_ShutterTime = ezTime::Seconds(1.0f);
+  ezTime m_ShutterTime = ezTime::MakeFromSeconds(1.0f);
   float m_fISO = 100.0f;
   float m_fExposureCompensation = 0.0f;
 

@@ -12,7 +12,8 @@ ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Skeleton";
   m_DocTypeDesc.m_sFileExtension = "ezSkeletonAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Skeleton.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Skeleton.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Animation";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Skeleton");
@@ -34,7 +35,7 @@ void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSkeletonAssetDocument>())
       {
-        ezQtSkeletonAssetDocumentWindow* pDocWnd = new ezQtSkeletonAssetDocumentWindow(static_cast<ezSkeletonAssetDocument*>(e.m_pDocument));
+        new ezQtSkeletonAssetDocumentWindow(static_cast<ezSkeletonAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -45,9 +46,9 @@ void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
 }
 
 void ezSkeletonAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezSkeletonAssetDocument(szPath);
+  out_pDocument = new ezSkeletonAssetDocument(sPath);
 }
 
 void ezSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

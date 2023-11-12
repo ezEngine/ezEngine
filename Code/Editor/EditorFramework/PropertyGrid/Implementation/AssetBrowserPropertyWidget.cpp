@@ -196,10 +196,12 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
       {
         pAsset->GetSubAssetIdentifier(sText);
 
-        sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAsset->m_pAssetInfo->m_sAbsolutePath);
+        sThumbnailPath = pAsset->m_pAssetInfo->GetManager()->GenerateResourceThumbnailPath(pAsset->m_pAssetInfo->m_Path, pAsset->m_Data.m_sName);
       }
       else
+      {
         m_AssetGuid = ezUuid();
+      }
     }
 
     UpdateThumbnail(m_AssetGuid, sThumbnailPath);
@@ -236,12 +238,12 @@ void ezQtAssetPropertyWidget::FillAssetMenu(QMenu& menu)
 
   const bool bAsset = m_AssetGuid.IsValid();
   menu.setDefaultAction(menu.addAction(QIcon(), QLatin1String("Select Asset"), this, SLOT(on_BrowseFile_clicked())));
-  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this, SLOT(OnOpenAssetDocument()))->setEnabled(bAsset);
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open Asset"), this, SLOT(OnOpenAssetDocument()))->setEnabled(bAsset);
   menu.addAction(QIcon(), QLatin1String("Select in Asset Browser"), this, SLOT(OnSelectInAssetBrowser()))->setEnabled(bAsset);
-  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()))->setEnabled(bAsset);
-  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()))->setEnabled(bAsset);
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()))->setEnabled(bAsset);
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Guid.svg")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()))->setEnabled(bAsset);
   menu.addAction(QIcon(), QLatin1String("Create New Asset"), this, SLOT(OnCreateNewAsset()));
-  menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()))->setEnabled(bAsset);
+  menu.addAction(QIcon(":/GuiFoundation/Icons/Delete.svg"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()))->setEnabled(bAsset);
 }
 
 void ezQtAssetPropertyWidget::on_TextFinished_triggered()
@@ -287,7 +289,7 @@ void ezQtAssetPropertyWidget::ThumbnailInvalidated(QString sPath, ezUInt32 uiIma
 void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 {
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(
-    ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath, GetSelection()[0].m_pObject);
+    ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath(), GetSelection()[0].m_pObject);
 }
 
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
@@ -302,7 +304,7 @@ void ezQtAssetPropertyWidget::OnOpenExplorer()
 
   if (m_AssetGuid.IsValid())
   {
-    sPath = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath;
+    sPath = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath();
   }
   else
   {
@@ -334,7 +336,7 @@ void ezQtAssetPropertyWidget::OnCopyAssetGuid()
   mimeData->setText(QString::fromUtf8(sGuid.GetData()));
   clipboard->setMimeData(mimeData);
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::Seconds(5));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::MakeFromSeconds(5));
 }
 
 void ezQtAssetPropertyWidget::OnCreateNewAsset()
@@ -345,7 +347,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   {
     if (m_AssetGuid.IsValid())
     {
-      sPath = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath;
+      sPath = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath();
     }
     else
     {

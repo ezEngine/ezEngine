@@ -50,7 +50,7 @@ void ezJointOverrideComponent::SerializeComponent(ezWorldWriter& inout_stream) c
 void ezJointOverrideComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_sJointToOverride;
@@ -72,7 +72,7 @@ const char* ezJointOverrideComponent::GetJointName() const
   return m_sJointToOverride.GetData();
 }
 
-void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePreparing& msg)
+void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePreparing& msg) const
 {
   using namespace ozz::math;
 
@@ -106,9 +106,9 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
 
   if (m_bOverrideRotation)
   {
-    SimdFloat4 vx = ozz::math::simd_float4::Load1(t.m_qRotation.v.x);
-    SimdFloat4 vy = ozz::math::simd_float4::Load1(t.m_qRotation.v.y);
-    SimdFloat4 vz = ozz::math::simd_float4::Load1(t.m_qRotation.v.z);
+    SimdFloat4 vx = ozz::math::simd_float4::Load1(t.m_qRotation.x);
+    SimdFloat4 vy = ozz::math::simd_float4::Load1(t.m_qRotation.y);
+    SimdFloat4 vz = ozz::math::simd_float4::Load1(t.m_qRotation.z);
     SimdFloat4 vw = ozz::math::simd_float4::Load1(t.m_qRotation.w);
 
     SoaQuaternion val = msg.m_LocalTransforms[soaIdx].rotation;

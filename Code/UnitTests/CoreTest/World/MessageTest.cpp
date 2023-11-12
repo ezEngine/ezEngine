@@ -44,7 +44,7 @@ namespace
   // clang-format on
 
   class TestComponentMsg;
-  typedef ezComponentManager<TestComponentMsg, ezBlockStorageType::FreeList> TestComponentMsgManager;
+  using TestComponentMsgManager = ezComponentManager<TestComponentMsg, ezBlockStorageType::FreeList>;
 
   class TestComponentMsg : public ezComponent
   {
@@ -52,11 +52,9 @@ namespace
 
   public:
     TestComponentMsg()
-      : m_iSomeData(1)
-      , m_iSomeData2(2)
-    {
-    }
-    ~TestComponentMsg() {}
+
+      = default;
+    ~TestComponentMsg() = default;
 
     virtual void SerializeComponent(ezWorldWriter& inout_stream) const override {}
     virtual void DeserializeComponent(ezWorldReader& inout_stream) override {}
@@ -65,8 +63,8 @@ namespace
 
     void OnTestMessage2(TestMessage2& ref_msg) { m_iSomeData2 += 2 * ref_msg.m_iValue; }
 
-    ezInt32 m_iSomeData;
-    ezInt32 m_iSomeData2;
+    ezInt32 m_iSomeData = 1;
+    ezInt32 m_iSomeData2 = 2;
   };
 
   // clang-format off
@@ -183,11 +181,11 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     {
       TestMessage1 msg;
       msg.m_iValue = i;
-      pRoot->PostMessage(msg, ezTime::Zero(), ezObjectMsgQueueType::NextFrame);
+      pRoot->PostMessage(msg, ezTime::MakeZero(), ezObjectMsgQueueType::NextFrame);
 
       TestMessage2 msg2;
       msg2.m_iValue = i;
-      pRoot->PostMessage(msg2, ezTime::Zero(), ezObjectMsgQueueType::NextFrame);
+      pRoot->PostMessage(msg2, ezTime::MakeZero(), ezObjectMsgQueueType::NextFrame);
     }
 
     world.Update();
@@ -208,14 +206,14 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     {
       TestMessage1 msg;
       msg.m_iValue = i;
-      pRoot->PostMessage(msg, ezTime::Seconds(i + 1));
+      pRoot->PostMessage(msg, ezTime::MakeFromSeconds(i + 1));
 
       TestMessage2 msg2;
       msg2.m_iValue = i;
-      pRoot->PostMessage(msg2, ezTime::Seconds(i + 1));
+      pRoot->PostMessage(msg2, ezTime::MakeFromSeconds(i + 1));
     }
 
-    world.GetClock().SetFixedTimeStep(ezTime::Seconds(1.001f));
+    world.GetClock().SetFixedTimeStep(ezTime::MakeFromSeconds(1.001f));
 
     int iDesiredValue = 1;
     int iDesiredValue2 = 2;

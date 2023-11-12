@@ -97,13 +97,12 @@ float DepthFade(float3 screenPosition, float fadeDistance)
 
 float SampleSSAO(float3 screenPosition)
 {
-  const float2 offsets[] =
-  {
+  const float2 offsets[] = {
     float2(0, 0),
     float2(0, 1),
     float2(1, 0),
     float2(0, -1),
-    float2(-1, 0)
+    float2(-1, 0),
   };
 
 #if 0
@@ -143,16 +142,17 @@ uint GetPointShadowFaceIndex(float3 dir)
 
 float SampleShadow(float3 shadowPosition, float2x2 randomRotation, float penumbraSize)
 {
-  const float2 offsets[] =
-  {
-    float2(-0.7071,  0.7071),
-    float2(-0.0000, -0.8750),
-    float2( 0.5303,  0.5303),
-    float2(-0.6250, -0.0000),
-    float2( 0.3536, -0.3536),
-    float2(-0.0000,  0.3750),
-    float2(-0.1768, -0.1768),
-    float2( 0.1250,  0.0000),
+  // Simple spiral pattern with every other sample flipped around the origin,
+  // source: https://c-core-games.com/Generator/SpiralPatterns.html?p=O&n=8
+  const float2 offsets[] = {
+    {0.1250f, 0.0000f},
+    {-0.1768f, -0.1768f},
+    {0.0000f, 0.3750f},
+    {0.3536f, -0.3536f},
+    {-0.6250f, 0.0000f},
+    {0.5303f, 0.5303f},
+    {-0.0000f, -0.8750f},
+    {-0.7071f, 0.7071f},
   };
 
 #if 0
@@ -175,14 +175,13 @@ float SampleShadow(float3 shadowPosition, float2x2 randomRotation, float penumbr
 float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float distanceToLight, uint type,
   uint shadowDataOffset, float noise, float2x2 randomRotation, out float subsurfaceShadow, out float3 debugColor)
 {
-  float3 debugColors[] =
-  {
+  float3 debugColors[] = {
     float3(1, 0, 0),
     float3(1, 1, 0),
     float3(0, 1, 0),
     float3(0, 1, 1),
     float3(0, 0, 1),
-    float3(1, 0, 1)
+    float3(1, 0, 1),
   };
 
   float4 shadowParams = shadowDataBuffer[GET_SHADOW_PARAMS_INDEX(shadowDataOffset)];

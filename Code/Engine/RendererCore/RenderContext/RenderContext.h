@@ -304,7 +304,7 @@ private:
   {
     EZ_DECLARE_POD_TYPE();
 
-    BoundConstantBuffer() {}
+    BoundConstantBuffer() = default;
     BoundConstantBuffer(ezGALBufferHandle hConstantBuffer)
       : m_hConstantBuffer(hConstantBuffer)
     {

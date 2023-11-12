@@ -11,10 +11,10 @@ ezAnimationClipViewContext::ezAnimationClipViewContext(ezAnimationClipContext* p
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
-  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::MakeZero(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
-ezAnimationClipViewContext::~ezAnimationClipViewContext() {}
+ezAnimationClipViewContext::~ezAnimationClipViewContext() = default;
 
 bool ezAnimationClipViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {
@@ -26,6 +26,7 @@ ezViewHandle ezAnimationClipViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Animation Clip Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 

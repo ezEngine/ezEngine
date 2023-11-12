@@ -137,14 +137,14 @@ EZ_ALWAYS_INLINE bool ezSmallArrayBase<T, Size>::operator!=(const ezArrayPtr<con
 template <typename T, ezUInt16 Size>
 EZ_ALWAYS_INLINE const T& ezSmallArrayBase<T, Size>::operator[](const ezUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
   return GetElementsPtr()[uiIndex];
 }
 
 template <typename T, ezUInt16 Size>
 EZ_ALWAYS_INLINE T& ezSmallArrayBase<T, Size>::operator[](const ezUInt32 uiIndex)
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
   return GetElementsPtr()[uiIndex];
 }
 
@@ -381,7 +381,7 @@ void ezSmallArrayBase<T, Size>::PushBack(T&& value, ezAllocatorBase* pAllocator)
 template <typename T, ezUInt16 Size>
 void ezSmallArrayBase<T, Size>::PushBackUnchecked(const T& value)
 {
-  EZ_ASSERT_DEV(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
+  EZ_ASSERT_DEBUG(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
 
   ezMemoryUtils::CopyConstruct(GetElementsPtr() + m_uiCount, value, 1);
   m_uiCount++;
@@ -390,7 +390,7 @@ void ezSmallArrayBase<T, Size>::PushBackUnchecked(const T& value)
 template <typename T, ezUInt16 Size>
 void ezSmallArrayBase<T, Size>::PushBackUnchecked(T&& value)
 {
-  EZ_ASSERT_DEV(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
+  EZ_ASSERT_DEBUG(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
 
   ezMemoryUtils::MoveConstruct<T>(GetElementsPtr() + m_uiCount, std::move(value));
   m_uiCount++;
@@ -409,7 +409,7 @@ void ezSmallArrayBase<T, Size>::PushBackRange(const ezArrayPtr<const T>& range, 
 template <typename T, ezUInt16 Size>
 void ezSmallArrayBase<T, Size>::PopBack(ezUInt32 uiCountToRemove /* = 1 */)
 {
-  EZ_ASSERT_DEV(m_uiCount >= uiCountToRemove, "Out of bounds access. Array has {0} elements, trying to pop {1} elements.", m_uiCount, uiCountToRemove);
+  EZ_ASSERT_DEBUG(m_uiCount >= uiCountToRemove, "Out of bounds access. Array has {0} elements, trying to pop {1} elements.", m_uiCount, uiCountToRemove);
 
   m_uiCount -= uiCountToRemove;
   ezMemoryUtils::Destruct(GetElementsPtr() + m_uiCount, uiCountToRemove);
@@ -418,14 +418,14 @@ void ezSmallArrayBase<T, Size>::PopBack(ezUInt32 uiCountToRemove /* = 1 */)
 template <typename T, ezUInt16 Size>
 EZ_FORCE_INLINE T& ezSmallArrayBase<T, Size>::PeekBack()
 {
-  EZ_ASSERT_DEV(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
+  EZ_ASSERT_DEBUG(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
   return GetElementsPtr()[m_uiCount - 1];
 }
 
 template <typename T, ezUInt16 Size>
 EZ_FORCE_INLINE const T& ezSmallArrayBase<T, Size>::PeekBack() const
 {
-  EZ_ASSERT_DEV(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
+  EZ_ASSERT_DEBUG(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
   return GetElementsPtr()[m_uiCount - 1];
 }
 
@@ -704,7 +704,7 @@ EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::PushBack(const T&
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::PushBack(T&& value)
 {
-  SUPER::PushBack(value, AllocatorWrapper::GetAllocator());
+  SUPER::PushBack(std::move(value), AllocatorWrapper::GetAllocator());
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>

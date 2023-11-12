@@ -97,6 +97,9 @@ public:
   /// \brief Checks whether the handle points to the given resource.
   EZ_ALWAYS_INLINE bool operator!=(const ezResource* rhs) const { return m_pResource != rhs; }
 
+  /// \brief Returns the type information of the resource or nullptr if the handle is invalid.
+  const ezRTTI* GetResourceType() const;
+
 protected:
   ezResource* m_pResource = nullptr;
 
@@ -106,6 +109,14 @@ private:
   friend class ezResourceHandleWriteContext;
   friend class ezResourceHandleReadContext;
   friend class ezResourceHandleStreamOperations;
+};
+
+template <>
+struct ezHashHelper<ezTypelessResourceHandle>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTypelessResourceHandle& value) { return ezHashingUtils::StringHashTo32(value.GetResourceIDHash()); }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezTypelessResourceHandle& a, const ezTypelessResourceHandle& b) { return a == b; }
 };
 
 /// \brief The ezTypedResourceHandle controls access to an ezResource.
@@ -124,10 +135,10 @@ template <typename RESOURCE_TYPE>
 class ezTypedResourceHandle
 {
 public:
-  typedef RESOURCE_TYPE ResourceType;
+  using ResourceType = RESOURCE_TYPE;
 
   /// \brief A default constructed handle is invalid and does not reference any resource.
-  ezTypedResourceHandle() {}
+  ezTypedResourceHandle() = default;
 
   /// \brief Increases the refcount of the given resource.
   explicit ezTypedResourceHandle(ResourceType* pResource)
@@ -208,6 +219,19 @@ public:
   /// The handle must be valid.
   EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_hTypeless.GetResourceID(); }
 
+  /// \brief Attempts to copy the given typeless handle to this handle.
+  ///
+  /// It is an error to assign a typeless handle that references a resource with a mismatching type.
+  void AssignFromTypelessHandle(const ezTypelessResourceHandle& hHandle)
+  {
+    if (!hHandle.IsValid())
+      return;
+
+    EZ_ASSERT_DEV(hHandle.GetResourceType()->IsDerivedFrom<RESOURCE_TYPE>(), "Type '{}' does not match resource type '{}' in typeless handle.", ezGetStaticRTTI<RESOURCE_TYPE>()->GetTypeName(), hHandle.GetResourceType()->GetTypeName());
+
+    m_hTypeless = hHandle;
+  }
+
 private:
   template <typename T>
   friend class ezTypedResourceHandle;
@@ -224,7 +248,7 @@ private:
 template <typename T>
 struct ezHashHelper<ezTypedResourceHandle<T>>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTypedResourceHandle<T>& value) { return value.GetResourceIDHash(); }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTypedResourceHandle<T>& value) { return ezHashingUtils::StringHashTo32(value.GetResourceIDHash()); }
 
   EZ_ALWAYS_INLINE static bool Equal(const ezTypedResourceHandle<T>& a, const ezTypedResourceHandle<T>& b) { return a == b; }
 };

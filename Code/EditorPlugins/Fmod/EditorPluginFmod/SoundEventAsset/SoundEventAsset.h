@@ -7,7 +7,7 @@ class ezSoundEventAssetProperties : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezSoundEventAssetProperties, ezReflectedClass);
 
 public:
-  ezSoundEventAssetProperties() {}
+  ezSoundEventAssetProperties() = default;
 };
 
 
@@ -16,10 +16,10 @@ class ezSoundEventAssetDocument : public ezSimpleAssetDocument<ezSoundEventAsset
   EZ_ADD_DYNAMIC_REFLECTION(ezSoundEventAssetDocument, ezSimpleAssetDocument<ezSoundEventAssetProperties>);
 
 public:
-  ezSoundEventAssetDocument(const char* szDocumentPath);
+  ezSoundEventAssetDocument(ezStringView sDocumentPath);
 
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 };

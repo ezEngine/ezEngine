@@ -11,7 +11,7 @@ namespace DirectoryWatcherTestHelpers
 
   struct ExpectedEvent
   {
-    ~ExpectedEvent(){}; // To make it non-pod
+    ~ExpectedEvent(){}; // NOLINT: To make it non-pod
 
     const char* path;
     ezDirectoryWatcherAction action;
@@ -32,9 +32,8 @@ namespace DirectoryWatcherTestHelpers
 
   void TickWatcher(ezDirectoryWatcher& ref_watcher)
   {
-    ref_watcher.EnumerateChanges([&](const char* szPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
-    },
-      ezTime::Milliseconds(100));
+    ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {},
+      ezTime::MakeFromMilliseconds(100));
   }
 } // namespace DirectoryWatcherTestHelpers
 
@@ -49,8 +48,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
   auto CheckExpectedEvents = [&](ezDirectoryWatcher& ref_watcher, ezArrayPtr<ExpectedEvent> events) {
     ezDynamicArray<ExpectedEventStorage> firedEvents;
     ezUInt32 i = 0;
-    ref_watcher.EnumerateChanges([&](const char* szPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
-      tmp = szPath;
+    ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+      tmp = sPath;
       tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
       firedEvents.PushBack({tmp, action, type});
       if (i < events.GetCount())
@@ -59,9 +58,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
         EZ_TEST_BOOL_MSG(action == events[i].action, "Expected event at index %d action", i);
         EZ_TEST_BOOL_MSG(type == events[i].type, "Expected event at index %d type mismatch", i);
       }
-      i++;
-    },
-      ezTime::Milliseconds(100));
+      i++; },
+      ezTime::MakeFromMilliseconds(100));
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
 
@@ -70,8 +68,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     ezUInt32 i = 0;
     ezDynamicArray<bool> eventFired;
     eventFired.SetCount(events.GetCount());
-    ref_watcher.EnumerateChanges([&](const char* szPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
-      tmp = szPath;
+    ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+      tmp = sPath;
       tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
       firedEvents.PushBack({tmp, action, type});
       auto index = events.IndexOf({tmp, action, type});
@@ -81,8 +79,9 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
         eventFired[index] = true;
       }
       i++;
+      //
     },
-      ezTime::Milliseconds(100));
+      ezTime::MakeFromMilliseconds(100));
     for (auto& fired : eventFired)
     {
       EZ_TEST_BOOL(fired);
@@ -94,8 +93,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     ezDynamicArray<ExpectedEventStorage> firedEvents;
     ezUInt32 i = 0;
     ezDirectoryWatcher::EnumerateChanges(
-      watchers, [&](const char* szPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
-        tmp = szPath;
+      watchers, [&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+        tmp = sPath;
         tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
         firedEvents.PushBack({tmp, action, type});
         if (i < events.GetCount())
@@ -105,8 +104,9 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
           EZ_TEST_BOOL_MSG(type == events[i].type, "Expected event at index %d type mismatch", i);
         }
         i++;
+        //
       },
-      ezTime::Milliseconds(100));
+      ezTime::MakeFromMilliseconds(100));
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
 
@@ -216,18 +216,71 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Simple rename file")
   {
     ezDirectoryWatcher watcher;
-    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Renames).Succeeded());
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded());
 
     CreateFile("test.file");
     Rename("test.file", "supertest.file");
 
     ExpectedEvent expectedEvents[] = {
+      {"test.file", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
       {"test.file", ezDirectoryWatcherAction::RenamedOldName, ezDirectoryWatcherType::File},
       {"supertest.file", ezDirectoryWatcherAction::RenamedNewName, ezDirectoryWatcherType::File},
     };
     CheckExpectedEvents(watcher, expectedEvents);
 
     DeleteFile("supertest.file");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Change file casing")
+  {
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded());
+
+    CreateFile("rename.file");
+    Rename("rename.file", "Rename.file");
+
+    ExpectedEvent expectedEvents[] = {
+      {"rename.file", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
+      {"rename.file", ezDirectoryWatcherAction::RenamedOldName, ezDirectoryWatcherType::File},
+      {"Rename.file", ezDirectoryWatcherAction::RenamedNewName, ezDirectoryWatcherType::File},
+    };
+    CheckExpectedEvents(watcher, expectedEvents);
+
+    DeleteFile("Rename.file");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Windows check for correct handling of pending file remove event #1")
+  {
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded());
+
+    CreateFile("rename.file");
+    DeleteFile("rename.file");
+
+    ExpectedEvent expectedEvents[] = {
+      {"rename.file", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
+      {"rename.file", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File},
+    };
+    CheckExpectedEvents(watcher, expectedEvents);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Windows check for correct handling of pending file remove event #2")
+  {
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded());
+
+    CreateFile("rename.file");
+    DeleteFile("rename.file");
+    CreateFile("Rename.file");
+    DeleteFile("Rename.file");
+
+    ExpectedEvent expectedEvents[] = {
+      {"rename.file", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
+      {"rename.file", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File},
+      {"Rename.file", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
+      {"Rename.file", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File},
+    };
+    CheckExpectedEvents(watcher, expectedEvents);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Simple create directory")
@@ -274,6 +327,58 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     CheckExpectedEvents(watcher, expectedEvents);
 
     DeleteDirectory("supertestDir");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Change directory casing")
+  {
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded());
+
+    CreateDirectory("renameDir");
+    Rename("renameDir", "RenameDir");
+
+    ExpectedEvent expectedEvents[] = {
+      {"renameDir", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory},
+      {"renameDir", ezDirectoryWatcherAction::RenamedOldName, ezDirectoryWatcherType::Directory},
+      {"RenameDir", ezDirectoryWatcherAction::RenamedNewName, ezDirectoryWatcherType::Directory},
+    };
+    CheckExpectedEvents(watcher, expectedEvents);
+
+    DeleteDirectory("RenameDir");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Windows check for correct handling of pending directory remove event #1")
+  {
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded());
+
+    CreateDirectory("renameDir");
+    DeleteDirectory("renameDir");
+
+    ExpectedEvent expectedEvents[] = {
+      {"renameDir", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory},
+      {"renameDir", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory},
+    };
+    CheckExpectedEvents(watcher, expectedEvents);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Windows check for correct handling of pending directory remove event #2")
+  {
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded());
+
+    CreateDirectory("renameDir");
+    DeleteDirectory("renameDir");
+    CreateDirectory("RenameDir");
+    DeleteDirectory("RenameDir");
+
+    ExpectedEvent expectedEvents[] = {
+      {"renameDir", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory},
+      {"renameDir", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory},
+      {"RenameDir", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::Directory},
+      {"RenameDir", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory},
+    };
+    CheckExpectedEvents(watcher, expectedEvents);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Subdirectory Create File")

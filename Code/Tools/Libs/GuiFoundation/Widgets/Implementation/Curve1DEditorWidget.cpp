@@ -43,7 +43,7 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   }
 }
 
-ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget() {}
+ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget() = default;
 
 void ezQtCurve1DEditorWidget::SetCurveExtents(double fLowerBound, double fUpperBound, bool bLowerIsFixed, bool bUpperIsFixed)
 {
@@ -182,7 +182,7 @@ void ezQtCurve1DEditorWidget::NormalizeCurveX(ezUInt32 uiActiveCurve)
     pos.x -= minX;
     pos.x *= rangeNorm;
 
-    Q_EMIT CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(ezTime::Seconds(pos.x)), pos.y);
+    Q_EMIT CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(ezTime::MakeFromSeconds(pos.x)), pos.y);
 
     ezVec2 lt = cp.m_LeftTangent;
     lt.x *= rangeNorm;
@@ -233,7 +233,7 @@ void ezQtCurve1DEditorWidget::NormalizeCurveY(ezUInt32 uiActiveCurve)
     pos.y -= minY;
     pos.y *= rangeNorm;
 
-    Q_EMIT CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(ezTime::Seconds(pos.x)), pos.y);
+    Q_EMIT CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(ezTime::MakeFromSeconds(pos.x)), pos.y);
 
     ezVec2 lt = cp.m_LeftTangent;
     lt.y *= rangeNorm;
@@ -321,7 +321,7 @@ void ezQtCurve1DEditorWidget::MirrorHorizontally(ezUInt32 uiActiveCurve)
     ezVec2d pos = cp.m_Position;
     pos.x = centerX - (pos.x - centerX);
 
-    Q_EMIT CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(ezTime::Seconds(pos.x)), pos.y);
+    Q_EMIT CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(ezTime::MakeFromSeconds(pos.x)), pos.y);
 
     ezVec2 lt = cp.m_RightTangent;
     ezVec2 rt = cp.m_LeftTangent;
@@ -372,7 +372,7 @@ void ezQtCurve1DEditorWidget::MirrorVertically(ezUInt32 uiActiveCurve)
     ezVec2d pos = cp.m_Position;
     pos.y = centerY - (pos.y - centerY);
 
-    Q_EMIT CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(ezTime::Seconds(pos.x)), pos.y);
+    Q_EMIT CpMovedEvent(uiActiveCurve, i, m_Curves.TickFromTime(ezTime::MakeFromSeconds(pos.x)), pos.y);
 
     ezVec2 lt = cp.m_LeftTangent;
     ezVec2 rt = cp.m_RightTangent;
@@ -446,7 +446,7 @@ void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
 
     ClampPoint(newPos.x, newPos.y);
 
-    Q_EMIT CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(ezTime::Seconds(newPos.x)), newPos.y);
+    Q_EMIT CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(ezTime::MakeFromSeconds(newPos.x)), newPos.y);
   }
 
   Q_EMIT EndCpChangesEvent();
@@ -471,7 +471,7 @@ void ezQtCurve1DEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX,
 
     ClampPoint(newPos.x, newPos.y);
 
-    Q_EMIT CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(ezTime::Seconds(newPos.x)), newPos.y);
+    Q_EMIT CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(ezTime::MakeFromSeconds(newPos.x)), newPos.y);
   }
 
   Q_EMIT EndCpChangesEvent();
@@ -620,16 +620,16 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     QMenu* curveMenu = presentsMenu->addMenu("0 -> 1 (slow)");
 
     // clang-format off
-    curveMenu->addAction("Linear", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::Linear, false); });
-    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInSine, false); });
-    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInQuad, false); });
-    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInCubic, false); });
-    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInQuartic, false); });
-    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInQuintic, false); });
-    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInExpo, false); });
-    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInBack, false); });
-    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInElastic, false); });
-    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInBounce, false); });
+    curveMenu->addAction("Linear", this, [this]() { onGenerateCurve(ezCurveFunction::Linear, false); });
+    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInSine, false); });
+    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInQuad, false); });
+    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInCubic, false); });
+    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInQuartic, false); });
+    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInQuintic, false); });
+    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInExpo, false); });
+    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInBack, false); });
+    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInElastic, false); });
+    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInBounce, false); });
     // clang-format on
   }
 
@@ -637,16 +637,16 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     QMenu* curveMenu = presentsMenu->addMenu("0 -> 1 (fast)");
 
     // clang-format off
-    curveMenu->addAction("Linear", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::Linear, false); });
-    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutSine, false); });
-    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutQuad, false); });
-    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutCubic, false); });
-    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutQuartic, false); });
-    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutQuintic, false); });
-    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutExpo, false); });
-    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutBack, false); });
-    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutElastic, false); });
-    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutBounce, false); });
+    curveMenu->addAction("Linear", this, [this]() { onGenerateCurve(ezCurveFunction::Linear, false); });
+    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutSine, false); });
+    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutQuad, false); });
+    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutCubic, false); });
+    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutQuartic, false); });
+    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutQuintic, false); });
+    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutExpo, false); });
+    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutBack, false); });
+    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutElastic, false); });
+    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutBounce, false); });
     // clang-format on
   }
 
@@ -654,15 +654,15 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     QMenu* curveMenu = presentsMenu->addMenu("0 -> 1 (s/f/s)");
 
     // clang-format off
-    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutSine, false); });
-    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutQuad, false); });
-    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutCubic, false); });
-    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutQuartic, false); });
-    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutQuintic, false); });
-    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutExpo, false); });
-    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutBack, false); });
-    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutElastic, false); });
-    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutBounce, false); });
+    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutSine, false); });
+    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutQuad, false); });
+    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutCubic, false); });
+    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutQuartic, false); });
+    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutQuintic, false); });
+    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutExpo, false); });
+    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutBack, false); });
+    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutElastic, false); });
+    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutBounce, false); });
     // clang-format on
   }
 
@@ -670,16 +670,16 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     QMenu* curveMenu = presentsMenu->addMenu("1 -> 0 (slow)");
 
     // clang-format off
-    curveMenu->addAction("Linear", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::Linear, true); });
-    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInSine, true); });
-    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInQuad, true); });
-    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInCubic, true); });
-    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInQuartic, true); });
-    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInQuintic, true); });
-    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInExpo, true); });
-    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInBack, true); });
-    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInElastic, true); });
-    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInBounce, true); });
+    curveMenu->addAction("Linear", this, [this]() { onGenerateCurve(ezCurveFunction::Linear, true); });
+    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInSine, true); });
+    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInQuad, true); });
+    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInCubic, true); });
+    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInQuartic, true); });
+    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInQuintic, true); });
+    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInExpo, true); });
+    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInBack, true); });
+    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInElastic, true); });
+    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInBounce, true); });
     // clang-format on
   }
 
@@ -687,16 +687,16 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     QMenu* curveMenu = presentsMenu->addMenu("1 -> 0 (fast)");
 
     // clang-format off
-    curveMenu->addAction("Linear", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::Linear, true); });
-    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutSine, true); });
-    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutQuad, true); });
-    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutCubic, true); });
-    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutQuartic, true); });
-    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutQuintic, true); });
-    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutExpo, true); });
-    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutBack, true); });
-    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutElastic, true); });
-    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseOutBounce, true); });
+    curveMenu->addAction("Linear", this, [this]() { onGenerateCurve(ezCurveFunction::Linear, true); });
+    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutSine, true); });
+    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutQuad, true); });
+    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutCubic, true); });
+    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutQuartic, true); });
+    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutQuintic, true); });
+    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutExpo, true); });
+    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutBack, true); });
+    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutElastic, true); });
+    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezCurveFunction::EaseOutBounce, true); });
     // clang-format on
   }
 
@@ -704,15 +704,15 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     QMenu* curveMenu = presentsMenu->addMenu("1 -> 0 (s/f/s)");
 
     // clang-format off
-    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutSine, true); });
-    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutQuad, true); });
-    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutCubic, true); });
-    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutQuartic, true); });
-    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutQuintic, true); });
-    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutExpo, true); });
-    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutBack, true); });
-    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutElastic, true); });
-    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::EaseInOutBounce, true); });
+    curveMenu->addAction("Sine", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutSine, true); });
+    curveMenu->addAction("Quad", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutQuad, true); });
+    curveMenu->addAction("Cubic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutCubic, true); });
+    curveMenu->addAction("Quartic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutQuartic, true); });
+    curveMenu->addAction("Quintic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutQuintic, true); });
+    curveMenu->addAction("Exponential", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutExpo, true); });
+    curveMenu->addAction("Overshoot", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutBack, true); });
+    curveMenu->addAction("Elastic", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutElastic, true); });
+    curveMenu->addAction("Bounce", this, [this]() { onGenerateCurve(ezCurveFunction::EaseInOutBounce, true); });
     // clang-format on
   }
 
@@ -720,10 +720,10 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     QMenu* curveMenu = presentsMenu->addMenu("0 -> 1 -> 0");
 
     // clang-format off
-    curveMenu->addAction("Conical", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::Conical, false); });
-    curveMenu->addAction("Fade In / Fade Out", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::FadeInFadeOut, false); });
-    curveMenu->addAction("Fade In / Hold / Fade Out", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::FadeInHoldFadeOut, false); });
-    curveMenu->addAction("Bell", this, [this]() { onGenerateCurve(ezMath::ezCurveFunction::Bell, false); });
+    curveMenu->addAction("Conical", this, [this]() { onGenerateCurve(ezCurveFunction::Conical, false); });
+    curveMenu->addAction("Fade In / Fade Out", this, [this]() { onGenerateCurve(ezCurveFunction::FadeInFadeOut, false); });
+    curveMenu->addAction("Fade In / Hold / Fade Out", this, [this]() { onGenerateCurve(ezCurveFunction::FadeInHoldFadeOut, false); });
+    curveMenu->addAction("Bell", this, [this]() { onGenerateCurve(ezCurveFunction::Bell, false); });
     // clang-format on
   }
 
@@ -767,7 +767,7 @@ void ezQtCurve1DEditorWidget::onAddPoint()
 {
   Q_EMIT BeginCpChangesEvent("Add Control Point");
 
-  InsertCpAt(m_ContextMenuScenePos.x(), m_ContextMenuScenePos.y(), ezVec2d::ZeroVector());
+  InsertCpAt(m_ContextMenuScenePos.x(), m_ContextMenuScenePos.y(), ezVec2d::MakeZero());
 
   Q_EMIT EndCpChangesEvent();
 }
@@ -837,7 +837,7 @@ void ezQtCurve1DEditorWidget::InsertCpAt(double posX, double value, ezVec2d epsi
     curveIdx = 0;
   }
 
-  Q_EMIT InsertCpEvent(curveIdx, m_Curves.TickFromTime(ezTime::Seconds(posX)), value);
+  Q_EMIT InsertCpEvent(curveIdx, m_Curves.TickFromTime(ezTime::MakeFromSeconds(posX)), value);
 }
 
 
@@ -927,7 +927,7 @@ void ezQtCurve1DEditorWidget::onMoveCurve(ezInt32 iCurve, double moveY)
   Q_EMIT EndCpChangesEvent();
 }
 
-void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezCurveFunction function, bool inverse)
+void ezQtCurve1DEditorWidget::onGenerateCurve(ezCurveFunction::Enum function, bool inverse)
 {
   Q_EMIT BeginCpChangesEvent("Generate Curve");
 
@@ -954,7 +954,7 @@ void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezCurveFunction function, 
     const double x = i * invFps;
 
     samples[i].m_fPos = x;
-    samples[i].m_fCorrectValue = GetCurveValue(function, x, inverse);
+    samples[i].m_fCorrectValue = ezCurveFunction::GetValue(function, x, inverse);
   }
 
   auto AddPt = [&](ezUInt32 uiIdx) {
@@ -963,7 +963,7 @@ void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezCurveFunction function, 
     const double y = samples[uiIdx].m_fCorrectValue;
 
     cmp.AddControlPoint(x).m_Position.y = y;
-    InsertCpAt(x, y, ezVec2d::ZeroVector());
+    InsertCpAt(x, y, ezVec2d::MakeZero());
   };
 
   AddPt(0);
@@ -1103,6 +1103,7 @@ ezResult ezQtCurve1DEditorWidget::LoadCurvePreset(const char* szFile)
     return EZ_FAILURE;
 
   const ezTypeVersion version = file.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
 
   Q_EMIT BeginCpChangesEvent("Load Preset");
 
@@ -1260,7 +1261,7 @@ void ezQtCurve1DEditorWidget::on_LinePosition_editingFinished()
   {
     const auto& cp = m_Curves.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
 
-    ezInt32 iTick = m_Curves.TickFromTime(ezTime::Seconds(value));
+    ezInt32 iTick = m_Curves.TickFromTime(ezTime::MakeFromSeconds(value));
     if (cp.m_iTick != iTick)
       Q_EMIT CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, iTick, cp.m_fValue);
   }

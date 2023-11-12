@@ -2,12 +2,16 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_AssetBrowserWidget.h>
+#include <ToolsFoundation/FileSystem/FileSystemModel.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+
+
 
 class ezQtToolBarActionMapView;
 class ezQtAssetBrowserFilter;
 class ezQtAssetBrowserModel;
 struct ezAssetCuratorEvent;
+class ezQtAssetBrowserModel;
 
 class ezQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 {
@@ -45,12 +49,9 @@ private Q_SLOTS:
   void on_IconSizeSlider_valueChanged(int iValue);
   void on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage);
   void OnSearchWidgetTextChanged(const QString& text);
-  void on_ListTypeFilter_itemChanged(QListWidgetItem* item);
-  void on_TreeFolderFilter_itemSelectionChanged();
   void on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt);
   void on_TypeFilter_currentIndexChanged(int index);
   void OnScrollToItem(ezUuid preselectedAsset);
-  void OnTreeOpenExplorer();
   void OnShowSubFolderItemsToggled();
   void OnShowHiddenFolderItemsToggled();
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
@@ -65,25 +66,29 @@ private Q_SLOTS:
   void OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
   void OnAssetSelectionCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
   void OnModelReset();
-  void OnNewAsset();
+  void NewAsset();
+  void OnFileEditingFinished(const QString& sAbsPath, const QString& sNewName, bool bIsAsset);
+  void ImportSelection();
+  void OnOpenImportReferenceAsset();
+  void DeleteSelection();
+
+
+private:
+  virtual void keyPressEvent(QKeyEvent* e) override;
 
 private:
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
-  void UpdateDirectoryTree();
-  void ClearDirectoryTree();
-  void BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem, bool bIsHidden);
-  bool SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath);
   void UpdateAssetTypes();
   void ProjectEventHandler(const ezToolsProjectEvent& e);
   void AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedAsset);
+  void AddImportedViaMenu(QMenu* pMenu);
 
-  bool m_bDialogMode;
-  ezUInt32 m_uiKnownAssetFolderCount;
-  bool m_bTreeSelectionChangeInProgress = false;
-
-  ezQtToolBarActionMapView* m_pToolbar;
+  bool m_bDialogMode = false;
+  ezQtToolBarActionMapView* m_pToolbar = nullptr;
   ezString m_sAllTypesFilter;
-  ezQtAssetBrowserModel* m_pModel;
-  ezQtAssetBrowserFilter* m_pFilter;
-};
+  ezQtAssetBrowserModel* m_pModel = nullptr;
+  ezQtAssetBrowserFilter* m_pFilter = nullptr;
 
+  /// \brief After creating a new asset and renaming it, we want to open it as well.
+  bool m_bOpenAfterRename = false;
+};

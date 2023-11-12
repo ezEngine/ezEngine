@@ -30,7 +30,7 @@ ezThreadSignal::WaitResult ezThreadSignal::WaitForSignal(ezTime timeout) const
   EZ_LOCK(m_ConditionVariable);
 
   const ezTime tStart = ezTime::Now();
-  ezTime tElapsed = ezTime::Zero();
+  ezTime tElapsed = ezTime::MakeZero();
 
   while (!m_bSignalState)
   {

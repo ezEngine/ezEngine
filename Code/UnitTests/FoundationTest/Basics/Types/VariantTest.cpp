@@ -118,8 +118,11 @@ inline void TestNumberCanConvertTo(const ezVariant& v)
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::StringView) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::DataBuffer) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
-  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Uuid) == false);
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::ColorGamma) == false);
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::HashedString));
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::TempHashedString));
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::TypedPointer) == false);
@@ -162,6 +165,12 @@ inline void TestNumberCanConvertTo(const ezVariant& v)
   EZ_TEST_BOOL(v.ConvertTo<ezString>(&conversionResult) == "3");
   EZ_TEST_BOOL(conversionResult.Succeeded());
 
+  EZ_TEST_BOOL(v.ConvertTo<ezHashedString>(&conversionResult) == ezMakeHashedString("3"));
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>(&conversionResult) == ezTempHashedString("3"));
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
   EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Bool).Get<bool>() == true);
   EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Int8).Get<ezInt8>() == 3);
   EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::UInt8).Get<ezUInt8>() == 3);
@@ -174,9 +183,11 @@ inline void TestNumberCanConvertTo(const ezVariant& v)
   EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Float).Get<float>() == 3.0f);
   EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Double).Get<double>() == 3.0);
   EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "3");
+  EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("3"));
+  EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("3"));
 }
 
-inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum type, bool bAndString = false)
+inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum type)
 {
   for (int iType = ezVariant::Type::FirstStandardType; iType < ezVariant::Type::LastExtendedType; ++iType)
   {
@@ -184,10 +195,6 @@ inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum typ
       iType = ezVariant::Type::FirstExtendedType;
 
     if (iType == type)
-    {
-      EZ_TEST_BOOL(v.CanConvertTo(type));
-    }
-    else if (bAndString && iType == ezVariant::Type::String)
     {
       EZ_TEST_BOOL(v.CanConvertTo(type));
     }
@@ -209,7 +216,7 @@ inline void TestCanOnlyConvertToStringAndID(const ezVariant& v, ezVariant::Type:
     if (iType == ezVariant::Type::LastStandardType)
       iType = ezVariant::Type::FirstExtendedType;
 
-    if (iType == ezVariant::Type::String)
+    if (iType == ezVariant::Type::String || iType == ezVariant::Type::HashedString || iType == ezVariant::Type::TempHashedString)
     {
       EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
     }
@@ -639,13 +646,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezQuat(7, 9, 8, 4));
     EZ_TEST_BOOL(v == ezQuat(7, 9, 8, 4));
-    EZ_TEST_BOOL(v[0][0] == 7);
-    EZ_TEST_BOOL(v[0][1] == 9);
-    EZ_TEST_BOOL(v[0][2] == 8);
-    EZ_TEST_BOOL(v[1] == 4);
-    EZ_TEST_BOOL(v["v"]["x"] == 7);
-    EZ_TEST_BOOL(v["v"]["y"] == 9);
-    EZ_TEST_BOOL(v["v"]["z"] == 8);
+    EZ_TEST_BOOL(v[0] == 7);
+    EZ_TEST_BOOL(v[1] == 9);
+    EZ_TEST_BOOL(v[2] == 8);
+    EZ_TEST_BOOL(v[3] == 4);
+    EZ_TEST_BOOL(v["x"] == 7);
+    EZ_TEST_BOOL(v["y"] == 9);
+    EZ_TEST_BOOL(v["z"] == 8);
     EZ_TEST_BOOL(v["w"] == 4);
 
     EZ_TEST_BOOL(v.IsNumber() == false);
@@ -660,22 +667,22 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMat3")
   {
-    ezVariant v(ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    ezVariant v(ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
     TestVariant<ezMat3>(v, ezVariantType::Matrix3);
 
-    EZ_TEST_BOOL(v.Get<ezMat3>() == ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    EZ_TEST_BOOL(v.Get<ezMat3>() == ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
 
-    EZ_TEST_BOOL(v == ezVariant(ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9)));
-    EZ_TEST_BOOL(v != ezVariant(ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 8)));
+    EZ_TEST_BOOL(v == ezVariant(ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9)));
+    EZ_TEST_BOOL(v != ezVariant(ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 8)));
 
-    EZ_TEST_BOOL(v == ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
-    EZ_TEST_BOOL(v != ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 8));
+    EZ_TEST_BOOL(v == ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    EZ_TEST_BOOL(v != ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 8));
 
-    v = ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 5);
-    EZ_TEST_BOOL(v == ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 5));
+    v = ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 5);
+    EZ_TEST_BOOL(v == ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 5));
 
-    v = ezVariant(ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 4));
-    EZ_TEST_BOOL(v == ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 4));
+    v = ezVariant(ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 4));
+    EZ_TEST_BOOL(v == ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 4));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
@@ -684,22 +691,22 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMat4")
   {
-    ezVariant v(ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+    ezVariant v(ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
     TestVariant<ezMat4>(v, ezVariantType::Matrix4);
 
-    EZ_TEST_BOOL(v.Get<ezMat4>() == ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+    EZ_TEST_BOOL(v.Get<ezMat4>() == ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
 
-    EZ_TEST_BOOL(v == ezVariant(ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)));
-    EZ_TEST_BOOL(v != ezVariant(ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15)));
+    EZ_TEST_BOOL(v == ezVariant(ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)));
+    EZ_TEST_BOOL(v != ezVariant(ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15)));
 
-    EZ_TEST_BOOL(v == ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
-    EZ_TEST_BOOL(v != ezMat4(1, 2, 3, 4, 5, 6, 2, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+    EZ_TEST_BOOL(v == ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+    EZ_TEST_BOOL(v != ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 2, 8, 9, 10, 11, 12, 13, 14, 15, 16));
 
-    v = ezMat4(5, 8, 9, 3, 1, 2, 3, 4, 5, 3, 7, 3, 6, 8, 6, 8);
-    EZ_TEST_BOOL(v == ezMat4(5, 8, 9, 3, 1, 2, 3, 4, 5, 3, 7, 3, 6, 8, 6, 8));
+    v = ezMat4::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 5, 3, 7, 3, 6, 8, 6, 8);
+    EZ_TEST_BOOL(v == ezMat4::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 5, 3, 7, 3, 6, 8, 6, 8));
 
-    v = ezVariant(ezMat4(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
-    EZ_TEST_BOOL(v == ezMat4(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
+    v = ezVariant(ezMat4::MakeFromValues(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
+    EZ_TEST_BOOL(v == ezMat4::MakeFromValues(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
@@ -784,19 +791,19 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     const char* szTemp = "This is an ezStringView";
     ezStringView bla(szTemp);
-    ezVariant v(bla);
+    ezVariant v(bla, false);
     TestVariant<ezStringView>(v, ezVariantType::StringView);
 
     const ezString sCopy = szTemp;
     EZ_TEST_BOOL(v.Get<ezStringView>() == sCopy);
 
-    EZ_TEST_BOOL(v == ezVariant(ezStringView(sCopy.GetData())));
-    EZ_TEST_BOOL(v != ezVariant(ezStringView("This is something else")));
+    EZ_TEST_BOOL(v == ezVariant(ezStringView(sCopy.GetData()), false));
+    EZ_TEST_BOOL(v != ezVariant(ezStringView("This is something else"), false));
 
     EZ_TEST_BOOL(v == ezStringView(sCopy.GetData()));
     EZ_TEST_BOOL(v != ezStringView("This is something else"));
 
-    v = ezStringView("blurg!");
+    v = ezVariant(ezStringView("blurg!"), false);
     EZ_TEST_BOOL(v == ezStringView("blurg!"));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
@@ -832,22 +839,22 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTime")
   {
-    ezVariant v(ezTime::Seconds(1337));
+    ezVariant v(ezTime::MakeFromSeconds(1337));
     TestVariant<ezTime>(v, ezVariantType::Time);
 
-    EZ_TEST_BOOL(v.Get<ezTime>() == ezTime::Seconds(1337));
+    EZ_TEST_BOOL(v.Get<ezTime>() == ezTime::MakeFromSeconds(1337));
 
-    EZ_TEST_BOOL(v == ezVariant(ezTime::Seconds(1337)));
-    EZ_TEST_BOOL(v != ezVariant(ezTime::Seconds(1336)));
+    EZ_TEST_BOOL(v == ezVariant(ezTime::MakeFromSeconds(1337)));
+    EZ_TEST_BOOL(v != ezVariant(ezTime::MakeFromSeconds(1336)));
 
-    EZ_TEST_BOOL(v == ezTime::Seconds(1337));
-    EZ_TEST_BOOL(v != ezTime::Seconds(1338));
+    EZ_TEST_BOOL(v == ezTime::MakeFromSeconds(1337));
+    EZ_TEST_BOOL(v != ezTime::MakeFromSeconds(1338));
 
-    v = ezTime::Seconds(8472);
-    EZ_TEST_BOOL(v == ezTime::Seconds(8472));
+    v = ezTime::MakeFromSeconds(8472);
+    EZ_TEST_BOOL(v == ezTime::MakeFromSeconds(8472));
 
-    v = ezVariant(ezTime::Seconds(13));
-    EZ_TEST_BOOL(v == ezTime::Seconds(13));
+    v = ezVariant(ezTime::MakeFromSeconds(13));
+    EZ_TEST_BOOL(v == ezTime::MakeFromSeconds(13));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
@@ -862,13 +869,11 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(v.Get<ezUuid>() == ezUuid());
 
-    ezUuid uuid;
-    uuid.CreateNewUuid();
+    const ezUuid uuid = ezUuid::MakeUuid();
     EZ_TEST_BOOL(v != ezVariant(uuid));
     EZ_TEST_BOOL(ezVariant(uuid).Get<ezUuid>() == uuid);
 
-    ezUuid uuid2;
-    uuid2.CreateNewUuid();
+    const ezUuid uuid2 = ezUuid::MakeUuid();
     EZ_TEST_BOOL(ezVariant(uuid) != ezVariant(uuid2));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
@@ -878,25 +883,75 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezAngle")
   {
-    ezVariant v(ezAngle::Degree(1337));
+    ezVariant v(ezAngle::MakeFromDegree(1337));
     TestVariant<ezAngle>(v, ezVariantType::Angle);
 
-    EZ_TEST_BOOL(v.Get<ezAngle>() == ezAngle::Degree(1337));
+    EZ_TEST_BOOL(v.Get<ezAngle>() == ezAngle::MakeFromDegree(1337));
 
-    EZ_TEST_BOOL(v == ezVariant(ezAngle::Degree(1337)));
-    EZ_TEST_BOOL(v != ezVariant(ezAngle::Degree(1336)));
+    EZ_TEST_BOOL(v == ezVariant(ezAngle::MakeFromDegree(1337)));
+    EZ_TEST_BOOL(v != ezVariant(ezAngle::MakeFromDegree(1336)));
 
-    EZ_TEST_BOOL(v == ezAngle::Degree(1337));
-    EZ_TEST_BOOL(v != ezAngle::Degree(1338));
+    EZ_TEST_BOOL(v == ezAngle::MakeFromDegree(1337));
+    EZ_TEST_BOOL(v != ezAngle::MakeFromDegree(1338));
 
-    v = ezAngle::Degree(8472);
-    EZ_TEST_BOOL(v == ezAngle::Degree(8472));
+    v = ezAngle::MakeFromDegree(8472);
+    EZ_TEST_BOOL(v == ezAngle::MakeFromDegree(8472));
 
-    v = ezVariant(ezAngle::Degree(13));
-    EZ_TEST_BOOL(v == ezAngle::Degree(13));
+    v = ezVariant(ezAngle::MakeFromDegree(13));
+    EZ_TEST_BOOL(v == ezAngle::MakeFromDegree(13));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezHashedString")
+  {
+    ezVariant v(ezMakeHashedString("ABCDE"));
+    TestVariant<ezHashedString>(v, ezVariantType::HashedString);
+
+    EZ_TEST_BOOL(v.Get<ezHashedString>() == ezMakeHashedString("ABCDE"));
+
+    EZ_TEST_BOOL(v == ezVariant(ezMakeHashedString("ABCDE")));
+    EZ_TEST_BOOL(v != ezVariant(ezMakeHashedString("ABCDK")));
+    EZ_TEST_BOOL(v == ezVariant(ezTempHashedString("ABCDE")));
+    EZ_TEST_BOOL(v != ezVariant(ezTempHashedString("ABCDK")));
+
+    EZ_TEST_BOOL(v == ezMakeHashedString("ABCDE"));
+    EZ_TEST_BOOL(v != ezMakeHashedString("ABCDK"));
+    EZ_TEST_BOOL(v == ezTempHashedString("ABCDE"));
+    EZ_TEST_BOOL(v != ezTempHashedString("ABCDK"));
+
+    v = ezMakeHashedString("HHH");
+    EZ_TEST_BOOL(v == ezMakeHashedString("HHH"));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsString() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTempHashedString")
+  {
+    ezVariant v(ezTempHashedString("ABCDE"));
+    TestVariant<ezTempHashedString>(v, ezVariantType::TempHashedString);
+
+    EZ_TEST_BOOL(v.Get<ezTempHashedString>() == ezTempHashedString("ABCDE"));
+
+    EZ_TEST_BOOL(v == ezVariant(ezTempHashedString("ABCDE")));
+    EZ_TEST_BOOL(v != ezVariant(ezTempHashedString("ABCDK")));
+    EZ_TEST_BOOL(v == ezVariant(ezMakeHashedString("ABCDE")));
+    EZ_TEST_BOOL(v != ezVariant(ezMakeHashedString("ABCDK")));
+
+    EZ_TEST_BOOL(v == ezTempHashedString("ABCDE"));
+    EZ_TEST_BOOL(v != ezTempHashedString("ABCDK"));
+    EZ_TEST_BOOL(v == ezMakeHashedString("ABCDE"));
+    EZ_TEST_BOOL(v != ezMakeHashedString("ABCDK"));
+
+    v = ezTempHashedString("HHH");
+    EZ_TEST_BOOL(v == ezTempHashedString("HHH"));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsString() == false);
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -1049,9 +1104,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTypedObject inline")
   {
-    // ezAngle::Degree(90.0f) was replaced with radian as release builds generate a different float then debug.
-    ezVarianceTypeAngle value = {0.1f, ezAngle::Radian(1.57079637f)};
-    ezVarianceTypeAngle value2 = {0.2f, ezAngle::Radian(1.57079637f)};
+    // ezAngle::MakeFromDegree(90.0f) was replaced with radian as release builds generate a different float then debug.
+    ezVarianceTypeAngle value = {0.1f, ezAngle::MakeFromRadian(1.57079637f)};
+    ezVarianceTypeAngle value2 = {0.2f, ezAngle::MakeFromRadian(1.57079637f)};
 
     ezVariant v(value);
     TestVariant<ezVarianceTypeAngle>(v, ezVariantType::TypedObject);
@@ -1072,9 +1127,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v != v2);
 
     ezUInt64 uiHash = v.ComputeHash(0);
-    EZ_TEST_INT(uiHash, 13667342936068485827ul);
+    EZ_TEST_INT(uiHash, 8527525522777555267ul);
 
-    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::Radian(1.57079637f)});
+    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::MakeFromRadian(1.57079637f)});
     ezVariant copy;
     copy.CopyTypedObject(pTypedAngle, ezGetStaticRTTI<ezVarianceTypeAngle>());
     ezVariant move;
@@ -1159,6 +1214,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo<float>() == 1.0f);
     EZ_TEST_BOOL(v.ConvertTo<double>() == 1.0);
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "true");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("true"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("true"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Bool).Get<bool>() == true);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Int8).Get<ezInt8>() == 1);
@@ -1172,6 +1229,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Float).Get<float>() == 1.0f);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Double).Get<double>() == 1.0);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "true");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("true"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("true"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezInt8)")
@@ -1248,8 +1307,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo<ezString>(&conversionResult) == "{ r=3, g=3, b=4, a=0 }");
     EZ_TEST_BOOL(conversionResult.Succeeded());
 
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ r=3, g=3, b=4, a=0 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ r=3, g=3, b=4, a=0 }"));
+
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Color).Get<ezColor>() == c);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ r=3, g=3, b=4, a=0 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ r=3, g=3, b=4, a=0 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ r=3, g=3, b=4, a=0 }"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ColorGamma)")
@@ -1267,8 +1331,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(val == "{ r=0, g=128, b=64, a=255 }");
     EZ_TEST_BOOL(conversionResult.Succeeded());
 
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ r=0, g=128, b=64, a=255 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ r=0, g=128, b=64, a=255 }"));
+
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::ColorGamma).Get<ezColorGammaUB>() == c);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ r=0, g=128, b=64, a=255 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ r=0, g=128, b=64, a=255 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ r=0, g=128, b=64, a=255 }"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVec2)")
@@ -1282,11 +1351,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo<ezVec2I32>() == ezVec2I32(3, 4));
     EZ_TEST_BOOL(v.ConvertTo<ezVec2U32>() == ezVec2U32(3, 4));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ x=3, y=4 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4 }"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2).Get<ezVec2>() == vec);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2I).Get<ezVec2I32>() == ezVec2I32(3, 4));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2U).Get<ezVec2U32>() == ezVec2U32(3, 4));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ x=3, y=4 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4 }"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVec3)")
@@ -1300,11 +1373,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo<ezVec3I32>() == ezVec3I32(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo<ezVec3U32>() == ezVec3U32(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=6 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ x=3, y=4, z=6 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4, z=6 }"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3).Get<ezVec3>() == vec);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3I).Get<ezVec3I32>() == ezVec3I32(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3U).Get<ezVec3U32>() == ezVec3U32(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=6 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ x=3, y=4, z=6 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4, z=6 }"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVec4)")
@@ -1318,11 +1395,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo<ezVec4I32>() == ezVec4I32(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo<ezVec4U32>() == ezVec4U32(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=3, w=56 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ x=3, y=4, z=3, w=56 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4, z=3, w=56 }"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4).Get<ezVec4>() == vec);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4I).Get<ezVec4I32>() == ezVec4I32(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4U).Get<ezVec4U32>() == ezVec4U32(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=3, w=56 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ x=3, y=4, z=3, w=56 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4, z=3, w=56 }"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVec2I32)")
@@ -1336,11 +1417,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo<ezVec2>() == ezVec2(3, 4));
     EZ_TEST_BOOL(v.ConvertTo<ezVec2U32>() == ezVec2U32(3, 4));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ x=3, y=4 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4 }"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2I).Get<ezVec2I32>() == vec);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2).Get<ezVec2>() == ezVec2(3, 4));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2U).Get<ezVec2U32>() == ezVec2U32(3, 4));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ x=3, y=4 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4 }"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVec3I32)")
@@ -1354,11 +1439,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo<ezVec3>() == ezVec3(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo<ezVec3U32>() == ezVec3U32(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=6 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ x=3, y=4, z=6 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4, z=6 }"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3I).Get<ezVec3I32>() == vec);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3).Get<ezVec3>() == ezVec3(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3U).Get<ezVec3U32>() == ezVec3U32(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=6 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ x=3, y=4, z=6 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4, z=6 }"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVec4I32)")
@@ -1372,11 +1461,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo<ezVec4>() == ezVec4(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo<ezVec4U32>() == ezVec4U32(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=3, w=56 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ x=3, y=4, z=3, w=56 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4, z=3, w=56 }"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4I).Get<ezVec4I32>() == vec);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4).Get<ezVec4>() == ezVec4(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4U).Get<ezVec4U32>() == ezVec4U32(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=3, w=56 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ x=3, y=4, z=3, w=56 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4, z=3, w=56 }"));
   }
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezQuat)")
   {
@@ -1387,41 +1480,67 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(v.ConvertTo<ezQuat>() == q);
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=3, w=56 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ x=3, y=4, z=3, w=56 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4, z=3, w=56 }"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Quaternion).Get<ezQuat>() == q);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=3, w=56 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ x=3, y=4, z=3, w=56 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ x=3, y=4, z=3, w=56 }"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezMat3)")
   {
-    ezMat3 m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3 m = ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
     ezVariant v(m);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Matrix3);
 
     EZ_TEST_BOOL(v.ConvertTo<ezMat3>() == m);
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Matrix3).Get<ezMat3>() == m);
-    EZ_TEST_BOOL(
-      v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezMat4)")
   {
-    ezMat4 m(1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6);
+    ezMat4 m = ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6);
     ezVariant v(m);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Matrix4);
 
     EZ_TEST_BOOL(v.ConvertTo<ezMat4>() == m);
-    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, c1r2=5, c2r2=6, c3r2=7, c4r2=8, c1r3=9, c2r3=0, c3r3=1, "
-                                            "c4r3=2, c1r4=3, c2r4=4, c3r4=5, c4r4=6 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, "
+                                            "c1r2=5, c2r2=6, c3r2=7, c4r2=8, "
+                                            "c1r3=9, c2r3=0, c3r3=1, c4r3=2, "
+                                            "c1r4=3, c2r4=4, c3r4=5, c4r4=6 }");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, "
+                                                                     "c1r2=5, c2r2=6, c3r2=7, c4r2=8, "
+                                                                     "c1r3=9, c2r3=0, c3r3=1, c4r3=2, "
+                                                                     "c1r4=3, c2r4=4, c3r4=5, c4r4=6 }"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, "
+                                                                         "c1r2=5, c2r2=6, c3r2=7, c4r2=8, "
+                                                                         "c1r3=9, c2r3=0, c3r3=1, c4r3=2, "
+                                                                         "c1r4=3, c2r4=4, c3r4=5, c4r4=6 }"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Matrix4).Get<ezMat4>() == m);
-    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, c1r2=5, c2r2=6, c3r2=7, "
-                                                                         "c4r2=8, c1r3=9, c2r3=0, c3r3=1, c4r3=2, c1r4=3, c2r4=4, c3r4=5, "
-                                                                         "c4r4=6 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, "
+                                                                         "c1r2=5, c2r2=6, c3r2=7, c4r2=8, "
+                                                                         "c1r3=9, c2r3=0, c3r3=1, c4r3=2, "
+                                                                         "c1r4=3, c2r4=4, c3r4=5, c4r4=6 }");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, "
+                                                                                                        "c1r2=5, c2r2=6, c3r2=7, c4r2=8, "
+                                                                                                        "c1r3=9, c2r3=0, c3r3=1, c4r3=2, "
+                                                                                                        "c1r4=3, c2r4=4, c3r4=5, c4r4=6 }"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{ c1r1=1, c2r1=2, c3r1=3, c4r1=4, "
+                                                                                                                "c1r2=5, c2r2=6, c3r2=7, c4r2=8, "
+                                                                                                                "c1r3=9, c2r3=0, c3r3=1, c4r3=2, "
+                                                                                                                "c1r4=3, c2r4=4, c3r4=5, c4r4=6 }"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezString)")
@@ -1451,10 +1570,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix3) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
-    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::StringView) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::StringView));
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::DataBuffer) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::ColorGamma) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::HashedString));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::TempHashedString));
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::TypedPointer) == false);
@@ -1504,6 +1626,14 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
       ConversionStatus = EZ_SUCCESS;
       EZ_TEST_BOOL(v.ConvertTo<double>(&ConversionStatus) == 0.0);
       EZ_TEST_BOOL(ConversionStatus == EZ_FAILURE);
+
+      ConversionStatus = EZ_SUCCESS;
+      EZ_TEST_BOOL(v.ConvertTo<ezHashedString>(&ConversionStatus) == ezMakeHashedString("ich hab keine Lust mehr"));
+      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+      ConversionStatus = EZ_SUCCESS;
+      EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>(&ConversionStatus) == ezTempHashedString("ich hab keine Lust mehr"));
+      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
     }
 
     {
@@ -1630,13 +1760,45 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezStringView)")
   {
-    ezStringView va("Test String");
-    ezVariant v(va);
+    ezStringView va0("Test String");
+    ezVariant v(va0, false);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::StringView);
 
-    EZ_TEST_BOOL(v.ConvertTo<ezStringView>() == va);
-    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::StringView).Get<ezStringView>() == va);
+    EZ_TEST_BOOL(v.ConvertTo<ezStringView>() == va0);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::StringView).Get<ezStringView>() == va0);
+
+    {
+      ezVariant va, va2;
+
+      va = "Bla";
+      EZ_TEST_BOOL(va.IsA<ezString>());
+      EZ_TEST_BOOL(va.CanConvertTo<ezString>());
+      EZ_TEST_BOOL(va.CanConvertTo<ezStringView>());
+
+      va = ezVariant("Bla"_ezsv, false);
+      EZ_TEST_BOOL(va.IsA<ezStringView>());
+      EZ_TEST_BOOL(va.CanConvertTo<ezString>());
+      EZ_TEST_BOOL(va.CanConvertTo<ezStringView>());
+
+      va2 = va;
+      EZ_TEST_BOOL(va2.IsA<ezStringView>());
+      EZ_TEST_BOOL(va2.CanConvertTo<ezString>());
+      EZ_TEST_BOOL(va2.CanConvertTo<ezStringView>());
+      EZ_TEST_BOOL(va2.ConvertTo<ezStringView>() == "Bla");
+      EZ_TEST_BOOL(va2.ConvertTo<ezString>() == "Bla");
+
+      ezVariant va3 = va2.ConvertTo(ezVariantType::StringView);
+      EZ_TEST_BOOL(va3.IsA<ezStringView>());
+      EZ_TEST_BOOL(va3.ConvertTo<ezString>() == "Bla");
+
+      va = "Blub";
+      EZ_TEST_BOOL(va.IsA<ezString>());
+
+      ezVariant va4 = va.ConvertTo(ezVariantType::StringView);
+      EZ_TEST_BOOL(va4.IsA<ezStringView>());
+      EZ_TEST_BOOL(va4.ConvertTo<ezString>() == "Blub");
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezDataBuffer)")
@@ -1654,7 +1816,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezTime)")
   {
-    ezTime t = ezTime::Seconds(123.0);
+    ezTime t = ezTime::MakeFromSeconds(123.0);
     ezVariant v(t);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Time);
@@ -1668,8 +1830,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezUuid)")
   {
-    ezUuid uuid;
-    uuid.CreateNewUuid();
+    const ezUuid uuid = ezUuid::MakeUuid();
     ezVariant v(uuid);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Uuid);
@@ -1683,38 +1844,172 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezAngle)")
   {
-    ezAngle t = ezAngle::Degree(123.0);
+    ezAngle t = ezAngle::MakeFromDegree(123.0);
     ezVariant v(t);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Angle);
 
     EZ_TEST_BOOL(v.ConvertTo<ezAngle>() == t);
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "123.0°");
+    // EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("123.0°")); // For some reason the compiler stumbles upon the degree sign, encoding weirdness most likely
+    // EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("123.0°"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Angle).Get<ezAngle>() == t);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "123.0°");
+    // EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("123.0°"));
+    // EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("123.0°"));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezHashedString)")
+  {
+    ezVariant v(ezMakeHashedString("78"));
+
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Invalid) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Bool));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Int8));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::UInt8));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Int16));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::UInt16));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Int32));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::UInt32));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Int64));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::UInt64));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Float));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Double));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Color) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector2) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector3) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector4) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector2I) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector3I) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector4I) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Quaternion) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix3) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::StringView));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::DataBuffer) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::ColorGamma) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::HashedString));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::TempHashedString));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::TypedPointer) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::TypedObject) == false);
+
+    ezResult ConversionStatus = EZ_SUCCESS;
+    EZ_TEST_BOOL(v.ConvertTo<bool>(&ConversionStatus) == false);
+    EZ_TEST_BOOL(ConversionStatus == EZ_FAILURE);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezInt8>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezUInt8>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezInt16>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezUInt16>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezInt32>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezUInt32>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezInt64>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezUInt64>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_BOOL(v.ConvertTo<float>(&ConversionStatus) == 78.0f);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_BOOL(v.ConvertTo<double>(&ConversionStatus) == 78.0);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_STRING(v.ConvertTo<ezString>(&ConversionStatus), "78");
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_BOOL(v.ConvertTo<ezStringView>(&ConversionStatus) == "78"_ezsv);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>(&ConversionStatus) == ezTempHashedString("78"));
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezTempHashedString)")
+  {
+    ezTempHashedString s("VVVV");
+    ezVariant v(s);
+
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::TempHashedString);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("VVVV"));
+    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "0x69d489c8b7fa5f47");
+
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("VVVV"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "0x69d489c8b7fa5f47");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (VariantArray)")
   {
     ezVariantArray va;
+    va.PushBack(2.5);
+    va.PushBack("ABC");
+    va.PushBack(ezVariant());
     ezVariant v(va);
 
-    TestCanOnlyConvertToID(v, ezVariant::Type::VariantArray, true);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::VariantArray);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVariantArray>() == va);
+    EZ_TEST_STRING(v.ConvertTo<ezString>(), "[2.5, ABC, <Invalid>]");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("[2.5, ABC, <Invalid>]"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("[2.5, ABC, <Invalid>]"));
+
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::VariantArray).Get<ezVariantArray>() == va);
+    EZ_TEST_STRING(v.ConvertTo(ezVariant::Type::String).Get<ezString>(), "[2.5, ABC, <Invalid>]");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("[2.5, ABC, <Invalid>]"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("[2.5, ABC, <Invalid>]"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVariantDictionary)")
   {
     ezVariantDictionary va;
+    va.Insert("A", 2.5);
+    va.Insert("B", "ABC");
+    va.Insert("C", ezVariant());
     ezVariant v(va);
 
-    TestCanOnlyConvertToID(v, ezVariant::Type::VariantDictionary);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::VariantDictionary);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVariantDictionary>() == va);
+    EZ_TEST_STRING(v.ConvertTo<ezString>(), "{A=2.5, C=<Invalid>, B=ABC}");
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("{A=2.5, C=<Invalid>, B=ABC}"));
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("{A=2.5, C=<Invalid>, B=ABC}"));
+
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::VariantDictionary).Get<ezVariantDictionary>() == va);
+    EZ_TEST_STRING(v.ConvertTo(ezVariant::Type::String).Get<ezString>(), "{A=2.5, C=<Invalid>, B=ABC}");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("{A=2.5, C=<Invalid>, B=ABC}"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("{A=2.5, C=<Invalid>, B=ABC}"));
   }
 }
 

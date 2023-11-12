@@ -15,11 +15,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgStateMachineStateChanged, 1, ezRTTIDefaultA
     EZ_ACCESSOR_PROPERTY("NewStateName", GetNewStateName, SetNewStateName),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-      new ezAutoGenVisScriptMsgHandler()
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -255,7 +250,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 2, ezComponentMode::Static)
   {
     EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("InitialState", GetInitialState, SetInitialState),
-    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName),
+    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardNamesEnum")),
   }
   EZ_END_PROPERTIES;
 
@@ -268,12 +263,14 @@ EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_FUNCTIONS
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(SetState, In, "Name"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentState),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FireTransitionEvent, In, "Name"),
   }
   EZ_END_FUNCTIONS;
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay/Logic"),
+    new ezCategoryAttribute("Logic"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -368,7 +365,7 @@ void ezStateMachineComponent::SetInitialState(const char* szName)
   if (m_sInitialState == sInitialState)
     return;
 
-  m_sInitialState = sInitialState;
+  m_sInitialState = std::move(sInitialState);
 
   if (IsActiveAndInitialized())
   {
@@ -384,7 +381,7 @@ void ezStateMachineComponent::SetBlackboardName(const char* szName)
   if (m_sBlackboardName == sBlackboardName)
     return;
 
-  m_sBlackboardName = sBlackboardName;
+  m_sBlackboardName = std::move(sBlackboardName);
 
   if (IsActiveAndInitialized())
   {
@@ -405,10 +402,27 @@ bool ezStateMachineComponent::SetState(ezStringView sName)
   return false;
 }
 
+ezStringView ezStateMachineComponent::GetCurrentState() const
+{
+  if (m_pStateMachineInstance != nullptr && m_pStateMachineInstance->GetCurrentState())
+  {
+    return m_pStateMachineInstance->GetCurrentState()->GetName();
+  }
+
+  return {};
+}
+
+void ezStateMachineComponent::FireTransitionEvent(ezStringView sEvent)
+{
+  if (m_pStateMachineInstance != nullptr)
+  {
+    m_pStateMachineInstance->FireTransitionEvent(sEvent);
+  }
+}
 
 void ezStateMachineComponent::SendStateChangedMsg(ezMsgStateMachineStateChanged& msg, ezTime delay)
 {
-  if (delay > ezTime::Zero())
+  if (delay > ezTime::MakeZero())
   {
     m_StateChangedSender.PostEventMessage(msg, this, GetOwner(), delay, ezObjectMsgQueueType::NextFrame);
   }

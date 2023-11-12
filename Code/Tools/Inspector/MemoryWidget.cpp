@@ -24,22 +24,24 @@ namespace MemoryWidgetDetail
   };
 }
 
-void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
+void FormatSize(ezStringBuilder& s, ezStringView sPrefix, ezUInt64 uiSize)
 {
   if (uiSize < 1024)
-    s.Format("{0}{1} Bytes", szPrefix, uiSize);
+    s.Format("{0}{1} Bytes", sPrefix, uiSize);
   else if (uiSize < 1024 * 1024)
-    s.Format("{0}{1} KB", szPrefix, ezArgF(uiSize / 1024.0, 1));
+    s.Format("{0}{1} KB", sPrefix, ezArgF(uiSize / 1024.0, 1));
   else if (uiSize < 1024 * 1024 * 1024)
-    s.Format("{0}{1} MB", szPrefix, ezArgF(uiSize / 1024.0 / 1024.0, 2));
+    s.Format("{0}{1} MB", sPrefix, ezArgF(uiSize / 1024.0 / 1024.0, 2));
   else
-    s.Format("{0}{1} GB", szPrefix, ezArgF(uiSize / 1024.0 / 1024.0 / 1024.0, 2));
+    s.Format("{0}{1} GB", sPrefix, ezArgF(uiSize / 1024.0 / 1024.0 / 1024.0, 2));
 }
 
 ezQtMemoryWidget::ezQtMemoryWidget(QWidget* pParent)
   : ads::CDockWidget("Memory Widget", pParent)
 {
   s_pWidget = this;
+
+  setIcon(QIcon(":/Icons/Icons/Memory.svg"));
 
   setupUi(this);
   setWidget(MemoryWidgetFrame);
@@ -154,7 +156,7 @@ void ezQtMemoryWidget::UpdateStats()
   }
 
   // once a second update the display of the allocators in the list
-  if (ezTime::Now() - m_LastUpdatedAllocatorList > ezTime::Seconds(1))
+  if (ezTime::Now() - m_LastUpdatedAllocatorList > ezTime::MakeFromSeconds(1))
   {
     m_LastUpdatedAllocatorList = ezTime::Now();
 
@@ -203,7 +205,7 @@ void ezQtMemoryWidget::UpdateStats()
     }
   }
 
-  if (ezTime::Now() - s_pWidget->m_LastUsedMemoryStored > ezTime::Milliseconds(200))
+  if (ezTime::Now() - s_pWidget->m_LastUsedMemoryStored > ezTime::MakeFromMilliseconds(200))
   {
     m_LastUsedMemoryStored = ezTime::Now();
 

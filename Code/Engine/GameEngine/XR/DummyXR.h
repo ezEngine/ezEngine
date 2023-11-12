@@ -40,7 +40,7 @@ class EZ_GAMEENGINE_DLL ezDummyXR : public ezXRInterface
 
 public:
   ezDummyXR();
-  ~ezDummyXR();
+  ~ezDummyXR() = default;
 
   bool IsHmdPresent() const override;
   ezResult Initialize() override;

@@ -114,9 +114,12 @@ ezResult ezArchiveUtils::WriteEntry(
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
     case ezArchiveCompressionMode::Compressed_zstd:
-      zstdWriter.SetOutputStream(&inout_stream, (ezCompressedStreamWriterZstd::Compression)iCompressionLevel);
+    {
+      constexpr ezUInt32 uiMaxNumWorkerThreads = 12u;
+      zstdWriter.SetOutputStream(&inout_stream, uiMaxNumWorkerThreads, (ezCompressedStreamWriterZstd::Compression)iCompressionLevel);
       pWriter = &zstdWriter;
-      break;
+    }
+    break;
 #endif
 
     default:

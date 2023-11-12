@@ -27,10 +27,10 @@ struct ezRasterizationResult
 namespace ez2DGridUtils
 {
   /// \brief The callback declaration for the function that needs to be passed to the various rasterization functions.
-  typedef ezCallbackResult::Enum (*EZ_RASTERIZED_POINT_CALLBACK)(ezInt32 x, ezInt32 y, void* pPassThrough);
+  using EZ_RASTERIZED_POINT_CALLBACK = ezCallbackResult::Enum (*)(ezInt32, ezInt32, void*);
 
   /// \brief The callback declaration for the function that needs to be passed to RasterizeBlobWithDistance().
-  typedef ezCallbackResult::Enum (*EZ_RASTERIZED_BLOB_CALLBACK)(ezInt32 x, ezInt32 y, void* pPassThrough, ezUInt8 uiDistanceFromCenter);
+  using EZ_RASTERIZED_BLOB_CALLBACK = ezCallbackResult::Enum (*)(ezInt32, ezInt32, void*, ezUInt8);
 
   /// \brief Computes all the points on a 2D line and calls a function to report every point.
   ///

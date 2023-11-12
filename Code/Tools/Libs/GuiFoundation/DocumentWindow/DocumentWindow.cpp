@@ -47,7 +47,7 @@ void ezQtDocumentWindow::Constructor()
   ezQtMenuBarActionMapView* pMenuBar = new ezQtMenuBarActionMapView(this);
   setMenuBar(pMenuBar);
 
-  ezInt32 iContainerWindowIndex = ezToolsProject::SuggestContainerWindow(m_pDocument);
+  ezToolsProject::SuggestContainerWindow(m_pDocument);
   ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
   pContainer->AddDocumentWindow(this);
 
@@ -175,6 +175,15 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
 {
   switch (e.m_Type)
   {
+    case ezDocumentEvent::Type::DocumentRenamed:
+    {
+      m_sUniqueName = m_pDocument->GetDocumentPath();
+      setObjectName(GetUniqueName());
+      ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+      pContainer->DocumentWindowRenamed(this);
+
+      [[fallthrough]];
+    }
     case ezDocumentEvent::Type::ModifiedChanged:
     {
       ezQtDocumentWindowEvent dwe;
@@ -192,7 +201,7 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
 
     case ezDocumentEvent::Type::DocumentStatusMsg:
     {
-      ShowTemporaryStatusBarMsg(e.m_szStatusMsg);
+      ShowTemporaryStatusBarMsg(e.m_sStatusMsg);
     }
     break;
 
@@ -237,17 +246,17 @@ void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
         switch (e.m_TextType)
         {
           case ezQtUiServices::Event::Info:
-            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Log.png"));
+            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Log.svg"));
             break;
 
           case ezQtUiServices::Event::Warning:
             pal.setColor(QPalette::WindowText, QColor(255, 100, 0));
-            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Warning16.png"));
+            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Warning.svg"));
             break;
 
           case ezQtUiServices::Event::Error:
             pal.setColor(QPalette::WindowText, QColor(Qt::red));
-            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Error16.png"));
+            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Error.svg"));
             break;
         }
 
@@ -288,14 +297,14 @@ void ezQtDocumentWindow::hideEvent(QHideEvent* event)
 
 bool ezQtDocumentWindow::eventFilter(QObject* obj, QEvent* e)
 {
-  if (e->type() == QEvent::ShortcutOverride)
+  if (e->type() == QEvent::ShortcutOverride || e->type() == QEvent::KeyPress)
   {
     // This filter is added by ezQtContainerWindow::AddDocumentWindow as that ones is the ony code path that can connect dock container to their content.
     // This filter is necessary as clicking any action in a menu bar sets the focus to the parent CDockWidget at which point further shortcuts would stop working.
     if (qobject_cast<ads::CDockWidget*>(obj))
     {
       QKeyEvent* keyEvent = static_cast<QKeyEvent*>(e);
-      if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent))
+      if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, e->type() == QEvent::ShortcutOverride))
         return true;
     }
   }
@@ -304,10 +313,10 @@ bool ezQtDocumentWindow::eventFilter(QObject* obj, QEvent* e)
 
 bool ezQtDocumentWindow::event(QEvent* event)
 {
-  if (event->type() == QEvent::ShortcutOverride)
+  if (event->type() == QEvent::ShortcutOverride || event->type() == QEvent::KeyPress)
   {
     QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent))
+    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, event->type() == QEvent::ShortcutOverride))
       return true;
   }
   return QMainWindow::event(event);
@@ -433,7 +442,7 @@ ezStatus ezQtDocumentWindow::SaveDocument()
 void ezQtDocumentWindow::ShowTemporaryStatusBarMsg(const ezFormatString& msg, ezTime duration)
 {
   ezStringBuilder tmp;
-  statusBar()->showMessage(QString::fromUtf8(msg.GetText(tmp)), (int)duration.GetMilliseconds());
+  statusBar()->showMessage(QString::fromUtf8(msg.GetTextCStr(tmp)), (int)duration.GetMilliseconds());
 }
 
 
@@ -446,7 +455,7 @@ void ezQtDocumentWindow::SetPermanentStatusBarMsg(const ezFormatString& text)
   }
 
   ezStringBuilder tmp;
-  m_pPermanentDocumentStatusText->setText(QString::fromUtf8(text.GetText(tmp)));
+  m_pPermanentDocumentStatusText->setText(QString::fromUtf8(text.GetTextCStr(tmp)));
 }
 
 void ezQtDocumentWindow::CreateImageCapture(const char* szOutputPath)

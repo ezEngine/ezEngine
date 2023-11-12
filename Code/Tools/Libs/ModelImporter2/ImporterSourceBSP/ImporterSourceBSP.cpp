@@ -275,7 +275,7 @@ namespace SourceBSP
     float m_alpha;
   };
 
-  struct File
+  struct File // NOLINT(*Padding): We don't care about excessive padding here, because this struct is rarely used.
   {
     File(ezArrayPtr<ezUInt8> memory);
 
@@ -717,10 +717,13 @@ namespace ezModelImporter2
 
   ezResult ImporterSourceBSP::DoImport()
   {
-    const char* szFileName = m_Options.m_sSourceFile;
-
     EZ_ASSERT_NOT_IMPLEMENTED;
     return EZ_FAILURE;
+
+// TODO: adapt BSP import code to new model importer
+#if 0
+
+    const char* szFileName = m_Options.m_sSourceFile;
 
     ezDynamicArray<ezUInt8> fileContent;
     fileContent.Reserve(1024 * 1024);
@@ -752,8 +755,6 @@ namespace ezModelImporter2
     }
 
 
-    // TODO: adapt BSP import code to new model importer
-#if 0
 
     // Import the complete BSP geometry as a single mesh
     ezSharedPtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
@@ -780,7 +781,5 @@ namespace ezModelImporter2
 
     return outScene;
 #endif
-
-    return EZ_SUCCESS;
   }
 } // namespace ezModelImporter2

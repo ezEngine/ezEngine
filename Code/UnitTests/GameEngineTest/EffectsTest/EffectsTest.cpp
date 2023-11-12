@@ -5,6 +5,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 
 static ezGameEngineTestEffects s_GameEngineTestEffects;
@@ -27,6 +28,7 @@ void ezGameEngineTestEffects::SetupSubTests()
   AddSubTest("WindClothRopes", SubTests::WindClothRopes);
   AddSubTest("Reflections", SubTests::Reflections);
   AddSubTest("StressTest", SubTests::StressTest);
+  AddSubTest("AdvancedMeshes", SubTests::AdvancedMeshes);
 }
 
 ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
@@ -37,45 +39,54 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
   m_uiImgCompIdx = 0;
   m_ImgCompFrames.Clear();
 
-  if (iIdentifier == SubTests::Decals)
+  switch (iIdentifier)
   {
-    m_ImgCompFrames.PushBack({5});
-    m_ImgCompFrames.PushBack({30});
-    m_ImgCompFrames.PushBack({60});
+    case SubTests::Decals:
+    {
+      m_ImgCompFrames.PushBack({5});
+      m_ImgCompFrames.PushBack({30});
+      m_ImgCompFrames.PushBack({60});
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Decals.ezObjectGraph"));
-    return EZ_SUCCESS;
-  }
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Decals.ezObjectGraph");
+    }
 
-  if (iIdentifier == SubTests::Heightfield)
-  {
-    m_ImgCompFrames.PushBack({20});
+    case SubTests::Heightfield:
+    {
+      m_ImgCompFrames.PushBack({20});
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Heightfield.ezObjectGraph"));
-    return EZ_SUCCESS;
-  }
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Heightfield.ezObjectGraph");
+    }
 
-  if (iIdentifier == SubTests::WindClothRopes)
-  {
-    m_ImgCompFrames.PushBack({20, 550});
-    m_ImgCompFrames.PushBack({100, 600});
+    case SubTests::WindClothRopes:
+    {
+      m_ImgCompFrames.PushBack({20, 550});
+      m_ImgCompFrames.PushBack({100, 600});
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Wind.ezObjectGraph"));
-    return EZ_SUCCESS;
-  }
-  if (iIdentifier == SubTests::Reflections)
-  {
-    m_ImgCompFrames.PushBack({30});
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Wind.ezObjectGraph");
+    }
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Reflections.ezObjectGraph"));
-    return EZ_SUCCESS;
-  }
-  if (iIdentifier == SubTests::StressTest)
-  {
-    m_ImgCompFrames.PushBack({100});
+    case SubTests::Reflections:
+    {
+      m_ImgCompFrames.PushBack({30});
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/StressTest.ezObjectGraph"));
-    return EZ_SUCCESS;
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Reflections.ezObjectGraph");
+    }
+
+    case SubTests::StressTest:
+    {
+      m_ImgCompFrames.PushBack({100});
+
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/StressTest.ezObjectGraph");
+    }
+
+    case SubTests::AdvancedMeshes:
+    {
+      m_ImgCompFrames.PushBack({20});
+
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/AdvancedMeshes.ezObjectGraph");
+    }
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return EZ_FAILURE;
@@ -97,22 +108,9 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
     {
       if (false)
       {
-        ezProfilingSystem::ProfilingData profilingData;
-        ezProfilingSystem::Capture(profilingData);
-
         ezStringBuilder sPath(":appdata/Profiling/", ezApplication::GetApplicationInstance()->GetApplicationName());
         sPath.AppendPath("effectsProfiling.json");
-
-        ezFileWriter fileWriter;
-        if (fileWriter.Open(sPath) == EZ_SUCCESS)
-        {
-          profilingData.Write(fileWriter).IgnoreResult();
-          ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-        }
-        else
-        {
-          ezLog::Error("Could not write profiling capture to '{0}'.", sPath);
-        }
+        ezProfilingUtils::SaveProfilingCapture(sPath).IgnoreResult();
       }
       return ezTestAppRun::Quit;
     }

@@ -60,14 +60,12 @@ struct ezPropertyAnimAssetDocumentEvent
 
 class ezPropertyAnimAssetDocument : public ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>
 {
-  typedef ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument> BaseClass;
+  using BaseClass = ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>;
   EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimAssetDocument, BaseClass);
 
 public:
-  ezPropertyAnimAssetDocument(const char* szDocumentPath);
+  ezPropertyAnimAssetDocument(ezStringView sDocumentPath);
   ~ezPropertyAnimAssetDocument();
-
-  virtual ezObjectAccessorBase* GetObjectAccessor() const override;
 
   void SetAnimationDurationTicks(ezUInt64 uiNumTicks);
   ezUInt64 GetAnimationDurationTicks() const;
@@ -113,7 +111,7 @@ public:
   }
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
@@ -144,7 +142,7 @@ private:
   void RebuildMapping();
   void RemoveTrack(const ezUuid& track);
   void AddTrack(const ezUuid& track);
-  void FindTrackKeys(
+  ezStatus FindTrackKeys(
     const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<ezPropertyReference, 1>& keys) const;
   void GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezStringBuilder& sObjectSearchSequence,
     ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const;
@@ -153,8 +151,6 @@ private:
 
   ezHashTable<ezPropertyReference, PropertyValue, PropertyKeyHash> m_PropertyTable;
   ezHashTable<ezUuid, ezHybridArray<ezPropertyReference, 1>> m_TrackTable;
-
-  ezUniquePtr<ezPropertyAnimObjectAccessor> m_pAccessor;
 
   bool m_bPlayAnimation = false;
   bool m_bRepeatAnimation = false;

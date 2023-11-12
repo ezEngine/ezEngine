@@ -4,11 +4,7 @@
 
 const float ezDynamicQuadtree::s_fLooseOctreeFactor = 1.1f;
 
-ezDynamicQuadtree::ezDynamicQuadtree()
-  : m_uiMaxTreeDepth(0)
-  , m_uiAddIDTopLevel(0)
-{
-}
+ezDynamicQuadtree::ezDynamicQuadtree() = default;
 
 void ezDynamicQuadtree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExtents, float fMinNodeSize)
 {
@@ -26,7 +22,7 @@ void ezDynamicQuadtree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExt
   // the bounding box should be square, so use the maximum of the x and z extents
   float fMax = ezMath::Max(vHalfExtents.x, vHalfExtents.z);
 
-  m_BBox.SetInvalid();
+  m_BBox = ezBoundingBox::MakeInvalid();
 
   m_BBox.m_vMin.x = vCenter.x - fMax;
   m_BBox.m_vMax.x = vCenter.x + fMax;
@@ -392,7 +388,7 @@ void ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, 
   if (m_NodeMap.IsEmpty())
     return;
 
-  if (!m_BBox.Overlaps(ezBoundingBox(vPoint - ezVec3(fRadius), vPoint + ezVec3(fRadius))))
+  if (!m_BBox.Overlaps(ezBoundingBox::MakeFromMinMax(vPoint - ezVec3(fRadius), vPoint + ezVec3(fRadius))))
     return;
 
   FindObjectsInRange(vPoint, fRadius, callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0,

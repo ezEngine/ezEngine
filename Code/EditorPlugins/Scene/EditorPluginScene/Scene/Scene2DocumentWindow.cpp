@@ -52,8 +52,6 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
     addToolBar(pToolBar);
   }
 
-  const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
-
   {
     // Panels
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
@@ -78,9 +76,7 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
   FinishWindowCreation();
 }
 
-ezQtScene2DocumentWindow::~ezQtScene2DocumentWindow()
-{
-}
+ezQtScene2DocumentWindow::~ezQtScene2DocumentWindow() = default;
 
 bool ezQtScene2DocumentWindow::InternalCanCloseWindow()
 {

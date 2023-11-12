@@ -125,7 +125,7 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
     double newPos = cp.GetTickAsTime().GetSeconds() + m_fControlPointMove;
     newPos = ezMath::Max(newPos, 0.0);
 
-    Q_EMIT CpMovedEvent(cpSel, m_pData->TickFromTime(ezTime::Seconds(newPos)));
+    Q_EMIT CpMovedEvent(cpSel, m_pData->TickFromTime(ezTime::MakeFromSeconds(newPos)));
   }
 
   Q_EMIT EndCpChangesEvent();
@@ -181,13 +181,12 @@ void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
   if (!selection.IsEmpty())
   {
-    m.addAction("Delete Events", this, SLOT(onDeleteControlPoints()), QKeySequence(Qt::Key_Delete));
+    m.addAction("Delete Events", QKeySequence(Qt::Key_Delete), this, SLOT(onDeleteControlPoints()));
   }
 
   m.addSeparator();
 
-  m.addAction(
-    "Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
+  m.addAction("Frame", QKeySequence(Qt::ControlModifier | Qt::Key_F), this, [this]() { FrameCurve(); });
 
   m.exec(pos);
 }
@@ -202,7 +201,7 @@ void ezQtEventTrackEditorWidget::InsertCpAt(double posX, double epsilon)
   int curveIdx = 0, cpIdx = 0;
   posX = ezMath::Max(posX, 0.0);
 
-  Q_EMIT InsertCpEvent(m_pData->TickFromTime(ezTime::Seconds(posX)), ComboType->currentText().toUtf8().data());
+  Q_EMIT InsertCpEvent(m_pData->TickFromTime(ezTime::MakeFromSeconds(posX)), ComboType->currentText().toUtf8().data());
 }
 
 void ezQtEventTrackEditorWidget::onSelectionChanged()
@@ -296,7 +295,7 @@ void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()
 
   Q_EMIT BeginCpChangesEvent("Set Event Time");
 
-  ezInt64 tick = m_pData->TickFromTime(ezTime::Seconds(value));
+  ezInt64 tick = m_pData->TickFromTime(ezTime::MakeFromSeconds(value));
 
   for (const auto& cpSel : selection)
   {

@@ -6,8 +6,8 @@
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 
 struct duk_hthread;
-typedef duk_hthread duk_context;
-typedef int (*duk_c_function)(duk_context* ctx);
+using duk_context = duk_hthread;
+using duk_c_function = int (*)(duk_context*);
 
 
 class EZ_CORE_DLL ezDuktapeContext : public ezDuktapeHelper
@@ -15,7 +15,7 @@ class EZ_CORE_DLL ezDuktapeContext : public ezDuktapeHelper
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDuktapeContext);
 
 public:
-  ezDuktapeContext(const char* szWrapperName);
+  ezDuktapeContext(ezStringView sWrapperName);
   ~ezDuktapeContext();
 
   /// \name Basics

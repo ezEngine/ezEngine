@@ -36,18 +36,20 @@ public:
   /// \brief Default constructor. Does not initialize the plane.
   ezPlaneTemplate(); // [tested]
 
-  /// \brief Creates the plane-equation from a normal and a point on the plane.
-  ezPlaneTemplate(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
+  /// \brief Returns an invalid plane with a zero normal.
+  [[nodiscard]] static ezPlaneTemplate<Type> MakeInvalid();
 
-  /// \brief Creates the plane-equation from three points on the plane.
-  ezPlaneTemplate(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3); // [tested]
+  /// \brief Creates a plane from a normal and a point on the plane.
+  ///
+  /// \note This function asserts that the normal is normalized.
+  [[nodiscard]] static ezPlaneTemplate<Type> MakeFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane);
 
-  /// \brief Creates the plane-equation from three points on the plane, given as an array.
-  ezPlaneTemplate(const ezVec3Template<Type>* const pVertices); // [tested]
-
-  /// \brief Creates the plane-equation from a set of unreliable points lying on the same plane. Some points might be equal or too close to each other
-  /// for the typical algorithm.
-  ezPlaneTemplate(const ezVec3Template<Type>* const pVertices, ezUInt32 uiMaxVertices); // [tested]
+  /// \brief Creates a plane from three points.
+  ///
+  /// \note Asserts that the 3 points properly form a plane.
+  /// Only use this function when you are certain that the input data isn't degenerate.
+  /// If the data cannot be trusted, use SetFromPoints() and check the result.
+  [[nodiscard]] static ezPlaneTemplate<Type> MakeFromPoints(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3);
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -60,9 +62,6 @@ public:
   /// \brief Returns an ezVec4 with the plane normal in x,y,z and the negative distance in w.
   ezVec4Template<Type> GetAsVec4() const;
 
-  /// \brief Creates the plane-equation from a normal and a point on the plane.
-  void SetFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
-
   /// \brief Creates the plane-equation from three points on the plane.
   ezResult SetFromPoints(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3); // [tested]
 
@@ -74,11 +73,7 @@ public:
   ezResult SetFromPoints(const ezVec3Template<Type>* const pVertices, ezUInt32 uiMaxVertices); // [tested]
 
   /// \brief Creates a plane from two direction vectors that span the plane, and one point on it.
-  ezResult SetFromDirections(
-    const ezVec3Template<Type>& vTangent1, const ezVec3Template<Type>& vTangent2, const ezVec3Template<Type>& vPointOnPlane); // [tested]
-
-  /// \brief Sets the plane to an invalid state (all zero).
-  void SetInvalid(); // [tested]
+  ezResult SetFromDirections(const ezVec3Template<Type>& vTangent1, const ezVec3Template<Type>& vTangent2, const ezVec3Template<Type>& vPointOnPlane); // [tested]
 
   // *** Distance and Position ***
 public:
@@ -101,8 +96,7 @@ public:
   ///
   /// 'Minimum' (and 'maximum') means the (non-absolute) distance of a point to the plane. So a point behind the plane will always have a 'lower
   /// distance' than a point in front of the plane, even if that is closer to the plane's surface.
-  void GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints,
-    ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  void GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Returns on which side of the plane the point lies.
   ezPositionOnPlane::Enum GetPointPosition(const ezVec3Template<Type>& vPoint) const; // [tested]
@@ -172,18 +166,15 @@ public:
   ///
   /// Intersections with \a out_fIntersection less than zero will be discarded and not reported as intersections.
   /// If such intersections are desired, use GetRayIntersectionBiDirectional instead.
-  [[nodiscard]] bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_pIntersectionDinstance = nullptr,
-    ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
+  [[nodiscard]] bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_pIntersectionDinstance = nullptr, ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
 
   /// \brief Returns true, if the ray intersects the plane. Intersection time and point are stored in the out-parameters. Allows for intersections at
   /// negative times (shooting into the opposite direction).
-  [[nodiscard]] bool GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir,
-    Type* out_pIntersectionDistance = nullptr, ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
+  [[nodiscard]] bool GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_pIntersectionDistance = nullptr, ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
 
   /// \brief Returns true, if there is any intersection with the plane between the line's start and end position. Returns the fraction along the line
   /// and the actual intersection point.
-  [[nodiscard]] bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos,
-    Type* out_pHitFraction = nullptr, ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
+  [[nodiscard]] bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_pHitFraction = nullptr, ezVec3Template<Type>* out_pIntersection = nullptr) const; // [tested]
 
   /// \brief Computes the one point where all three planes intersect. Returns EZ_FAILURE if no such point exists.
   static ezResult GetPlanesIntersectionPoint(const ezPlaneTemplate<Type>& p0, const ezPlaneTemplate<Type>& p1, const ezPlaneTemplate<Type>& p2, ezVec3Template<Type>& out_vResult); // [tested]

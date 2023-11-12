@@ -37,6 +37,14 @@ ezVariant::ezVariant(const ezString& value)
   InitShared(value);
 }
 
+ezVariant::ezVariant(const ezStringView& value, bool bCopyString)
+{
+  if (bCopyString)
+    InitShared(ezString(value));
+  else
+    InitInplace(value);
+}
+
 ezVariant::ezVariant(const ezUntrackedString& value)
 {
   InitShared(value);
@@ -49,7 +57,7 @@ ezVariant::ezVariant(const ezDataBuffer& value)
 
 ezVariant::ezVariant(const ezVariantArray& value)
 {
-  typedef typename TypeDeduction<ezVariantArray>::StorageType StorageType;
+  using StorageType = typename TypeDeduction<ezVariantArray>::StorageType;
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, nullptr);
   m_uiType = TypeDeduction<ezVariantArray>::value;
   m_bIsShared = true;
@@ -57,7 +65,7 @@ ezVariant::ezVariant(const ezVariantArray& value)
 
 ezVariant::ezVariant(const ezVariantDictionary& value)
 {
-  typedef typename TypeDeduction<ezVariantDictionary>::StorageType StorageType;
+  using StorageType = typename TypeDeduction<ezVariantDictionary>::StorageType;
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, nullptr);
   m_uiType = TypeDeduction<ezVariantDictionary>::value;
   m_bIsShared = true;
@@ -96,7 +104,7 @@ void ezVariant::MoveTypedObject(void* value, const ezRTTI* pType)
 template <typename T>
 EZ_ALWAYS_INLINE void ezVariant::InitShared(const T& value)
 {
-  typedef typename TypeDeduction<T>::StorageType StorageType;
+  using StorageType = typename TypeDeduction<T>::StorageType;
 
   EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) > sizeof(Data)) || TypeDeduction<T>::forceSharing, "value of this type should be stored inplace");
   EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
@@ -124,9 +132,9 @@ struct ComputeHashFunc
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezString>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  ezString* pString = (ezString*)pData;
+  auto pString = static_cast<const ezString*>(pData);
 
-  return ezHashingUtils::xxHash64(pString->GetData(), pString->GetElementCount(), uiSeed);
+  return ezHashingUtils::xxHash64String(*pString, uiSeed);
 }
 
 template <>
@@ -150,7 +158,7 @@ EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezTransform>(const ezVaria
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezDataBuffer>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  ezDataBuffer* pDataBuffer = (ezDataBuffer*)pData;
+  auto pDataBuffer = static_cast<const ezDataBuffer*>(pData);
 
   return ezHashingUtils::xxHash64(pDataBuffer->GetData(), pDataBuffer->GetCount(), uiSeed);
 }
@@ -158,19 +166,34 @@ EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezDataBuffer>(const ezVari
 template <>
 EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezVariantArray>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  EZ_IGNORE_UNUSED(pData);
+  auto pVariantArray = static_cast<const ezVariantArray*>(pData);
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return 0;
+  ezUInt64 uiHash = uiSeed;
+  for (const ezVariant& var : *pVariantArray)
+  {
+    uiHash = var.ComputeHash(uiHash);
+  }
+
+  return uiHash;
 }
 
 template <>
-EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
+ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
-  EZ_IGNORE_UNUSED(pData);
+  auto pVariantDictionary = static_cast<const ezVariantDictionary*>(pData);
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return 0;
+  ezHybridArray<ezUInt64, 128> hashes;
+  hashes.Reserve(pVariantDictionary->GetCount() * 2);
+
+  for (auto& it : *pVariantDictionary)
+  {
+    hashes.PushBack(ezHashingUtils::xxHash64String(it.Key(), uiSeed));
+    hashes.PushBack(it.Value().ComputeHash(uiSeed));
+  }
+
+  hashes.Sort();
+
+  return ezHashingUtils::xxHash64(hashes.GetData(), hashes.GetCount() * sizeof(ezUInt64), uiSeed);
 }
 
 template <>
@@ -229,7 +252,7 @@ struct IndexFunc
   EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<1>)
   {
     const ezRTTI* pRtti = m_pThis->GetReflectedType();
-    ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_uiIndex);
+    const ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_uiIndex);
     if (!pProp)
       return ezVariant();
 
@@ -267,7 +290,7 @@ struct KeyFunc
   EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<1>)
   {
     const ezRTTI* pRtti = m_pThis->GetReflectedType();
-    ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_szKey);
+    const ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_szKey);
     if (!pProp)
       return ezVariant();
     if (m_pThis->GetType() == ezVariantType::TypedPointer)
@@ -303,9 +326,17 @@ struct ConvertFunc
   template <typename T>
   EZ_ALWAYS_INLINE void operator()()
   {
-    T result;
+    T result = {};
     ezVariantHelper::To(*m_pThis, result, m_bSuccessful);
-    m_Result = result;
+
+    if constexpr (std::is_same_v<T, ezStringView>)
+    {
+      m_Result = ezVariant(result, false);
+    }
+    else
+    {
+      m_Result = result;
+    }
   }
 
   const ezVariant* m_pThis;
@@ -336,6 +367,12 @@ bool ezVariant::operator==(const ezVariant& other) const
     const ezStringView a = IsA<ezStringView>() ? Get<ezStringView>() : ezStringView(Get<ezString>().GetData());
     const ezStringView b = other.IsA<ezStringView>() ? other.Get<ezStringView>() : ezStringView(other.Get<ezString>().GetData());
     return a.IsEqual(b);
+  }
+  else if (IsHashedString() && other.IsHashedString())
+  {
+    const ezTempHashedString a = IsA<ezTempHashedString>() ? Get<ezTempHashedString>() : ezTempHashedString(Get<ezHashedString>());
+    const ezTempHashedString b = other.IsA<ezTempHashedString>() ? other.Get<ezTempHashedString>() : ezTempHashedString(other.Get<ezHashedString>());
+    return a == b;
   }
   else if (m_uiType == other.m_uiType)
   {
@@ -422,10 +459,27 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (m_uiType == type)
     return true;
 
-  if (!IsValid() || type == Type::Invalid)
+  if (type == Type::Invalid)
     return false;
 
-  if (IsNumberStatic(type) && (IsNumber() || m_uiType == Type::String))
+  const bool bTargetIsString = (type == Type::String) || (type == Type::HashedString) || (type == Type::TempHashedString);
+
+  if (bTargetIsString && m_uiType == Type::Invalid)
+    return true;
+
+  if (bTargetIsString && (m_uiType > Type::FirstStandardType && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer))
+    return true;
+  if (bTargetIsString && (m_uiType == Type::VariantArray || m_uiType == Type::VariantDictionary))
+    return true;
+  if (type == Type::StringView && (m_uiType == Type::String || m_uiType == Type::HashedString))
+    return true;
+  if (type == Type::TempHashedString && m_uiType == Type::HashedString)
+    return true;
+
+  if (!IsValid())
+    return false;
+
+  if (IsNumberStatic(type) && (IsNumber() || m_uiType == Type::String || m_uiType == Type::HashedString))
     return true;
 
   if (IsVector2Static(type) && (IsVector2Static(m_uiType)))
@@ -437,18 +491,9 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (IsVector4Static(type) && (IsVector4Static(m_uiType)))
     return true;
 
-  if (type == Type::String && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer)
-    return true;
-  if (type == Type::String && m_uiType == Type::VariantArray)
-    return true;
   if (type == Type::Color && m_uiType == Type::ColorGamma)
     return true;
   if (type == Type::ColorGamma && m_uiType == Type::Color)
-    return true;
-
-  if (type == Type::TypedPointer && m_uiType == Type::TypedPointer)
-    return true;
-  if (type == Type::TypedObject && m_uiType == Type::TypedObject)
     return true;
 
   return false;
@@ -490,7 +535,7 @@ ezUInt64 ezVariant::ComputeHash(ezUInt64 uiSeed) const
     return uiSeed;
 
   ComputeHashFunc obj;
-  return DispatchTo<ComputeHashFunc>(obj, GetType(), *this, GetData(), uiSeed);
+  return DispatchTo<ComputeHashFunc>(obj, GetType(), *this, GetData(), uiSeed + GetType());
 }
 
 
@@ -575,9 +620,258 @@ bool ezVariant::IsDerivedFrom(const ezRTTI* pType1, const ezRTTI* pType2)
   return pType1->IsDerivedFrom(pType2);
 }
 
-const char* ezVariant::GetTypeName(const ezRTTI* pType)
+ezStringView ezVariant::GetTypeName(const ezRTTI* pType)
 {
   return pType->GetTypeName();
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+struct AddFunc
+{
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezInt8> || std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt16> || std::is_same_v<T, ezUInt16> ||
+                  std::is_same_v<T, ezInt32> || std::is_same_v<T, ezUInt32> ||
+                  std::is_same_v<T, ezInt64> || std::is_same_v<T, ezUInt64> ||
+                  std::is_same_v<T, float> || std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4> ||
+                  std::is_same_v<T, ezVec2I32> || std::is_same_v<T, ezVec3I32> || std::is_same_v<T, ezVec4I32> ||
+                  std::is_same_v<T, ezVec2U32> || std::is_same_v<T, ezVec3U32> || std::is_same_v<T, ezVec4U32> ||
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezAngle>)
+    {
+      out_res = a.Get<T>() + b.Get<T>();
+    }
+    else if constexpr (std::is_same_v<T, ezString> || std::is_same_v<T, ezStringView>)
+    {
+      ezStringBuilder s;
+      s.Set(a.Get<T>(), b.Get<T>());
+      out_res = ezString(s.GetView());
+    }
+    else if constexpr (std::is_same_v<T, ezHashedString>)
+    {
+      ezStringBuilder s;
+      s.Set(a.Get<T>(), b.Get<T>());
+
+      ezHashedString hashedS;
+      hashedS.Assign(s);
+      out_res = hashedS;
+    }
+  }
+};
+
+ezVariant operator+(const ezVariant& a, const ezVariant& b)
+{
+  if (a.IsNumber() && b.IsNumber())
+  {
+    auto biggerType = ezMath::Max(a.GetType(), b.GetType());
+
+    AddFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, biggerType, a.ConvertTo(biggerType), b.ConvertTo(biggerType), result);
+    return result;
+  }
+  else if (a.GetType() == b.GetType())
+  {
+    AddFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, result);
+    return result;
+  }
+
+  return ezVariant();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+struct SubFunc
+{
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezInt8> || std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt16> || std::is_same_v<T, ezUInt16> ||
+                  std::is_same_v<T, ezInt32> || std::is_same_v<T, ezUInt32> ||
+                  std::is_same_v<T, ezInt64> || std::is_same_v<T, ezUInt64> ||
+                  std::is_same_v<T, float> || std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4> ||
+                  std::is_same_v<T, ezVec2I32> || std::is_same_v<T, ezVec3I32> || std::is_same_v<T, ezVec4I32> ||
+                  std::is_same_v<T, ezVec2U32> || std::is_same_v<T, ezVec3U32> || std::is_same_v<T, ezVec4U32> ||
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezAngle>)
+    {
+      out_res = a.Get<T>() - b.Get<T>();
+    }
+  }
+};
+
+ezVariant operator-(const ezVariant& a, const ezVariant& b)
+{
+  if (a.IsNumber() && b.IsNumber())
+  {
+    auto biggerType = ezMath::Max(a.GetType(), b.GetType());
+
+    SubFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, biggerType, a.ConvertTo(biggerType), b.ConvertTo(biggerType), result);
+    return result;
+  }
+  else if (a.GetType() == b.GetType())
+  {
+    SubFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, result);
+    return result;
+  }
+
+  return ezVariant();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+struct MulFunc
+{
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezInt8> || std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt16> || std::is_same_v<T, ezUInt16> ||
+                  std::is_same_v<T, ezInt32> || std::is_same_v<T, ezUInt32> ||
+                  std::is_same_v<T, ezInt64> || std::is_same_v<T, ezUInt64> ||
+                  std::is_same_v<T, float> || std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezTime>)
+    {
+      out_res = a.Get<T>() * b.Get<T>();
+    }
+    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4> ||
+                       std::is_same_v<T, ezVec2I32> || std::is_same_v<T, ezVec3I32> || std::is_same_v<T, ezVec4I32> ||
+                       std::is_same_v<T, ezVec2U32> || std::is_same_v<T, ezVec3U32> || std::is_same_v<T, ezVec4U32>)
+    {
+      out_res = a.Get<T>().CompMul(b.Get<T>());
+    }
+    else if constexpr (std::is_same_v<T, ezAngle>)
+    {
+      out_res = ezAngle(a.Get<T>() * b.Get<T>().GetRadian());
+    }
+  }
+};
+
+ezVariant operator*(const ezVariant& a, const ezVariant& b)
+{
+  if (a.IsNumber() && b.IsNumber())
+  {
+    auto biggerType = ezMath::Max(a.GetType(), b.GetType());
+
+    MulFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, biggerType, a.ConvertTo(biggerType), b.ConvertTo(biggerType), result);
+    return result;
+  }
+  else if (a.GetType() == b.GetType())
+  {
+    MulFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, result);
+    return result;
+  }
+
+  return ezVariant();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+struct DivFunc
+{
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezInt8> || std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt16> || std::is_same_v<T, ezUInt16> ||
+                  std::is_same_v<T, ezInt32> || std::is_same_v<T, ezUInt32> ||
+                  std::is_same_v<T, ezInt64> || std::is_same_v<T, ezUInt64> ||
+                  std::is_same_v<T, float> || std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezTime>)
+    {
+      out_res = a.Get<T>() / b.Get<T>();
+    }
+    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4> ||
+                       std::is_same_v<T, ezVec2I32> || std::is_same_v<T, ezVec3I32> || std::is_same_v<T, ezVec4I32> ||
+                       std::is_same_v<T, ezVec2U32> || std::is_same_v<T, ezVec3U32> || std::is_same_v<T, ezVec4U32>)
+    {
+      out_res = a.Get<T>().CompDiv(b.Get<T>());
+    }
+    else if constexpr (std::is_same_v<T, ezAngle>)
+    {
+      out_res = ezAngle(a.Get<T>() / b.Get<T>().GetRadian());
+    }
+  }
+};
+
+ezVariant operator/(const ezVariant& a, const ezVariant& b)
+{
+  if (a.IsNumber() && b.IsNumber())
+  {
+    auto biggerType = ezMath::Max(a.GetType(), b.GetType());
+
+    DivFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, biggerType, a.ConvertTo(biggerType), b.ConvertTo(biggerType), result);
+    return result;
+  }
+  else if (a.GetType() == b.GetType())
+  {
+    DivFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, result);
+    return result;
+  }
+
+  return ezVariant();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+struct LerpFunc
+{
+  constexpr static bool CanInterpolate(ezVariantType::Enum variantType)
+  {
+    return variantType >= ezVariantType::Int8 && variantType <= ezVariantType::Vector4;
+  }
+
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, double x, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezQuat>)
+    {
+      ezQuat q = ezQuat::MakeSlerp(a.Get<ezQuat>(), b.Get<ezQuat>(), static_cast<float>(x));
+      out_res = q;
+    }
+    else if constexpr (CanInterpolate(static_cast<ezVariantType::Enum>(ezVariantTypeDeduction<T>::value)))
+    {
+      out_res = ezMath::Lerp(a.Get<T>(), b.Get<T>(), static_cast<float>(x));
+    }
+    else
+    {
+      out_res = (x < 0.5) ? a : b;
+    }
+  }
+};
+
+namespace ezMath
+{
+  ezVariant Lerp(const ezVariant& a, const ezVariant& b, double fFactor)
+  {
+    LerpFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, fFactor, result);
+    return result;
+  }
+} // namespace ezMath
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Variant);

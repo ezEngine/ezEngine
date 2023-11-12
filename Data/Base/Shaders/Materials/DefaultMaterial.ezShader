@@ -48,6 +48,9 @@ Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
 bool UseEmissiveTexture;
 Texture2D EmissiveTexture;
 
+[MATERIALCONFIG]
+
+#include <Shaders/Materials/MaterialConfig.h>
 
 [RENDERSTATE]
 

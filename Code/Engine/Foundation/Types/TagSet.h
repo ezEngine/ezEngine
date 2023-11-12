@@ -6,7 +6,7 @@
 #include <Foundation/Types/TagRegistry.h>
 
 class ezTag;
-typedef ezUInt64 ezTagSetBlockStorage;
+using ezTagSetBlockStorage = ezUInt64;
 
 /// \brief A dynamic collection of tags featuring fast lookups.
 ///
@@ -49,13 +49,13 @@ public:
   void Clear();
 
   /// \brief Adds the tag with the given name. If the tag does not exist, it will be registered.
-  void SetByName(const char* szTag);
+  void SetByName(ezStringView sTag);
 
   /// \brief Removes the given tag. If it doesn't exist, nothing happens.
-  void RemoveByName(const char* szTag);
+  void RemoveByName(ezStringView sTag);
 
   /// \brief Checks whether the named tag is part of this set. Returns false if the tag does not exist.
-  bool IsSetByName(const char* szTag) const;
+  bool IsSetByName(ezStringView sTag) const;
 
   /// \brief Allows to iterate over all tags in this set
   class Iterator
@@ -81,7 +81,7 @@ public:
     bool IsBitSet() const;
 
     const ezTagSetTemplate<BlockStorageAllocator>* m_pTagSet;
-    ezUInt32 m_uiIndex;
+    ezUInt32 m_uiIndex = 0;
   };
 
   /// \brief Returns an iterator to list all tags in this set
@@ -119,7 +119,7 @@ private:
 };
 
 /// Default tag set, uses ezDefaultAllocatorWrapper for allocations.
-typedef ezTagSetTemplate<> ezTagSet;
+using ezTagSet = ezTagSetTemplate<>;
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezTagSet);
 

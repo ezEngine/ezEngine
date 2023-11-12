@@ -3,7 +3,7 @@
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
 struct ezMsgExtractGeometry;
-typedef ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact> ezMeshComponentManager;
+using ezMeshComponentManager = ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact>;
 
 class EZ_RENDERERCORE_DLL ezMeshComponent : public ezMeshComponentBase
 {

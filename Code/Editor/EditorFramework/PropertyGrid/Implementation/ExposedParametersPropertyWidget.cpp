@@ -87,7 +87,7 @@ ezStatus ezExposedParameterCommandAccessor::GetCount(const ezDocumentObject* pOb
   if (m_pParameterProp == pProp)
   {
     ezHybridArray<ezVariant, 16> keys;
-    GetKeys(pObject, pProp, keys);
+    GetKeys(pObject, pProp, keys).AssertSuccess();
     out_iCount = keys.GetCount();
     return ezStatus(EZ_SUCCESS);
   }
@@ -127,7 +127,7 @@ ezStatus ezExposedParameterCommandAccessor::GetValues(
   if (m_pParameterProp == pProp)
   {
     ezHybridArray<ezVariant, 16> keys;
-    GetKeys(pObject, pProp, keys);
+    GetKeys(pObject, pProp, keys).AssertSuccess();
     for (const auto& key : keys)
     {
       auto& var = out_values.ExpandAndGetRef();
@@ -212,7 +212,7 @@ bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject
   if (auto type = GetExposedParamsType(pObject))
   {
     auto props = type->GetProperties();
-    return std::any_of(cbegin(props), cend(props), [&](const ezAbstractProperty* pProp) { return pProp == pProp; });
+    return std::any_of(cbegin(props), cend(props), [&](const ezAbstractProperty* pOtherProp) { return pOtherProp == pProp; });
   }
   return false;
 }
@@ -222,7 +222,6 @@ bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject
 void ezQtExposedParameterPropertyWidget::InternalSetValue(const ezVariant& value)
 {
   ezVariantType::Enum commonType = ezVariantType::Invalid;
-  const bool sameType = GetCommonVariantSubType(m_Items, m_pProp, commonType);
   const ezRTTI* pNewtSubType = commonType != ezVariantType::Invalid ? ezReflectionUtils::GetTypeFromVariant(commonType) : nullptr;
 
   ezExposedParameterCommandAccessor* proxy = static_cast<ezExposedParameterCommandAccessor*>(m_pObjectAccessor);
@@ -250,6 +249,8 @@ void ezQtExposedParameterPropertyWidget::InternalSetValue(const ezVariant& value
           m_pWidget->setParent(this);
           m_pLayout->addWidget(m_pWidget);
           m_pWidget->Init(m_pGrid, m_pObjectAccessor, type, prop);
+
+          UpdateTypeListSelection(commonType);
         }
         m_pWidget->SetSelection(m_Items);
         return;
@@ -261,7 +262,7 @@ void ezQtExposedParameterPropertyWidget::InternalSetValue(const ezVariant& value
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtExposedParametersPropertyWidget::ezQtExposedParametersPropertyWidget() {}
+ezQtExposedParametersPropertyWidget::ezQtExposedParametersPropertyWidget() = default;
 
 ezQtExposedParametersPropertyWidget::~ezQtExposedParametersPropertyWidget()
 {
@@ -297,7 +298,7 @@ void ezQtExposedParametersPropertyWidget::OnInit()
     m_pFixMeButton = new QToolButton();
     m_pFixMeButton->setAutoRaise(true);
     m_pFixMeButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
-    m_pFixMeButton->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Attention16.png"));
+    m_pFixMeButton->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Attention.svg"));
     auto sp = m_pFixMeButton->sizePolicy();
     sp.setVerticalPolicy(QSizePolicy::Ignored);
     m_pFixMeButton->setSizePolicy(sp);

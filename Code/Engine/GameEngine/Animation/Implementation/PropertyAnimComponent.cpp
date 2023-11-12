@@ -17,10 +17,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
       EZ_ACCESSOR_PROPERTY("Animation", GetPropertyAnimFile, SetPropertyAnimFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Property_Animation")),
       EZ_MEMBER_PROPERTY("Playing", m_bPlaying)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
-      EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::Seconds(0), ezVariant())),
+      EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::MakeFromSeconds(0), ezVariant())),
       EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
       EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-      EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
+      EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::MakeFromSeconds(60 * 60))),
     } EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
@@ -43,7 +43,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPropertyAnimComponent::ezPropertyAnimComponent()
 {
-  m_AnimationRangeHigh = ezTime::Seconds(60.0 * 60.0);
+  m_AnimationRangeHigh = ezTime::MakeFromSeconds(60.0 * 60.0);
 }
 
 ezPropertyAnimComponent::~ezPropertyAnimComponent() = default;
@@ -195,13 +195,13 @@ void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimE
   if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::RotationZ)
     return;
 
-  ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
+  const ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
 
   // we only support direct member properties at this time, so no arrays or other complex structures
   if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
     return;
 
-  ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+  auto pMember = static_cast<const ezAbstractMemberProperty*>(pAbstract);
 
   const ezRTTI* pPropRtti = pMember->GetSpecificType();
 
@@ -270,13 +270,13 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
   if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::VectorW)
     return;
 
-  ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
+  const ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
 
   // we only support direct member properties at this time, so no arrays or other complex structures
   if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
     return;
 
-  ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+  auto pMember = static_cast<const ezAbstractMemberProperty*>(pAbstract);
 
   const ezRTTI* pPropRtti = pMember->GetSpecificType();
 
@@ -343,13 +343,13 @@ void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAn
   if (pAnim->m_Target != ezPropertyAnimTarget::Color)
     return;
 
-  ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
+  const ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
 
   // we only support direct member properties at this time, so no arrays or other complex structures
   if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
     return;
 
-  ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+  auto pMember = static_cast<const ezAbstractMemberProperty*>(pAbstract);
 
   const ezRTTI* pPropRtti = pMember->GetSpecificType();
 
@@ -443,7 +443,7 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 
 ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 {
-  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_pAnimDesc->m_AnimationDuration);
+  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::MakeZero(), m_pAnimDesc->m_AnimationDuration);
   m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_pAnimDesc->m_AnimationDuration);
 
   const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
@@ -579,7 +579,7 @@ void ezPropertyAnimComponent::StartPlayback()
   if (m_pAnimDesc == nullptr)
     return;
 
-  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_pAnimDesc->m_AnimationDuration);
+  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::MakeZero(), m_pAnimDesc->m_AnimationDuration);
   m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_pAnimDesc->m_AnimationDuration);
 
   // when starting with a negative speed, start at the end of the animation and play backwards
@@ -596,7 +596,7 @@ void ezPropertyAnimComponent::StartPlayback()
   if (!m_RandomOffset.IsZero() && m_pAnimDesc->m_AnimationDuration.IsPositive())
   {
     // should the random offset also be scaled by the speed factor? I guess not
-    m_AnimationTime += ezMath::Abs(m_fSpeed) * ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
+    m_AnimationTime += ezMath::Abs(m_fSpeed) * ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
 
     const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
 
@@ -637,24 +637,23 @@ void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& bind
 
   if (pRtti == ezGetStaticRTTI<bool>())
   {
-    ezTypedMemberProperty<bool>* pTyped = static_cast<ezTypedMemberProperty<bool>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<bool>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject,
-      fFinalValue > 0.99); // this is close to what ezVariant does (not identical, that does an int cast != 0), but faster to evaluate
+    pTyped->SetValue(binding.m_pObject, fFinalValue > 0.99); // this is close to what ezVariant does (not identical, that does an int cast != 0), but faster to evaluate
     return;
   }
   else if (pRtti == ezGetStaticRTTI<ezAngle>())
   {
-    ezTypedMemberProperty<ezAngle>* pTyped = static_cast<ezTypedMemberProperty<ezAngle>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<ezAngle>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, ezAngle::Degree((float)fFinalValue));
+    pTyped->SetValue(binding.m_pObject, ezAngle::MakeFromDegree((float)fFinalValue));
     return;
   }
   else if (pRtti == ezGetStaticRTTI<ezTime>())
   {
-    ezTypedMemberProperty<ezTime>* pTyped = static_cast<ezTypedMemberProperty<ezTime>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<ezTime>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, ezTime::Seconds(fFinalValue));
+    pTyped->SetValue(binding.m_pObject, ezTime::MakeFromSeconds(fFinalValue));
     return;
   }
 
@@ -680,7 +679,7 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, e
 
   if (pRtti == ezGetStaticRTTI<ezVec2>())
   {
-    ezTypedMemberProperty<ezVec2>* pTyped = static_cast<ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
     const ezVec2 value = pTyped->GetValue(binding.m_pObject);
 
     fCurValue[0] = value.x;
@@ -688,7 +687,7 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, e
   }
   else if (pRtti == ezGetStaticRTTI<ezVec3>())
   {
-    ezTypedMemberProperty<ezVec3>* pTyped = static_cast<ezTypedMemberProperty<ezVec3>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec3>*>(binding.m_pMemberProperty);
     const ezVec3 value = pTyped->GetValue(binding.m_pObject);
 
     fCurValue[0] = value.x;
@@ -697,7 +696,7 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, e
   }
   else if (pRtti == ezGetStaticRTTI<ezVec4>())
   {
-    ezTypedMemberProperty<ezVec4>* pTyped = static_cast<ezTypedMemberProperty<ezVec4>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec4>*>(binding.m_pMemberProperty);
     const ezVec4 value = pTyped->GetValue(binding.m_pObject);
 
     fCurValue[0] = value.x;
@@ -707,7 +706,7 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, e
   }
   else if (pRtti == ezGetStaticRTTI<ezQuat>())
   {
-    ezTypedMemberProperty<ezQuat>* pTyped = static_cast<ezTypedMemberProperty<ezQuat>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<ezQuat>*>(binding.m_pMemberProperty);
     const ezQuat value = pTyped->GetValue(binding.m_pObject);
 
     ezAngle euler[3];
@@ -733,28 +732,27 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, e
 
   if (pRtti == ezGetStaticRTTI<ezVec2>())
   {
-    ezTypedMemberProperty<ezVec2>* pTyped = static_cast<ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
 
     pTyped->SetValue(binding.m_pObject, ezVec2(fCurValue[0], fCurValue[1]));
   }
   else if (pRtti == ezGetStaticRTTI<ezVec3>())
   {
-    ezTypedMemberProperty<ezVec3>* pTyped = static_cast<ezTypedMemberProperty<ezVec3>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec3>*>(binding.m_pMemberProperty);
 
     pTyped->SetValue(binding.m_pObject, ezVec3(fCurValue[0], fCurValue[1], fCurValue[2]));
   }
   else if (pRtti == ezGetStaticRTTI<ezVec4>())
   {
-    ezTypedMemberProperty<ezVec4>* pTyped = static_cast<ezTypedMemberProperty<ezVec4>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<ezVec4>*>(binding.m_pMemberProperty);
 
     pTyped->SetValue(binding.m_pObject, ezVec4(fCurValue[0], fCurValue[1], fCurValue[2], fCurValue[3]));
   }
   else if (pRtti == ezGetStaticRTTI<ezQuat>())
   {
-    ezTypedMemberProperty<ezQuat>* pTyped = static_cast<ezTypedMemberProperty<ezQuat>*>(binding.m_pMemberProperty);
+    auto pTyped = static_cast<const ezTypedMemberProperty<ezQuat>*>(binding.m_pMemberProperty);
 
-    ezQuat rot;
-    rot.SetFromEulerAngles(ezAngle::Degree(fCurValue[0]), ezAngle::Degree(fCurValue[1]), ezAngle::Degree(fCurValue[2]));
+    ezQuat rot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(fCurValue[0]), ezAngle::MakeFromDegree(fCurValue[1]), ezAngle::MakeFromDegree(fCurValue[2]));
 
     pTyped->SetValue(binding.m_pObject, rot);
   }

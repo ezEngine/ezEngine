@@ -6,50 +6,9 @@ ezMat3Template<Type>::ezMat3Template()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
-  SetElements(TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN);
+  for (ezUInt32 i = 0; i < 9; ++i)
+    m_fElementsCM[i] = TypeNaN;
 #endif
-}
-
-template <typename Type>
-ezMat3Template<Type>::ezMat3Template(const Type* const pData, ezMatrixLayout::Enum layout)
-{
-  SetFromArray(pData, layout);
-}
-
-template <typename Type>
-ezMat3Template<Type>::ezMat3Template(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3)
-{
-  SetElements(c1r1, c2r1, c3r1, c1r2, c2r2, c3r2, c1r3, c2r3, c3r3);
-}
-
-template <typename Type>
-EZ_ALWAYS_INLINE const ezMat3Template<Type> ezMat3Template<Type>::IdentityMatrix()
-{
-  return ezMat3Template<Type>(1, 0, 0, 0, 1, 0, 0, 0, 1);
-}
-
-template <typename Type>
-EZ_ALWAYS_INLINE const ezMat3Template<Type> ezMat3Template<Type>::ZeroMatrix()
-{
-  return ezMat3Template<Type>(0, 0, 0, 0, 0, 0, 0, 0, 0);
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout)
-{
-  if (layout == ezMatrixLayout::ColumnMajor)
-  {
-    ezMemoryUtils::Copy(m_fElementsCM, pData, 9);
-  }
-  else
-  {
-    for (int i = 0; i < 3; ++i)
-    {
-      Element(0, i) = pData[i * 3 + 0];
-      Element(1, i) = pData[i * 3 + 1];
-      Element(2, i) = pData[i * 3 + 2];
-    }
-  }
 }
 
 template <typename Type>
@@ -73,63 +32,122 @@ void ezMat3Template<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layo
 }
 
 template <typename Type>
-void ezMat3Template<Type>::SetElements(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3)
+ezMat3Template<Type> ezMat3Template<Type>::MakeZero()
 {
-  Element(0, 0) = c1r1;
-  Element(1, 0) = c2r1;
-  Element(2, 0) = c3r1;
-  Element(0, 1) = c1r2;
-  Element(1, 1) = c2r2;
-  Element(2, 1) = c3r2;
-  Element(0, 2) = c1r3;
-  Element(1, 2) = c2r3;
-  Element(2, 2) = c3r3;
+  ezMat3Template<Type> res;
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(res.m_fElementsCM); ++i)
+    res.m_fElementsCM[i] = 0.0f;
+
+  return res;
+}
+
+template <typename Type>
+ezMat3Template<Type> ezMat3Template<Type>::MakeIdentity()
+{
+  ezMat3Template<Type> res;
+  res.m_fElementsCM[0] = 1.0f;
+  res.m_fElementsCM[1] = 0.0f;
+  res.m_fElementsCM[2] = 0.0f;
+  res.m_fElementsCM[3] = 0.0f;
+  res.m_fElementsCM[4] = 1.0f;
+  res.m_fElementsCM[5] = 0.0f;
+  res.m_fElementsCM[6] = 0.0f;
+  res.m_fElementsCM[7] = 0.0f;
+  res.m_fElementsCM[8] = 1.0f;
+  return res;
+}
+
+template <typename Type>
+ezMat3Template<Type> ezMat3Template<Type>::MakeFromRowMajorArray(const Type* const pData)
+{
+  ezMat3Template<Type> res;
+  for (int i = 0; i < 3; ++i)
+  {
+    res.Element(0, i) = pData[i * 3 + 0];
+    res.Element(1, i) = pData[i * 3 + 1];
+    res.Element(2, i) = pData[i * 3 + 2];
+  }
+  return res;
+}
+
+template <typename Type>
+ezMat3Template<Type> ezMat3Template<Type>::MakeFromColumnMajorArray(const Type* const pData)
+{
+  ezMat3Template<Type> res;
+  ezMemoryUtils::Copy(res.m_fElementsCM, pData, 9);
+  return res;
+}
+
+template <typename Type>
+ezMat3Template<Type> ezMat3Template<Type>::MakeFromValues(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3)
+{
+  ezMat3Template<Type> res;
+  res.Element(0, 0) = c1r1;
+  res.Element(1, 0) = c2r1;
+  res.Element(2, 0) = c3r1;
+  res.Element(0, 1) = c1r2;
+  res.Element(1, 1) = c2r2;
+  res.Element(2, 1) = c3r2;
+  res.Element(0, 2) = c1r3;
+  res.Element(1, 2) = c2r3;
+  res.Element(2, 2) = c3r3;
+  return res;
+}
+
+template <typename Type>
+ezMat3Template<Type> ezMat3Template<Type>::MakeScaling(const ezVec3Template<Type>& vScale)
+{
+  ezMat3Template<Type> res;
+  res.Element(0, 0) = vScale.x;
+  res.Element(1, 0) = 0;
+  res.Element(2, 0) = 0;
+  res.Element(0, 1) = 0;
+  res.Element(1, 1) = vScale.y;
+  res.Element(2, 1) = 0;
+  res.Element(0, 2) = 0;
+  res.Element(1, 2) = 0;
+  res.Element(2, 2) = vScale.z;
+  return res;
+}
+
+template <typename Type>
+ezMat3Template<Type> ezMat3Template<Type>::MakeRotationX(ezAngle angle)
+{
+  const Type fSin = ezMath::Sin(angle);
+  const Type fCos = ezMath::Cos(angle);
+
+  return ezMat3Template<Type>::MakeFromValues(1.0f, 0.0f, 0.0f, 0.0f, fCos, -fSin, 0.0f, fSin, fCos);
+}
+
+template <typename Type>
+ezMat3Template<Type> ezMat3Template<Type>::MakeRotationY(ezAngle angle)
+{
+  const Type fSin = ezMath::Sin(angle);
+  const Type fCos = ezMath::Cos(angle);
+
+  return ezMat3Template<Type>::MakeFromValues(fCos, 0.0f, fSin, 0.0f, 1.0f, 0.0f, -fSin, 0.0f, fCos);
+}
+
+template <typename Type>
+ezMat3Template<Type> ezMat3Template<Type>::MakeRotationZ(ezAngle angle)
+{
+  const Type fSin = ezMath::Sin(angle);
+  const Type fCos = ezMath::Cos(angle);
+
+  return ezMat3Template<Type>::MakeFromValues(fCos, -fSin, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 template <typename Type>
 void ezMat3Template<Type>::SetZero()
 {
-  SetElements(0, 0, 0, 0, 0, 0, 0, 0, 0);
+  *this = MakeZero();
 }
 
 template <typename Type>
 void ezMat3Template<Type>::SetIdentity()
 {
-  SetElements(1, 0, 0, 0, 1, 0, 0, 0, 1);
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetScalingMatrix(const ezVec3Template<Type>& s)
-{
-  SetElements(s.x, 0, 0, 0, s.y, 0, 0, 0, s.z);
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetRotationMatrixX(ezAngle angle)
-{
-  const Type fSin = ezMath::Sin(angle);
-  const Type fCos = ezMath::Cos(angle);
-
-  SetElements(1.0f, 0.0f, 0.0f, 0.0f, fCos, -fSin, 0.0f, fSin, fCos);
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetRotationMatrixY(ezAngle angle)
-{
-  const Type fSin = ezMath::Sin(angle);
-  const Type fCos = ezMath::Cos(angle);
-
-
-  SetElements(fCos, 0.0f, fSin, 0.0f, 1.0f, 0.0f, -fSin, 0.0f, fCos);
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetRotationMatrixZ(ezAngle angle)
-{
-  const Type fSin = ezMath::Sin(angle);
-  const Type fCos = ezMath::Cos(angle);
-
-  SetElements(fCos, -fSin, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 1.0f);
+  *this = MakeIdentity();
 }
 
 template <typename Type>
@@ -143,7 +161,7 @@ void ezMat3Template<Type>::Transpose()
 template <typename Type>
 const ezMat3Template<Type> ezMat3Template<Type>::GetTranspose() const
 {
-  return ezMat3Template(m_fElementsCM, ezMatrixLayout::RowMajor);
+  return ezMat3Template::MakeFromRowMajorArray(m_fElementsCM);
 }
 
 template <typename Type>

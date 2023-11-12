@@ -140,10 +140,7 @@ export class TestGameObject extends ez.TypescriptComponent {
 
         // Velocity
         {
-            EZ_TEST.VEC3(child1.GetVelocity(), ez.Vec3.ZeroVector());
-
-            child1.SetVelocity(new ez.Vec3(1, 2, 3));
-            EZ_TEST.VEC3(child1.GetVelocity(), new ez.Vec3(1, 2, 3));
+            EZ_TEST.VEC3(child1.GetLinearVelocity(), new ez.Vec3(300, 600, 900));
         }
 
         // Team ID

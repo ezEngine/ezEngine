@@ -81,9 +81,9 @@ void ezSceneDocument::UpdatePrefabs()
 }
 
 
-ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab)
+ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab)
 {
-  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, prefabAsset, prefabSeed, bEnginePrefab);
+  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, sPrefabFile, prefabAsset, prefabSeed, bEnginePrefab);
   if (newGuid.IsValid())
   {
     auto pMeta = m_GameObjectMetaData->BeginModifyMetaData(newGuid);
@@ -110,24 +110,24 @@ ezUuid ezSceneDocument::RevertPrefab(const ezDocumentObject* pObject)
 
     setCmd.m_sProperty = "LocalPosition";
     setCmd.m_NewValue = vLocalPos;
-    pHistory->AddCommand(setCmd);
+    pHistory->AddCommand(setCmd).AssertSuccess();
 
     setCmd.m_sProperty = "LocalRotation";
     setCmd.m_NewValue = vLocalRot;
-    pHistory->AddCommand(setCmd);
+    pHistory->AddCommand(setCmd).AssertSuccess();
 
     setCmd.m_sProperty = "LocalScaling";
     setCmd.m_NewValue = vLocalScale;
-    pHistory->AddCommand(setCmd);
+    pHistory->AddCommand(setCmd).AssertSuccess();
 
     setCmd.m_sProperty = "LocalUniformScaling";
     setCmd.m_NewValue = fLocalUniformScale;
-    pHistory->AddCommand(setCmd);
+    pHistory->AddCommand(setCmd).AssertSuccess();
   }
   return newGuid;
 }
 
-void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
+void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab)
 {
   auto pHistory = GetCommandHistory();
   const ezVec3 vLocalPos = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
@@ -135,7 +135,7 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   const ezVec3 vLocalScale = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
   const float fLocalUniformScale = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
-  SUPER::UpdatePrefabObject(pObject, PrefabAsset, PrefabSeed, szBasePrefab);
+  SUPER::UpdatePrefabObject(pObject, PrefabAsset, PrefabSeed, sBasePrefab);
 
   // the root object has the same GUID as the PrefabSeed
   if (PrefabSeed.IsValid())
@@ -145,19 +145,19 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
 
     setCmd.m_sProperty = "LocalPosition";
     setCmd.m_NewValue = vLocalPos;
-    pHistory->AddCommand(setCmd);
+    pHistory->AddCommand(setCmd).AssertSuccess();
 
     setCmd.m_sProperty = "LocalRotation";
     setCmd.m_NewValue = vLocalRot;
-    pHistory->AddCommand(setCmd);
+    pHistory->AddCommand(setCmd).AssertSuccess();
 
     setCmd.m_sProperty = "LocalScaling";
     setCmd.m_NewValue = vLocalScale;
-    pHistory->AddCommand(setCmd);
+    pHistory->AddCommand(setCmd).AssertSuccess();
 
     setCmd.m_sProperty = "LocalUniformScaling";
     setCmd.m_NewValue = fLocalUniformScale;
-    pHistory->AddCommand(setCmd);
+    pHistory->AddCommand(setCmd).AssertSuccess();
   }
 }
 
@@ -181,9 +181,8 @@ void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject
 
     const ezTransform transform = GetGlobalTransform(pObject);
 
-    ezUuid newGuid;
-    newGuid.CreateNewUuid();
-    ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_sAbsolutePath, assetGuid, newGuid, false);
+    ezUuid newGuid = ezUuid::MakeUuid();
+    ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_Path.GetAbsolutePath(), assetGuid, newGuid, false);
 
     if (newObject.IsValid())
     {
@@ -226,8 +225,8 @@ void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject
     // create an object with the reference prefab component
     {
       ezUuid ObjectGuid, CmpGuid;
-      ObjectGuid.CreateNewUuid();
-      CmpGuid.CreateNewUuid();
+      ObjectGuid = ezUuid::MakeUuid();
+      CmpGuid = ezUuid::MakeUuid();
 
       ezAddObjectCommand cmd;
       cmd.m_Parent = (pObject->GetParent() == GetObjectManager()->GetRootObject()) ? ezUuid() : pObject->GetParent()->GetGuid();

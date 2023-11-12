@@ -119,7 +119,7 @@ void ezLongOpControllerManager::RegisterLongOp(const ezUuid& documentGuid, const
   auto& opInfo = *opInfoPtr;
   opInfo.m_DocumentGuid = documentGuid;
   opInfo.m_ComponentGuid = componentGuid;
-  opInfo.m_OperationGuid.CreateNewUuid();
+  opInfo.m_OperationGuid = ezUuid::MakeUuid();
 
   opInfo.m_pProxyOp = pRtti->GetAllocator()->Allocate<ezLongOpProxy>();
   opInfo.m_pProxyOp->InitializeRegistered(documentGuid, componentGuid);
@@ -137,7 +137,7 @@ void ezLongOpControllerManager::UnregisterLongOp(const ezUuid& documentGuid, con
     auto& opInfoPtr = m_ProxyOps[i];
 
     if (opInfoPtr->m_ComponentGuid == componentGuid && opInfoPtr->m_DocumentGuid == documentGuid &&
-        ezStringUtils::IsEqual(opInfoPtr->m_pProxyOp->GetDynamicRTTI()->GetTypeName(), szLongOpType))
+        opInfoPtr->m_pProxyOp->GetDynamicRTTI()->GetTypeName() == szLongOpType)
     {
       RemoveOperation(opInfoPtr->m_OperationGuid);
       return;
@@ -205,7 +205,7 @@ void ezLongOpControllerManager::CancelAndRemoveAllOpsForDocument(const ezUuid& d
 
     if (bOperationsStillActive)
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
     }
   }
 }

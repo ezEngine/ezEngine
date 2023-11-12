@@ -37,10 +37,24 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractRenderData);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractRenderData, 1, ezRTTIDefaultAllocator<ezMsgExtractRenderData>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractOccluderData);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractOccluderData, 1, ezRTTIDefaultAllocator<ezMsgExtractOccluderData>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -53,31 +67,43 @@ bool ezRenderData::s_bRendererInstancesDirty = false;
 // static
 ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc)
 {
-  Category oldCategory = FindCategory(szCategoryName);
+  ezHashedString sCategoryName;
+  sCategoryName.Assign(szCategoryName);
+
+  Category oldCategory = FindCategory(sCategoryName);
   if (oldCategory != ezInvalidRenderDataCategory)
     return oldCategory;
 
   Category newCategory = Category(static_cast<ezUInt16>(s_CategoryData.GetCount()));
 
   auto& data = s_CategoryData.ExpandAndGetRef();
-  data.m_sName.Assign(szCategoryName);
+  data.m_sName = sCategoryName;
   data.m_sortingKeyFunc = sortingKeyFunc;
 
   return newCategory;
 }
 
 // static
-ezRenderData::Category ezRenderData::FindCategory(const char* szCategoryName)
+ezRenderData::Category ezRenderData::FindCategory(ezTempHashedString sCategoryName)
 {
-  ezTempHashedString categoryName(szCategoryName);
-
   for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < s_CategoryData.GetCount(); ++uiCategoryIndex)
   {
-    if (s_CategoryData[uiCategoryIndex].m_sName == categoryName)
+    if (s_CategoryData[uiCategoryIndex].m_sName == sCategoryName)
       return Category(static_cast<ezUInt16>(uiCategoryIndex));
   }
 
   return ezInvalidRenderDataCategory;
+}
+
+// static
+void ezRenderData::GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categoryNames)
+{
+  out_categoryNames.Clear();
+
+  for (auto& data : s_CategoryData)
+  {
+    out_categoryNames.PushBack(data.m_sName);
+  }
 }
 
 // static
@@ -99,13 +125,8 @@ void ezRenderData::UpdateRendererTypes()
 {
   s_RendererTypes.Clear();
 
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezRenderer>() || pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract) || !pRtti->GetAllocator()->CanAllocate())
-      continue;
-
-    s_RendererTypes.PushBack(pRtti);
-  }
+  ezRTTI::ForEachDerivedType<ezRenderer>([](const ezRTTI* pRtti) { s_RendererTypes.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   s_bRendererInstancesDirty = true;
 }
@@ -166,6 +187,7 @@ ezRenderData::Category ezDefaultRenderDataCategories::LitOpaque = ezRenderData::
 ezRenderData::Category ezDefaultRenderDataCategories::LitMasked = ezRenderData::RegisterCategory("LitMasked", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::LitTransparent = ezRenderData::RegisterCategory("LitTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
 ezRenderData::Category ezDefaultRenderDataCategories::LitForeground = ezRenderData::RegisterCategory("LitForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::LitScreenFX = ezRenderData::RegisterCategory("LitScreenFX", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
 ezRenderData::Category ezDefaultRenderDataCategories::SimpleOpaque = ezRenderData::RegisterCategory("SimpleOpaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::SimpleTransparent = ezRenderData::RegisterCategory("SimpleTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
 ezRenderData::Category ezDefaultRenderDataCategories::SimpleForeground = ezRenderData::RegisterCategory("SimpleForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);

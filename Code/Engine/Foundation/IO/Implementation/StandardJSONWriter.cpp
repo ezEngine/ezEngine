@@ -394,7 +394,7 @@ void ezStandardJSONWriter::WriteDataBuffer(const ezDataBuffer& value)
   WriteBinaryData("data", value.GetData(), value.GetCount());
 }
 
-void ezStandardJSONWriter::BeginVariable(const char* szName)
+void ezStandardJSONWriter::BeginVariable(ezStringView sName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
@@ -411,7 +411,7 @@ void ezStandardJSONWriter::BeginVariable(const char* szName)
     OutputIndentation();
   }
 
-  OutputEscapedString(szName);
+  OutputEscapedString(sName);
 
   if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
     OutputString(":");
@@ -431,20 +431,20 @@ void ezStandardJSONWriter::EndVariable()
   End();
 }
 
-void ezStandardJSONWriter::BeginArray(const char* szName)
+void ezStandardJSONWriter::BeginArray(ezStringView sName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEV((state == ezStandardJSONWriter::Empty) ||
-                  ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
-                  ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
-                  (state == ezStandardJSONWriter::Variable && szName == nullptr),
+                  ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !sName.IsEmpty()) ||
+                  ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && sName.IsEmpty()) ||
+                  (state == ezStandardJSONWriter::Variable && sName == nullptr),
     "Inside objects you can only begin arrays when also giving them a (non-empty) name.\n"
     "Inside arrays you can only nest anonymous arrays, so names are forbidden.\n"
     "Inside variables you cannot specify a name again.");
 
-  if (szName != nullptr)
-    BeginVariable(szName);
+  if (sName != nullptr)
+    BeginVariable(sName);
 
   m_StateStack.PeekBack().m_bValueWasWritten = true;
 
@@ -462,7 +462,7 @@ void ezStandardJSONWriter::BeginArray(const char* szName)
     OutputString("[ ");
 
   JSONState s;
-  s.m_State = (szName == nullptr) ? ezStandardJSONWriter::Array : ezStandardJSONWriter::NamedArray;
+  s.m_State = (sName == nullptr) ? ezStandardJSONWriter::Array : ezStandardJSONWriter::NamedArray;
   m_StateStack.PushBack(s);
   ++m_iIndentation;
 }
@@ -483,20 +483,20 @@ void ezStandardJSONWriter::EndArray()
     EndVariable();
 }
 
-void ezStandardJSONWriter::BeginObject(const char* szName)
+void ezStandardJSONWriter::BeginObject(ezStringView sName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEV((state == ezStandardJSONWriter::Empty) ||
-                  ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
-                  ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
-                  (state == ezStandardJSONWriter::Variable && szName == nullptr),
+                  ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !sName.IsEmpty()) ||
+                  ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && sName.IsEmpty()) ||
+                  (state == ezStandardJSONWriter::Variable && sName == nullptr),
     "Inside objects you can only begin objects when also giving them a (non-empty) name.\n"
     "Inside arrays you can only nest anonymous objects, so names are forbidden.\n"
     "Inside variables you cannot specify a name again.");
 
-  if (szName != nullptr)
-    BeginVariable(szName);
+  if (sName != nullptr)
+    BeginVariable(sName);
 
   m_StateStack.PeekBack().m_bValueWasWritten = true;
 
@@ -516,7 +516,7 @@ void ezStandardJSONWriter::BeginObject(const char* szName)
     OutputString("{\n");
 
   JSONState s;
-  s.m_State = (szName == nullptr) ? ezStandardJSONWriter::Object : ezStandardJSONWriter::NamedObject;
+  s.m_State = (sName == nullptr) ? ezStandardJSONWriter::Object : ezStandardJSONWriter::NamedObject;
   m_StateStack.PushBack(s);
   ++m_iIndentation;
 
@@ -569,7 +569,7 @@ void ezStandardJSONWriter::End()
 }
 
 
-void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString)
+void ezStandardJSONWriter::WriteBinaryData(ezStringView sDataType, const void* pData, ezUInt32 uiBytes, ezStringView sValueString)
 {
   CommaWriter cw(this);
 
@@ -578,16 +578,16 @@ void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* p
   else
     OutputString("{ \"$t\" : \"");
 
-  OutputString(szDataType);
+  OutputString(sDataType);
 
-  if (szValueString != nullptr)
+  if (!sValueString.IsEmpty())
   {
     if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
       OutputString("\",\"$v\":\"");
     else
       OutputString("\", \"$v\" : \"");
 
-    OutputString(szValueString);
+    OutputString(sValueString);
   }
 
   if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)

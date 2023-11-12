@@ -4,8 +4,8 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Communication/Event.h>
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Time/Time.h>
 
 class ezTimeStepSmoothing;
@@ -19,7 +19,7 @@ public:
 
 public:
   /// \brief Constructor.
-  ezClock(const char* szName); // [tested]
+  ezClock(ezStringView sName); // [tested]
 
   /// \brief Resets all values to their default. E.g. call this after a new level has loaded to start fresh.
   ///
@@ -119,24 +119,24 @@ public:
   void Load(ezStreamReader& inout_stream);
 
   /// \brief Sets the name of the clock. Useful to identify the clock in tools such as ezInspector.
-  void SetClockName(const char* szName);
+  void SetClockName(ezStringView sName);
 
   /// \brief Returns the name of the clock. All clocks get default names 'Clock N', unless the user specifies another name with
   /// SetClockName.
-  const char* GetClockName() const;
+  ezStringView GetClockName() const;
 
 
 public:
   /// \brief The data that is sent through the event interface.
   struct EventData
   {
-    const char* m_szClockName;
+    ezStringView m_sClockName;
 
     ezTime m_RawTimeStep;
     ezTime m_SmoothedTimeStep;
   };
 
-  typedef ezEvent<const EventData&, ezMutex> Event;
+  using Event = ezEvent<const EventData&, ezMutex>;
 
   /// \brief Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
   static void AddEventHandler(Event::Handler handler) { s_TimeEvents.AddEventHandler(handler); }
@@ -174,7 +174,7 @@ private:
 class EZ_FOUNDATION_DLL ezTimeStepSmoothing
 {
 public:
-  virtual ~ezTimeStepSmoothing() {}
+  virtual ~ezTimeStepSmoothing() = default;
 
   /// \brief The function to override to implement time step smoothing.
   ///
@@ -196,6 +196,6 @@ public:
   virtual void Reset(const ezClock* pClock) = 0;
 };
 
-
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezClock);
 
 #include <Foundation/Time/Implementation/Clock_inl.h>

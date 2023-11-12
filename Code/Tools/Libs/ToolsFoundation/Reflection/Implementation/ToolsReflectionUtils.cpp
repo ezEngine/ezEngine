@@ -81,14 +81,14 @@ namespace
   template <>
   void GetVariantFunc::operator()<ezAngle>()
   {
-    m_Value = ezAngle::Degree((float)m_fValue);
+    m_Value = ezAngle::MakeFromDegree((float)m_fValue);
     m_bValid = true;
   }
 
   template <>
   void GetVariantFunc::operator()<ezTime>()
   {
-    m_Value = ezTime::Seconds(m_fValue);
+    m_Value = ezTime::MakeFromSeconds(m_fValue);
     m_bValid = true;
   }
 } // namespace
@@ -165,18 +165,18 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   GetMinimalReflectedTypeDescriptorFromRtti(pRtti, out_desc);
   out_desc.m_Flags.Remove(ezTypeFlags::Minimal);
 
-  const ezArrayPtr<ezAbstractProperty*>& rttiProps = pRtti->GetProperties();
+  auto rttiProps = pRtti->GetProperties();
   const ezUInt32 uiCount = rttiProps.GetCount();
   out_desc.m_Properties.Reserve(uiCount);
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {
-    ezAbstractProperty* prop = rttiProps[i];
+    const ezAbstractProperty* prop = rttiProps[i];
 
     switch (prop->GetCategory())
     {
       case ezPropertyCategory::Constant:
       {
-        ezAbstractConstantProperty* constantProp = static_cast<ezAbstractConstantProperty*>(prop);
+        auto constantProp = static_cast<const ezAbstractConstantProperty*>(prop);
         const ezRTTI* pPropRtti = constantProp->GetSpecificType();
         if (ezReflectionUtils::IsBasicType(pPropRtti))
         {
@@ -197,8 +197,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
       case ezPropertyCategory::Map:
       {
         const ezRTTI* pPropRtti = prop->GetSpecificType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(
-          prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), prop->GetFlags(), prop->GetAttributes()));
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), prop->GetFlags(), prop->GetAttributes()));
       }
       break;
 
@@ -210,15 +209,14 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     }
   }
 
-  const ezArrayPtr<ezAbstractFunctionProperty*>& rttiFunc = pRtti->GetFunctions();
+  auto rttiFunc = pRtti->GetFunctions();
   const ezUInt32 uiFuncCount = rttiFunc.GetCount();
   out_desc.m_Functions.Reserve(uiFuncCount);
 
   for (ezUInt32 i = 0; i < uiFuncCount; ++i)
   {
-    ezAbstractFunctionProperty* prop = rttiFunc[i];
-    out_desc.m_Functions.PushBack(
-      ezReflectedFunctionDescriptor(prop->GetPropertyName(), prop->GetFlags(), prop->GetFunctionType(), prop->GetAttributes()));
+    const ezAbstractFunctionProperty* prop = rttiFunc[i];
+    out_desc.m_Functions.PushBack(ezReflectedFunctionDescriptor(prop->GetPropertyName(), prop->GetFlags(), prop->GetFunctionType(), prop->GetAttributes()));
     ezReflectedFunctionDescriptor& desc = out_desc.m_Functions.PeekBack();
     desc.m_ReturnValue = ezFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
     const ezUInt32 uiArguments = prop->GetArgumentCount();

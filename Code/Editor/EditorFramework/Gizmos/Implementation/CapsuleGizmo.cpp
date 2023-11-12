@@ -19,7 +19,7 @@ ezCapsuleGizmo::ezCapsuleGizmo()
   m_hLengthBottom.ConfigureHandle(this, ezEngineGizmoHandleType::HalfSphereZ, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezCapsuleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -140,12 +140,14 @@ ezEditorInput ezCapsuleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
-  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
+  QPoint mousePosition = e->globalPosition().toPoint();
+
+  const ezVec2I32 vNewMousePos = ezVec2I32(mousePosition.x(), mousePosition.y());
   const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
 
   m_vLastMousePos = UpdateMouseMode(e);

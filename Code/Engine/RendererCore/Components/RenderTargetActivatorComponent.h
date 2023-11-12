@@ -6,7 +6,7 @@
 
 struct ezMsgExtractRenderData;
 
-typedef ezComponentManager<class ezRenderTargetActivatorComponent, ezBlockStorageType::Compact> ezRenderTargetComponentManager;
+using ezRenderTargetComponentManager = ezComponentManager<class ezRenderTargetActivatorComponent, ezBlockStorageType::Compact>;
 
 class EZ_RENDERERCORE_DLL ezRenderTargetActivatorComponent : public ezRenderComponent
 {

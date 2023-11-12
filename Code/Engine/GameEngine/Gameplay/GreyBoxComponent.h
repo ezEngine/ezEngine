@@ -19,11 +19,11 @@ class ezMeshResourceDescriptor;
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
-typedef ezComponentManager<class ezGreyBoxComponent, ezBlockStorageType::Compact> ezGreyBoxComponentManager;
+using ezGreyBoxComponentManager = ezComponentManager<class ezGreyBoxComponent, ezBlockStorageType::Compact>;
 
 struct EZ_GAMEENGINE_DLL ezGreyBoxShape
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

@@ -13,9 +13,7 @@ if(EZ_CMAKE_PLATFORM_WINDOWS)
   )
 endif()
 
-if (MSVC)
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
-endif()
+ez_enable_strict_warnings(${PROJECT_NAME})
 
 if (EZ_CMAKE_PLATFORM_LINUX)
   CHECK_INCLUDE_FILE_CXX("uuid/uuid.h" UUID_HEADER)

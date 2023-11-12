@@ -51,7 +51,7 @@ struct ezBakedProbesComponent::RenderDebugViewTask : public ezTask
   ezBakingInterface* m_pBakingInterface = nullptr;
 
   const ezWorld* m_pWorld = nullptr;
-  ezMat4 m_InverseViewProjection = ezMat4::IdentityMatrix();
+  ezMat4 m_InverseViewProjection = ezMat4::MakeIdentity();
   ezUInt32 m_uiWidth = 0;
   ezUInt32 m_uiHeight = 0;
   ezDynamicArray<ezColorGammaUB> m_PixelData;
@@ -196,7 +196,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesComponent, 1, ezComponentMode::Static)
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering/Baking"),
+    new ezCategoryAttribute("Lighting/Baking"),
     new ezLongOpAttribute("ezLongOpProxy_BakeScene"),
     new ezTransformManipulatorAttribute("TestPosition"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
@@ -300,7 +300,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
   auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
 
   auto addProbeRenderData = [&](const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching) {
-    ezTransform transform = ezTransform::IdentityTransform();
+    ezTransform transform = ezTransform::MakeIdentity();
     transform.m_vPosition = vPosition;
 
     ezColor encodedSkyVisibility = ezColor::Black;
@@ -309,7 +309,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
     ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
     {
       pRenderData->m_GlobalTransform = transform;
-      pRenderData->m_GlobalBounds.SetInvalid();
+      pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
       pRenderData->m_hMesh = pManager->m_hDebugSphere;
       pRenderData->m_hMaterial = pManager->m_hDebugMaterial;
       pRenderData->m_Color = encodedSkyVisibility;
@@ -325,7 +325,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
   if (m_bUseTestPosition)
   {
     ezBakedProbesWorldModule::ProbeIndexData indexData;
-    if (pModule->GetProbeIndexData(m_vTestPosition, ezVec3::UnitZAxis(), indexData).Failed())
+    if (pModule->GetProbeIndexData(m_vTestPosition, ezVec3::MakeAxisZ(), indexData).Failed())
       return;
 
     if (true)

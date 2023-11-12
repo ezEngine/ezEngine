@@ -48,7 +48,7 @@
          </property>
          <property name="icon">
           <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/Add16.png</normaloff>:/GuiFoundation/Icons/Add16.png</iconset>
+           <normaloff>:/GuiFoundation/Icons/Add.svg</normaloff>:/GuiFoundation/Icons/Add.svg</iconset>
          </property>
         </widget>
        </item>
@@ -62,7 +62,7 @@
          </property>
          <property name="icon">
           <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
+           <normaloff>:/GuiFoundation/Icons/Delete.svg</normaloff>:/GuiFoundation/Icons/Delete.svg</iconset>
          </property>
         </widget>
        </item>

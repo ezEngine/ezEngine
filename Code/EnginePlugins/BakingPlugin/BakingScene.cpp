@@ -17,7 +17,7 @@ ezResult ezBakingScene::Extract()
 {
   m_Volumes.Clear();
   m_MeshObjects.Clear();
-  m_BoundingBox.SetInvalid();
+  m_BoundingBox = ezBoundingBox::MakeInvalid();
   m_bIsBaked = false;
 
   const ezWorld* pWorld = ezWorld::GetWorld(m_uiWorldIndex);

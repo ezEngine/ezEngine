@@ -17,7 +17,7 @@ class ezPxRopeComponent;
 class ezPxUserData
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
 
   ezPxUserData() = default;
   ~ezPxUserData() { Invalidate(); }

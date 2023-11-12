@@ -17,7 +17,7 @@ struct ezProfileTargetPlatform
     Default = PC
   };
 
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezProfileTargetPlatform);

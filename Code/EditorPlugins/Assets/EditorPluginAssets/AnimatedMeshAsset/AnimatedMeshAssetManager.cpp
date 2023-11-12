@@ -12,7 +12,8 @@ ezAnimatedMeshAssetDocumentManager::ezAnimatedMeshAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Animated Mesh";
   m_DocTypeDesc.m_sFileExtension = "ezAnimatedMeshAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animated_Mesh.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimatedMeshAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Static");
@@ -35,8 +36,7 @@ void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezAnimatedMeshAssetDocument>())
       {
-        ezQtAnimatedMeshAssetDocumentWindow* pDocWnd =
-          new ezQtAnimatedMeshAssetDocumentWindow(static_cast<ezAnimatedMeshAssetDocument*>(e.m_pDocument));
+        new ezQtAnimatedMeshAssetDocumentWindow(static_cast<ezAnimatedMeshAssetDocument*>(e.m_pDocument)); // NOLINT
       }
     }
     break;
@@ -46,10 +46,9 @@ void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
   }
 }
 
-void ezAnimatedMeshAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezAnimatedMeshAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezAnimatedMeshAssetDocument(szPath);
+  out_pDocument = new ezAnimatedMeshAssetDocument(sPath);
 }
 
 void ezAnimatedMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

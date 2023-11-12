@@ -16,7 +16,7 @@ JPH_NAMESPACE_BEGIN
 class CharacterVirtual;
 
 /// Contains the configuration of a character
-class CharacterVirtualSettings : public CharacterBaseSettings
+class JPH_EXPORT CharacterVirtualSettings : public CharacterBaseSettings
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -52,7 +52,7 @@ public:
 };
 
 /// This class receives callbacks when a virtual character hits something.
-class CharacterContactListener
+class JPH_EXPORT CharacterContactListener
 {
 public:
 	/// Destructor
@@ -92,7 +92,7 @@ public:
 /// The advantage of this is that you can determine when the character moves in the frame (usually this has to happen at a very particular point in the frame)
 /// but the downside is that other objects don't see this virtual character. In order to make this work it is recommended to pair a CharacterVirtual with a Character that
 /// moves along. This Character should be keyframed (or at least have no gravity) and move along with the CharacterVirtual so that other rigid bodies can collide with it.
-class CharacterVirtual : public CharacterBase
+class JPH_EXPORT CharacterVirtual : public CharacterBase
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -333,6 +333,7 @@ private:
 		float							mProjectedVelocity;										///< Velocity of the contact projected on the contact normal (negative if separating)
 		Vec3							mLinearVelocity;										///< Velocity of the contact (can contain a corrective velocity to resolve penetration)
 		Plane							mPlane;													///< Plane around the origin that describes how far we can displace (from the origin)
+		bool							mIsSteepSlope = false;									///< If this constraint belongs to a steep slope
 	};
 
 	using ConstraintList = std::vector<Constraint, STLTempAllocator<Constraint>>;
@@ -393,7 +394,7 @@ private:
 	void								RemoveConflictingContacts(TempContactList &ioContacts, IgnoredContactList &outIgnoredContacts) const;
 
 	// Convert contacts into constraints. The character is assumed to start at the origin and the constraints are planes around the origin that confine the movement of the character.
-	void								DetermineConstraints(TempContactList &inContacts, ConstraintList &outConstraints) const;
+	void								DetermineConstraints(TempContactList &inContacts, float inDeltaTime, ConstraintList &outConstraints) const;
 
 	// Use the constraints to solve the displacement of the character. This will slide the character on the planes around the origin for as far as possible.
 	void								SolveConstraints(Vec3Arg inVelocity, float inDeltaTime, float inTimeRemaining, ConstraintList &ioConstraints, IgnoredContactList &ioIgnoredContacts, float &outTimeSimulated, Vec3 &outDisplacement, TempAllocator &inAllocator

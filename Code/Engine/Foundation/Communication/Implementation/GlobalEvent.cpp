@@ -14,21 +14,21 @@ ezGlobalEvent::EventData::EventData()
   m_uiNumEventHandlersRegular = 0;
 }
 
-ezGlobalEvent::ezGlobalEvent(const char* szEventName, EZ_GLOBAL_EVENT_HANDLER handler, bool bOnlyOnce)
+ezGlobalEvent::ezGlobalEvent(ezStringView sEventName, EZ_GLOBAL_EVENT_HANDLER handler, bool bOnlyOnce)
 {
-  m_szEventName = szEventName;
+  m_sEventName = sEventName;
   m_bOnlyOnce = bOnlyOnce;
   m_bHasBeenFired = false;
   m_EventHandler = handler;
 }
 
-void ezGlobalEvent::Broadcast(const char* szEventName, ezVariant p1, ezVariant p2, ezVariant p3, ezVariant p4)
+void ezGlobalEvent::Broadcast(ezStringView sEventName, ezVariant p1, ezVariant p2, ezVariant p3, ezVariant p4)
 {
   ezGlobalEvent* pHandler = ezGlobalEvent::GetFirstInstance();
 
   while (pHandler)
   {
-    if (ezStringUtils::IsEqual(pHandler->m_szEventName, szEventName))
+    if (pHandler->m_sEventName == sEventName)
     {
       if (!pHandler->m_bOnlyOnce || !pHandler->m_bHasBeenFired)
       {
@@ -42,7 +42,7 @@ void ezGlobalEvent::Broadcast(const char* szEventName, ezVariant p1, ezVariant p
   }
 
 
-  EventData& ed = s_KnownEvents[szEventName]; // this will make sure to record all fired events, even if there are no handlers for them
+  EventData& ed = s_KnownEvents[sEventName]; // this will make sure to record all fired events, even if there are no handlers for them
   ed.m_uiNumTimesFired++;
 }
 
@@ -58,7 +58,7 @@ void ezGlobalEvent::UpdateGlobalEventStatistics()
 
   while (pHandler)
   {
-    EventData& ed = s_KnownEvents[pHandler->m_szEventName];
+    EventData& ed = s_KnownEvents[pHandler->m_sEventName];
 
     if (pHandler->m_bOnlyOnce)
       ++ed.m_uiNumEventHandlersOnce;

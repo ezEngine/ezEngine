@@ -75,7 +75,7 @@ public:
   ezQtContainerWindow* GetContainerWindow() const;
 
   /// \brief Shows the given message for the given duration in the statusbar, then shows the permanent message again.
-  void ShowTemporaryStatusBarMsg(const ezFormatString& text, ezTime duration = ezTime::Seconds(5));
+  void ShowTemporaryStatusBarMsg(const ezFormatString& text, ezTime duration = ezTime::MakeFromSeconds(5));
 
   /// \brief Sets which text to show permanently in the statusbar. Set an empty string to clear the message.
   void SetPermanentStatusBarMsg(const ezFormatString& text);

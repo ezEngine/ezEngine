@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QDesktopServices>
 #include <QDir>
@@ -46,7 +47,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezQtUiServices::ezQtUiServices()
   : m_SingletonRegistrar(this)
 {
-  int id = qRegisterMetaType<ezUuid>();
+  qRegisterMetaType<ezUuid>();
   m_pColorDlg = nullptr;
 }
 
@@ -72,26 +73,111 @@ void ezQtUiServices::SaveState()
   Settings.endGroup();
 }
 
+ezTime g_Total = ezTime::MakeZero();
 
-const QIcon& ezQtUiServices::GetCachedIconResource(const char* szIdentifier)
+const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezColor svgTintColor)
 {
-  const ezString sIdentifier = szIdentifier;
+  ezStringBuilder sFullIdentifier = sIdentifier;
   auto& map = s_IconsCache;
 
-  auto it = map.Find(sIdentifier);
+  const bool bNeedsColoring = svgTintColor != ezColor::MakeZero() && sIdentifier.EndsWith_NoCase(".svg");
+
+  if (bNeedsColoring)
+  {
+    sFullIdentifier.AppendFormat("-{}", ezColorGammaUB(svgTintColor));
+  }
+
+  auto it = map.Find(sFullIdentifier);
 
   if (it.IsValid())
     return it.Value();
 
-  QIcon icon(QString::fromUtf8(szIdentifier));
+  if (bNeedsColoring)
+  {
+    ezStopwatch sw;
 
-  // Workaround for QIcon being stupid and treating failed to load icons as not-null.
-  if (!icon.pixmap(QSize(16, 16)).isNull())
-    map[sIdentifier] = icon;
+    // read the icon from the Qt virtual file system (QResource)
+    QFile file(ezString(sIdentifier).GetData());
+    if (!file.open(QIODeviceBase::OpenModeFlag::ReadOnly))
+    {
+      // if it doesn't exist, return an empty QIcon
+
+      map[sFullIdentifier] = QIcon();
+      return map[sFullIdentifier];
+    }
+
+    // get the entire SVG file content
+    ezStringBuilder sContent = QString(file.readAll()).toUtf8().data();
+
+    // replace the occurrence of the color white ("#FFFFFF") with the desired target color
+    {
+      const ezColorGammaUB color8 = svgTintColor;
+
+      ezStringBuilder rep;
+      rep.Format("#{}{}{}", ezArgI((int)color8.r, 2, true, 16), ezArgI((int)color8.g, 2, true, 16), ezArgI((int)color8.b, 2, true, 16));
+
+      sContent.ReplaceAll_NoCase("#ffffff", rep);
+    }
+
+    // hash the content AFTER the color replacement, so it includes the custom color change
+    const ezUInt32 uiSrcHash = ezHashingUtils::xxHash32String(sContent);
+
+    // file the path to the temp file, including the source hash
+    const ezStringBuilder sTempFolder = ezOSFile::GetTempDataFolder("ezEditor/QIcons");
+    ezStringBuilder sTempIconFile(sTempFolder, "/", sIdentifier.GetFileName());
+    sTempIconFile.AppendFormat("-{}.svg", uiSrcHash);
+
+    // only write to the file system, if the target file doesn't exist yet, this saves more than half the time
+    if (!ezOSFile::ExistsFile(sTempIconFile))
+    {
+      // now write the new SVG file back to a dummy file
+      // yes, this is as stupid as it sounds, we really write the file BACK TO THE FILESYSTEM, rather than doing this stuff in-memory
+      // that's because I wasn't able to figure out whether we can somehow read a QIcon from a string rather than from file
+      // it doesn't appear to be easy at least, since we can only give it a path, not a memory stream or anything like that
+      {
+        // necessary for Qt to be able to write to the folder
+        ezOSFile::CreateDirectoryStructure(sTempFolder).AssertSuccess();
+
+        QFile fileOut(sTempIconFile.GetData());
+        fileOut.open(QIODeviceBase::OpenModeFlag::WriteOnly);
+        fileOut.write(sContent.GetData(), sContent.GetElementCount());
+        fileOut.flush();
+        fileOut.close();
+      }
+    }
+
+    QIcon icon(sTempIconFile.GetData());
+
+    if (!icon.pixmap(QSize(16, 16)).isNull())
+      map[sFullIdentifier] = icon;
+    else
+      map[sFullIdentifier] = QIcon();
+
+    ezTime local = sw.GetRunningTotal();
+    g_Total += local;
+
+    // kept here for debug purposes, but don't waste time on logging
+    // ezLog::Info("Icon load time: {}, total = {}", local, g_Total);
+  }
   else
-    map[sIdentifier] = QIcon();
+  {
+    const QString sFile = ezString(sIdentifier).GetData();
 
-  return map[sIdentifier];
+    if (QFile::exists(sFile)) // prevent Qt from spamming warnings about non-existing files by checking this manually
+    {
+      QIcon icon(sFile);
+
+      // Workaround for QIcon being stupid and treating failed to load icons as not-null.
+      if (!icon.pixmap(QSize(16, 16)).isNull())
+        map[sFullIdentifier] = icon;
+      else
+        map[sFullIdentifier] = QIcon();
+    }
+    else
+      map[sFullIdentifier] = QIcon();
+  }
+
+  return map[sFullIdentifier];
 }
 
 
@@ -207,9 +293,9 @@ void ezQtUiServices::TickEventHandler()
   const ezTime endTime = ezTime::Now();
   ezTime lastFrameTime = endTime - startTime;
 
-  ezTime delay = ezTime::Milliseconds(1000.0 / s_LastTickEvent.m_fRefreshRate);
+  ezTime delay = ezTime::MakeFromMilliseconds(1000.0 / s_LastTickEvent.m_fRefreshRate);
   delay -= lastFrameTime;
-  delay = ezMath::Max(delay, ezTime::Zero());
+  delay = ezMath::Max(delay, ezTime::MakeZero());
 
   QTimer::singleShot((ezInt32)ezMath::Floor(delay.GetMilliseconds()), this, SLOT(TickEventHandler()));
 }
@@ -255,7 +341,7 @@ void ezQtUiServices::ShowGlobalStatusBarMessage(const ezFormatString& msg)
   Event e;
   e.m_Type = Event::ShowGlobalStatusBarText;
   e.m_sText = msg.GetText(tmp);
-  e.m_Time = ezTime::Seconds(0);
+  e.m_Time = ezTime::MakeFromSeconds(0);
 
   s_Events.Broadcast(e);
 }

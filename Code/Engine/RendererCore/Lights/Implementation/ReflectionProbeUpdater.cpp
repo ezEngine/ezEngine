@@ -70,9 +70,7 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::~ProbeUpdateInfo()
 //////////////////////////////////////////////////////////////////////////
 /// ezReflectionProbeUpdater
 
-ezReflectionProbeUpdater::ezReflectionProbeUpdater()
-{
-}
+ezReflectionProbeUpdater::ezReflectionProbeUpdater() = default;
 
 ezReflectionProbeUpdater::~ezReflectionProbeUpdater()
 {
@@ -373,8 +371,6 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
     ezVec3(0.0f, 0.0f, 1.0f),
   };
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
   // Setup view and camera
   {
     ReflectionView* pReflectionView = nullptr;
@@ -401,7 +397,6 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
     ezGALRenderTargets renderTargets;
     if (step.m_UpdateStep == UpdateStep::Filter)
     {
-      const ezUInt32 uiWorldIndex = pWorld->GetIndex();
       renderTargets.m_hRTs[0] = updateInfo.m_TargetSlot.m_hSpecularOutputTexture;
 
       if (updateInfo.m_flags.IsSet(ezReflectionProbeUpdaterFlags::SkyLight))

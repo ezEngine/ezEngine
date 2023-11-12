@@ -38,7 +38,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     ezVec4T vCopy(vInit4F);
     EZ_TEST_BOOL(vCopy.x == 1.0f && vCopy.y == 2.0f && vCopy.z == 3.0f && vCopy.w == 4.0f);
 
-    ezVec4T vZero = ezVec4T::ZeroVector();
+    ezVec4T vZero = ezVec4T::MakeZero();
     EZ_TEST_BOOL(vZero.x == 0.0f && vZero.y == 0.0f && vZero.z == 0.0f && vZero.w == 0.0f);
   }
 
@@ -110,14 +110,14 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     EZ_TEST_VEC4(vNormCond, vNorm, ezMath::DefaultEpsilon<ezVec4T::ComponentType>());
 
     // IsZero
-    EZ_TEST_BOOL(ezVec4T::ZeroVector().IsZero());
+    EZ_TEST_BOOL(ezVec4T::MakeZero().IsZero());
     for (int i = 0; i < 4; ++i)
     {
       EZ_TEST_BOOL(!compArray[i].IsZero());
     }
 
     // IsZero(float)
-    EZ_TEST_BOOL(ezVec4T::ZeroVector().IsZero(0.0f));
+    EZ_TEST_BOOL(ezVec4T::MakeZero().IsZero(0.0f));
     for (int i = 0; i < 4; ++i)
     {
       EZ_TEST_BOOL(!compArray[i].IsZero(0.0f));
@@ -202,7 +202,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     vMulFloat *= 2.0f;
     EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec4T(-8.0f, 0.4f, -14.0f, -0.0f), ezMath::SmallEpsilon<ezMathTestType>()));
     vMulFloat *= 0.0f;
-    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec4T::ZeroVector(), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec4T::MakeZero(), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator/= (float)
     ezVec4T vDivFloat = vOp1;
@@ -221,13 +221,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     ezVec4T vMulFloatVec4 = ((ezMathTestType)2 * vOp1);
     EZ_TEST_BOOL(vMulFloatVec4.IsEqual(ezVec4T(-8.0f, 0.4f, -14.0f, -0.0f), ezMath::SmallEpsilon<ezMathTestType>()));
     vMulFloatVec4 = ((ezMathTestType)0 * vOp1);
-    EZ_TEST_BOOL(vMulFloatVec4.IsEqual(ezVec4T::ZeroVector(), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vMulFloatVec4.IsEqual(ezVec4T::MakeZero(), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator* (ezVec4T, float)
     ezVec4T vMulVec4Float = (vOp1 * (ezMathTestType)2);
     EZ_TEST_BOOL(vMulVec4Float.IsEqual(ezVec4T(-8.0f, 0.4f, -14.0f, -0.0f), ezMath::SmallEpsilon<ezMathTestType>()));
     vMulVec4Float = (vOp1 * (ezMathTestType)0);
-    EZ_TEST_BOOL(vMulVec4Float.IsEqual(ezVec4T::ZeroVector(), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vMulVec4Float.IsEqual(ezVec4T::MakeZero(), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator/ (ezVec4T, float)
     ezVec4T vDivVec4Float = (vOp1 / (ezMathTestType)2);

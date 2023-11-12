@@ -42,14 +42,14 @@
 
 namespace ezInternal
 {
-  typedef __m128 QuadFloat;
-  typedef __m128 QuadBool;
-  typedef __m128i QuadInt;
-  typedef __m128i QuadUInt;
+  using QuadFloat = __m128;
+  using QuadBool = __m128;
+  using QuadInt = __m128i;
+  using QuadUInt = __m128i;
 } // namespace ezInternal
 
 #include <Foundation/SimdMath/SimdSwizzle.h>
 
 #define EZ_SHUFFLE(a0, a1, b2, b3) ((a0) | ((a1) << 2) | ((b2) << 4) | ((b3) << 6))
 
-#define EZ_TO_SHUFFLE(s) (((s >> 12) & 0x03) | ((s >> 6) & 0x0c) | (s & 0x30) | ((s << 6) & 0xc0))
+#define EZ_TO_SHUFFLE(s) ((((s) >> 12) & 0x03) | (((s) >> 6) & 0x0c) | ((s) & 0x30) | (((s) << 6) & 0xc0))

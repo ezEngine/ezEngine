@@ -16,13 +16,11 @@ struct ezPhantomRttiManagerEvent
   };
 
   ezPhantomRttiManagerEvent()
-    : m_Type(Type::TypeAdded)
-    , m_pChangedType(nullptr)
-  {
-  }
 
-  Type m_Type;
-  const ezRTTI* m_pChangedType;
+    = default;
+
+  Type m_Type = Type::TypeAdded;
+  const ezRTTI* m_pChangedType = nullptr;
 };
 
 /// \brief Manages all ezPhantomRTTI types that have been added to him.
@@ -61,5 +59,5 @@ public:
 
 private:
   static ezSet<const ezRTTI*> s_RegisteredConcreteTypes;
-  static ezHashTable<const char*, ezPhantomRTTI*> s_NameToPhantom;
+  static ezHashTable<ezStringView, ezPhantomRTTI*> s_NameToPhantom;
 };

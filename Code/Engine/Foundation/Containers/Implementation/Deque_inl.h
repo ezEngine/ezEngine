@@ -17,7 +17,7 @@
 
 #define CHUNK_SIZE(Type) (4096 / sizeof(Type) < 32 ? 32 : 4096 / sizeof(Type))
 //(sizeof(Type) <= 8 ? 256 : (sizeof(Type) <= 16 ? 128 : (sizeof(Type) <= 32 ? 64 : 32))) // although this is Pow(2), this is slower than just having
-//larger chunks
+// larger chunks
 
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Constructor(ezAllocatorBase* pAllocator)
@@ -452,7 +452,7 @@ inline ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 uiIndex) 
 template <typename T, bool Construct>
 inline T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
   const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
@@ -465,7 +465,7 @@ inline T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
 template <typename T, bool Construct>
 inline const T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
   const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
@@ -851,7 +851,7 @@ EZ_FORCE_INLINE T* ezDequeBase<T, Construct>::GetUnusedChunk()
 template <typename T, bool Construct>
 T& ezDequeBase<T, Construct>::ElementAt(ezUInt32 uiIndex)
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "");
+  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "");
 
   const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
@@ -896,7 +896,9 @@ void ezDequeBase<T, Construct>::RemoveAtAndCopy(ezUInt32 uiIndex)
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex);
 
   for (ezUInt32 i = uiIndex + 1; i < m_uiCount; ++i)
+  {
     ezMemoryUtils::CopyOverlapped(&operator[](i - 1), &operator[](i), 1);
+  }
 
   PopBack();
 }
@@ -940,7 +942,9 @@ void ezDequeBase<T, Construct>::Insert(const T& value, ezUInt32 uiIndex)
   PushBack();
 
   for (ezUInt32 i = m_uiCount - 1; i > uiIndex; --i)
+  {
     ezMemoryUtils::Copy(&operator[](i), &operator[](i - 1), 1);
+  }
 
   ezMemoryUtils::Copy(&operator[](uiIndex), &value, 1);
 }

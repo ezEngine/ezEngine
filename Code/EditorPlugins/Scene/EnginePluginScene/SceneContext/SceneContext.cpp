@@ -6,14 +6,13 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Interfaces/SoundInterface.h>
 #include <Core/Prefabs/PrefabResource.h>
+#include <Core/World/EventMessageHandlerComponent.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 #include <EnginePluginScene/SceneContext/LayerContext.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/VisualScript/VisualScriptComponent.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
@@ -56,8 +55,7 @@ void ezSceneContext::DrawSelectionBounds(const ezViewHandle& hView)
 
   for (const auto& obj : m_Selection)
   {
-    ezBoundingBoxSphere bounds;
-    bounds.SetInvalid();
+    ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
     ezGameObject* pObj;
     if (!m_pWorld->TryGetObject(obj, pObj))
@@ -123,14 +121,12 @@ ezSceneContext::ezSceneContext()
   m_GridTransform.SetIdentity();
   m_pWorld = nullptr;
 
-  ezVisualScriptComponent::GetActivityEvents().AddEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
   ezResourceManager::GetManagerEvents().AddEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
   ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::GameApplicationEventHandler, this));
 }
 
 ezSceneContext::~ezSceneContext()
 {
-  ezVisualScriptComponent::GetActivityEvents().RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
   ezResourceManager::GetManagerEvents().RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
   ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneContext::GameApplicationEventHandler, this));
 }
@@ -374,7 +370,7 @@ void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg
       mRot.SetColumn(0, pMsg->m_vGridTangent1);
       mRot.SetColumn(1, pMsg->m_vGridTangent2);
       mRot.SetColumn(2, pMsg->m_vGridTangent1.CrossRH(pMsg->m_vGridTangent2));
-      m_GridTransform.m_qRotation.SetFromMat3(mRot);
+      m_GridTransform.m_qRotation = ezQuat::MakeFromMat3(mRot);
     }
   }
 }
@@ -413,8 +409,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   if (m_Selection.IsEmpty())
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());
@@ -437,7 +432,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
         if (!m_pWorld->TryGetObject(obj, pObj))
           continue;
 
-        bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.0f), 0.0f));
+        bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromCenterExtents(pObj->GetGlobalPosition(), ezVec3(0.0f), 0.0f));
       }
     }
   }
@@ -657,47 +652,6 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
   }
 }
 
-
-void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivityEvent& e)
-{
-  // component handles are not unique across different worlds, in fact it is very likely that different worlds contain identical handles
-  // therefore we first need to filter out, whether the component comes from the same world, as this context operates on
-  if (e.m_pComponent->GetWorld() != GetWorld())
-    return;
-
-  EZ_ASSERT_DEV(e.m_pComponent->GetDebugOutput(), "This component should not send debug data.");
-
-  for (ezWorldRttiConverterContext* pContext : GetAllContexts())
-  {
-    const ezUuid guid = pContext->m_ComponentMap.GetGuid(e.m_pComponent->GetHandle());
-
-    if (!guid.IsValid())
-      return;
-
-    ezVisualScriptActivityMsgToEditor msg;
-    msg.m_DocumentGuid = GetDocumentGuid(); // #TODO: Should this be layer or scene guid?
-    msg.m_ComponentGuid = guid;
-
-    ezMemoryStreamContainerWrapperStorage<ezDataBuffer> storage(&msg.m_Activity);
-    ezMemoryStreamWriter writer(&storage);
-
-    writer << e.m_pActivity->m_ActiveExecutionConnections.GetCount();
-    writer << e.m_pActivity->m_ActiveDataConnections.GetCount();
-
-    for (const auto& con : e.m_pActivity->m_ActiveExecutionConnections)
-    {
-      writer << con;
-    }
-
-    for (const auto& con : e.m_pActivity->m_ActiveDataConnections)
-    {
-      writer << con;
-    }
-
-    SendProcessMessage(&msg);
-  }
-}
-
 void ezSceneContext::OnResourceManagerEvent(const ezResourceManagerEvent& e)
 {
   if (e.m_Type == ezResourceManagerEvent::Type::ReloadAllResources)
@@ -761,8 +715,7 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
 
     if (pMsg->m_bUseStartPosition)
     {
-      ezQuat qRot;
-      qRot.SetShortestRotation(ezVec3(1, 0, 0), pMsg->m_vStartDirection);
+      ezQuat qRot = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), pMsg->m_vStartDirection);
 
       ezTransform tStart(pMsg->m_vStartPosition, qRot);
 
@@ -842,11 +795,9 @@ ezStatus ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 
     const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
     const ezTag& tagNoExport = ezTagRegistry::GetGlobalRegistry().RegisterTag("Exclude From Export");
-    const ezTag& tagEditorPrefabInstance = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
     ezTagSet tags;
     tags.Set(tagEditor);
-    tags.Set(tagEditorPrefabInstance);
     tags.Set(tagNoExport);
 
     ezWorldWriter ww;
@@ -978,12 +929,12 @@ void ezSceneContext::UpdateDocumentContext()
   }
 }
 
-ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, const char* szProperty) const
+ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, ezStringView sProperty) const
 {
   // Test if the component is a direct part of this scene or one of its layers.
   if (m_Context.m_ComponentMap.GetGuid(hThis).IsValid())
   {
-    return SUPER::ResolveStringToGameObjectHandle(pString, hThis, szProperty);
+    return SUPER::ResolveStringToGameObjectHandle(pString, hThis, sProperty);
   }
   for (const ezLayerContext* pLayer : m_Layers)
   {
@@ -991,7 +942,7 @@ ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* p
     {
       if (pLayer->m_Context.m_ComponentMap.GetGuid(hThis).IsValid())
       {
-        return pLayer->ResolveStringToGameObjectHandle(pString, hThis, szProperty);
+        return pLayer->ResolveStringToGameObjectHandle(pString, hThis, sProperty);
       }
     }
   }
@@ -1007,7 +958,7 @@ ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* p
   {
     if (m_Context.m_GameObjectMap.GetGuid(pParent->GetHandle()).IsValid())
     {
-      return SUPER::ResolveStringToGameObjectHandle(pString, hThis, szProperty);
+      return SUPER::ResolveStringToGameObjectHandle(pString, hThis, sProperty);
     }
     for (const ezLayerContext* pLayer : m_Layers)
     {
@@ -1015,7 +966,7 @@ ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* p
       {
         if (pLayer->m_Context.m_GameObjectMap.GetGuid(pParent->GetHandle()).IsValid())
         {
-          return pLayer->ResolveStringToGameObjectHandle(pString, hThis, szProperty);
+          return pLayer->ResolveStringToGameObjectHandle(pString, hThis, sProperty);
         }
       }
     }
@@ -1075,7 +1026,7 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag, bool bForce)
     ezGameObjectDesc obj;
     obj.m_sName.Assign("Ambient Light");
 
-    obj.m_LocalRotation.SetFromEulerAngles(ezAngle::Degree(-14.510815f), ezAngle::Degree(43.07951f), ezAngle::Degree(93.223808f));
+    obj.m_LocalRotation = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(-14.510815f), ezAngle::MakeFromDegree(43.07951f), ezAngle::MakeFromDegree(93.223808f));
 
     if (bSetEditorTag)
     {

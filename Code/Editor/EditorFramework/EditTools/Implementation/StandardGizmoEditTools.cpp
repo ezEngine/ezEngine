@@ -383,7 +383,6 @@ void ezScaleGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEven
   {
     case ezGizmoEvent::Type::Interaction:
     {
-      auto pDocument = GetDocument();
       ezTransform tNew;
 
       bool bCancel = false;

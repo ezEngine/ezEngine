@@ -523,6 +523,34 @@ struct ezVariantTypeDeduction<ezAngle>
 };
 
 template <>
+struct ezVariantTypeDeduction<ezHashedString>
+{
+  enum
+  {
+    value = ezVariantType::HashedString,
+    forceSharing = false,
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
+  };
+
+  using StorageType = ezHashedString;
+};
+
+template <>
+struct ezVariantTypeDeduction<ezTempHashedString>
+{
+  enum
+  {
+    value = ezVariantType::TempHashedString,
+    forceSharing = false,
+    hasReflectedMembers = false,
+    classification = ezVariantClass::DirectCast
+  };
+
+  using StorageType = ezTempHashedString;
+};
+
+template <>
 struct ezVariantTypeDeduction<ezVariantArray>
 {
   enum

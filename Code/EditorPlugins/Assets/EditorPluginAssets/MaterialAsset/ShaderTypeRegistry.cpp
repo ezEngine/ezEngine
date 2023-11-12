@@ -170,7 +170,7 @@ namespace
     return pType;
   }
 
-  void AddAttributes(ezShaderParser::ParameterDefinition& ref_def, const ezRTTI* pType, ezHybridArray<ezPropertyAttribute*, 2>& ref_attributes)
+  void AddAttributes(ezShaderParser::ParameterDefinition& ref_def, const ezRTTI* pType, ezHybridArray<const ezPropertyAttribute*, 2>& ref_attributes)
   {
     if (ref_def.m_sType.StartsWith_NoCase("texture"))
     {
@@ -259,12 +259,12 @@ ezShaderTypeRegistry::~ezShaderTypeRegistry()
   ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
 }
 
-const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
+const ezRTTI* ezShaderTypeRegistry::GetShaderType(ezStringView sShaderPath0)
 {
-  if (ezStringUtils::IsNullOrEmpty(szShaderPath))
+  if (sShaderPath0.IsEmpty())
     return nullptr;
 
-  ezStringBuilder sShaderPath = szShaderPath;
+  ezStringBuilder sShaderPath = sShaderPath0;
   sShaderPath.MakeCleanPath();
 
   if (sShaderPath.IsAbsolutePath())
@@ -287,11 +287,11 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
   }
   else
   {
-    ezStringBuilder sAbsPath = szShaderPath;
+    ezStringBuilder sAbsPath = sShaderPath0;
     {
       if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
       {
-        ezLog::Warning("Can't make path absolute: '{0}'", szShaderPath);
+        ezLog::Warning("Can't make path absolute: '{0}'", sShaderPath0);
         return nullptr;
       }
       sAbsPath.MakeCleanPath();
@@ -436,7 +436,7 @@ public:
       desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
       desc.m_uiTypeVersion = 1;
 
-      context.RegisterObject(ezUuid::StableUuidForString(desc.m_sTypeName.GetData()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
+      context.RegisterObject(ezUuid::MakeStableUuidFromString(desc.m_sTypeName.GetData()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
       rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
     }
   }

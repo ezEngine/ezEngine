@@ -4,9 +4,9 @@
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromCenterAndRadius")
   {
-    ezSimdBSphere s(ezSimdVec4f(1, 2, 3), 4);
+    ezSimdBSphere s = ezSimdBSphere::MakeFromCenterAndRadius(ezSimdVec4f(1, 2, 3), 4);
 
     EZ_TEST_BOOL((s.m_CenterAndRadius == ezSimdVec4f(1, 2, 3, 4)).AllSet());
 
@@ -14,13 +14,13 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
     EZ_TEST_BOOL(s.GetRadius() == 4.0f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInvalid / IsValid")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeInvalid / IsValid")
   {
     ezSimdBSphere s(ezSimdVec4f(1, 2, 3), 4);
 
     EZ_TEST_BOOL(s.IsValid());
 
-    s.SetInvalid();
+    s = ezSimdBSphere::MakeInvalid();
 
     EZ_TEST_BOOL(!s.IsValid());
     EZ_TEST_BOOL(!s.IsNaN());
@@ -31,13 +31,13 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude(Point)")
   {
-    ezSimdBSphere s(ezSimdVec4f::ZeroVector(), 0.0f);
+    ezSimdBSphere s(ezSimdVec4f::MakeZero(), 0.0f);
 
     s.ExpandToInclude(ezSimdVec4f(3, 0, 0));
 
     EZ_TEST_BOOL((s.m_CenterAndRadius == ezSimdVec4f(0, 0, 0, 3)).AllSet());
 
-    s.SetInvalid();
+    s = ezSimdBSphere::MakeInvalid();
 
     s.ExpandToInclude(ezSimdVec4f(0.25, 0, 0));
 
@@ -73,7 +73,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
     ezSimdBSphere s(ezSimdVec4f(5, 0, 0), 2);
 
     ezSimdTransform t(ezSimdVec4f(4, 5, 6));
-    t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(90));
+    t.m_Rotation = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(90));
     t.m_Scale = ezSimdVec4f(1, -2, -4);
 
     s.Transform(t);

@@ -11,12 +11,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 8, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimatedMeshAssetDocument::ezAnimatedMeshAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezAnimatedMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezAnimatedMeshAssetDocument::ezAnimatedMeshAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezAnimatedMeshAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 
-ezTransformStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -74,7 +74,9 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   opt.m_pMeshOutput = &desc;
   opt.m_MeshNormalsPrecision = pProp->m_NormalPrecision;
   opt.m_MeshTexCoordsPrecision = pProp->m_TexCoordPrecision;
-  //opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+  opt.m_MeshBoneWeightPrecision = pProp->m_BoneWeightPrecision;
+  opt.m_bNormalizeWeights = pProp->m_bNormalizeWeights;
+  // opt.m_RootTransform = CalculateTransformationMatrix(pProp);
 
   if (pImporter->Import(opt).Failed())
     return ezStatus("Model importer was unable to read this asset.");
@@ -124,7 +126,7 @@ ezAnimatedMeshAssetDocumentGenerator::ezAnimatedMeshAssetDocumentGenerator()
   AddSupportedFileType("glb");
 }
 
-ezAnimatedMeshAssetDocumentGenerator::~ezAnimatedMeshAssetDocumentGenerator() {}
+ezAnimatedMeshAssetDocumentGenerator::~ezAnimatedMeshAssetDocumentGenerator() = default;
 
 void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
@@ -136,7 +138,7 @@ void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDi
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "AnimatedMeshImport.WithMaterials";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
+    info.m_sIcon = ":/AssetIcons/Animated_Mesh.svg";
   }
 
   {
@@ -144,7 +146,7 @@ void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDi
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "AnimatedMeshImport.NoMaterials";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
+    info.m_sIcon = ":/AssetIcons/Animated_Mesh.svg";
   }
 }
 

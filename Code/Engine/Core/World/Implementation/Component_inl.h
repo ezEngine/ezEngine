@@ -1,13 +1,6 @@
 #include <Foundation/Logging/Log.h>
 
-EZ_ALWAYS_INLINE ezComponent::ezComponent()
-  : m_pMessageDispatchType(nullptr)
-  , m_ComponentFlags(ezObjectFlags::ActiveFlag)
-  , m_pManager(nullptr)
-  , m_pOwner(nullptr)
-{
-  m_uiUniqueID = ezInvalidIndex;
-}
+EZ_ALWAYS_INLINE ezComponent::ezComponent() = default;
 
 EZ_ALWAYS_INLINE ezComponent::~ezComponent()
 {

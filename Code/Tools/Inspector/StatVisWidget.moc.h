@@ -56,10 +56,8 @@ private:
 
   struct StatsData
   {
-    StatsData() { m_pListItem = nullptr; }
-
-    QListWidgetItem* m_pListItem;
-    ezUInt8 m_uiColor;
+    QListWidgetItem* m_pListItem = nullptr;
+    ezUInt8 m_uiColor = 0;
   };
 
   ezMap<ezString, StatsData> m_Stats;

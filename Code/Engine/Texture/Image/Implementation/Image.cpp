@@ -42,30 +42,30 @@ void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezCon
   m_DataPtr = ezBlobPtr<ezUInt8>(const_cast<ezUInt8*>(static_cast<const ezUInt8*>(imageData.GetPtr())), imageData.GetCount());
 }
 
-ezResult ezImageView::SaveTo(const char* szFileName) const
+ezResult ezImageView::SaveTo(ezStringView sFileName) const
 {
-  EZ_LOG_BLOCK("Writing Image", szFileName);
+  EZ_LOG_BLOCK("Writing Image", sFileName);
 
   if (m_Format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error("Cannot write image '{0}' - image data is invalid or empty", szFileName);
+    ezLog::Error("Cannot write image '{0}' - image data is invalid or empty", sFileName);
     return EZ_FAILURE;
   }
 
   ezFileWriter writer;
-  if (writer.Open(szFileName) == EZ_FAILURE)
+  if (writer.Open(sFileName) == EZ_FAILURE)
   {
-    ezLog::Error("Failed to open image file '{0}'", szFileName);
+    ezLog::Error("Failed to open image file '{0}'", sFileName);
     return EZ_FAILURE;
   }
 
-  ezStringView it = ezPathUtils::GetFileExtension(szFileName);
+  ezStringView it = ezPathUtils::GetFileExtension(sFileName);
 
   if (ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(it.GetStartPointer()))
   {
     if (pFormat->WriteImage(writer, *this, it.GetStartPointer()) != EZ_SUCCESS)
     {
-      ezLog::Error("Failed to write image file '{0}'", szFileName);
+      ezLog::Error("Failed to write image file '{0}'", sFileName);
       return EZ_FAILURE;
     }
 
@@ -251,26 +251,26 @@ void ezImage::ResetAndCopy(const ezImageView& other)
   memcpy(GetBlobPtr<ezUInt8>().GetPtr(), other.GetBlobPtr<ezUInt8>().GetPtr(), static_cast<size_t>(other.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
-ezResult ezImage::LoadFrom(const char* szFileName)
+ezResult ezImage::LoadFrom(ezStringView sFileName)
 {
-  EZ_LOG_BLOCK("Loading Image", szFileName);
+  EZ_LOG_BLOCK("Loading Image", sFileName);
 
-  EZ_PROFILE_SCOPE(ezPathUtils::GetFileNameAndExtension(szFileName).GetStartPointer());
+  EZ_PROFILE_SCOPE(ezPathUtils::GetFileNameAndExtension(sFileName).GetStartPointer());
 
   ezFileReader reader;
-  if (reader.Open(szFileName) == EZ_FAILURE)
+  if (reader.Open(sFileName) == EZ_FAILURE)
   {
-    ezLog::Warning("Failed to open image file '{0}'", ezArgSensitive(szFileName, "File"));
+    ezLog::Warning("Failed to open image file '{0}'", ezArgSensitive(sFileName, "File"));
     return EZ_FAILURE;
   }
 
-  ezStringView it = ezPathUtils::GetFileExtension(szFileName);
+  ezStringView it = ezPathUtils::GetFileExtension(sFileName);
 
   if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
   {
     if (pFormat->ReadImage(reader, *this, it.GetStartPointer()) != EZ_SUCCESS)
     {
-      ezLog::Warning("Failed to read image file '{0}'", ezArgSensitive(szFileName, "File"));
+      ezLog::Warning("Failed to read image file '{0}'", ezArgSensitive(sFileName, "File"));
       return EZ_FAILURE;
     }
 

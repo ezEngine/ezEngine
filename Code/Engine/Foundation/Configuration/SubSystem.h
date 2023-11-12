@@ -40,17 +40,17 @@ public:
   virtual ~ezSubSystem() = default;
 
   /// \brief Returns the name of the subsystem. Must be overridden.
-  virtual const char* GetSubSystemName() const = 0;
+  virtual ezStringView GetSubSystemName() const = 0;
 
   /// \brief Returns the name of the group to which this subsystem belongs. Must be overridden.
-  virtual const char* GetGroupName() const = 0;
+  virtual ezStringView GetGroupName() const = 0;
 
   /// \brief Returns a series of strings with the names of the subsystem, which this subsystem depends on. nullptr indicates the last entry.
   /// Must be overridden.
-  virtual const char* GetDependency(ezInt32 iDep) { return nullptr; }
+  virtual ezStringView GetDependency(ezInt32 iDep) { return {}; }
 
   /// \brief Returns the plugin name to which this subsystem belongs.
-  const char* GetPluginName() const { return m_szPluginName; }
+  ezStringView GetPluginName() const { return m_sPluginName; }
 
   /// \brief Returns whether the given startup stage has been done on this subsystem.
   bool IsStartupPhaseDone(ezStartupStage::Enum stage) const { return m_bStartupDone[stage]; }
@@ -75,7 +75,7 @@ private:
   virtual void OnHighLevelSystemsShutdown() {}
 
   /// Set by ezStartup to store to which plugin this subsystem belongs.
-  const char* m_szPluginName = nullptr;
+  ezStringView m_sPluginName;
 
   /// Stores which startup phase has been done already.
   bool m_bStartupDone[ezStartupStage::ENUM_COUNT];

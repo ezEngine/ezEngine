@@ -20,7 +20,8 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     auto& docTypeDesc = m_DocTypeDescs.ExpandAndGetRef();
     docTypeDesc.m_sDocumentTypeName = "Scene";
     docTypeDesc.m_sFileExtension = "ezScene";
-    docTypeDesc.m_sIcon = ":/AssetIcons/Scene.png";
+    docTypeDesc.m_sIcon = ":/AssetIcons/Scene.svg";
+    docTypeDesc.m_sAssetCategory = "Construction";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezScene2Document>();
     docTypeDesc.m_pManager = this;
     docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Scene");
@@ -35,7 +36,8 @@ ezSceneDocumentManager::ezSceneDocumentManager()
 
     docTypeDesc.m_sDocumentTypeName = "Prefab";
     docTypeDesc.m_sFileExtension = "ezPrefab";
-    docTypeDesc.m_sIcon = ":/AssetIcons/Prefab.png";
+    docTypeDesc.m_sIcon = ":/AssetIcons/Prefab.svg";
+    docTypeDesc.m_sAssetCategory = "Construction";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
     docTypeDesc.m_pManager = this;
     docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Prefab");
@@ -49,7 +51,8 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     auto& docTypeDesc = m_DocTypeDescs.ExpandAndGetRef();
     docTypeDesc.m_sDocumentTypeName = "Layer";
     docTypeDesc.m_sFileExtension = "ezSceneLayer";
-    docTypeDesc.m_sIcon = ":/AssetIcons/Layer.png";
+    docTypeDesc.m_sIcon = ":/AssetIcons/Layer.svg";
+    docTypeDesc.m_sAssetCategory = "Construction";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezLayerDocument>();
     docTypeDesc.m_pManager = this;
     docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Scene_Layer");
@@ -61,34 +64,33 @@ ezSceneDocumentManager::ezSceneDocumentManager()
   }
 }
 
-void ezSceneDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezSceneDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "Scene"))
+  if (sDocumentTypeName.IsEqual("Scene"))
   {
-    out_pDocument = new ezScene2Document(szPath);
+    out_pDocument = new ezScene2Document(sPath);
 
     if (bCreateNewDocument)
     {
       SetupDefaultScene(out_pDocument);
     }
   }
-  else if (ezStringUtils::IsEqual(szDocumentTypeName, "Prefab"))
+  else if (sDocumentTypeName.IsEqual("Prefab"))
   {
-    out_pDocument = new ezSceneDocument(szPath, ezSceneDocument::DocumentType::Prefab);
+    out_pDocument = new ezSceneDocument(sPath, ezSceneDocument::DocumentType::Prefab);
   }
-  else if (ezStringUtils::IsEqual(szDocumentTypeName, "Layer"))
+  else if (sDocumentTypeName.IsEqual("Layer"))
   {
     if (pOpenContext == nullptr)
     {
       // Opened individually
-      out_pDocument = new ezSceneDocument(szPath, ezSceneDocument::DocumentType::Layer);
+      out_pDocument = new ezSceneDocument(sPath, ezSceneDocument::DocumentType::Layer);
     }
     else
     {
       // Opened via a parent scene document
       ezScene2Document* pDoc = const_cast<ezScene2Document*>(ezDynamicCast<const ezScene2Document*>(pOpenContext->GetDocumentObjectManager()->GetDocument()));
-      out_pDocument = new ezLayerDocument(szPath, pDoc);
+      out_pDocument = new ezLayerDocument(sPath, pDoc);
     }
   }
 }
@@ -101,9 +103,9 @@ void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<co
   }
 }
 
-void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const char* szClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* pHeader, ezAbstractObjectGraph* pObjects, ezAbstractObjectGraph* pTypes)
+void ezSceneDocumentManager::InternalCloneDocument(ezStringView sPath, ezStringView sClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* pHeader, ezAbstractObjectGraph* pObjects, ezAbstractObjectGraph* pTypes)
 {
-  ezAssetDocumentManager::InternalCloneDocument(szPath, szClonePath, documentId, seedGuid, cloneGuid, pHeader, pObjects, pTypes);
+  ezAssetDocumentManager::InternalCloneDocument(sPath, sClonePath, documentId, seedGuid, cloneGuid, pHeader, pObjects, pTypes);
 
 
   auto pRoot = pObjects->GetNodeByName("ObjectTree");
@@ -133,12 +135,12 @@ void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const cha
             auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(pLayer->m_Layer);
             if (assetInfo.isValid())
             {
-              sLayerPath = assetInfo->m_pAssetInfo->m_sAbsolutePath;
+              sLayerPath = assetInfo->m_pAssetInfo->m_Path;
             }
             else
             {
               ezLog::Error("Failed to resolve layer: {}. Cloned Layer will be invalid.");
-              pLayer->m_Layer.SetInvalid();
+              pLayer->m_Layer = ezUuid::MakeInvalid();
             }
           }
           if (!sLayerPath.IsEmpty())
@@ -146,7 +148,7 @@ void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const cha
             ezUuid newLayerGuid = pLayer->m_Layer;
             newLayerGuid.CombineWithSeed(seedGuid);
 
-            ezStringBuilder sLayerClonePath = szClonePath;
+            ezStringBuilder sLayerClonePath = sClonePath;
             sLayerClonePath.RemoveFileExtension();
             sLayerClonePath.Append("_data");
             ezStringBuilder sCloneFleName = ezPathUtils::GetFileNameAndExtension(sLayerPath.GetData());
@@ -157,8 +159,7 @@ void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const cha
           }
         }
       }
-    }
-  });
+    } });
 }
 
 void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
@@ -166,17 +167,13 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
   auto history = pDocument->GetCommandHistory();
   history->StartTransaction("Initial Scene Setup");
 
-  ezUuid skyObjectGuid;
-  skyObjectGuid.CreateNewUuid();
-  ezUuid lightObjectGuid;
-  lightObjectGuid.CreateNewUuid();
-  ezUuid meshObjectGuid;
-  meshObjectGuid.CreateNewUuid();
+  const ezUuid skyObjectGuid = ezUuid::MakeUuid();
+  const ezUuid lightObjectGuid = ezUuid::MakeUuid();
+  const ezUuid meshObjectGuid = ezUuid::MakeUuid();
 
   // Thumbnail Camera
   {
-    ezUuid objectGuid;
-    objectGuid.CreateNewUuid();
+    const ezUuid objectGuid = ezUuid::MakeUuid();
 
     ezAddObjectCommand cmd;
     cmd.m_Index = -1;
@@ -300,8 +297,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
     }
 
     {
-      ezQuat qRot;
-      qRot.SetFromEulerAngles(ezAngle::Degree(0), ezAngle::Degree(55), ezAngle::Degree(90));
+      ezQuat qRot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(55), ezAngle::MakeFromDegree(90));
 
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;

@@ -189,6 +189,19 @@ void ezBitfield<Container>::ClearBit(ezUInt32 uiBit)
 }
 
 template <class Container>
+EZ_ALWAYS_INLINE void ezBitfield<Container>::SetBitValue(ezUInt32 uiBit, bool bValue)
+{
+  if (bValue)
+  {
+    SetBit(uiBit);
+  }
+  else
+  {
+    ClearBit(uiBit);
+  }
+}
+
+template <class Container>
 bool ezBitfield<Container>::IsBitSet(ezUInt32 uiBit) const
 {
   EZ_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
@@ -297,7 +310,7 @@ EZ_ALWAYS_INLINE ezStaticBitfield<T>::ezStaticBitfield()
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezStaticBitfield<T> ezStaticBitfield<T>::FromMask(StorageType bits)
+EZ_ALWAYS_INLINE ezStaticBitfield<T> ezStaticBitfield<T>::MakeFromMask(StorageType bits)
 {
   return ezStaticBitfield<T>(bits);
 }
@@ -324,25 +337,40 @@ bool ezStaticBitfield<T>::AreAllBitsSet() const
 template <typename T>
 void ezStaticBitfield<T>::ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
 {
-  EZ_ASSERT_DEBUG(uiFirstBit < GetNumBits(), "Cannot access first bit {0}, the bitfield only has {1} bits.", uiFirstBit, GetNumBits());
+  EZ_ASSERT_DEBUG(uiFirstBit < GetStorageTypeBitCount(), "Cannot access first bit {0}, the bitfield only has {1} bits.", uiFirstBit, GetStorageTypeBitCount());
 
-  for (ezUInt32 i = 0; i < uiNumBits; ++i)
-  {
-    const ezUInt32 uiBit = uiFirstBit + i;
-    m_Storage &= ~(static_cast<T>(1u) << uiBit);
-  }
+  T mask = (uiNumBits / 8 >= sizeof(T)) ? (~static_cast<T>(0)) : ((static_cast<T>(1) << uiNumBits) - 1);
+  mask <<= uiFirstBit;
+  mask = ~mask;
+  m_Storage &= mask;
 }
 
 template <typename T>
 void ezStaticBitfield<T>::SetBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
 {
-  EZ_ASSERT_DEBUG(uiFirstBit < GetNumBits(), "Cannot access first bit {0}, the bitfield only has {1} bits.", uiFirstBit, GetNumBits());
+  EZ_ASSERT_DEBUG(uiFirstBit < GetStorageTypeBitCount(), "Cannot access first bit {0}, the bitfield only has {1} bits.", uiFirstBit, GetStorageTypeBitCount());
 
-  for (ezUInt32 i = 0; i < uiNumBits; ++i)
-  {
-    const ezUInt32 uiBit = uiFirstBit + i;
-    m_Storage |= static_cast<T>(1u) << uiBit;
-  }
+  T mask = (uiNumBits / 8 >= sizeof(T)) ? (~static_cast<T>(0)) : ((static_cast<T>(1) << uiNumBits) - 1);
+  mask <<= uiFirstBit;
+  m_Storage |= mask;
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE ezUInt32 ezStaticBitfield<T>::GetNumBitsSet() const
+{
+  return ezMath::CountBits(m_Storage);
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE ezUInt32 ezStaticBitfield<T>::GetHighestBitSet() const
+{
+  return m_Storage == 0 ? GetStorageTypeBitCount() : ezMath::FirstBitHigh(m_Storage);
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE ezUInt32 ezStaticBitfield<T>::GetLowestBitSet() const
+{
+  return m_Storage == 0 ? GetStorageTypeBitCount() : ezMath::FirstBitLow(m_Storage);
 }
 
 template <typename T>
@@ -360,7 +388,7 @@ EZ_ALWAYS_INLINE void ezStaticBitfield<T>::ClearAllBits()
 template <typename T>
 EZ_ALWAYS_INLINE bool ezStaticBitfield<T>::IsBitSet(ezUInt32 uiBit) const
 {
-  EZ_ASSERT_DEBUG(uiBit < GetNumBits(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetNumBits());
+  EZ_ASSERT_DEBUG(uiBit < GetStorageTypeBitCount(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetStorageTypeBitCount());
 
   return (m_Storage & (static_cast<T>(1u) << uiBit)) != 0;
 }
@@ -368,15 +396,28 @@ EZ_ALWAYS_INLINE bool ezStaticBitfield<T>::IsBitSet(ezUInt32 uiBit) const
 template <typename T>
 EZ_ALWAYS_INLINE void ezStaticBitfield<T>::ClearBit(ezUInt32 uiBit)
 {
-  EZ_ASSERT_DEBUG(uiBit < GetNumBits(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetNumBits());
+  EZ_ASSERT_DEBUG(uiBit < GetStorageTypeBitCount(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetStorageTypeBitCount());
 
   m_Storage &= ~(static_cast<T>(1u) << uiBit);
 }
 
 template <typename T>
+EZ_ALWAYS_INLINE void ezStaticBitfield<T>::SetBitValue(ezUInt32 uiBit, bool bValue)
+{
+  if (bValue)
+  {
+    SetBit(uiBit);
+  }
+  else
+  {
+    ClearBit(uiBit);
+  }
+}
+
+template <typename T>
 EZ_ALWAYS_INLINE void ezStaticBitfield<T>::SetBit(ezUInt32 uiBit)
 {
-  EZ_ASSERT_DEBUG(uiBit < GetNumBits(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetNumBits());
+  EZ_ASSERT_DEBUG(uiBit < GetStorageTypeBitCount(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetStorageTypeBitCount());
 
   m_Storage |= static_cast<T>(1u) << uiBit;
 }

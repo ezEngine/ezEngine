@@ -25,26 +25,25 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 namespace
 {
-  typedef WORD(__stdcall* CaptureStackBackTraceFunc)(DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash);
+  using CaptureStackBackTraceFunc = WORD(__stdcall*)(DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash);
 
-  typedef BOOL(__stdcall* SymbolInitializeFunc)(HANDLE hProcess, PCWSTR UserSearchPath, BOOL fInvadeProcess);
+  using SymbolInitializeFunc = BOOL(__stdcall*)(HANDLE hProcess, PCWSTR UserSearchPath, BOOL fInvadeProcess);
 
-  typedef DWORD64(__stdcall* SymbolLoadModuleFunc)(
-    HANDLE hProcess, HANDLE hFile, PCWSTR ImageName, PCWSTR ModuleName, DWORD64 BaseOfDll, DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
+  using SymbolLoadModuleFunc = DWORD64(__stdcall*)(HANDLE hProcess, HANDLE hFile, PCWSTR ImageName, PCWSTR ModuleName, DWORD64 BaseOfDll, DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
 
-  typedef BOOL(__stdcall* SymbolGetModuleInfoFunc)(HANDLE hProcess, DWORD64 qwAddr, PIMAGEHLP_MODULEW64 ModuleInfo);
+  using SymbolGetModuleInfoFunc = BOOL(__stdcall*)(HANDLE hProcess, DWORD64 qwAddr, PIMAGEHLP_MODULEW64 ModuleInfo);
 
-  typedef PVOID(__stdcall* SymbolFunctionTableAccess)(HANDLE hProcess, DWORD64 AddrBase);
+  using SymbolFunctionTableAccess = PVOID(__stdcall*)(HANDLE hProcess, DWORD64 AddrBase);
 
-  typedef DWORD64(__stdcall* SymbolGetModuleBaseFunc)(HANDLE hProcess, DWORD64 qwAddr);
+  using SymbolGetModuleBaseFunc = DWORD64(__stdcall*)(HANDLE hProcess, DWORD64 qwAddr);
 
-  typedef BOOL(__stdcall* StackWalk)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
-    PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
-    PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
+  using StackWalk = BOOL(__stdcall*)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
 
-  typedef BOOL(__stdcall* SymbolFromAddressFunc)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol);
+  using SymbolFromAddressFunc = BOOL(__stdcall*)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol);
 
-  typedef BOOL(__stdcall* LineFromAddressFunc)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PIMAGEHLP_LINEW64 Line);
+  using LineFromAddressFunc = BOOL(__stdcall*)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PIMAGEHLP_LINEW64 Line);
+
+  using SymSetSearchPathFunc = BOOL(__stdcall*)(HANDLE hProcess, PCWSTR SearchPath);
 
   struct StackTracerImplementation
   {
@@ -60,6 +59,7 @@ namespace
     StackWalk stackWalk;
     SymbolFromAddressFunc symbolFromAddress;
     LineFromAddressFunc lineFromAdress;
+    SymSetSearchPathFunc symSetSearchPath;
     bool m_bInitDbgHelp = false;
 
     StackTracerImplementation()
@@ -77,15 +77,24 @@ namespace
       EZ_ASSERT_DEV(dbgHelpDll != nullptr, "StackTracer could not load dbghelp.dll");
       if (dbgHelpDll != nullptr)
       {
+        symSetSearchPath = (SymSetSearchPathFunc)GetProcAddress(dbgHelpDll, "SymSetSearchPathW");
         symbolInitialize = (SymbolInitializeFunc)GetProcAddress(dbgHelpDll, "SymInitializeW");
         symbolLoadModule = (SymbolLoadModuleFunc)GetProcAddress(dbgHelpDll, "SymLoadModuleExW");
         getModuleInfo = (SymbolGetModuleInfoFunc)GetProcAddress(dbgHelpDll, "SymGetModuleInfoW64");
         getFunctionTableAccess = (SymbolFunctionTableAccess)GetProcAddress(dbgHelpDll, "SymFunctionTableAccess64");
         getModuleBase = (SymbolGetModuleBaseFunc)GetProcAddress(dbgHelpDll, "SymGetModuleBase64");
         stackWalk = (StackWalk)GetProcAddress(dbgHelpDll, "StackWalk64");
-        if (symbolInitialize == nullptr || symbolLoadModule == nullptr || getModuleInfo == nullptr || getFunctionTableAccess == nullptr ||
-            getModuleBase == nullptr || stackWalk == nullptr)
+
+        if (symbolInitialize == nullptr ||
+            symbolLoadModule == nullptr ||
+            getModuleInfo == nullptr ||
+            getFunctionTableAccess == nullptr ||
+            getModuleBase == nullptr ||
+            stackWalk == nullptr ||
+            symSetSearchPath == nullptr)
+        {
           return;
+        }
 
         symbolFromAddress = (SymbolFromAddressFunc)GetProcAddress(dbgHelpDll, "SymFromAddrW");
         lineFromAdress = (LineFromAddressFunc)GetProcAddress(dbgHelpDll, "SymGetLineFromAddrW64");
@@ -110,9 +119,18 @@ namespace
     if (!s_pImplementation->m_bInitDbgHelp)
     {
       s_pImplementation->m_bInitDbgHelp = true;
+
       if (!(*s_pImplementation->symbolInitialize)(GetCurrentProcess(), nullptr, TRUE))
       {
         ezLog::Error("StackTracer could not initialize symbols. Error-Code {0}", ezArgErrorCode(::GetLastError()));
+        return;
+      }
+
+      // we want to seach for the PDBs in the same directory where the EXE is located, no matter what the current working directory is
+      if (!(*s_pImplementation->symSetSearchPath)(GetCurrentProcess(), ezStringWChar(ezOSFile::GetApplicationDirectory())))
+      {
+        ezLog::Error("StackTracer could not set symbol search path. Error-Code {0}", ezArgErrorCode(::GetLastError()));
+        return;
       }
     }
   }
@@ -135,16 +153,18 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
 
   if (false) // e.m_EventType == ezPluginEvent::AfterLoading)
   {
+    ezStringBuilder tmp;
+
     char buffer[1024];
-    strcpy_s(buffer, ezOSFile::GetApplicationDirectory());
-    strcat_s(buffer, e.m_szPluginBinary);
+    strcpy_s(buffer, ezOSFile::GetApplicationDirectory().GetStartPointer());
+    strcat_s(buffer, e.m_sPluginBinary.GetData(tmp));
     strcat_s(buffer, ".dll");
 
     wchar_t szPluginPath[1024];
     mbstowcs(szPluginPath, buffer, EZ_ARRAY_SIZE(szPluginPath));
 
     wchar_t szPluginName[256];
-    mbstowcs(szPluginName, e.m_szPluginBinary, EZ_ARRAY_SIZE(szPluginName));
+    mbstowcs(szPluginName, e.m_sPluginBinary.GetData(tmp), EZ_ARRAY_SIZE(szPluginName));
 
     HANDLE currentProcess = GetCurrentProcess();
 
@@ -154,7 +174,7 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
       DWORD err = GetLastError();
       if (err != ERROR_SUCCESS)
       {
-        ezLog::Error("StackTracer could not load symbols for '{0}'. Error-Code {1}", e.m_szPluginBinary, ezArgErrorCode(err));
+        ezLog::Error("StackTracer could not load symbols for '{0}'. Error-Code {1}", e.m_sPluginBinary, ezArgErrorCode(err));
       }
 
       return;
@@ -173,7 +193,7 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
         MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
       char errStr[1024];
-      sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_szPluginBinary, err, static_cast<char*>(lpMsgBuf));
+      sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_sPluginBinary.GetData(tmp), err, static_cast<char*>(lpMsgBuf));
       ezLog::Print(errStr);
 
       LocalFree(lpMsgBuf);
@@ -224,17 +244,25 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& ref_trace, void* pConte
     frame.AddrPC.Mode = AddrModeFlat;
     frame.AddrFrame.Mode = AddrModeFlat;
     frame.AddrStack.Mode = AddrModeFlat;
-#ifdef _M_X64
+#if defined(_M_X64)
     frame.AddrPC.Offset = context.Rip;
     frame.AddrFrame.Offset = context.Rbp;
     frame.AddrStack.Offset = context.Rsp;
     machine_type = IMAGE_FILE_MACHINE_AMD64;
-#else
+#elif defined(_ARM64_)
+    frame.AddrPC.Offset = context.Pc;
+    frame.AddrFrame.Offset = context.Fp;
+    frame.AddrStack.Offset = context.Sp;
+    machine_type = IMAGE_FILE_MACHINE_ARM64;
+#elif defined(_X86_)
     frame.AddrPC.Offset = context.Eip;
     frame.AddrFrame.Offset = context.Ebp;
     frame.AddrStack.Offset = context.Esp;
     machine_type = IMAGE_FILE_MACHINE_I386;
+#else
+#  error Unsupported platform
 #endif
+
     for (ezInt32 i = 0; i < (ezInt32)ref_trace.GetCount(); i++)
     {
       if (s_pImplementation->stackWalk(machine_type, GetCurrentProcess(), GetCurrentThread(), &frame, &context, NULL,
@@ -270,7 +298,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 
   if (s_pImplementation->symbolFromAddress != nullptr && s_pImplementation->lineFromAdress != nullptr)
   {
-    char buffer[1024];
+    alignas(_SYMBOL_INFOW) char buffer[1024];
     HANDLE currentProcess = GetCurrentProcess();
 
     const ezUInt32 uiNumTraceEntries = trace.GetCount();

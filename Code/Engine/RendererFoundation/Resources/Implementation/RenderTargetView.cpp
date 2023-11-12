@@ -10,7 +10,7 @@ ezGALRenderTargetView::ezGALRenderTargetView(ezGALTexture* pTexture, const ezGAL
   EZ_ASSERT_DEV(m_pTexture != nullptr, "Texture must not be null");
 }
 
-ezGALRenderTargetView::~ezGALRenderTargetView() {}
+ezGALRenderTargetView::~ezGALRenderTargetView() = default;
 
 
 

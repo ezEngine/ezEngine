@@ -1,6 +1,6 @@
 template <ezUInt32 TrackingFlags>
-ezStackAllocator<TrackingFlags>::ezStackAllocator(const char* szName, ezAllocatorBase* pParent)
-  : ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>(szName, pParent)
+ezStackAllocator<TrackingFlags>::ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent)
+  : ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>(sName, pParent)
   , m_DestructData(pParent)
   , m_PtrToDestructDataIndexTable(pParent)
 {

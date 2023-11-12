@@ -56,7 +56,8 @@ ezEditorInput ezEditorInputContext::MouseMoveEvent(QMouseEvent* e)
   {
     if (m_bJustWrappedMouse)
     {
-      const ezVec2I32 curPos(e->globalX(), e->globalY());
+      const QPoint mousePosition = e->globalPosition().toPoint();
+      const ezVec2I32 curPos(mousePosition.x(), mousePosition.y());
       const ezVec2I32 diffToOld = curPos - m_vMousePosBeforeWrap;
       const ezVec2I32 diffToNew = curPos - m_vExpectedMousePosition;
 
@@ -158,7 +159,8 @@ ezVec2I32 ezEditorInputContext::SetMouseMode(MouseMode newMode)
 
 ezVec2I32 ezEditorInputContext::UpdateMouseMode(QMouseEvent* e)
 {
-  const ezVec2I32 curPos(e->globalX(), e->globalY());
+  const QPoint mousePosition = e->globalPosition().toPoint();
+  const ezVec2I32 curPos(mousePosition.x(), mousePosition.y());
 
   if (m_MouseMode == MouseMode::Normal)
     return curPos;

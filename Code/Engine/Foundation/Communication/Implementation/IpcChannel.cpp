@@ -5,7 +5,6 @@
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
@@ -13,33 +12,36 @@
 #  include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
 #endif
 
-ezIpcChannel::ezIpcChannel(const char* szAddress, Mode::Enum mode)
-  : m_Mode(mode)
+EZ_CHECK_AT_COMPILETIME((ezInt32)ezIpcChannel::ConnectionState::Disconnected == (ezInt32)ezIpcChannelEvent::Disconnected);
+EZ_CHECK_AT_COMPILETIME((ezInt32)ezIpcChannel::ConnectionState::Connecting == (ezInt32)ezIpcChannelEvent::Connecting);
+EZ_CHECK_AT_COMPILETIME((ezInt32)ezIpcChannel::ConnectionState::Connected == (ezInt32)ezIpcChannelEvent::Connected);
+
+ezIpcChannel::ezIpcChannel(ezStringView sAddress, Mode::Enum mode)
+  : m_sAddress(sAddress)
+  , m_Mode(mode)
   , m_pOwner(ezMessageLoop::GetSingleton())
 {
 }
 
 ezIpcChannel::~ezIpcChannel()
 {
-  ezDeque<ezUniquePtr<ezProcessMessage>> messages;
-  SwapWorkQueue(messages);
-  messages.Clear();
+
 
   m_pOwner->RemoveChannel(this);
 }
 
-ezIpcChannel* ezIpcChannel::CreatePipeChannel(const char* szAddress, Mode::Enum mode)
+ezInternal::NewInstance<ezIpcChannel> ezIpcChannel::CreatePipeChannel(ezStringView sAddress, Mode::Enum mode)
 {
-  if (ezStringUtils::IsNullOrEmpty(szAddress) || ezStringUtils::GetStringElementCount(szAddress) > 200)
+  if (sAddress.IsEmpty() || sAddress.GetElementCount() > 200)
   {
-    ezLog::Error("Failed co create pipe '{0}', name is not valid", szAddress);
+    ezLog::Error("Failed co create pipe '{0}', name is not valid", sAddress);
     return nullptr;
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  return EZ_DEFAULT_NEW(ezPipeChannel_win, szAddress, mode);
+  return EZ_DEFAULT_NEW(ezPipeChannel_win, sAddress, mode);
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  return EZ_DEFAULT_NEW(ezPipeChannel_linux, szAddress, mode);
+  return EZ_DEFAULT_NEW(ezPipeChannel_linux, sAddress, mode);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
@@ -47,10 +49,10 @@ ezIpcChannel* ezIpcChannel::CreatePipeChannel(const char* szAddress, Mode::Enum 
 }
 
 
-ezIpcChannel* ezIpcChannel::CreateNetworkChannel(const char* szAddress, Mode::Enum mode)
+ezInternal::NewInstance<ezIpcChannel> ezIpcChannel::CreateNetworkChannel(ezStringView sAddress, Mode::Enum mode)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-  return EZ_DEFAULT_NEW(ezIpcChannelEnet, szAddress, mode);
+  return EZ_DEFAULT_NEW(ezIpcChannelEnet, sAddress, mode);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
@@ -72,24 +74,21 @@ void ezIpcChannel::Disconnect()
   m_pOwner->WakeUp();
 }
 
-bool ezIpcChannel::Send(ezProcessMessage* pMsg)
+
+bool ezIpcChannel::Send(ezArrayPtr<const ezUInt8> data)
 {
   {
     EZ_LOCK(m_OutputQueueMutex);
     ezMemoryStreamStorageInterface& storage = m_OutputQueue.ExpandAndGetRef();
     ezMemoryStreamWriter writer(&storage);
-    ezUInt32 uiSize = 0;
+    ezUInt32 uiSize = data.GetCount() + HEADER_SIZE;
     ezUInt32 uiMagic = MAGIC_VALUE;
     writer << uiMagic;
     writer << uiSize;
     EZ_ASSERT_DEBUG(storage.GetStorageSize32() == HEADER_SIZE, "Magic value and size should have written HEADER_SIZE bytes.");
-    ezReflectionSerializer::WriteObjectToBinary(writer, pMsg->GetDynamicRTTI(), pMsg);
-
-    // reset to the beginning and write the stored size again
-    writer.SetWritePosition(4);
-    writer << storage.GetStorageSize32();
+    writer.WriteBytes(data.GetPtr(), data.GetCount()).AssertSuccess("Failed to write to in-memory buffer, out of memory?");
   }
-  if (m_bConnected)
+  if (IsConnected())
   {
     if (NeedWakeup())
     {
@@ -103,50 +102,48 @@ bool ezIpcChannel::Send(ezProcessMessage* pMsg)
   return false;
 }
 
-bool ezIpcChannel::ProcessMessages()
+void ezIpcChannel::SetReceiveCallback(ReceiveCallback callback)
 {
-  ezDeque<ezUniquePtr<ezProcessMessage>> messages;
-  SwapWorkQueue(messages);
-  if (messages.IsEmpty())
-  {
-    return false;
-  }
-
-  while (!messages.IsEmpty())
-  {
-    ezUniquePtr<ezProcessMessage> msg = std::move(messages.PeekFront());
-    messages.PopFront();
-    m_MessageEvent.Broadcast(msg.Borrow());
-  }
-
-  return true;
-}
-
-void ezIpcChannel::WaitForMessages()
-{
-  if (m_bConnected)
-  {
-    m_IncomingMessages.WaitForSignal();
-    ProcessMessages();
-  }
+  EZ_LOCK(m_ReceiveCallbackMutex);
+  m_ReceiveCallback = callback;
 }
 
 ezResult ezIpcChannel::WaitForMessages(ezTime timeout)
 {
-  if (m_bConnected)
+  if (IsConnected())
   {
-    if (m_IncomingMessages.WaitForSignal(timeout) == ezThreadSignal::WaitResult::Timeout)
+    if (timeout == ezTime::MakeZero())
+    {
+      m_IncomingMessages.WaitForSignal();
+    }
+    else if (m_IncomingMessages.WaitForSignal(timeout) == ezThreadSignal::WaitResult::Timeout)
     {
       return EZ_FAILURE;
     }
-    ProcessMessages();
   }
-
   return EZ_SUCCESS;
 }
 
-void ezIpcChannel::ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
+void ezIpcChannel::SetConnectionState(ezEnum<ezIpcChannel::ConnectionState> state)
 {
+  const ezEnum<ezIpcChannel::ConnectionState> oldValue = m_iConnectionState.Set(state);
+
+  if (state != oldValue)
+  {
+    m_Events.Broadcast(ezIpcChannelEvent((ezIpcChannelEvent::Type)state.GetValue(), this));
+  }
+}
+
+void ezIpcChannel::ReceiveData(ezArrayPtr<const ezUInt8> data)
+{
+  EZ_LOCK(m_ReceiveCallbackMutex);
+
+  if (!m_ReceiveCallback.IsValid())
+  {
+    m_MessageAccumulator.PushBackRange(data);
+    return;
+  }
+
   ezArrayPtr<const ezUInt8> remainingData = data;
   while (true)
   {
@@ -191,50 +188,17 @@ void ezIpcChannel::ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
     remainingData = remainingData.GetSubArray(remainingMessageData);
 
     {
-      // Message complete, de-serialize
-      ezRawMemoryStreamReader reader(m_MessageAccumulator.GetData() + HEADER_SIZE, uiMessageSize - HEADER_SIZE);
-      const ezRTTI* pRtti = nullptr;
-
-      ezProcessMessage* pMsg = (ezProcessMessage*)ezReflectionSerializer::ReadObjectFromBinary(reader, pRtti);
-      ezUniquePtr<ezProcessMessage> msg(pMsg, ezFoundation::GetDefaultAllocator());
-      if (msg != nullptr)
-      {
-        EnqueueMessage(std::move(msg));
-      }
-      else
-      {
-        ezLog::Error("Channel received invalid Message!");
-      }
+      m_ReceiveCallback(ezArrayPtr<const ezUInt8>(m_MessageAccumulator.GetData() + HEADER_SIZE, uiMessageSize - HEADER_SIZE));
+      m_IncomingMessages.RaiseSignal();
+      m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::NewMessages, this));
       m_MessageAccumulator.Clear();
     }
   }
-}
-
-void ezIpcChannel::EnqueueMessage(ezUniquePtr<ezProcessMessage>&& msg)
-{
-  {
-    EZ_LOCK(m_IncomingQueueMutex);
-    m_IncomingQueue.PushBack(std::move(msg));
-  }
-  m_IncomingMessages.RaiseSignal();
-
-  m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::NewMessages, this));
-}
-
-void ezIpcChannel::SwapWorkQueue(ezDeque<ezUniquePtr<ezProcessMessage>>& messages)
-{
-  EZ_ASSERT_DEBUG(messages.IsEmpty(), "Swap target must be empty!");
-  EZ_LOCK(m_IncomingQueueMutex);
-  if (m_IncomingQueue.IsEmpty())
-    return;
-  messages.Swap(m_IncomingQueue);
 }
 
 void ezIpcChannel::FlushPendingOperations()
 {
   m_pOwner->WaitForMessages(-1, this);
 }
-
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcChannel);

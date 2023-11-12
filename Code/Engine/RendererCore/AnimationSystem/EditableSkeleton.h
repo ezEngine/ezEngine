@@ -28,20 +28,21 @@ struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneShape : public ezReflectedClass
 
   ezEnum<ezSkeletonJointGeometryType> m_Geometry;
 
-  ezVec3 m_vOffset = ezVec3::ZeroVector();
-  ezQuat m_qRotation = ezQuat::IdentityQuaternion();
+  ezVec3 m_vOffset = ezVec3::MakeZero();
+  ezQuat m_qRotation = ezQuat::MakeIdentity();
 
   float m_fLength = 0;    // Box, Capsule; 0 means parent joint to this joint (auto mode)
   float m_fWidth = 0;     // Box
   float m_fThickness = 0; // Sphere radius, Capsule radius
+};
 
-  bool m_bOverrideName = false;
-  bool m_bOverrideSurface = false;
-  bool m_bOverrideCollisionLayer = false;
+struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneCollider : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeletonBoneCollider, ezReflectedClass);
 
-  ezString m_sNameOverride;
-  ezString m_sSurfaceOverride;
-  ezUInt8 m_uiCollisionLayerOverride;
+  ezString m_sIdentifier;
+  ezDynamicArray<ezVec3> m_VertexPositions;
+  ezDynamicArray<ezUInt8> m_TriangleIndices;
 };
 
 class EZ_RENDERERCORE_DLL ezEditableSkeletonJoint : public ezReflectedClass
@@ -62,23 +63,30 @@ public:
   void CopyPropertiesFrom(const ezEditableSkeletonJoint* pJoint);
 
   ezHashedString m_sName;
-  ezTransform m_LocalTransform = ezTransform::IdentityTransform();
+  ezTransform m_LocalTransform = ezTransform::MakeIdentity();
 
-  bool m_bLimitTwist = false;
-  bool m_bLimitSwing = false;
+  ezEnum<ezSkeletonJointType> m_JointType;
+
+  float m_fStiffness = 0.0f;
 
   ezAngle m_TwistLimitHalfAngle;
   ezAngle m_TwistLimitCenterAngle;
   ezAngle m_SwingLimitY;
   ezAngle m_SwingLimitZ;
 
-  ezVec3 m_vGizmoOffsetPositionRO = ezVec3::ZeroVector();
-  ezQuat m_qGizmoOffsetRotationRO = ezQuat::IdentityQuaternion();
+  ezVec3 m_vGizmoOffsetPositionRO = ezVec3::MakeZero();
+  ezQuat m_qGizmoOffsetRotationRO = ezQuat::MakeIdentity();
 
-  ezQuat m_qLocalJointRotation = ezQuat::IdentityQuaternion();
+  ezQuat m_qLocalJointRotation = ezQuat::MakeIdentity();
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
   ezHybridArray<ezEditableSkeletonBoneShape, 1> m_BoneShapes;
+  ezDynamicArray<ezEditableSkeletonBoneCollider> m_BoneColliders;
+
+  bool m_bOverrideSurface = false;
+  bool m_bOverrideCollisionLayer = false;
+  ezString m_sSurfaceOverride;
+  ezUInt8 m_uiCollisionLayerOverride;
 };
 
 class EZ_RENDERERCORE_DLL ezEditableSkeleton : public ezReflectedClass
@@ -96,10 +104,13 @@ public:
   void CreateJointsRecursive(ezSkeletonBuilder& ref_sb, ezSkeletonResourceDescriptor& ref_desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt16 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& mRootTransform) const;
 
   ezString m_sSourceFile;
+  ezString m_sPreviewMesh;
+
   ezString m_sSurfaceFile;
   ezUInt8 m_uiCollisionLayer = 0;
 
   float m_fUniformScaling = 1.0f;
+  float m_fMaxImpulse = 100.0f;
 
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;

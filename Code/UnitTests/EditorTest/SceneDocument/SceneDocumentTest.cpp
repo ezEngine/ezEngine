@@ -5,15 +5,18 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
+#include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorPluginScene/Panels/LayerPanel/LayerAdapter.moc.h>
 #include <EditorPluginScene/Scene/LayerDocument.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <EditorTest/SceneDocument/SceneDocumentTest.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Reflection/Implementation/RTTI.h>
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
-#include <QMimeData>
 #include <RendererCore/Lights/SphereReflectionProbeComponent.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+
+#include <QMimeData>
 
 static ezEditorSceneDocumentTest s_EditorSceneDocumentTest;
 
@@ -27,6 +30,7 @@ void ezEditorSceneDocumentTest::SetupSubTests()
   AddSubTest("Layer Operations", SubTests::ST_LayerOperations);
   AddSubTest("Prefab Operations", SubTests::ST_PrefabOperations);
   AddSubTest("Component Operations", SubTests::ST_ComponentOperations);
+  AddSubTest("Object Property Path", SubTests::ST_ObjectPropertyPath);
 }
 
 ezResult ezEditorSceneDocumentTest::InitializeTest()
@@ -50,8 +54,8 @@ ezResult ezEditorSceneDocumentTest::DeInitializeTest()
 {
   m_pDoc = nullptr;
   m_pLayer = nullptr;
-  m_SceneGuid.SetInvalid();
-  m_LayerGuid.SetInvalid();
+  m_SceneGuid = ezUuid::MakeInvalid();
+  m_LayerGuid = ezUuid::MakeInvalid();
 
   if (SUPER::DeInitializeTest().Failed())
     return EZ_FAILURE;
@@ -71,6 +75,9 @@ ezTestAppRun ezEditorSceneDocumentTest::RunSubTest(ezInt32 iIdentifier, ezUInt32
       break;
     case SubTests::ST_ComponentOperations:
       ComponentOperations();
+      break;
+    case SubTests::ST_ObjectPropertyPath:
+      ObjectPropertyPath();
       break;
   }
   return ezTestAppRun::Quit;
@@ -114,8 +121,8 @@ void ezEditorSceneDocumentTest::CloseSimpleScene()
     EZ_TEST_BOOL(bSaved);
     m_pDoc = nullptr;
     m_pLayer = nullptr;
-    m_SceneGuid.SetInvalid();
-    m_LayerGuid.SetInvalid();
+    m_SceneGuid = ezUuid::MakeInvalid();
+    m_LayerGuid = ezUuid::MakeInvalid();
   }
 }
 
@@ -445,12 +452,12 @@ void ezEditorSceneDocumentTest::PrefabOperations()
   const ezDocumentObject* pPrefab3 = nullptr;
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Create Prefab from Selection")
   {
-    //ProcessEvents(999999999);
+    // ProcessEvents(999999999);
 
     ezStringBuilder sPrefabName;
     sPrefabName = m_sProjectPath;
     sPrefabName.AppendPath("Spheres.ezPrefab");
-    EZ_TEST_BOOL(m_pDoc->CreatePrefabDocumentFromSelection(sPrefabName, ezGetStaticRTTI<ezGameObject>()).Succeeded());
+    EZ_TEST_BOOL(m_pDoc->CreatePrefabDocumentFromSelection(sPrefabName, ezGetStaticRTTI<ezGameObject>(), {}, {}, [](ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>&) { /* do nothing */ }).Succeeded());
     m_pDoc->ScheduleSendObjectSelection();
     pPrefab3 = m_pDoc->GetSelectionManager()->GetCurrentObject();
     EZ_TEST_BOOL(!m_pDoc->IsObjectEditorPrefab(pPrefab3->GetGuid()));
@@ -544,9 +551,9 @@ void ezEditorSceneDocumentTest::PrefabOperations()
     const char* szExpectedProvider = pChild == pPrefab3 ? "Attribute" : "Prefab";
     EZ_TEST_STRING(defaultState.GetStateProviderName(), szExpectedProvider);
 
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     pChild->GetType()->GetAllProperties(properties);
-    for (ezAbstractProperty* pProp : properties)
+    for (auto pProp : properties)
     {
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Hidden | ezPropertyFlags::ReadOnly))
         continue;
@@ -561,11 +568,11 @@ void ezEditorSceneDocumentTest::PrefabOperations()
     const ezAbstractProperty* pProp = pPrefab3->GetType()->FindPropertyByName("Children");
     const ezAbstractProperty* pCompProp = pPrefab3->GetType()->FindPropertyByName("Components");
 
-    //ProcessEvents(999999999);
+    // ProcessEvents(999999999);
 
     CheckHierarchy(pAccessor, pPrefab3, IsObjectDefault);
 
-    //ProcessEvents(999999999);
+    // ProcessEvents(999999999);
     {
       m_pDoc->UpdatePrefabs();
       // Update prefabs replaces object instances with new ones with the same IDs so the old ones are in the undo history now.
@@ -580,7 +587,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       const ezDocumentObject* pChild0 = pAccessor->GetObject(values[0].Get<ezUuid>());
       const ezDocumentObject* pChild1 = pAccessor->GetObject(values[1].Get<ezUuid>());
       pAccessor->StartTransaction("Delete child0");
-      pAccessor->RemoveObject(pChild1);
+      pAccessor->RemoveObject(pChild1).AssertSuccess();
       pAccessor->FinishTransaction();
       EZ_TEST_INT(pAccessor->GetCount(pPrefab3, pProp), 1);
     }
@@ -666,7 +673,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
         ezDefaultContainerState defaultState(pAccessor, selection, "Components");
 
         pAccessor->StartTransaction("Revert children");
-        defaultState.RevertContainer();
+        defaultState.RevertContainer().AssertSuccess();
         pAccessor->FinishTransaction();
       }
     }
@@ -718,9 +725,9 @@ void ezEditorSceneDocumentTest::ComponentOperations()
     selection.PushBack({pChild, ezVariant()});
     ezDefaultObjectState defaultState(pAccessor, selection);
 
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     pChild->GetType()->GetAllProperties(properties);
-    for (ezAbstractProperty* pProp : properties)
+    for (auto pProp : properties)
     {
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Hidden | ezPropertyFlags::ReadOnly))
         continue;
@@ -736,7 +743,7 @@ void ezEditorSceneDocumentTest::ComponentOperations()
   };
 
   ezDynamicArray<const ezRTTI*> componentTypes;
-  ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezComponent>(), componentTypes, true);
+  ezRTTI::ForEachDerivedType<ezComponent>([&](const ezRTTI* pRtti) { componentTypes.PushBack(pRtti); });
 
   ezSet<const ezRTTI*> blacklist;
   // The scene already has one and the code asserts otherwise. There needs to be a general way of preventing two settings components from existing at the same time.
@@ -755,11 +762,145 @@ void ezEditorSceneDocumentTest::ComponentOperations()
   }
 
   pAccessor->FinishTransaction();
-
   ProcessEvents(10);
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-open document")
+  {
+    ezUuid layerGuid = m_LayerGuid;
+    CloseSimpleScene();
+    ProcessEvents(10);
+
+    m_pDoc = ezDynamicCast<ezScene2Document*>(OpenDocument("ComponentOperations.ezScene"));
+    EZ_TEST_BOOL(m_pDoc != nullptr);
+    m_SceneGuid = m_pDoc->GetGuid();
+
+    ezHybridArray<ezUuid, 2> layers;
+    m_pDoc->GetAllLayers(layers);
+
+    EZ_TEST_BOOL(layers.Contains(layerGuid));
+    m_LayerGuid = layerGuid;
+
+    EZ_TEST_BOOL(m_pDoc->SetLayerLoaded(m_LayerGuid, true).Succeeded());
+    m_pLayer = ezDynamicCast<ezLayerDocument*>(m_pDoc->GetLayerDocument(m_LayerGuid));
+    EZ_TEST_BOOL(m_pLayer != nullptr);
+  }
+
   CloseSimpleScene();
 }
 
+
+void ezEditorSceneDocumentTest::ObjectPropertyPath()
+{
+  if (CreateSimpleScene("ObjectPropertyPath.ezScene").Failed())
+    return;
+
+  auto pAccessor = m_pDoc->GetObjectAccessor();
+
+  auto CreateComponent = [&](const ezDocumentObject* pParent) -> const ezDocumentObject* {
+    pAccessor->StartTransaction("AddComponent"_ezsv);
+    ezUuid compGuid;
+    EZ_TEST_STATUS(pAccessor->AddObject(pParent, "Components", -1, ezRTTI::FindTypeByName("ezDecalComponent"), compGuid));
+    const ezDocumentObject* pComp = pAccessor->GetObject(compGuid);
+    EZ_TEST_STATUS(pAccessor->InsertValue(pComp, "Decals", "", 0));
+    pAccessor->FinishTransaction();
+    return pComp;
+  };
+
+  const ezDocumentObject* pRoot = CreateGameObject(m_pDoc, nullptr, "Root"_ezsv);
+  const ezDocumentObject* pDummy = CreateGameObject(m_pDoc, pRoot, "Dummy"_ezsv);
+  const ezDocumentObject* pC1 = CreateGameObject(m_pDoc, pDummy, "C"_ezsv);
+  const ezDocumentObject* pComp1 = CreateComponent(pC1);
+
+  const ezDocumentObject* pA = CreateGameObject(m_pDoc, pRoot, "A"_ezsv);
+  const ezDocumentObject* pB = CreateGameObject(m_pDoc, pA, "B"_ezsv);
+  const ezDocumentObject* pC2 = CreateGameObject(m_pDoc, pB, "C"_ezsv);
+  const ezDocumentObject* pComp2 = CreateComponent(pC2);
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GameObject property")
+  {
+    ezObjectPropertyPathContext context{pRoot, pAccessor, "Children"};
+    ezPropertyReference propertyRef{pC2->GetGuid(), pC2->GetType()->FindPropertyByName("Active"_ezsv)};
+
+    ezStringBuilder sObjectSearchSequence;
+    ezStringBuilder sComponentType;
+    ezStringBuilder sPropertyPath;
+    EZ_TEST_STATUS(ezObjectPropertyPath::CreatePath(context, propertyRef, sObjectSearchSequence, sComponentType, sPropertyPath));
+    EZ_TEST_STRING(sObjectSearchSequence, "A/B/C");
+    EZ_TEST_BOOL(sComponentType.IsEmpty());
+    EZ_TEST_STRING(sPropertyPath, "Active");
+
+    ezHybridArray<ezPropertyReference, 2> properties;
+    EZ_TEST_BOOL(ezObjectPropertyPath::ResolvePath(context, properties, "A/B/D", "", sPropertyPath).Failed());                                    // Path does not exist.
+    EZ_TEST_BOOL(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, "ezPointLightComponent", sPropertyPath).Failed()); // Component does not exist.
+    EZ_TEST_BOOL(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, "", "Bla").Failed());                              // Property does not exist.
+    EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, "", sPropertyPath));
+    EZ_TEST_INT(properties.GetCount(), 1);
+    EZ_TEST_BOOL(properties[0] == propertyRef);
+
+    properties.Clear();
+    EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, "C", "", sPropertyPath)); // ambiguous target
+    EZ_TEST_INT(properties.GetCount(), 2);
+    ezPropertyReference propertyRef2{pC1->GetGuid(), pC2->GetType()->FindPropertyByName("Active"_ezsv)};
+    EZ_TEST_BOOL(properties[0] == propertyRef2);
+    EZ_TEST_BOOL(properties[1] == propertyRef);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component member property")
+  {
+    ezObjectPropertyPathContext context{pRoot, pAccessor, "Children"};
+    ezPropertyReference propertyRef{pComp2->GetGuid(), pComp2->GetType()->FindPropertyByName("Color"_ezsv)};
+
+    ezStringBuilder sObjectSearchSequence;
+    ezStringBuilder sComponentType;
+    ezStringBuilder sPropertyPath;
+    EZ_TEST_STATUS(ezObjectPropertyPath::CreatePath(context, propertyRef, sObjectSearchSequence, sComponentType, sPropertyPath));
+    EZ_TEST_STRING(sObjectSearchSequence, "A/B/C");
+    EZ_TEST_STRING(sComponentType, "ezDecalComponent");
+    EZ_TEST_STRING(sPropertyPath, "Color");
+
+    ezHybridArray<ezPropertyReference, 2> properties;
+    EZ_TEST_BOOL(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, sComponentType, "Bla").Failed()); // Property does not exist.
+    EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, sComponentType, sPropertyPath));
+    EZ_TEST_INT(properties.GetCount(), 1);
+    EZ_TEST_BOOL(properties[0] == propertyRef);
+
+    properties.Clear();
+    EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, "C", sComponentType, sPropertyPath)); // ambiguous target
+    EZ_TEST_INT(properties.GetCount(), 2);
+    ezPropertyReference propertyRef2{pComp1->GetGuid(), pComp1->GetType()->FindPropertyByName("Color"_ezsv)};
+    EZ_TEST_BOOL(properties[0] == propertyRef2);
+    EZ_TEST_BOOL(properties[1] == propertyRef);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component array property")
+  {
+    ezObjectPropertyPathContext context{pRoot, pAccessor, "Children"};
+    ezPropertyReference propertyRef{pComp2->GetGuid(), pComp2->GetType()->FindPropertyByName("Decals"_ezsv), 0};
+
+    ezStringBuilder sObjectSearchSequence;
+    ezStringBuilder sComponentType;
+    ezStringBuilder sPropertyPath;
+    EZ_TEST_STATUS(ezObjectPropertyPath::CreatePath(context, propertyRef, sObjectSearchSequence, sComponentType, sPropertyPath));
+    EZ_TEST_STRING(sObjectSearchSequence, "A/B/C");
+    EZ_TEST_STRING(sComponentType, "ezDecalComponent");
+    EZ_TEST_STRING(sPropertyPath, "Decals[0]");
+
+    ezHybridArray<ezPropertyReference, 2> properties;
+    EZ_TEST_BOOL(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, sComponentType, "Decals[1]").Failed()); // Index out of range.
+    EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, sComponentType, sPropertyPath));
+    EZ_TEST_INT(properties.GetCount(), 1);
+    EZ_TEST_BOOL(properties[0] == propertyRef);
+
+    properties.Clear();
+    EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, "C", sComponentType, sPropertyPath)); // ambiguous target
+    EZ_TEST_INT(properties.GetCount(), 2);
+    ezPropertyReference propertyRef2{pComp1->GetGuid(), pComp1->GetType()->FindPropertyByName("Decals"_ezsv), 0};
+    EZ_TEST_BOOL(properties[0] == propertyRef2);
+    EZ_TEST_BOOL(properties[1] == propertyRef);
+  }
+
+  CloseSimpleScene();
+}
 
 void ezEditorSceneDocumentTest::CheckHierarchy(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pRoot, ezDelegate<void(const ezDocumentObject* pChild)> functor)
 {

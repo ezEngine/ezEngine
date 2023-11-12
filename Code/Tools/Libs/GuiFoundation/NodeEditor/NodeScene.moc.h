@@ -26,7 +26,7 @@ public:
   explicit ezQtNodeScene(QObject* pParent = nullptr);
   ~ezQtNodeScene();
 
-  void SetDocumentNodeManager(const ezDocumentNodeManager* pManager);
+  virtual void InitScene(const ezDocumentNodeManager* pManager);
   const ezDocumentNodeManager* GetDocumentNodeManager() const;
   const ezDocument* GetDocument() const;
 
@@ -84,6 +84,7 @@ private:
   void DeleteQtNode(const ezDocumentObject* pObject);
   void CreateQtConnection(const ezDocumentObject* pObject);
   void DeleteQtConnection(const ezDocumentObject* pObject);
+  void RecreateQtPins(const ezDocumentObject* pObject);
   void CreateNodeObject(const ezRTTI* pRtti);
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
@@ -120,7 +121,7 @@ private:
   ezQtPin* m_pStartPin = nullptr;
   ezQtConnection* m_pTempConnection = nullptr;
   ezDeque<const ezDocumentObject*> m_Selection;
-  ezVec2 m_vMousePos = ezVec2::ZeroVector();
+  ezVec2 m_vMousePos = ezVec2::MakeZero();
   QString m_sContextMenuSearchText;
   ezDynamicArray<const ezQtPin*> m_ConnectablePins;
   ezEnum<ConnectionStyle> m_ConnectionStyle;

@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <Foundation/Reflection/Reflection.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
@@ -120,14 +119,14 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 
   static bool IsSrgb(ezGALResourceFormat::Enum format);
 
+  /// \brief Returns whether the given resource format returns integer values when sampled (e.g. RUShort). Note that normalized formats like RGUShortNormalized are not considered integer formats as they return float values in the [0..1] range when sampled.
+  static bool IsIntegerFormat(ezGALResourceFormat::Enum format);
+
 private:
   static const ezUInt8 s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT];
 
   static const ezUInt8 s_ChannelCount[ezGALResourceFormat::ENUM_COUNT];
 };
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALResourceFormat);
-
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
 class ezGALFormatLookupEntry

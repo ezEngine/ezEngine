@@ -57,7 +57,7 @@ private:
   IgnoreInfo m_IgnoreSource;
 
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezHeaderCheckApp()
     : ezApplication("HeaderCheck")
@@ -131,6 +131,12 @@ public:
     const ezStringView includeTarget = "includeTarget";
     const ezStringView includeSource = "includeSource";
     const ezStringView byName = "byName";
+
+    if (jsonReader.GetTopLevelElementType() != ezJSONReader::ElementType::Dictionary)
+    {
+      ezLog::Error("Ignore file {0} does not start with a json object", sIgnoreFilePath);
+      return EZ_FAILURE;
+    }
 
     auto topLevel = jsonReader.GetTopLevelObject();
     for (auto it = topLevel.GetIterator(); it.IsValid(); it.Next())
@@ -279,14 +285,14 @@ public:
     ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   }
 
-  ezResult ReadEntireFile(const char* szFile, ezStringBuilder& ref_sOut)
+  ezResult ReadEntireFile(ezStringView sFile, ezStringBuilder& ref_sOut)
   {
     ref_sOut.Clear();
 
     ezFileReader File;
-    if (File.Open(szFile) == EZ_FAILURE)
+    if (File.Open(sFile) == EZ_FAILURE)
     {
-      ezLog::Error("Could not open for reading: '{0}'", szFile);
+      ezLog::Error("Could not open for reading: '{0}'", sFile);
       return EZ_FAILURE;
     }
 
@@ -308,7 +314,7 @@ public:
     {
       ezLog::Error("The file \"{0}\" contains characters that are not valid Utf8. This often happens when you type special characters in "
                    "an editor that does not save the file in Utf8 encoding.",
-        szFile);
+        sFile);
       return EZ_FAILURE;
     }
 

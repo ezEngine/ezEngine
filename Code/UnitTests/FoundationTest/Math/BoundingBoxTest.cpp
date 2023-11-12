@@ -4,24 +4,23 @@
 
 EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(SetElements)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromMinMax")
   {
-    ezBoundingBoxT b(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
 
     EZ_TEST_BOOL(b.m_vMin == ezVec3T(-1, -2, -3));
     EZ_TEST_BOOL(b.m_vMax == ezVec3T(1, 2, 3));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetElements")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromMinMax")
   {
-    ezBoundingBoxT b;
-    b.SetElements(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
+    ezBoundingBoxT b = ezBoundingBox::MakeFromMinMax(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
 
     EZ_TEST_BOOL(b.m_vMin == ezVec3T(-1, -2, -3));
     EZ_TEST_BOOL(b.m_vMax == ezVec3T(1, 2, 3));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromPoints")
   {
     ezVec3T p[6] = {
       ezVec3T(-4, 0, 0),
@@ -32,25 +31,23 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
       ezVec3T(0, 0, 9),
     };
 
-    ezBoundingBoxT b;
-    b.SetFromPoints(p, 6);
+    ezBoundingBoxT b = ezBoundingBox::MakeFromPoints(p, 6);
 
     EZ_TEST_BOOL(b.m_vMin == ezVec3T(-4, -6, -8));
     EZ_TEST_BOOL(b.m_vMax == ezVec3T(5, 7, 9));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInvalid")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeInvalid")
   {
     ezBoundingBoxT b;
-    b.SetInvalid();
+    b = ezBoundingBox::MakeInvalid();
 
     EZ_TEST_BOOL(!b.IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCenterAndHalfExtents")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromCenterAndHalfExtents")
   {
-    ezBoundingBoxT b;
-    b.SetCenterAndHalfExtents(ezVec3T(1, 2, 3), ezVec3T(4, 5, 6));
+    ezBoundingBoxT b = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(1, 2, 3), ezVec3T(4, 5, 6));
 
     EZ_TEST_BOOL(b.m_vMin == ezVec3T(-3, -3, -3));
     EZ_TEST_BOOL(b.m_vMax == ezVec3T(5, 7, 9));
@@ -58,8 +55,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCorners")
   {
-    ezBoundingBoxT b;
-    b.SetElements(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
+    ezBoundingBoxT b = ezBoundingBox::MakeFromMinMax(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
 
     ezVec3T c[8];
     b.GetCorners(c);
@@ -77,7 +73,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclue (Point)")
   {
     ezBoundingBoxT b;
-    b.SetInvalid();
+    b = ezBoundingBox::MakeInvalid();
     b.ExpandToInclude(ezVec3T(1, 2, 3));
 
     EZ_TEST_BOOL(b.m_vMin == ezVec3T(1, 2, 3));
@@ -99,15 +95,15 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   {
     ezBoundingBoxT b1, b2;
 
-    b1.SetElements(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
-    b2.SetElements(ezVec3T(0), ezVec3T(4, 5, 6));
+    b1 = ezBoundingBox::MakeFromMinMax(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
+    b2 = ezBoundingBox::MakeFromMinMax(ezVec3T(0), ezVec3T(4, 5, 6));
 
     b1.ExpandToInclude(b2);
 
     EZ_TEST_BOOL(b1.m_vMin == ezVec3T(-1, -2, -3));
     EZ_TEST_BOOL(b1.m_vMax == ezVec3T(4, 5, 6));
 
-    b2.SetElements(ezVec3T(-4, -5, -6), ezVec3T(0));
+    b2 = ezBoundingBox::MakeFromMinMax(ezVec3T(-4, -5, -6), ezVec3T(0));
 
     b1.ExpandToInclude(b2);
 
@@ -120,7 +116,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     ezVec3T v[4] = {ezVec3T(1, 1, 1), ezVec3T(-1, -1, -1), ezVec3T(2, 2, 2), ezVec3T(4, 4, 4)};
 
     ezBoundingBoxT b;
-    b.SetInvalid();
+    b = ezBoundingBox::MakeInvalid();
     b.ExpandToInclude(v, 2, sizeof(ezVec3T) * 2);
 
     EZ_TEST_BOOL(b.m_vMin == ezVec3T(1, 1, 1));
@@ -134,8 +130,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToCube")
   {
-    ezBoundingBoxT b;
-    b.SetCenterAndHalfExtents(ezVec3T(1, 2, 3), ezVec3T(4, 5, 6));
+    ezBoundingBoxT b = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(1, 2, 3), ezVec3T(4, 5, 6));
 
     b.ExpandToCube();
 
@@ -145,7 +140,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Grow")
   {
-    ezBoundingBoxT b(ezVec3T(1, 2, 3), ezVec3T(4, 5, 6));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3), ezVec3T(4, 5, 6));
     b.Grow(ezVec3T(2, 4, 6));
 
     EZ_TEST_BOOL(b.m_vMin == ezVec3T(-1, -2, -3));
@@ -154,7 +149,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (Point)")
   {
-    ezBoundingBoxT b(ezVec3T(0), ezVec3T(0));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(0), ezVec3T(0));
 
     EZ_TEST_BOOL(b.Contains(ezVec3T(0)));
     EZ_TEST_BOOL(!b.Contains(ezVec3T(1, 0, 0)));
@@ -163,9 +158,9 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (Box)")
   {
-    ezBoundingBoxT b1(ezVec3T(-3), ezVec3T(3));
-    ezBoundingBoxT b2(ezVec3T(-1), ezVec3T(1));
-    ezBoundingBoxT b3(ezVec3T(-1), ezVec3T(4));
+    ezBoundingBoxT b1 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-3), ezVec3T(3));
+    ezBoundingBoxT b2 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-1), ezVec3T(1));
+    ezBoundingBoxT b3 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-1), ezVec3T(4));
 
     EZ_TEST_BOOL(b1.Contains(b1));
     EZ_TEST_BOOL(b2.Contains(b2));
@@ -183,7 +178,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (Array)")
   {
-    ezBoundingBoxT b(ezVec3T(1), ezVec3T(5));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(5));
 
     ezVec3T v[4] = {ezVec3T(0), ezVec3T(1), ezVec3T(5), ezVec3T(6)};
 
@@ -196,19 +191,19 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (Sphere)")
   {
-    ezBoundingBoxT b(ezVec3T(1), ezVec3T(5));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(5));
 
-    EZ_TEST_BOOL(b.Contains(ezBoundingSphereT(ezVec3T(3), 2)));
-    EZ_TEST_BOOL(!b.Contains(ezBoundingSphereT(ezVec3T(3), 2.1f)));
-    EZ_TEST_BOOL(!b.Contains(ezBoundingSphereT(ezVec3T(8), 2)));
+    EZ_TEST_BOOL(b.Contains(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(3), 2)));
+    EZ_TEST_BOOL(!b.Contains(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(3), 2.1f)));
+    EZ_TEST_BOOL(!b.Contains(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(8), 2)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (box)")
   {
-    ezBoundingBoxT b1(ezVec3T(-3), ezVec3T(3));
-    ezBoundingBoxT b2(ezVec3T(-1), ezVec3T(1));
-    ezBoundingBoxT b3(ezVec3T(1), ezVec3T(4));
-    ezBoundingBoxT b4(ezVec3T(-4, 1, 1), ezVec3T(4, 2, 2));
+    ezBoundingBoxT b1 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-3), ezVec3T(3));
+    ezBoundingBoxT b2 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-1), ezVec3T(1));
+    ezBoundingBoxT b3 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(4));
+    ezBoundingBoxT b4 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-4, 1, 1), ezVec3T(4, 2, 2));
 
     EZ_TEST_BOOL(b1.Overlaps(b1));
     EZ_TEST_BOOL(b2.Overlaps(b2));
@@ -227,7 +222,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (Array)")
   {
-    ezBoundingBoxT b(ezVec3T(1), ezVec3T(5));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(5));
 
     ezVec3T v[4] = {ezVec3T(0), ezVec3T(1), ezVec3T(5), ezVec3T(6)};
 
@@ -243,20 +238,20 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (Sphere)")
   {
-    ezBoundingBoxT b(ezVec3T(1), ezVec3T(5));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(5));
 
-    EZ_TEST_BOOL(b.Overlaps(ezBoundingSphereT(ezVec3T(3), 2)));
-    EZ_TEST_BOOL(b.Overlaps(ezBoundingSphereT(ezVec3T(3), 2.1f)));
-    EZ_TEST_BOOL(!b.Overlaps(ezBoundingSphereT(ezVec3T(8), 2)));
+    EZ_TEST_BOOL(b.Overlaps(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(3), 2)));
+    EZ_TEST_BOOL(b.Overlaps(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(3), 2.1f)));
+    EZ_TEST_BOOL(!b.Overlaps(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(8), 2)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical, ==, !=")
   {
     ezBoundingBoxT b1, b2, b3;
 
-    b1.SetElements(ezVec3T(1), ezVec3T(2));
-    b2.SetElements(ezVec3T(1), ezVec3T(2));
-    b3.SetElements(ezVec3T(1), ezVec3T(2.01f));
+    b1 = ezBoundingBox::MakeFromMinMax(ezVec3T(1), ezVec3T(2));
+    b2 = ezBoundingBox::MakeFromMinMax(ezVec3T(1), ezVec3T(2));
+    b3 = ezBoundingBox::MakeFromMinMax(ezVec3T(1), ezVec3T(2.01f));
 
     EZ_TEST_BOOL(b1.IsIdentical(b1));
     EZ_TEST_BOOL(b2.IsIdentical(b2));
@@ -286,8 +281,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
     ezBoundingBoxT b1, b2;
-    b1.SetElements(ezVec3T(-1), ezVec3T(1));
-    b2.SetElements(ezVec3T(-1), ezVec3T(2));
+    b1 = ezBoundingBox::MakeFromMinMax(ezVec3T(-1), ezVec3T(1));
+    b2 = ezBoundingBox::MakeFromMinMax(ezVec3T(-1), ezVec3T(2));
 
     EZ_TEST_BOOL(!b1.IsEqual(b2));
     EZ_TEST_BOOL(!b1.IsEqual(b2, 0.5f));
@@ -297,28 +292,28 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCenter")
   {
-    ezBoundingBoxT b(ezVec3T(3), ezVec3T(7));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(7));
 
     EZ_TEST_BOOL(b.GetCenter() == ezVec3T(5));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetExtents")
   {
-    ezBoundingBoxT b(ezVec3T(3), ezVec3T(7));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(7));
 
     EZ_TEST_BOOL(b.GetExtents() == ezVec3T(4));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetHalfExtents")
   {
-    ezBoundingBoxT b(ezVec3T(3), ezVec3T(7));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(7));
 
     EZ_TEST_BOOL(b.GetHalfExtents() == ezVec3T(2));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Translate")
   {
-    ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(5));
 
     b.Translate(ezVec3T(1, 2, 3));
 
@@ -329,7 +324,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleFromCenter")
   {
     {
-      ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+      ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(5));
 
       b.ScaleFromCenter(ezVec3T(1, 2, 3));
 
@@ -337,7 +332,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
       EZ_TEST_BOOL(b.m_vMax == ezVec3T(5, 6, 7));
     }
     {
-      ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+      ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(5));
 
       b.ScaleFromCenter(ezVec3T(-1, -2, -3));
 
@@ -349,7 +344,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleFromOrigin")
   {
     {
-      ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+      ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(5));
 
       b.ScaleFromOrigin(ezVec3T(1, 2, 3));
 
@@ -357,7 +352,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
       EZ_TEST_BOOL(b.m_vMax == ezVec3T(5, 10, 15));
     }
     {
-      ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+      ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(5));
 
       b.ScaleFromOrigin(ezVec3T(-1, -2, -3));
 
@@ -368,10 +363,9 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformFromOrigin")
   {
-    ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(5));
 
-    ezMat4T m;
-    m.SetScalingMatrix(ezVec3T(2));
+    ezMat4T m = ezMat4::MakeScaling(ezVec3T(2));
 
     b.TransformFromOrigin(m);
 
@@ -381,10 +375,9 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformFromCenter")
   {
-    ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(5));
 
-    ezMat4T m;
-    m.SetScalingMatrix(ezVec3T(2));
+    ezMat4T m = ezMat4::MakeScaling(ezVec3T(2));
 
     b.TransformFromCenter(m);
 
@@ -394,7 +387,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetClampedPoint")
   {
-    ezBoundingBoxT b(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
 
     EZ_TEST_BOOL(b.GetClampedPoint(ezVec3T(-2, 0, 0)) == ezVec3T(-1, 0, 0));
     EZ_TEST_BOOL(b.GetClampedPoint(ezVec3T(2, 0, 0)) == ezVec3T(1, 0, 0));
@@ -408,7 +401,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (point)")
   {
-    ezBoundingBoxT b(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
 
     EZ_TEST_BOOL(b.GetDistanceTo(ezVec3T(-2, 0, 0)) == 1);
     EZ_TEST_BOOL(b.GetDistanceTo(ezVec3T(2, 0, 0)) == 1);
@@ -422,21 +415,21 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (Sphere)")
   {
-    ezBoundingBoxT b(ezVec3T(1), ezVec3T(5));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(5));
 
-    EZ_TEST_BOOL(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(3), 2)) < 0);
-    EZ_TEST_BOOL(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(5), 1)) < 0);
-    EZ_TEST_FLOAT(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(8, 2, 2), 2)), 1, 0.001f);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(3), 2)) < 0);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(5), 1)) < 0);
+    EZ_TEST_FLOAT(b.GetDistanceTo(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(8, 2, 2), 2)), 1, 0.001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (box)")
   {
-    ezBoundingBoxT b(ezVec3T(1), ezVec3T(5));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(5));
 
     ezBoundingBoxT b1, b2, b3;
-    b1.SetCenterAndHalfExtents(ezVec3T(3), ezVec3T(2));
-    b2.SetCenterAndHalfExtents(ezVec3T(5), ezVec3T(1));
-    b3.SetCenterAndHalfExtents(ezVec3T(9, 2, 2), ezVec3T(2));
+    b1 = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(3), ezVec3T(2));
+    b2 = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(5), ezVec3T(1));
+    b3 = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(9, 2, 2), ezVec3T(2));
 
     EZ_TEST_BOOL(b.GetDistanceTo(b1) <= 0);
     EZ_TEST_BOOL(b.GetDistanceTo(b2) <= 0);
@@ -445,7 +438,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceSquaredTo (point)")
   {
-    ezBoundingBoxT b(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
 
     EZ_TEST_BOOL(b.GetDistanceSquaredTo(ezVec3T(-2, 0, 0)) == 1);
     EZ_TEST_BOOL(b.GetDistanceSquaredTo(ezVec3T(2, 0, 0)) == 1);
@@ -459,12 +452,12 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceSquaredTo (box)")
   {
-    ezBoundingBoxT b(ezVec3T(1), ezVec3T(5));
+    ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(5));
 
     ezBoundingBoxT b1, b2, b3;
-    b1.SetCenterAndHalfExtents(ezVec3T(3), ezVec3T(2));
-    b2.SetCenterAndHalfExtents(ezVec3T(5), ezVec3T(1));
-    b3.SetCenterAndHalfExtents(ezVec3T(9, 2, 2), ezVec3T(2));
+    b1 = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(3), ezVec3T(2));
+    b2 = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(5), ezVec3T(1));
+    b3 = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(9, 2, 2), ezVec3T(2));
 
     EZ_TEST_BOOL(b.GetDistanceSquaredTo(b1) <= 0);
     EZ_TEST_BOOL(b.GetDistanceSquaredTo(b2) <= 0);
@@ -474,7 +467,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetBoundingSphere")
   {
     ezBoundingBoxT b;
-    b.SetCenterAndHalfExtents(ezVec3T(5, 4, 2), ezVec3T(3));
+    b = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(5, 4, 2), ezVec3T(3));
 
     ezBoundingSphereT s = b.GetBoundingSphere();
 
@@ -489,7 +482,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
       const ezVec3T c = ezVec3T(10);
 
       ezBoundingBoxT b;
-      b.SetCenterAndHalfExtents(c, ezVec3T(2, 4, 8));
+      b = ezBoundingBox::MakeFromCenterAndHalfExtents(c, ezVec3T(2, 4, 8));
 
       for (ezMathTestType x = b.m_vMin.x - (ezMathTestType)1; x < b.m_vMax.x + (ezMathTestType)1; x += (ezMathTestType)0.2f)
       {
@@ -529,7 +522,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
       const ezVec3T c = ezVec3T(10);
 
       ezBoundingBoxT b;
-      b.SetCenterAndHalfExtents(c, ezVec3T(2, 4, 8));
+      b = ezBoundingBox::MakeFromCenterAndHalfExtents(c, ezVec3T(2, 4, 8));
 
       for (ezMathTestType x = b.m_vMin.x - (ezMathTestType)1; x < b.m_vMax.x + (ezMathTestType)1; x += (ezMathTestType)0.2f)
       {
@@ -566,30 +559,30 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     {
       ezBoundingBoxT b;
 
-      b.SetInvalid();
+      b = ezBoundingBox::MakeInvalid();
       EZ_TEST_BOOL(!b.IsNaN());
 
-      b.SetInvalid();
+      b = ezBoundingBox::MakeInvalid();
       b.m_vMin.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
-      b.SetInvalid();
+      b = ezBoundingBox::MakeInvalid();
       b.m_vMin.y = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
-      b.SetInvalid();
+      b = ezBoundingBox::MakeInvalid();
       b.m_vMin.z = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
-      b.SetInvalid();
+      b = ezBoundingBox::MakeInvalid();
       b.m_vMax.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
-      b.SetInvalid();
+      b = ezBoundingBox::MakeInvalid();
       b.m_vMax.y = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
-      b.SetInvalid();
+      b = ezBoundingBox::MakeInvalid();
       b.m_vMax.z = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
     }

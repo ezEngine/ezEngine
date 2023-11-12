@@ -5,9 +5,9 @@
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezPointLightVisualizerAdapter::ezPointLightVisualizerAdapter() {}
+ezPointLightVisualizerAdapter::ezPointLightVisualizerAdapter() = default;
 
-ezPointLightVisualizerAdapter::~ezPointLightVisualizerAdapter() {}
+ezPointLightVisualizerAdapter::~ezPointLightVisualizerAdapter() = default;
 
 void ezPointLightVisualizerAdapter::Finalize()
 {
@@ -32,11 +32,11 @@ void ezPointLightVisualizerAdapter::Update()
   if (!pAttr->GetRangeProperty().IsEmpty() && !pAttr->GetIntensityProperty().IsEmpty())
   {
     ezVariant range;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRangeProperty()), range);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRangeProperty()), range).AssertSuccess();
     EZ_ASSERT_DEBUG(range.CanConvertTo<float>(), "Invalid property bound to ezPointLightVisualizerAttribute 'radius'");
 
     ezVariant intensity;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetIntensityProperty()), intensity);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetIntensityProperty()), intensity).AssertSuccess();
     EZ_ASSERT_DEBUG(intensity.CanConvertTo<float>(), "Invalid property bound to ezPointLightVisualizerAttribute 'intensity'");
 
     m_fScale = ezLightComponent::CalculateEffectiveRange(range.ConvertTo<float>(), intensity.ConvertTo<float>());
@@ -45,7 +45,7 @@ void ezPointLightVisualizerAdapter::Update()
   if (!pAttr->GetColorProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezPointLightVisualizerAdapter 'color'");
     m_hGizmo.SetColor(value.ConvertTo<ezColor>());

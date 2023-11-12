@@ -3,6 +3,7 @@
 #include <EnginePluginAssets/SkeletonAsset/SkeletonContext.h>
 #include <EnginePluginAssets/SkeletonAsset/SkeletonView.h>
 
+#include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
 #include <RendererCore/AnimationSystem/SkeletonComponent.h>
 #include <RendererCore/AnimationSystem/SkeletonPoseComponent.h>
 
@@ -110,6 +111,33 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
         pSkeleton->m_bVisualizeTwistLimits = (pMsg->m_fPayload != 0);
       }
     }
+    else if (pMsg->m_sWhatToDo == "PreviewMesh" && m_sAnimatedMeshToUse != pMsg->m_sPayload)
+    {
+      m_sAnimatedMeshToUse = pMsg->m_sPayload;
+
+      auto pWorld = m_pWorld;
+      EZ_LOCK(pWorld->GetWriteMarker());
+
+      ezAnimatedMeshComponent* pAnimMesh;
+      if (pWorld->TryGetComponent(m_hAnimMeshComponent, pAnimMesh))
+      {
+        m_hAnimMeshComponent.Invalidate();
+        pAnimMesh->DeleteComponent();
+      }
+
+      if (!m_sAnimatedMeshToUse.IsEmpty())
+      {
+        ezMaterialResourceHandle hMat = ezResourceManager::LoadResource<ezMaterialResource>("Editor/Materials/SkeletonPreviewMesh.ezMaterial");
+
+        m_hAnimMeshComponent = ezAnimatedMeshComponent::CreateComponent(m_pGameObject, pAnimMesh);
+        pAnimMesh->SetMeshFile(m_sAnimatedMeshToUse);
+
+        for (int i = 0; i < 10; ++i)
+        {
+          pAnimMesh->SetMaterial(i, hMat);
+        }
+      }
+    }
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pDocMsg);
@@ -127,6 +155,7 @@ void ezSkeletonContext::OnInitialize()
   // Preview Mesh
   {
     obj.m_sName.Assign("SkeletonPreview");
+    obj.m_bDynamic = true;
     pWorld->CreateObject(obj, m_pGameObject);
 
     m_hSkeletonComponent = ezSkeletonComponent::CreateComponent(m_pGameObject, pVisSkeleton);
@@ -134,6 +163,7 @@ void ezSkeletonContext::OnInitialize()
     ezConversionUtils::ToString(GetDocumentGuid(), sSkeletonGuid);
     m_hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
     pVisSkeleton->SetSkeleton(m_hSkeleton);
+    pVisSkeleton->m_bVisualizeColliders = true;
 
     m_hPoseComponent = ezSkeletonPoseComponent::CreateComponent(m_pGameObject, pPoseSkeleton);
     pPoseSkeleton->SetSkeleton(m_hSkeleton);
@@ -165,8 +195,7 @@ void ezSkeletonContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg
   if (m_pGameObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());

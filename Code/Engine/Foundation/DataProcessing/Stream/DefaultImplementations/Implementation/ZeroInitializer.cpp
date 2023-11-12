@@ -14,9 +14,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitialized()
-  : m_pStream(nullptr)
-{
-}
+
+  = default;
 
 void ezProcessingStreamSpawnerZeroInitialized::SetStreamName(ezStringView sStreamName)
 {

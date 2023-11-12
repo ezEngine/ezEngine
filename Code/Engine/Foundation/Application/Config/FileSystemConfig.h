@@ -45,7 +45,7 @@ public:
 };
 
 
-typedef ezApplicationFileSystemConfig::DataDirConfig ezApplicationFileSystemConfig_DataDirConfig;
+using ezApplicationFileSystemConfig_DataDirConfig = ezApplicationFileSystemConfig::DataDirConfig;
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationFileSystemConfig);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationFileSystemConfig_DataDirConfig);

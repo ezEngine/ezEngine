@@ -29,7 +29,7 @@ namespace
 
       if (m_bTimeout)
       {
-        m_pSignalManual->WaitForSignal(ezTime::Seconds(0.5));
+        m_pSignalManual->WaitForSignal(ezTime::MakeFromSeconds(0.5));
       }
       else
       {
@@ -77,7 +77,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadSignal)
 
       for (ezUInt32 a = 0; a < 1000; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
 
         if (iCounter >= iExpected)
           break;
@@ -95,7 +95,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadSignal)
 
       for (ezUInt32 a = 0; a < 1000; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
 
         if (iCounter >= (ezInt32)uiNumThreads * 2)
           break;
@@ -146,7 +146,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadSignal)
 
       for (ezUInt32 a = 0; a < 1000; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
 
         if (iCounter >= (ezInt32)t + 1)
           break;
@@ -160,7 +160,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadSignal)
     {
       for (ezUInt32 a = 0; a < 100; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::Milliseconds(50));
+        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
 
         if (iCounter >= (ezInt32)uiNumThreads * 2)
           break;

@@ -94,7 +94,7 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   pRenderContext->BindConstantBuffer("ezRmlUiConstants", m_hConstantBuffer);
 
   // reset cached state
-  m_mLastTransform = ezMat4::IdentityMatrix();
+  m_mLastTransform = ezMat4::MakeIdentity();
   m_LastRect = ezRectFloat(0, 0);
 
   for (auto it = batch.GetIterator<ezRmlUiRenderData>(); it.IsValid(); ++it)

@@ -384,8 +384,7 @@ void ezPxRagdollComponent::RetrievePhysicsPose()
   const ezTransform rootTransform = pSkeleton->GetDescriptor().m_RootTransform;
   const ezMat4 invRootTransform = rootTransform.GetAsMat4().GetInverse();
 
-  ezMat4 scale;
-  scale.SetScalingMatrix(rootTransform.m_vScale);
+  ezMat4 scale = ezMat4::MakeScaling(rootTransform.m_vScale);
 
   ezMsgAnimationPoseUpdated poseMsg;
   poseMsg.m_ModelTransforms = m_LimbPoses;
@@ -422,7 +421,7 @@ void ezPxRagdollComponent::RetrievePhysicsPose()
         const ezTransform jointLocalPose = ezPxConversionUtils::ToTransform(joint->getParentPose());
 
         ezTransform jointGlobalPose;
-        jointGlobalPose.SetGlobalTransform(jointParentPose, jointLocalPose);
+        jointGlobalPose = ezTransform::MakeGlobalTransform(jointParentPose, jointLocalPose);
 
         const float s = 0.1f;
 
@@ -442,7 +441,7 @@ void ezPxRagdollComponent::RetrievePhysicsPose()
         const ezTransform jointLocalPose = ezPxConversionUtils::ToTransform(joint->getChildPose());
 
         ezTransform jointGlobalPose;
-        jointGlobalPose.SetGlobalTransform(jointChildPose, jointLocalPose);
+        jointGlobalPose = ezTransform::MakeGlobalTransform(jointChildPose, jointLocalPose);
 
         const float s = 0.05f;
 
@@ -481,7 +480,7 @@ void ezPxRagdollComponent::SetupLimbsFromBindPose()
   auto getBone = [&](ezUInt16 i, auto f) -> ezMat4
   {
     const auto& j = desc.m_Skeleton.GetJointByIndex(i);
-    const ezMat4 bm = j.GetBindPoseLocalTransform().GetAsMat4();
+    const ezMat4 bm = j.GetRestPoseLocalTransform().GetAsMat4();
 
     if (j.GetParentIndex() != ezInvalidJointIndex)
     {
@@ -525,7 +524,7 @@ void ezPxRagdollComponent::CreateConstraints()
 
       const ezTransform pos(ownTransform.TransformPosition(constraint.m_vRelativePosition));
 
-      auto pJoint = PxSphericalJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), nullptr, ezPxConversionUtils::ToTransform(pos), limb.m_pPxBody, ezPxConversionUtils::ToTransform(ezTransform::IdentityTransform()));
+      auto pJoint = PxSphericalJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), nullptr, ezPxConversionUtils::ToTransform(pos), limb.m_pPxBody, ezPxConversionUtils::ToTransform(ezTransform::MakeIdentity()));
 
       pJoint->setConstraintFlag(physx::PxConstraintFlag::ePROJECTION, true);
       pJoint->setProjectionLinearTolerance(0.05f);
@@ -597,7 +596,7 @@ void ezPxRagdollComponent::SetupLimbBodiesAndGeometry(const ezSkeletonResource* 
 
   const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
   const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
-  physx::PxVec3 vPxVelocity = ezPxConversionUtils::ToVec3(GetOwner()->GetVelocity());
+  physx::PxVec3 vPxVelocity = ezPxConversionUtils::ToVec3(GetOwner()->GetLinearVelocity());
 
   for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
   {
@@ -638,7 +637,7 @@ void ezPxRagdollComponent::SetupLimbBodiesAndGeometry(const ezSkeletonResource* 
       if (m_pPxRootBody == nullptr)
       {
         m_pPxRootBody = thisLimb.m_pPxBody;
-        m_RootBodyLocalTransform.SetLocalTransform(GetOwner()->GetGlobalTransform(), thisLimb.m_GlobalTransform);
+        m_RootBodyLocalTransform = ezTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), thisLimb.m_GlobalTransform);
       }
     }
 
@@ -693,7 +692,7 @@ void ezPxRagdollComponent::SetupLimbJoints(const ezSkeletonResource* pSkeleton)
     const ezTransform thisTransform = ezPxConversionUtils::ToTransform(thisLimb.m_pPxBody->getGlobalPose());
 
     ezTransform parentJointFrame;
-    parentJointFrame.SetLocalTransform(parentTransform, thisTransform); // TODO this should just be the constant local offset from child to parent (rotation is overridden anyway, position should never differ)
+    parentJointFrame = ezTransform::MakeLocalTransform(parentTransform, thisTransform); // TODO this should just be the constant local offset from child to parent (rotation is overridden anyway, position should never differ)
     parentJointFrame.m_qRotation = thisJoint.GetLocalOrientation() * qBoneDirAdjustment;
 
     ezTransform thisJointFrame;
@@ -718,70 +717,72 @@ void ezPxRagdollComponent::ComputeLimbGlobalTransform(ezTransform& transform, co
 {
   ezTransform local;
   ComputeLimbModelSpaceTransform(local, pose, uiIndex);
-  transform.SetGlobalTransform(GetOwner()->GetGlobalTransform(), local);
+  transform = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), local);
 }
 
 void ezPxRagdollComponent::AddLimbGeometry(ezBasisAxis::Enum srcBoneDir, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo)
 {
-  PxFilterData pxFilterData = ezPhysX::CreateFilterData(geo.m_uiCollisionLayer, m_uiPxShapeID);
+  EZ_ASSERT_NOT_IMPLEMENTED;
 
-  physx::PxMaterial* pxMaterial = nullptr;
-  if (geo.m_hSurface.IsValid())
-  {
-    ezResourceLock<ezSurfaceResource> pSurface(geo.m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
+  //PxFilterData pxFilterData = ezPhysX::CreateFilterData(geo.m_uiCollisionLayer, m_uiPxShapeID);
 
-    if (pSurface->m_pPhysicsMaterialPhysX != nullptr)
-    {
-      pxMaterial = static_cast<physx::PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
-    }
-  }
-  else
-    pxMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
+  //physx::PxMaterial* pxMaterial = nullptr;
+  //if (geo.m_hSurface.IsValid())
+  //{
+  //  ezResourceLock<ezSurfaceResource> pSurface(geo.m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
 
-  PxShape* pShape = nullptr;
+  //  if (pSurface->m_pPhysicsMaterialPhysX != nullptr)
+  //  {
+  //    pxMaterial = static_cast<physx::PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
+  //  }
+  //}
+  //else
+  //  pxMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
 
-  const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
+  //PxShape* pShape = nullptr;
 
-  const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
+  //const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
 
-  ezTransform st;
-  st.SetIdentity();
-  st.m_vPosition = /*boneTrans.GetTranslationVector() +*/ qFinalBoneRot * geo.m_Transform.m_vPosition;
-  st.m_qRotation = qFinalBoneRot * geo.m_Transform.m_qRotation;
+  //const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
 
-  if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
-  {
-    PxSphereGeometry shape(geo.m_Transform.m_vScale.z);
-    pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
-  }
-  else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
-  {
-    ezVec3 ext;
-    ext.x = geo.m_Transform.m_vScale.x * 0.5f;
-    ext.y = geo.m_Transform.m_vScale.y * 0.5f;
-    ext.z = geo.m_Transform.m_vScale.z * 0.5f;
+  //ezTransform st;
+  //st.SetIdentity();
+  //st.m_vPosition = /*boneTrans.GetTranslationVector() +*/ qFinalBoneRot * geo.m_Transform.m_vPosition;
+  //st.m_qRotation = qFinalBoneRot * geo.m_Transform.m_qRotation;
 
-    // TODO: if offset desired
-    st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+  //if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
+  //{
+  //  PxSphereGeometry shape(geo.m_Transform.m_vScale.z);
+  //  pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
+  //}
+  //else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
+  //{
+  //  ezVec3 ext;
+  //  ext.x = geo.m_Transform.m_vScale.x * 0.5f;
+  //  ext.y = geo.m_Transform.m_vScale.y * 0.5f;
+  //  ext.z = geo.m_Transform.m_vScale.z * 0.5f;
 
-    PxBoxGeometry shape(ext.x, ext.y, ext.z);
-    pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
-  }
-  else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
-  {
-    PxCapsuleGeometry shape(geo.m_Transform.m_vScale.z, geo.m_Transform.m_vScale.x * 0.5f);
-    pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
+  //  // TODO: if offset desired
+  //  st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
-    // TODO: if offset desired
-    st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
-  }
-  else
-  {
-    EZ_ASSERT_NOT_IMPLEMENTED;
-  }
+  //  PxBoxGeometry shape(ext.x, ext.y, ext.z);
+  //  pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
+  //}
+  //else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
+  //{
+  //  PxCapsuleGeometry shape(geo.m_Transform.m_vScale.z, geo.m_Transform.m_vScale.x * 0.5f);
+  //  pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
 
-  pShape->setLocalPose(ezPxConversionUtils::ToTransform(st));
-  pShape->setSimulationFilterData(pxFilterData);
-  pShape->setQueryFilterData(pxFilterData);
-  pShape->userData = m_pPxUserData;
+  //  // TODO: if offset desired
+  //  st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+  //}
+  //else
+  //{
+  //  EZ_ASSERT_NOT_IMPLEMENTED;
+  //}
+
+  //pShape->setLocalPose(ezPxConversionUtils::ToTransform(st));
+  //pShape->setSimulationFilterData(pxFilterData);
+  //pShape->setQueryFilterData(pxFilterData);
+  //pShape->userData = m_pPxUserData;
 }

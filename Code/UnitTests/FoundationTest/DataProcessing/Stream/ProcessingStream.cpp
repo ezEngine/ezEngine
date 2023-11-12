@@ -17,9 +17,8 @@ class AddOneStreamProcessor : public ezProcessingStreamProcessor
 
 public:
   AddOneStreamProcessor()
-    : m_pStream(nullptr)
-  {
-  }
+
+    = default;
 
   void SetStreamName(ezHashedString sStreamName) { m_sStreamName = sStreamName; }
 
@@ -46,7 +45,7 @@ protected:
   }
 
   ezHashedString m_sStreamName;
-  ezProcessingStream* m_pStream;
+  ezProcessingStream* m_pStream = nullptr;
 };
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AddOneStreamProcessor, 1, ezRTTIDefaultAllocator<AddOneStreamProcessor>)

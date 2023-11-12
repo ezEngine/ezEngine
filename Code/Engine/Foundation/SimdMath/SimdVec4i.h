@@ -18,6 +18,9 @@ public:
 
   ezSimdVec4i(ezInternal::QuadInt v); // [tested]
 
+  /// \brief Creates an ezSimdVec4i that is initialized to zero.
+  [[nodiscard]] static ezSimdVec4i MakeZero(); // [tested]
+
   void Set(ezInt32 iXyzw); // [tested]
 
   void Set(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 w); // [tested]
@@ -36,7 +39,7 @@ public:
 public:
   ezSimdVec4f ToFloat() const; // [tested]
 
-  static ezSimdVec4i Truncate(const ezSimdVec4f& f); // [tested]
+  [[nodiscard]] static ezSimdVec4i Truncate(const ezSimdVec4f& f); // [tested]
 
 public:
   template <int N>
@@ -51,22 +54,22 @@ public:
   ezSimdVec4i Get() const; // [tested]
 
 public:
-  ezSimdVec4i operator-() const;                     // [tested]
-  ezSimdVec4i operator+(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4i operator-(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i operator-() const;                     // [tested]
+  [[nodiscard]] ezSimdVec4i operator+(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i operator-(const ezSimdVec4i& v) const; // [tested]
 
-  ezSimdVec4i CompMul(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4i CompDiv(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i CompMul(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i CompDiv(const ezSimdVec4i& v) const; // [tested]
 
-  ezSimdVec4i operator|(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4i operator&(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4i operator^(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4i operator~() const;                     // [tested]
+  [[nodiscard]] ezSimdVec4i operator|(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i operator&(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i operator^(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i operator~() const;                     // [tested]
 
-  ezSimdVec4i operator<<(ezUInt32 uiShift) const; // [tested]
-  ezSimdVec4i operator>>(ezUInt32 uiShift) const; // [tested]
-  ezSimdVec4i operator<<(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4i operator>>(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i operator<<(ezUInt32 uiShift) const;     // [tested]
+  [[nodiscard]] ezSimdVec4i operator>>(ezUInt32 uiShift) const;     // [tested]
+  [[nodiscard]] ezSimdVec4i operator<<(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i operator>>(const ezSimdVec4i& v) const; // [tested]
 
   ezSimdVec4i& operator+=(const ezSimdVec4i& v); // [tested]
   ezSimdVec4i& operator-=(const ezSimdVec4i& v); // [tested]
@@ -78,20 +81,18 @@ public:
   ezSimdVec4i& operator<<=(ezUInt32 uiShift); // [tested]
   ezSimdVec4i& operator>>=(ezUInt32 uiShift); // [tested]
 
-  ezSimdVec4i CompMin(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4i CompMax(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4i Abs() const;                         // [tested]
+  [[nodiscard]] ezSimdVec4i CompMin(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i CompMax(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4i Abs() const;                         // [tested]
 
-  ezSimdVec4b operator==(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4b operator!=(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4b operator<=(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4b operator<(const ezSimdVec4i& v) const;  // [tested]
-  ezSimdVec4b operator>=(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4b operator>(const ezSimdVec4i& v) const;  // [tested]
+  [[nodiscard]] ezSimdVec4b operator==(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4b operator!=(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4b operator<=(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4b operator<(const ezSimdVec4i& v) const;  // [tested]
+  [[nodiscard]] ezSimdVec4b operator>=(const ezSimdVec4i& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4b operator>(const ezSimdVec4i& v) const;  // [tested]
 
-  static ezSimdVec4i ZeroVector(); // [tested]
-
-  static ezSimdVec4i Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse); // [tested]
+  [[nodiscard]] static ezSimdVec4i Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse); // [tested]
 
 public:
   ezInternal::QuadInt m_v;
@@ -101,6 +102,8 @@ public:
 #  include <Foundation/SimdMath/Implementation/SSE/SSEVec4i_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUVec4i_inl.h>
+#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+#  include <Foundation/SimdMath/Implementation/NEON/NEONVec4i_inl.h>
 #else
 #  error "Unknown SIMD implementation."
 #endif

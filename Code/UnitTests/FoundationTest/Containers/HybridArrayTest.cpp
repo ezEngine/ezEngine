@@ -10,32 +10,20 @@ namespace HybridArrayTestDetail
   class Dummy
   {
   public:
-    int a;
-    std::string s;
+    int a = 0;
+    std::string s = "Test";
 
-    Dummy()
-      : a(0)
-      , s("Test")
-    {
-    }
+    Dummy() = default;
+
     Dummy(int a)
       : a(a)
-      , s("Test")
     {
     }
-    Dummy(const Dummy& other)
-      : a(other.a)
-      , s(other.s)
-    {
-    }
-    ~Dummy() {}
 
-    Dummy& operator=(const Dummy& other)
-    {
-      a = other.a;
-      s = other.s;
-      return *this;
-    }
+    Dummy(const Dummy& other) = default;
+    ~Dummy() = default;
+
+    Dummy& operator=(const Dummy& other) = default;
 
     bool operator<=(const Dummy& dummy) const { return a <= dummy.a; }
     bool operator>=(const Dummy& dummy) const { return a >= dummy.a; }
@@ -106,7 +94,7 @@ static_assert(sizeof(ezHybridArray<ezInt32, 1>) == 32);
 static_assert(sizeof(ezHybridArray<ezInt32, 1>) == 20);
 #endif
 
-static_assert(ezGetTypeClass<ezHybridArray<ezInt32, 1>>::value == ezTypeIsMemRelocatable::value);
+static_assert(ezGetTypeClass<ezHybridArray<ezInt32, 1>>::value == ezTypeIsClass::value);
 static_assert(ezGetTypeClass<ezHybridArray<HybridArrayTestDetail::NonMovableClass, 1>>::value == ezTypeIsClass::value);
 
 EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)

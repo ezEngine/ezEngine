@@ -7,16 +7,16 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineAssetDocument, 3, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineAssetDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineAssetDocument::ezStateMachineAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezStateMachineNodeManager), ezAssetDocEngineConnection::None)
+ezStateMachineAssetDocument::ezStateMachineAssetDocument(ezStringView sDocumentPath)
+  : ezAssetDocument(sDocumentPath, EZ_DEFAULT_NEW(ezStateMachineNodeManager), ezAssetDocEngineConnection::None)
 {
 }
 
-ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   auto pManager = static_cast<ezStateMachineNodeManager*>(GetObjectManager());
 
@@ -54,7 +54,11 @@ ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWr
     }
     else
     {
-      return ezStatus(ezFmt("State '{}' has no state type assigned", name));
+      auto pState = EZ_DEFAULT_NEW(ezStateMachineState_Empty);
+      pState->SetName(name);
+
+      const ezUInt32 uiStateIndex = desc.AddState(pState);
+      objectToStateIndex.Insert(pObject, uiStateIndex);
     }
 
     return ezStatus(EZ_SUCCESS);
@@ -181,7 +185,7 @@ bool ezStateMachineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
-bool ezStateMachineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezStateMachineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);

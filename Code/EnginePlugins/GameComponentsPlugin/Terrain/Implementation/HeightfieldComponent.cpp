@@ -177,19 +177,7 @@ void ezHeightfieldComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg)
       if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
         bDontCacheYet = true;
 
-      ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-      if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-      {
-        category = ezDefaultRenderDataCategories::LitOpaque;
-      }
-      else if (blendModeValue == "BLEND_MODE_MASKED")
-      {
-        category = ezDefaultRenderDataCategories::LitMasked;
-      }
-      else
-      {
-        category = ezDefaultRenderDataCategories::LitTransparent;
-      }
+      category = pMaterial->GetRenderDataCategory();
     }
 
     msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
@@ -376,7 +364,6 @@ void ezHeightfieldComponent::BuildGeometry(ezGeometry& geom) const
 
   const ezUInt32 uiNumVerticesX = ezMath::Clamp(m_vColMeshTesselation.x + 1u, 5u, 512u);
   const ezUInt32 uiNumVerticesY = ezMath::Clamp(m_vColMeshTesselation.y + 1u, 5u, 512u);
-  const ezUInt32 uiNumTriangles = (uiNumVerticesX - 1) * (uiNumVerticesY - 1) * 2;
 
   const ezVec3 vSize(m_vHalfExtents.x * 2, m_vHalfExtents.y * 2, m_fHeight);
   const ezVec2 vToNDC = ezVec2(1.0f / (uiNumVerticesX - 1), 1.0f / (uiNumVerticesY - 1));
@@ -570,7 +557,7 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
       }
     }
 
-    desc.SetBounds(ezBoundingBox(vPosOffset, vPosOffset + vSize));
+    desc.SetBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(vPosOffset, vPosOffset + vSize)));
 
     ezUInt32 uiTriangleIdx = 0;
     uiVertexIdx = 0;

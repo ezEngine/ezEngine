@@ -13,7 +13,8 @@ ezPropertyAnimAssetDocumentManager::ezPropertyAnimAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "PropertyAnim";
   m_DocTypeDesc.m_sFileExtension = "ezPropertyAnimAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/PropertyAnim.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/PropertyAnim.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Animation";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezPropertyAnimAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Property_Animation");
@@ -21,7 +22,7 @@ ezPropertyAnimAssetDocumentManager::ezPropertyAnimAssetDocumentManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezPropertyAnim";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("PropertyAnim", QPixmap(":/AssetIcons/PropertyAnim.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("PropertyAnim", QPixmap(":/AssetIcons/PropertyAnim.svg"));
 }
 
 ezPropertyAnimAssetDocumentManager::~ezPropertyAnimAssetDocumentManager()
@@ -37,8 +38,7 @@ void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezPropertyAnimAssetDocument>())
       {
-        ezQtPropertyAnimAssetDocumentWindow* pDocWnd =
-          new ezQtPropertyAnimAssetDocumentWindow(static_cast<ezPropertyAnimAssetDocument*>(e.m_pDocument));
+        new ezQtPropertyAnimAssetDocumentWindow(static_cast<ezPropertyAnimAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -49,9 +49,9 @@ void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
 }
 
 void ezPropertyAnimAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezPropertyAnimAssetDocument(szPath);
+  out_pDocument = new ezPropertyAnimAssetDocument(sPath);
 }
 
 void ezPropertyAnimAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

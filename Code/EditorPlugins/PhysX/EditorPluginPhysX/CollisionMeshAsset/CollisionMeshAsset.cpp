@@ -66,7 +66,7 @@ ezTransformStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamW
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd compressor(&stream, ezCompressedStreamWriterZstd::Compression::Average);
+  ezCompressedStreamWriterZstd compressor(&stream, 0, ezCompressedStreamWriterZstd::Compression::Average);
   ezChunkStreamWriter chunk(compressor);
 #else
   ezChunkStreamWriter chunk(stream);
@@ -93,7 +93,7 @@ ezTransformStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamW
 
       ezGeometry geom;
       ezGeometry::GeoOptions opt;
-      opt.m_Transform = ezMat4(mTransformation, ezVec3::ZeroVector());
+      opt.m_Transform = ezMat4(mTransformation, ezVec3::MakeZero());
 
       if (pProp->m_ConvexMeshType == ezConvexCollisionMeshType::Cylinder)
       {

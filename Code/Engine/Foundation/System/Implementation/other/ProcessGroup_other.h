@@ -28,7 +28,7 @@ ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
   return process.Launch(opt);
 }
 
-ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
+ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
 {
   for (auto& process : m_Processes)
   {

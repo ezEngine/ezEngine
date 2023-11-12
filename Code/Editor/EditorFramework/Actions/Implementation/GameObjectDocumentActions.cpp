@@ -83,15 +83,15 @@ void ezGameObjectDocumentActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hPickTransparent);
 }
 
-void ezGameObjectDocumentActions::MapMenuActions(const char* szMapping, const char* szPath)
+void ezGameObjectDocumentActions::MapMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
-    pMap->MapAction(s_hGameObjectCategory, szPath, 0.9f);
+    pMap->MapAction(s_hGameObjectCategory, "G.View", 0.9f);
 
-    ezStringBuilder sSubPath(szPath, "/GameObjectCategory");
+    const ezStringView sSubPath = "GameObjectCategory";
     pMap->MapAction(s_hRenderSelectionOverlay, sSubPath, 1.0f);
     pMap->MapAction(s_hRenderVisualizers, sSubPath, 2.0f);
     pMap->MapAction(s_hRenderShapeIcons, sSubPath, 3.0f);
@@ -102,32 +102,32 @@ void ezGameObjectDocumentActions::MapMenuActions(const char* szMapping, const ch
   }
 }
 
-void ezGameObjectDocumentActions::MapMenuSimulationSpeed(const char* szMapping, const char* szPath)
+void ezGameObjectDocumentActions::MapMenuSimulationSpeed(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
-    ezStringBuilder sSubPath(szPath, "/GameObjectCategory");
+    const ezStringView sSubPath = "GameObjectCategory";
 
-    pMap->MapAction(s_hGameObjectCategory, szPath, 1.0f);
+    pMap->MapAction(s_hGameObjectCategory, "G.Scene", 1.0f);
     pMap->MapAction(s_hSimulationSpeedMenu, sSubPath, 3.0f);
 
     ezStringBuilder sSubPathSim(sSubPath, "/Scene.Simulation.Speed.Menu");
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hSimulationSpeed); ++i)
-      pMap->MapAction(s_hSimulationSpeed[i], sSubPathSim, i + 1.0f);
+      pMap->MapAction(s_hSimulationSpeed[i], "G.Scene", sSubPathSim, i + 1.0f);
   }
 }
 
-void ezGameObjectDocumentActions::MapToolbarActions(const char* szMapping, const char* szPath)
+void ezGameObjectDocumentActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
-    pMap->MapAction(s_hGameObjectCategory, szPath, 12.0f);
+    pMap->MapAction(s_hGameObjectCategory, "", 12.0f);
 
-    ezStringBuilder sSubPath(szPath, "/GameObjectCategory");
+    const ezStringView sSubPath("GameObjectCategory");
     pMap->MapAction(s_hRenderSelectionOverlay, sSubPath, 4.0f);
     pMap->MapAction(s_hRenderVisualizers, sSubPath, 5.0f);
     pMap->MapAction(s_hRenderShapeIcons, sSubPath, 6.0f);
@@ -150,19 +150,19 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(
   {
     case ActionType::RenderSelectionOverlay:
       SetCheckable(true);
-      SetIconPath(":/EditorFramework/Icons/Selection16.png");
+      SetIconPath(":/EditorFramework/Icons/Selection.svg");
       SetChecked(m_pGameObjectDocument->GetRenderSelectionOverlay());
       break;
 
     case ActionType::RenderVisualizers:
       SetCheckable(true);
-      SetIconPath(":/EditorFramework/Icons/Visualizers16.png");
+      SetIconPath(":/EditorFramework/Icons/Visualizers.svg");
       SetChecked(m_pGameObjectDocument->GetRenderVisualizers());
       break;
 
     case ActionType::RenderShapeIcons:
       SetCheckable(true);
-      SetIconPath(":/EditorFramework/Icons/ShapeIcons16.png");
+      SetIconPath(":/EditorFramework/Icons/ShapeIcons.svg");
       SetChecked(m_pGameObjectDocument->GetRenderShapeIcons());
       break;
 
@@ -172,14 +172,14 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(
       pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezGameObjectDocumentAction::OnPreferenceChange, this));
 
       SetCheckable(true);
-      SetIconPath(":/EditorFramework/Icons/Grid16.png");
+      SetIconPath(":/EditorFramework/Icons/Grid.svg");
       SetChecked(pPreferences->GetShowGrid());
     }
     break;
 
     case ActionType::AddAmbientLight:
       SetCheckable(true);
-      // SetIconPath(":/EditorPluginScene/Icons/ShapeIcons16.png"); // TODO icon
+      // SetIconPath(":/EditorPluginScene/Icons/ShapeIcons.svg"); // TODO icon
       SetChecked(m_pGameObjectDocument->GetAddAmbientLight());
       break;
 
@@ -190,7 +190,7 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(
 
     case ActionType::PickTransparent:
       SetCheckable(true);
-      // SetIconPath(":/EditorFramework/Icons/Visualizers16.png"); // TODO icon
+      // SetIconPath(":/EditorFramework/Icons/Visualizers.svg"); // TODO icon
       SetChecked(m_pGameObjectDocument->GetPickTransparent());
       break;
   }
@@ -373,8 +373,6 @@ ezCameraSpeedSliderAction::~ezCameraSpeedSliderAction()
 
 void ezCameraSpeedSliderAction::Execute(const ezVariant& value)
 {
-  const ezInt32 iValue = value.Get<ezInt32>();
-
   switch (m_Type)
   {
     case ActionType::CameraSpeed:

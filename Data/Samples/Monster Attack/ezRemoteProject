@@ -1,0 +1,7 @@
+RemoteProject
+{
+	string %Name{"Monster Attack"}
+	string %Type{"git"}
+	string %Url{"https://github.com/ezEngine/project-monster-attack.git"}
+	string %ProjectFile{"Monster Attack/ezProject"}
+}

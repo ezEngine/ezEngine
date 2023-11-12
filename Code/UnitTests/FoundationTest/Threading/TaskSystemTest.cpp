@@ -48,7 +48,7 @@ private:
 
     for (ezUInt32 obst = 0; obst < m_uiIterations; ++obst)
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
       ezTime::Now();
 
       if (HasBeenCanceled() && m_bSupportCancel)
@@ -82,7 +82,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   ezInt8 iWorkersLong = 4;
 
   ezTaskSystem::SetWorkerThreadCount(iWorkersShort, iWorkersLong);
-  ezThreadUtils::Sleep(ezTime::Milliseconds(500));
+  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(500));
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Single Tasks")
   {
@@ -210,7 +210,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       {
         break;
       }
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
     }
     EZ_TEST_INT(GroupsFinished, 4);
 
@@ -388,7 +388,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       tg[i] = ezTaskSystem::StartSingleTask(t[i], ezTaskPriority::ThisFrame);
     }
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
 
     ezUInt32 uiCanceled = 0;
 
@@ -438,7 +438,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       tg[i] = ezTaskSystem::StartSingleTask(t[i], ezTaskPriority::ThisFrame);
     }
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
 
     ezUInt32 uiCanceled = 0;
 
@@ -495,7 +495,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTaskSystem::StartTaskGroup(g2);
     ezTaskSystem::StartTaskGroup(g1);
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
     EZ_TEST_BOOL(ezTaskSystem::CancelGroup(g2, ezOnTaskRunning::WaitTillFinished) == EZ_SUCCESS);
 
@@ -505,7 +505,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       EZ_TEST_BOOL(t2[i]->IsTaskFinished());
     }
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
 
     EZ_TEST_BOOL(ezTaskSystem::CancelGroup(g1, ezOnTaskRunning::WaitTillFinished) == EZ_FAILURE);
 
@@ -517,7 +517,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       EZ_TEST_BOOL(t2[i]->IsTaskFinished());
     }
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Tasks with Multiplicity")

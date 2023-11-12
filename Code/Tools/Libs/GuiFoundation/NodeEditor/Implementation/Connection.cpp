@@ -8,9 +8,7 @@
 ezQtConnection::ezQtConnection(QGraphicsItem* pParent)
   : QGraphicsPathItem(pParent)
 {
-  auto palette = QApplication::palette();
-
-  QPen pen(palette.highlightedText().color(), 3, Qt::SolidLine);
+  QPen pen(ezToQtColor(ezColor::White), 3, Qt::SolidLine);
   setPen(pen);
   setBrush(Qt::NoBrush);
 
@@ -96,11 +94,14 @@ void ezQtConnection::UpdateGeometry()
   else
   {
     p.moveTo(m_OutPoint);
-    float fDotOut = QPointF::dotProduct(m_OutDir, dir);
-    float fDotIn = QPointF::dotProduct(m_InDir, -dir);
+    float fDotOut = ezMath::Abs(QPointF::dotProduct(m_OutDir, dir));
+    float fDotIn = ezMath::Abs(QPointF::dotProduct(m_InDir, -dir));
 
-    fDotOut = ezMath::Max(100.0f, ezMath::Abs(fDotOut));
-    fDotIn = ezMath::Max(100.0f, ezMath::Abs(fDotIn));
+    float fMinDistance = ezMath::Abs(QPointF::dotProduct(m_OutDir.transposed(), dir));
+    fMinDistance = ezMath::Min(200.0f, fMinDistance);
+
+    fDotOut = ezMath::Max(fMinDistance, fDotOut);
+    fDotIn = ezMath::Max(fMinDistance, fDotIn);
 
     QPointF ctr1 = m_OutPoint + m_OutDir * (fDotOut * 0.5f);
     QPointF ctr2 = m_InPoint + m_InDir * (fDotIn * 0.5f);
@@ -118,9 +119,9 @@ QPen ezQtConnection::DeterminePen() const
     return pen();
   }
 
-  ezColorGammaUB color;
-  const ezColorGammaUB sourceColor = m_pConnection->GetSourcePin().GetColor();
-  const ezColorGammaUB targetColor = m_pConnection->GetTargetPin().GetColor();
+  ezColor color;
+  const ezColor sourceColor = m_pConnection->GetSourcePin().GetColor();
+  const ezColor targetColor = m_pConnection->GetTargetPin().GetColor();
 
   const bool isSourceGrey = (sourceColor.r == sourceColor.g && sourceColor.r == sourceColor.b);
   const bool isTargetGrey = (targetColor.r == targetColor.g && targetColor.r == targetColor.b);
@@ -140,7 +141,7 @@ QPen ezQtConnection::DeterminePen() const
 
   if (m_bAdjacentNodeSelected)
   {
-    color = ezMath::Lerp(color, ezColorGammaUB(255, 255, 255), 0.1f);
+    color = ezMath::Lerp(color, ezColor::White, 0.1f);
     return QPen(QBrush(ezToQtColor(color)), 3, Qt::DashLine);
   }
   else

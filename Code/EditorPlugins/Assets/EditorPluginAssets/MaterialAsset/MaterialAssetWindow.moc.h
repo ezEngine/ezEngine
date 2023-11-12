@@ -45,7 +45,7 @@ private:
   void SendRedrawMsg();
   void RestoreResource();
   void UpdateNodeEditorVisibility();
-  void OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
+  void OnVseConfigChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
   void VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e);
   void SetupDirectoryWatcher(bool needIt);
 
@@ -78,7 +78,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath);
+  static void MapToolbarActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hMaterialModelAction;
 };

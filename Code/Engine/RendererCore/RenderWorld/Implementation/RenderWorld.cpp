@@ -59,7 +59,7 @@ namespace
   static ezProxyAllocator* s_pCacheAllocator;
 
   static ezMutex s_CachedRenderDataMutex;
-  typedef ezHybridArray<const ezRenderData*, 4> CachedRenderDataPerComponent;
+  using CachedRenderDataPerComponent = ezHybridArray<const ezRenderData*, 4>;
   static ezHashTable<ezComponentHandle, CachedRenderDataPerComponent> s_CachedRenderData;
   static ezDynamicArray<const ezRenderData*> s_DeletedRenderData;
 
@@ -87,7 +87,7 @@ namespace ezInternal
 
     struct PerObjectCache
     {
-      PerObjectCache() {}
+      PerObjectCache() = default;
 
       PerObjectCache(ezAllocatorBase* pAllocator)
         : m_Entries(pAllocator)
@@ -552,7 +552,7 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   {
     // Executed via WriteRenderPipelineDgml console command.
     s_bWriteRenderPipelineDgml = false;
-    const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+    const ezDateTime dt = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
     for (ezUInt32 i = 0; i < filteredRenderPipelines.GetCount(); ++i)
     {
       auto& pRenderPipeline = filteredRenderPipelines[i];

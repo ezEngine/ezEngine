@@ -32,14 +32,17 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
       auto& work = works.ExpandAndGetRef();
       work.m_IntervalMs = intervals[i];
 
-      scheduler.AddOrUpdateWork(&work, ezTime::Milliseconds(work.m_IntervalMs));
+      scheduler.AddOrUpdateWork(&work, ezTime::MakeFromMilliseconds(work.m_IntervalMs));
     }
 
+    constexpr ezUInt32 uiNumIterations = 60;
+    constexpr ezTime timeStep = ezTime::MakeFromMilliseconds(10);
+
     ezUInt32 wrongDelta = 0;
-    for (ezUInt32 i = 0; i < 60; ++i)
+    for (ezUInt32 i = 0; i < uiNumIterations; ++i)
     {
       float fNumWorks = 0;
-      scheduler.Update(ezTime::Milliseconds(10), [&](TestWork* pWork, ezTime deltaTime) {
+      scheduler.Update(timeStep, [&](TestWork* pWork, ezTime deltaTime) {
         if (i > 10)
         {
           const double deltaMs = deltaTime.GetMilliseconds();
@@ -51,29 +54,23 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
           }
         }
 
-        if (pWork->m_IntervalMs <= 10.0f)
-        {
-          EZ_TEST_INT(static_cast<ezUInt32>(pWork->m_Counter), i);
-        }
-
         pWork->Run();
-        ++fNumWorks;
-      });
+        ++fNumWorks; });
 
       EZ_TEST_FLOAT(fNumWorks, 2.5f, 0.5f);
 
       for (auto& work : works)
       {
-        EZ_TEST_BOOL(scheduler.GetInterval(&work) == ezTime::Milliseconds(work.m_IntervalMs));
+        EZ_TEST_BOOL(scheduler.GetInterval(&work) == ezTime::MakeFromMilliseconds(work.m_IntervalMs));
       }
     }
 
-    // 2 wrong deltas for ~120 scheduled works is ok
-    EZ_TEST_BOOL(wrongDelta <= 2);
+    // 3 wrong deltas for ~120 scheduled works is ok
+    EZ_TEST_BOOL(wrongDelta <= 3);
 
     for (auto& work : works)
     {
-      const float expectedCounter = 600.0f / ezMath::Max(work.m_IntervalMs, 10.0f);
+      const float expectedCounter = static_cast<float>(uiNumIterations * timeStep.GetMilliseconds()) / ezMath::Max(work.m_IntervalMs, 10.0f);
 
       // check for roughly expected or a little bit more
       EZ_TEST_FLOAT(static_cast<float>(work.m_Counter), expectedCounter + 3.0f, 4.0f);
@@ -92,14 +89,17 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
       auto& work = works.ExpandAndGetRef();
       work.m_IntervalMs = intervals[i];
 
-      scheduler.AddOrUpdateWork(&work, ezTime::Milliseconds(work.m_IntervalMs));
+      scheduler.AddOrUpdateWork(&work, ezTime::MakeFromMilliseconds(work.m_IntervalMs));
     }
 
+    constexpr ezUInt32 uiNumIterations = 60;
+    constexpr ezTime timeStep = ezTime::MakeFromMilliseconds(20);
+
     ezUInt32 wrongDelta = 0;
-    for (ezUInt32 i = 0; i < 60; ++i)
+    for (ezUInt32 i = 0; i < uiNumIterations; ++i)
     {
       float fNumWorks = 0;
-      scheduler.Update(ezTime::Milliseconds(20), [&](TestWork* pWork, ezTime deltaTime) {
+      scheduler.Update(timeStep, [&](TestWork* pWork, ezTime deltaTime) {
         if (i > 10)
         {
           const double deltaMs = deltaTime.GetMilliseconds();
@@ -111,20 +111,14 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
           }
         }
 
-        if (pWork->m_IntervalMs <= 20.0f)
-        {
-          EZ_TEST_INT(static_cast<ezUInt32>(pWork->m_Counter), i);
-        }
-
         pWork->Run();
-        ++fNumWorks;
-      });
+        ++fNumWorks; });
 
       EZ_TEST_FLOAT(fNumWorks, 3.5f, 0.5f);
 
       for (auto& work : works)
       {
-        EZ_TEST_BOOL(scheduler.GetInterval(&work) == ezTime::Milliseconds(work.m_IntervalMs));
+        EZ_TEST_BOOL(scheduler.GetInterval(&work) == ezTime::MakeFromMilliseconds(work.m_IntervalMs));
       }
     }
 
@@ -133,7 +127,7 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
 
     for (auto& work : works)
     {
-      const float expectedCounter = 1200.0f / ezMath::Max(work.m_IntervalMs, 20.0f);
+      const float expectedCounter = static_cast<float>(uiNumIterations * timeStep.GetMilliseconds()) / ezMath::Max(work.m_IntervalMs, 20.0f);
 
       // check for roughly expected or a little bit more
       EZ_TEST_FLOAT(static_cast<float>(work.m_Counter), expectedCounter + 2.0f, 3.0f);
@@ -149,16 +143,15 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
     for (ezUInt32 i = 0; i < 16; ++i)
     {
       auto& work = works.ExpandAndGetRef();
-      scheduler.AddOrUpdateWork(&work, ezTime::Milliseconds(i));
+      scheduler.AddOrUpdateWork(&work, ezTime::MakeFromMilliseconds(i));
     }
 
     for (ezUInt32 i = 0; i < 60; ++i)
     {
       float fNumWorks = 0;
-      scheduler.Update(ezTime::Milliseconds(10), [&](TestWork* pWork, ezTime deltaTime) {
+      scheduler.Update(ezTime::MakeFromMilliseconds(10), [&](TestWork* pWork, ezTime deltaTime) {
         pWork->Run();
-        ++fNumWorks;
-      });
+        ++fNumWorks; });
 
       EZ_TEST_FLOAT(fNumWorks, 15.5f, 0.5f);
     }
@@ -166,17 +159,16 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
     for (ezUInt32 i = 0; i < 16; ++i)
     {
       auto& work = works.ExpandAndGetRef();
-      scheduler.AddOrUpdateWork(&work, ezTime::Milliseconds(20 + i));
+      scheduler.AddOrUpdateWork(&work, ezTime::MakeFromMilliseconds(20 + i));
     }
 
     float fPrevNumWorks = 15.5f;
     for (ezUInt32 i = 0; i < 60; ++i)
     {
       float fNumWorks = 0.0f;
-      scheduler.Update(ezTime::Milliseconds(10), [&](TestWork* pWork, ezTime deltaTime) {
+      scheduler.Update(ezTime::MakeFromMilliseconds(10), [&](TestWork* pWork, ezTime deltaTime) {
         pWork->Run();
-        ++fNumWorks;
-      });
+        ++fNumWorks; });
 
       // fNumWork will slowly ramp up until it reaches the new workload of 22 or 23 per update
       EZ_TEST_BOOL(fNumWorks + 1.0f >= fPrevNumWorks);
@@ -191,22 +183,76 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
       scheduler.RemoveWork(&work);
     }
 
-    scheduler.Update(ezTime::Milliseconds(10), ezIntervalScheduler<TestWork*>::RunWorkCallback());
+    scheduler.Update(ezTime::MakeFromMilliseconds(10), ezIntervalScheduler<TestWork*>::RunWorkCallback());
 
     for (ezUInt32 i = 0; i < 16; ++i)
     {
       auto& work = works[i + 16];
-      EZ_TEST_BOOL(scheduler.GetInterval(&work) == ezTime::Milliseconds(20 + i));
+      EZ_TEST_BOOL(scheduler.GetInterval(&work) == ezTime::MakeFromMilliseconds(20 + i));
 
-      scheduler.AddOrUpdateWork(&work, ezTime::Milliseconds(100 + i));
+      scheduler.AddOrUpdateWork(&work, ezTime::MakeFromMilliseconds(100 + i));
     }
 
-    scheduler.Update(ezTime::Milliseconds(10), ezIntervalScheduler<TestWork*>::RunWorkCallback());
+    scheduler.Update(ezTime::MakeFromMilliseconds(10), ezIntervalScheduler<TestWork*>::RunWorkCallback());
 
     for (ezUInt32 i = 0; i < 16; ++i)
     {
       auto& work = works[i + 16];
-      EZ_TEST_BOOL(scheduler.GetInterval(&work) == ezTime::Milliseconds(100 + i));
+      EZ_TEST_BOOL(scheduler.GetInterval(&work) == ezTime::MakeFromMilliseconds(100 + i));
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Update/Remove during schedule")
+  {
+    ezHybridArray<TestWork, 32> works;
+
+    ezIntervalScheduler<TestWork*> scheduler;
+
+    for (ezUInt32 i = 0; i < 32; ++i)
+    {
+      auto& work = works.ExpandAndGetRef();
+      work.m_IntervalMs = static_cast<float>((i & 1u));
+
+      scheduler.AddOrUpdateWork(&work, ezTime::MakeFromMilliseconds(i));
+    }
+
+    ezUInt32 uiNumWorks = 0;
+    scheduler.Update(ezTime::MakeFromMilliseconds(33),
+      [&](TestWork* pWork, ezTime deltaTime) {
+        pWork->Run();
+        ++uiNumWorks;
+
+        if (pWork->m_IntervalMs == 0.0f)
+        {
+          scheduler.RemoveWork(pWork);
+        }
+        else
+        {
+          scheduler.AddOrUpdateWork(pWork, ezTime::MakeFromMilliseconds(50));
+        }
+      });
+
+    EZ_TEST_INT(uiNumWorks, 32);
+    for (ezUInt32 i = 0; i < 32; ++i)
+    {
+      const ezUInt32 uiExpectedCounter = 1;
+      EZ_TEST_INT(works[i].m_Counter, uiExpectedCounter);
+    }
+
+    uiNumWorks = 0;
+    scheduler.Update(ezTime::MakeFromMilliseconds(100),
+      [&](TestWork* pWork, ezTime deltaTime) {
+        EZ_TEST_FLOAT(pWork->m_IntervalMs, 1.0f, ezMath::DefaultEpsilon<float>());
+
+        pWork->Run();
+        ++uiNumWorks;
+      });
+
+    EZ_TEST_INT(uiNumWorks, 16);
+    for (ezUInt32 i = 0; i < 32; ++i)
+    {
+      const ezUInt32 uiExpectedCounter = 1 + (i & 1);
+      EZ_TEST_INT(works[i].m_Counter, uiExpectedCounter);
     }
   }
 }

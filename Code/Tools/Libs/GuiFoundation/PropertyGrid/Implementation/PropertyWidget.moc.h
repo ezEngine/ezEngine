@@ -67,10 +67,12 @@ protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
-  bool m_bTemporaryCommand;
-  ezInt8 m_iNumComponents;
-  QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox* m_pWidget[4];
+  bool m_bUseTemporaryTransaction = false;
+  bool m_bTemporaryCommand = false;
+  ezInt8 m_iNumComponents = 0;
+  ezEnum<ezVariantType> m_OriginalType;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtDoubleSpinBox* m_pWidget[4] = {};
 };
 
 /// *** TIME SPINBOX ***
@@ -136,10 +138,12 @@ protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
-  bool m_bTemporaryCommand;
-  ezInt8 m_iNumComponents;
-  QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox* m_pWidget[4];
+  bool m_bUseTemporaryTransaction = false;
+  bool m_bTemporaryCommand = false;
+  ezInt8 m_iNumComponents = 0;
+  ezEnum<ezVariantType> m_OriginalType;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtDoubleSpinBox* m_pWidget[4] = {};
   QSlider* m_pSlider = nullptr;
 };
 
@@ -187,6 +191,7 @@ protected:
 protected:
   QHBoxLayout* m_pLayout;
   QLineEdit* m_pWidget;
+  ezEnum<ezVariantType> m_OriginalType;
 };
 
 
@@ -206,6 +211,9 @@ Q_SIGNALS:
 protected:
   virtual void showEvent(QShowEvent* event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
+
+  virtual QSize sizeHint() const override;
+  virtual QSize minimumSizeHint() const override;
 
 private:
   QPalette m_Pal;
@@ -276,13 +284,16 @@ private Q_SLOTS:
 protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
+  void SetAllChecked(bool bChecked);
 
 protected:
   ezMap<ezInt64, QCheckBox*> m_Constants;
-  QHBoxLayout* m_pLayout;
-  QPushButton* m_pWidget;
-  QMenu* m_pMenu;
-  ezInt64 m_iCurrentBitflags;
+  QHBoxLayout* m_pLayout = nullptr;
+  QPushButton* m_pWidget = nullptr;
+  QPushButton* m_pAllButton = nullptr;
+  QPushButton* m_pClearButton = nullptr;
+  QMenu* m_pMenu = nullptr;
+  ezInt64 m_iCurrentBitflags = 0;
 };
 
 

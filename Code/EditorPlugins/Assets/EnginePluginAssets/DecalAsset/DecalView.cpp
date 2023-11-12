@@ -10,12 +10,13 @@ ezDecalViewContext::ezDecalViewContext(ezDecalContext* pDecalContext)
   m_pDecalContext = pDecalContext;
 }
 
-ezDecalViewContext::~ezDecalViewContext() {}
+ezDecalViewContext::~ezDecalViewContext() = default;
 
 ezViewHandle ezDecalViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Decal Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 

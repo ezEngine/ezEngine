@@ -38,6 +38,6 @@ bool operator!=(const ezSizeTemplate<Type>& v1, const ezSizeTemplate<Type>& v2);
 
 #include <Foundation/Math/Implementation/Size_inl.h>
 
-typedef ezSizeTemplate<ezUInt32> ezSizeU32;
-typedef ezSizeTemplate<float> ezSizeFloat;
-typedef ezSizeTemplate<double> ezSizeDouble;
+using ezSizeU32 = ezSizeTemplate<ezUInt32>;
+using ezSizeFloat = ezSizeTemplate<float>;
+using ezSizeDouble = ezSizeTemplate<double>;

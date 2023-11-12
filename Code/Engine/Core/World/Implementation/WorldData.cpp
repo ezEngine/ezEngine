@@ -1,5 +1,7 @@
 #include <Core/CorePCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/World/Implementation/WorldData.h>
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Core/World/World.h>
 
@@ -46,12 +48,10 @@ namespace ezInternal
     , m_MaxInitializationTimePerFrame(desc.m_MaxComponentInitializationTimePerFrame)
     , m_Clock(desc.m_sName)
     , m_WriteThreadID((ezThreadID)0)
-    , m_iWriteCounter(0)
-    , m_bSimulateWorld(true)
     , m_bReportErrorWhenStaticObjectMoves(desc.m_bReportErrorWhenStaticObjectMoves)
     , m_ReadMarker(*this)
     , m_WriteMarker(*this)
-    , m_pUserData(nullptr)
+
   {
     m_AllocatorWrapper.Reset();
 
@@ -68,7 +68,7 @@ namespace ezInternal
     m_Objects.Insert(nullptr);
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 224);
+    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 240);
 #else
     EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
 #endif
@@ -102,9 +102,14 @@ namespace ezInternal
     }
 
     m_Clock.SetTimeStepSmoothing(m_pTimeStepSmoothing.Borrow());
+
+    ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&WorldData::ResourceEventHandler, this));
   }
 
-  WorldData::~WorldData() = default;
+  WorldData::~WorldData()
+  {
+    ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&WorldData::ResourceEventHandler, this));
+  }
 
   void WorldData::Clear()
   {
@@ -302,50 +307,54 @@ namespace ezInternal
     return ezVisitorExecution::Continue;
   }
 
-  void WorldData::UpdateGlobalTransforms(float fInvDeltaSeconds)
+  void WorldData::UpdateGlobalTransforms()
   {
     struct UserData
     {
-      ezSimdFloat m_fInvDt;
       ezSpatialSystem* m_pSpatialSystem;
+      ezUInt32 m_uiUpdateCounter;
     };
 
     UserData userData;
-    userData.m_fInvDt = fInvDeltaSeconds;
     userData.m_pSpatialSystem = m_pSpatialSystem.Borrow();
+    userData.m_uiUpdateCounter = m_uiUpdateCounter;
 
     struct RootLevel
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
+      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
       {
-        WorldData::UpdateGlobalTransform(pData, static_cast<UserData*>(pUserData)->m_fInvDt);
+        auto pUserData = static_cast<const UserData*>(pUserData0);
+        WorldData::UpdateGlobalTransform(pData, pUserData->m_uiUpdateCounter);
         return ezVisitorExecution::Continue;
       }
     };
 
     struct WithParent
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
+      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
       {
-        WorldData::UpdateGlobalTransformWithParent(pData, static_cast<UserData*>(pUserData)->m_fInvDt);
+        auto pUserData = static_cast<const UserData*>(pUserData0);
+        WorldData::UpdateGlobalTransformWithParent(pData, pUserData->m_uiUpdateCounter);
         return ezVisitorExecution::Continue;
       }
     };
 
     struct RootLevelWithSpatialData
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
+      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
       {
-        WorldData::UpdateGlobalTransformAndSpatialData(pData, static_cast<UserData*>(pUserData)->m_fInvDt, *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
+        auto pUserData = static_cast<UserData*>(pUserData0);
+        WorldData::UpdateGlobalTransformAndSpatialData(pData, pUserData->m_uiUpdateCounter, *pUserData->m_pSpatialSystem);
         return ezVisitorExecution::Continue;
       }
     };
 
     struct WithParentWithSpatialData
     {
-      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
+      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
       {
-        WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, static_cast<UserData*>(pUserData)->m_fInvDt, *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
+        auto pUserData = static_cast<UserData*>(pUserData0);
+        WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, pUserData->m_uiUpdateCounter, *pUserData->m_pSpatialSystem);
         return ezVisitorExecution::Continue;
       }
     };
@@ -375,6 +384,18 @@ namespace ezInternal
           TraverseHierarchyLevel<WithParentWithSpatialData>(*dataPtr[i], &userData);
         }
       }
+    }
+  }
+
+  void WorldData::ResourceEventHandler(const ezResourceEvent& e)
+  {
+    if (e.m_Type != ezResourceEvent::Type::ResourceContentUnloading || e.m_pResource->GetReferenceCount() == 0)
+      return;
+
+    ezTypelessResourceHandle hResource(e.m_pResource);
+    if (m_ReloadFunctions.Contains(hResource))
+    {
+      m_NeedReload.Insert(hResource);
     }
   }
 

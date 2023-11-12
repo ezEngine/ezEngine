@@ -18,9 +18,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("AttachAsChild", GetAttachAsChild, SetAttachAsChild),
     EZ_ACCESSOR_PROPERTY("SpawnAtStart", GetSpawnAtStart, SetSpawnAtStart),
     EZ_ACCESSOR_PROPERTY("SpawnContinuously", GetSpawnContinuously, SetSpawnContinuously),
-    EZ_MEMBER_PROPERTY("MinDelay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(1.0))),
+    EZ_MEMBER_PROPERTY("MinDelay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1.0))),
     EZ_MEMBER_PROPERTY("DelayRange", m_DelayRange)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(179.0))),
+    EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(179.0))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -81,12 +81,12 @@ bool ezSpawnComponent::SpawnOnce(const ezVec3& vLocalOffset)
       const ezVec3 vTiltAxis = ezVec3(0, 1, 0);
       const ezVec3 vTurnAxis = ezVec3(1, 0, 0);
 
-      const ezAngle tiltAngle = ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
-      const ezAngle turnAngle = ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
+      const ezAngle tiltAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
+      const ezAngle turnAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
 
       ezQuat qTilt, qTurn, qDeviate;
-      qTilt.SetFromAxisAndAngle(vTiltAxis, tiltAngle);
-      qTurn.SetFromAxisAndAngle(vTurnAxis, turnAngle);
+      qTilt = ezQuat::MakeFromAxisAndAngle(vTiltAxis, tiltAngle);
+      qTurn = ezQuat::MakeFromAxisAndAngle(vTurnAxis, turnAngle);
       qDeviate = qTurn * qTilt;
 
       tLocalSpawn.m_qRotation = qDeviate;
@@ -117,7 +117,7 @@ void ezSpawnComponent::DoSpawn(const ezTransform& tLocalSpawn)
   else
   {
     ezTransform tGlobalSpawn;
-    tGlobalSpawn.SetGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
+    tGlobalSpawn = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
 
     pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, options, &m_Parameters);
   }
@@ -135,7 +135,7 @@ void ezSpawnComponent::ScheduleSpawn()
 
   ezWorld* pWorld = GetWorld();
 
-  const ezTime tKill = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
+  const ezTime tKill = ezTime::MakeFromSeconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
 
   PostMessage(msg, tKill);
 }
@@ -187,7 +187,7 @@ bool ezSpawnComponent::CanTriggerManualSpawn() const
   return tNow - m_LastManualSpawn >= m_MinDelay;
 }
 
-bool ezSpawnComponent::TriggerManualSpawn(bool bIgnoreSpawnDelay /*= false*/, const ezVec3& vLocalOffset /*= ezVec3::ZeroVector()*/)
+bool ezSpawnComponent::TriggerManualSpawn(bool bIgnoreSpawnDelay /*= false*/, const ezVec3& vLocalOffset /*= ezVec3::MakeZero()*/)
 {
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
@@ -259,7 +259,7 @@ void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   {
     m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnInFlight);
 
-    SpawnOnce(ezVec3::ZeroVector());
+    SpawnOnce(ezVec3::MakeZero());
 
     // do it all again
     if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnContinuously))

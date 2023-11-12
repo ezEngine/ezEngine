@@ -58,11 +58,11 @@ private:
 /// compression ratio and it should only be used to reduce output lag. However, there is absolutely no guarantee that all the data that was
 /// put into the stream will be readable from the output stream, after calling Flush(). In fact, it is quite likely that a large amount of
 /// data has still not been written to it, because it is still inside the compressor.
-class EZ_FOUNDATION_DLL ezCompressedStreamWriterZstd : public ezStreamWriter
+class EZ_FOUNDATION_DLL ezCompressedStreamWriterZstd final : public ezStreamWriter
 {
 public:
   /// \brief Specifies the compression level of the stream.
-  enum Compression
+  enum class Compression
   {
     Fastest = 1,
     Fast = 5,
@@ -76,7 +76,7 @@ public:
   ezCompressedStreamWriterZstd();
 
   /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
-  ezCompressedStreamWriterZstd(ezStreamWriter* pOutputStream, Compression ratio = Compression::Default); // [tested]
+  ezCompressedStreamWriterZstd(ezStreamWriter* pOutputStream, ezUInt32 uiMaxNumWorkerThreads, Compression ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
 
   /// \brief Calls FinishCompressedStream() internally.
   ~ezCompressedStreamWriterZstd(); // [tested]
@@ -92,7 +92,7 @@ public:
   /// another stream. This can prevent internal allocations, if one wants to use compression on multiple streams consecutively. It also
   /// allows to create a compressor stream early, but decide at a later pointer whether or with which stream to use it, and it will only
   /// allocate internal structures once that final decision is made.
-  void SetOutputStream(ezStreamWriter* pOutputStream, Compression ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
+  void SetOutputStream(ezStreamWriter* pOutputStream, ezUInt32 uiMaxNumWorkerThreads, Compression ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
 
   /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.
   ///

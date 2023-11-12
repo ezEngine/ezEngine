@@ -6,10 +6,11 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Types/SharedPtr.h>
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/WorldDesc.h>
-#include <Foundation/Types/SharedPtr.h>
 
 namespace ezInternal
 {
@@ -37,7 +38,7 @@ namespace ezInternal
     };
 
     // object storage
-    typedef ezBlockStorage<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::Compact> ObjectStorage;
+    using ObjectStorage = ezBlockStorage<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::Compact>;
     ezIdTable<ezGameObjectId, ezGameObject*, ezLocalAllocatorWrapper> m_Objects;
     ObjectStorage m_ObjectStorage;
 
@@ -99,8 +100,8 @@ namespace ezInternal
     // hierarchy structures
     struct Hierarchy
     {
-      typedef ezDataBlock<ezGameObject::TransformationData, ezInternal::DEFAULT_BLOCK_SIZE> DataBlock;
-      typedef ezDynamicArray<DataBlock> DataBlockArray;
+      using DataBlock = ezDataBlock<ezGameObject::TransformationData, ezInternal::DEFAULT_BLOCK_SIZE>;
+      using DataBlockArray = ezDynamicArray<DataBlock>;
 
       ezHybridArray<DataBlockArray*, 8, ezLocalAllocatorWrapper> m_Data;
     };
@@ -128,18 +129,20 @@ namespace ezInternal
     template <typename VISITOR>
     ezVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
 
-    typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> VisitorFunc;
+    using VisitorFunc = ezDelegate<ezVisitorExecution::Enum(ezGameObject*)>;
     void TraverseBreadthFirst(VisitorFunc& func);
     void TraverseDepthFirst(VisitorFunc& func);
     static ezVisitorExecution::Enum TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);
 
-    static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
-    static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
+    static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter);
+    static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter);
 
-    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
-    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, ezSpatialSystem& spatialSystem);
 
-    void UpdateGlobalTransforms(float fInvDeltaSeconds);
+    void UpdateGlobalTransforms();
+
+    void ResourceEventHandler(const ezResourceEvent& e);
 
     // game object lookups
     ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;
@@ -228,19 +231,42 @@ namespace ezInternal
       ezTime m_Due;
     };
 
-    typedef ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper> MessageQueue;
+    using MessageQueue = ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper>;
     mutable MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
     mutable MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
+    ezObjectMsgQueueType::Enum m_ProcessingMessageQueue = ezObjectMsgQueueType::COUNT;
 
     ezThreadID m_WriteThreadID;
-    ezInt32 m_iWriteCounter;
+    ezInt32 m_iWriteCounter = 0;
     mutable ezAtomicInteger32 m_iReadCounter;
 
-    bool m_bSimulateWorld;
-    bool m_bReportErrorWhenStaticObjectMoves;
+    ezUInt32 m_uiUpdateCounter = 0;
+    bool m_bSimulateWorld = true;
+    bool m_bReportErrorWhenStaticObjectMoves = true;
 
     /// \brief Maps some data (given as void*) to an ezGameObjectHandle. Only available in special situations (e.g. editor use cases).
-    ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle, const char*)> m_GameObjectReferenceResolver;
+    ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle, ezStringView)> m_GameObjectReferenceResolver;
+
+    struct ResourceReloadContext
+    {
+      ezWorld* m_pWorld = nullptr;
+      ezComponent* m_pComponent = nullptr;
+      void* m_pUserData = nullptr;
+    };
+
+    using ResourceReloadFunc = ezDelegate<void(ResourceReloadContext&)>;
+
+    struct ResourceReloadFunctionData
+    {
+      ezComponentHandle m_hComponent;
+      void* m_pUserData = nullptr;
+      ResourceReloadFunc m_Func;
+    };
+
+    using ReloadFunctionList = ezHybridArray<ResourceReloadFunctionData, 8>;
+    ezHashTable<ezTypelessResourceHandle, ReloadFunctionList> m_ReloadFunctions;
+    ezHashSet<ezTypelessResourceHandle> m_NeedReload;
+    ReloadFunctionList m_TempReloadFunctions;
 
   public:
     class ReadMarker
@@ -273,7 +299,7 @@ namespace ezInternal
     mutable ReadMarker m_ReadMarker;
     WriteMarker m_WriteMarker;
 
-    void* m_pUserData;
+    void* m_pUserData = nullptr;
   };
 } // namespace ezInternal
 

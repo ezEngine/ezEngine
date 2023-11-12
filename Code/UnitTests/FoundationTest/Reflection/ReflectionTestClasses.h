@@ -6,7 +6,7 @@
 
 struct ezExampleEnum
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
   enum Enum
   {
     Value1 = 1,      // normal value
@@ -21,7 +21,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleEnum);
 
 struct ezExampleBitflags
 {
-  typedef ezUInt64 StorageType;
+  using StorageType = ezUInt64;
   enum Enum : ezUInt64
   {
     Value1 = EZ_BIT(0),  // normal value
@@ -82,11 +82,11 @@ public:
     m_vProperty3.Set(3, 4, 5);
     m_UInt8 = 6;
     m_variant = "Test";
-    m_Angle = ezAngle::Degree(0.5);
+    m_Angle = ezAngle::MakeFromDegree(0.5);
     m_DataBuffer = GetDefaultDataBuffer();
     m_vVec3I = ezVec3I32(1, 2, 3);
     m_VarianceAngle.m_fVariance = 0.5f;
-    m_VarianceAngle.m_Value = ezAngle::Degree(90.0f);
+    m_VarianceAngle.m_Value = ezAngle::MakeFromDegree(90.0f);
   }
 
 
@@ -275,7 +275,7 @@ class ezTestArrays : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestArrays, ezReflectedClass);
 
 public:
-  ezTestArrays() {}
+  ezTestArrays() = default;
 
   bool operator==(const ezTestArrays& rhs) const
   {
@@ -327,7 +327,7 @@ class ezTestSets : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestSets, ezReflectedClass);
 
 public:
-  ezTestSets() {}
+  ezTestSets() = default;
 
   bool operator==(const ezTestSets& rhs) const
   {
@@ -376,7 +376,7 @@ class ezTestMaps : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestMaps, ezReflectedClass);
 
 public:
-  ezTestMaps() {}
+  ezTestMaps() = default;
 
   bool operator==(const ezTestMaps& rhs) const;
 

@@ -12,9 +12,9 @@
 JPH_NAMESPACE_BEGIN
 
 /// Class that constructs a TaperedCapsuleShape
-class TaperedCapsuleShapeSettings final : public ConvexShapeSettings
+class JPH_EXPORT TaperedCapsuleShapeSettings final : public ConvexShapeSettings
 {
-	JPH_DECLARE_SERIALIZABLE_VIRTUAL(TaperedCapsuleShapeSettings)
+	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, TaperedCapsuleShapeSettings)
 
 	/// Default constructor for deserialization
 							TaperedCapsuleShapeSettings() = default;
@@ -37,7 +37,7 @@ class TaperedCapsuleShapeSettings final : public ConvexShapeSettings
 };
 
 /// A capsule with different top and bottom radii
-class TaperedCapsuleShape final : public ConvexShape
+class JPH_EXPORT TaperedCapsuleShape final : public ConvexShape
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -71,6 +71,9 @@ public:
 	// See ConvexShape::GetSupportFunction
 	virtual const Support *	GetSupportFunction(ESupportMode inMode, SupportBuffer &inBuffer, Vec3Arg inScale) const override;
 
+	// See: Shape::ColideSoftBodyVertices
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, SoftBodyVertex *ioVertices, uint inNumVertices, float inDeltaTime, Vec3Arg inDisplacementDueToGravity, int inCollidingShapeIndex) const override;
+
 #ifdef JPH_DEBUG_RENDERER
 	// See Shape::Draw
 	virtual void			Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const override;
@@ -83,7 +86,7 @@ public:
 	virtual void			SaveBinaryState(StreamOut &inStream) const override;
 
 	// See Shape::GetStats
-	virtual Stats			GetStats() const override												{ return Stats(sizeof(*this), 0); } 
+	virtual Stats			GetStats() const override												{ return Stats(sizeof(*this), 0); }
 
 	// See Shape::GetVolume
 	virtual float			GetVolume() const override												{ return GetLocalBounds().GetVolume(); } // Volume is approximate!

@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Passes/AOPass.h>
 #include <RendererCore/Pipeline/View.h>
@@ -34,15 +35,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAOPass::ezAOPass()
   : ezRenderPipelinePass("AOPass", true)
-  , m_fRadius(1.0f)
-  , m_fMaxScreenSpaceRadius(1.0f)
-  , m_fContrast(2.0f)
-  , m_fIntensity(0.7f)
-  , m_fFadeOutStart(80.0f)
-  , m_fFadeOutEnd(100.0f)
-  , m_fPositionBias(5.0f)
-  , m_fMipLevelScale(10.0f)
-  , m_fDepthBlurThreshold(2.0f)
+
 {
   m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/SSAONoise.dds");
 
@@ -306,6 +299,38 @@ void ezAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, con
   renderingSetup.m_ClearColor = ezColor::White;
 
   auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
+}
+
+ezResult ezAOPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_fRadius;
+  inout_stream << m_fMaxScreenSpaceRadius;
+  inout_stream << m_fContrast;
+  inout_stream << m_fIntensity;
+  inout_stream << m_fFadeOutStart;
+  inout_stream << m_fFadeOutEnd;
+  inout_stream << m_fPositionBias;
+  inout_stream << m_fMipLevelScale;
+  inout_stream << m_fDepthBlurThreshold;
+  return EZ_SUCCESS;
+}
+
+ezResult ezAOPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  inout_stream >> m_fRadius;
+  inout_stream >> m_fMaxScreenSpaceRadius;
+  inout_stream >> m_fContrast;
+  inout_stream >> m_fIntensity;
+  inout_stream >> m_fFadeOutStart;
+  inout_stream >> m_fFadeOutEnd;
+  inout_stream >> m_fPositionBias;
+  inout_stream >> m_fMipLevelScale;
+  inout_stream >> m_fDepthBlurThreshold;
+  return EZ_SUCCESS;
 }
 
 void ezAOPass::SetFadeOutStart(float fStart)

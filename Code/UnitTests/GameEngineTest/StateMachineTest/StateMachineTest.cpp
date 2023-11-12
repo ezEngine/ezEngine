@@ -39,8 +39,8 @@ ezResult ezGameEngineTestStateMachine::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(1);
     m_ImgCompFrames.PushBack(17);
-    m_ImgCompFrames.PushBack(33);
-    m_ImgCompFrames.PushBack(49);
+    m_ImgCompFrames.PushBack(34);
+    m_ImgCompFrames.PushBack(51);
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("StateMachine/AssetCache/Common/Scenes/StateMachine.ezObjectGraph"));
     return EZ_SUCCESS;
@@ -57,7 +57,7 @@ ezTestAppRun ezGameEngineTestStateMachine::RunSubTest(ezInt32 iIdentifier, ezUIn
     return ezTestAppRun::Quit;
   }
 
-  const bool bVulkan = ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "Vulkan");
+  const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
   if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)

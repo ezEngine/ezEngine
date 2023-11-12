@@ -62,11 +62,9 @@ void ezPlatformProfile::Clear()
 
 void ezPlatformProfile::AddMissingConfigs()
 {
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    // find all types derived from ezProfileConfigData
-    if (!pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract) && pRtti->IsDerivedFrom<ezProfileConfigData>() && pRtti->GetAllocator()->CanAllocate())
-    {
+  ezRTTI::ForEachDerivedType<ezProfileConfigData>(
+    [this](const ezRTTI* pRtti) {
+      // find all types derived from ezProfileConfigData
       bool bHasTypeAlready = false;
 
       // check whether we already have an instance of this type
@@ -88,11 +86,11 @@ void ezPlatformProfile::AddMissingConfigs()
 
         m_Configs.PushBack(pObject);
       }
-    }
-  }
+    },
+    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   // sort all configs alphabetically
-  m_Configs.Sort([](const ezProfileConfigData* lhs, const ezProfileConfigData* rhs) -> bool { return ezStringUtils::Compare(lhs->GetDynamicRTTI()->GetTypeName(), rhs->GetDynamicRTTI()->GetTypeName()) < 0; });
+  m_Configs.Sort([](const ezProfileConfigData* lhs, const ezProfileConfigData* rhs) -> bool { return lhs->GetDynamicRTTI()->GetTypeName().Compare(rhs->GetDynamicRTTI()->GetTypeName()) < 0; });
 }
 
 const ezProfileConfigData* ezPlatformProfile::GetTypeConfig(const ezRTTI* pRtti) const

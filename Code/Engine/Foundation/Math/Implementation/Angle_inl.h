@@ -30,12 +30,12 @@ constexpr Type ezAngle::RadToDeg(Type f)
   return f * RadToDegMultiplier<Type>();
 }
 
-constexpr inline ezAngle ezAngle::Degree(float fDegree)
+constexpr inline ezAngle ezAngle::MakeFromDegree(float fDegree)
 {
   return ezAngle(DegToRad(fDegree));
 }
 
-constexpr EZ_ALWAYS_INLINE ezAngle ezAngle::Radian(float fRadian)
+constexpr EZ_ALWAYS_INLINE ezAngle ezAngle::MakeFromRadian(float fRadian)
 {
   return ezAngle(fRadian);
 }
@@ -130,17 +130,17 @@ constexpr EZ_ALWAYS_INLINE bool ezAngle::operator>=(const ezAngle& r) const
 
 constexpr inline ezAngle operator*(ezAngle a, float f)
 {
-  return ezAngle::Radian(a.GetRadian() * f);
+  return ezAngle::MakeFromRadian(a.GetRadian() * f);
 }
 
 constexpr inline ezAngle operator*(float f, ezAngle a)
 {
-  return ezAngle::Radian(a.GetRadian() * f);
+  return ezAngle::MakeFromRadian(a.GetRadian() * f);
 }
 
 constexpr inline ezAngle operator/(ezAngle a, float f)
 {
-  return ezAngle::Radian(a.GetRadian() / f);
+  return ezAngle::MakeFromRadian(a.GetRadian() / f);
 }
 
 constexpr inline float operator/(ezAngle a, ezAngle b)

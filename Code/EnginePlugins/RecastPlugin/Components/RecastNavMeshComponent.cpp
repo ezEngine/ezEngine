@@ -5,7 +5,7 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Time/Stopwatch.h>
-#include <Recast/Recast.h>
+#include <Recast.h>
 #include <RecastPlugin/Components/RecastNavMeshComponent.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
@@ -58,8 +58,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 2, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezRcNavMeshComponent::ezRcNavMeshComponent() {}
-ezRcNavMeshComponent::~ezRcNavMeshComponent() {}
+ezRcNavMeshComponent::ezRcNavMeshComponent() = default;
+ezRcNavMeshComponent::~ezRcNavMeshComponent() = default;
 
 void ezRcNavMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
@@ -101,8 +101,7 @@ void ezRcNavMeshComponent::Update()
   VisualizePointsOfInterest();
 }
 
-EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(
-  const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)
+EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)
 {
   const ezUInt16* v = &pMesh->verts[uiVertex * 3];
   const float x = vMeshOrigin.x + v[0] * fCellSize;
@@ -270,7 +269,7 @@ void ezRcNavMeshComponent::VisualizePointsOfInterest()
 
 ezRcNavMeshComponentManager::ezRcNavMeshComponentManager(ezWorld* pWorld)
   : SUPER(pWorld)
-  , m_pWorldModule(nullptr)
+
 {
 }
 

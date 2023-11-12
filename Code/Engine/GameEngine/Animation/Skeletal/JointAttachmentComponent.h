@@ -27,8 +27,8 @@ public:
   void SetJointName(const char* szName); // [ property ]
   const char* GetJointName() const;      // [ property ]
 
-  ezVec3 m_vLocalPositionOffset = ezVec3::ZeroVector();         // [ property ]
-  ezQuat m_vLocalRotationOffset = ezQuat::IdentityQuaternion(); // [ property ]
+  ezVec3 m_vLocalPositionOffset = ezVec3::MakeZero();     // [ property ]
+  ezQuat m_vLocalRotationOffset = ezQuat::MakeIdentity(); // [ property ]
 
 protected:
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]

@@ -73,52 +73,52 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sin")
   {
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(0.0f)), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(90.0f)), 1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(180.0f)), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(270.0f)), -1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(0.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(90.0f)), 1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(180.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(270.0f)), -1.0f, 0.000001f);
 
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(45.0f)), 0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(135.0f)), 0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(225.0f)), -0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(315.0f)), -0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(45.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(135.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(225.0f)), -0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(315.0f)), -0.7071067f, 0.000001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Cos")
   {
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(0.0f)), 1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(90.0f)), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(180.0f)), -1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(270.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(0.0f)), 1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(90.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(180.0f)), -1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(270.0f)), 0.0f, 0.000001f);
 
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(45.0f)), 0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(135.0f)), -0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(225.0f)), -0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(315.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(45.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(135.0f)), -0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(225.0f)), -0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(315.0f)), 0.7071067f, 0.000001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Tan")
   {
-    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(0.0f)), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(45.0f)), 1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(-45.0f)), -1.0f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(90.00001f)) < 1000000.0f);
-    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(89.9999f)) > 100000.0f);
+    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::MakeFromDegree(0.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::MakeFromDegree(45.0f)), 1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::MakeFromDegree(-45.0f)), -1.0f, 0.000001f);
+    EZ_TEST_BOOL(ezMath::Tan(ezAngle::MakeFromDegree(90.00001f)) < 1000000.0f);
+    EZ_TEST_BOOL(ezMath::Tan(ezAngle::MakeFromDegree(89.9999f)) > 100000.0f);
 
     // Testing the period of tan(x) centered at 0 and the adjacent ones
-    ezAngle angle = ezAngle::Degree(-89.0f);
+    ezAngle angle = ezAngle::MakeFromDegree(-89.0f);
     while (angle.GetDegree() < 89.0f)
     {
       float fTan = ezMath::Tan(angle);
-      float fTanPrev = ezMath::Tan(ezAngle::Degree(angle.GetDegree() - 180.0f));
-      float fTanNext = ezMath::Tan(ezAngle::Degree(angle.GetDegree() + 180.0f));
+      float fTanPrev = ezMath::Tan(ezAngle::MakeFromDegree(angle.GetDegree() - 180.0f));
+      float fTanNext = ezMath::Tan(ezAngle::MakeFromDegree(angle.GetDegree() + 180.0f));
       float fSin = ezMath::Sin(angle);
       float fCos = ezMath::Cos(angle);
 
       EZ_TEST_FLOAT(fTan - fTanPrev, 0.0f, 0.002f);
       EZ_TEST_FLOAT(fTan - fTanNext, 0.0f, 0.002f);
       EZ_TEST_FLOAT(fTan - (fSin / fCos), 0.0f, 0.0005f);
-      angle += ezAngle::Degree(1.234f);
+      angle += ezAngle::MakeFromDegree(1.234f);
     }
   }
 
@@ -813,6 +813,52 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_INT(ezMath::CountLeadingZeros(0), 32);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Bitmask_LowN")
+  {
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(0), 0);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(1), 1);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(2), 3);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(3), 7);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(31), 0x7fffffff);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(32), 0xffffffffu);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(33), 0xffffffffu);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(50), 0xffffffffu);
+
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(0), 0);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(1), 1);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(2), 3);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(3), 7);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(31), 0x7fffffff);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(32), 0xffffffffu);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(63), 0x7fffffffffffffffull);
+    EZ_TEST_BOOL(ezMath::Bitmask_LowN<ezUInt64>(64) == 0xffffffffffffffffull);
+    EZ_TEST_BOOL(ezMath::Bitmask_LowN<ezUInt64>(65) == 0xffffffffffffffffull);
+    EZ_TEST_BOOL(ezMath::Bitmask_LowN<ezUInt64>(100) == 0xffffffffffffffffull);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Bitmask_HighN")
+  {
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(0), 0u);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(1), 0x80000000u);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(2), 0xC0000000u);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(3), 0xE0000000u);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(31), 0xfffffffeu);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(32), 0xffffffffu);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(33), 0xffffffffu);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(60), 0xffffffffu);
+
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(0) == 0);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(1) == 0x8000000000000000llu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(2) == 0xC000000000000000llu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(3) == 0xE000000000000000llu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(31) == 0xfffffffe00000000llu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(32) == 0xffffffff00000000llu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(63) == 0xfffffffffffffffellu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(64) == 0xffffffffffffffffull);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(65) == 0xffffffffffffffffull);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(1000) == 0xffffffffffffffffull);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TryMultiply32")
   {
     ezUInt32 res;
@@ -897,5 +943,69 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::TryConvertToSizeT(res, y).Succeeded());
     EZ_TEST_BOOL(res == y);
 #endif
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceNaN")
+  {
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(0.0f, 42.0f), 0.0f, 0);
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::HighValue<float>(), 2.0f), ezMath::HighValue<float>(), 0);
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(-ezMath::HighValue<float>(), 2.0f), -ezMath::HighValue<float>(), 0);
+
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::NaN<float>(), 2.0f), 2.0f, 0);
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::NaN<double>(), 3.0), 3.0, 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComparisonOperator")
+  {
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Equal, 1.0, 1.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Equal, 1.0, 2.0) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::NotEqual, 1.0, 2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::NotEqual, 1.0, 1.0) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, 1.0, 1.0) == false);
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, 1.0, 2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, -2.0, -1.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, 3.0, 2.0) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, 1.0, 1.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, 1.0, 2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, -2.0, -1.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, 3.0, 2.0) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, 1.0, 1.0) == false);
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, 3.0, 2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, -1.0, -2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, 2.0, 3.0) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, 1.0, 1.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, 3.0, 2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, -1.0, -2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, 2.0, 3.0) == false);
+
+    ezStringView a = "a";
+    ezStringView b = "b";
+    ezStringView c = "c";
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Equal, a, a));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Equal, a, b) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::NotEqual, a, c));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::NotEqual, a, a) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, a, a) == false);
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, a, b));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, c, b) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, a, a));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, a, b));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, c, b) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, a, a) == false);
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, c, b));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, a, b) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, a, a));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, c, b));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, a, b) == false);
   }
 }

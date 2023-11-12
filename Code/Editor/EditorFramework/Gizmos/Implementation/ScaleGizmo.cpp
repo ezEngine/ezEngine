@@ -23,7 +23,7 @@ ezScaleGizmo::ezScaleGizmo()
   m_hAxisXYZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, coly, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleXYZ.obj");
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezScaleGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
@@ -147,12 +147,14 @@ ezEditorInput ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
-  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
+  const QPoint mousePosition = e->globalPosition().toPoint();
+
+  const ezVec2I32 vNewMousePos = ezVec2I32(mousePosition.x(), mousePosition.y());
   ezVec2I32 vDiff = (vNewMousePos - m_vLastMousePos);
 
   m_vLastMousePos = UpdateMouseMode(e);
@@ -217,11 +219,11 @@ void ezManipulatorScaleGizmo::OnTransformationChanged(const ezTransform& transfo
 
   m_hAxisX.SetTransformation(transform * t);
 
-  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+  t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
   t.m_vPosition = ezVec3(0, fOffset, 0);
   m_hAxisY.SetTransformation(transform * t);
 
-  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+  t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
   t.m_vPosition = ezVec3(0, 0, fOffset);
   m_hAxisZ.SetTransformation(transform * t);
 

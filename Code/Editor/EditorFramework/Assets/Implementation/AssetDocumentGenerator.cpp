@@ -8,9 +8,9 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentGenerator, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAssetDocumentGenerator::ezAssetDocumentGenerator() {}
+ezAssetDocumentGenerator::ezAssetDocumentGenerator() = default;
 
-ezAssetDocumentGenerator::~ezAssetDocumentGenerator() {}
+ezAssetDocumentGenerator::~ezAssetDocumentGenerator() = default;
 
 void ezAssetDocumentGenerator::AddSupportedFileType(ezStringView sExtension)
 {
@@ -18,6 +18,15 @@ void ezAssetDocumentGenerator::AddSupportedFileType(ezStringView sExtension)
   tmp.ToLower();
 
   m_SupportedFileTypes.PushBack(tmp);
+}
+
+
+void ezAssetDocumentGenerator::GetSupportedFileTypes(ezSet<ezString>& ref_extensions) const
+{
+  for (const ezString& ext : m_SupportedFileTypes)
+  {
+    ref_extensions.Insert(ext);
+  }
 }
 
 bool ezAssetDocumentGenerator::SupportsFileType(ezStringView sFile) const
@@ -38,7 +47,7 @@ void ezAssetDocumentGenerator::BuildFileDialogFilterString(ezStringBuilder& out_
 
 void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_sFilter, bool& ref_bSemicolon) const
 {
-  for (const ezString ext : m_SupportedFileTypes)
+  for (const ezString& ext : m_SupportedFileTypes)
   {
     ezStringBuilder extWithStarDot;
     extWithStarDot.AppendFormat("*.{0}", ext);
@@ -65,13 +74,11 @@ void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_sFil
 
 void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_Generators)
 {
-  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezAssetDocumentGenerator>() || !pRtti->GetAllocator()->CanAllocate())
-      continue;
-
-    out_Generators.PushBack(pRtti->GetAllocator()->Allocate<ezAssetDocumentGenerator>());
-  }
+  ezRTTI::ForEachDerivedType<ezAssetDocumentGenerator>(
+    [&](const ezRTTI* pRtti) {
+      out_Generators.PushBack(pRtti->GetAllocator()->Allocate<ezAssetDocumentGenerator>());
+    },
+    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   // sort by name
   out_Generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool { return lhs->GetDocumentExtension().Compare_NoCase(rhs->GetDocumentExtension()) < 0; });
@@ -107,7 +114,7 @@ void ezAssetDocumentGenerator::ExecuteImport(ezDynamicArray<ImportData>& ref_all
 
     if (pGeneratedDoc)
     {
-      pGeneratedDoc->SaveDocument(true);
+      pGeneratedDoc->SaveDocument(true).LogFailure();
       pGeneratedDoc->GetDocumentManager()->CloseDocument(pGeneratedDoc);
 
       ezQtEditorApp::GetSingleton()->OpenDocumentQueued(option.m_sOutputFileAbsolute);
@@ -169,7 +176,7 @@ ezResult ezAssetDocumentGenerator::DetermineInputAndOutputFiles(ImportData& data
   return EZ_SUCCESS;
 }
 
-void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& filesToImport)
+void ezAssetDocumentGenerator::ImportAssets(const ezDynamicArray<ezString>& filesToImport)
 {
   ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
   CreateGenerators(generators);
@@ -184,6 +191,19 @@ void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& f
   ezQtAssetImportDlg dlg(QApplication::activeWindow(), allImports);
   dlg.exec();
 
+  DestroyGenerators(generators);
+}
+
+void ezAssetDocumentGenerator::GetSupportsFileTypes(ezSet<ezString>& out_extensions)
+{
+  out_extensions.Clear();
+
+  ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
+  CreateGenerators(generators);
+  for (auto pGen : generators)
+  {
+    pGen->GetSupportedFileTypes(out_extensions);
+  }
   DestroyGenerators(generators);
 }
 
@@ -231,7 +251,7 @@ void ezAssetDocumentGenerator::ImportAssets()
   ImportAssets(filesToImport);
 }
 
-void ezAssetDocumentGenerator::CreateImportOptionList(const ezHybridArray<ezString, 16>& filesToImport,
+void ezAssetDocumentGenerator::CreateImportOptionList(const ezDynamicArray<ezString>& filesToImport,
   ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports, const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
 {
   ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();

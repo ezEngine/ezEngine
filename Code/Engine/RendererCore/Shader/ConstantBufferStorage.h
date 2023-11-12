@@ -22,8 +22,8 @@ public:
   EZ_ALWAYS_INLINE ezGALBufferHandle GetGALBufferHandle() const { return m_hGALConstantBuffer; }
 
 protected:
-  bool m_bHasBeenModified;
-  ezUInt32 m_uiLastHash;
+  bool m_bHasBeenModified = false;
+  ezUInt32 m_uiLastHash = 0;
   ezGALBufferHandle m_hGALConstantBuffer;
 
   ezArrayPtr<ezUInt8> m_Data;
@@ -48,7 +48,7 @@ public:
   }
 };
 
-typedef ezGenericId<24, 8> ezConstantBufferStorageId;
+using ezConstantBufferStorageId = ezGenericId<24, 8>;
 
 class ezConstantBufferStorageHandle
 {

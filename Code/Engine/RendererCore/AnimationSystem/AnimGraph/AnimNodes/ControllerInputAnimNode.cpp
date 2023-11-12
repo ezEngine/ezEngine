@@ -8,34 +8,34 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezControllerInputAnimNode, 1, ezRTTIDefaultAlloc
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("LeftTrigger", m_LeftTrigger)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("LeftShoulder", m_LeftShoulder)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("LeftStickX", m_OutLeftStickX)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("LeftStickY", m_OutLeftStickY)->AddAttributes(new ezHiddenAttribute()),
 
-    EZ_MEMBER_PROPERTY("LeftStickX", m_LeftStickX)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("LeftStickY", m_LeftStickY)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("RightStickX", m_OutRightStickX)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("RightStickY", m_OutRightStickY)->AddAttributes(new ezHiddenAttribute()),
 
-    EZ_MEMBER_PROPERTY("PadLeft", m_PadLeft)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("PadRight", m_PadRight)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("PadUp", m_PadUp)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("PadDown", m_PadDown)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("LeftTrigger", m_OutLeftTrigger)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("RightTrigger", m_OutRightTrigger)->AddAttributes(new ezHiddenAttribute()),
 
-    EZ_MEMBER_PROPERTY("RightTrigger", m_RightTrigger)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("RightShoulder", m_RightShoulder)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("ButtonA", m_OutButtonA)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("ButtonB", m_OutButtonB)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("ButtonX", m_OutButtonX)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("ButtonY", m_OutButtonY)->AddAttributes(new ezHiddenAttribute()),
 
-    EZ_MEMBER_PROPERTY("RightStickX", m_RightStickX)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("RightStickY", m_RightStickY)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("LeftShoulder", m_OutLeftShoulder)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("RightShoulder", m_OutRightShoulder)->AddAttributes(new ezHiddenAttribute()),
 
-    EZ_MEMBER_PROPERTY("ButtonA", m_ButtonA)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("ButtonB", m_ButtonB)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("ButtonX", m_ButtonX)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("ButtonY", m_ButtonY)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("PadLeft", m_OutPadLeft)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("PadRight", m_OutPadRight)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("PadUp", m_OutPadUp)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("PadDown", m_OutPadDown)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Input"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Pink)),
-    new ezTitleAttribute("XBox Controller"),
+    new ezTitleAttribute("Controller"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -48,24 +48,22 @@ ezResult ezControllerInputAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_ButtonA.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ButtonB.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ButtonX.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ButtonY.Serialize(stream));
-
-  EZ_SUCCEED_OR_RETURN(m_LeftStickX.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_LeftStickY.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_RightStickX.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_RightStickY.Serialize(stream));
-
-  EZ_SUCCEED_OR_RETURN(m_LeftTrigger.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_RightTrigger.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_LeftShoulder.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_RightShoulder.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_PadLeft.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_PadRight.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_PadUp.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_PadDown.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutLeftStickX.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutLeftStickY.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutRightStickX.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutRightStickY.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutLeftTrigger.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutRightTrigger.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutButtonA.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutButtonB.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutButtonX.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutButtonY.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutLeftShoulder.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutRightShoulder.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutPadLeft.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutPadRight.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutPadUp.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutPadDown.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -76,80 +74,87 @@ ezResult ezControllerInputAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_ButtonA.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ButtonB.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ButtonX.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_ButtonY.Deserialize(stream));
-
-  EZ_SUCCEED_OR_RETURN(m_LeftStickX.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_LeftStickY.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_RightStickX.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_RightStickY.Deserialize(stream));
-
-  EZ_SUCCEED_OR_RETURN(m_LeftTrigger.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_RightTrigger.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_LeftShoulder.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_RightShoulder.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_PadLeft.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_PadRight.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_PadUp.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_PadDown.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutLeftStickX.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutLeftStickY.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutRightStickX.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutRightStickY.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutLeftTrigger.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutRightTrigger.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutButtonA.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutButtonB.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutButtonX.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutButtonY.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutLeftShoulder.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutRightShoulder.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutPadLeft.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutPadRight.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutPadUp.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutPadDown.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezControllerInputAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezControllerInputAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  float fValue1 = 0.0f;
-  float fValue2 = 0.0f;
+  {
+    float fValue1 = 0.0f;
+    float fValue2 = 0.0f;
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_NegX, &fValue1);
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_PosX, &fValue2);
-  m_LeftStickX.SetNumber(graph, -fValue1 + fValue2);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_NegX, &fValue1);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_PosX, &fValue2);
+    m_OutLeftStickX.SetNumber(ref_graph, -fValue1 + fValue2);
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_NegY, &fValue1);
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_PosY, &fValue2);
-  m_LeftStickY.SetNumber(graph, -fValue1 + fValue2);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_NegY, &fValue1);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_PosY, &fValue2);
+    m_OutLeftStickY.SetNumber(ref_graph, -fValue1 + fValue2);
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_NegX, &fValue1);
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_PosX, &fValue2);
-  m_RightStickX.SetNumber(graph, -fValue1 + fValue2);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_NegX, &fValue1);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_PosX, &fValue2);
+    m_OutRightStickX.SetNumber(ref_graph, -fValue1 + fValue2);
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_NegY, &fValue1);
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_PosY, &fValue2);
-  m_RightStickY.SetNumber(graph, -fValue1 + fValue2);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_NegY, &fValue1);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_PosY, &fValue2);
+    m_OutRightStickY.SetNumber(ref_graph, -fValue1 + fValue2);
+  }
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonA, &fValue1);
-  m_ButtonA.SetTriggered(graph, fValue1 > 0);
+  {
+    float fValue = 0.0f;
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonA, &fValue);
+    m_OutButtonA.SetBool(ref_graph, fValue > 0);
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonB, &fValue1);
-  m_ButtonB.SetTriggered(graph, fValue1 > 0);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonB, &fValue);
+    m_OutButtonB.SetBool(ref_graph, fValue > 0);
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonX, &fValue1);
-  m_ButtonX.SetTriggered(graph, fValue1 > 0);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonX, &fValue);
+    m_OutButtonX.SetBool(ref_graph, fValue > 0);
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonY, &fValue1);
-  m_ButtonY.SetTriggered(graph, fValue1 > 0);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonY, &fValue);
+    m_OutButtonY.SetBool(ref_graph, fValue > 0);
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftShoulder, &fValue1);
-  m_LeftShoulder.SetTriggered(graph, fValue1 > 0);
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftTrigger, &fValue1);
-  m_LeftTrigger.SetNumber(graph, fValue1);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftShoulder, &fValue);
+    m_OutLeftShoulder.SetBool(ref_graph, fValue > 0);
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightShoulder, &fValue1);
-  m_RightShoulder.SetTriggered(graph, fValue1 > 0);
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightTrigger, &fValue1);
-  m_RightTrigger.SetNumber(graph, fValue1);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftTrigger, &fValue);
+    m_OutLeftTrigger.SetNumber(ref_graph, fValue);
 
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadLeft, &fValue1);
-  m_PadLeft.SetTriggered(graph, fValue1 > 0);
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadRight, &fValue1);
-  m_PadRight.SetTriggered(graph, fValue1 > 0);
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadUp, &fValue1);
-  m_PadUp.SetTriggered(graph, fValue1 > 0);
-  ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadDown, &fValue1);
-  m_PadDown.SetTriggered(graph, fValue1 > 0);
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightShoulder, &fValue);
+    m_OutRightShoulder.SetBool(ref_graph, fValue > 0);
+
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightTrigger, &fValue);
+    m_OutRightTrigger.SetNumber(ref_graph, fValue);
+
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadLeft, &fValue);
+    m_OutPadLeft.SetBool(ref_graph, fValue > 0);
+
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadRight, &fValue);
+    m_OutPadRight.SetBool(ref_graph, fValue > 0);
+
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadUp, &fValue);
+    m_OutPadUp.SetBool(ref_graph, fValue > 0);
+
+    ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadDown, &fValue);
+    m_OutPadDown.SetBool(ref_graph, fValue > 0);
+  }
 }
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_ControllerInputAnimNode);

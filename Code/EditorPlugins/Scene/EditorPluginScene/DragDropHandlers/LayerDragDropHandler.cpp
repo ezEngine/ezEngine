@@ -46,7 +46,7 @@ float ezLayerOnLayerDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) cons
       const ezDocumentObject* pTarget = pDoc->GetSceneObjectManager()->GetObject(pInfo->m_TargetObject);
       if (pTarget && pInfo->m_pAdapter && GetCommonBaseType(pInfo)->IsDerivedFrom(ezGetStaticRTTI<ezSceneLayerBase>()))
       {
-        ezAbstractProperty* pTargetProp = pInfo->m_pAdapter->GetType()->FindPropertyByName(pInfo->m_pAdapter->GetChildProperty());
+        const ezAbstractProperty* pTargetProp = pInfo->m_pAdapter->GetType()->FindPropertyByName(pInfo->m_pAdapter->GetChildProperty());
         if (pTargetProp && ezGetStaticRTTI<ezSceneLayerBase>()->IsDerivedFrom(pTargetProp->GetSpecificType()))
           return 1.0f;
       }
@@ -59,8 +59,6 @@ void ezLayerOnLayerDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
 {
   if (ezScene2Document* pDoc = ezDynamicCast<ezScene2Document*>(ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument)))
   {
-    const ezDocumentObject* pTarget = pDoc->GetSceneObjectManager()->GetObject(pInfo->m_TargetObject);
-
     const ezUuid activeDoc = pDoc->GetActiveLayer();
     EZ_VERIFY(pDoc->SetActiveLayer(pDoc->GetGuid()).Succeeded(), "Failed to set active document.");
     {

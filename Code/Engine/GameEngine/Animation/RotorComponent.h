@@ -4,7 +4,7 @@
 
 #include <GameEngine/Animation/TransformComponent.h>
 
-typedef ezComponentManagerSimple<class ezRotorComponent, ezComponentUpdateType::WhenSimulating> ezRotorComponentManager;
+using ezRotorComponentManager = ezComponentManagerSimple<class ezRotorComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_GAMEENGINE_DLL ezRotorComponent : public ezTransformComponent
 {
@@ -19,7 +19,6 @@ public:
 
 protected:
   virtual void OnSimulationStarted() override;
-
 
   //////////////////////////////////////////////////////////////////////////
   // ezRotorComponent
@@ -38,5 +37,5 @@ protected:
   void Update();
 
   ezVec3 m_vRotationAxis = ezVec3(0, 0, 1);
-  ezQuat m_qLastRotation = ezQuat::IdentityQuaternion();
+  ezQuat m_qLastRotation = ezQuat::MakeIdentity();
 };

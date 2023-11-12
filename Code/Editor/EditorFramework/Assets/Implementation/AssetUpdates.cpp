@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Asset Hashing and Status Updates
@@ -93,44 +94,12 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& 
     ezLog::Error("Failed to make path absolute '{0}'", sPath);
     return false;
   }
-  ezFileStats statDep;
-  if (ezOSFile::GetFileStats(sPath, statDep).Failed())
-  {
-    ezLog::Error("Failed to retrieve file stats '{0}'", sPath);
-    return false;
-  }
 
   ezFileStatus fileStatus;
-  ezTimestamp previousModificationTime;
+  ezResult res = ezFileSystemModel::GetSingleton()->HashFile(sPath, fileStatus);
+  if (res.Failed())
   {
-    EZ_LOCK(m_CuratorMutex);
-    fileStatus = m_ReferencedFiles[sPath];
-    previousModificationTime = fileStatus.m_Timestamp;
-  }
-
-  // if the file has been modified, make sure to get updated data
-  if (!fileStatus.m_Timestamp.Compare(statDep.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
-  {
-    CURATOR_PROFILE(sPath);
-    ezFileReader file;
-    if (file.Open(sPath).Failed())
-    {
-      ezLog::Error("Failed to open file '{0}'", sPath);
-      return false;
-    }
-    fileStatus.m_Timestamp = statDep.m_LastModificationTime;
-    fileStatus.m_uiHash = ezAssetCurator::HashFile(file, nullptr);
-    fileStatus.m_Status = ezFileStatus::Status::Valid;
-  }
-
-  {
-    EZ_LOCK(m_CuratorMutex);
-    ezFileStatus& refFile = m_ReferencedFiles[sPath];
-    // Only update the status if the file status has not been changed between the locks or we might write stale data to it.
-    if (refFile.m_Timestamp.Compare(previousModificationTime, ezTimestamp::CompareMode::Identical))
-    {
-      refFile = fileStatus;
-    }
+    return false;
   }
 
   // Thumbs hash is affected by both transform dependencies and references.
@@ -143,185 +112,134 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& 
   return true;
 }
 
-ezResult ezAssetCurator::EnsureAssetInfoUpdated(const ezUuid& assetGuid)
-{
-  EZ_LOCK(m_CuratorMutex);
-  ezAssetInfo* pInfo = nullptr;
-  if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
-    return EZ_FAILURE;
-
-  // It is not safe here to pass pInfo->m_sAbsolutePath into EnsureAssetInfoUpdated
-  // as the function is meant to change the very instance we are passing in.
-  ezStringBuilder sAbsPath = pInfo->m_sAbsolutePath;
-  return EnsureAssetInfoUpdated(sAbsPath);
-}
-
-static ezResult PatchAssetGuid(const char* szAbsFilePath, ezUuid oldGuid, ezUuid newGuid)
+static ezResult PatchAssetGuid(ezStringView sAbsFilePath, ezUuid oldGuid, ezUuid newGuid)
 {
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  if (ezDocumentManager::FindDocumentTypeFromPath(szAbsFilePath, true, pTypeDesc).Failed())
+  if (ezDocumentManager::FindDocumentTypeFromPath(sAbsFilePath, true, pTypeDesc).Failed())
     return EZ_FAILURE;
 
-  if (ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(szAbsFilePath))
-  {
-    pTypeDesc->m_pManager->CloseDocument(pDocument);
-  }
-
   ezUInt32 uiTries = 0;
-  while (pTypeDesc->m_pManager->CloneDocument(szAbsFilePath, szAbsFilePath, newGuid).Failed())
+
+  ezStringBuilder sTemp;
+  ezStringBuilder sTempTarget = ezOSFile::GetTempDataFolder();
+  sTempTarget.AppendPath(ezPathUtils::GetFileNameAndExtension(sAbsFilePath));
+  sTempTarget.ChangeFileName(ezConversionUtils::ToString(newGuid, sTemp));
+
+  sTemp = sAbsFilePath;
+  while (pTypeDesc->m_pManager->CloneDocument(sTemp, sTempTarget, newGuid).Failed())
   {
     if (uiTries >= 5)
       return EZ_FAILURE;
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(50 * (uiTries + 1)));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50 * (uiTries + 1)));
     uiTries++;
   }
 
-  return EZ_SUCCESS;
+  ezResult res = ezOSFile::CopyFile(sTempTarget, sAbsFilePath);
+  ezOSFile::DeleteFile(sTempTarget).IgnoreResult();
+  return res;
 }
 
-ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
+ezResult ezAssetCurator::EnsureAssetInfoUpdated(const ezDataDirPath& absFilePath, const ezFileStatus& stat, bool bForce)
 {
-  CURATOR_PROFILE(szAbsFilePath);
-  ezFileStats fs;
-  {
-    CURATOR_PROFILE("GetFileStats");
-    if (ezOSFile::GetFileStats(szAbsFilePath, fs).Failed())
-      return EZ_FAILURE;
-  }
-  {
-    // If the file stat matches our stored timestamp, we are still up to date.
-    EZ_LOCK(m_CuratorMutex);
-    if (m_ReferencedFiles[szAbsFilePath].m_Timestamp.Compare(fs.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
-      return EZ_SUCCESS;
-  }
+  CURATOR_PROFILE(absFilePath);
+
+  ezFileSystemModel* pFiles = ezFileSystemModel::GetSingleton();
 
   // Read document info outside the lock
-  ezFileStatus fileStatus;
   ezUniquePtr<ezAssetInfo> pNewAssetInfo;
-  EZ_SUCCEED_OR_RETURN(ReadAssetDocumentInfo(szAbsFilePath, fileStatus, pNewAssetInfo));
+  EZ_SUCCEED_OR_RETURN(ReadAssetDocumentInfo(absFilePath, stat, pNewAssetInfo));
   EZ_ASSERT_DEV(pNewAssetInfo != nullptr && pNewAssetInfo->m_Info != nullptr, "Info should be valid on success.");
 
+
   EZ_LOCK(m_CuratorMutex);
-  ezFileStatus& RefFile = m_ReferencedFiles[szAbsFilePath];
-  ezUuid oldGuid = RefFile.m_AssetGuid;
+  const ezUuid oldGuid = stat.m_DocumentID;
   // if it already has a valid GUID, an ezAssetInfo object must exist
-  bool bNew = !RefFile.m_AssetGuid.IsValid(); // Under this current location the asset is not known.
-  EZ_VERIFY(bNew == !m_KnownAssets.Contains(RefFile.m_AssetGuid), "guid set in file-status but no asset is actually known under that guid");
+  const bool bNewAssetFile = !stat.m_DocumentID.IsValid(); // Under this current location the asset is not known.
+  ezUuid newGuid = pNewAssetInfo->m_Info->m_DocumentID;
 
-  RefFile = fileStatus;
-  ezAssetInfo* pOldAssetInfo = nullptr;
-  if (bNew)
+  ezAssetInfo* pCurrentAssetInfo = nullptr;
+  // Was the asset already known? Decide whether it was moved (ok) or duplicated (bad)
+  m_KnownAssets.TryGetValue(pNewAssetInfo->m_Info->m_DocumentID, pCurrentAssetInfo);
+
+  ezEnum<ezAssetExistanceState> newExistanceState = ezAssetExistanceState::FileUnchanged;
+  if (bNewAssetFile && pCurrentAssetInfo != nullptr)
   {
-    // now the GUID must be valid
-    EZ_ASSERT_DEV(pNewAssetInfo->m_Info->m_DocumentID.IsValid(), "Asset header read for '{0}', but its GUID is invalid! Corrupted document?", szAbsFilePath);
-    EZ_ASSERT_DEV(RefFile.m_AssetGuid == pNewAssetInfo->m_Info->m_DocumentID, "UpdateAssetInfo broke the GUID!");
+    ezFileStats fsOldLocation;
+    const bool IsSameFile = ezFileSystemModel::IsSameFile(pNewAssetInfo->m_Path, pCurrentAssetInfo->m_Path);
+    const ezResult statCheckOldLocation = ezOSFile::GetFileStats(pCurrentAssetInfo->m_Path, fsOldLocation);
 
-    // Was the asset already known? Decide whether it was moved (ok) or duplicated (bad)
-    m_KnownAssets.TryGetValue(pNewAssetInfo->m_Info->m_DocumentID, pOldAssetInfo);
-    if (pOldAssetInfo != nullptr)
+    if (statCheckOldLocation.Succeeded() && !IsSameFile)
     {
-      if (pNewAssetInfo->m_sAbsolutePath == pOldAssetInfo->m_sAbsolutePath)
+      // DUPLICATED
+      // Unfortunately we only know about duplicates in the order in which the filesystem tells us about files
+      // That means we currently always adjust the GUID of the second, third, etc. file that we look at
+      // even if we might know that changing another file makes more sense
+      // This works well for when the editor is running and someone copies a file.
+
+      ezLog::Error("Two assets have identical GUIDs: '{0}' and '{1}'", pNewAssetInfo->m_Path.GetAbsolutePath(), pCurrentAssetInfo->m_Path.GetAbsolutePath());
+
+      const ezUuid mod = ezUuid::MakeStableUuidFromString(absFilePath);
+      ezUuid replacementGuid = pNewAssetInfo->m_Info->m_DocumentID;
+      replacementGuid.CombineWithSeed(mod);
+
+      if (PatchAssetGuid(absFilePath, pNewAssetInfo->m_Info->m_DocumentID, replacementGuid).Failed())
       {
-        // As it is a new asset, this should actually never be the case.
-        UntrackDependencies(pOldAssetInfo);
-        pOldAssetInfo->Update(pNewAssetInfo);
-        TrackDependencies(pOldAssetInfo);
-        CheckForCircularDependencies(pOldAssetInfo).IgnoreResult();
-        UpdateAssetTransformState(RefFile.m_AssetGuid, ezAssetInfo::TransformState::Unknown);
-        SetAssetExistanceState(*pOldAssetInfo, ezAssetExistanceState::FileModified);
-        UpdateSubAssets(*pOldAssetInfo);
-        RefFile.m_AssetGuid = pOldAssetInfo->m_Info->m_DocumentID;
-        return EZ_SUCCESS;
+        ezLog::Error("Failed to adjust GUID of asset: '{0}'", absFilePath);
+        pFiles->NotifyOfChange(absFilePath);
+        return EZ_FAILURE;
       }
-      else
-      {
-        ezFileStats fsOldLocation;
-        if (ezOSFile::GetFileStats(pOldAssetInfo->m_sAbsolutePath, fsOldLocation).Failed())
-        {
-          // Asset moved, remove old file and asset info.
-          m_ReferencedFiles.Remove(pOldAssetInfo->m_sAbsolutePath);
-          UntrackDependencies(pOldAssetInfo);
-          pOldAssetInfo->Update(pNewAssetInfo);
-          TrackDependencies(pOldAssetInfo);
-          CheckForCircularDependencies(pOldAssetInfo).IgnoreResult();
-          UpdateAssetTransformState(RefFile.m_AssetGuid, ezAssetInfo::TransformState::Unknown);
-          SetAssetExistanceState(*pOldAssetInfo,
-            ezAssetExistanceState::FileModified); // asset was only moved, prevent added event (could have been modified though)
-          UpdateSubAssets(*pOldAssetInfo);
-          RefFile.m_AssetGuid = pOldAssetInfo->m_Info->m_DocumentID;
-          return EZ_SUCCESS;
-        }
-        else
-        {
-          // Unfortunately we only know about duplicates in the order in which the filesystem tells us about files
-          // That means we currently always adjust the GUID of the second, third, etc. file that we look at
-          // even if we might know that changing another file makes more sense
-          // This works well for when the editor is running and someone copies a file.
 
-          ezLog::Error("Two assets have identical GUIDs: '{0}' and '{1}'", pNewAssetInfo->m_sAbsolutePath, pOldAssetInfo->m_sAbsolutePath);
+      ezLog::Warning("Adjusted GUID of asset to make it unique: '{0}'", absFilePath);
 
-          const ezUuid mod = ezUuid::StableUuidForString(szAbsFilePath);
-          ezUuid newGuid = pNewAssetInfo->m_Info->m_DocumentID;
-          newGuid.CombineWithSeed(mod);
-
-          if (PatchAssetGuid(szAbsFilePath, pNewAssetInfo->m_Info->m_DocumentID, newGuid).Failed())
-          {
-            ezLog::Error("Failed to adjust GUID of asset: '{0}'", szAbsFilePath);
-            m_ReferencedFiles.Remove(szAbsFilePath);
-            return EZ_FAILURE;
-          }
-
-          ezLog::Warning("Adjusted GUID of asset to make it unique: '{0}'", szAbsFilePath);
-
-          // now let's try that again
-          m_ReferencedFiles.Remove(szAbsFilePath);
-          return EnsureAssetInfoUpdated(szAbsFilePath);
-        }
-      }
-    }
-
-    // and we can store the new ezAssetInfo data under that GUID
-    pOldAssetInfo = pNewAssetInfo.Release();
-    m_KnownAssets[RefFile.m_AssetGuid] = pOldAssetInfo;
-
-    TrackDependencies(pOldAssetInfo);
-    CheckForCircularDependencies(pOldAssetInfo).IgnoreResult();
-    UpdateAssetTransformState(pOldAssetInfo->m_Info->m_DocumentID, ezAssetInfo::TransformState::Unknown);
-    UpdateSubAssets(*pOldAssetInfo);
-  }
-  else
-  {
-    // Guid changed, different asset found, mark old as deleted and add new one.
-    if (oldGuid != RefFile.m_AssetGuid)
-    {
-      SetAssetExistanceState(*m_KnownAssets[oldGuid], ezAssetExistanceState::FileRemoved);
-      RemoveAssetTransformState(oldGuid);
-
-      if (RefFile.m_AssetGuid.IsValid())
-      {
-        pOldAssetInfo = pNewAssetInfo.Release();
-        m_KnownAssets[RefFile.m_AssetGuid] = pOldAssetInfo;
-        TrackDependencies(pOldAssetInfo);
-        CheckForCircularDependencies(pOldAssetInfo).IgnoreResult();
-        // Don't call SetAssetExistanceState on newly created assets as their data structure is initialized in UpdateSubAssets for the first time.
-        UpdateSubAssets(*pOldAssetInfo);
-      }
+      // now let's try that again
+      pFiles->NotifyOfChange(absFilePath);
+      return EZ_SUCCESS;
     }
     else
     {
-      // Update asset info
-      pOldAssetInfo = m_KnownAssets[RefFile.m_AssetGuid];
-      UntrackDependencies(pOldAssetInfo);
-      pOldAssetInfo->Update(pNewAssetInfo);
-      TrackDependencies(pOldAssetInfo);
-      CheckForCircularDependencies(pOldAssetInfo).IgnoreResult();
-      SetAssetExistanceState(*pOldAssetInfo, ezAssetExistanceState::FileModified);
-      UpdateSubAssets(*pOldAssetInfo);
+      // MOVED
+      // Notify old location to removed stale entry.
+      pFiles->UnlinkDocument(pCurrentAssetInfo->m_Path).IgnoreResult();
+      pFiles->NotifyOfChange(pCurrentAssetInfo->m_Path);
+      newExistanceState = ezAssetExistanceState::FileMoved;
     }
   }
 
-  InvalidateAssetTransformState(RefFile.m_AssetGuid);
+  // Guid changed, different asset found, mark old as deleted and add new one.
+  if (!bNewAssetFile && oldGuid != pNewAssetInfo->m_Info->m_DocumentID)
+  {
+    // OVERWRITTEN
+    SetAssetExistanceState(*m_KnownAssets[oldGuid], ezAssetExistanceState::FileRemoved);
+    RemoveAssetTransformState(oldGuid);
+    newExistanceState = ezAssetExistanceState::FileAdded;
+  }
+
+  if (pCurrentAssetInfo)
+  {
+    UntrackDependencies(pCurrentAssetInfo);
+    pCurrentAssetInfo->Update(pNewAssetInfo);
+    // Only update if it was not already set to not overwrite, e.g. FileMoved.
+    if (newExistanceState == ezAssetExistanceState::FileUnchanged)
+      newExistanceState = ezAssetExistanceState::FileModified;
+  }
+  else
+  {
+    pCurrentAssetInfo = pNewAssetInfo.Release();
+    m_KnownAssets[newGuid] = pCurrentAssetInfo;
+    newExistanceState = ezAssetExistanceState::FileAdded;
+  }
+
+  TrackDependencies(pCurrentAssetInfo);
+  CheckForCircularDependencies(pCurrentAssetInfo).IgnoreResult();
+  UpdateAssetTransformState(newGuid, ezAssetInfo::TransformState::Unknown);
+  // Don't call SetAssetExistanceState on newly created assets as their data structure is initialized in UpdateSubAssets for the first time.
+  if (newExistanceState != ezAssetExistanceState::FileAdded)
+    SetAssetExistanceState(*pCurrentAssetInfo, newExistanceState);
+  UpdateSubAssets(*pCurrentAssetInfo);
+
+  InvalidateAssetTransformState(newGuid);
+  pFiles->LinkDocument(absFilePath, pCurrentAssetInfo->m_Info->m_DocumentID).AssertSuccess("Failed to link document in file system model");
   return EZ_SUCCESS;
 }
 
@@ -330,12 +248,12 @@ void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
   UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_TransformDependencies, m_InverseTransformDeps, m_UnresolvedTransformDeps, true);
   UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_ThumbnailDependencies, m_InverseThumbnailDeps, m_UnresolvedThumbnailDeps, true);
 
-  const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, "");
+  const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_Path, "");
   auto it = m_InverseThumbnailDeps.FindOrAdd(sTargetFile);
   it.Value().PushBack(pAssetInfo->m_Info->m_DocumentID);
   for (auto outputIt = pAssetInfo->m_Info->m_Outputs.GetIterator(); outputIt.IsValid(); ++outputIt)
   {
-    const ezString sTargetFile2 = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, outputIt.Key());
+    const ezString sTargetFile2 = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_Path, outputIt.Key());
     it = m_InverseThumbnailDeps.FindOrAdd(sTargetFile2);
     it.Value().PushBack(pAssetInfo->m_Info->m_DocumentID);
   }
@@ -351,12 +269,12 @@ void ezAssetCurator::UntrackDependencies(ezAssetInfo* pAssetInfo)
   UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_TransformDependencies, m_InverseTransformDeps, m_UnresolvedTransformDeps, false);
   UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_ThumbnailDependencies, m_InverseThumbnailDeps, m_UnresolvedThumbnailDeps, false);
 
-  const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, "");
+  const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_Path, "");
   auto it = m_InverseThumbnailDeps.FindOrAdd(sTargetFile);
   it.Value().RemoveAndCopy(pAssetInfo->m_Info->m_DocumentID);
   for (auto outputIt = pAssetInfo->m_Info->m_Outputs.GetIterator(); outputIt.IsValid(); ++outputIt)
   {
-    const ezString sTargetFile2 = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, outputIt.Key());
+    const ezString sTargetFile2 = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_Path, outputIt.Key());
     it = m_InverseThumbnailDeps.FindOrAdd(sTargetFile2);
     it.Value().RemoveAndCopy(pAssetInfo->m_Info->m_DocumentID);
   }
@@ -423,7 +341,7 @@ void ezAssetCurator::UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezS
         continue;
       }
 
-      sPath = pInfo->m_sAbsolutePath;
+      sPath = pInfo->m_Path.GetAbsolutePath();
     }
     else
     {
@@ -453,7 +371,7 @@ void ezAssetCurator::UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<
     const ezUuid& depGuid = std::get<1>(t);
     if (const ezAssetInfo* pInfo = GetAssetInfo(depGuid))
     {
-      ezString sPath = pInfo->m_sAbsolutePath;
+      ezString sPath = pInfo->m_Path.GetAbsolutePath();
       auto itTracker = inverseTracker.FindOrAdd(sPath);
       itTracker.Value().PushBack(assetGuid);
       it = unresolved.Remove(it);
@@ -465,60 +383,20 @@ void ezAssetCurator::UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<
   }
 }
 
-ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& out_assetInfo)
+ezResult ezAssetCurator::ReadAssetDocumentInfo(const ezDataDirPath& absFilePath, const ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& out_assetInfo)
 {
   CURATOR_PROFILE(szAbsFilePath);
-
-  ezFileStats fs;
-  if (ezOSFile::GetFileStats(szAbsFilePath, fs).Failed())
-    return EZ_FAILURE;
-  stat.m_Timestamp = fs.m_LastModificationTime;
-  stat.m_Status = ezFileStatus::Status::Valid;
-
-  // try to read the asset file
-  ezFileReader file;
-  if (file.Open(szAbsFilePath) == EZ_FAILURE)
-  {
-    stat.m_Timestamp.Invalidate();
-    stat.m_uiHash = 0;
-    stat.m_Status = ezFileStatus::Status::FileLocked;
-
-    ezLog::Error("Failed to open asset file '{0}'", szAbsFilePath);
-    return EZ_FAILURE;
-  }
+  ezFileSystemModel* pFiles = ezFileSystemModel::GetSingleton();
 
   out_assetInfo = EZ_DEFAULT_NEW(ezAssetInfo);
-  ezUniquePtr<ezAssetDocumentInfo> docInfo;
-  auto itFile = m_CachedFiles.Find(szAbsFilePath);
-  {
-    EZ_LOCK(m_CachedAssetsMutex);
-    auto itAsset = m_CachedAssets.Find(szAbsFilePath);
-    if (itAsset.IsValid())
-    {
-      docInfo = std::move(itAsset.Value());
-      m_CachedAssets.Remove(itAsset);
-    }
-  }
-
-  // update the paths
-  {
-    ezStringBuilder sDataDir = GetSingleton()->FindDataDirectoryForAsset(szAbsFilePath);
-    sDataDir.PathParentDirectory();
-
-    ezStringBuilder sRelPath = szAbsFilePath;
-    sRelPath.MakeRelativeTo(sDataDir).IgnoreResult();
-
-    out_assetInfo->m_sDataDirParentRelativePath = sRelPath;
-    out_assetInfo->m_sDataDirRelativePath = ezStringView(out_assetInfo->m_sDataDirParentRelativePath.FindSubString("/") + 1);
-    out_assetInfo->m_sAbsolutePath = szAbsFilePath;
-  }
+  out_assetInfo->m_Path = absFilePath;
 
   // figure out which manager should handle this asset type
   {
     const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
     if (out_assetInfo->m_pDocumentTypeDescriptor == nullptr)
     {
-      if (ezDocumentManager::FindDocumentTypeFromPath(szAbsFilePath, false, pTypeDesc).Failed())
+      if (ezDocumentManager::FindDocumentTypeFromPath(absFilePath, false, pTypeDesc).Failed())
       {
         EZ_REPORT_FAILURE("Invalid asset setup");
       }
@@ -527,45 +405,42 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezFile
     }
   }
 
-  ezDefaultMemoryStreamStorage storage;
-  ezMemoryStreamReader MemReader(&storage);
-  MemReader.SetDebugSourceInformation(out_assetInfo->m_sAbsolutePath);
-
-  ezMemoryStreamWriter MemWriter(&storage);
-
-  if (docInfo && itFile.IsValid() && itFile.Value().m_Timestamp.Compare(stat.m_Timestamp, ezTimestamp::CompareMode::Identical))
+  // Try cache first
   {
-    stat.m_uiHash = itFile.Value().m_uiHash;
-  }
-  else
-  {
-    // compute the hash for the asset file
-    stat.m_uiHash = ezAssetCurator::HashFile(file, &MemWriter);
-  }
-  file.Close();
-
-  // and finally actually read the asset file (header only) and store the information in the ezAssetDocumentInfo member
-  if (docInfo && itFile.IsValid() && itFile.Value().m_Timestamp.Compare(stat.m_Timestamp, ezTimestamp::CompareMode::Identical))
-  {
-    out_assetInfo->m_Info = std::move(docInfo);
-    stat.m_AssetGuid = out_assetInfo->m_Info->m_DocumentID;
-  }
-  else
-  {
-    ezStatus ret = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, MemReader);
-    if (ret.Failed())
+    ezFileStatus cacheStat;
+    ezUniquePtr<ezAssetDocumentInfo> docInfo;
     {
-      ezLog::Error("Failed to read asset document info for asset file '{0}'", szAbsFilePath);
-      return EZ_FAILURE;
+      EZ_LOCK(m_CachedAssetsMutex);
+      auto itFile = m_CachedFiles.Find(absFilePath);
+      auto itAsset = m_CachedAssets.Find(absFilePath);
+      if (itAsset.IsValid() && itFile.IsValid())
+      {
+        docInfo = std::move(itAsset.Value());
+        cacheStat = itFile.Value();
+        m_CachedAssets.Remove(itAsset);
+        m_CachedFiles.Remove(itFile);
+      }
     }
-    EZ_ASSERT_DEV(out_assetInfo->m_Info != nullptr, "Info should be valid on suceess.");
 
-    // here we get the GUID out of the document
-    // this links the 'file' to the 'asset'
-    stat.m_AssetGuid = out_assetInfo->m_Info->m_DocumentID;
+    if (docInfo && cacheStat.m_LastModified.Compare(stat.m_LastModified, ezTimestamp::CompareMode::Identical))
+    {
+      out_assetInfo->m_Info = std::move(docInfo);
+      return EZ_SUCCESS;
+    }
   }
 
-  return EZ_SUCCESS;
+  // try to read the asset file
+  ezStatus infoStatus;
+  ezResult res = pFiles->ReadDocument(absFilePath, [&out_assetInfo, &infoStatus](const ezFileStatus& stat, ezStreamReader& ref_reader) { infoStatus = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, ref_reader); });
+
+  if (infoStatus.Failed())
+  {
+    ezLog::Error("Failed to read asset document info for asset file '{0}'", absFilePath);
+    return EZ_FAILURE;
+  }
+
+  EZ_ASSERT_DEV(out_assetInfo->m_Info != nullptr, "Info should be valid on suceess.");
+  return res;
 }
 
 void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
@@ -630,29 +505,6 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
       }
     }
   }
-}
-
-ezUInt64 ezAssetCurator::HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream)
-{
-  ezHashStreamWriter64 hsw;
-
-  CURATOR_PROFILE("HashFile");
-  ezUInt8 cachedBytes[1024 * 10];
-
-  while (true)
-  {
-    const ezUInt64 uiRead = InputStream.ReadBytes(cachedBytes, EZ_ARRAY_SIZE(cachedBytes));
-
-    if (uiRead == 0)
-      break;
-
-    hsw.WriteBytes(cachedBytes, uiRead).IgnoreResult();
-
-    if (pPassThroughStream != nullptr)
-      pPassThroughStream->WriteBytes(cachedBytes, uiRead).IgnoreResult();
-  }
-
-  return hsw.GetHashValue();
 }
 
 void ezAssetCurator::RemoveAssetTransformState(const ezUuid& assetGuid)
@@ -730,7 +582,7 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
       {
         // Transform errors are unexpected and invalidate any previously computed
         // state of assets depending on this one.
-        auto it = m_InverseTransformDeps.Find(pAssetInfo->m_sAbsolutePath);
+        auto it = m_InverseTransformDeps.Find(pAssetInfo->m_Path);
         if (it.IsValid())
         {
           for (const ezUuid& guid : it.Value())
@@ -739,7 +591,7 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
           }
         }
 
-        auto it2 = m_InverseThumbnailDeps.Find(pAssetInfo->m_sAbsolutePath);
+        auto it2 = m_InverseThumbnailDeps.Find(pAssetInfo->m_Path);
         if (it2.IsValid())
         {
           for (const ezUuid& guid : it2.Value())
@@ -761,8 +613,18 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
       {
         if (bStateChanged)
         {
-          ezString sThumbPath = static_cast<ezAssetDocumentManager*>(pAssetInfo->GetManager())->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
+          ezString sThumbPath = pAssetInfo->GetManager()->GenerateResourceThumbnailPath(pAssetInfo->m_Path);
           ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
+
+          for (auto& subAssetUuid : pAssetInfo->m_SubAssets)
+          {
+            ezSubAsset* pSubAsset;
+            if (m_KnownSubAssets.TryGetValue(subAssetUuid, pSubAsset))
+            {
+              sThumbPath = pAssetInfo->GetManager()->GenerateResourceThumbnailPath(pAssetInfo->m_Path, pSubAsset->m_Data.m_sName);
+              ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
+            }
+          }
         }
         break;
       }
@@ -788,15 +650,20 @@ void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExist
 {
   EZ_ASSERT_DEBUG(m_CuratorMutex.IsLocked(), "");
 
-  // Only the main thread tick function is allowed to change from FileAdded to FileModified to inform views.
+  // Only the main thread tick function is allowed to change from FileAdded / FileRenamed to FileModified to inform views.
   // A modified 'added' file is still added until the added state was addressed.
-  if (assetInfo.m_ExistanceState != ezAssetExistanceState::FileAdded || state != ezAssetExistanceState::FileModified)
+  auto IsModifiedAfterAddOrRename = [](ezAssetExistanceState::Enum oldState, ezAssetExistanceState::Enum newState) -> bool {
+    return oldState == ezAssetExistanceState::FileAdded && newState == ezAssetExistanceState::FileModified ||
+           oldState == ezAssetExistanceState::FileMoved && newState == ezAssetExistanceState::FileModified;
+  };
+
+  if (!IsModifiedAfterAddOrRename(assetInfo.m_ExistanceState, state))
     assetInfo.m_ExistanceState = state;
 
   for (ezUuid subGuid : assetInfo.m_SubAssets)
   {
     auto& existanceState = GetSubAssetInternal(subGuid)->m_ExistanceState;
-    if (existanceState != ezAssetExistanceState::FileAdded || state != ezAssetExistanceState::FileModified)
+    if (!IsModifiedAfterAddOrRename(existanceState, state))
     {
       existanceState = state;
       m_SubAssetChanged.Insert(subGuid);
@@ -804,7 +671,7 @@ void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExist
   }
 
   auto& existanceState = GetSubAssetInternal(assetInfo.m_Info->m_DocumentID)->m_ExistanceState;
-  if (existanceState != ezAssetExistanceState::FileAdded || state != ezAssetExistanceState::FileModified)
+  if (!IsModifiedAfterAddOrRename(existanceState, state))
   {
     existanceState = state;
     m_SubAssetChanged.Insert(assetInfo.m_Info->m_DocumentID);
@@ -818,7 +685,7 @@ void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExist
 
 ezUpdateTask::ezUpdateTask(ezOnTaskFinishedCallback onTaskFinished)
 {
-  ConfigureTask("ezUpdateTask", ezTaskNesting::Never, onTaskFinished);
+  ConfigureTask("ezUpdateTask", ezTaskNesting::Maybe, onTaskFinished);
 }
 
 ezUpdateTask::~ezUpdateTask() = default;

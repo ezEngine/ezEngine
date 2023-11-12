@@ -1,40 +1,37 @@
 
 template <typename T>
 ezDynamicArrayBase<T>::ezDynamicArrayBase(ezAllocatorBase* pAllocator)
+  : m_pAllocator(pAllocator)
 {
-  m_pAllocator = pAllocator;
 }
 
 template <typename T>
 ezDynamicArrayBase<T>::ezDynamicArrayBase(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocatorBase* pAllocator)
+  : m_pAllocator(pAllocator)
 {
-  m_pAllocator = pAllocator;
   m_pAllocator.SetFlags(Storage::External);
   this->m_uiCapacity = uiCapacity;
-  this->m_pElements = reinterpret_cast<T*>(reinterpret_cast<intptr_t>(pInplaceStorage) - reinterpret_cast<intptr_t>(this)); // store as an offset
+  this->m_pElements = pInplaceStorage;
 }
 
 template <typename T>
 ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezAllocatorBase* pAllocator)
+  : m_pAllocator(pAllocator)
 {
-  m_pAllocator = pAllocator;
-
   ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)other); // redirect this to the ezArrayPtr version
 }
 
 template <typename T>
 ezDynamicArrayBase<T>::ezDynamicArrayBase(ezDynamicArrayBase<T>&& other, ezAllocatorBase* pAllocator)
+  : m_pAllocator(pAllocator)
 {
-  m_pAllocator = pAllocator;
-
   *this = std::move(other);
 }
 
 template <typename T>
 ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator)
+  : m_pAllocator(pAllocator)
 {
-  m_pAllocator = pAllocator;
-
   ezArrayBase<T, ezDynamicArrayBase<T>>::operator=(other);
 }
 
@@ -224,22 +221,12 @@ void ezDynamicArrayBase<T>::Compact()
 template <typename T>
 EZ_ALWAYS_INLINE T* ezDynamicArrayBase<T>::GetElementsPtr()
 {
-  if (m_pAllocator.GetFlags() == Storage::External)
-  {
-    return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(this) + reinterpret_cast<intptr_t>(this->m_pElements));
-  }
-
   return this->m_pElements;
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE const T* ezDynamicArrayBase<T>::GetElementsPtr() const
 {
-  if (m_pAllocator.GetFlags() == Storage::External)
-  {
-    return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(this) + reinterpret_cast<intptr_t>(this->m_pElements));
-  }
-
   return this->m_pElements;
 }
 

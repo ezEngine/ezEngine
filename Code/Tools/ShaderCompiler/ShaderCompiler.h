@@ -6,7 +6,7 @@
 class ezShaderCompilerApplication : public ezGameApplication
 {
 public:
-  typedef ezGameApplication SUPER;
+  using SUPER = ezGameApplication;
 
   ezShaderCompilerApplication();
 
@@ -14,8 +14,8 @@ public:
 
 private:
   void PrintConfig();
-  ezResult CompileShader(const char* szShaderFile);
-  ezResult ExtractPermutationVarValues(const char* szShaderFile);
+  ezResult CompileShader(ezStringView sShaderFile);
+  ezResult ExtractPermutationVarValues(ezStringView sShaderFile);
 
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;

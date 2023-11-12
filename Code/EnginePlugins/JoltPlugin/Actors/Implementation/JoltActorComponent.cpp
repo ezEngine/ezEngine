@@ -14,6 +14,12 @@
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
 // clang-format off
+EZ_IMPLEMENT_MESSAGE_TYPE(ezJoltMsgDisconnectConstraints);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltMsgDisconnectConstraints, 1, ezRTTIDefaultAllocator<ezJoltMsgDisconnectConstraints>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+// clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltActorComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
@@ -50,7 +56,7 @@ void ezJoltActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 void ezJoltActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -81,7 +87,11 @@ void ezJoltActorComponent::OnDeactivated()
     auto* pSystem = pModule->GetJoltSystem();
     auto* pBodies = &pSystem->GetBodyInterface();
 
-    pBodies->RemoveBody(bodyId);
+    if (pBodies->IsAdded(bodyId))
+    {
+      pBodies->RemoveBody(bodyId);
+    }
+
     pBodies->DestroyBody(bodyId);
     m_uiJoltBodyID = JPH::BodyID::cInvalidBodyID;
   }
@@ -144,7 +154,7 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
   {
     JPH::StaticCompoundShapeSettings opt;
 
-    for (auto shape : shapes)
+    for (const auto& shape : shapes)
     {
       auto pShape = shape.m_pShape;
 
@@ -174,7 +184,7 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
       pShape = pScaledShape;
     }
 
-    if (!shapes[0].m_Transform.m_vPosition.IsZero(0.01f) || shapes[0].m_Transform.m_qRotation != ezQuat::IdentityQuaternion())
+    if (!shapes[0].m_Transform.m_vPosition.IsZero(0.01f) || shapes[0].m_Transform.m_qRotation != ezQuat::MakeIdentity())
     {
       JPH::RotatedTranslatedShapeSettings opt(ezJoltConversionUtils::ToVec3(shapes[0].m_Transform.m_vPosition), ezJoltConversionUtils::ToQuat(shapes[0].m_Transform.m_qRotation), pShape);
 

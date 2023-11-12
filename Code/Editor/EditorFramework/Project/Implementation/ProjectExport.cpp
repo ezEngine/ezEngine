@@ -75,7 +75,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
         // redirect to asset output
         ezAssetDocumentManager* pAssetMan = ezStaticCast<ezAssetDocumentManager*>(asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_pManager);
 
-        sRelFilePath = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sRootFolder, asset->m_pAssetInfo->m_sAbsolutePath, nullptr, pPlatformProfile);
+        sRelFilePath = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sRootFolder, asset->m_pAssetInfo->m_Path, nullptr, pPlatformProfile);
 
         sRelFilePath.Prepend("AssetCache/");
         out_Files.Insert(sRelFilePath);
@@ -87,7 +87,7 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
 
         for (const ezString& outputTag : asset->m_pAssetInfo->m_Info->m_Outputs)
         {
-          sRelFilePath = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sRootFolder, asset->m_pAssetInfo->m_sAbsolutePath, outputTag, pPlatformProfile);
+          sRelFilePath = pAssetMan->GetRelativeOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, sRootFolder, asset->m_pAssetInfo->m_Path, outputTag, pPlatformProfile);
 
           sRelFilePath.Prepend("AssetCache/");
           out_Files.Insert(sRelFilePath);
@@ -150,7 +150,7 @@ ezResult ezProjectExport::GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_
   {
     if (auto pAssMan = ezDynamicCast<ezAssetDocumentManager*>(pMan))
     {
-      pAssMan->GetAdditionalOutputs(addFiles);
+      pAssMan->GetAdditionalOutputs(addFiles).AssertSuccess();
 
       for (const auto& file : addFiles)
       {

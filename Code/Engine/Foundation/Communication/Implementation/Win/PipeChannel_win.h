@@ -18,16 +18,14 @@ struct IOContext
 class EZ_FOUNDATION_DLL ezPipeChannel_win : public ezIpcChannel
 {
 public:
-  ezPipeChannel_win(const char* szAddress, Mode::Enum mode);
+  ezPipeChannel_win(ezStringView sAddress, Mode::Enum mode);
   ~ezPipeChannel_win();
 
 private:
   friend class ezMessageLoop;
   friend class ezMessageLoop_win;
 
-  bool CreatePipe(const char* szAddress);
-
-  virtual void AddToMessageLoop(ezMessageLoop* pMsgLoop) override;
+  bool CreatePipe(ezStringView sAddress);
 
   // All functions from here on down are run from worker thread only
   virtual void InternalConnect() override;

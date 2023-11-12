@@ -33,9 +33,9 @@ macro(ez_pull_config_vars)
 endmacro()
 
 # #####################################
-# ## ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)
+# ## ez_pull_output_vars(LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 # #####################################
-function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
+macro(ez_pull_output_vars LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 	ez_pull_all_vars()
 	ez_pull_config_vars()
 
@@ -86,6 +86,18 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 
 	set(OUTPUT_DLL_DEV "${DLL_OUTPUT_DIR}/${OUTPUT_DEV}")
 	set(OUTPUT_LIB_DEV "${LIB_OUTPUT_DIR}/${OUTPUT_DEV}")
+
+endmacro()
+
+# #####################################
+# ## ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)
+# #####################################
+function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
+	if(EZ_DO_NOT_SET_OUTPUT_DIRS)
+		return()
+	endif()
+
+	ez_pull_output_vars("${LIB_OUTPUT_DIR}" "${DLL_OUTPUT_DIR}")
 
 	# If we can't use generator expressions the non-generator expression version of the
 	# output directory should point to the version matching CMAKE_BUILD_TYPE. This is the case for
@@ -142,6 +154,9 @@ endfunction()
 # ## ez_write_configuration_txt()
 # #####################################
 function(ez_write_configuration_txt)
+	if(EZ_NO_TXT_FILES)
+		return()
+	endif()
 	# Clear Targets.txt and Tests.txt
 	file(WRITE ${CMAKE_BINARY_DIR}/Targets.txt "")
 	file(WRITE ${CMAKE_BINARY_DIR}/Tests.txt "")
@@ -170,6 +185,7 @@ endfunction()
 # #####################################
 function(ez_set_common_target_definitions TARGET_NAME)
 	ez_pull_all_vars()
+	ez_pull_config_vars()
 
 	# set the BUILDSYSTEM_COMPILE_ENGINE_AS_DLL definition
 	if(EZ_COMPILE_ENGINE_AS_DLL)
@@ -180,9 +196,11 @@ function(ez_set_common_target_definitions TARGET_NAME)
 	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_SDKVERSION_MINOR="${EZ_CMAKE_SDKVERSION_MINOR}")
 	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_SDKVERSION_PATCH="${EZ_CMAKE_SDKVERSION_PATCH}")
 
+	set(ORIGINAL_BUILD_TYPE "$<IF:$<STREQUAL:${EZ_CMAKE_GENERATOR_CONFIGURATION},${EZ_BUILDTYPENAME_DEBUG}>,Debug,$<IF:$<STREQUAL:${EZ_CMAKE_GENERATOR_CONFIGURATION},${EZ_BUILDTYPENAME_DEV}>,Dev,Shipping>>")
+
 	# set the BUILDSYSTEM_BUILDTYPE definition
-	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_BUILDTYPE="${EZ_CMAKE_GENERATOR_CONFIGURATION}")
-	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_BUILDTYPE_${EZ_CMAKE_GENERATOR_CONFIGURATION})
+	target_compile_definitions(${TARGET_NAME} PRIVATE "BUILDSYSTEM_BUILDTYPE=\"${ORIGINAL_BUILD_TYPE}\"")
+	target_compile_definitions(${TARGET_NAME} PUBLIC "BUILDSYSTEM_BUILDTYPE_${ORIGINAL_BUILD_TYPE}")
 
 	# set the BUILDSYSTEM_BUILDING_XYZ_LIB definition
 	string(TOUPPER ${TARGET_NAME} PROJECT_NAME_UPPER)
@@ -208,9 +226,11 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 
 	set(IDE_FOLDER "${FOLDER_NAME}")
 
-	if(${PROJECT_SOURCE_DIR} MATCHES "${CMAKE_SOURCE_DIR}/")
+	set(CMAKE_SOURCE_DIR_PREFIX "${CMAKE_SOURCE_DIR}/")
+	cmake_path(IS_PREFIX CMAKE_SOURCE_DIR_PREFIX ${PROJECT_SOURCE_DIR} NORMALIZE FOLDER_IN_TREE)
+	if(FOLDER_IN_TREE)
 		set(IDE_FOLDER "")
-		string(REPLACE "${CMAKE_SOURCE_DIR}/" "" PARENT_FOLDER ${PROJECT_SOURCE_DIR})
+		string(REPLACE ${CMAKE_SOURCE_DIR_PREFIX} "" PARENT_FOLDER ${PROJECT_SOURCE_DIR})
 
 		get_filename_component(PARENT_FOLDER "${PARENT_FOLDER}" PATH)
 		get_filename_component(FOLDER_NAME "${PARENT_FOLDER}" NAME)
@@ -307,14 +327,14 @@ endfunction()
 # ## ez_glob_source_files(<path-to-folder> <out-files>)
 # #####################################
 function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
-	file(GLOB_RECURSE RELEVANT_FILES 
-		"${ROOT_DIR}/*.cpp" 
-		"${ROOT_DIR}/*.cc" 
-		"${ROOT_DIR}/*.h" 
-		"${ROOT_DIR}/*.hpp" 
-		"${ROOT_DIR}/*.inl" 
-		"${ROOT_DIR}/*.c" 
-		"${ROOT_DIR}/*.cs" 
+	file(GLOB_RECURSE RELEVANT_FILES
+		"${ROOT_DIR}/*.cpp"
+		"${ROOT_DIR}/*.cc"
+		"${ROOT_DIR}/*.h"
+		"${ROOT_DIR}/*.hpp"
+		"${ROOT_DIR}/*.inl"
+		"${ROOT_DIR}/*.c"
+		"${ROOT_DIR}/*.cs"
 		"${ROOT_DIR}/*.ui"
 		"${ROOT_DIR}/*.qrc"
 		"${ROOT_DIR}/*.def"
@@ -323,7 +343,11 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
 		"${ROOT_DIR}/*.s"
 		"${ROOT_DIR}/*.cmake"
 		"${ROOT_DIR}/*.natvis"
-		"${ROOT_DIR}/CMakeLists.txt"
+		"${ROOT_DIR}/*.txt"
+		"${ROOT_DIR}/*.ddl"
+		"${ROOT_DIR}/*.ezPermVar"
+		"${ROOT_DIR}/*.ezShader"
+		"${ROOT_DIR}/*.ezShaderTemplate"
 	)
 
 	set(${RESULT_ALL_SOURCES} ${RELEVANT_FILES} PARENT_SCOPE)
@@ -480,7 +504,7 @@ endfunction()
 # The build filter is intended to only build a subset of ezEngine.
 # The build filters are configured through cmake files in the 'BuildFilters' directory.
 function(ez_build_filter_init)
-	file(GLOB_RECURSE FILTER_FILES "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/BuildSystem/CMake/BuildFilters/*.BuildFilter")
+	file(GLOB_RECURSE FILTER_FILES "${EZ_ROOT}/Code/BuildSystem/CMake/BuildFilters/*.BuildFilter")
 
 	get_property(EZ_BUILD_FILTER_NAMES GLOBAL PROPERTY EZ_BUILD_FILTER_NAMES)
 
@@ -648,7 +672,8 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 	message(STATUS "Extracting '${FULL_FILENAME}'...")
 
 	if(${PKG_TYPE} MATCHES "7z")
-		execute_process(COMMAND "${EZ_CONFIG_PATH_7ZA}"
+		set(FULL_7ZA_PATH "${EZ_ROOT}/${EZ_CONFIG_PATH_7ZA}")
+		execute_process(COMMAND "${FULL_7ZA_PATH}"
 			x "${PKG_FILE}"
 			-aoa
 			WORKING_DIRECTORY "${DEST_FOLDER}"

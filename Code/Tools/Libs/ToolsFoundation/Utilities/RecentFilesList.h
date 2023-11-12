@@ -25,7 +25,7 @@ public:
     ezInt32 m_iContainerWindow;
   };
   /// \brief Moves the inserted file to the front with the given container ID.
-  void Insert(const char* szFile, ezInt32 iContainerWindow);
+  void Insert(ezStringView sFile, ezInt32 iContainerWindow);
 
   /// \brief Returns all files in the list.
   const ezDeque<RecentFile>& GetFileList() const { return m_Files; }
@@ -34,10 +34,10 @@ public:
   void Clear() { m_Files.Clear(); }
 
   /// \brief Saves the recent files list to the given file. Uses a simple text file format (one line per item).
-  void Save(const char* szFile);
+  void Save(ezStringView sFile);
 
   /// \brief Loads the recent files list from the given file. Uses a simple text file format (one line per item).
-  void Load(const char* szFile);
+  void Load(ezStringView sFile);
 
 private:
   ezUInt32 m_uiMaxElements;

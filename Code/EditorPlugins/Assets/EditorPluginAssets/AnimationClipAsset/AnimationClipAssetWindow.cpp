@@ -46,7 +46,7 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0, 0, 1), ezVec3(10.0f), ezVec3(-5, 1, 2));
+    m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 1), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
     pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "AnimationClipAssetViewToolBar");
     setCentralWidget(pContainer);
@@ -70,7 +70,7 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
   // Time Scrubber
   {
     m_pTimeScrubber = new ezQtTimeScrubberWidget(pContainer);
-    m_pTimeScrubber->SetDuration(ezTime::Seconds(1));
+    m_pTimeScrubber->SetDuration(ezTime::MakeFromSeconds(1));
 
     pContainer->GetLayout()->addWidget(m_pTimeScrubber);
 
@@ -105,8 +105,6 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
   }
 
   FinishWindowCreation();
-
-  QueryObjectBBox(0);
 
   GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
   GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler, this));
@@ -162,10 +160,10 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 
-  QueryObjectBBox(-1);
+  QueryObjectBBox();
 }
 
-void ezQtAnimationClipAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
+void ezQtAnimationClipAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose /*= 0*/)
 {
   ezQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
@@ -209,7 +207,7 @@ void ezQtAnimationClipAssetDocumentWindow::InternalRedraw()
     }
   }
 
-  m_PlaybackPosition = ezMath::Clamp(m_PlaybackPosition, ezTime::Zero(), m_ClipDuration);
+  m_PlaybackPosition = ezMath::Clamp(m_PlaybackPosition, ezTime::MakeZero(), m_ClipDuration);
   m_pTimeScrubber->SetScrubberPosition(m_PlaybackPosition);
   m_pEventTrackEditor->SetScrubberPosition(m_PlaybackPosition);
 
@@ -226,11 +224,9 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
 
     if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      const ezVec3 vHalfExtents = pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f));
-
-      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, vHalfExtents * 2.0f, pMessage->m_vCenter + ezVec3(5, -2, 3) * vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
+      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f)));
     }
-    else if (pMessage->m_iPurpose == 0)
+    else
     {
       // try again
       QueryObjectBBox(pMessage->m_iPurpose);
@@ -243,7 +239,7 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
   {
     if (pMsg->m_sName == "ClipDuration")
     {
-      const ezTime newDuration = ezTime::Seconds(pMsg->m_fPayload);
+      const ezTime newDuration = ezTime::MakeFromSeconds(pMsg->m_fPayload);
 
       if (m_ClipDuration != newDuration)
       {
@@ -265,7 +261,7 @@ void ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler(const ezCom
 
   if (e.m_State == ezCommonAssetUiState::Restart)
   {
-    m_PlaybackPosition = ezTime::Seconds(-1);
+    m_PlaybackPosition = ezTime::MakeFromSeconds(-1);
   }
 }
 
@@ -274,7 +270,7 @@ void ezQtAnimationClipAssetDocumentWindow::OnScrubberPosChangedEvent(ezUInt64 ui
   if (m_pTimeScrubber == nullptr || m_ClipDuration.IsZeroOrNegative())
     return;
 
-  m_PlaybackPosition = ezTime::Seconds(uiNewScrubberTickPos / 4800.0);
+  m_PlaybackPosition = ezTime::MakeFromSeconds(uiNewScrubberTickPos / 4800.0);
 }
 
 void ezQtAnimationClipAssetDocumentWindow::onEventTrackInsertCpAt(ezInt64 tickX, QString value)
@@ -302,7 +298,7 @@ void ezQtAnimationClipAssetDocumentWindow::onEventTrackCpMoved(ezUInt32 cpIdx, e
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtAnimationClipAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
@@ -322,7 +318,7 @@ void ezQtAnimationClipAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtAnimationClipAssetDocumentWindow::onEventTrackBeginOperation(QString name)

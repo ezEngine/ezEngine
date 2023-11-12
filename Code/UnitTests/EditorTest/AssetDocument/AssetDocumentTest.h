@@ -16,6 +16,7 @@ private:
   {
     ST_AsyncSave,
     ST_SaveOnTransform,
+    ST_FileOperations,
   };
 
   virtual void SetupSubTests() override;
@@ -25,4 +26,5 @@ private:
 
   void AsyncSave();
   void SaveOnTransform();
+  void FileOperations();
 };

@@ -13,7 +13,8 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Surface";
   m_DocTypeDesc.m_sFileExtension = "ezSurfaceAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Surface.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Surface.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Utilities";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSurfaceAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Surface");
@@ -21,7 +22,7 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezSurface";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Surface", QPixmap(":/AssetIcons/Surface.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Surface", QPixmap(":/AssetIcons/Surface.svg"));
 }
 
 ezSurfaceAssetDocumentManager::~ezSurfaceAssetDocumentManager()
@@ -37,7 +38,7 @@ void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSurfaceAssetDocument>())
       {
-        ezQtSurfaceAssetDocumentWindow* pDocWnd = new ezQtSurfaceAssetDocumentWindow(e.m_pDocument);
+        new ezQtSurfaceAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -47,9 +48,9 @@ void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-void ezSurfaceAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezSurfaceAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezSurfaceAssetDocument(szPath);
+  out_pDocument = new ezSurfaceAssetDocument(sPath);
 }
 
 void ezSurfaceAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

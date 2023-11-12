@@ -56,14 +56,14 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezString ezCVar::s_sStorageFolder;
 ezEvent<const ezCVarEvent&> ezCVar::s_AllCVarEvents;
 
-void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
+void ezCVar::AssignSubSystemPlugin(ezStringView sPluginName)
 {
   ezCVar* pCVar = ezCVar::GetFirstInstance();
 
   while (pCVar)
   {
-    if (pCVar->m_szPluginName == nullptr)
-      pCVar->m_szPluginName = szPluginName;
+    if (pCVar->m_sPluginName.IsEmpty())
+      pCVar->m_sPluginName = sPluginName;
 
     pCVar = pCVar->GetNextInstance();
   }
@@ -86,7 +86,7 @@ void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
     {
       // after we loaded a new plugin, but before it is initialized,
       // find all new CVars and assign them to that new plugin
-      AssignSubSystemPlugin(EventData.m_szPluginBinary);
+      AssignSubSystemPlugin(EventData.m_sPluginBinary);
 
       // now load the state of all CVars
       LoadCVars();
@@ -104,29 +104,25 @@ void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
   }
 }
 
-ezCVar::ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
+ezCVar::ezCVar(ezStringView sName, ezBitflags<ezCVarFlags> Flags, ezStringView sDescription)
+  : m_sName(sName)
+  , m_sDescription(sDescription)
+  , m_Flags(Flags)
 {
-  m_szPluginName = nullptr;     // will be filled out when plugins are loaded
-  m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
-
-  m_szName = szName;
-  m_Flags = Flags;
-  m_szDescription = szDescription;
-
   // 'RequiresRestart' only works together with 'Save'
   if (m_Flags.IsAnySet(ezCVarFlags::RequiresRestart))
     m_Flags.Add(ezCVarFlags::Save);
 
-  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(m_szDescription), "Please add a useful description for CVar '{}'.", szName);
+  EZ_ASSERT_DEV(!m_sDescription.IsEmpty(), "Please add a useful description for CVar '{}'.", sName);
 }
 
-ezCVar* ezCVar::FindCVarByName(const char* szName)
+ezCVar* ezCVar::FindCVarByName(ezStringView sName)
 {
   ezCVar* pCVar = ezCVar::GetFirstInstance();
 
   while (pCVar)
   {
-    if (ezStringUtils::IsEqual(pCVar->GetName(), szName))
+    if (pCVar->GetName() == sName)
       return pCVar;
 
     pCVar = pCVar->GetNextInstance();
@@ -135,12 +131,27 @@ ezCVar* ezCVar::FindCVarByName(const char* szName)
   return nullptr;
 }
 
-void ezCVar::SetStorageFolder(const char* szFolder)
+void ezCVar::SetStorageFolder(ezStringView sFolder)
 {
-  s_sStorageFolder = szFolder;
+  s_sStorageFolder = sFolder;
 }
 
 ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables loading CVar values from the user-specific, persisted configuration file.", false);
+
+void ezCVar::SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag)
+{
+  ezHybridArray<ezCVar*, 128> allCVars;
+
+  for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  {
+    if (bIgnoreSaveFlag || pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
+    {
+      allCVars.PushBack(pCVar);
+    }
+  }
+
+  SaveCVarsToFileInternal(sPath, allCVars);
+}
 
 void ezCVar::SaveCVars()
 {
@@ -161,8 +172,8 @@ void ezCVar::SaveCVars()
       // only store cvars that should be saved
       if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
       {
-        if (pCVar->m_szPluginName != nullptr)
-          PluginCVars[pCVar->m_szPluginName].PushBack(pCVar);
+        if (!pCVar->m_sPluginName.IsEmpty())
+          PluginCVars[pCVar->m_sPluginName].PushBack(pCVar);
         else
           PluginCVars["Static"].PushBack(pCVar);
       }
@@ -181,52 +192,58 @@ void ezCVar::SaveCVars()
     // create the plugin specific file
     sTemp.Format("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
-    ezFileWriter File;
-    if (File.Open(sTemp.GetData()) == EZ_SUCCESS)
-    {
-      // write one line for each cvar, to save its current value
-      for (ezUInt32 var = 0; var < it.Value().GetCount(); ++var)
-      {
-        ezCVar* pCVar = it.Value()[var];
-
-        switch (pCVar->GetType())
-        {
-          case ezCVarType::Int:
-          {
-            ezCVarInt* pInt = (ezCVarInt*)pCVar;
-            sTemp.Format("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
-          }
-          break;
-          case ezCVarType::Bool:
-          {
-            ezCVarBool* pBool = (ezCVarBool*)pCVar;
-            sTemp.Format("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
-          }
-          break;
-          case ezCVarType::Float:
-          {
-            ezCVarFloat* pFloat = (ezCVarFloat*)pCVar;
-            sTemp.Format("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
-          }
-          break;
-          case ezCVarType::String:
-          {
-            ezCVarString* pString = (ezCVarString*)pCVar;
-            sTemp.Format("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart));
-          }
-          break;
-          default:
-            EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
-            break;
-        }
-
-        // add the one line for that cvar to the config file
-        File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
-      }
-    }
+    SaveCVarsToFileInternal(sTemp, it.Value());
 
     // continue with the next plugin
     ++it;
+  }
+}
+
+void ezCVar::SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars)
+{
+  ezStringBuilder sTemp;
+  ezFileWriter File;
+  if (File.Open(path.GetData(sTemp)) == EZ_SUCCESS)
+  {
+    // write one line for each cvar, to save its current value
+    for (ezUInt32 var = 0; var < vars.GetCount(); ++var)
+    {
+      ezCVar* pCVar = vars[var];
+
+      switch (pCVar->GetType())
+      {
+        case ezCVarType::Int:
+        {
+          ezCVarInt* pInt = (ezCVarInt*)pCVar;
+          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
+        }
+        break;
+        case ezCVarType::Bool:
+        {
+          ezCVarBool* pBool = (ezCVarBool*)pCVar;
+          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
+        }
+        break;
+        case ezCVarType::Float:
+        {
+          ezCVarFloat* pFloat = (ezCVarFloat*)pCVar;
+          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
+        }
+        break;
+        case ezCVarType::String:
+        {
+          ezCVarString* pString = (ezCVarString*)pCVar;
+          sTemp.Format("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart));
+        }
+        break;
+        default:
+          EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+          break;
+      }
+
+      // add the one line for that cvar to the config file
+      File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
+    }
   }
 }
 
@@ -236,45 +253,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*=
   LoadCVarsFromFile(bOnlyNewOnes, bSetAsCurrentValue);
 }
 
-static ezResult ReadLine(ezStreamReader& inout_stream, ezStringBuilder& ref_sLine)
-{
-  ref_sLine.Clear();
-
-  char c[2];
-  c[0] = '\0';
-  c[1] = '\0';
-
-  // read the first character
-  if (inout_stream.ReadBytes(c, 1) == 0)
-    return EZ_FAILURE;
-
-  // skip all white-spaces at the beginning
-  // also skip all empty lines
-  while ((c[0] == '\n' || c[0] == '\r' || c[0] == ' ' || c[0] == '\t') && (inout_stream.ReadBytes(c, 1) > 0))
-  {
-  }
-
-  // we found something that is not empty, so now read till the end of the line
-  while (c[0] != '\0' && c[0] != '\n')
-  {
-    // skip all tabs and carriage returns
-    if (c[0] != '\r' && c[0] != '\t')
-    {
-      ref_sLine.Append(c);
-    }
-
-    // stop if we reached the end of the file
-    if (inout_stream.ReadBytes(c, 1) == 0)
-      break;
-  }
-
-  if (ref_sLine.IsEmpty())
-    return EZ_FAILURE;
-
-  return EZ_SUCCESS;
-}
-
-static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& ref_sVarName, ezStringBuilder& ref_sVarValue)
+static ezResult ParseLine(const ezString& sLine, ezStringBuilder& out_sVarName, ezStringBuilder& out_sVarValue)
 {
   const char* szSign = sLine.FindSubString("=");
 
@@ -288,7 +267,7 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& ref_sVa
     while (sSubString.EndsWith(" "))
       sSubString.Shrink(0, 1);
 
-    ref_sVarName = sSubString;
+    out_sVarName = sSubString;
   }
 
   {
@@ -311,13 +290,13 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& ref_sVa
     if (sSubString.EndsWith("\""))
       sSubString.Shrink(0, 1);
 
-    ref_sVarValue = sSubString;
+    out_sVarValue = sSubString;
   }
 
   return EZ_SUCCESS;
 }
 
-void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
+void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
 {
   if (s_sStorageFolder.IsEmpty())
     return;
@@ -337,8 +316,8 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
       {
         if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
         {
-          if (pCVar->m_szPluginName != nullptr)
-            PluginCVars[pCVar->m_szPluginName].PushBack(pCVar);
+          if (!pCVar->m_sPluginName.IsEmpty())
+            PluginCVars[pCVar->m_sPluginName].PushBack(pCVar);
           else
             PluginCVars["Static"].PushBack(pCVar);
         }
@@ -349,7 +328,6 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
     }
   }
 
-  // now load all cvars from their plugin specific file
   {
     ezMap<ezString, ezHybridArray<ezCVar*, 128>>::Iterator it = PluginCVars.GetIterator();
 
@@ -360,80 +338,123 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
       // create the plugin specific file
       sTemp.Format("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
-      ezFileReader File;
-      if (File.Open(sTemp.GetData()) == EZ_SUCCESS)
-      {
-        ezStringBuilder sLine, sVarName, sVarValue;
-        while (ReadLine(File, sLine) == EZ_SUCCESS)
-        {
-          if (ParseLine(sLine, sVarName, sVarValue) == EZ_FAILURE)
-            continue;
-
-          // now find a variable with the same name
-          for (ezUInt32 var = 0; var < it.Value().GetCount(); ++var)
-          {
-            ezCVar* pCVar = it.Value()[var];
-
-            if (!sVarName.IsEqual(pCVar->GetName()))
-              continue;
-
-            // found the cvar, now convert the text into the proper value *sigh*
-
-            switch (pCVar->GetType())
-            {
-              case ezCVarType::Int:
-              {
-                ezInt32 Value = 0;
-                if (ezConversionUtils::StringToInt(sVarValue, Value).Succeeded())
-                {
-                  ezCVarInt* pTyped = (ezCVarInt*)pCVar;
-                  pTyped->m_Values[ezCVarValue::Stored] = Value;
-                  *pTyped = Value;
-                }
-              }
-              break;
-              case ezCVarType::Bool:
-              {
-                bool Value = sVarValue.IsEqual_NoCase("true");
-
-                ezCVarBool* pTyped = (ezCVarBool*)pCVar;
-                pTyped->m_Values[ezCVarValue::Stored] = Value;
-                *pTyped = Value;
-              }
-              break;
-              case ezCVarType::Float:
-              {
-                double Value = 0.0;
-                if (ezConversionUtils::StringToFloat(sVarValue, Value).Succeeded())
-                {
-                  ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
-                  pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
-                  *pTyped = static_cast<float>(Value);
-                }
-              }
-              break;
-              case ezCVarType::String:
-              {
-                const char* Value = sVarValue.GetData();
-
-                ezCVarString* pTyped = (ezCVarString*)pCVar;
-                pTyped->m_Values[ezCVarValue::Stored] = Value;
-                *pTyped = Value;
-              }
-              break;
-              default:
-                EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
-                break;
-            }
-
-            if (bSetAsCurrentValue)
-              pCVar->SetToRestartValue();
-          }
-        }
-      }
+      LoadCVarsFromFileInternal(sTemp.GetView(), it.Value(), bOnlyNewOnes, bSetAsCurrentValue, pOutCVars);
 
       // continue with the next plugin
       ++it;
+    }
+  }
+}
+
+void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetAsCurrentValue, bool bIgnoreSaveFlag, ezDynamicArray<ezCVar*>* pOutCVars)
+{
+  ezHybridArray<ezCVar*, 128> allCVars;
+
+  for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+  {
+    if (bIgnoreSaveFlag || pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
+    {
+      if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
+      {
+        allCVars.PushBack(pCVar);
+      }
+    }
+
+    // it doesn't matter whether the CVar could be loaded from file, either it works the first time, or it stays at its current value
+    pCVar->m_bHasNeverBeenLoaded = false;
+  }
+
+  LoadCVarsFromFileInternal(sPath, allCVars, bOnlyNewOnes, bSetAsCurrentValue, pOutCVars);
+}
+
+void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
+{
+  ezFileReader File;
+  ezStringBuilder sTemp;
+
+  if (File.Open(path.GetData(sTemp)) == EZ_SUCCESS)
+  {
+    ezStringBuilder sContent;
+    sContent.ReadAll(File);
+
+    ezDynamicArray<ezString> Lines;
+    sContent.ReplaceAll("\r", ""); // remove carriage return
+
+    // splits the string at occurrence of '\n' and adds each line to the 'Lines' container
+    sContent.Split(true, Lines, "\n");
+
+    ezStringBuilder sVarName;
+    ezStringBuilder sVarValue;
+
+    for (const ezString& sLine : Lines)
+    {
+      if (ParseLine(sLine, sVarName, sVarValue) == EZ_FAILURE)
+        continue;
+
+      // now find a variable with the same name
+      for (ezUInt32 var = 0; var < vars.GetCount(); ++var)
+      {
+        ezCVar* pCVar = vars[var];
+
+        if (!sVarName.IsEqual(pCVar->GetName()))
+          continue;
+
+        // found the cvar, now convert the text into the proper value *sigh*
+        switch (pCVar->GetType())
+        {
+          case ezCVarType::Int:
+          {
+            ezInt32 Value = 0;
+            if (ezConversionUtils::StringToInt(sVarValue, Value).Succeeded())
+            {
+              ezCVarInt* pTyped = (ezCVarInt*)pCVar;
+              pTyped->m_Values[ezCVarValue::Stored] = Value;
+              *pTyped = Value;
+            }
+          }
+          break;
+          case ezCVarType::Bool:
+          {
+            bool Value = sVarValue.IsEqual_NoCase("true");
+
+            ezCVarBool* pTyped = (ezCVarBool*)pCVar;
+            pTyped->m_Values[ezCVarValue::Stored] = Value;
+            *pTyped = Value;
+          }
+          break;
+          case ezCVarType::Float:
+          {
+            double Value = 0.0;
+            if (ezConversionUtils::StringToFloat(sVarValue, Value).Succeeded())
+            {
+              ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
+              pTyped->m_Values[ezCVarValue::Stored] = static_cast<float>(Value);
+              *pTyped = static_cast<float>(Value);
+            }
+          }
+          break;
+          case ezCVarType::String:
+          {
+            const char* Value = sVarValue.GetData();
+
+            ezCVarString* pTyped = (ezCVarString*)pCVar;
+            pTyped->m_Values[ezCVarValue::Stored] = Value;
+            *pTyped = Value;
+          }
+          break;
+          default:
+            EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+            break;
+        }
+
+        if (pOutCVars)
+        {
+          pOutCVars->PushBack(pCVar);
+        }
+
+        if (bSetAsCurrentValue)
+          pCVar->SetToRestartValue();
+      }
     }
   }
 }
@@ -446,7 +467,7 @@ Examples:\n\
 ",
   nullptr);
 
-void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*= true*/)
+void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*= true*/, ezDynamicArray<ezCVar*>* pOutCVars /*= nullptr*/)
 {
   ezStringBuilder sTemp;
 
@@ -459,6 +480,11 @@ void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsC
 
     if (ezCommandLineUtils::GetGlobalInstance()->GetOptionIndex(sTemp) != -1)
     {
+      if (pOutCVars)
+      {
+        pOutCVars->PushBack(pCVar);
+      }
+
       // has been specified on the command line -> mark it as 'has been loaded'
       pCVar->m_bHasNeverBeenLoaded = false;
 
@@ -514,9 +540,9 @@ void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsC
   }
 }
 
-void ezCVar::ListOfCVarsChanged(const char* szSetPluginNameTo)
+void ezCVar::ListOfCVarsChanged(ezStringView sSetPluginNameTo)
 {
-  AssignSubSystemPlugin(szSetPluginNameTo);
+  AssignSubSystemPlugin(sSetPluginNameTo);
 
   LoadCVars();
 

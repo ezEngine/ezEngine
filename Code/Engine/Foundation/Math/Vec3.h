@@ -11,7 +11,7 @@ public:
   // Means that vectors can be copied using memcpy instead of copy construction.
   EZ_DECLARE_POD_TYPE();
 
-  typedef Type ComponentType;
+  using ComponentType = Type;
 
   // *** Data ***
 public:
@@ -27,19 +27,23 @@ public:
 
   /// \brief Initializes all 3 components with xyz
   explicit ezVec3Template(Type v); // [tested]
+
   // no copy-constructor and operator= since the default-generated ones will be faster
 
-  /// \brief Returns a vector with all components set to zero.
-  static ezVec3Template<Type> ZeroVector() { return ezVec3Template(0); } // [tested]
-  /// \brief Returns a vector with all components set to one.
-  static ezVec3Template<Type> OneVector() { return ezVec3Template(1); }
+  /// \brief Returns a vector with all components set to Not-a-Number (NaN).
+  [[nodiscard]] static ezVec3Template<Type> MakeNaN() { return ezVec3Template<Type>(ezMath::NaN<Type>()); }
 
-  /// \brief Returns a vector initialized to the x unit vector (1, 0, 0).
-  static const ezVec3Template<Type> UnitXAxis() { return ezVec3Template(1, 0, 0); }
-  /// \brief Returns a vector initialized to the y unit vector (0, 1, 0).
-  static const ezVec3Template<Type> UnitYAxis() { return ezVec3Template(0, 1, 0); }
-  /// \brief Returns a vector initialized to the z unit vector (0, 0, 1).
-  static const ezVec3Template<Type> UnitZAxis() { return ezVec3Template(0, 0, 1); }
+  /// \brief Returns a vector with all components set to zero.
+  [[nodiscard]] static ezVec3Template<Type> MakeZero() { return ezVec3Template<Type>(0); } // [tested]
+
+  /// \brief Returns a vector initialized to the X unit vector (1, 0, 0).
+  [[nodiscard]] static ezVec3Template<Type> MakeAxisX() { return ezVec3Template<Type>(1, 0, 0); } // [tested]
+
+  /// \brief Returns a vector initialized to the Y unit vector (0, 1, 0).
+  [[nodiscard]] static ezVec3Template<Type> MakeAxisY() { return ezVec3Template<Type>(0, 1, 0); } // [tested]
+
+  /// \brief Returns a vector initialized to the Z unit vector (0, 0, 1).
+  [[nodiscard]] static ezVec3Template<Type> MakeAxisZ() { return ezVec3Template<Type>(0, 0, 1); } // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -105,8 +109,7 @@ public:
 
   /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given
   /// fallback value.
-  ezResult NormalizeIfNotZero(
-    const ezVec3Template<Type>& vFallback = ezVec3Template(1, 0, 0), Type fEpsilon = ezMath::SmallEpsilon<Type>()); // [tested]
+  ezResult NormalizeIfNotZero(const ezVec3Template<Type>& vFallback = ezVec3Template(1, 0, 0), Type fEpsilon = ezMath::SmallEpsilon<Type>()); // [tested]
 
   /// \brief Returns, whether this vector is (0, 0, 0).
   bool IsZero() const; // [tested]
@@ -163,6 +166,8 @@ public:
   /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)
   Type Dot(const ezVec3Template<Type>& rhs) const; // [tested]
 
+
+
   /// \brief Returns the Cross-product of the two vectors (NOT commutative, order DOES matter)
   const ezVec3Template<Type> CrossRH(const ezVec3Template<Type>& rhs) const; // [tested]
 
@@ -205,28 +210,28 @@ public:
   /// \brief Returns this vector, refracted at vNormal, using the refraction index of the current medium and the medium it enters.
   const ezVec3Template<Type> GetRefractedVector(const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const;
 
-  /// \brief Sets the vector to a random point inside a unit sphere (radius 1).
-  static ezVec3Template<Type> CreateRandomPointInSphere(ezRandom& inout_rng); // [tested]
+  /// \brief Returns a random point inside a unit sphere (radius 1).
+  [[nodiscard]] static ezVec3Template<Type> MakeRandomPointInSphere(ezRandom& inout_rng);                                                          // [tested]
 
   /// \brief Creates a random direction vector. The vector is normalized.
-  static ezVec3Template<Type> CreateRandomDirection(ezRandom& inout_rng); // [tested]
+  [[nodiscard]] static ezVec3Template<Type> MakeRandomDirection(ezRandom& inout_rng);                                                      // [tested]
 
   /// \brief Creates a random vector around the x axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
-  static ezVec3Template<Type> CreateRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation);                                                       // [tested]
 
   /// \brief Creates a random vector around the y axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
-  static ezVec3Template<Type> CreateRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation);                                                       // [tested]
 
   /// \brief Creates a random vector around the z axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
-  static ezVec3Template<Type> CreateRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation);                                                       // [tested]
 
   /// \brief Creates a random vector around the given normal with a maximum deviation.
   /// \note If you are going to do this many times with the same axis, rather than calling this function, instead manually
   /// do what this function does (see inline code) and only compute the quaternion once.
-  static ezVec3Template<Type> CreateRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal); // [tested]
+  [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal);                                                      // [tested]
 };
 
 // *** Operators ***

@@ -15,8 +15,7 @@ ezResult ezConvexHullGenerator::ComputeCenterAndScale(const ezArrayPtr<const ezV
   if (vertices.IsEmpty())
     return EZ_FAILURE;
 
-  ezBoundingBox box;
-  box.SetFromPoints(vertices.GetPtr(), vertices.GetCount());
+  ezBoundingBox box = ezBoundingBox::MakeFromPoints(vertices.GetPtr(), vertices.GetCount());
 
   const ezVec3 c = box.GetCenter();
   m_vCenter.Set(c.x, c.y, c.z);

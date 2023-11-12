@@ -77,7 +77,7 @@ public:
     AllFlags = 0xFFFFFFFF
   };
 
-  ezGameObjectMetaData() {}
+  ezGameObjectMetaData() = default;
 
   ezString m_CachedNodeName;
   QIcon m_Icon;
@@ -96,7 +96,7 @@ class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocument : public ezAssetDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectDocument, ezAssetDocument);
 
 public:
-  ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager,
+  ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager,
     ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectDocument();
 
@@ -273,7 +273,7 @@ private:
 
   float m_fSimulationSpeed = 1.0f;
 
-  typedef ezHashTable<const ezDocumentObject*, ezSimdTransform, ezHashHelper<const ezDocumentObject*>, ezAlignedAllocatorWrapper> TransformTable;
+  using TransformTable = ezHashTable<const ezDocumentObject*, ezSimdTransform, ezHashHelper<const ezDocumentObject*>, ezAlignedAllocatorWrapper>;
   mutable TransformTable m_GlobalTransforms;
 
   // when new objects are created the engine sometimes needs to catch up creating sub-objects (e.g. for reference prefabs)

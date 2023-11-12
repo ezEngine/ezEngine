@@ -8,7 +8,7 @@ using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResourc
 
 struct EZ_PARTICLEPLUGIN_DLL ezQuadParticleOrientation
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

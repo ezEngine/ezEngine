@@ -14,9 +14,19 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <shellscalingapi.h>
+#endif
+#include <Foundation/Profiling/ProfilingUtils.h>
+
+
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", nullptr)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+#endif
+
   m_LongOpWorkerManager.Startup(&m_IPC);
 }
 
@@ -56,7 +66,7 @@ void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
 
   DisableErrorReport();
 
-  ezTaskSystem::SetTargetFrameTime(ezTime::Seconds(1.0 / 20.0));
+  ezTaskSystem::SetTargetFrameTime(ezTime::MakeFromSeconds(1.0 / 20.0));
 
   ConnectToHost();
 }
@@ -88,7 +98,7 @@ void ezEngineProcessGameApplication::WaitForDebugger()
   {
     while (!ezSystemInformation::IsDebuggerAttached())
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
     }
   }
 }
@@ -106,7 +116,6 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
 
 ezApplication::Execution ezEngineProcessGameApplication::Run()
 {
-  ezRenderWorld::ClearMainViews();
   bool bPendingOpInProgress = false;
   do
   {
@@ -118,7 +127,11 @@ ezApplication::Execution ezEngineProcessGameApplication::Run()
   } while (!bPendingOpInProgress && m_uiRedrawCountExecuted == m_uiRedrawCountReceived);
 
   m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
-  return SUPER::Run();
+
+  // Normally rendering is done in EventHandlerIPC as a response to ezSyncWithProcessMsgToEngine. However, when playing or when pending operations are in progress we need to render even if we didn't receive a draw request.
+  ezApplication::Execution res = SUPER::Run();
+  ezRenderWorld::ClearMainViews();
+  return res;
 }
 
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
@@ -196,11 +209,16 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
     return;
 
   ezSet<const ezRTTI*> types;
-
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezReflectedClass>(), types, true);
+  ezRTTI::ForEachType(
+    [&](const ezRTTI* pRtti) {
+      if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType) == false)
+      {
+        types.Insert(pRtti);
+      }
+    });
 
   ezDynamicArray<const ezRTTI*> sortedTypes;
-  ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);
+  ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes).AssertSuccess("Sorting failed");
 
   for (auto type : sortedTypes)
   {
@@ -217,6 +235,11 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     ezSyncWithProcessMsgToEditor msg;
     msg.m_uiRedrawCount = pMsg->m_uiRedrawCount;
     m_uiRedrawCountReceived = msg.m_uiRedrawCount;
+
+    // We must clear the main views after rendering so that if the editor runs in lock step with the engine we don't render a view twice or request update again without rendering being done.
+    RunOneFrame();
+    ezRenderWorld::ClearMainViews();
+
     m_IPC.SendMessage(&msg);
     return;
   }
@@ -319,18 +342,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     }
     else if (pMsg1->m_sWhatToDo == "SaveProfiling")
     {
-      ezProfilingSystem::ProfilingData profilingData;
-      ezProfilingSystem::Capture(profilingData);
-      ezFileWriter fileWriter;
-      if (fileWriter.Open(pMsg1->m_sPayload) == EZ_SUCCESS)
-      {
-        profilingData.Write(fileWriter).IgnoreResult();
-        ezLog::Info("Engine profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-      }
-      else
-      {
-        ezLog::Error("Could not write profiling capture to '{0}'.", pMsg1->m_sPayload);
-      }
+      ezProfilingUtils::SaveProfilingCapture(pMsg1->m_sPayload).IgnoreResult();
 
       ezSaveProfilingResponseToEditor response;
       ezStringBuilder sAbsPath;
@@ -461,21 +473,18 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
   if (pDocumentContext == nullptr)
   {
-    ezRTTI* pRtti = ezRTTI::GetFirstInstance();
-    while (pRtti)
-    {
-      if (pRtti->IsDerivedFrom<ezEngineProcessDocumentContext>())
-      {
+    ezRTTI::ForEachDerivedType<ezEngineProcessDocumentContext>(
+      [&](const ezRTTI* pRtti) {
         auto* pProp = pRtti->FindPropertyByName("DocumentType");
         if (pProp && pProp->GetCategory() == ezPropertyCategory::Constant)
         {
-          const ezStringBuilder sDocTypes(";", static_cast<ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezString>(), ";");
+          const ezStringBuilder sDocTypes(";", static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezString>(), ";");
           const ezStringBuilder sRequestedType(";", pMsg->m_sDocumentType, ";");
 
           if (sDocTypes.FindSubString(sRequestedType) != nullptr)
           {
             ezLog::Dev("Created Context of type '{0}' for '{1}'", pRtti->GetTypeName(), pMsg->m_sDocumentType);
-            for (ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
+            for (auto pFunc : pRtti->GetFunctions())
             {
               if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "AllocateContext"))
               {
@@ -500,13 +509,9 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
             }
 
             ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pMsg->m_DocumentMetaData, pDocumentContext, &m_IPC, pMsg->m_sDocumentType);
-            break;
           }
         }
-      }
-
-      pRtti = pRtti->GetNextInstance();
-    }
+      });
   }
   else
   {

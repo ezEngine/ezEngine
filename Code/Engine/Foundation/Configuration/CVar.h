@@ -24,7 +24,7 @@ struct ezCVarType
 /// \brief The flags that can be used on an ezCVar.
 struct ezCVarFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -56,8 +56,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezCVarFlags);
 struct ezCVarEvent
 {
   ezCVarEvent(ezCVar* pCVar)
-    : m_EventType(ValueChanged)
-    , m_pCVar(pCVar)
+    : m_pCVar(pCVar)
   {
   }
 
@@ -69,7 +68,7 @@ struct ezCVarEvent
   };
 
   /// \brief The type of this event.
-  Type m_EventType;
+  Type m_EventType = ValueChanged;
 
   /// \brief Which CVar is involved. This is only for convenience, it is always the CVar on which the event is triggered.
   ezCVar* m_pCVar;
@@ -109,10 +108,10 @@ public:
   /// so \a szFolder must not be a file name, but only a path to a folder.
   ///
   /// After setting the storage folder, one should immediately load all CVars via LoadCVars.
-  static void SetStorageFolder(const char* szFolder); // [tested]
+  static void SetStorageFolder(ezStringView sFolder); // [tested]
 
   /// \brief Searches all CVars for one with the given name. Returns nullptr if no CVar could be found. The name is case-sensitive.
-  static ezCVar* FindCVarByName(const char* szName); // [tested]
+  static ezCVar* FindCVarByName(ezStringView sName); // [tested]
 
   /// \brief Stores all CVar values in files in the storage folder, that must have been set via 'SetStorageFolder'.
   ///
@@ -121,13 +120,26 @@ public:
   /// So it might not be necessary to call this function manually at shutdown.
   static void SaveCVars(); // [tested]
 
+  /// \brief Stores all CVar values into the given file.
+  ///
+  /// This function works without setting a storage folder.
+  /// If bIgnoreSaveFlag is set all CVars are saved whether they have the ezCVarFlags::Save set or not.
+  ///
+  /// \sa LoadCVarsFromFile()
+  static void SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag = false);
+
   /// \brief Calls LoadCVarsFromCommandLine() and then LoadCVarsFromFile()
   static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
 
   /// \brief Loads the CVars from the settings files in the storage folder.
   ///
+  /// The CVars are loaded into the global system and thus automatically available everywhere after this call.
+  /// Optionally they are returned via pOutCVars, so the caller knows which CVars have actually been
+  /// loaded in this very step.
+  ///
   /// This function has no effect, if the storage folder has not been set via 'SetStorageFolder' yet
   /// or it has been set to be empty.
+  ///
   /// If \a bOnlyNewOnes is set, only CVars that have never been loaded from file before are loaded.
   /// All other CVars will stay unchanged.
   /// If \a bSetAsCurrentValue is true, variables that are flagged as 'RequiresRestart', will be set
@@ -138,15 +150,38 @@ public:
   ///
   ///
   /// \sa LoadCVarsFromCommandLine()
-  static void LoadCVarsFromFile(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
+  static void LoadCVarsFromFile(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr); // [tested]
 
-  /// \brief Similar to LoadCVarsFromFile() but tries to get the CVar values from the command line
+  /// \brief Loads all CVars from the given file. Does not account for any plug-in specific files.
+  ///
+  /// The CVars are loaded into the global system and thus automatically available everywhere after this call.
+  /// Optionally they are returned via pOutCVars, so the caller knows which CVars have actually been
+  /// loaded in this very step.
+  ///
+  /// This function works without setting a storage folder.
+  ///
+  /// If \a bOnlyNewOnes is set, only CVars that have never been loaded from file before are loaded.
+  /// All other CVars will stay unchanged.
+  /// If \a bSetAsCurrentValue is true, variables that are flagged as 'RequiresRestart', will be set
+  /// to the restart value immediately ('SetToRestartValue' is called on them).
+  /// Otherwise their 'Current' value will always stay unchanged and the value from disk will only be
+  /// stored in the 'Restart' value.
+  /// Independent on the parameter settings, all CVar changes during loading will always trigger change events.
+  /// If bIgnoreSaveFlag is set all CVars are loaded whether they have the ezCVarFlags::Save set or not.
+  ///
+  /// \sa LoadCVarsFromCommandLine()
+  /// \sa LoadCVarsFromFile()
+  static void LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, bool bIgnoreSaveFlag = false, ezDynamicArray<ezCVar*>* pOutCVars = nullptr);
+
+  /// \brief Similar to LoadCVarsFromFile() but tries to get the CVar values from the command line.
+  ///
+  /// The CVars are loaded into the global system and thus automatically available everywhere after this call.
+  /// Optionally they are returned via pOutCVars, so the caller knows which CVars have actually been
+  /// loaded in this very step.
   ///
   /// \note A CVar will only ever be loaded once. This function should be called before LoadCVarsFromFile(),
   /// otherwise it could get flagged as 'already loaded' even if the value was never taken from file or command line.
-  static void LoadCVarsFromCommandLine(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
-
-
+  static void LoadCVarsFromCommandLine(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr); // [tested]
 
   /// \brief Copies the 'Restart' value into the 'Current' value.
   ///
@@ -156,13 +191,13 @@ public:
   virtual void SetToRestartValue() = 0; // [tested]
 
   /// \brief Returns the (display) name of the CVar.
-  const char* GetName() const { return m_szName; } // [tested]
+  ezStringView GetName() const { return m_sName; } // [tested]
 
   /// \brief Returns the type of the CVar.
   virtual ezCVarType::Enum GetType() const = 0; // [tested]
 
   /// \brief Returns the description of the CVar.
-  const char* GetDescription() const { return m_szDescription; } // [tested]
+  ezStringView GetDescription() const { return m_sDescription; } // [tested]
 
   /// \brief Returns all the CVar flags.
   ezBitflags<ezCVarFlags> GetFlags() const { return m_Flags; } // [tested]
@@ -174,31 +209,32 @@ public:
   static ezEvent<const ezCVarEvent&> s_AllCVarEvents;
 
   /// \brief Returns the name of the plugin which this CVar is declared in.
-  const char* GetPluginName() const { return m_szPluginName; }
+  ezStringView GetPluginName() const { return m_sPluginName; }
 
   /// \brief Call this after creating or destroying CVars dynamically (not through loading plugins) to allow UIs to update their state.
   ///
   /// Broadcasts ezCVarEvent::ListOfVarsChanged.
-  static void ListOfCVarsChanged(const char* szSetPluginNameTo);
+  static void ListOfCVarsChanged(ezStringView sSetPluginNameTo);
 
 protected:
-  ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription);
-
-  void RegisterCVarTelemetryChangeCB();
-
-  static void TelemetryMessage(void* pPassThrough);
+  ezCVar(ezStringView sName, ezBitflags<ezCVarFlags> Flags, ezStringView sDescription);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, CVars);
 
-  static void AssignSubSystemPlugin(const char* szPluginName);
+  static void AssignSubSystemPlugin(ezStringView sPluginName);
   static void PluginEventHandler(const ezPluginEvent& EventData);
 
+  /// \brief Loads CVar values for the given vars from the given config file path. Returns the ezCVars which have actually been loaded.
+  static void LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars);
 
-  bool m_bHasNeverBeenLoaded;
-  const char* m_szName;
-  const char* m_szDescription;
-  const char* m_szPluginName;
+  /// \brief Stores the values of the given vars to the given config file path.
+  static void SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars);
+
+  bool m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
+  ezStringView m_sName;
+  ezStringView m_sDescription;
+  ezStringView m_sPluginName;
   ezBitflags<ezCVarFlags> m_Flags;
 
   static ezString s_sStorageFolder;
@@ -223,7 +259,7 @@ template <typename Type, ezCVarType::Enum CVarType>
 class ezTypedCVar : public ezCVar
 {
 public:
-  ezTypedCVar(const char* szName, const Type& value, ezBitflags<ezCVarFlags> flags, const char* szDescription);
+  ezTypedCVar(ezStringView sName, const Type& value, ezBitflags<ezCVarFlags> flags, ezStringView sDescription);
 
   /// \brief Returns the 'current' value of the CVar. Same as 'GetValue(ezCVarValue::Current)'
   operator const Type&() const; // [tested]
@@ -247,16 +283,16 @@ private:
 };
 
 /// \brief A CVar that stores a float value.
-typedef ezTypedCVar<float, ezCVarType::Float> ezCVarFloat;
+using ezCVarFloat = ezTypedCVar<float, ezCVarType::Float>;
 
 /// \brief A CVar that stores a bool value.
-typedef ezTypedCVar<bool, ezCVarType::Bool> ezCVarBool;
+using ezCVarBool = ezTypedCVar<bool, ezCVarType::Bool>;
 
 /// \brief A CVar that stores an int value.
-typedef ezTypedCVar<int, ezCVarType::Int> ezCVarInt;
+using ezCVarInt = ezTypedCVar<int, ezCVarType::Int>;
 
 /// \brief A CVar that stores a string.
-typedef ezTypedCVar<ezHybridString<32>, ezCVarType::String> ezCVarString;
+using ezCVarString = ezTypedCVar<ezHybridString<32>, ezCVarType::String>;
 
 
 

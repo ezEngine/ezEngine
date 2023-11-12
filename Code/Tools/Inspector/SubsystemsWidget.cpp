@@ -3,8 +3,8 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
+#include <Inspector/SubsystemsWidget.moc.h>
 
 ezQtSubsystemsWidget* ezQtSubsystemsWidget::s_pWidget = nullptr;
 
@@ -15,6 +15,8 @@ ezQtSubsystemsWidget::ezQtSubsystemsWidget(QWidget* pParent)
 
   setupUi(this);
   setWidget(TableSubsystems);
+
+  setIcon(QIcon(":/Icons/Icons/Subsystem.svg"));
 
   ResetStats();
 }
@@ -64,7 +66,8 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
       const SubsystemData& ssd = it.Value();
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/Subsystem.png"));
+      QIcon icon = ezQtUiServices::GetCachedIconResource(":/Icons/Icons/Subsystem.svg");
+      pIcon->setPixmap(icon.pixmap(QSize(24, 24)));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableSubsystems->setCellWidget(iRow, 0, pIcon);
 

@@ -318,20 +318,17 @@ private:
   struct ezScriptStates
   {
     ezScriptStates()
-      : m_iParametersPushed(0)
-      , m_iOpenTables(0)
-      , m_iLuaReturnValues(0)
-    {
-    }
+
+      = default;
 
     /// How many Parameters were pushed for the next function-call.
-    ezInt32 m_iParametersPushed;
+    ezInt32 m_iParametersPushed = 0;
 
     /// How many Tables have been opened inside the Lua-Script.
-    ezInt32 m_iOpenTables;
+    ezInt32 m_iOpenTables = 0;
 
     /// How many values the called Lua-function should return
-    ezInt32 m_iLuaReturnValues;
+    ezInt32 m_iLuaReturnValues = 0;
   };
 
   ezScriptStates m_States;

@@ -27,7 +27,7 @@ public:
 
 class EZ_RECASTPLUGIN_DLL ezRcNavMeshComponentManager : public ezComponentManager<class ezRcNavMeshComponent, ezBlockStorageType::Compact>
 {
-  typedef ezComponentManager<class ezRcNavMeshComponent, ezBlockStorageType::Compact> SUPER;
+  using SUPER = ezComponentManager<class ezRcNavMeshComponent, ezBlockStorageType::Compact>;
 
 public:
   ezRcNavMeshComponentManager(ezWorld* pWorld);
@@ -40,7 +40,7 @@ public:
   void Update(const ezWorldModule::UpdateContext& context);
 
 private:
-  ezRecastWorldModule* m_pWorldModule;
+  ezRecastWorldModule* m_pWorldModule = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////

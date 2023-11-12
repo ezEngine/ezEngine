@@ -45,21 +45,17 @@ ezSceneObjectManager::ezSceneObjectManager()
 
 void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
-  ref_types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));
+  ref_types.PushBack(ezGetStaticRTTI<ezGameObject>());
 
-  const ezRTTI* pComponentType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
-
-  for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
-  {
-    if (it->IsDerivedFrom(pComponentType) && !it->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
-      ref_types.PushBack(it);
-  }
+  ezRTTI::ForEachDerivedType<ezComponent>(
+    [&](const ezRTTI* pRtti) { ref_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
 ezStatus ezSceneObjectManager::InternalCanAdd(
-  const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
+  const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const
 {
-  if (IsUnderRootProperty("Children", pParent, szParentProperty))
+  if (IsUnderRootProperty("Children", pParent, sParentProperty))
   {
     if (pParent == nullptr)
     {
@@ -98,7 +94,7 @@ ezStatus ezSceneObjectManager::InternalCanAdd(
 }
 
 ezStatus ezSceneObjectManager::InternalCanMove(
-  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
+  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProperty, const ezVariant& index) const
 {
   // code to disallow attaching nodes to a prefab node
   // if (pNewParent != nullptr)

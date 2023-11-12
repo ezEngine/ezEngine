@@ -12,12 +12,12 @@
 
 ezMeshResourceDescriptor::ezMeshResourceDescriptor()
 {
-  m_Bounds.SetInvalid();
+  m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 }
 
 void ezMeshResourceDescriptor::Clear()
 {
-  m_Bounds.SetInvalid();
+  m_Bounds = ezBoundingBoxSphere::MakeInvalid();
   m_hMeshBuffer.Invalidate();
   m_Materials.Clear();
   m_MeshBufferDescriptor.Clear();
@@ -84,7 +84,7 @@ void ezMeshResourceDescriptor::AddSubMesh(ezUInt32 uiPrimitiveCount, ezUInt32 ui
   p.m_uiFirstPrimitive = uiFirstPrimitive;
   p.m_uiPrimitiveCount = uiPrimitiveCount;
   p.m_uiMaterialIndex = uiMaterialIndex;
-  p.m_Bounds.SetInvalid();
+  p.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 
   m_SubMeshes.PushBack(p);
 }
@@ -120,7 +120,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd compressor(&inout_stream, ezCompressedStreamWriterZstd::Compression::Average);
+  ezCompressedStreamWriterZstd compressor(&inout_stream, 0, ezCompressedStreamWriterZstd::Compression::Average);
   ezChunkStreamWriter chunk(compressor);
 #else
   ezChunkStreamWriter chunk(stream);
@@ -381,7 +381,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
         chunk >> m_SubMeshes[idx].m_uiPrimitiveCount;
 
         /// \todo load from file
-        m_SubMeshes[idx].m_Bounds.SetInvalid();
+        m_SubMeshes[idx].m_Bounds = ezBoundingBoxSphere::MakeInvalid();
       }
     }
 
@@ -534,7 +534,7 @@ void ezMeshResourceDescriptor::ComputeBounds()
 
 ezResult ezMeshResourceDescriptor::BoneData::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream << m_GlobalInverseBindPoseMatrix;
+  inout_stream << m_GlobalInverseRestPoseMatrix;
   inout_stream << m_uiBoneIndex;
 
   return EZ_SUCCESS;
@@ -542,7 +542,7 @@ ezResult ezMeshResourceDescriptor::BoneData::Serialize(ezStreamWriter& inout_str
 
 ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& inout_stream)
 {
-  inout_stream >> m_GlobalInverseBindPoseMatrix;
+  inout_stream >> m_GlobalInverseRestPoseMatrix;
   inout_stream >> m_uiBoneIndex;
 
   return EZ_SUCCESS;

@@ -24,7 +24,7 @@ protected:
 
   virtual ~ezGALVertexDeclarationDX11();
 
-  ID3D11InputLayout* m_pDXInputLayout;
+  ID3D11InputLayout* m_pDXInputLayout = nullptr;
 };
 
 #include <RendererDX11/Shader/Implementation/VertexDeclarationDX11_inl.h>

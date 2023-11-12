@@ -143,7 +143,6 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
     // setup render target
     {
-      ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
       ezWindowOutputTargetGAL* pOutput = static_cast<ezWindowOutputTargetGAL*>(pWindowPlugin->m_pWindowOutputTarget.Borrow());
 
       const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
@@ -168,7 +167,7 @@ void ezEngineProcessViewContext::OnSwapChainChanged(ezGALSwapChainHandle hSwapCh
 void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* pRenderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   EZ_LOG_BLOCK("ezEngineProcessViewContext::SetupRenderTarget");
-  EZ_ASSERT_DEV(hSwapChain.IsInvalidated() || pRenderTargets == nullptr, "hSwapChain and renderTargetSetup are mutually exclusive.");
+  EZ_ASSERT_DEV((!hSwapChain.IsInvalidated() && pRenderTargets == nullptr) || (hSwapChain.IsInvalidated() && pRenderTargets != nullptr), "hSwapChain and pRenderTargets are mutually exclusive.");
 
   // setup view
   {
@@ -229,7 +228,7 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& inout_camera, con
   ezVec3 vCameraPos = inout_camera.GetCenterPosition();
   ezVec3 vCenterPos = objectBounds.GetSphere().m_vCenter;
 
-  const float fDist = ezMath::Max(0.1f, objectBounds.GetSphere().m_fRadius) / ezMath::Sin(ezAngle::Degree(fFov / 2));
+  const float fDist = ezMath::Max(0.1f, objectBounds.GetSphere().m_fRadius) / ezMath::Sin(ezAngle::MakeFromDegree(fFov / 2));
   vDir.Normalize();
   ezVec3 vNewCameraPos = vCenterPos - vDir * fDist;
   if (!vNewCameraPos.IsEqual(vCameraPos, 0.01f))

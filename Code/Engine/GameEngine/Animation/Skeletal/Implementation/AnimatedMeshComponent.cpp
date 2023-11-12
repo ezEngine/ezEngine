@@ -82,7 +82,7 @@ void ezAnimatedMeshComponent::OnDeactivated()
 
 void ezAnimatedMeshComponent::InitializeAnimationPose()
 {
-  m_MaxBounds.SetInvalid();
+  m_MaxBounds = ezBoundingBox::MakeInvalid();
 
   if (!m_hMesh.IsValid())
     return;
@@ -91,7 +91,8 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
   if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  const auto hSkeleton = pMesh->m_hDefaultSkeleton;
+  m_hDefaultSkeleton = pMesh->m_hDefaultSkeleton;
+  const auto hSkeleton = m_hDefaultSkeleton;
 
   if (!hSkeleton.IsValid())
     return;
@@ -140,7 +141,7 @@ void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable
         continue;
 
       bounds->ExpandToInclude(modelSpaceTransforms[uiJointIdx].GetTranslationVector());
-      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseBindPoseMatrix;
+      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
     }
   }
   else
@@ -152,7 +153,7 @@ void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable
       if (uiJointIdx == ezInvalidJointIndex)
         continue;
 
-      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseBindPoseMatrix;
+      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
     }
   }
 }
@@ -167,6 +168,32 @@ ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
   return pRenderData;
 }
 
+void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton)
+{
+  out_modelTransforms.Clear();
+
+  if (!m_hMesh.IsValid())
+    return;
+
+  out_rootTransform = m_RootTransform;
+
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+
+  const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
+
+  out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
+
+  for (auto itBone : bones)
+  {
+    const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+
+    if (uiJointIdx == ezInvalidJointIndex)
+      continue;
+
+    out_modelTransforms[uiJointIdx] = m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseRestPoseMatrix.GetInverse();
+  }
+}
+
 void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
 {
   if (!m_hMesh.IsValid())
@@ -177,7 +204,7 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
   ezBoundingBox poseBounds;
-  poseBounds.SetInvalid();
+  poseBounds = ezBoundingBox::MakeInvalid();
   MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms, &poseBounds);
 
   if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
@@ -219,7 +246,7 @@ ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bo
 
   ezBoundingBox bbox = m_MaxBounds;
   bbox.Grow(ezVec3(pMesh->m_fMaxBoneVertexOffset));
-  bounds = bbox;
+  bounds = ezBoundingBoxSphere::MakeFromBox(bbox);
   bounds.Transform(m_RootTransform.GetAsMat4());
   return EZ_SUCCESS;
 }
@@ -238,8 +265,7 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
       pObject->SetLocalPosition(vNewPos);
 
       // not tested whether this is actually correct
-      ezQuat rotation;
-      rotation.SetFromEulerAngles(rotationX, rotationY, rotationZ);
+      ezQuat rotation = ezQuat::MakeFromEulerAngles(rotationX, rotationY, rotationZ);
 
       pObject->SetLocalRotation(rotation * pObject->GetLocalRotation());
 
@@ -262,6 +288,86 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
 
       return;
     }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+
+ezAnimatedMeshComponentManager::ezAnimatedMeshComponentManager(ezWorld* pWorld)
+  : ezComponentManager<ComponentType, ezBlockStorageType::FreeList>(pWorld)
+{
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezAnimatedMeshComponentManager::ResourceEventHandler, this));
+}
+
+ezAnimatedMeshComponentManager::~ezAnimatedMeshComponentManager()
+{
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezAnimatedMeshComponentManager::ResourceEventHandler, this));
+}
+
+void ezAnimatedMeshComponentManager::Initialize()
+{
+  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAnimatedMeshComponentManager::Update, this);
+
+  RegisterUpdateFunction(desc);
+}
+
+void ezAnimatedMeshComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+{
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
+  {
+    if (ezMeshResource* pResource = ezDynamicCast<ezMeshResource*>(e.m_pResource))
+    {
+      ezMeshResourceHandle hMesh(pResource);
+
+      for (auto it = GetComponents(); it.IsValid(); it.Next())
+      {
+        if (it->m_hMesh == hMesh)
+        {
+          AddToUpdateList(it);
+        }
+      }
+    }
+
+    if (ezSkeletonResource* pResource = ezDynamicCast<ezSkeletonResource*>(e.m_pResource))
+    {
+      ezSkeletonResourceHandle hSkeleton(pResource);
+
+      for (auto it = GetComponents(); it.IsValid(); it.Next())
+      {
+        if (it->m_hDefaultSkeleton == hSkeleton)
+        {
+          AddToUpdateList(it);
+        }
+      }
+    }
+  }
+}
+
+void ezAnimatedMeshComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  for (auto hComp : m_ComponentsToUpdate)
+  {
+    ezAnimatedMeshComponent* pComponent = nullptr;
+    if (!TryGetComponent(hComp, pComponent))
+      continue;
+
+    if (!pComponent->IsActive())
+      continue;
+
+    pComponent->InitializeAnimationPose();
+  }
+
+  m_ComponentsToUpdate.Clear();
+}
+
+void ezAnimatedMeshComponentManager::AddToUpdateList(ezAnimatedMeshComponent* pComponent)
+{
+  ezComponentHandle hComponent = pComponent->GetHandle();
+
+  if (m_ComponentsToUpdate.IndexOf(hComponent) == ezInvalidIndex)
+  {
+    m_ComponentsToUpdate.PushBack(hComponent);
   }
 }
 

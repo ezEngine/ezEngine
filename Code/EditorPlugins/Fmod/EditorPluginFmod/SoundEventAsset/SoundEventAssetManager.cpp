@@ -13,7 +13,8 @@ ezSoundEventAssetDocumentManager::ezSoundEventAssetDocumentManager()
   m_DocTypeDesc.m_bCanCreate = false;
   m_DocTypeDesc.m_sDocumentTypeName = "Sound Event";
   m_DocTypeDesc.m_sFileExtension = "ezSoundEventAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Event.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Event.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Sound";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Fmod_Event");
@@ -21,7 +22,7 @@ ezSoundEventAssetDocumentManager::ezSoundEventAssetDocumentManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezFmodSoundEvent";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Event", QPixmap(":/AssetIcons/Sound_Event.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Event", QPixmap(":/AssetIcons/Sound_Event.svg"));
 }
 
 ezSoundEventAssetDocumentManager::~ezSoundEventAssetDocumentManager()
@@ -37,7 +38,7 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSoundEventAssetDocument>())
       {
-        ezSoundEventAssetDocumentWindow* pDocWnd = new ezSoundEventAssetDocumentWindow(e.m_pDocument);
+        new ezSoundEventAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -46,10 +47,9 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-void ezSoundEventAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezSoundEventAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezSoundEventAssetDocument(szPath);
+  out_pDocument = new ezSoundEventAssetDocument(sPath);
 }
 
 void ezSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

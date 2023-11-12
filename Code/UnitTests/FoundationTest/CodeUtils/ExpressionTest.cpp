@@ -550,52 +550,52 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     EZ_TEST_FLOAT(TestConstant<float>("output = pow2(5.0)"), 32.0f, ezMath::DefaultEpsilon<float>());
 
     // Sin
-    EZ_TEST_FLOAT(TestInstruction("output = sin(a)", ezAngle::Degree(90.0f).GetRadian()), 1.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestInstruction("output = sin(a)", ezAngle::Degree(45.0f).GetRadian()), ezMath::Sin(ezAngle::Degree(45.0f)), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = sin(a)", ezAngle::MakeFromDegree(90.0f).GetRadian()), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = sin(a)", ezAngle::MakeFromDegree(45.0f).GetRadian()), ezMath::Sin(ezAngle::MakeFromDegree(45.0f)), ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = sin(PI / 2)"), 1.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestConstant<float>("output = sin(PI / 4)"), ezMath::Sin(ezAngle::Degree(45.0f)), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = sin(PI / 4)"), ezMath::Sin(ezAngle::MakeFromDegree(45.0f)), ezMath::DefaultEpsilon<float>());
 
     // Cos
     EZ_TEST_FLOAT(TestInstruction("output = cos(a)", 0.0f), 1.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestInstruction("output = cos(a)", ezAngle::Degree(45.0f).GetRadian()), ezMath::Cos(ezAngle::Degree(45.0f)), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = cos(a)", ezAngle::MakeFromDegree(45.0f).GetRadian()), ezMath::Cos(ezAngle::MakeFromDegree(45.0f)), ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = cos(0)"), 1.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestConstant<float>("output = cos(PI / 4)"), ezMath::Cos(ezAngle::Degree(45.0f)), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = cos(PI / 4)"), ezMath::Cos(ezAngle::MakeFromDegree(45.0f)), ezMath::DefaultEpsilon<float>());
 
     // Tan
     EZ_TEST_FLOAT(TestInstruction("output = tan(a)", 0.0f), 0.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestInstruction("output = tan(a)", ezAngle::Degree(45.0f).GetRadian()), 1.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = tan(a)", ezAngle::MakeFromDegree(45.0f).GetRadian()), 1.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = tan(0)"), 0.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = tan(PI / 4)"), 1.0f, ezMath::DefaultEpsilon<float>());
 
     // ASin
-    EZ_TEST_FLOAT(TestInstruction("output = asin(a)", 1.0f), ezAngle::Degree(90.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestInstruction("output = asin(a)", ezMath::Sin(ezAngle::Degree(45.0f))), ezAngle::Degree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
-    EZ_TEST_FLOAT(TestConstant<float>("output = asin(1)"), ezAngle::Degree(90.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestConstant<float>("output = asin(sin(PI / 4))"), ezAngle::Degree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = asin(a)", 1.0f), ezAngle::MakeFromDegree(90.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = asin(a)", ezMath::Sin(ezAngle::MakeFromDegree(45.0f))), ezAngle::MakeFromDegree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = asin(1)"), ezAngle::MakeFromDegree(90.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = asin(sin(PI / 4))"), ezAngle::MakeFromDegree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
 
     // ACos
     EZ_TEST_FLOAT(TestInstruction("output = acos(a)", 1.0f), 0.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestInstruction("output = acos(a)", ezMath::Cos(ezAngle::Degree(45.0f))), ezAngle::Degree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = acos(a)", ezMath::Cos(ezAngle::MakeFromDegree(45.0f))), ezAngle::MakeFromDegree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = acos(1)"), 0.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestConstant<float>("output = acos(cos(PI / 4))"), ezAngle::Degree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = acos(cos(PI / 4))"), ezAngle::MakeFromDegree(45.0f).GetRadian(), ezMath::LargeEpsilon<float>());
 
     // ATan
     EZ_TEST_FLOAT(TestInstruction("output = atan(a)", 0.0f), 0.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestInstruction("output = atan(a)", 1.0f), ezAngle::Degree(45.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = atan(a)", 1.0f), ezAngle::MakeFromDegree(45.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = atan(0)"), 0.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestConstant<float>("output = atan(1)"), ezAngle::Degree(45.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = atan(1)"), ezAngle::MakeFromDegree(45.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
 
     // RadToDeg
-    EZ_TEST_FLOAT(TestInstruction("output = radToDeg(a)", ezAngle::Degree(135.0f).GetRadian()), 135.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestInstruction("output = rad_to_deg(a)", ezAngle::Degree(180.0f).GetRadian()), 180.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = radToDeg(a)", ezAngle::MakeFromDegree(135.0f).GetRadian()), 135.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = rad_to_deg(a)", ezAngle::MakeFromDegree(180.0f).GetRadian()), 180.0f, ezMath::LargeEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = radToDeg(PI / 2)"), 90.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = rad_to_deg(PI/4)"), 45.0f, ezMath::DefaultEpsilon<float>());
 
     // DegToRad
-    EZ_TEST_FLOAT(TestInstruction("output = degToRad(a)", 135.0f), ezAngle::Degree(135.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestInstruction("output = deg_to_rad(a)", 180.0f), ezAngle::Degree(180.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestConstant<float>("output = degToRad(90.0)"), ezAngle ::Degree(90.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestConstant<float>("output = deg_to_rad(45)"), ezAngle ::Degree(45.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = degToRad(a)", 135.0f), ezAngle::MakeFromDegree(135.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = deg_to_rad(a)", 180.0f), ezAngle::MakeFromDegree(180.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = degToRad(90.0)"), ezAngle::MakeFromDegree(90.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = deg_to_rad(45)"), ezAngle::MakeFromDegree(45.0f).GetRadian(), ezMath::DefaultEpsilon<float>());
 
     // Round
     EZ_TEST_FLOAT(TestInstruction("output = round(a)", 12.34f), 12, ezMath::DefaultEpsilon<float>());

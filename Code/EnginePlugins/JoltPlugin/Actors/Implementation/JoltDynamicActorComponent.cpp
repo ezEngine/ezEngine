@@ -21,7 +21,7 @@ ezJoltDynamicActorComponentManager::ezJoltDynamicActorComponentManager(ezWorld* 
 {
 }
 
-ezJoltDynamicActorComponentManager::~ezJoltDynamicActorComponentManager() {}
+ezJoltDynamicActorComponentManager::~ezJoltDynamicActorComponentManager() = default;
 
 void ezJoltDynamicActorComponentManager::UpdateDynamicActors()
 {
@@ -32,7 +32,9 @@ void ezJoltDynamicActorComponentManager::UpdateDynamicActors()
 
   for (auto itActor : pModule->GetActiveActors())
   {
-    JPH::BodyID bodyId(itActor.Value());
+    ezJoltDynamicActorComponent* pActor = itActor;
+
+    JPH::BodyID bodyId(pActor->GetJoltBodyID());
 
     JPH::BodyLockRead bodyLock(pSystem->GetBodyLockInterface(), bodyId);
     if (!bodyLock.Succeeded())
@@ -43,12 +45,12 @@ void ezJoltDynamicActorComponentManager::UpdateDynamicActors()
     if (!body.IsDynamic())
       continue;
 
-    ezSimdTransform trans = itActor.Key()->GetOwner()->GetGlobalTransformSimd();
+    ezSimdTransform trans = pActor->GetOwner()->GetGlobalTransformSimd();
 
     trans.m_Position = ezJoltConversionUtils::ToSimdVec3(body.GetPosition());
     trans.m_Rotation = ezJoltConversionUtils::ToSimdQuat(body.GetRotation());
 
-    itActor.Key()->GetOwner()->SetGlobalTransform(trans);
+    pActor->GetOwner()->SetGlobalTransform(trans);
   }
 }
 
@@ -326,6 +328,20 @@ void ezJoltDynamicActorComponent::OnDeactivated()
     GetWorld()->GetOrCreateComponentManager<ezJoltDynamicActorComponentManager>()->m_KinematicActorComponents.RemoveAndSwap(this);
   }
 
+  ezDynamicArray<ezComponentHandle> allConstraints;
+  allConstraints.Swap(m_Constraints);
+
+  ezJoltMsgDisconnectConstraints msg;
+  msg.m_pActor = this;
+  msg.m_uiJoltBodyID = GetJoltBodyID();
+
+  ezWorld* pWorld = GetWorld();
+
+  for (ezComponentHandle hConstraint : allConstraints)
+  {
+    pWorld->SendMessage(hConstraint, msg);
+  }
+
   SUPER::OnDeactivated();
 }
 
@@ -363,6 +379,16 @@ void ezJoltDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
 
   auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
   pBodies->AddAngularImpulse(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(vImpulse));
+}
+
+void ezJoltDynamicActorComponent::AddConstraint(ezComponentHandle hComponent)
+{
+  m_Constraints.PushBack(hComponent);
+}
+
+void ezJoltDynamicActorComponent::RemoveConstraint(ezComponentHandle hComponent)
+{
+  m_Constraints.RemoveAndSwap(hComponent);
 }
 
 void ezJoltDynamicActorComponent::AddForceAtPos(ezMsgPhysicsAddForce& ref_msg)
@@ -419,4 +445,3 @@ const char* ezJoltDynamicActorComponent::GetSurfaceFile() const
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltDynamicActorComponent);
-

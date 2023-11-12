@@ -16,6 +16,8 @@
 #  undef SendMessage
 #endif
 
+enum class ezVisibilityState : ezUInt8;
+
 /// \brief This class represents an object inside the world.
 ///
 /// Game objects only consists of hierarchical data like transformation and a list of components.
@@ -133,6 +135,12 @@ public:
   /// \sa ezGameObject::SetActiveFlag(), ezComponent::IsActive()
   bool IsActive() const;
 
+  /// \brief Adds ezObjectFlags::CreatedByPrefab to the object. See the flag for details.
+  void SetCreatedByPrefab() { m_Flags.Add(ezObjectFlags::CreatedByPrefab); }
+
+  /// \brief Checks whether the ezObjectFlags::CreatedByPrefab flag is set on this object.
+  bool WasCreatedByPrefab() const { return m_Flags.IsSet(ezObjectFlags::CreatedByPrefab); }
+
   /// \brief Sets the name to identify this object. Does not have to be a unique name.
   void SetName(ezStringView sName);
   void SetName(const ezHashedString& sName);
@@ -245,14 +253,17 @@ public:
   void SetGlobalPosition(const ezVec3& vPosition);
   ezVec3 GetGlobalPosition() const;
 
-  void SetGlobalRotation(const ezQuat qRotation);
+  void SetGlobalRotation(const ezQuat& qRotation);
   ezQuat GetGlobalRotation() const;
 
-  void SetGlobalScaling(const ezVec3 vScaling);
+  void SetGlobalScaling(const ezVec3& vScaling);
   ezVec3 GetGlobalScaling() const;
 
   void SetGlobalTransform(const ezTransform& transform);
   ezTransform GetGlobalTransform() const;
+
+  /// \brief Last frame's global transform (only valid if EZ_GAMEOBJECT_VELOCITY is set, otherwise the same as GetGlobalTransform())
+  ezTransform GetLastGlobalTransform() const;
 
   // Simd variants of above methods
   void SetLocalPosition(const ezSimdVec4f& vPosition, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
@@ -281,6 +292,8 @@ public:
   void SetGlobalTransform(const ezSimdTransform& transform);
   const ezSimdTransform& GetGlobalTransformSimd() const;
 
+  const ezSimdTransform& GetLastGlobalTransformSimd() const;
+
   /// \brief Returns the 'forwards' direction of the world's ezCoordinateSystem, rotated into the object's global space
   ezVec3 GetGlobalDirForwards() const;
   /// \brief Returns the 'right' direction of the world's ezCoordinateSystem, rotated into the object's global space
@@ -289,16 +302,16 @@ public:
   ezVec3 GetGlobalDirUp() const;
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  /// \brief Sets the object's velocity.
+  /// \brief The last global transform is used to calculate the object's velocity. By default this is set automatically to the global transform of the last frame.
   ///
-  /// This is used for some rendering techniques or for the computation of sound Doppler effect.
-  /// It has no effect on the object's subsequent position.
-  void SetVelocity(const ezVec3& vVelocity);
+  /// It might make sense to manually override the last global transform to e.g. indicate an object has been teleported instead of moved.
+  void SetLastGlobalTransform(const ezSimdTransform& transform);
 
-  /// \brief Returns the velocity of the object in units per second. This is not only the diff between last frame's position and this
-  /// frame's position, but
-  ///        also the time difference is divided out.
-  ezVec3 GetVelocity() const;
+  /// \brief Returns the linear velocity of the object in units per second. This is only guaranteed to be correct in the PostTransform phase.
+  ezVec3 GetLinearVelocity() const;
+
+  /// \brief Returns the angular velocity of the object in radians per second. This is only guaranteed to be correct in the PostTransform phase.
+  ezVec3 GetAngularVelocity() const;
 #endif
 
   /// \brief Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.
@@ -411,14 +424,14 @@ public:
   /// \param senderComponent The component that triggered the event in the first place. May be nullptr.
   ///        If not null, this information is stored in \a msg as ezEventMessage::m_hSenderObject and ezEventMessage::m_hSenderComponent.
   ///        This information is used to pass through more contextual information for the event handler.
-  ///        For instance, a trigger would pass through which object entered the trigger.
-  ///        A projectile component sending a 'take damage event' to the hit object, would pass through itself (the projectile)
+  ///        For instance, a trigger component would pass through itself.
+  ///        A projectile component sending a 'take damage event' to the hit object, would also pass through itself (the projectile)
   ///        such that the handling code can detect which object was responsible for the damage (and using the ezGameObject's team-ID,
   ///        it can detect which player fired the projectile).
-  void SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent);
+  bool SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent);
 
   /// \copydoc ezGameObject::SendEventMessage()
-  void SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const;
+  bool SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const;
 
   /// \copydoc ezGameObject::SendEventMessage()
   ///
@@ -468,10 +481,14 @@ public:
   /// It should not be necessary to manually change this value, unless you want to make the seed deterministic according to a custom rule.
   void SetStableRandomSeed(ezUInt32 uiSeed);
 
-  /// \brief Returns the number of frames since this object was last visible in any view.
+  /// \brief Retrieves a state describing how visible the object is.
   ///
-  /// This value can be used to skip update logic of invisible objects.
-  ezUInt64 GetNumFramesSinceVisible() const;
+  /// An object may be invisible, fully visible, or indirectly visible (through shadows or reflections).
+  /// This can be used to adjust the update logic of objects.
+  /// An invisible object may stop updating entirely. An indirectly visible object may reduce its update rate.
+  ///
+  /// \param uiNumFramesBeforeInvisible Used to treat an object that was visible and just became invisible as visible for a few more frames.
+  ezVisibilityState GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible = 5) const;
 
 private:
   friend class ezComponentManagerBase;
@@ -502,11 +519,18 @@ private:
   ezObjectMode::Enum Reflection_GetMode() const;
   void Reflection_SetMode(ezObjectMode::Enum mode);
 
+  ezGameObject* Reflection_GetParent() const;
+  void Reflection_SetGlobalPosition(const ezVec3& vPosition);
+  void Reflection_SetGlobalRotation(const ezQuat& qRotation);
+  void Reflection_SetGlobalScaling(const ezVec3& vScaling);
+  void Reflection_SetGlobalTransform(const ezTransform& transform);
+
   bool DetermineDynamicMode(ezComponent* pComponentToIgnore = nullptr) const;
   void ConditionalMakeStatic(ezComponent* pComponentToIgnore = nullptr);
   void MakeStaticInternal();
 
   void UpdateGlobalTransformAndBoundsRecursive();
+  void UpdateLastGlobalTransform();
 
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
 
@@ -537,8 +561,7 @@ private:
     ezSimdTransform m_globalTransform;
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-    ezSimdVec4f m_lastGlobalPosition;
-    ezSimdVec4f m_velocity; // w != 0 indicates custom velocity
+    ezSimdTransform m_lastGlobalTransform;
 #endif
 
     ezSimdBBoxSphere m_localBounds; // m_BoxHalfExtents.w != 0 indicates that the object should be always visible
@@ -549,32 +572,36 @@ private:
 
     ezUInt32 m_uiStableRandomSeed = 0;
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+    ezUInt32 m_uiLastGlobalTransformUpdateCounter = 0;
+#else
     ezUInt32 m_uiPadding2[1];
+#endif
 
     /// \brief Recomputes the local transform from this object's global transform and, if available, the parent's global transform.
     void UpdateLocalTransform();
 
     /// \brief Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
     /// In case there is a parent transform it also recursively calls itself on the parent transform to ensure everything is up-to-date.
-    void UpdateGlobalTransformRecursive();
+    void UpdateGlobalTransformRecursive(ezUInt32 uiUpdateCounter);
 
     /// \brief Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
     /// Assumes that the parent's global transform is already up to date.
-    void UpdateGlobalTransformNonRecursive();
+    void UpdateGlobalTransformNonRecursive(ezUInt32 uiUpdateCounter);
 
     /// \brief Updates the global transform by copying the object's local transform into the global transform.
     /// This is for objects that have no parent.
-    void UpdateGlobalTransformWithoutParent();
+    void UpdateGlobalTransformWithoutParent(ezUInt32 uiUpdateCounter);
 
     /// \brief Updates the global transform by combining the parents global transform with this object's local transform.
     /// Assumes that the parent's global transform is already up to date.
-    void UpdateGlobalTransformWithParent();
+    void UpdateGlobalTransformWithParent(ezUInt32 uiUpdateCounter);
 
     void UpdateGlobalBounds(ezSpatialSystem* pSpatialSystem);
     void UpdateGlobalBounds();
     void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& ref_spatialSystem);
 
-    void UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds);
+    void UpdateLastGlobalTransform(ezUInt32 uiUpdateCounter);
 
     void RecreateSpatialData(ezSpatialSystem& ref_spatialSystem);
   };

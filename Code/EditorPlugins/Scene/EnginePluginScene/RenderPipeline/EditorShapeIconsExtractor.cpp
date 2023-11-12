@@ -2,6 +2,7 @@
 
 #include <EnginePluginScene/RenderPipeline/EditorShapeIconsExtractor.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Components/SpriteComponent.h>
 #include <RendererCore/Pipeline/View.h>
 
@@ -29,7 +30,7 @@ ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor(const char* szName)
   FillShapeIconInfo();
 }
 
-ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor() {}
+ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor() = default;
 
 void ezEditorShapeIconsExtractor::Extract(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
@@ -64,14 +65,33 @@ void ezEditorShapeIconsExtractor::Extract(
   }
 }
 
-void ezEditorShapeIconsExtractor::ExtractShapeIcon(
-  const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
+ezResult ezEditorShapeIconsExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_fSize;
+  inout_stream << m_fMaxScreenSize;
+  return EZ_SUCCESS;
+}
+
+ezResult ezEditorShapeIconsExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  inout_stream >> m_fSize;
+  inout_stream >> m_fMaxScreenSize;
+  return EZ_SUCCESS;
+}
+
+void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
 {
   static const ezTag& tagHidden = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorHidden");
   static const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
-  static const ezTag& tagPrefab = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
-  if (pObject->GetTags().IsSet(tagEditor) || pObject->GetTags().IsSet(tagHidden) || pObject->GetTags().IsSet(tagPrefab))
+  if (pObject->GetTags().IsSet(tagEditor) || pObject->GetTags().IsSet(tagHidden))
+    return;
+
+  if (pObject->WasCreatedByPrefab())
     return;
 
   if (pObject->GetComponents().IsEmpty())
@@ -103,7 +123,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(
       pRenderData->m_fSize = m_fSize;
       pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;
       pRenderData->m_fAspectRatio = 1.0f;
-      pRenderData->m_BlendMode = ezSpriteBlendMode::Masked;
+      pRenderData->m_BlendMode = ezSpriteBlendMode::ShapeIcon;
       pRenderData->m_texCoordScale = ezVec2(1.0f);
       pRenderData->m_texCoordOffset = ezVec2(0.0f);
       pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(pComponent);
@@ -119,7 +139,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(
       }
       else
       {
-        pRenderData->m_color = ezColor::White;
+        pRenderData->m_color = pShapeIconInfo->m_FallbackColor;
       }
 
       pRenderData->m_color.a = 1.0f;
@@ -133,7 +153,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(
 
 const ezTypedMemberProperty<ezColor>* ezEditorShapeIconsExtractor::FindColorProperty(const ezRTTI* pRtti) const
 {
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
   for (const ezAbstractProperty* pProperty : properties)
@@ -149,7 +169,7 @@ const ezTypedMemberProperty<ezColor>* ezEditorShapeIconsExtractor::FindColorProp
 
 const ezTypedMemberProperty<ezColorGammaUB>* ezEditorShapeIconsExtractor::FindColorGammaProperty(const ezRTTI* pRtti) const
 {
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
   for (const ezAbstractProperty* pProperty : properties)
@@ -169,19 +189,21 @@ void ezEditorShapeIconsExtractor::FillShapeIconInfo()
 
   ezStringBuilder sPath;
 
-  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezComponent>())
-      continue;
+  ezRTTI::ForEachDerivedType<ezComponent>(
+    [&](const ezRTTI* pRtti) {
+      sPath.Set("Editor/ShapeIcons/", pRtti->GetTypeName(), ".dds");
 
-    sPath.Set("Editor/ShapeIcons/", pRtti->GetTypeName(), ".dds");
+      if (ezFileSystem::ExistsFile(sPath))
+      {
+        auto& shapeIconInfo = m_ShapeIconInfos[pRtti];
+        shapeIconInfo.m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sPath);
+        shapeIconInfo.m_pColorProperty = FindColorProperty(pRtti);
+        shapeIconInfo.m_pColorGammaProperty = FindColorGammaProperty(pRtti);
 
-    if (ezFileSystem::ExistsFile(sPath))
-    {
-      auto& shapeIconInfo = m_ShapeIconInfos[pRtti];
-      shapeIconInfo.m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sPath);
-      shapeIconInfo.m_pColorProperty = FindColorProperty(pRtti);
-      shapeIconInfo.m_pColorGammaProperty = FindColorGammaProperty(pRtti);
-    }
-  }
+        if (auto pCatAttribute = pRtti->GetAttributeByType<ezCategoryAttribute>())
+        {
+          shapeIconInfo.m_FallbackColor = ezColorScheme::GetCategoryColor(pCatAttribute->GetCategory(), ezColorScheme::CategoryColorUsage::ViewportIcon);
+        }
+      }
+    });
 }

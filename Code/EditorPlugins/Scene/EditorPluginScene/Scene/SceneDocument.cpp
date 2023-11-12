@@ -14,6 +14,7 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <QClipboard>
 #include <RendererCore/Components/CameraComponent.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
@@ -23,8 +24,40 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 7, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType documentType)
-  : ezGameObjectDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
+void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezGameObject");
+
+  if (e.m_pObject->GetDocumentObjectManager()->GetDocument()->GetDocumentTypeName() != "Prefab")
+    return;
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  auto pParent = e.m_pObject->GetParent();
+  if (pParent != nullptr)
+  {
+    if (pParent->GetTypeAccessor().GetType() == pRtti)
+      return;
+  }
+
+  const ezString name = e.m_pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+  if (name != "<Prefab-Root>")
+    return;
+
+  auto& props = *e.m_pPropertyStates;
+  props["Name"].m_sNewLabelText = "Prefab.NameLabel";
+  props["Active"].m_Visibility = ezPropertyUiState::Invisible;
+  props["LocalPosition"].m_Visibility = ezPropertyUiState::Invisible;
+  props["LocalRotation"].m_Visibility = ezPropertyUiState::Invisible;
+  props["LocalScaling"].m_Visibility = ezPropertyUiState::Invisible;
+  props["LocalUniformScaling"].m_Visibility = ezPropertyUiState::Invisible;
+  props["GlobalKey"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Tags"].m_Visibility = ezPropertyUiState::Invisible;
+}
+
+ezSceneDocument::ezSceneDocument(ezStringView sDocumentPath, DocumentType documentType)
+  : ezGameObjectDocument(sDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
   m_DocumentType = documentType;
   m_GameMode = GameMode::Off;
@@ -46,12 +79,13 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType docume
 
 void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  // (Local mirror only mirrors settings)
-  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool { return pManager->IsUnderRootProperty("Settings", pObject, szProperty); });
-  // (Remote IPC mirror only sends scene)
-  m_Mirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool { return pManager->IsUnderRootProperty("Children", pObject, szProperty); });
-
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
+
+  // (Local mirror only mirrors settings)
+  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool { return pManager->IsUnderRootProperty("Settings", pObject, sProperty); });
+  // (Remote IPC mirror only sends scene)
+  m_pMirror->SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool { return pManager->IsUnderRootProperty("Children", pObject, sProperty); });
+
   EnsureSettingsObjectExist();
 
   m_DocumentObjectMetaData->m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
@@ -85,6 +119,12 @@ void ezSceneDocument::GroupSelection()
   ezVec3 vCenter(0.0f);
   const ezDocumentObject* pCommonParent = sel[0]->GetParent();
 
+  // this happens for top-level objects, their parent object is an ezDocumentRootObject
+  if (pCommonParent->GetType() != ezGetStaticRTTI<ezGameObject>())
+  {
+    pCommonParent = nullptr;
+  }
+
   for (const auto& item : sel)
   {
     vCenter += GetGlobalTransform(item).m_vPosition;
@@ -101,8 +141,7 @@ void ezSceneDocument::GroupSelection()
 
   pHistory->StartTransaction("Group Selection");
 
-  ezUuid groupObj;
-  groupObj.CreateNewUuid();
+  ezUuid groupObj = ezUuid::MakeUuid();
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_NewObjectGuid = groupObj;
@@ -110,7 +149,7 @@ void ezSceneDocument::GroupSelection()
   cmdAdd.m_Index = -1;
   cmdAdd.m_sParentProperty = "Children";
 
-  pHistory->AddCommand(cmdAdd);
+  pHistory->AddCommand(cmdAdd).AssertSuccess();
 
   // put the new group object under the shared parent
   if (pCommonParent != nullptr)
@@ -121,7 +160,7 @@ void ezSceneDocument::GroupSelection()
     cmdMove.m_sParentProperty = "Children";
 
     cmdMove.m_Object = cmdAdd.m_NewObjectGuid;
-    pHistory->AddCommand(cmdMove);
+    pHistory->AddCommand(cmdMove).AssertSuccess();
   }
 
   auto pGroupObject = GetObjectManager()->GetObject(cmdAdd.m_NewObjectGuid);
@@ -135,7 +174,7 @@ void ezSceneDocument::GroupSelection()
   for (const auto& item : sel)
   {
     cmdMove.m_Object = item->GetGuid();
-    pHistory->AddCommand(cmdMove);
+    pHistory->AddCommand(cmdMove).AssertSuccess();
   }
 
   pHistory->FinishTransaction();
@@ -186,8 +225,8 @@ void ezSceneDocument::DuplicateSpecial()
   cmd.m_bGroupDuplicates = dlg.s_bGroupCopies;
   cmd.m_iRevolveAxis = dlg.s_iRevolveAxis;
   cmd.m_fRevolveRadius = dlg.s_fRevolveRadius;
-  cmd.m_RevolveStartAngle = ezAngle::Degree(dlg.s_iRevolveStartAngle);
-  cmd.m_RevolveAngleStep = ezAngle::Degree(dlg.s_iRevolveAngleStep);
+  cmd.m_RevolveStartAngle = ezAngle::MakeFromDegree(dlg.s_iRevolveStartAngle);
+  cmd.m_RevolveAngleStep = ezAngle::MakeFromDegree(dlg.s_iRevolveAngleStep);
 
   auto history = GetCommandHistory();
 
@@ -237,7 +276,7 @@ void ezSceneDocument::SnapObjectToCamera()
   mRot.SetColumn(0, camera.GetCenterDirForwards());
   mRot.SetColumn(1, camera.GetCenterDirRight());
   mRot.SetColumn(2, camera.GetCenterDirUp());
-  transform.m_qRotation.SetFromMat3(mRot);
+  transform.m_qRotation = ezQuat::MakeFromMat3(mRot);
 
   auto* pHistory = GetCommandHistory();
 
@@ -343,7 +382,7 @@ void ezSceneDocument::CopyReference()
 
   QApplication::clipboard()->setText(sGuid.GetData());
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Object Reference: {}", sGuid), ezTime::Seconds(5));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Object Reference: {}", sGuid), ezTime::MakeFromSeconds(5));
 }
 
 ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition)
@@ -363,7 +402,7 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
 
   if (Sel.IsEmpty() || !bAttachToParent)
   {
-    cmdAdd.m_NewObjectGuid.CreateNewUuid();
+    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
     auto res = history->AddCommand(cmdAdd);
@@ -375,7 +414,7 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
   }
   else
   {
-    cmdAdd.m_NewObjectGuid.CreateNewUuid();
+    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
     cmdAdd.m_Parent = Sel[0]->GetGuid();
@@ -470,7 +509,8 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
     if (!pItem->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       continue;
 
-    ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj) {
+    ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj)
+      {
       // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       // return;
 
@@ -532,11 +572,8 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   ScheduleSendObjectSelection();
 }
 
-ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
+ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /* = {} */, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
 {
-  EZ_ASSERT_DEV(!adjustGraphNodeCB.IsValid(), "Not allowed");
-  EZ_ASSERT_DEV(!adjustNewNodesCB.IsValid(), "Not allowed");
-
   auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
 
   if (Selection.IsEmpty())
@@ -544,7 +581,10 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
 
   const ezTransform tReference = QueryLocalTransform(Selection.PeekBack());
 
-  auto centerNodes = [tReference](ezAbstractObjectNode* pGraphNode) {
+  ezVariantArray varChildren;
+
+  auto centerNodes = [tReference, &varChildren](ezAbstractObjectNode* pGraphNode)
+  {
     if (auto pPosition = pGraphNode->FindProperty("LocalPosition"))
     {
       ezVec3 pos = pPosition->m_Value.ConvertTo<ezVec3>();
@@ -560,9 +600,12 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
 
       pGraphNode->ChangeProperty("LocalRotation", rot);
     }
+
+    varChildren.PushBack(pGraphNode->GetGuid());
   };
 
-  auto adjustResult = [tReference, this](ezDocumentObject* pObject) {
+  auto adjustResult = [tReference, this](ezDocumentObject* pObject)
+  {
     const ezTransform tOld = QueryLocalTransform(pObject);
 
     ezSetObjectPropertyCommand cmd;
@@ -570,14 +613,39 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
 
     cmd.m_sProperty = "LocalPosition";
     cmd.m_NewValue = tOld.m_vPosition + tReference.m_vPosition;
-    GetCommandHistory()->AddCommand(cmd);
+    GetCommandHistory()->AddCommand(cmd).AssertSuccess();
 
     cmd.m_sProperty = "LocalRotation";
     cmd.m_NewValue = tReference.m_qRotation * tOld.m_qRotation;
-    GetCommandHistory()->AddCommand(cmd);
+    GetCommandHistory()->AddCommand(cmd).AssertSuccess();
   };
 
-  return SUPER::CreatePrefabDocumentFromSelection(szFile, pRootType, centerNodes, adjustResult);
+  auto finalizeGraph = [this, &varChildren](ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& ref_graphRootNodes) {
+    if (ref_graphRootNodes.GetCount() == 1)
+    {
+      ref_graphRootNodes[0]->ChangeProperty("Name", "<Prefab-Root>");
+    }
+    else
+    {
+      const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+
+      ezAbstractObjectNode* pRoot = ref_graph.AddNode(ezUuid::MakeUuid(), pRtti->GetTypeName(), pRtti->GetTypeVersion());
+      pRoot->AddProperty("Name", "<Prefab-Root>");
+      pRoot->AddProperty("Children", varChildren);
+
+      ref_graphRootNodes.Clear();
+      ref_graphRootNodes.PushBack(pRoot);
+    }
+  };
+
+  if (!adjustGraphNodeCB.IsValid())
+    adjustGraphNodeCB = centerNodes;
+  if (!adjustNewNodesCB.IsValid())
+    adjustNewNodesCB = adjustResult;
+  if (!finalizeGraphCB.IsValid())
+    finalizeGraphCB = finalizeGraph;
+
+  return SUPER::CreatePrefabDocumentFromSelection(sFile, pRootType, adjustGraphNodeCB, adjustNewNodesCB, finalizeGraphCB);
 }
 
 bool ezSceneDocument::CanEngineProcessBeRestarted() const
@@ -686,7 +754,8 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 {
   const bool bHide = action == ShowOrHide::Hide;
 
-  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj) {
+  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj)
+    {
     // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
     // return;
 
@@ -806,7 +875,7 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info, 
   return true;
 }
 
-bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
 
@@ -904,7 +973,7 @@ void ezSceneDocument::EnsureSettingsObjectExist()
     EZ_VERIFY(pSettings, "Document corrupt, root references a non-existing object");
     if (pSettings->GetType() != pSettingsType)
     {
-      accessor.RemoveObject(pSettings);
+      accessor.RemoveObject(pSettings).AssertSuccess();
       GetObjectManager()->DestroyObject(pSettings);
       EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
     }
@@ -1171,7 +1240,7 @@ ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   mRot.SetColumn(1, vUp.CrossRH(vDir).GetNormalized());
   mRot.SetColumn(2, vUp);
   ezQuat qRot;
-  qRot.SetFromMat3(mRot);
+  qRot = ezQuat::MakeFromMat3(mRot);
   qRot.Normalize();
 
   SetGlobalTransform(pAccessor->GetObject(camObjGuid), ezTransform(vPos, qRot), TransformationChanges::Translation | TransformationChanges::Rotation);
@@ -1266,12 +1335,6 @@ void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
   EZ_REPORT_FAILURE("Unreachable Code reached.");
 }
 
-
-void ezSceneDocument::HandleVisualScriptActivityMsg(const ezVisualScriptActivityMsgToEditor* pMsg)
-{
-  BroadcastInterDocumentMessage(const_cast<ezVisualScriptActivityMsgToEditor*>(pMsg), this);
-}
-
 void ezSceneDocument::HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgToEditor* pMsg)
 {
   auto pHistory = GetCommandHistory();
@@ -1301,6 +1364,7 @@ void ezSceneDocument::SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsg
   pMsg->m_ObjectGuid = pObj->GetGuid();
   GetEditorEngineConnection()->SendMessage(pMsg);
 }
+
 void ezSceneDocument::SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
 {
   // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
@@ -1477,7 +1541,7 @@ void ezSceneDocument::ExportSceneGeometry(const char* szFile, bool bOnlySelectio
 
   SendMessageToEngine(&msg);
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Geometry exported to '{0}'", szFile), ezTime::Seconds(5.0f));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Geometry exported to '{0}'", szFile), ezTime::MakeFromSeconds(5.0f));
 }
 
 void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -1487,12 +1551,6 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (const ezGameModeMsgToEditor* msg = ezDynamicCast<const ezGameModeMsgToEditor*>(pMsg))
   {
     HandleGameModeMsg(msg);
-    return;
-  }
-
-  if (const ezVisualScriptActivityMsgToEditor* msg = ezDynamicCast<const ezVisualScriptActivityMsgToEditor*>(pMsg))
-  {
-    HandleVisualScriptActivityMsg(msg);
     return;
   }
 
@@ -1507,7 +1565,7 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 }
 
-ezTransformStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   if (m_DocumentType == DocumentType::Prefab)
   {
@@ -1525,7 +1583,7 @@ ezTransformStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFi
 }
 
 
-ezTransformStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 

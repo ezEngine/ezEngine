@@ -59,7 +59,7 @@ void ezJoltStaticActorComponent::SerializeComponent(ezWorldWriter& inout_stream)
 void ezJoltStaticActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -134,7 +134,7 @@ void ezJoltStaticActorComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
 
       ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
       sub.m_pShape = pShape;
-      sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+      sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
     }
   }
 
@@ -157,7 +157,7 @@ void ezJoltStaticActorComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
 
     ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
     sub.m_pShape = pNewShape;
-    sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+    sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
   }
 }
 

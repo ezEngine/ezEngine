@@ -6,8 +6,9 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 4, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 bool ezRenderPipelineNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
@@ -22,10 +23,10 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
   if (!pType->IsDerivedFrom<ezRenderPipelinePass>())
     return;
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
-  for (ezAbstractProperty* pProp : properties)
+  for (auto pProp : properties)
   {
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
@@ -70,8 +71,8 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
 void ezRenderPipelineNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
   ezSet<const ezRTTI*> typeSet;
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), typeSet, false);
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), typeSet, false);
+  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), typeSet);
+  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), typeSet);
   ref_types.Clear();
   for (auto pType : typeSet)
   {
@@ -88,48 +89,33 @@ ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin& source, co
   return ezStatus(EZ_SUCCESS);
 }
 
-ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), ezAssetDocEngineConnection::None)
+ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(ezStringView sDocumentPath)
+  : ezAssetDocument(sDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), ezAssetDocEngineConnection::FullObjectMirroring)
 {
 }
 
-ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezRenderPipelineAssetDocument::~ezRenderPipelineAssetDocument()
 {
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  static_cast<ezRenderPipelineObjectMirrorEditor*>(m_pMirror.Borrow())->DeInitNodeSender();
+}
 
-  const ezUInt8 uiVersion = 1;
-  stream << uiVersion;
 
-  ezAbstractObjectGraph graph;
-  ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager());
+void ezRenderPipelineAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+{
+  m_pMirror = EZ_DEFAULT_NEW(ezRenderPipelineObjectMirrorEditor);
+  static_cast<ezRenderPipelineObjectMirrorEditor*>(m_pMirror.Borrow())->InitNodeSender(static_cast<const ezDocumentNodeManager*>(GetObjectManager()));
+}
 
-  auto& children = GetObjectManager()->GetRootObject()->GetChildren();
-  for (ezDocumentObject* pObject : children)
-  {
-    auto pType = pObject->GetTypeAccessor().GetType();
-    if (pType->IsDerivedFrom<ezRenderPipelinePass>())
-    {
-      objectConverter.AddObjectToGraph(pObject, "Pass");
-    }
-    else if (pType->IsDerivedFrom<ezExtractor>())
-    {
-      objectConverter.AddObjectToGraph(pObject, "Extractor");
-    }
-    else if (pManager->IsConnection(pObject))
-    {
-      objectConverter.AddObjectToGraph(pObject, "Connection");
-    }
-  }
+ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+{
+  return ezAssetDocument::RemoteExport(AssetHeader, szTargetFile);
+}
 
-  pManager->AttachMetaDataBeforeSaving(graph);
-
-  ezDefaultMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezAbstractGraphBinarySerializer::Write(writer, &graph);
-
-  ezUInt32 uiSize = storage.GetStorageSize32();
-  stream << uiSize;
-  return storage.CopyToStream(stream);
+ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+{
+  EZ_REPORT_FAILURE("Should not be called");
+  return ezTransformStatus();
 }
 
 void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
@@ -167,8 +153,70 @@ bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& o
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
-bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+}
+
+void ezRenderPipelineObjectMirrorEditor::InitNodeSender(const ezDocumentNodeManager* pNodeManager)
+{
+  m_pNodeManager = pNodeManager;
+  m_pNodeManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezRenderPipelineObjectMirrorEditor::NodeEventsHandler, this));
+}
+
+void ezRenderPipelineObjectMirrorEditor::DeInitNodeSender()
+{
+  m_pNodeManager->m_NodeEvents.RemoveEventHandler(ezMakeDelegate(&ezRenderPipelineObjectMirrorEditor::NodeEventsHandler, this));
+}
+
+void ezRenderPipelineObjectMirrorEditor::ApplyOp(ezObjectChange& ref_change)
+{
+  // SUPER::ApplyOp will move the data out of the payload, so we have to check for connections before.
+  const ezConnection* pConnection = nullptr;
+  if (ref_change.m_Change.m_Operation == ezObjectChangeType::NodeAdded)
+  {
+    const ezDocumentObject* pObject = m_pNodeManager->GetObject(ref_change.m_Change.m_Value.Get<ezUuid>());
+    if (pObject != nullptr && m_pNodeManager->IsConnection(pObject))
+    {
+      pConnection = &m_pNodeManager->GetConnection(pObject);
+    }
+  }
+  SUPER::ApplyOp(ref_change);
+
+  // We need to handle this case in addition to the NodeEventsHandler because after loading the meta data is restored before the object mirror is initialized so we miss all the NodeEventsHandler calls.
+  if (pConnection)
+    SendConnection(*pConnection);
+}
+
+void ezRenderPipelineObjectMirrorEditor::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
+{
+  if (e.m_EventType == ezDocumentNodeManagerEvent::Type::AfterPinsConnected)
+  {
+    const ezConnection& connection = m_pNodeManager->GetConnection(e.m_pObject);
+    SendConnection(connection);
+  }
+}
+
+void ezRenderPipelineObjectMirrorEditor::SendConnection(const ezConnection& connection)
+{
+  const ezPin& sourcePin = connection.GetSourcePin();
+  const ezPin& targetPin = connection.GetTargetPin();
+
+  ezUuid Source = sourcePin.GetParent()->GetGuid();
+  ezUuid Target = targetPin.GetParent()->GetGuid();
+  ezString SourcePin = sourcePin.GetName();
+  ezString TargetPin = targetPin.GetName();
+
+  auto SendMetaData = [this](const ezDocumentObject* pObject, const char* szProperty, ezVariant value) {
+    ezObjectChange change;
+    CreatePath(change, pObject, szProperty);
+    change.m_Change.m_Operation = ezObjectChangeType::PropertySet;
+    change.m_Change.m_Value = value;
+    ApplyOp(change);
+  };
+  SendMetaData(connection.GetParent(), "Connection::Source", Source);
+  SendMetaData(connection.GetParent(), "Connection::Target", Target);
+  SendMetaData(connection.GetParent(), "Connection::SourcePin", SourcePin);
+  SendMetaData(connection.GetParent(), "Connection::TargetPin", TargetPin);
 }

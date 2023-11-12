@@ -94,8 +94,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "LookNegY", &fInputValue) != ezKeyState::Up)
       mouseMotion.y += fInputValue * fMouseSpeed;
 
-    m_pCamera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
-    m_pCamera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.y), ezAngle::MakeFromRadian(0.0));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.x), ezAngle::MakeFromRadian(0.0));
   }
   else
   {
@@ -119,8 +119,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "TurnNegY", &fInputValue) != ezKeyState::Up)
       mouseMotion.y -= fInputValue * fTurnSpeed;
 
-    m_pCamera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
-    m_pCamera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.y), ezAngle::MakeFromRadian(0.0));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.x), ezAngle::MakeFromRadian(0.0));
   }
 
   // movement
@@ -237,10 +237,10 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   constexpr const char* szDefaultRenderer = "DX11";
 #endif
 
-  const char* szRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+  ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
   const char* szShaderModel = "";
   const char* szShaderCompiler = "";
-  ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+  ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
 
   ezShaderManager::Configure(szShaderModel, true);
   EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
@@ -337,8 +337,8 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bDebugDevice = true;
 
-    m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-    EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
+    m_pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+    EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", sRendererName);
     EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 
     ezGALDevice::SetDefaultDevice(m_pDevice);
@@ -454,11 +454,11 @@ void ezShaderExplorerApp::CreateScreenQuad()
     m_hQuadMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
 }
 
-void ezShaderExplorerApp::OnFileChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+void ezShaderExplorerApp::OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
   if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
   {
-    ezLog::Info("The file {0} was modified", filename);
+    ezLog::Info("The file {0} was modified", sFilename);
     m_bStuffChanged = true;
   }
 }

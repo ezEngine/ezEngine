@@ -139,7 +139,8 @@ static int __CPP_World_TryGetObjectWithGlobalKey(duk_context* pDuk)
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
 
   ezGameObject* pObject = nullptr;
-  bool _ = pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(duk.GetStringValue(0)), pObject);
+  bool objectExists = pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(duk.GetStringValue(0)), pObject);
+  EZ_IGNORE_UNUSED(objectExists);
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
   pBinding->DukPutGameObject(pObject);
 
@@ -207,7 +208,7 @@ static int __CPP_World_FindObjectsInSphere(duk_context* pDuk)
     queryParams.m_uiCategoryBitmask = category.GetBitmask();
 
     pWorld->GetSpatialSystem()->FindObjectsInSphere(
-      ezBoundingSphere(vSphereCenter, fRadius), queryParams, ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+      ezBoundingSphere::MakeFromCenterAndRadius(vSphereCenter, fRadius), queryParams, ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
   }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
@@ -238,8 +239,7 @@ static int __CPP_World_FindObjectsInBox(duk_context* pDuk)
     ezSpatialSystem::QueryParams queryParams;
     queryParams.m_uiCategoryBitmask = category.GetBitmask();
 
-    pWorld->GetSpatialSystem()->FindObjectsInBox(
-      ezBoundingBox(vBoxMin, vBoxMax), queryParams, ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+    pWorld->GetSpatialSystem()->FindObjectsInBox(ezBoundingBox::MakeFromMinMax(vBoxMin, vBoxMax), queryParams, ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
   }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);

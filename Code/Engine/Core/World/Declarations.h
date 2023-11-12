@@ -27,7 +27,7 @@ namespace ezInternal
     DEFAULT_BLOCK_SIZE = 1024 * 16
   };
 
-  typedef ezLargeBlockAllocator<DEFAULT_BLOCK_SIZE> WorldLargeBlockAllocator;
+  using WorldLargeBlockAllocator = ezLargeBlockAllocator<DEFAULT_BLOCK_SIZE>;
 } // namespace ezInternal
 
 class ezGameObject;
@@ -41,7 +41,7 @@ struct ezMsgDeleteGameObject;
 /// \brief Internal game object id used by ezGameObjectHandle.
 struct ezGameObjectId
 {
-  typedef ezUInt64 StorageType;
+  using StorageType = ezUInt64;
 
   EZ_DECLARE_ID_TYPE(ezGameObjectId, 32, 8);
 
@@ -101,7 +101,7 @@ EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezGameObjectHandle);
 /// \brief Internal component id used by ezComponentHandle.
 struct ezComponentId
 {
-  typedef ezUInt64 StorageType;
+  using StorageType = ezUInt64;
 
   EZ_DECLARE_ID_TYPE(ezComponentId, 32, 8);
 
@@ -167,7 +167,7 @@ EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezComponentHandle);
 /// \brief Internal flags of game objects or components.
 struct ezObjectFlags
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {
@@ -187,6 +187,8 @@ struct ezObjectFlags
     ComponentChangesNotifications = EZ_BIT(10),       ///< The object should send a notification message when components are added or removed.
     StaticTransformChangesNotifications = EZ_BIT(11), ///< The object should send a notification message if it is static and its transform changes.
     ParentChangesNotifications = EZ_BIT(12),          ///< The object should send a notification message when the parent is changes.
+
+    CreatedByPrefab = EZ_BIT(13), ///< Such flagged objects and components are ignored during scene export (see ezWorldWriter) and will be removed when a prefab needs to be re-instantiated.
 
     UserFlag0 = EZ_BIT(24),
     UserFlag1 = EZ_BIT(25),
@@ -216,7 +218,9 @@ struct ezObjectFlags
     StorageType StaticTransformChangesNotifications : 1; //< 11
     StorageType ParentChangesNotifications : 1;          //< 12
 
-    StorageType Padding : 11; // 13 - 23
+    StorageType CreatedByPrefab : 1; //< 13
+
+    StorageType Padding : 10; // 14 - 23
 
     StorageType UserFlag0 : 1; //< 24
     StorageType UserFlag1 : 1; //< 25
@@ -236,7 +240,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezObjectFlags);
 /// \sa ezObjectFlags
 struct ezObjectMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum : ezUInt8
   {
@@ -264,7 +268,9 @@ struct ezComponentMode
 /// \brief Specifies at which phase the queued message should be processed.
 struct ezObjectMsgQueueType
 {
-  enum Enum
+  using StorageType = ezUInt8;
+
+  enum Enum : StorageType
   {
     PostAsync,        ///< Process the message in the PostAsync phase.
     PostTransform,    ///< Process the message in the PostTransform phase.
@@ -310,7 +316,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction);
 /// \brief Same as ezOnComponentFinishedAction, but additionally includes 'Restart'
 struct EZ_CORE_DLL ezOnComponentFinishedAction2
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -342,17 +348,17 @@ struct ezVisitorExecution
   };
 };
 
-typedef ezGenericId<24, 8> ezSpatialDataId;
+using ezSpatialDataId = ezGenericId<24, 8>;
 class ezSpatialDataHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezSpatialDataHandle, ezSpatialDataId);
 };
 
 #define EZ_MAX_WORLD_MODULE_TYPES EZ_MAX_COMPONENT_TYPES
-typedef ezUInt16 ezWorldModuleTypeId;
+using ezWorldModuleTypeId = ezUInt16;
 static_assert(ezMath::MaxValue<ezWorldModuleTypeId>() >= EZ_MAX_WORLD_MODULE_TYPES - 1);
 
-typedef ezGenericId<24, 8> ezComponentInitBatchId;
+using ezComponentInitBatchId = ezGenericId<24, 8>;
 class ezComponentInitBatchHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezComponentInitBatchHandle, ezComponentInitBatchId);

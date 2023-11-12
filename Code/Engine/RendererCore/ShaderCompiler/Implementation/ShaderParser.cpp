@@ -39,12 +39,12 @@ namespace
     s_NameToTypeTable.Insert("TextureCube", ezGetStaticRTTI<ezString>());
   }
 
-  const ezRTTI* GetType(ezStringView sType)
+  const ezRTTI* GetType(const char* szType)
   {
     InitializeTables();
 
     const ezRTTI* pType = nullptr;
-    s_NameToTypeTable.TryGetValue(sType, pType);
+    s_NameToTypeTable.TryGetValue(szType, pType);
     return pType;
   }
 
@@ -129,7 +129,7 @@ namespace
       }
 
       // find matching constructor
-      auto& functions = pType->GetFunctions();
+      auto functions = pType->GetFunctions();
       for (auto pFunc : functions)
       {
         if (pFunc->GetFunctionType() == ezFunctionType::Constructor && pFunc->GetArgumentCount() == constructorArgs.GetCount())
@@ -421,7 +421,7 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
     if (token.m_iType == ezTokenType::Whitespace || token.m_iType == ezTokenType::BlockComment || token.m_iType == ezTokenType::LineComment)
       continue;
 
-    if (token.m_iType == ezTokenType::String1 || token.m_iType == ezTokenType::String2)
+    if (token.m_iType == ezTokenType::String1 || token.m_iType == ezTokenType::String2 || token.m_iType == ezTokenType::RawString1)
     {
       sToken = token.m_DataView;
       ezLog::Error("Strings are not allowed in the permutation section: '{0}'", sToken);

@@ -4,9 +4,9 @@
 #include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezCapsuleManipulatorAdapter::ezCapsuleManipulatorAdapter() {}
+ezCapsuleManipulatorAdapter::ezCapsuleManipulatorAdapter() = default;
 
-ezCapsuleManipulatorAdapter::~ezCapsuleManipulatorAdapter() {}
+ezCapsuleManipulatorAdapter::~ezCapsuleManipulatorAdapter() = default;
 
 void ezCapsuleManipulatorAdapter::Finalize()
 {

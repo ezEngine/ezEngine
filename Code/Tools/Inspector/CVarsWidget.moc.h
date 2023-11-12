@@ -19,10 +19,10 @@ public:
   static ezQtCVarsWidget* s_pWidget;
 
 private Q_SLOTS:
-  void BoolChanged(const char* szCVar, bool newValue);
-  void FloatChanged(const char* szCVar, float newValue);
-  void IntChanged(const char* szCVar, int newValue);
-  void StringChanged(const char* szCVar, const char* newValue);
+  void BoolChanged(ezStringView sCVar, bool newValue);
+  void FloatChanged(ezStringView sCVar, float newValue);
+  void IntChanged(ezStringView sCVar, int newValue);
+  void StringChanged(ezStringView sCVar, ezStringView sNewValue);
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
@@ -34,7 +34,7 @@ private:
   // void UpdateCVarsTable(bool bRecreate);
 
 
-  void SendCVarUpdateToServer(const char* szName, const ezCVarWidgetData& cvd);
+  void SendCVarUpdateToServer(ezStringView sName, const ezCVarWidgetData& cvd);
   void SyncAllCVarsToServer();
 
   ezMap<ezString, ezCVarWidgetData> m_CVars;

@@ -7,13 +7,13 @@ template <typename T>
 class ezDelegateTask final : public ezTask
 {
 public:
-  typedef ezDelegate<void(const T&)> FunctionType;
+  using FunctionType = ezDelegate<void(const T&)>;
 
-  ezDelegateTask(const char* szTaskName, FunctionType func, const T& param)
+  ezDelegateTask(const char* szTaskName, ezTaskNesting taskNesting, FunctionType func, const T& param)
   {
     m_Func = func;
     m_param = param;
-    ConfigureTask(szTaskName, ezTaskNesting::Never);
+    ConfigureTask(szTaskName, taskNesting);
   }
 
 private:
@@ -27,12 +27,12 @@ template <>
 class ezDelegateTask<void> final : public ezTask
 {
 public:
-  typedef ezDelegate<void()> FunctionType;
+  using FunctionType = ezDelegate<void()>;
 
-  ezDelegateTask(const char* szTaskName, FunctionType func)
+  ezDelegateTask(const char* szTaskName, ezTaskNesting taskNesting, FunctionType func)
   {
     m_Func = func;
-    ConfigureTask(szTaskName, ezTaskNesting::Never);
+    ConfigureTask(szTaskName, taskNesting);
   }
 
 private:

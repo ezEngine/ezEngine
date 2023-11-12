@@ -2,9 +2,9 @@
 
 #include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <Foundation/Types/Status.h>
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 
-class ezTextureAssetProfileConfig : public ezProfileConfigData
+class EZ_EDITORPLUGINASSETS_DLL ezTextureAssetProfileConfig : public ezProfileConfigData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetProfileConfig, ezProfileConfigData);
 
@@ -27,12 +27,12 @@ private:
 
   virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const override;
 
-  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
+  virtual void InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return true; }
 
-  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const override;
+  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const override;
 
 private:
   ezAssetDocumentTypeDescriptor m_DocTypeDesc;

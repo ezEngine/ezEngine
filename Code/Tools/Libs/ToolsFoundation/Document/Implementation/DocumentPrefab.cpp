@@ -49,13 +49,13 @@ void ezDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection
     ezUnlinkPrefabCommand cmd;
     cmd.m_Object = pObject->GetGuid();
 
-    pHistory->AddCommand(cmd);
+    pHistory->AddCommand(cmd).AssertSuccess();
   }
 
   pHistory->FinishTransaction();
 }
 
-ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB)
+ezStatus ezDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB)
 {
   auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
 
@@ -70,15 +70,15 @@ ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const
   }
 
   ezUuid PrefabGuid, SeedGuid;
-  SeedGuid.CreateNewUuid();
-  ezStatus res = CreatePrefabDocument(szFile, nodes, SeedGuid, PrefabGuid, adjustGraphNodeCB, true);
+  SeedGuid = ezUuid::MakeUuid();
+  ezStatus res = CreatePrefabDocument(sFile, nodes, SeedGuid, PrefabGuid, adjustGraphNodeCB, true, finalizeGraphCB);
 
   if (res.m_Result.Succeeded())
   {
     GetCommandHistory()->StartTransaction("Replace all by Prefab");
 
     // this replaces ONE object by the new prefab (we pick the last one in the selection)
-    ezUuid newObj = ReplaceByPrefab(nodes.PeekBack(), szFile, PrefabGuid, SeedGuid, true);
+    ezUuid newObj = ReplaceByPrefab(nodes.PeekBack(), sFile, PrefabGuid, SeedGuid, true);
 
     // if we had more than one selected objects, remove the others as well
     if (nodes.GetCount() > 1)
@@ -90,7 +90,7 @@ ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const
         ezRemoveObjectCommand remCmd;
         remCmd.m_Object = pNode->GetGuid();
 
-        GetCommandHistory()->AddCommand(remCmd);
+        GetCommandHistory()->AddCommand(remCmd).AssertSuccess();
       }
     }
 
@@ -108,31 +108,30 @@ ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const
   return res;
 }
 
-ezStatus ezDocument::CreatePrefabDocument(const char* szFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed,
-  ezUuid& out_newDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB, bool bKeepOpen)
+ezStatus ezDocument::CreatePrefabDocument(ezStringView sFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed,
+  ezUuid& out_newDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB, bool bKeepOpen, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB)
 {
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  if (ezDocumentManager::FindDocumentTypeFromPath(szFile, true, pTypeDesc).Failed())
-    return ezStatus(ezFmt("Document type is unknown: '{0}'", szFile));
+  if (ezDocumentManager::FindDocumentTypeFromPath(sFile, true, pTypeDesc).Failed())
+    return ezStatus(ezFmt("Document type is unknown: '{0}'", sFile));
 
-  pTypeDesc->m_pManager->EnsureDocumentIsClosed(szFile);
+  pTypeDesc->m_pManager->EnsureDocumentIsClosed(sFile);
 
   // prepare the current state as a graph
   ezAbstractObjectGraph PrefabGraph;
   ezDocumentObjectConverterWriter writer(&PrefabGraph, GetObjectManager());
 
   ezHybridArray<ezAbstractObjectNode*, 32> graphRootNodes;
-  graphRootNodes.SetCountUninitialized(rootObjects.GetCount());
+  graphRootNodes.Reserve(rootObjects.GetCount() + 1);
 
   for (ezUInt32 i = 0; i < rootObjects.GetCount(); ++i)
   {
     auto pSaveAsPrefab = rootObjects[i];
 
     EZ_ASSERT_DEV(pSaveAsPrefab != nullptr, "CreatePrefabDocument: pSaveAsPrefab must be a valid object!");
-    const ezRTTI* pRootType = pSaveAsPrefab->GetTypeAccessor().GetType();
 
     auto pPrefabGraphMainNode = writer.AddObjectToGraph(pSaveAsPrefab);
-    graphRootNodes[i] = pPrefabGraphMainNode;
+    graphRootNodes.PushBack(pPrefabGraphMainNode);
 
     // allow external adjustments
     if (adjustGraphNodeCB.IsValid())
@@ -141,25 +140,27 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, ezArrayPtr<const e
     }
   }
 
+  if (finalizeGraphCB.IsValid())
+  {
+    finalizeGraphCB(PrefabGraph, graphRootNodes);
+  }
+
   PrefabGraph.ReMapNodeGuids(invPrefabSeed, true);
 
   ezDocument* pSceneDocument = nullptr;
 
-  EZ_SUCCEED_OR_RETURN(pTypeDesc->m_pManager->CreateDocument("Prefab", szFile, pSceneDocument, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList));
+  EZ_SUCCEED_OR_RETURN(pTypeDesc->m_pManager->CreateDocument("Prefab", sFile, pSceneDocument, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::EmptyDocument));
 
   out_newDocumentGuid = pSceneDocument->GetGuid();
   auto pPrefabSceneRoot = pSceneDocument->GetObjectManager()->GetRootObject();
 
-  ezDocumentObjectConverterReader reader(
-    &PrefabGraph, pSceneDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader reader(&PrefabGraph, pSceneDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
 
-  for (ezUInt32 i = 0; i < rootObjects.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < graphRootNodes.GetCount(); ++i)
   {
-    auto pSaveAsPrefab = rootObjects[i];
+    const ezRTTI* pRootType = ezRTTI::FindTypeByName(graphRootNodes[i]->GetType());
 
-    const ezRTTI* pRootType = pSaveAsPrefab->GetTypeAccessor().GetType();
-
-    ezUuid rootGuid = pSaveAsPrefab->GetGuid();
+    ezUuid rootGuid = graphRootNodes[i]->GetGuid();
     rootGuid.RevertCombinationWithSeed(invPrefabSeed);
 
     ezDocumentObject* pPrefabSceneMainObject = pSceneDocument->GetObjectManager()->CreateObject(pRootType, rootGuid);
@@ -180,8 +181,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, ezArrayPtr<const e
 }
 
 
-ezUuid ezDocument::ReplaceByPrefab(
-  const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab)
+ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab)
 {
   GetCommandHistory()->StartTransaction("Replace by Prefab");
 
@@ -195,10 +195,10 @@ ezUuid ezDocument::ReplaceByPrefab(
     instCmd.m_CreateFromPrefab = prefabAsset;
     instCmd.m_Parent = pRootObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pRootObject->GetParent()->GetGuid();
     instCmd.m_sBasePrefabGraph = ezPrefabUtils::ReadDocumentAsString(
-      szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
+      sPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
     instCmd.m_RemapGuid = prefabSeed;
 
-    GetCommandHistory()->AddCommand(instCmd);
+    GetCommandHistory()->AddCommand(instCmd).AssertSuccess();
 
     instantiatedRoot = instCmd.m_CreatedRootObject;
   }
@@ -207,9 +207,8 @@ ezUuid ezDocument::ReplaceByPrefab(
     auto pHistory = GetCommandHistory();
 
     ezStringBuilder tmp;
-    ezUuid CmpGuid;
-    instantiatedRoot.CreateNewUuid();
-    CmpGuid.CreateNewUuid();
+    ezUuid CmpGuid = ezUuid::MakeUuid();
+    instantiatedRoot = ezUuid::MakeUuid();
 
     ezAddObjectCommand cmd;
     cmd.m_Parent = (pRootObject->GetParent() == GetObjectManager()->GetRootObject()) ? ezUuid() : pRootObject->GetParent()->GetGuid();
@@ -238,7 +237,7 @@ ezUuid ezDocument::ReplaceByPrefab(
     ezRemoveObjectCommand remCmd;
     remCmd.m_Object = pRootObject->GetGuid();
 
-    GetCommandHistory()->AddCommand(remCmd);
+    GetCommandHistory()->AddCommand(remCmd).AssertSuccess();
   }
 
   GetCommandHistory()->FinishTransaction();
@@ -272,8 +271,8 @@ ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
 
   m_DocumentObjectMetaData->EndReadMetaData();
 
-  pHistory->AddCommand(remCmd);
-  pHistory->AddCommand(instCmd);
+  pHistory->AddCommand(remCmd).AssertSuccess();
+  pHistory->AddCommand(instCmd).AssertSuccess();
 
   return instCmd.m_CreatedRootObject;
 }
@@ -309,12 +308,12 @@ void ezDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
   }
 }
 
-void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
+void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab)
 {
   const ezStringBuilder& sNewBasePrefab = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(PrefabAsset);
 
   ezStringBuilder sNewMergedGraph;
-  ezPrefabUtils::Merge(szBasePrefab, sNewBasePrefab, pObject, true, PrefabSeed, sNewMergedGraph);
+  ezPrefabUtils::Merge(sBasePrefab, sNewBasePrefab, pObject, true, PrefabSeed, sNewMergedGraph);
 
   // remove current object
   ezRemoveObjectCommand rm;
@@ -330,6 +329,6 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
   inst.m_sBasePrefabGraph = sNewBasePrefab;
   inst.m_sObjectGraph = sNewMergedGraph;
 
-  GetCommandHistory()->AddCommand(rm);
-  GetCommandHistory()->AddCommand(inst);
+  GetCommandHistory()->AddCommand(rm).AssertSuccess();
+  GetCommandHistory()->AddCommand(inst).AssertSuccess();
 }

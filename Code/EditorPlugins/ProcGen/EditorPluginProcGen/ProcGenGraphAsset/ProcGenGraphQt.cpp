@@ -51,7 +51,7 @@ void ezQtProcGenNode::UpdateState()
     ezStringBuilder temp;
     ezStringBuilder temp2;
 
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     pRtti->GetAllProperties(properties);
 
     sTitle = pAttr->GetTitle();
@@ -131,7 +131,7 @@ void ezQtProcGenNode::UpdateState()
     }
   }
 
-  m_pLabel->setPlainText(sTitle.GetData());
+  m_pTitleLabel->setPlainText(sTitle.GetData());
 }
 
 //////////////////////////////////////////////////////////////////////////

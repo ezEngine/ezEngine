@@ -50,14 +50,15 @@ void ezLayerActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hLayerVisible);
 }
 
-void ezLayerActions::MapContextMenuActions(const char* szMapping, const char* szPath)
+void ezLayerActions::MapContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
 
   pMap->MapAction(s_hLayerCategory, "", 0.0f);
-  ezStringBuilder sSubPath(szPath, "/LayerCategory");
+
+  const ezStringView sSubPath = "LayerCategory";
   pMap->MapAction(s_hCreateLayer, sSubPath, 1.0f);
   pMap->MapAction(s_hDeleteLayer, sSubPath, 2.0f);
   pMap->MapAction(s_hSaveLayer, sSubPath, 3.0f);
@@ -75,14 +76,14 @@ ezLayerAction::ezLayerAction(const ezActionContext& context, const char* szName,
   switch (m_Type)
   {
     case ActionType::CreateLayer:
-      SetIconPath(":/GuiFoundation/Icons/Add16.png");
+      SetIconPath(":/GuiFoundation/Icons/Add.svg");
       break;
     case ActionType::DeleteLayer:
-      SetIconPath(":/GuiFoundation/Icons/Delete16.png");
+      SetIconPath(":/GuiFoundation/Icons/Delete.svg");
       break;
     case ActionType::SaveLayer:
     case ActionType::SaveActiveLayer:
-      SetIconPath(":/GuiFoundation/Icons/Save16.png");
+      SetIconPath(":/GuiFoundation/Icons/Save.svg");
       break;
     case ActionType::LayerLoaded:
       SetCheckable(true);
@@ -152,13 +153,11 @@ void ezLayerAction::ToggleLayerLoaded(ezScene2Document* pSceneDocument, ezUuid l
   }
 
   pSceneDocument->SetLayerLoaded(layerGuid, bLoad).LogFailure();
-  pSceneDocument->SetActiveLayer(layerGuid);
+  pSceneDocument->SetActiveLayer(layerGuid).LogFailure();
 }
 
 void ezLayerAction::Execute(const ezVariant& value)
 {
-  ezUuid layerGuid = GetCurrentSelectedLayer();
-
   switch (m_Type)
   {
     case ActionType::CreateLayer:

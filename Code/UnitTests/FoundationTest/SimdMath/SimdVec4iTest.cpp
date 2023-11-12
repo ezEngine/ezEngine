@@ -39,7 +39,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 
     EZ_TEST_BOOL(copy.GetComponent<0>() == 1 && copy.GetComponent<1>() == 2 && copy.GetComponent<2>() == 3 && copy.GetComponent<3>() == 4);
 
-    ezSimdVec4i vZero = ezSimdVec4i::ZeroVector();
+    ezSimdVec4i vZero = ezSimdVec4i::MakeZero();
     EZ_TEST_BOOL(vZero.x() == 0 && vZero.y() == 0 && vZero.z() == 0 && vZero.w() == 0);
   }
 
@@ -56,6 +56,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
     ezSimdVec4i vSetZero;
     vSetZero.SetZero();
     EZ_TEST_BOOL(vSetZero.x() == 0 && vSetZero.y() == 0 && vSetZero.z() == 0 && vSetZero.w() == 0);
+
+    {
+      ezSimdVec4i z = ezSimdVec4i::MakeZero();
+      EZ_TEST_BOOL(z.x() == 0 && z.y() == 0 && z.z() == 0 && z.w() == 0);
+    }
 
     {
       int testBlock[4] = {1, 2, 3, 4};

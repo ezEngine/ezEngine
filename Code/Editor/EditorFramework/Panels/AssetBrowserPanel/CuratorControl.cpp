@@ -7,8 +7,7 @@
 
 ezQtCuratorControl::ezQtCuratorControl(QWidget* pParent)
   : QWidget(pParent)
-  , m_bScheduled(false)
-  , m_pBackgroundProcess(nullptr)
+
 {
   QHBoxLayout* pLayout = new QHBoxLayout();
   setLayout(pLayout);
@@ -91,15 +90,15 @@ void ezQtCuratorControl::UpdateBackgroundProcessState()
   {
     case ezAssetProcessor::ProcessTaskState::Stopped:
       m_pBackgroundProcess->setToolTip("Start background asset processing");
-      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart16.png"));
+      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart.svg"));
       break;
     case ezAssetProcessor::ProcessTaskState::Running:
       m_pBackgroundProcess->setToolTip("Stop background asset processing");
-      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause16.png"));
+      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause.svg"));
       break;
     case ezAssetProcessor::ProcessTaskState::Stopping:
       m_pBackgroundProcess->setToolTip("Force stop background asset processing");
-      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingForceStop16.png"));
+      m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingForceStop.svg"));
       break;
     default:
       break;

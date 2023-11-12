@@ -29,20 +29,20 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("JoltCollisionMeshAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("JoltCollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("JoltCollisionMeshAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
       ezProjectActions::MapActions("JoltCollisionMeshAssetMenuBar");
-      ezDocumentActions::MapActions("JoltCollisionMeshAssetMenuBar", "Menu.File", false);
-      ezAssetActions::MapMenuActions("JoltCollisionMeshAssetMenuBar", "Menu.File");
-      ezCommandHistoryActions::MapActions("JoltCollisionMeshAssetMenuBar", "Menu.Edit");
+      ezDocumentActions::MapMenuActions("JoltCollisionMeshAssetMenuBar");
+      ezAssetActions::MapMenuActions("JoltCollisionMeshAssetMenuBar");
+      ezCommandHistoryActions::MapActions("JoltCollisionMeshAssetMenuBar");
     }
 
     // Tool Bar
     {
       ezActionMapManager::RegisterActionMap("JoltCollisionMeshAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapActions("JoltCollisionMeshAssetToolBar", "", true);
+      ezDocumentActions::MapToolbarActions("JoltCollisionMeshAssetToolBar");
       ezCommandHistoryActions::MapActions("JoltCollisionMeshAssetToolBar", "");
       ezAssetActions::MapToolBarActions("JoltCollisionMeshAssetToolBar", true);
-      ezCommonAssetActions::MapActions("JoltCollisionMeshAssetToolBar", "", ezCommonAssetUiState::Grid);
+      ezCommonAssetActions::MapToolbarActions("JoltCollisionMeshAssetToolBar", ezCommonAssetUiState::Grid);
     }
   }
 
@@ -91,7 +91,7 @@ void UpdateCollisionLayerDynamicEnumValues()
   // add all names and values that are valid (non-empty)
   for (ezInt32 i = 0; i < 32; ++i)
   {
-    if (!ezStringUtils::IsNullOrEmpty(cfg.GetGroupName(i)))
+    if (!cfg.GetGroupName(i).IsEmpty())
     {
       cfe.SetValueAndName(i, cfg.GetGroupName(i));
     }
@@ -110,3 +110,47 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
     UpdateCollisionLayerDynamicEnumValues();
   }
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezJoltRopeComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezJoltRopeComponentPatch_1_2()
+    : ezGraphPatch("ezJoltRopeComponent", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Anchor", "Anchor2");
+    pNode->RenameProperty("AttachToOrigin", "AttachToAnchor1");
+    pNode->RenameProperty("AttachToAnchor", "AttachToAnchor2");
+  }
+};
+
+ezJoltRopeComponentPatch_1_2 g_ezJoltRopeComponentPatch_1_2;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezJoltHitboxComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezJoltHitboxComponentPatch_1_2()
+    : ezGraphPatch("ezJoltBoneColliderComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass("ezJoltHitboxComponent");
+  }
+};
+
+ezJoltHitboxComponentPatch_1_2 g_ezJoltHitboxComponentPatch_1_2;

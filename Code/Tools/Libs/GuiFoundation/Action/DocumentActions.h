@@ -10,21 +10,20 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath, bool bForToolbar);
-  static void MapToolsActions(const char* szMapping, const char* szPath);
+  static void MapMenuActions(ezStringView sMapping, ezStringView sTargetMenu = "G.File.Common");
+  static void MapToolbarActions(ezStringView sMapping);
+  static void MapToolsActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hSaveCategory;
   static ezActionDescriptorHandle s_hSave;
   static ezActionDescriptorHandle s_hSaveAs;
   static ezActionDescriptorHandle s_hSaveAll;
 
-  static ezActionDescriptorHandle s_hCloseCategory;
   static ezActionDescriptorHandle s_hClose;
   static ezActionDescriptorHandle s_hOpenContainingFolder;
   static ezActionDescriptorHandle s_hCopyAssetGuid;
 
   static ezActionDescriptorHandle s_hUpdatePrefabs;
-  static ezActionDescriptorHandle s_hDocumentCategory;
 };
 
 

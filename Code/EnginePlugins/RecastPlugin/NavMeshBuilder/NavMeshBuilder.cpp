@@ -1,13 +1,13 @@
 #include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Core/World/World.h>
+#include <DetourNavMesh.h>
+#include <DetourNavMeshBuilder.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
-#include <Recast/DetourNavMesh.h>
-#include <Recast/DetourNavMeshBuilder.h>
-#include <Recast/Recast.h>
+#include <Recast.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
@@ -22,7 +22,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRecastConfig, ezNoBase, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("AgentHeight", m_fAgentHeight)->AddAttributes(new ezDefaultValueAttribute(1.5f)),
     EZ_MEMBER_PROPERTY("AgentRadius", m_fAgentRadius)->AddAttributes(new ezDefaultValueAttribute(0.3f)),
     EZ_MEMBER_PROPERTY("AgentClimbHeight", m_fAgentClimbHeight)->AddAttributes(new ezDefaultValueAttribute(0.4f)),
-    EZ_MEMBER_PROPERTY("WalkableSlope", m_WalkableSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(45))),
+    EZ_MEMBER_PROPERTY("WalkableSlope", m_WalkableSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(45))),
     EZ_MEMBER_PROPERTY("CellSize", m_fCellSize)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
     EZ_MEMBER_PROPERTY("CellHeight", m_fCellHeight)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
     EZ_MEMBER_PROPERTY("MinRegionSize", m_fMinRegionSize)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
@@ -40,7 +40,7 @@ EZ_END_STATIC_REFLECTED_TYPE;
 class ezRcBuildContext : public rcContext
 {
 public:
-  ezRcBuildContext() {}
+  ezRcBuildContext() = default;
 
 protected:
   virtual void doLog(const rcLogCategory category, const char* msg, const int len)
@@ -69,7 +69,7 @@ ezRecastNavMeshBuilder::~ezRecastNavMeshBuilder() = default;
 
 void ezRecastNavMeshBuilder::Clear()
 {
-  m_BoundingBox.SetInvalid();
+  m_BoundingBox = ezBoundingBox::MakeInvalid();
   m_Vertices.Clear();
   m_Triangles.Clear();
   m_TriangleAreaIDs.Clear();
@@ -165,11 +165,11 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
 
     // convert from ez convention (Z up) to recast convention (Y up)
     ezMat3 m;
-    m.SetRow(0, ezVec3( 1, 0, 0));
-    m.SetRow(1, ezVec3( 0, 0, 1));
-    m.SetRow(2, ezVec3( 0, 1, 0));
+    m.SetRow(0, ezVec3(1, 0, 0));
+    m.SetRow(1, ezVec3(0, 0, 1));
+    m.SetRow(2, ezVec3(0, 1, 0));
 
-    ezMat4 transform = ezMat4::IdentityMatrix();
+    ezMat4 transform = ezMat4::MakeIdentity();
     transform.SetRotationalPart(m);
     transform = transform * object.m_GlobalTransform.GetAsMat4();
 
@@ -217,15 +217,15 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
     {
       ezUInt32 uiVertexIdx = uiVertexOffset;
 
-        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
-        {
-          auto& triangle = m_Triangles.ExpandAndGetRef();
-          triangle.m_VertexIdx[0] = uiVertexIdx + 0;
-          triangle.m_VertexIdx[1] = uiVertexIdx + (flip ? 2 : 1);
-          triangle.m_VertexIdx[2] = uiVertexIdx + (flip ? 1 : 2);
+      for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+      {
+        auto& triangle = m_Triangles.ExpandAndGetRef();
+        triangle.m_VertexIdx[0] = uiVertexIdx + 0;
+        triangle.m_VertexIdx[1] = uiVertexIdx + (flip ? 2 : 1);
+        triangle.m_VertexIdx[2] = uiVertexIdx + (flip ? 1 : 2);
 
-          uiVertexIdx += 3;
-        }
+        uiVertexIdx += 3;
+      }
     }
 
     uiVertexOffset += meshBufferDesc.GetVertexCount();
@@ -242,7 +242,7 @@ void ezRecastNavMeshBuilder::ComputeBoundingBox()
 {
   if (!m_Vertices.IsEmpty())
   {
-    m_BoundingBox.SetFromPoints(m_Vertices.GetData(), m_Vertices.GetCount());
+    m_BoundingBox = ezBoundingBox::MakeFromPoints(m_Vertices.GetData(), m_Vertices.GetCount());
   }
 }
 
@@ -272,7 +272,7 @@ void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& 
   rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 }
 
-ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh, ezProgress& progress)
+ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_polyMesh, ezProgress& progress)
 {
   ezProgressRange pgRange("Build Poly Mesh", 13, true, &progress);
 
@@ -426,7 +426,7 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
   if (!pgRange.BeginNextStep("Build Poly Mesh"))
     return EZ_FAILURE;
 
-  if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, out_PolyMesh))
+  if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, out_polyMesh))
   {
     pContext->log(RC_LOG_ERROR, "Could not triangulate contours");
     return EZ_FAILURE;
@@ -440,11 +440,11 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
 
   // TODO modify area IDs and flags
 
-  for (int i = 0; i < out_PolyMesh.npolys; ++i)
+  for (int i = 0; i < out_polyMesh.npolys; ++i)
   {
-    if (out_PolyMesh.areas[i] == RC_WALKABLE_AREA)
+    if (out_polyMesh.areas[i] == RC_WALKABLE_AREA)
     {
-      out_PolyMesh.flags[i] = 0xFFFF;
+      out_polyMesh.flags[i] = 0xFFFF;
     }
   }
 

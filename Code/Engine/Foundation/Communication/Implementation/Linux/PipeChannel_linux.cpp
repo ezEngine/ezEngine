@@ -12,55 +12,21 @@
 #  include <sys/socket.h>
 #  include <sys/un.h>
 
-ezPipeChannel_linux::ezPipeChannel_linux(const char* szAddress, Mode::Enum Mode)
-  : ezIpcChannel(szAddress, Mode)
+ezPipeChannel_linux::ezPipeChannel_linux(ezStringView sAddress, Mode::Enum Mode)
+  : ezIpcChannel(sAddress, Mode)
 {
   ezStringBuilder pipePath = ezOSFile::GetTempDataFolder("ez-pipes");
 
   // Make sure the directory exists that we want to place the pipes in.
   ezOSFile::CreateDirectoryStructure(pipePath).IgnoreResult();
 
-  pipePath.AppendPath(szAddress);
+  pipePath.AppendPath(sAddress);
   pipePath.Append(".server");
 
   m_serverSocketPath = pipePath;
   pipePath.Shrink(0, 7); // strip .server
   pipePath.Append(".client");
   m_clientSocketPath = pipePath;
-
-  const char* thisSocketPath = (Mode == Mode::Server) ? m_serverSocketPath.GetData() : m_clientSocketPath.GetData();
-
-  int& targetSocket = (Mode == Mode::Server) ? m_serverSocketFd : m_clientSocketFd;
-
-  targetSocket = socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
-  if (targetSocket == -1)
-  {
-    ezLog::Error("[IPC]Failed to create unix domain socket. error {}", errno);
-    return;
-  }
-
-  // If the socket file already exists, delete it
-  ezOSFile::DeleteFile(thisSocketPath).IgnoreResult();
-
-  struct sockaddr_un addr = {};
-  addr.sun_family = AF_UNIX;
-
-  if (strlen(thisSocketPath) >= EZ_ARRAY_SIZE(addr.sun_path) - 1)
-  {
-    ezLog::Error("[IPC]Given ipc channel address is to long. Resulting path '{}' path length limit {}", strlen(thisSocketPath), EZ_ARRAY_SIZE(addr.sun_path) - 1);
-    close(targetSocket);
-    targetSocket = -1;
-    return;
-  }
-
-  strcpy(addr.sun_path, thisSocketPath);
-  if (bind(targetSocket, (struct sockaddr*)&addr, SUN_LEN(&addr)) == -1)
-  {
-    ezLog::Error("[IPC]Failed to bind unix domain socket to '{}' error {}", thisSocketPath, errno);
-    close(targetSocket);
-    targetSocket = -1;
-    return;
-  }
 
   m_pOwner->AddChannel(this);
 }
@@ -94,17 +60,47 @@ ezPipeChannel_linux::~ezPipeChannel_linux()
   }
 }
 
-void ezPipeChannel_linux::AddToMessageLoop(ezMessageLoop* pMessageLoop)
-{
-}
-
 void ezPipeChannel_linux::InternalConnect()
 {
-  if (m_bConnected || m_Connecting)
-  {
+  if (GetConnectionState() != ConnectionState::Disconnected)
     return;
-  }
 
+  int& targetSocket = (m_Mode == Mode::Server) ? m_serverSocketFd : m_clientSocketFd;
+
+  if (targetSocket < 0)
+  {
+    const char* thisSocketPath = (m_Mode == Mode::Server) ? m_serverSocketPath.GetData() : m_clientSocketPath.GetData();
+
+    targetSocket = socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
+    if (targetSocket == -1)
+    {
+      ezLog::Error("[IPC]Failed to create unix domain socket. error {}", errno);
+      return;
+    }
+
+    // If the socket file already exists, delete it
+    ezOSFile::DeleteFile(thisSocketPath).IgnoreResult();
+
+    struct sockaddr_un addr = {};
+    addr.sun_family = AF_UNIX;
+
+    if (strlen(thisSocketPath) >= EZ_ARRAY_SIZE(addr.sun_path) - 1)
+    {
+      ezLog::Error("[IPC]Given ipc channel address is to long. Resulting path '{}' path length limit {}", strlen(thisSocketPath), EZ_ARRAY_SIZE(addr.sun_path) - 1);
+      close(targetSocket);
+      targetSocket = -1;
+      return;
+    }
+
+    strcpy(addr.sun_path, thisSocketPath);
+    if (bind(targetSocket, (struct sockaddr*)&addr, SUN_LEN(&addr)) == -1)
+    {
+      ezLog::Error("[IPC]Failed to bind unix domain socket to '{}' error {}", thisSocketPath, errno);
+      close(targetSocket);
+      targetSocket = -1;
+      return;
+    }
+  }
 
   if (m_Mode == Mode::Server)
   {
@@ -112,8 +108,8 @@ void ezPipeChannel_linux::InternalConnect()
     {
       return;
     }
-    m_Connecting = true;
     listen(m_serverSocketFd, 1);
+    SetConnectionState(ConnectionState::Connecting);
     static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::Accept, m_serverSocketFd);
   }
   else
@@ -122,7 +118,7 @@ void ezPipeChannel_linux::InternalConnect()
     {
       return;
     }
-    m_Connecting = true;
+    SetConnectionState(ConnectionState::Connecting);
     struct sockaddr_un serverAddress = {};
     serverAddress.sun_family = AF_UNIX;
     strcpy(serverAddress.sun_path, m_serverSocketPath.GetData());
@@ -135,10 +131,8 @@ void ezPipeChannel_linux::InternalConnect()
 
 void ezPipeChannel_linux::InternalDisconnect()
 {
-  if (!m_bConnected && !m_Connecting)
-  {
+  if (GetConnectionState() == ConnectionState::Disconnected)
     return;
-  }
 
   static_cast<ezMessageLoop_linux*>(m_pOwner)->RemovePendingWaits(this);
 
@@ -150,10 +144,7 @@ void ezPipeChannel_linux::InternalDisconnect()
     m_OutputQueue.Clear();
   }
 
-  m_bConnected = false;
-  m_Connecting = false;
-
-  m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Server ? ezIpcChannelEvent::DisconnectedFromClient : ezIpcChannelEvent::DisconnectedFromServer, this));
+  SetConnectionState(ConnectionState::Disconnected);
 
   m_IncomingMessages.RaiseSignal(); // Wakeup anyone still waiting for messages
 }
@@ -227,9 +218,7 @@ void ezPipeChannel_linux::AcceptIncomingConnection()
   }
   else
   {
-    m_bConnected = true;
-    m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::ConnectedToClient, this));
-
+    SetConnectionState(ConnectionState::Connected);
     // We are connected. Register for incoming messages events.
     static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::IncomingMessage, m_clientSocketFd);
   }
@@ -242,9 +231,7 @@ bool ezPipeChannel_linux::NeedWakeup() const
 
 void ezPipeChannel_linux::ProcessConnectSuccessfull()
 {
-  m_Connecting = false;
-  m_bConnected = true;
-  m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::ConnectedToServer, this));
+  SetConnectionState(ConnectionState::Connected);
 
   // We are connected. Register for incoming messages events.
   static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::IncomingMessage, m_clientSocketFd);
@@ -276,7 +263,7 @@ void ezPipeChannel_linux::ProcessIncomingPackages()
       return;
     }
 
-    ReceiveMessageData(ezArrayPtr(m_InputBuffer, static_cast<ezUInt32>(recieveResult)));
+    ReceiveData(ezArrayPtr(m_InputBuffer, static_cast<ezUInt32>(recieveResult)));
   }
 }
 

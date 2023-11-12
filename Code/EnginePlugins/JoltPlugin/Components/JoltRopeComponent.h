@@ -12,6 +12,23 @@ namespace JPH
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
+struct ezJoltRopeAnchorConstraintMode
+{
+  using StorageType = ezInt8;
+
+  enum Enum
+  {
+    None,
+    Point,
+    Fixed,
+    Cone,
+
+    Default = Point
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltRopeAnchorConstraintMode);
+
 //////////////////////////////////////////////////////////////////////////
 
 class EZ_JOLTPLUGIN_DLL ezJoltRopeComponentManager : public ezComponentManager<class ezJoltRopeComponent, ezBlockStorageType::Compact>
@@ -60,31 +77,45 @@ public:
   ezUInt16 m_uiPieces = 16;                 // [ property ]
   float m_fThickness = 0.05f;               // [ property ]
   float m_fSlack = 0.3f;                    // [ property ]
-  bool m_bAttachToOrigin = true;            // [ property ]
-  bool m_bAttachToAnchor = true;            // [ property ]
   bool m_bCCD = false;                      // [ property ]
-  ezAngle m_MaxBend = ezAngle::Degree(30);  // [ property ]
-  ezAngle m_MaxTwist = ezAngle::Degree(15); // [ property ]
+  ezAngle m_MaxBend = ezAngle::MakeFromDegree(30);  // [ property ]
+  ezAngle m_MaxTwist = ezAngle::MakeFromDegree(15); // [ property ]
 
-  void SetAnchorReference(const char* szReference); // [ property ]
-  void SetAnchor(ezGameObjectHandle hActor);
+  void SetAnchor1Reference(const char* szReference); // [ property ]
+  void SetAnchor2Reference(const char* szReference); // [ property ]
+
+  void SetAnchor1(ezGameObjectHandle hActor);
+  void SetAnchor2(ezGameObjectHandle hActor);
 
   void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);
 
+  void SetAnchor1ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode); // [ property ]
+  void SetAnchor2ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode); // [ property ]
+
+  ezEnum<ezJoltRopeAnchorConstraintMode> GetAnchor1ConstraintMode() const { return m_Anchor1ConstraintMode; } // [ property ]
+  ezEnum<ezJoltRopeAnchorConstraintMode> GetAnchor2ConstraintMode() const { return m_Anchor2ConstraintMode; } // [ property ]
+
+  /// \brief Makes sure that the rope's connection to a removed body also gets removed.
+  void OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& ref_msg); // [ msg handler ]
+
 private:
   void CreateRope();
-  ezResult CreateSegmentTransforms(ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength) const;
+  ezResult CreateSegmentTransforms(ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength, ezGameObjectHandle hAnchor1, ezGameObjectHandle hAnchor2);
   void DestroyPhysicsShapes();
   void Update();
   void SendPreviewPose();
   const ezJoltMaterial* GetJoltMaterial();
-  JPH::Constraint* CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& dstLoc, ezUInt32 uiBodyID);
+  JPH::Constraint* CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& dstLoc, ezUInt32 uiBodyID, ezJoltRopeAnchorConstraintMode::Enum mode, ezUInt32& out_uiConnectedToBodyID);
   void UpdatePreview();
 
   ezSurfaceResourceHandle m_hSurface;
 
-  ezGameObjectHandle m_hAnchor;
+  ezGameObjectHandle m_hAnchor1;
+  ezGameObjectHandle m_hAnchor2;
+
+  ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor1ConstraintMode; // [ property ]
+  ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor2ConstraintMode; // [ property ]
 
   float m_fTotalMass = 1.0f;
   float m_fMaxForcePerFrame = 0.0f;
@@ -93,11 +124,13 @@ private:
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   bool m_bSelfCollision = false;
   float m_fGravityFactor = 1.0f;
-  ezVec3 m_vPreviewRefPos = ezVec3::ZeroVector();
+  ezUInt32 m_uiPreviewHash = 0;
 
   JPH::Ragdoll* m_pRagdoll = nullptr;
-  JPH::Constraint* m_pConstraintOrigin = nullptr;
-  JPH::Constraint* m_pConstraintAnchor = nullptr;
+  JPH::Constraint* m_pConstraintAnchor1 = nullptr;
+  JPH::Constraint* m_pConstraintAnchor2 = nullptr;
+  ezUInt32 m_uiAnchor1BodyID = ezInvalidIndex;
+  ezUInt32 m_uiAnchor2BodyID = ezInvalidIndex;
 
 
 private:

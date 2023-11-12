@@ -18,8 +18,7 @@ static ezUInt32 g_uiComputeThreadGroupSize = 32;
 
 ezComputeShaderHistogramApp::ezComputeShaderHistogramApp()
   : ezGameApplication("ComputeShaderHistogram", "Data/Samples/ComputeShaderHistogram")
-  , m_pWindow(nullptr)
-  , m_bStuffChanged(false)
+
 {
 }
 
@@ -262,7 +261,7 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
     ezGeometry geom;
     ezGeometry::GeoOptions opt;
     opt.m_Color = ezColor::Black;
-    opt.m_Transform = ezMat4(ezMat3::IdentityMatrix(), ezVec3(1.0f - pixToScreen.x * borderOffsetPix - sizeScreen / 2, -1.0f + pixToScreen.y * borderOffsetPix + sizeScreen / 2, 0.0f));
+    opt.m_Transform = ezMat4(ezMat3::MakeIdentity(), ezVec3(1.0f - pixToScreen.x * borderOffsetPix - sizeScreen / 2, -1.0f + pixToScreen.y * borderOffsetPix + sizeScreen / 2, 0.0f));
     geom.AddRectXY(ezVec2(sizeScreen, sizeScreen), 1, 1, opt);
 
     ezMeshBufferResourceDescriptor desc;
@@ -285,11 +284,11 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
   }
 }
 
-void ezComputeShaderHistogramApp::OnFileChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+void ezComputeShaderHistogramApp::OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
   if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
   {
-    ezLog::Info("The file {0} was modified", filename);
+    ezLog::Info("The file {0} was modified", sFilename);
     m_bStuffChanged = true;
   }
 }

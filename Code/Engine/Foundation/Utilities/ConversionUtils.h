@@ -10,11 +10,6 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Uuid.h>
 
-// Needed to prevent circular includes
-template <typename T, typename AllocatorWrapper>
-class ezDynamicArray;
-class ezVariant;
-
 /// \brief This namespace contains functions to convert between different types.
 ///
 /// Contains helper functions to convert from strings to numerical values.
@@ -48,8 +43,7 @@ namespace ezConversionUtils
   EZ_FOUNDATION_DLL ezResult StringToUInt(ezStringView sText, ezUInt32& out_uiRes, const char** out_pLastParsePosition = nullptr); // [tested]
 
   /// \brief Same as StringToInt but converts to a 64bit integer value instead.
-  EZ_FOUNDATION_DLL ezResult StringToInt64(ezStringView sText, ezInt64& out_iRes,
-    const char** out_pLastParsePosition = nullptr); // [tested]
+  EZ_FOUNDATION_DLL ezResult StringToInt64(ezStringView sText, ezInt64& out_iRes, const char** out_pLastParsePosition = nullptr); // [tested]
 
   /// \brief Parses szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parseable floating point value.
   ///
@@ -127,8 +121,7 @@ namespace ezConversionUtils
   ///   or uiNumFloats values were successfully extracted.
   /// \return
   ///   The number of successfully extracted values (and thus valid values in out_pFloats).
-  EZ_FOUNDATION_DLL ezUInt32 ExtractFloatsFromString(ezStringView sText, ezUInt32 uiNumFloats, float* out_pFloats,
-    const char** out_pLastParsePosition = nullptr); // [tested]
+  EZ_FOUNDATION_DLL ezUInt32 ExtractFloatsFromString(ezStringView sText, ezUInt32 uiNumFloats, float* out_pFloats, const char** out_pLastParsePosition = nullptr); // [tested]
 
   /// \brief Converts a hex character ('0', '1', ... '9', 'A'/'a', ... 'F'/'f') to the corresponding int value 0 - 15.
   ///
@@ -258,14 +251,23 @@ namespace ezConversionUtils
   /// \brief Converts an angle to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezAngle& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts an angle to a string
+  /// \brief Converts a time to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezTime& value, ezStringBuilder& out_sResult);
 
   /// \brief Converts a ezStringView to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezStringView& value, ezStringBuilder& out_sResult);
 
+  /// \brief Converts a hashed string to a string
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezHashedString& value, ezStringBuilder& out_sResult);
+
+  /// \brief Converts a temp hashed string to a string. Will print the hash value since the original string can't be restored from a temp hashed string.
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezTempHashedString& value, ezStringBuilder& out_sResult);
+
   /// \brief Converts a ezVariantArray to a string
-  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>& value, ezStringBuilder& out_sResult);
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant>& value, ezStringBuilder& out_sResult);
+
+  /// \brief Converts a ezVariantDictionary to a string
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezHashTable<ezString, ezVariant>& value, ezStringBuilder& out_sResult);
 
   /// \brief Fallback ToString implementation for all types that don't have one
   template <typename T>

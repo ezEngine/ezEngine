@@ -128,43 +128,43 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 t
 
     ezAddObjectCommand cmdAddCurve;
     cmdAddCurve.m_Parent = pDoc->GetPropertyObject()->GetGuid();
-    cmdAddCurve.m_NewObjectGuid.CreateNewUuid();
+    cmdAddCurve.m_NewObjectGuid = ezUuid::MakeUuid();
     cmdAddCurve.m_sParentProperty = "Curves";
     cmdAddCurve.m_pType = ezGetStaticRTTI<ezSingleCurveData>();
     cmdAddCurve.m_Index = -1;
 
-    history->AddCommand(cmdAddCurve);
+    history->AddCommand(cmdAddCurve).AssertSuccess();
   }
 
   const ezVariant curveGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Curves", uiCurveIdx);
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = curveGuid.Get<ezUuid>();
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "ControlPoints";
   cmdAdd.m_pType = ezGetStaticRTTI<ezCurveControlPointData>();
   cmdAdd.m_Index = -1;
 
-  history->AddCommand(cmdAdd);
+  history->AddCommand(cmdAdd).AssertSuccess();
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = tickX;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Value";
   cmdSet.m_NewValue = clickPosY;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "LeftTangent";
   cmdSet.m_NewValue = ezVec2(-0.1f, 0.0f);
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "RightTangent";
   cmdSet.m_NewValue = ezVec2(+0.1f, 0.0f);
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)
@@ -184,11 +184,11 @@ void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
-  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Value";
   cmdSet.m_NewValue = newPosY;
-  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx)
@@ -206,7 +206,7 @@ void ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt3
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
-  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
@@ -230,7 +230,7 @@ void ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUI
 
   cmdSet.m_sProperty = rightTangent ? "RightTangent" : "LeftTangent";
   cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
-  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtCurve1DAssetDocumentWindow::onLinkCurveTangents(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink)
@@ -247,7 +247,7 @@ void ezQtCurve1DAssetDocumentWindow::onLinkCurveTangents(ezUInt32 curveIdx, ezUI
   cmdLink.m_Object = cpGuid.Get<ezUuid>();
   cmdLink.m_sProperty = "Linked";
   cmdLink.m_NewValue = bLink;
-  GetDocument()->GetCommandHistory()->AddCommand(cmdLink);
+  GetDocument()->GetCommandHistory()->AddCommand(cmdLink).AssertSuccess();
 
   if (bLink)
   {
@@ -272,7 +272,7 @@ void ezQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 curveIdx
   cmd.m_Object = cpGuid.Get<ezUuid>();
   cmd.m_sProperty = rightTangent ? "RightTangentMode" : "LeftTangentMode";
   cmd.m_NewValue = mode;
-  GetDocument()->GetCommandHistory()->AddCommand(cmd);
+  GetDocument()->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
 
   // sync current curve back
   if (false)

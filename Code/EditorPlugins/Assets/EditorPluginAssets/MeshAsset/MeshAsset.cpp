@@ -21,12 +21,12 @@ static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
   return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
 }
 
-ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezMeshAssetDocument::ezMeshAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezMeshAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 
-ezTransformStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -58,10 +58,10 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
 
   ezGeometry geom;
-  //const ezMat4 mTrans(mTransformation, ezVec3::ZeroVector());
+  //const ezMat4 mTrans(mTransformation, ezVec3::MakeZero());
 
   ezGeometry::GeoOptions opt;
-  opt.m_Transform = ezMat4(mTransformation, ezVec3::ZeroVector());
+  opt.m_Transform = ezMat4(mTransformation, ezVec3::MakeZero());
 
   auto detail1 = pProp->m_uiDetail;
   auto detail2 = pProp->m_uiDetail2;
@@ -94,7 +94,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
     if (detail1 == 0)
       detail1 = 32;
 
-    geom.AddCylinder(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, pProp->m_bCap, pProp->m_bCap2, ezMath::Max<ezUInt16>(3, detail1), opt, ezMath::Clamp(pProp->m_Angle, ezAngle::Degree(0.0f), ezAngle::Degree(360.0f)));
+    geom.AddCylinder(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, pProp->m_bCap, pProp->m_bCap2, ezMath::Max<ezUInt16>(3, detail1), opt, ezMath::Clamp(pProp->m_Angle, ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(360.0f)));
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::GeodesicSphere)
   {
@@ -283,7 +283,7 @@ ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
   AddSupportedFileType("vox");
 }
 
-ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator() {}
+ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator() = default;
 
 void ezMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
@@ -295,7 +295,7 @@ void ezMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativ
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "MeshImport.WithMaterials";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Mesh.png";
+    info.m_sIcon = ":/AssetIcons/Mesh.svg";
   }
 
   {
@@ -303,7 +303,7 @@ void ezMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativ
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "MeshImport.NoMaterials";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Mesh.png";
+    info.m_sIcon = ":/AssetIcons/Mesh.svg";
   }
 }
 

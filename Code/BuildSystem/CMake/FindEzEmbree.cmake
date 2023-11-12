@@ -7,7 +7,7 @@ endif()
 
 find_path(EZ_EMBREE_DIR include/embree3/rtcore.h
 	PATHS
-	${CMAKE_SOURCE_DIR}/Code/ThirdParty/embree
+	${EZ_ROOT}/Code/ThirdParty/embree
 )
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)

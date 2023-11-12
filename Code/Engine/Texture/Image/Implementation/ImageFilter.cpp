@@ -64,7 +64,7 @@ static ezSimdFloat sinc(const ezSimdFloat& x)
   }
   else
   {
-    return ezMath::Sin(ezAngle::Radian(x)) / x;
+    return ezMath::Sin(ezAngle::MakeFromRadian(x)) / x;
   }
 }
 

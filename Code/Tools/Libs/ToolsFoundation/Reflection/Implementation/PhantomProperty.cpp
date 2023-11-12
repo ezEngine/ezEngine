@@ -20,7 +20,9 @@ ezPhantomConstantProperty::ezPhantomConstantProperty(const ezReflectedPropertyDe
 ezPhantomConstantProperty::~ezPhantomConstantProperty()
 {
   for (auto pAttr : m_Attributes)
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+  {
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+  }
 }
 
 const ezRTTI* ezPhantomConstantProperty::GetSpecificType() const
@@ -51,7 +53,9 @@ ezPhantomMemberProperty::ezPhantomMemberProperty(const ezReflectedPropertyDescri
 ezPhantomMemberProperty::~ezPhantomMemberProperty()
 {
   for (auto pAttr : m_Attributes)
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+  {
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+  }
 }
 
 const ezRTTI* ezPhantomMemberProperty::GetSpecificType() const
@@ -81,7 +85,9 @@ ezPhantomFunctionProperty::ezPhantomFunctionProperty(ezReflectedFunctionDescript
 ezPhantomFunctionProperty::~ezPhantomFunctionProperty()
 {
   for (auto pAttr : m_Attributes)
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+  {
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+  }
 }
 
 ezFunctionType::Enum ezPhantomFunctionProperty::GetFunctionType() const
@@ -135,7 +141,9 @@ ezPhantomArrayProperty::ezPhantomArrayProperty(const ezReflectedPropertyDescript
 ezPhantomArrayProperty::~ezPhantomArrayProperty()
 {
   for (auto pAttr : m_Attributes)
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+  {
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+  }
 }
 
 const ezRTTI* ezPhantomArrayProperty::GetSpecificType() const
@@ -159,7 +167,9 @@ ezPhantomSetProperty::ezPhantomSetProperty(const ezReflectedPropertyDescriptor* 
 ezPhantomSetProperty::~ezPhantomSetProperty()
 {
   for (auto pAttr : m_Attributes)
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+  {
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+  }
 }
 
 const ezRTTI* ezPhantomSetProperty::GetSpecificType() const
@@ -183,7 +193,9 @@ ezPhantomMapProperty::ezPhantomMapProperty(const ezReflectedPropertyDescriptor* 
 ezPhantomMapProperty::~ezPhantomMapProperty()
 {
   for (auto pAttr : m_Attributes)
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+  {
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+  }
 }
 
 const ezRTTI* ezPhantomMapProperty::GetSpecificType() const

@@ -68,7 +68,7 @@ void ezParticleContext::OnInitialize()
 
     pCompMan->CreateComponent(pObj, m_pComponent);
     m_pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::Restart;
-    m_pComponent->m_MinRestartDelay = ezTime::Seconds(0.5);
+    m_pComponent->m_MinRestartDelay = ezTime::MakeFromSeconds(0.5);
 
     ezStringBuilder sParticleGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sParticleGuid);
@@ -162,7 +162,7 @@ void ezParticleContext::OnInitialize()
     {
       ezGameObject* pObj;
       obj.m_LocalPosition.Set(4, (float)x * 4, -2);
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(45));
+      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(45));
       pWorld->CreateObject(obj, pObj);
 
       ezMeshComponent* pMesh;
@@ -188,7 +188,7 @@ void ezParticleContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 void ezParticleContext::OnThumbnailViewContextRequested()
 {
-  m_ThumbnailBoundingVolume.SetInvalid();
+  m_ThumbnailBoundingVolume = ezBoundingBoxSphere::MakeInvalid();
 }
 
 bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
@@ -207,7 +207,7 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
       const auto onFinished = m_pComponent->m_OnFinishedAction;
       const double fClockSpeed = m_pWorld->GetClock().GetSpeed();
 
-      m_pComponent->m_MinRestartDelay.SetZero();
+      m_pComponent->m_MinRestartDelay = ezTime::MakeZero();
       m_pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::Restart;
 
       m_pWorld->SetWorldSimulationEnabled(true);
@@ -255,7 +255,7 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
         {
           // step once, to get the initial bbox out of the way
           m_pComponent->m_EffectController.ForceVisible();
-          m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
+          m_pComponent->m_EffectController.Tick(ezTime::MakeFromSeconds(0.05));
 
           if (!m_pComponent->m_EffectController.IsAlive())
             break;
@@ -291,7 +291,7 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
       for (ezUInt32 step = 0; step < uiSimStepsNeeded; ++step)
       {
         m_pComponent->m_EffectController.ForceVisible();
-        m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
+        m_pComponent->m_EffectController.Tick(ezTime::MakeFromSeconds(0.05));
 
         if (m_pComponent->m_EffectController.IsAlive())
         {

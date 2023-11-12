@@ -8,7 +8,7 @@
 
 struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneViewPerspective
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -110,7 +110,7 @@ private:
   float m_fSkyLightIntensity = 1.0f;
 
   bool m_bDirectionalLight = true;
-  ezAngle m_DirectionalLightAngle = ezAngle::Degree(30.0f);
+  ezAngle m_DirectionalLightAngle = ezAngle::MakeFromDegree(30.0f);
   bool m_bDirectionalLightShadows = false;
   float m_fDirectionalLightIntensity = 10.0f;
 

@@ -12,7 +12,7 @@
 ezGameEngineTest::ezGameEngineTest() = default;
 ezGameEngineTest::~ezGameEngineTest() = default;
 
-ezResult ezGameEngineTest::GetImage(ezImage& ref_img)
+ezResult ezGameEngineTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber)
 {
   ref_img.ResetAndCopy(m_pApplication->GetLastScreenshot());
 
@@ -29,14 +29,14 @@ ezResult ezGameEngineTest::InitializeTest()
 
   EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
 
-  if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11"))
+  if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11"))
   {
     if (ezGALDevice::HasDefaultDevice() && (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics")))
     {
       // Use different images for comparison when running the D3D11 Reference Device
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
     }
-    else if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11") && ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
+    else if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
     {
       // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
@@ -46,7 +46,7 @@ ezResult ezGameEngineTest::InitializeTest()
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
     }
   }
-  else if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "Vulkan"))
+  else if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan"))
   {
     if (ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
     {
@@ -120,7 +120,7 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
   EZ_LOCK(m_pWorld->GetWriteMarker());
   m_pWorld->Clear();
   m_pWorld->GetRandomNumberGenerator().Initialize(42);     // reset the RNG
-  m_pWorld->GetClock().SetAccumulatedTime(ezTime::Zero()); // reset the world clock
+  m_pWorld->GetClock().SetAccumulatedTime(ezTime::MakeZero()); // reset the world clock
 
   ezFileReader file;
 
@@ -172,7 +172,7 @@ void ezGameEngineTestApplication::AfterCoreSystemsStartup()
   desc.m_uiRandomNumberGeneratorSeed = 42;
 
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
-  m_pWorld->GetClock().SetFixedTimeStep(ezTime::Seconds(1.0 / 30.0));
+  m_pWorld->GetClock().SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 30.0));
 
   ActivateGameState(m_pWorld.Borrow()).IgnoreResult();
 }
@@ -184,7 +184,7 @@ void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
   SUPER::BeforeHighLevelSystemsShutdown();
 }
 
-void ezGameEngineTestApplication::StoreScreenshot(ezImage&& image, const char* szContext)
+void ezGameEngineTestApplication::StoreScreenshot(ezImage&& image, ezStringView sContext)
 {
   // store this for image comparison purposes
   m_LastScreenshot.ResetAndMove(std::move(image));

@@ -12,7 +12,7 @@ jobs:
 - job: Job_2
   displayName: StartVM
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-2022'
   steps:
   - checkout: none
   - task: AzureKeyVault@1
@@ -50,7 +50,7 @@ jobs:
     enabled: False
     inputs:
       cwd: build\x64
-      cmakeArgs: -DCMAKE_PREFIX_PATH=$(System.DefaultWorkingDirectory)\ThirdPartyUWPx86\vs141x64 -DEZ_QT_DIR="$(System.DefaultWorkingDirectory)\ThirdPartyUWPx86\vs141x64" -DEZ_BUILD_PHYSX=0 -DEZ_BUILD_FMOD=0 -DEZ_BUILD_GAMES=0 -DEZ_COMPILE_ENGINE_AS_DLL=1 -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_SYSTEM_VERSION=10.0.18362.0 -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=10.0.18362.0 -G "Visual Studio 16 2019 Win64" ../../
+      cmakeArgs: -DCMAKE_PREFIX_PATH=$(System.DefaultWorkingDirectory)\ThirdPartyUWPx86\vs141x64 -DEZ_QT_DIR="$(System.DefaultWorkingDirectory)\ThirdPartyUWPx86\vs141x64" -DEZ_BUILD_PHYSX=0 -DEZ_BUILD_FMOD=0 -DEZ_BUILD_GAMES=0 -DEZ_COMPILE_ENGINE_AS_DLL=1 -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_SYSTEM_VERSION=10.0.18362.0 -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=10.0.18362.0 -G "Visual Studio 17 2022 Win64" ../../
   - task: CMake@1
     displayName: CMake build RemoteTestHarness
     enabled: False

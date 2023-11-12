@@ -15,7 +15,7 @@ class ezTexConvTest : public ezTestBaseClass
 public:
   virtual const char* GetTestName() const override { return "TexConvTool"; }
 
-  virtual ezResult GetImage(ezImage& ref_img) override
+  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override
   {
     ref_img.ResetAndMove(std::move(m_pState->m_image));
     return EZ_SUCCESS;
@@ -90,7 +90,7 @@ private:
     if (!EZ_TEST_BOOL(m_pState->m_TexConvGroup.Launch(options).Succeeded()))
       return;
 
-    if (!EZ_TEST_BOOL_MSG(m_pState->m_TexConvGroup.WaitToFinish(ezTime::Minutes(1.0)).Succeeded(), "TexConv did not finish in time."))
+    if (!EZ_TEST_BOOL_MSG(m_pState->m_TexConvGroup.WaitToFinish(ezTime::MakeFromMinutes(1.0)).Succeeded(), "TexConv did not finish in time."))
       return;
 
     EZ_TEST_INT_MSG(m_pState->m_TexConvGroup.GetProcesses().PeekBack().GetExitCode(), 0, "TexConv failed to process the image");

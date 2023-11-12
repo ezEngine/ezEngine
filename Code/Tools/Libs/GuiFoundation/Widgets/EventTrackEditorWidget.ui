@@ -129,7 +129,7 @@
        </property>
        <property name="icon">
         <iconset resource="../QtResources/resources.qrc">
-         <normaloff>:/GuiFoundation/Icons/Add16.png</normaloff>:/GuiFoundation/Icons/Add16.png</iconset>
+         <normaloff>:/GuiFoundation/Icons/Add.svg</normaloff>:/GuiFoundation/Icons/Add.svg</iconset>
        </property>
       </widget>
      </item>

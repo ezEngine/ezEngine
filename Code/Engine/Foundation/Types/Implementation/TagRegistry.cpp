@@ -6,7 +6,7 @@
 
 static ezTagRegistry s_GlobalRegistry;
 
-ezTagRegistry::ezTagRegistry() {}
+ezTagRegistry::ezTagRegistry() = default;
 
 ezTagRegistry& ezTagRegistry::GetGlobalRegistry()
 {

@@ -2,7 +2,7 @@
 
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 
-typedef ezComponentManagerSimple<class ezHeadBoneComponent, ezComponentUpdateType::WhenSimulating> ezHeadBoneComponentManager;
+using ezHeadBoneComponentManager = ezComponentManagerSimple<class ezHeadBoneComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_GAMECOMPONENTS_DLL ezHeadBoneComponent : public ezComponent
 {
@@ -27,7 +27,7 @@ public:
   void ChangeVerticalRotation(float fRadians); // [ scriptable ]
 
   ezAngle m_NewVerticalRotation;                       // [ property ]
-  ezAngle m_MaxVerticalRotation = ezAngle::Degree(80); // [ property ]
+  ezAngle m_MaxVerticalRotation = ezAngle::MakeFromDegree(80); // [ property ]
 
 protected:
   void Update();

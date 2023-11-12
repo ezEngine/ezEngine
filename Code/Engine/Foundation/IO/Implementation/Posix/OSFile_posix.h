@@ -76,7 +76,7 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
   }
 
   const int iSharedMode = (FileShareMode == ezFileShareMode::Exclusive) ? LOCK_EX : LOCK_SH;
-  const ezTime sleepTime = ezTime::Milliseconds(20);
+  const ezTime sleepTime = ezTime::MakeFromMilliseconds(20);
   ezInt32 iRetries = m_bRetryOnSharingViolation ? 20 : 1;
 
   while (flock(fd, iSharedMode | LOCK_NB /* do not block */) != 0)
@@ -357,7 +357,7 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
   out_Stats.m_sParentPath = sFileOrFolder;
   out_Stats.m_sParentPath.PathParentDirectory();
   out_Stats.m_sName = ezPathUtils::GetFileNameAndExtension(sFileOrFolder); // no OS support, so just pass it through
-  out_Stats.m_LastModificationTime.SetInt64(tempStat.st_mtime, ezSIUnitOfTime::Second);
+  out_Stats.m_LastModificationTime = ezTimestamp::MakeFromInt(tempStat.st_mtime, ezSIUnitOfTime::Second);
 
   return EZ_SUCCESS;
 }
@@ -365,7 +365,7 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-const char* ezOSFile::GetApplicationDirectory()
+ezStringView ezOSFile::GetApplicationDirectory()
 {
   static ezString256 s_Path;
 
@@ -414,7 +414,7 @@ const char* ezOSFile::GetApplicationDirectory()
 #  endif
   }
 
-  return s_Path.GetData();
+  return s_Path;
 }
 
 ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
@@ -454,6 +454,28 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder)
   }
 
   ezStringBuilder s = s_sTempDataPath;
+  s.AppendPath(sSubFolder);
+  s.MakeCleanPath();
+  return s;
+}
+
+ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder)
+{
+  if (s_sUserDocumentsPath.IsEmpty())
+  {
+#  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+    android_app* app = ezAndroidUtils::GetAndroidApp();
+    // s_sUserDataPath = app->activity->internalDataPath;
+    EZ_ASSERT_NOT_IMPLEMENTED;
+#  else
+    s_sUserDataPath = getenv("HOME");
+
+    if (s_sUserDataPath.IsEmpty())
+      s_sUserDataPath = getpwuid(getuid())->pw_dir;
+#  endif
+  }
+
+  ezStringBuilder s = s_sUserDocumentsPath;
   s.AppendPath(sSubFolder);
   s.MakeCleanPath();
   return s;
@@ -515,7 +537,7 @@ namespace
     curFile.m_bIsDirectory = hCurrentFile->d_type == DT_DIR;
     curFile.m_sParentPath = curPath;
     curFile.m_sName = hCurrentFile->d_name;
-    curFile.m_LastModificationTime.SetInt64(fileStat.st_mtime, ezSIUnitOfTime::Second);
+    curFile.m_LastModificationTime = ezTimestamp::MakeFromInt(fileStat.st_mtime, ezSIUnitOfTime::Second);
 
     return EZ_SUCCESS;
   }

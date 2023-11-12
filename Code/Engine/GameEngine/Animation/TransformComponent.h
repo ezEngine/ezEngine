@@ -4,11 +4,10 @@
 #include <Core/World/World.h>
 #include <Foundation/Time/Time.h>
 #include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 struct ezTransformComponentFlags
 {
-  typedef ezUInt16 StorageType;
+  using StorageType = ezUInt16;
 
   enum Enum
   {
@@ -44,6 +43,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
+protected:
+  virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezTransformComponent

@@ -19,11 +19,30 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Clock)
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezClock, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
+    EZ_ACCESSOR_PROPERTY("Speed", GetSpeed, SetSpeed),
+  }
+  EZ_END_PROPERTIES;
+
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalClock),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetAccumulatedTime),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetTimeDiff)
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezClock::ezClock(const char* szName)
+ezClock::ezClock(ezStringView sName)
 {
-  SetClockName(szName);
+  SetClockName(sName);
 
   Reset(true);
 }
@@ -33,12 +52,12 @@ void ezClock::Reset(bool bEverything)
   if (bEverything)
   {
     m_pTimeStepSmoother = nullptr;
-    m_MinTimeStep = ezTime::Seconds(0.001); // 1000 FPS
-    m_MaxTimeStep = ezTime::Seconds(0.1);   //   10 FPS, many simulations will be instable at that rate already
-    m_FixedTimeStep = ezTime::Seconds(0.0);
+    m_MinTimeStep = ezTime::MakeFromSeconds(0.001); // 1000 FPS
+    m_MaxTimeStep = ezTime::MakeFromSeconds(0.1);   //   10 FPS, many simulations will be instable at that rate already
+    m_FixedTimeStep = ezTime::MakeFromSeconds(0.0);
   }
 
-  m_AccumulatedTime = ezTime::Seconds(0.0);
+  m_AccumulatedTime = ezTime::MakeFromSeconds(0.0);
   m_fSpeed = 1.0;
   m_bPaused = false;
 
@@ -60,9 +79,9 @@ void ezClock::Update()
   if (m_bPaused)
   {
     // no change during pause
-    m_LastTimeDiff = ezTime::Seconds(0.0);
+    m_LastTimeDiff = ezTime::MakeFromSeconds(0.0);
   }
-  else if (m_FixedTimeStep > ezTime::Seconds(0.0))
+  else if (m_FixedTimeStep > ezTime::MakeFromSeconds(0.0))
   {
     // scale the time step by the speed factor
     m_LastTimeDiff = m_FixedTimeStep * m_fSpeed;
@@ -83,7 +102,7 @@ void ezClock::Update()
   m_AccumulatedTime += m_LastTimeDiff;
 
   EventData ed;
-  ed.m_szClockName = m_sName.GetData();
+  ed.m_sClockName = m_sName;
   ed.m_RawTimeStep = tDiff;
   ed.m_SmoothedTimeStep = m_LastTimeDiff;
 
@@ -96,8 +115,8 @@ void ezClock::SetAccumulatedTime(ezTime t)
 
   // this is to prevent having a time difference of zero (which might not work with some code)
   // in case the next Update() call is done right after this
-  m_LastTimeUpdate = ezTime::Now() - ezTime::Seconds(0.01);
-  m_LastTimeDiff = ezTime::Seconds(0.01);
+  m_LastTimeUpdate = ezTime::Now() - ezTime::MakeFromSeconds(0.01);
+  m_LastTimeDiff = ezTime::MakeFromSeconds(0.01);
 }
 
 void ezClock::Save(ezStreamWriter& inout_stream) const

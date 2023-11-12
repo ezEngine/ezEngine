@@ -8,12 +8,11 @@
 
 ezGALBufferDX11::ezGALBufferDX11(const ezGALBufferCreationDescription& Description)
   : ezGALBuffer(Description)
-  , m_pDXBuffer(nullptr)
-  , m_IndexFormat(DXGI_FORMAT_UNKNOWN)
+
 {
 }
 
-ezGALBufferDX11::~ezGALBufferDX11() {}
+ezGALBufferDX11::~ezGALBufferDX11() = default;
 
 ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData)
 {
@@ -48,9 +47,6 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
 
   if (m_Description.m_bAllowUAV)
     BufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
-
-  if (m_Description.m_bStreamOutputTarget)
-    BufferDesc.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
 
   BufferDesc.ByteWidth = m_Description.m_uiTotalSize;
   BufferDesc.CPUAccessFlags = 0;

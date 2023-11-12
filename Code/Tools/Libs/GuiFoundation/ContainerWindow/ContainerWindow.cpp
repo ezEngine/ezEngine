@@ -173,8 +173,6 @@ void ezQtContainerWindow::SaveWindowLayout()
   ezStringBuilder sProjectFile;
   GetProjectLayoutPath(sProjectFile, true);
 
-  const bool bMaximized = isMaximized();
-
   QSettings Settings(ezToolsProject::IsProjectOpen() ? sProjectFile.GetData() : sFile.GetData(), QSettings::IniFormat);
   Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
   {
@@ -224,7 +222,7 @@ void ezQtContainerWindow::RestoreWindowLayout()
       restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
       restoreState(Settings.value("WindowState", saveState()).toByteArray());
       auto dockState = Settings.value("DockManagerState");
-      if (dockState.isValid() && dockState.type() == QVariant::ByteArray)
+      if (dockState.isValid() && dockState.typeId() == QMetaType::QByteArray)
       {
         m_pDockManager->restoreState(dockState.toByteArray(), 1);
         // As document windows can't be in a closed state (as pressing x destroys them),
@@ -395,6 +393,22 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   // we cannot call virtual functions on pDocWindow here, because the object might still be under construction
   // so we delay it until later
   QMetaObject::invokeMethod(this, "SlotUpdateWindowDecoration", Qt::ConnectionType::QueuedConnection, Q_ARG(void*, pDocWindow));
+}
+
+void ezQtContainerWindow::DocumentWindowRenamed(ezQtDocumentWindow* pDocWindow)
+{
+  const ezUInt32 uiListIndex = m_DocumentWindows.IndexOf(pDocWindow);
+  if (uiListIndex == ezInvalidIndex)
+    return;
+
+  ads::CDockWidget* dock = m_DocumentDocks[uiListIndex];
+  EZ_ASSERT_DEV(m_DockNames.contains(dock->objectName()), "Object name must not change during lifetime.");
+  m_DockNames.remove(dock->objectName());
+
+  dock->setObjectName(pDocWindow->GetUniqueName());
+  EZ_ASSERT_DEV(!dock->objectName().isEmpty(), "Dock name must not be empty.");
+  EZ_ASSERT_DEV(!m_DockNames.contains(dock->objectName()), "Dock name must be unique.");
+  m_DockNames.insert(dock->objectName());
 }
 
 void ezQtContainerWindow::AddApplicationPanel(ezQtApplicationPanel* pPanel)

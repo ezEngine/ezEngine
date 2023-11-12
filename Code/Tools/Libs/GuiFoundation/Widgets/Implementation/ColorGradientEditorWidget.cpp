@@ -40,7 +40,7 @@ ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
 }
 
 
-ezQtColorGradientEditorWidget::~ezQtColorGradientEditorWidget() {}
+ezQtColorGradientEditorWidget::~ezQtColorGradientEditorWidget() = default;
 
 
 void ezQtColorGradientEditorWidget::SetColorGradient(const ezColorGradient& gradient)

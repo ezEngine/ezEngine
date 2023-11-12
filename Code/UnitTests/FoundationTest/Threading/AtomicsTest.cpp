@@ -2,6 +2,7 @@
 
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Types/VariantType.h>
 
 namespace
 {
@@ -49,6 +50,14 @@ namespace
 
   void* g_pTestAndSetPointer = nullptr;
   ezInt32 g_iTestAndSetPointerCounter = 0;
+
+  ezAtomicInteger<ezVariantType::Enum> g_EnumSet = ezVariantType::Bool;
+
+  ezAtomicInteger<ezVariantType::Enum> g_EnumCompareAndSwap = ezVariantType::Bool;
+  ezInt32 g_iCompareAndSwapCounterEnum = 0;
+
+  ezAtomicInteger<ezVariantType::Enum> g_EnumTestAndSetVariable = ezVariantType::Bool;
+  ezInt32 g_iTestAndSetCounterEnum = 0;
 
   class AtomicsTestThread : public ezThread
   {
@@ -115,6 +124,19 @@ namespace
       if (g_iCompareAndSwapVariable64.CompareAndSwap(0, m_iIndex) == 0)
       {
         ++g_iCompareAndSwapCounter64;
+      }
+
+      const ezVariantType::Enum targetEnum = m_iIndex == 1 ? ezVariantType::Float : ezVariantType::Color;
+      g_EnumSet.Set(targetEnum);
+
+      if (g_EnumTestAndSetVariable.TestAndSet(ezVariantType::Bool, targetEnum))
+      {
+        ++g_iTestAndSetCounterEnum;
+      }
+
+      if (g_EnumCompareAndSwap.CompareAndSwap(ezVariantType::Bool, targetEnum) == ezVariantType::Bool)
+      {
+        ++g_iCompareAndSwapCounterEnum;
       }
 
       return 0;
@@ -206,6 +228,12 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 
     g_pTestAndSetPointer = nullptr;
     g_iTestAndSetPointerCounter = 0;
+
+    g_EnumSet = ezVariantType::Bool;
+    g_EnumTestAndSetVariable = ezVariantType::Bool;
+    g_EnumCompareAndSwap = ezVariantType::Bool;
+    g_iTestAndSetCounterEnum = 0;
+    g_iCompareAndSwapCounterEnum = 0;
   }
 
 
@@ -289,6 +317,12 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 
     g_iDecVariable64 = 0;
     EZ_TEST_INT(g_iDecVariable64.Decrement(), -1);
+
+    EZ_TEST_BOOL(g_EnumSet == ezVariantType::Float || g_EnumSet == ezVariantType::Color);
+    EZ_TEST_BOOL(g_EnumTestAndSetVariable == ezVariantType::Float || g_EnumTestAndSetVariable == ezVariantType::Color);
+    EZ_TEST_INT(g_iTestAndSetCounterEnum, 1);
+    EZ_TEST_BOOL(g_EnumCompareAndSwap == ezVariantType::Float || g_EnumCompareAndSwap == ezVariantType::Color);
+    EZ_TEST_INT(g_iCompareAndSwapCounterEnum, 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Post Increment Atomics (basics)")

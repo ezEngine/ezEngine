@@ -103,13 +103,13 @@ private:
 public:
   struct FunctionBinding
   {
-    ezAbstractFunctionProperty* m_pFunc = nullptr;
+    const ezAbstractFunctionProperty* m_pFunc = nullptr;
   };
 
   static const FunctionBinding* FindFunctionBinding(ezUInt32 uiFunctionHash);
 
 private:
-  static ezUInt32 ComputeFunctionBindingHash(const ezRTTI* pType, ezAbstractFunctionProperty* pFunc);
+  static ezUInt32 ComputeFunctionBindingHash(const ezRTTI* pType, const ezAbstractFunctionProperty* pFunc);
   static void SetupRttiFunctionBindings();
   static const char* TsType(const ezRTTI* pRtti);
   static int __CPP_Binding_RegisterMessageHandler(duk_context* pDuk);
@@ -124,7 +124,7 @@ private:
 public:
   struct PropertyBinding
   {
-    ezAbstractMemberProperty* m_pMember = nullptr;
+    const ezAbstractMemberProperty* m_pMember = nullptr;
   };
 
   static const PropertyBinding* FindPropertyBinding(ezUInt32 uiHash);
@@ -133,7 +133,7 @@ public:
   static void SyncTsObjectEzTsObject(duk_context* pDuk, const ezRTTI* pRtti, void* pObject, ezInt32 iObjIdx);
 
 private:
-  static ezUInt32 ComputePropertyBindingHash(const ezRTTI* pType, ezAbstractMemberProperty* pMember);
+  static ezUInt32 ComputePropertyBindingHash(const ezRTTI* pType, const ezAbstractMemberProperty* pMember);
   static void SetupRttiPropertyBindings();
 
   static ezHashTable<ezUInt32, PropertyBinding> s_BoundProperties;
@@ -227,32 +227,32 @@ public:
   static void PushVec2(duk_context* pDuk, const ezVec2& value);
   static void SetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& value);
   static void SetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& value);
-  static ezVec2 GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& vFallback = ezVec2::ZeroVector());
-  static ezVec2 GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& vFallback = ezVec2::ZeroVector());
+  static ezVec2 GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& vFallback = ezVec2::MakeZero());
+  static ezVec2 GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& vFallback = ezVec2::MakeZero());
 
   static void PushVec3(duk_context* pDuk, const ezVec3& value);
   static void SetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& value);
   static void SetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& value);
-  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& vFallback = ezVec3::ZeroVector());
-  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& vFallback = ezVec3::ZeroVector());
+  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& vFallback = ezVec3::MakeZero());
+  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& vFallback = ezVec3::MakeZero());
 
   static void PushMat3(duk_context* pDuk, const ezMat3& value);
   static void SetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& value);
   static void SetMat3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& value);
-  static ezMat3 GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& mFallback = ezMat3::IdentityMatrix());
-  static ezMat3 GetMat3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& mFallback = ezMat3::IdentityMatrix());
+  static ezMat3 GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& mFallback = ezMat3::MakeIdentity());
+  static ezMat3 GetMat3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& mFallback = ezMat3::MakeIdentity());
 
   static void PushMat4(duk_context* pDuk, const ezMat4& value);
   static void SetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& value);
   static void SetMat4Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& value);
-  static ezMat4 GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& mFallback = ezMat4::IdentityMatrix());
-  static ezMat4 GetMat4Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& mFallback = ezMat4::IdentityMatrix());
+  static ezMat4 GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& mFallback = ezMat4::MakeIdentity());
+  static ezMat4 GetMat4Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& mFallback = ezMat4::MakeIdentity());
 
   static void PushQuat(duk_context* pDuk, const ezQuat& value);
   static void SetQuat(duk_context* pDuk, ezInt32 iObjIdx, const ezQuat& value);
   static void SetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezQuat& value);
-  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat qFallback = ezQuat::IdentityQuaternion());
-  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat qFallback = ezQuat::IdentityQuaternion());
+  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat qFallback = ezQuat::MakeIdentity());
+  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat qFallback = ezQuat::MakeIdentity());
 
   static void PushColor(duk_context* pDuk, const ezColor& value);
   static void SetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& value);
@@ -263,8 +263,8 @@ public:
   static void PushTransform(duk_context* pDuk, const ezTransform& value);
   static void SetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& value);
   static void SetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& value);
-  static ezTransform GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
-  static ezTransform GetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
+  static ezTransform GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::MakeIdentity());
+  static ezTransform GetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::MakeIdentity());
 
   static void PushVariant(duk_context* pDuk, const ezVariant& value);
   static void SetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVariant& value);
@@ -310,7 +310,7 @@ private:
   ///@{
 public:
   bool RegisterGameObject(ezGameObjectHandle hHandle, ezUInt32& out_uiStashIdx);
-  ezResult RegisterComponent(const char* szTypeName, ezComponentHandle hHandle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent);
+  ezResult RegisterComponent(ezStringView sTypeName, ezComponentHandle hHandle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent);
 
   /// \brief Removes dead GameObject and Component references from the DukTape stash.
   void CleanupStash(ezUInt32 uiNumIterations);

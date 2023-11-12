@@ -146,13 +146,13 @@ private:
   /// This can be used to shutdown all systems from certain DLLs before that DLL is unloaded (and possibly reloaded).
   /// Broadcasts the global event EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN and EZ_GLOBALEVENT_UNLOAD_PLUGIN_END and passes szPluginName in the first event
   /// parameter.
-  static void UnloadPluginSubSystems(const char* szPluginName);
+  static void UnloadPluginSubSystems(ezStringView sPluginName);
 
   static void PluginEventHandler(const ezPluginEvent& EventData);
-  static void AssignSubSystemPlugin(const char* szPluginName);
+  static void AssignSubSystemPlugin(ezStringView sPluginName);
 
   static void ComputeOrder(ezDeque<ezSubSystem*>& Order);
-  static bool HasDependencyOnPlugin(ezSubSystem* pSubSystem, const char* szModule);
+  static bool HasDependencyOnPlugin(ezSubSystem* pSubSystem, ezStringView sModule);
 
   static void Startup(ezStartupStage::Enum stage);
   static void Shutdown(ezStartupStage::Enum stage);

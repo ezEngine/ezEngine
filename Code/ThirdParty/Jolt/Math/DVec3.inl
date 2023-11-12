@@ -84,10 +84,10 @@ void DVec3::CheckW() const
 {
 #ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
 	// Avoid asserts when both components are NaN
-	JPH_ASSERT(reinterpret_cast<const uint64 *>(mF64)[2] == reinterpret_cast<const uint64 *>(mF64)[3]); 
+	JPH_ASSERT(reinterpret_cast<const uint64 *>(mF64)[2] == reinterpret_cast<const uint64 *>(mF64)[3]);
 #endif // JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
-} 
-	
+}
+
 /// Internal helper function that ensures that the Z component is replicated to the W component to prevent divisions by zero
 DVec3::Type DVec3::sFixW(TypeArg inValue)
 {
@@ -199,8 +199,8 @@ DVec3 DVec3::sMin(DVec3Arg inV1, DVec3Arg inV2)
 #elif defined(JPH_USE_NEON)
 	return DVec3({ vminq_f64(inV1.mValue.val[0], inV2.mValue.val[0]), vminq_f64(inV1.mValue.val[1], inV2.mValue.val[1]) });
 #else
-	return DVec3(min(inV1.mF64[0], inV2.mF64[0]), 
-				 min(inV1.mF64[1], inV2.mF64[1]), 
+	return DVec3(min(inV1.mF64[0], inV2.mF64[0]),
+				 min(inV1.mF64[1], inV2.mF64[1]),
 				 min(inV1.mF64[2], inV2.mF64[2]));
 #endif
 }
@@ -214,8 +214,8 @@ DVec3 DVec3::sMax(DVec3Arg inV1, DVec3Arg inV2)
 #elif defined(JPH_USE_NEON)
 	return DVec3({ vmaxq_f64(inV1.mValue.val[0], inV2.mValue.val[0]), vmaxq_f64(inV1.mValue.val[1], inV2.mValue.val[1]) });
 #else
-	return DVec3(max(inV1.mF64[0], inV2.mF64[0]), 
-				 max(inV1.mF64[1], inV2.mF64[1]), 
+	return DVec3(max(inV1.mF64[0], inV2.mF64[0]),
+				 max(inV1.mF64[1], inV2.mF64[1]),
 				 max(inV1.mF64[2], inV2.mF64[2]));
 #endif
 }
@@ -234,8 +234,8 @@ DVec3 DVec3::sEquals(DVec3Arg inV1, DVec3Arg inV2)
 #elif defined(JPH_USE_NEON)
 	return DVec3({ vreinterpretq_u64_f64(vceqq_f64(inV1.mValue.val[0], inV2.mValue.val[0])), vreinterpretq_u64_f64(vceqq_f64(inV1.mValue.val[1], inV2.mValue.val[1])) });
 #else
-	return DVec3(inV1.mF64[0] == inV2.mF64[0]? cTrue : cFalse, 
-				 inV1.mF64[1] == inV2.mF64[1]? cTrue : cFalse, 
+	return DVec3(inV1.mF64[0] == inV2.mF64[0]? cTrue : cFalse,
+				 inV1.mF64[1] == inV2.mF64[1]? cTrue : cFalse,
 				 inV1.mF64[2] == inV2.mF64[2]? cTrue : cFalse);
 #endif
 }
@@ -249,8 +249,8 @@ DVec3 DVec3::sLess(DVec3Arg inV1, DVec3Arg inV2)
 #elif defined(JPH_USE_NEON)
 	return DVec3({ vreinterpretq_u64_f64(vcltq_f64(inV1.mValue.val[0], inV2.mValue.val[0])), vreinterpretq_u64_f64(vcltq_f64(inV1.mValue.val[1], inV2.mValue.val[1])) });
 #else
-	return DVec3(inV1.mF64[0] < inV2.mF64[0]? cTrue : cFalse, 
-				 inV1.mF64[1] < inV2.mF64[1]? cTrue : cFalse, 
+	return DVec3(inV1.mF64[0] < inV2.mF64[0]? cTrue : cFalse,
+				 inV1.mF64[1] < inV2.mF64[1]? cTrue : cFalse,
 				 inV1.mF64[2] < inV2.mF64[2]? cTrue : cFalse);
 #endif
 }
@@ -264,8 +264,8 @@ DVec3 DVec3::sLessOrEqual(DVec3Arg inV1, DVec3Arg inV2)
 #elif defined(JPH_USE_NEON)
 	return DVec3({ vreinterpretq_u64_f64(vcleq_f64(inV1.mValue.val[0], inV2.mValue.val[0])), vreinterpretq_u64_f64(vcleq_f64(inV1.mValue.val[1], inV2.mValue.val[1])) });
 #else
-	return DVec3(inV1.mF64[0] <= inV2.mF64[0]? cTrue : cFalse, 
-				 inV1.mF64[1] <= inV2.mF64[1]? cTrue : cFalse, 
+	return DVec3(inV1.mF64[0] <= inV2.mF64[0]? cTrue : cFalse,
+				 inV1.mF64[1] <= inV2.mF64[1]? cTrue : cFalse,
 				 inV1.mF64[2] <= inV2.mF64[2]? cTrue : cFalse);
 #endif
 }
@@ -279,8 +279,8 @@ DVec3 DVec3::sGreater(DVec3Arg inV1, DVec3Arg inV2)
 #elif defined(JPH_USE_NEON)
 	return DVec3({ vreinterpretq_u64_f64(vcgtq_f64(inV1.mValue.val[0], inV2.mValue.val[0])), vreinterpretq_u64_f64(vcgtq_f64(inV1.mValue.val[1], inV2.mValue.val[1])) });
 #else
-	return DVec3(inV1.mF64[0] > inV2.mF64[0]? cTrue : cFalse, 
-				 inV1.mF64[1] > inV2.mF64[1]? cTrue : cFalse, 
+	return DVec3(inV1.mF64[0] > inV2.mF64[0]? cTrue : cFalse,
+				 inV1.mF64[1] > inV2.mF64[1]? cTrue : cFalse,
 				 inV1.mF64[2] > inV2.mF64[2]? cTrue : cFalse);
 #endif
 }
@@ -294,8 +294,8 @@ DVec3 DVec3::sGreaterOrEqual(DVec3Arg inV1, DVec3Arg inV2)
 #elif defined(JPH_USE_NEON)
 	return DVec3({ vreinterpretq_u64_f64(vcgeq_f64(inV1.mValue.val[0], inV2.mValue.val[0])), vreinterpretq_u64_f64(vcgeq_f64(inV1.mValue.val[1], inV2.mValue.val[1])) });
 #else
-	return DVec3(inV1.mF64[0] >= inV2.mF64[0]? cTrue : cFalse, 
-				 inV1.mF64[1] >= inV2.mF64[1]? cTrue : cFalse, 
+	return DVec3(inV1.mF64[0] >= inV2.mF64[0]? cTrue : cFalse,
+				 inV1.mF64[1] >= inV2.mF64[1]? cTrue : cFalse,
 				 inV1.mF64[2] >= inV2.mF64[2]? cTrue : cFalse);
 #endif
 }
@@ -402,8 +402,8 @@ bool DVec3::TestAllTrue() const
 	return GetTrues() == 0x7;
 }
 
-bool DVec3::operator == (DVec3Arg inV2) const 
-{ 
+bool DVec3::operator == (DVec3Arg inV2) const
+{
 	return sEquals(*this, inV2).TestAllTrue();
 }
 
@@ -790,14 +790,16 @@ DVec3 DVec3::Normalized() const
 	return *this / Length();
 }
 
-bool DVec3::IsNormalized(double inTolerance) const 
-{ 
-	return abs(LengthSq() - 1.0) <= inTolerance; 
+bool DVec3::IsNormalized(double inTolerance) const
+{
+	return abs(LengthSq() - 1.0) <= inTolerance;
 }
 
 bool DVec3::IsNaN() const
 {
-#if defined(JPH_USE_AVX)
+#if defined(JPH_USE_AVX512)
+	return (_mm256_fpclass_pd_mask(mValue, 0b10000001) & 0x7) != 0;
+#elif defined(JPH_USE_AVX)
 	return (_mm256_movemask_pd(_mm256_cmp_pd(mValue, mValue, _CMP_UNORD_Q)) & 0x7) != 0;
 #elif defined(JPH_USE_SSE)
 	return ((_mm_movemask_pd(_mm_cmpunord_pd(mValue.mLow, mValue.mLow)) + (_mm_movemask_pd(_mm_cmpunord_pd(mValue.mHigh, mValue.mHigh)) << 2)) & 0x7) != 0;
@@ -808,7 +810,9 @@ bool DVec3::IsNaN() const
 
 DVec3 DVec3::GetSign() const
 {
-#if defined(JPH_USE_AVX)
+#if defined(JPH_USE_AVX512)
+	return _mm256_fixupimm_pd(mValue, mValue, _mm256_set1_epi32(0xA9A90A00), 0);
+#elif defined(JPH_USE_AVX)
 	__m256d minus_one = _mm256_set1_pd(-1.0);
 	__m256d one = _mm256_set1_pd(1.0);
 	return _mm256_or_pd(_mm256_and_pd(mValue, minus_one), one);
@@ -821,8 +825,8 @@ DVec3 DVec3::GetSign() const
 	float64x2_t one = vdupq_n_f64(1.0f);
 	return DVec3({ vorrq_s64(vandq_s64(mValue.val[0], minus_one), one), vorrq_s64(vandq_s64(mValue.val[1], minus_one), one) });
 #else
-	return DVec3(std::signbit(mF64[0])? -1.0 : 1.0, 
-				 std::signbit(mF64[1])? -1.0 : 1.0, 
+	return DVec3(std::signbit(mF64[0])? -1.0 : 1.0,
+				 std::signbit(mF64[1])? -1.0 : 1.0,
 				 std::signbit(mF64[2])? -1.0 : 1.0);
 #endif
 }
@@ -854,7 +858,12 @@ DVec3 DVec3::PrepareRoundToInf() const
 	// Float has 23 bit mantissa, double 52 bit mantissa => we lose 29 bits when converting from double to float
 	constexpr uint64 cDoubleToFloatMantissaLoss = (1U << 29) - 1;
 
-#if defined(JPH_USE_AVX)
+#if defined(JPH_USE_AVX512)
+	__m256i mantissa_loss = _mm256_set1_epi64x(cDoubleToFloatMantissaLoss);
+	__mmask8 is_zero = _mm256_testn_epi64_mask(_mm256_castpd_si256(mValue), mantissa_loss);
+	__m256d value_or_mantissa_loss = _mm256_or_pd(mValue, _mm256_castsi256_pd(mantissa_loss));
+	return _mm256_mask_blend_pd(is_zero, value_or_mantissa_loss, mValue);
+#elif defined(JPH_USE_AVX)
 	__m256i mantissa_loss = _mm256_set1_epi64x(cDoubleToFloatMantissaLoss);
 	__m256d value_and_mantissa_loss = _mm256_and_pd(mValue, _mm256_castsi256_pd(mantissa_loss));
 	__m256d is_zero = _mm256_cmp_pd(value_and_mantissa_loss, _mm256_setzero_pd(), _CMP_EQ_OQ);

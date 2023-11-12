@@ -19,16 +19,16 @@ void OnLoadPlugin()
   {
     // Menu Bar
     ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar").IgnoreResult();
-    ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
     ezProjectActions::MapActions("SoundBankAssetMenuBar");
-    ezDocumentActions::MapActions("SoundBankAssetMenuBar", "Menu.File", false);
-    ezAssetActions::MapMenuActions("SoundBankAssetMenuBar", "Menu.File");
-    ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar", "Menu.Edit");
+    ezDocumentActions::MapMenuActions("SoundBankAssetMenuBar");
+    ezAssetActions::MapMenuActions("SoundBankAssetMenuBar");
+    ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar");
 
     // Tool Bar
     {
       ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapActions("SoundBankAssetToolBar", "", true);
+      ezDocumentActions::MapToolbarActions("SoundBankAssetToolBar");
       ezCommandHistoryActions::MapActions("SoundBankAssetToolBar", "");
       ezAssetActions::MapToolBarActions("SoundBankAssetToolBar", true);
     }

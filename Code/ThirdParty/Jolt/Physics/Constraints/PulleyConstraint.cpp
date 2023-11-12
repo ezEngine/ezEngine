@@ -32,7 +32,7 @@ JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(PulleyConstraintSettings)
 }
 
 void PulleyConstraintSettings::SaveBinaryState(StreamOut &inStream) const
-{ 
+{
 	ConstraintSettings::SaveBinaryState(inStream);
 
 	inStream.Write(mSpace);
@@ -97,7 +97,15 @@ PulleyConstraint::PulleyConstraint(Body &inBody1, Body &inBody2, const PulleyCon
 		mMaxLength = current_length;
 
 	// Initialize the normals to a likely valid axis in case the fixed points overlap with the attachment points (most likely the fixed points are above both bodies)
-	mWorldSpaceNormal1 = mWorldSpaceNormal2 = -Vec3::sAxisY(); 
+	mWorldSpaceNormal1 = mWorldSpaceNormal2 = -Vec3::sAxisY();
+}
+
+void PulleyConstraint::NotifyShapeChanged(const BodyID &inBodyID, Vec3Arg inDeltaCOM)
+{
+	if (mBody1->GetID() == inBodyID)
+		mLocalSpacePosition1 -= inDeltaCOM;
+	else if (mBody2->GetID() == inBodyID)
+		mLocalSpacePosition2 -= inDeltaCOM;
 }
 
 float PulleyConstraint::CalculatePositionsNormalsAndLength()

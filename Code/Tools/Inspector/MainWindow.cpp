@@ -77,7 +77,7 @@ ezQtMainWindow::ezQtMainWindow()
   QMenu* pHistoryMenu = new QMenu;
   pHistoryMenu->setTearOffEnabled(true);
   pHistoryMenu->setTitle(QLatin1String("Stat Histories"));
-  pHistoryMenu->setIcon(QIcon(":/Icons/Icons/StatHistory.png"));
+  pHistoryMenu->setIcon(QIcon(":/Icons/Icons/StatHistory.svg"));
 
   for (ezUInt32 i = 0; i < 10; ++i)
   {
@@ -129,7 +129,7 @@ ezQtMainWindow::ezQtMainWindow()
   if (bRestoreDockingState)
   {
     auto dockState = Settings.value("DockManagerState");
-    if (dockState.isValid() && dockState.type() == QVariant::ByteArray)
+    if (dockState.isValid() && dockState.typeId() == QMetaType::QByteArray)
     {
       m_DockManager->restoreState(dockState.toByteArray(), 1);
     }
@@ -330,6 +330,7 @@ void ezQtMainWindow::UpdateAlwaysOnTop()
   static bool bOnTop = false;
 
   bool bNewState = bOnTop;
+  EZ_IGNORE_UNUSED(bNewState);
 
   if (m_OnTopMode == Always || (m_OnTopMode == WhenConnected && ezTelemetry::IsConnectedToServer()))
     bNewState = true;
@@ -345,7 +346,7 @@ void ezQtMainWindow::UpdateAlwaysOnTop()
     if (bOnTop)
       setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
     else
-      setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint | Qt::WindowStaysOnBottomHint);
+      setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
 
     show();
   }

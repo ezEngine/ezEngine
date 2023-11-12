@@ -36,10 +36,10 @@ void ezGameGrid<CellData>::SetWorldSpaceDimensions(const ezVec3& vLowerLeftCorne
       mRot.SetIdentity();
       break;
     case InPlaneXZ:
-      mRot.SetRotationMatrix(ezVec3(1, 0, 0), ezAngle::Degree(90.0f));
+      mRot = ezMat3::MakeAxisRotation(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
       break;
     case InPlaneXminusZ:
-      mRot.SetRotationMatrix(ezVec3(1, 0, 0), ezAngle::Degree(-90.0f));
+      mRot = ezMat3::MakeAxisRotation(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(-90.0f));
       break;
   }
 
@@ -100,7 +100,7 @@ template <class CellData>
 bool ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_pCellCoord, ezVec3* out_pIntersection) const
 {
   ezPlane p;
-  p.SetFromNormalAndPoint(m_mRotateToWorldspace * ezVec3(0, 0, -1), m_vWorldSpaceOrigin);
+  p = ezPlane::MakeFromNormalAndPoint(m_mRotateToWorldspace * ezVec3(0, 0, -1), m_vWorldSpaceOrigin);
 
   ezVec3 vPos;
 

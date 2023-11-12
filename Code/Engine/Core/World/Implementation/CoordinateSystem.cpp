@@ -49,7 +49,7 @@ ezVec3 ezCoordinateSystemConversion::ConvertSourcePosition(const ezVec3& vPos) c
 
 ezQuat ezCoordinateSystemConversion::ConvertSourceRotation(const ezQuat& qOrientation) const
 {
-  ezVec3 axis = m_mSourceToTarget * qOrientation.v;
+  ezVec3 axis = m_mSourceToTarget * qOrientation.GetVectorPart();
   ezQuat rr(axis.x, axis.y, axis.z, qOrientation.w * m_fWindingSwap);
   return rr;
 }
@@ -66,7 +66,7 @@ ezVec3 ezCoordinateSystemConversion::ConvertTargetPosition(const ezVec3& vPos) c
 
 ezQuat ezCoordinateSystemConversion::ConvertTargetRotation(const ezQuat& qOrientation) const
 {
-  ezVec3 axis = m_mTargetToSource * qOrientation.v;
+  ezVec3 axis = m_mTargetToSource * qOrientation.GetVectorPart();
   ezQuat rr(axis.x, axis.y, axis.z, qOrientation.w * m_fWindingSwap);
   return rr;
 }

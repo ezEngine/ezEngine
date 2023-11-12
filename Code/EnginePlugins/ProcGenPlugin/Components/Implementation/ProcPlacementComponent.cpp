@@ -28,7 +28,7 @@ ezProcPlacementComponentManager::ezProcPlacementComponentManager(ezWorld* pWorld
 {
 }
 
-ezProcPlacementComponentManager::~ezProcPlacementComponentManager() {}
+ezProcPlacementComponentManager::~ezProcPlacementComponentManager() = default;
 
 void ezProcPlacementComponentManager::Initialize()
 {
@@ -218,7 +218,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
     sb.Format("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
 
     ezColor textColor = ezColorScheme::LightUI(ezColorScheme::Grape);
-    ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "ProcPlaceStats", sb, textColor);
+    ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "ProcPlaceStats", sb, textColor);
 
     for (ezUInt32 i = 0; i < m_NewTiles.GetCount(); ++i)
     {
@@ -574,7 +574,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenBoxExtents, ezNoBase, 1, ezRTTIDefaultAl
   EZ_BEGIN_ATTRIBUTES
   {
     new ezBoxManipulatorAttribute("Extents", 1.0f, false, "Offset", "Rotation"),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Blue), nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "Offset", "Rotation"),
+    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Blue), nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "Offset", "Rotation"),
     new ezTransformManipulatorAttribute("Offset", "Rotation"),
   }
   EZ_END_ATTRIBUTES;
@@ -597,7 +597,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcPlacementComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Procedural Generation"),
+    new ezCategoryAttribute("Construction/Procedural Generation"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -667,12 +667,11 @@ void ezProcPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_m
   if (m_BoxExtents.IsEmpty())
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   for (auto& boxExtent : m_BoxExtents)
   {
-    ezBoundingBoxSphere localBox = ezBoundingBox(-boxExtent.m_vExtents * 0.5f, boxExtent.m_vExtents * 0.5f);
+    ezBoundingBoxSphere localBox = ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-boxExtent.m_vExtents * 0.5f, boxExtent.m_vExtents * 0.5f));
     localBox.Transform(ezTransform(boxExtent.m_vOffset, boxExtent.m_Rotation).GetAsMat4());
 
     bounds.ExpandToInclude(localBox);
@@ -776,7 +775,7 @@ void ezProcPlacementComponent::UpdateBoundsAndTiles()
       localBoxTransform.m_Scale = ezSimdConversion::ToVec3(boxExtent.m_vExtents * 0.5f);
 
       ezSimdTransform finalBoxTransform;
-      finalBoxTransform.SetGlobalTransform(ownerTransform, localBoxTransform);
+      finalBoxTransform = ezSimdTransform::MakeGlobalTransform(ownerTransform, localBoxTransform);
 
       ezSimdMat4f finalBoxMat = finalBoxTransform.GetAsMat4();
 

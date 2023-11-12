@@ -19,7 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 struct DocumentNodeManager_NodeMetaData
 {
-  ezVec2 m_Pos = ezVec2::ZeroVector();
+  ezVec2 m_Pos = ezVec2::MakeZero();
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, DocumentNodeManager_NodeMetaData);
 
@@ -77,12 +77,14 @@ ezDocumentNodeManager::ezDocumentNodeManager()
 {
   m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezDocumentNodeManager::ObjectHandler, this));
   m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezDocumentNodeManager::StructureEventHandler, this));
+  m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezDocumentNodeManager::PropertyEventsHandler, this));
 }
 
 ezDocumentNodeManager::~ezDocumentNodeManager()
 {
   m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezDocumentNodeManager::ObjectHandler, this));
   m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezDocumentNodeManager::StructureEventHandler, this));
+  m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezDocumentNodeManager::PropertyEventsHandler, this));
 }
 
 const ezRTTI* ezDocumentNodeManager::GetConnectionType() const
@@ -106,27 +108,27 @@ const ezConnection& ezDocumentNodeManager::GetConnection(const ezDocumentObject*
   return *it.Value();
 }
 
-const ezPin* ezDocumentNodeManager::GetInputPinByName(const ezDocumentObject* pObject, const char* szName) const
+const ezPin* ezDocumentNodeManager::GetInputPinByName(const ezDocumentObject* pObject, ezStringView sName) const
 {
   EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
   EZ_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
   for (auto& pPin : it.Value().m_Inputs)
   {
-    if (ezStringUtils::IsEqual(pPin->GetName(), szName))
+    if (pPin->GetName() == sName)
       return pPin.Borrow();
   }
   return nullptr;
 }
 
-const ezPin* ezDocumentNodeManager::GetOutputPinByName(const ezDocumentObject* pObject, const char* szName) const
+const ezPin* ezDocumentNodeManager::GetOutputPinByName(const ezDocumentObject* pObject, ezStringView sName) const
 {
   EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
   EZ_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
   for (auto& pPin : it.Value().m_Outputs)
   {
-    if (ezStringUtils::IsEqual(pPin->GetName(), szName))
+    if (pPin->GetName() == sName)
       return pPin.Borrow();
   }
   return nullptr;
@@ -168,6 +170,17 @@ bool ezDocumentNodeManager::IsConnection(const ezDocumentObject* pObject) const
     return false;
 
   return InternalIsConnection(pObject);
+}
+
+bool ezDocumentNodeManager::IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
+{
+  if (IsNode(pObject) == false)
+    return false;
+
+  if (pProp == nullptr)
+    return false;
+
+  return InternalIsDynamicPinProperty(pObject, pProp);
 }
 
 ezArrayPtr<const ezConnection* const> ezDocumentNodeManager::GetConnections(const ezPin& pin) const
@@ -372,7 +385,7 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
           ezMoveNodeCommand move;
           move.m_Object = pObject->GetGuid();
           move.m_NewPos = nodeMetaData.m_Pos;
-          history->AddCommand(move);
+          history->AddCommand(move).LogFailure();
         }
         else
         {
@@ -395,30 +408,51 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
       ezDocumentObject* pSource = GetObject(connectionMetaData.m_Source);
       ezDocumentObject* pTarget = GetObject(connectionMetaData.m_Target);
       if (pSource == nullptr || pTarget == nullptr)
+      {
+        RemoveObject(pObject);
+        DestroyObject(pObject);
         continue;
+      }
 
       const ezPin* pSourcePin = GetOutputPinByName(pSource, connectionMetaData.m_SourcePin);
-      const ezPin* pTargetPin = GetInputPinByName(pTarget, connectionMetaData.m_TargetPin);
-      if (pSourcePin == nullptr || pTargetPin == nullptr)
+      if (pSourcePin == nullptr)
+      {
+        ezLog::Error("Unknown output pin '{}' on '{}'. The connection has been removed.", connectionMetaData.m_SourcePin, pSource->GetType()->GetTypeName());
+        RemoveObject(pObject);
+        DestroyObject(pObject);
         continue;
+      }
+
+      const ezPin* pTargetPin = GetInputPinByName(pTarget, connectionMetaData.m_TargetPin);
+      if (pTargetPin == nullptr)
+      {
+        ezLog::Error("Unknown input pin '{}' on '{}'. The connection has been removed.", connectionMetaData.m_TargetPin, pTarget->GetType()->GetTypeName());
+        RemoveObject(pObject);
+        DestroyObject(pObject);
+        continue;
+      }
 
       ezDocumentNodeManager::CanConnectResult res;
-      if (CanConnect(pObject->GetType(), *pSourcePin, *pTargetPin, res).m_Result.Succeeded())
+      if (CanConnect(pObject->GetType(), *pSourcePin, *pTargetPin, res).m_Result.Failed())
       {
-        if (bUndoable)
-        {
-          ezConnectNodePinsCommand cmd;
-          cmd.m_ConnectionObject = pObject->GetGuid();
-          cmd.m_ObjectSource = connectionMetaData.m_Source;
-          cmd.m_ObjectTarget = connectionMetaData.m_Target;
-          cmd.m_sSourcePin = connectionMetaData.m_SourcePin;
-          cmd.m_sTargetPin = connectionMetaData.m_TargetPin;
-          history->AddCommand(cmd);
-        }
-        else
-        {
-          Connect(pObject, *pSourcePin, *pTargetPin);
-        }
+        RemoveObject(pObject);
+        DestroyObject(pObject);
+        continue;
+      }
+
+      if (bUndoable)
+      {
+        ezConnectNodePinsCommand cmd;
+        cmd.m_ConnectionObject = pObject->GetGuid();
+        cmd.m_ObjectSource = connectionMetaData.m_Source;
+        cmd.m_ObjectTarget = connectionMetaData.m_Target;
+        cmd.m_sSourcePin = connectionMetaData.m_SourcePin;
+        cmd.m_sTargetPin = connectionMetaData.m_TargetPin;
+        history->AddCommand(cmd).LogFailure();
+      }
+      else
+      {
+        Connect(pObject, *pSourcePin, *pTargetPin);
       }
     }
   }
@@ -541,7 +575,7 @@ bool ezDocumentNodeManager::PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>
         ezMoveNodeCommand move;
         move.m_Object = pObject->GetGuid();
         move.m_NewPos = GetNodePos(pObject) + vMoveNode;
-        history->AddCommand(move);
+        history->AddCommand(move).LogFailure();
       }
     }
 
@@ -589,6 +623,102 @@ bool ezDocumentNodeManager::WouldConnectionCreateCircle(const ezPin& source, con
   return CanReachNode(pTargetNode, pSourceNode, Visited);
 }
 
+void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, ezStringView sPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const
+{
+  out_Names.Clear();
+
+  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sPropertyName);
+  if (pProp == nullptr)
+  {
+    ezLog::Warning("Property '{0}' not found in type '{1}'", sPropertyName, pObject->GetType()->GetTypeName());
+    return;
+  }
+
+  ezStringBuilder sTemp;
+  ezVariant value = pObject->GetTypeAccessor().GetValue(sPropertyName);
+
+  if (pProp->GetCategory() == ezPropertyCategory::Member)
+  {
+    if (value.CanConvertTo<ezUInt32>())
+    {
+      ezUInt32 uiCount = value.ConvertTo<ezUInt32>();
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        sTemp.Format("{}[{}]", sPinName, i);
+        out_Names.PushBack(sTemp);
+      }
+    }
+  }
+  else if (pProp->GetCategory() == ezPropertyCategory::Array)
+  {
+    auto pArrayProp = static_cast<const ezAbstractArrayProperty*>(pProp);
+
+    auto& a = value.Get<ezVariantArray>();
+    const ezUInt32 uiCount = a.GetCount();
+
+    auto variantType = pArrayProp->GetSpecificType()->GetVariantType();
+    if (variantType >= ezVariantType::Int8 && variantType <= ezVariantType::UInt64)
+    {
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        sTemp.Format("{}", a[i]);
+        out_Names.PushBack(sTemp);
+      }
+    }
+    else if (variantType == ezVariantType::String || variantType == ezVariantType::HashedString)
+    {
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        out_Names.PushBack(a[i].ConvertTo<ezString>());
+      }
+    }
+    else
+    {
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        sTemp.Format("{}[{}]", sPinName, i);
+        out_Names.PushBack(sTemp);
+      }
+    }
+  }
+}
+
+bool ezDocumentNodeManager::TryRecreatePins(const ezDocumentObject* pObject)
+{
+  if (!IsNode(pObject))
+    return false;
+
+  auto& nodeInternal = m_ObjectToNode[pObject->GetGuid()];
+
+  for (auto& pPin : nodeInternal.m_Inputs)
+  {
+    if (HasConnections(*pPin))
+      return false;
+  }
+
+  for (auto& pPin : nodeInternal.m_Outputs)
+  {
+    if (HasConnections(*pPin))
+      return false;
+  }
+
+  {
+    ezDocumentNodeManagerEvent e(ezDocumentNodeManagerEvent::Type::BeforePinsChanged, pObject);
+    m_NodeEvents.Broadcast(e);
+  }
+
+  nodeInternal.m_Inputs.Clear();
+  nodeInternal.m_Outputs.Clear();
+  InternalCreatePins(pObject, nodeInternal);
+
+  {
+    ezDocumentNodeManagerEvent e(ezDocumentNodeManagerEvent::Type::AfterPinsChanged, pObject);
+    m_NodeEvents.Broadcast(e);
+  }
+
+  return true;
+}
+
 bool ezDocumentNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
 {
   return true;
@@ -616,8 +746,6 @@ void ezDocumentNodeManager::ObjectHandler(const ezDocumentObjectEvent& e)
       {
         EZ_ASSERT_DEBUG(!m_ObjectToNode.Contains(e.m_pObject->GetGuid()), "Sanity check failed!");
         m_ObjectToNode[e.m_pObject->GetGuid()] = NodeInternal();
-        InternalCreatePins(e.m_pObject, m_ObjectToNode[e.m_pObject->GetGuid()]);
-        // TODO: Sanity check pins (duplicate names etc).
       }
       else if (IsConnection(e.m_pObject))
       {
@@ -640,6 +768,8 @@ void ezDocumentNodeManager::ObjectHandler(const ezDocumentObjectEvent& e)
       }
     }
     break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED
   }
 }
 
@@ -651,6 +781,13 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
     {
       if (IsNode(e.m_pObject))
       {
+        auto& nodeInternal = m_ObjectToNode[e.m_pObject->GetGuid()];
+        if (nodeInternal.m_Inputs.IsEmpty() && nodeInternal.m_Outputs.IsEmpty())
+        {
+          InternalCreatePins(e.m_pObject, nodeInternal);
+          // TODO: Sanity check pins (duplicate names etc).
+        }
+
         ezDocumentNodeManagerEvent e2(ezDocumentNodeManagerEvent::Type::BeforeNodeAdded, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
       }
@@ -686,6 +823,21 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
 
     default:
       break;
+  }
+}
+
+void ezDocumentNodeManager::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  if (e.m_pObject == nullptr)
+    return;
+
+  const ezAbstractProperty* pProp = e.m_pObject->GetType()->FindPropertyByName(e.m_sProperty);
+  if (pProp == nullptr)
+    return;
+
+  if (IsDynamicPinProperty(e.m_pObject, pProp))
+  {
+    TryRecreatePins(e.m_pObject);
   }
 }
 
@@ -726,9 +878,7 @@ void ezDocumentNodeManager::RestoreOldMetaDataAfterLoading(const ezAbstractObjec
     ezDocumentNodeManager::CanConnectResult res;
     if (CanConnect(pConnectionType, *pSourcePin, *pTargetPin, res).m_Result.Succeeded())
     {
-      ezUuid ObjectGuid;
-      ObjectGuid.CreateNewUuid();
-      ezDocumentObject* pConnectionObject = CreateObject(pConnectionType, ObjectGuid);
+      ezDocumentObject* pConnectionObject = CreateObject(pConnectionType, ezUuid::MakeUuid());
 
       AddObject(pConnectionObject, nullptr, "", -1);
 

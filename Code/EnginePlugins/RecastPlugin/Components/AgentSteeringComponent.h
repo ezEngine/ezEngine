@@ -25,7 +25,7 @@ struct ezAgentSteeringEvent
 
 struct ezAgentPathFindingState
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

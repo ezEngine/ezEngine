@@ -22,7 +22,7 @@ ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
     ezStandardInputDevice::s_bMainWindowUsed = true;
   }
 
-  m_DoubleClickTime = ezTime::Milliseconds(GetDoubleClickTime());
+  m_DoubleClickTime = ezTime::MakeFromMilliseconds(GetDoubleClickTime());
 }
 
 ezStandardInputDevice::~ezStandardInputDevice()
@@ -375,7 +375,7 @@ void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 #define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
 
 void ezStandardInputDevice::WindowMessage(
-  ezMinWindows::HWND pWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
+  ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
 {
 #if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
   static ezInt32 s_iMouseCaptureCount = 0;
@@ -401,7 +401,7 @@ void ezStandardInputDevice::WindowMessage(
     case WM_MOUSEMOVE:
     {
       RECT area;
-      GetClientRect(ezMinWindows::ToNative(pWnd), &area);
+      GetClientRect(ezMinWindows::ToNative(hWnd), &area);
 
       const ezUInt32 uiResX = area.right - area.left;
       const ezUInt32 uiResY = area.bottom - area.top;
@@ -415,7 +415,7 @@ void ezStandardInputDevice::WindowMessage(
 
       if (m_ClipCursorMode == ezMouseCursorClipMode::ClipToPosition || m_ClipCursorMode == ezMouseCursorClipMode::ClipToWindowImmediate)
       {
-        ApplyClipRect(m_ClipCursorMode, pWnd);
+        ApplyClipRect(m_ClipCursorMode, hWnd);
       }
 
       break;
@@ -424,13 +424,13 @@ void ezStandardInputDevice::WindowMessage(
     case WM_SETFOCUS:
     {
       m_bApplyClipRect = true;
-      ApplyClipRect(m_ClipCursorMode, pWnd);
+      ApplyClipRect(m_ClipCursorMode, hWnd);
       break;
     }
 
     case WM_KILLFOCUS:
     {
-      OnFocusLost(pWnd);
+      OnFocusLost(hWnd);
       return;
     }
 
@@ -458,7 +458,7 @@ void ezStandardInputDevice::WindowMessage(
       m_uiMouseButtonReceivedDown[0]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(pWnd));
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
 
@@ -466,7 +466,7 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_LBUTTONUP:
       m_uiMouseButtonReceivedUp[0]++;
-      ApplyClipRect(m_ClipCursorMode, pWnd);
+      ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -478,14 +478,14 @@ void ezStandardInputDevice::WindowMessage(
       m_uiMouseButtonReceivedDown[1]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(pWnd));
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
       return;
 
     case WM_RBUTTONUP:
       m_uiMouseButtonReceivedUp[1]++;
-      ApplyClipRect(m_ClipCursorMode, pWnd);
+      ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -498,7 +498,7 @@ void ezStandardInputDevice::WindowMessage(
       m_uiMouseButtonReceivedDown[2]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(pWnd));
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
       return;
 
@@ -518,7 +518,7 @@ void ezStandardInputDevice::WindowMessage(
         m_uiMouseButtonReceivedDown[4]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(pWnd));
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
       return;
@@ -585,13 +585,13 @@ void ezStandardInputDevice::WindowMessage(
           return;
         }
 
-        const char* szInputSlotName = ezInputManager::ConvertScanCodeToEngineName(uiScanCode, bIsExtended);
+        ezStringView sInputSlotName = ezInputManager::ConvertScanCodeToEngineName(uiScanCode, bIsExtended);
 
         // On Windows this only happens with the Pause key, but it will actually send the 'Right Ctrl' key value
         // so we need to fix this manually
         if (raw->data.keyboard.Flags & RI_KEY_E1)
         {
-          szInputSlotName = ezInputSlot_KeyPause;
+          sInputSlotName = ezInputSlot_KeyPause;
           bIgnoreNext = true;
         }
 
@@ -599,8 +599,8 @@ void ezStandardInputDevice::WindowMessage(
         // we ignore the first stupid shift key entirely and then modify the following Numpad* key
         // Note that the 'stupid shift' is sent along with several other keys as well (e.g. left/right/up/down arrows)
         // in these cases we can ignore them entirely, as the following key will have an unambiguous key code
-        if (ezStringUtils::IsEqual(szInputSlotName, ezInputSlot_KeyNumpadStar) && bWasStupidLeftShift)
-          szInputSlotName = ezInputSlot_KeyPrint;
+        if (sInputSlotName == ezInputSlot_KeyNumpadStar && bWasStupidLeftShift)
+          sInputSlotName = ezInputSlot_KeyPrint;
 
         bWasStupidLeftShift = false;
 
@@ -611,7 +611,7 @@ void ezStandardInputDevice::WindowMessage(
 
         const bool bPressed = !(raw->data.keyboard.Flags & 0x01);
 
-        m_InputSlotValues[szInputSlotName] = bPressed ? 1.0f : 0.0f;
+        m_InputSlotValues[sInputSlotName] = bPressed ? 1.0f : 0.0f;
 
         if ((m_InputSlotValues[ezInputSlot_KeyLeftCtrl] > 0.1f) && (m_InputSlotValues[ezInputSlot_KeyLeftAlt] > 0.1f) &&
             (m_InputSlotValues[ezInputSlot_KeyNumpadEnter] > 0.1f))
@@ -695,23 +695,23 @@ void ezStandardInputDevice::WindowMessage(
             static int iTouchPoint = 0;
             static bool bTouchPointDown = false;
 
-            const char* szSlot = ezInputManager::GetInputSlotTouchPoint(iTouchPoint);
-            const char* szSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
-            const char* szSlotY = ezInputManager::GetInputSlotTouchPointPositionY(iTouchPoint);
+            ezStringView sSlot = ezInputManager::GetInputSlotTouchPoint(iTouchPoint);
+            ezStringView sSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
+            ezStringView sSlotY = ezInputManager::GetInputSlotTouchPointPositionY(iTouchPoint);
 
-            m_InputSlotValues[szSlotX] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
-            m_InputSlotValues[szSlotY] = (raw->data.mouse.lLastY / 65535.0f);
+            m_InputSlotValues[sSlotX] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
+            m_InputSlotValues[sSlotY] = (raw->data.mouse.lLastY / 65535.0f);
 
             if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN | RI_MOUSE_BUTTON_2_DOWN)) != 0)
             {
               bTouchPointDown = true;
-              m_InputSlotValues[szSlot] = 1.0f;
+              m_InputSlotValues[sSlot] = 1.0f;
             }
 
             if ((uiButtons & (RI_MOUSE_BUTTON_1_UP | RI_MOUSE_BUTTON_2_UP)) != 0)
             {
               bTouchPointDown = false;
-              m_InputSlotValues[szSlot] = 0.0f;
+              m_InputSlotValues[sSlot] = 0.0f;
             }
           }
         }

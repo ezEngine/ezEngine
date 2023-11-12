@@ -21,7 +21,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypePoint final : public ezParticleType
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypePoint, ezParticleType);
 
 public:
-  ezParticleTypePoint() {}
+  ezParticleTypePoint() = default;
 
   virtual void CreateRequiredStreams() override;
 

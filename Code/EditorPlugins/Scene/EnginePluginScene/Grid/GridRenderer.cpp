@@ -1,6 +1,7 @@
 #include <EnginePluginScene/EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/Grid/GridRenderer.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
@@ -230,7 +231,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
   float fDensity = m_pSceneContext->GetGridDensity();
 
   ezGridRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGridRenderData>(nullptr);
-  pRenderData->m_GlobalBounds.SetInvalid();
+  pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
   pRenderData->m_bOrthoMode = cam->IsOrthographic();
   pRenderData->m_bGlobal = m_pSceneContext->IsGridInGlobalSpace();
 
@@ -250,14 +251,14 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     mRot.SetColumn(0, cam->GetCenterDirRight());
     mRot.SetColumn(1, cam->GetCenterDirUp());
     mRot.SetColumn(2, cam->GetCenterDirForwards());
-    pRenderData->m_GlobalTransform.m_qRotation.SetFromMat3(mRot);
+    pRenderData->m_GlobalTransform.m_qRotation = ezQuat::MakeFromMat3(mRot);
 
     const ezVec3 vBottomLeft = cam->GetCenterPosition() - cam->GetCenterDirRight() * fDimX - cam->GetCenterDirUp() * fDimY;
     const ezVec3 vTopRight = cam->GetCenterPosition() + cam->GetCenterDirRight() * fDimX + cam->GetCenterDirUp() * fDimY;
 
     ezPlane plane1, plane2;
-    plane1.SetFromNormalAndPoint(cam->GetCenterDirRight(), ezVec3(0));
-    plane2.SetFromNormalAndPoint(cam->GetCenterDirUp(), ezVec3(0));
+    plane1 = ezPlane::MakeFromNormalAndPoint(cam->GetCenterDirRight(), ezVec3(0));
+    plane2 = ezPlane::MakeFromNormalAndPoint(cam->GetCenterDirUp(), ezVec3(0));
 
     const float fFirstDist1 = plane1.GetDistanceTo(vBottomLeft) - fDensity;
     const float fLastDist1 = plane1.GetDistanceTo(vTopRight) + fDensity;
@@ -294,4 +295,19 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
   }
 
   ref_extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent);
+}
+
+ezResult ezEditorGridExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return EZ_SUCCESS;
+}
+
+
+ezResult ezEditorGridExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  return EZ_SUCCESS;
 }

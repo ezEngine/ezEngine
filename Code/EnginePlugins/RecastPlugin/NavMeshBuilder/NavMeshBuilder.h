@@ -20,7 +20,7 @@ struct EZ_RECASTPLUGIN_DLL ezRecastConfig
   float m_fAgentHeight = 1.5f;
   float m_fAgentRadius = 0.3f;
   float m_fAgentClimbHeight = 0.4f;
-  ezAngle m_WalkableSlope = ezAngle::Degree(45);
+  ezAngle m_WalkableSlope = ezAngle::MakeFromDegree(45);
   float m_fCellSize = 0.2f;
   float m_fCellHeight = 0.2f;
   float m_fMaxEdgeLength = 4.0f;
@@ -55,12 +55,14 @@ private:
   void Clear();
   void GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::MeshObjectList& objects);
   void ComputeBoundingBox();
-  ezResult BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh, ezProgress& progress);
+  ezResult BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_polyMesh, ezProgress& progress);
   static ezResult BuildDetourNavMeshData(const ezRecastConfig& config, const rcPolyMesh& polyMesh, ezDataBuffer& NavmeshData);
 
   struct Triangle
   {
-    Triangle() {}
+    EZ_DECLARE_POD_TYPE();
+
+    Triangle() = default;
     Triangle(ezInt32 a, ezInt32 b, ezInt32 c)
     {
       m_VertexIdx[0] = a;

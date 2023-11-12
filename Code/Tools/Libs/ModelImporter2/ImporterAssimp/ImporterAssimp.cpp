@@ -53,8 +53,19 @@ namespace ezModelImporter2
     ezUInt32 uiAssimpFlags = 0;
     if (m_Options.m_pMeshOutput != nullptr)
     {
-      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
+      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
+
+      if (!m_Options.m_bImportSkinningData)
+      {
+        // joining vertices doesn't take into account that two vertices might have different bone assignments
+        // so in case of a mesh that is cut into multiple pieces (breakable object),
+        // it will re-join vertices that are supposed to stay separate
+        // therefore don't do this for skinned meshes
+        uiAssimpFlags |= aiProcess_JoinIdenticalVertices;
+      }
     }
+
+
 
     m_pScene = m_Importer.ReadFile(m_Options.m_sSourceFile, uiAssimpFlags);
     if (m_pScene == nullptr)
@@ -72,8 +83,7 @@ namespace ezModelImporter2
         // Only FBX files have this unit scale factor and the default unit for FBX is cm. We want meters.
         fUnitScale /= 100.0f;
 
-        ezMat3 s;
-        s.SetScalingMatrix(ezVec3(fUnitScale));
+        ezMat3 s = ezMat3::MakeScaling(ezVec3(fUnitScale));
 
         m_Options.m_RootTransform = s * m_Options.m_RootTransform;
       }
@@ -99,6 +109,8 @@ namespace ezModelImporter2
 
     EZ_SUCCEED_OR_RETURN(ImportAnimations());
 
+    EZ_SUCCEED_OR_RETURN(ImportBoneColliders(nullptr));
+
     if (m_Options.m_pMeshOutput)
     {
       if (m_Options.m_bRecomputeNormals)
@@ -120,6 +132,31 @@ namespace ezModelImporter2
       }
     }
 
+    if (m_pScene->mNumTextures > 0 && m_pScene->mTextures)
+    {
+      ezStringBuilder refName;
+
+      for (ezUInt32 i = 0; i < m_pScene->mNumTextures; ++i)
+      {
+        const auto& st = *m_pScene->mTextures[i];
+
+        refName.Format("*{}", i);
+
+        auto& tex = m_OutputTextures[refName];
+        tex.m_sFilename = st.mFilename.C_Str();
+        if (tex.m_sFilename.IsEmpty())
+        {
+          tex.m_sFilename = refName;
+        }
+
+        if (st.mHeight == 0 && st.mWidth > 0)
+        {
+          tex.m_sFileFormatExtension = st.achFormatHint;
+          tex.m_RawData = ezMakeArrayPtr((const ezUInt8*)st.pcData, st.mWidth);
+        }
+      }
+    }
+
     return EZ_SUCCESS;
   }
 
@@ -128,11 +165,11 @@ namespace ezModelImporter2
     if (m_Options.m_pSkeletonOutput != nullptr)
     {
       m_Options.m_pSkeletonOutput->m_Children.PushBack(EZ_DEFAULT_NEW(ezEditableSkeletonJoint));
-      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::IdentityMatrix(), m_Options.m_pSkeletonOutput->m_Children.PeekBack()));
+      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::MakeIdentity(), m_Options.m_pSkeletonOutput->m_Children.PeekBack()));
     }
     else
     {
-      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::IdentityMatrix(), nullptr));
+      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::MakeIdentity(), nullptr));
     }
 
     return EZ_SUCCESS;
@@ -149,7 +186,7 @@ namespace ezModelImporter2
     if (pCurJoint)
     {
       pCurJoint->m_sName.Assign(pNode->mName.C_Str());
-      pCurJoint->m_LocalTransform.SetFromMat4(localTransform);
+      pCurJoint->m_LocalTransform = ezTransform::MakeFromMat4(localTransform);
     }
 
     if (pNode->mNumMeshes > 0)
@@ -171,6 +208,78 @@ namespace ezModelImporter2
       else
       {
         EZ_SUCCEED_OR_RETURN(TraverseAiNode(pNode->mChildren[childIdx], globalTransform, nullptr));
+      }
+    }
+
+    return EZ_SUCCESS;
+  }
+
+
+  ezResult ImporterAssimp::ImportBoneColliders(ezEditableSkeletonJoint* pJoint)
+  {
+    if (m_Options.m_pSkeletonOutput == nullptr)
+      return EZ_SUCCESS;
+
+    if (pJoint == nullptr)
+    {
+      for (ezEditableSkeletonJoint* pJoint : m_Options.m_pSkeletonOutput->m_Children)
+      {
+        EZ_SUCCEED_OR_RETURN(ImportBoneColliders(pJoint));
+      }
+
+      return EZ_SUCCESS;
+    }
+    else
+    {
+      for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
+      {
+        EZ_SUCCEED_OR_RETURN(ImportBoneColliders(pChild));
+      }
+    }
+
+    ezStringBuilder sTmp;
+
+    const ezString& sName = pJoint->m_sName.GetString();
+
+    for (auto meshIt : m_MeshInstances)
+    {
+      for (const MeshInstance& meshInst : meshIt.Value())
+      {
+        auto pMesh = meshInst.m_pMesh;
+
+        if (ezStringUtils::FindSubString(pMesh->mName.C_Str(), sName) != nullptr)
+        {
+          sTmp = pMesh->mName.C_Str();
+
+          if (sTmp.TrimWordStart("UCX_") && sTmp.TrimWordStart(sName) && (sTmp.IsEmpty() || sTmp.TrimWordStart("_")))
+          {
+            // mesh is named "UCX_BoneName_xyz" or "UCX_BoneName" -> use mesh as convex collider for this bone
+
+            EZ_ASSERT_DEV(pMesh->HasPositions(), "TODO: early out");
+            EZ_ASSERT_DEV(pMesh->HasFaces(), "TODO: early out");
+
+            ezEditableSkeletonBoneCollider& col = pJoint->m_BoneColliders.ExpandAndGetRef();
+            col.m_sIdentifier = pMesh->mName.C_Str();
+            col.m_TriangleIndices.Reserve(pMesh->mNumFaces * 3);
+            col.m_VertexPositions.Reserve(pMesh->mNumVertices);
+
+            for (ezUInt32 v = 0; v < pMesh->mNumVertices; ++v)
+            {
+              col.m_VertexPositions.PushBack(meshInst.m_GlobalTransform * ConvertAssimpType(pMesh->mVertices[v]));
+            }
+
+            for (ezUInt32 f = 0; f < pMesh->mNumFaces; ++f)
+            {
+              col.m_TriangleIndices.PushBack(pMesh->mFaces[f].mIndices[0]);
+              col.m_TriangleIndices.PushBack(pMesh->mFaces[f].mIndices[1]);
+              col.m_TriangleIndices.PushBack(pMesh->mFaces[f].mIndices[2]);
+            }
+          }
+          else
+          {
+            // ezLog::Error("TODO: error message");
+          }
+        }
       }
     }
 

@@ -1,7 +1,5 @@
 ez_cmake_init()
 
-
-
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
@@ -20,3 +18,6 @@ if (EZ_3RDPARTY_OZZ_SUPPORT)
     ozz
   )
 endif()
+
+# needed for shader structure includes
+target_include_directories(${PROJECT_NAME} PRIVATE "${EZ_ROOT}/Data/Base")

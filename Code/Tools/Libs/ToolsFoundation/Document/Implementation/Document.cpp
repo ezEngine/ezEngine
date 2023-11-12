@@ -47,7 +47,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDocumentInfo::ezDocumentInfo()
 {
-  m_DocumentID.CreateNewUuid();
+  m_DocumentID = ezUuid::MakeUuid();
 }
 
 
@@ -56,17 +56,21 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEvent<const ezDocumentEvent&> ezDocument::s_EventsAny;
 
-ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl)
+ezDocument::ezDocument(ezStringView sPath, ezDocumentObjectManager* pDocumentObjectManagerImpl)
 {
   using ObjectMetaData = ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>;
   m_DocumentObjectMetaData = EZ_DEFAULT_NEW(ObjectMetaData);
   m_pDocumentInfo = nullptr;
-  m_sDocumentPath = szPath;
+  m_sDocumentPath = sPath;
   m_pObjectManager = ezUniquePtr<ezDocumentObjectManager>(pDocumentObjectManagerImpl, ezFoundation::GetDefaultAllocator());
   m_pObjectManager->SetDocument(this);
   m_pCommandHistory = EZ_DEFAULT_NEW(ezCommandHistory, this);
   m_pSelectionManager = EZ_DEFAULT_NEW(ezSelectionManager, m_pObjectManager.Borrow());
-  m_pObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_pCommandHistory.Borrow());
+
+  if (m_pObjectAccessor == nullptr)
+  {
+    m_pObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_pCommandHistory.Borrow());
+  }
 
   m_bWindowRequested = false;
   m_bModified = true;
@@ -159,6 +163,18 @@ ezTaskGroupID ezDocument::SaveDocumentAsync(AfterSaveCallback callback, bool bFo
   return m_ActiveSaveTask;
 }
 
+void ezDocument::DocumentRenamed(ezStringView sNewDocumentPath)
+{
+  m_sDocumentPath = sNewDocumentPath;
+
+  ezDocumentEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezDocumentEvent::Type::DocumentRenamed;
+
+  m_EventsOne.Broadcast(e);
+  s_EventsAny.Broadcast(e);
+}
+
 void ezDocument::EnsureVisible()
 {
   ezDocumentEvent e;
@@ -224,7 +240,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
   return afterSaveID;
 }
 
-ezStatus ezDocument::ReadDocument(const char* szDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
+ezStatus ezDocument::ReadDocument(ezStringView sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
   ezUniquePtr<ezAbstractObjectGraph>& ref_pTypes)
 {
   ezDefaultMemoryStreamStorage storage;
@@ -233,7 +249,7 @@ ezStatus ezDocument::ReadDocument(const char* szDocumentPath, ezUniquePtr<ezAbst
   {
     EZ_PROFILE_SCOPE("Read File");
     ezFileReader file;
-    if (file.Open(szDocumentPath) == EZ_FAILURE)
+    if (file.Open(sDocumentPath) == EZ_FAILURE)
     {
       return ezStatus("Unable to open file for reading!");
     }
@@ -415,7 +431,7 @@ void ezDocument::ShowDocumentStatus(const ezFormatString& msg) const
 
   ezDocumentEvent e;
   e.m_pDocument = this;
-  e.m_szStatusMsg = msg.GetText(tmp);
+  e.m_sStatusMsg = msg.GetText(tmp);
   e.m_Type = ezDocumentEvent::Type::DocumentStatusMsg;
 
   m_EventsOne.Broadcast(e);

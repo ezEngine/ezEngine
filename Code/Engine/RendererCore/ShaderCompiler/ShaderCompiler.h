@@ -15,7 +15,7 @@
 // \brief Flags that affect the compilation process of a shader
 struct ezShaderCompilerFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
   enum Enum
   {
     Debug = EZ_BIT(0),
@@ -38,20 +38,20 @@ public:
   {
     ezShaderProgramData()
     {
-      m_szPlatform = nullptr;
-      m_szSourceFile = nullptr;
+      m_sPlatform = {};
+      m_sSourceFile = {};
 
       for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
       {
         m_bWriteToDisk[stage] = true;
-        m_szShaderSource[stage] = nullptr;
+        m_sShaderSource[stage] = {};
       }
     }
 
     ezBitflags<ezShaderCompilerFlags> m_Flags;
-    const char* m_szPlatform;
-    const char* m_szSourceFile;
-    const char* m_szShaderSource[ezGALShaderStage::ENUM_COUNT];
+    ezStringView m_sPlatform;
+    ezStringView m_sSourceFile;
+    ezStringView m_sShaderSource[ezGALShaderStage::ENUM_COUNT];
     ezShaderStageBinary m_StageBinary[ezGALShaderStage::ENUM_COUNT];
     bool m_bWriteToDisk[ezGALShaderStage::ENUM_COUNT];
   };
@@ -64,15 +64,14 @@ public:
 class EZ_RENDERERCORE_DLL ezShaderCompiler
 {
 public:
-  ezResult CompileShaderPermutationForPlatforms(
-    const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, const char* szPlatform = "ALL");
+  ezResult CompileShaderPermutationForPlatforms(ezStringView sFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, ezStringView sPlatform = "ALL");
 
 private:
-  ezResult RunShaderCompiler(const char* szFile, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog);
+  ezResult RunShaderCompiler(ezStringView sFile, ezStringView sPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog);
 
   void WriteFailedShaderSource(ezShaderProgramCompiler::ezShaderProgramData& spd, ezLogInterface* pLog);
 
-  bool PassThroughUnknownCommandCB(const char* szCmd) { return ezStringUtils::IsEqual(szCmd, "version"); }
+  bool PassThroughUnknownCommandCB(ezStringView sCmd) { return sCmd == "version"; }
 
   struct ezShaderData
   {
@@ -83,7 +82,7 @@ private:
     ezString m_ShaderStageSource[ezGALShaderStage::ENUM_COUNT];
   };
 
-  ezResult FileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification);
+  ezResult FileOpen(ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification);
 
   ezStringBuilder m_StageSourceFile[ezGALShaderStage::ENUM_COUNT];
 

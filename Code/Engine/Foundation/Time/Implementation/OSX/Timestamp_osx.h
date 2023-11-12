@@ -11,7 +11,7 @@ const ezTimestamp ezTimestamp::CurrentTimestamp()
   timeval currentTime;
   gettimeofday(&currentTime, nullptr);
 
-  return ezTimestamp(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
+  return ezTimestamp::MakeFromInt(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
 }
 
 const ezTimestamp ezDateTime::GetTimestamp() const
@@ -28,7 +28,7 @@ const ezTimestamp ezDateTime::GetTimestamp() const
 
     if (year < yearMin.location || year > yearMax.length)
     {
-      return ezTimestamp();
+      return ezTimestamp::MakeInvalid();
     }
   }
 
@@ -38,7 +38,7 @@ const ezTimestamp ezDateTime::GetTimestamp() const
 
     if (month < monthMin.location || month > monthMax.length)
     {
-      return ezTimestamp();
+      return ezTimestamp::MakeInvalid();
     }
   }
 
@@ -48,20 +48,20 @@ const ezTimestamp ezDateTime::GetTimestamp() const
 
     if (day < dayMin.location || day > dayMax.length)
     {
-      return ezTimestamp();
+      return ezTimestamp::MakeInvalid();
     }
   }
 
   CFAbsoluteTime absTime;
   if (CFCalendarComposeAbsoluteTime(calendar, &absTime, "yMdHms", year, month, day, hour, minute, second) == FALSE)
   {
-    return ezTimestamp();
+    return ezTimestamp::MakeInvalid();
   }
 
-  return ezTimestamp(static_cast<ezInt64>((absTime + kCFAbsoluteTimeIntervalSince1970) * 1000000.0), ezSIUnitOfTime::Microsecond);
+  return ezTimestamp::MakeFromInt(static_cast<ezInt64>((absTime + kCFAbsoluteTimeIntervalSince1970) * 1000000.0), ezSIUnitOfTime::Microsecond);
 }
 
-bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
+ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 {
   // Round the microseconds to the full second so that we can reconstruct the right date / time afterwards
   ezInt64 us = timestamp.GetInt64(ezSIUnitOfTime::Microsecond);
@@ -77,7 +77,7 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
 
   if (CFCalendarDecomposeAbsoluteTime(calendar, at, "yMdHmsE", &year, &month, &day, &hour, &minute, &second, &dayOfWeek) == FALSE)
   {
-    return false;
+    return EZ_FAILURE;
   }
 
   m_iYear = (ezInt16)year;
@@ -88,5 +88,5 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiMinute = (ezUInt8)minute;
   m_uiSecond = (ezUInt8)second;
   m_uiMicroseconds = (ezUInt32)microseconds;
-  return true;
+  return EZ_SUCCESS;
 }

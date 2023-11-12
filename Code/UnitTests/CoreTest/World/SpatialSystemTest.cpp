@@ -7,13 +7,14 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
 namespace
 {
   static ezSpatialData::Category s_SpecialTestCategory = ezSpatialData::RegisterCategory("SpecialTestCategory", ezSpatialData::Flags::None);
 
-  typedef ezComponentManager<class TestBoundsComponent, ezBlockStorageType::Compact> TestBoundsComponentManager;
+  using TestBoundsComponentManager = ezComponentManager<class TestBoundsComponent, ezBlockStorageType::Compact>;
 
   class TestBoundsComponent : public ezComponent
   {
@@ -30,8 +31,7 @@ namespace
       float y = (float)rng.DoubleMinMax(1.0, 100.0);
       float z = (float)rng.DoubleMinMax(1.0, 100.0);
 
-      ezBoundingBox bounds;
-      bounds.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(x, y, z));
+      ezBoundingBox bounds = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(x, y, z));
 
       ezSpatialData::Category category = m_SpecialCategory;
       if (category == ezInvalidSpatialDataCategory)
@@ -39,7 +39,7 @@ namespace
         category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
       }
 
-      ref_msg.AddBounds(bounds, category);
+      ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(bounds), category);
     }
 
     ezSpatialData::Category m_SpecialCategory = ezInvalidSpatialDataCategory;
@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInSphere")
   {
-    ezBoundingSphere testSphere(ezVec3(100.0f, 60.0f, 400.0f), 3000.0f);
+    ezBoundingSphere testSphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(100.0f, 60.0f, 400.0f), 3000.0f);
 
     ezDynamicArray<ezGameObject*> objectsInSphere;
     ezHashSet<ezGameObject*> uniqueObjects;
@@ -131,8 +131,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       objectsInSphere.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
-      return ezVisitorExecution::Continue;
-    });
+      return ezVisitorExecution::Continue; });
 
     for (auto pObject : objectsInSphere)
     {
@@ -155,8 +154,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInBox")
   {
-    ezBoundingBox testBox;
-    testBox.SetCenterAndHalfExtents(ezVec3(100.0f, 60.0f, 400.0f), ezVec3(3000.0f));
+    ezBoundingBox testBox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(100.0f, 60.0f, 400.0f), ezVec3(3000.0f));
 
     ezDynamicArray<ezGameObject*> objectsInBox;
     ezHashSet<ezGameObject*> uniqueObjects;
@@ -188,8 +186,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       objectsInBox.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
-      return ezVisitorExecution::Continue;
-    });
+      return ezVisitorExecution::Continue; });
 
     for (auto pObject : objectsInBox)
     {
@@ -222,15 +219,14 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
 
-    ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::ZeroVector(), ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
-    ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(80.0f), 1.0f, 1.0f, 10000.0f);
+    ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::MakeZero(), ezVec3::MakeAxisX(), ezVec3::MakeAxisZ());
+    ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(80.0f), 1.0f, 1.0f, 10000.0f);
 
-    ezFrustum testFrustum;
-    testFrustum.SetFrustum(projection * lookAt);
+    ezFrustum testFrustum = ezFrustum::MakeFromMVP(projection * lookAt);
 
     ezDynamicArray<const ezGameObject*> visibleObjects;
     ezHashSet<const ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects, {});
+    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects, {}, ezVisibilityState::Direct);
 
     EZ_TEST_BOOL(!visibleObjects.IsEmpty());
 
@@ -239,7 +235,9 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       EZ_TEST_BOOL(testFrustum.Overlaps(pObject->GetGlobalBoundsSimd().GetSphere()));
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
       EZ_TEST_BOOL(pObject->IsDynamic());
-      EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() == 0);
+
+      ezVisibilityState visType = pObject->GetVisibilityState();
+      EZ_TEST_BOOL(visType == ezVisibilityState::Direct);
     }
 
     // Check for missing objects
@@ -249,7 +247,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
       if (testFrustum.GetObjectPosition(pObject->GetGlobalBounds().GetSphere()) == ezVolumePosition::Outside)
       {
-        EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() >= numUpdates);
+        ezVisibilityState visType = pObject->GetVisibilityState();
+        EZ_TEST_BOOL(visType == ezVisibilityState::Invisible);
       }
     }
 
@@ -275,7 +274,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     // Check that last frame visible doesn't reset entirely after moving
     for (const ezGameObject* pObject : visibleObjects)
     {
-      EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() == 1);
+      ezVisibilityState visType = pObject->GetVisibilityState();
+      EZ_TEST_BOOL(visType == ezVisibilityState::Direct);
     }
   }
 
@@ -284,14 +284,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     ezStringBuilder outputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
-    ezFileWriter fileWriter;
-    if (fileWriter.Open(":output/profiling.json") == EZ_SUCCESS)
-    {
-      ezProfilingSystem::ProfilingData profilingData;
-      ezProfilingSystem::Capture(profilingData);
-      profilingData.Write(fileWriter).IgnoreResult();
-      ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-    }
+    ezProfilingUtils::SaveProfilingCapture(":output/profiling.json").IgnoreResult();
   }
 
   // Test multiple categories for spatial data

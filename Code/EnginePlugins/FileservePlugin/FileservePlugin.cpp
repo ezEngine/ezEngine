@@ -22,6 +22,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
     if (fs == nullptr)
     {
       fs = EZ_DEFAULT_NEW(ezFileserveClient);
+      EZ_IGNORE_UNUSED(fs);
 
       // on sandboxed platforms we must go through fileserve, so we enforce a fileserve connection
       // on unrestricted platforms, we use fileserve, if a connection can be established,

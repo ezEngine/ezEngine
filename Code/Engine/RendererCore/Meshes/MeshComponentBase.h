@@ -88,13 +88,14 @@ public:
   void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial);
   ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const;
 
-  EZ_ALWAYS_INLINE void SetRenderDataCategory(ezRenderData::Category category) { m_RenderDataCategory = category; }
-
   void SetMeshFile(const char* szFile); // [ property ]
   const char* GetMeshFile() const;      // [ property ]
 
   void SetColor(const ezColor& color); // [ property ]
   const ezColor& GetColor() const;     // [ property ]
+
+  void SetSortingDepthOffset(float fOffset); // [ property ]
+  float GetSortingDepthOffset() const;       // [ property ]
 
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
@@ -110,8 +111,8 @@ protected:
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  ezRenderData::Category m_RenderDataCategory = ezInvalidRenderDataCategory;
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
   ezColor m_Color = ezColor::White;
+  float m_fSortingDepthOffset = 0.0f;
 };

@@ -15,10 +15,10 @@ public:
 
 public:
   /// \brief Byte Order Mark for Little Endian Utf16 strings.
-  static constexpr ezUInt16 Utf16BomLE = 0xfffe;
+  static constexpr ezUInt16 Utf16BomLE = 0xfeff;
 
   /// \brief Byte Order Mark for Big Endian Utf16 strings.
-  static constexpr ezUInt16 Utf16BomBE = 0xfeff;
+  static constexpr ezUInt16 Utf16BomBE = 0xfffe;
 
   /// \brief Returns whether a character is a pure ASCII character (only the first 7 Bits are used)
   static bool IsASCII(ezUInt32 uiChar); // [tested]
@@ -126,7 +126,7 @@ public:
   ///
   /// \note That the for #include order reasons, the implementation is in StringBuilder_inl.h, so you need to have StringBuilder.h included to use it.
   template <typename Container>
-  static bool RepairNonUtf8Text(const char* pStartData, const char* pEndData, Container& out_Result);
+  static bool RepairNonUtf8Text(const char* pStartData, const char* pEndData, Container& out_result);
 };
 
 #include <Foundation/Strings/Implementation/UnicodeUtils_inl.h>

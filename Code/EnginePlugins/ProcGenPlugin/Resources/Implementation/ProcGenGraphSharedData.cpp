@@ -38,6 +38,7 @@ namespace ezProcGenInternal
   ezResult GraphSharedData::Load(ezStreamReader& inout_stream)
   {
     auto version = inout_stream.ReadVersion(s_GraphSharedDataVersion);
+    EZ_IGNORE_UNUSED(version);
 
     {
       ezUInt32 uiCount = 0;

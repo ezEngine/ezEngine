@@ -50,7 +50,12 @@ int main(int argc, const char** argv)
       printf("Return Code: '%s'\n", text.c_str());
   }
 
+#ifdef EZ_USE_QT
+  delete pQtApplication;
+#endif
+
   delete pApp;
+
 
   return iReturnCode;
 }
@@ -70,7 +75,7 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
     case ezFileserverEvent::Type::ClientConnected:
     case ezFileserverEvent::Type::ClientReconnected:
       ++m_uiConnections;
-      m_TimeTillClosing.SetZero();
+      m_TimeTillClosing = ezTime::MakeZero();
       break;
     case ezFileserverEvent::Type::ClientDisconnected:
       --m_uiConnections;

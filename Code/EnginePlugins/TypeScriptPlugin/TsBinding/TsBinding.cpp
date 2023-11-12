@@ -74,6 +74,9 @@ ezTypeScriptBinding* ezTypeScriptBinding::RetrieveBinding(duk_context* pDuk)
 
 ezResult ezTypeScriptBinding::Initialize(ezWorld& ref_world)
 {
+  if (m_bInitialized)
+    return EZ_SUCCESS;
+
   EZ_LOG_BLOCK("Initialize TypeScript Binding");
   EZ_PROFILE_SCOPE("Initialize TypeScript Binding");
 
@@ -294,15 +297,15 @@ bool ezTypeScriptBinding::DukPushStashObject(duk_context* pDuk, ezUInt32 uiStash
 
 void ezTypeScriptBinding::SyncTsObjectEzTsObject(duk_context* pDuk, const ezRTTI* pRtti, void* pObject, ezInt32 iObjIdx)
 {
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
-  for (ezAbstractProperty* pProp : properties)
+  for (const ezAbstractProperty* pProp : properties)
   {
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+    auto pMember = static_cast<const ezAbstractMemberProperty*>(pProp);
 
     const ezVariant value = ezTypeScriptBinding::GetVariantProperty(pDuk, pProp->GetPropertyName(), iObjIdx, pMember->GetSpecificType());
 
@@ -317,15 +320,15 @@ void ezTypeScriptBinding::SyncEzObjectToTsObject(duk_context* pDuk, const ezRTTI
 {
   ezDuktapeHelper duk(pDuk);
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
-  for (ezAbstractProperty* pProp : properties)
+  for (const ezAbstractProperty* pProp : properties)
   {
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+    auto pMember = static_cast<const ezAbstractMemberProperty*>(pProp);
 
     const ezRTTI* pType = pMember->GetSpecificType();
 
@@ -373,6 +376,7 @@ void ezTypeScriptBinding::GenerateConstructorString(ezStringBuilder& out_String,
     case ezVariant::Type::Double:
     case ezVariant::Type::String:
     case ezVariant::Type::StringView:
+    case ezVariant::Type::HashedString:
     {
       out_String = value.ConvertTo<ezString>();
       break;
@@ -452,7 +456,7 @@ void ezTypeScriptBinding::GenerateConstructorString(ezStringBuilder& out_String,
     case ezVariant::Type::Quaternion:
     {
       const ezQuat q = value.Get<ezQuat>();
-      out_String.Format("new Quat({}, {}, {}, {})", q.v.x, q.v.y, q.v.z, q.w);
+      out_String.Format("new Quat({}, {}, {}, {})", q.x, q.y, q.z, q.w);
       break;
     }
 

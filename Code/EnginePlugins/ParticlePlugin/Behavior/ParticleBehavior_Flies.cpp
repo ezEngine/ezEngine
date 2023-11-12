@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Flies, 1, ezRTTIDefaul
     EZ_MEMBER_PROPERTY("FlySpeed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.0f, 1000.0f)),
     EZ_MEMBER_PROPERTY("PathLength", m_fPathLength)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.0f, 100.0f)),
     EZ_MEMBER_PROPERTY("MaxEmitterDistance", m_fMaxEmitterDistance)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 100.0f)),
-    EZ_MEMBER_PROPERTY("MaxSteeringAngle", m_MaxSteeringAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(180.0f))),
+    EZ_MEMBER_PROPERTY("MaxSteeringAngle", m_MaxSteeringAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1.0f), ezAngle::MakeFromDegree(180.0f))),
   }
   EZ_END_PROPERTIES;
 }
@@ -89,7 +89,7 @@ void ezParticleBehavior_Flies::CreateRequiredStreams()
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
 
-  m_TimeToChangeDir.SetZero();
+  m_TimeToChangeDir = ezTime::MakeZero();
 }
 
 void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
@@ -102,7 +102,7 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
   if (!bChangeDirection)
     return;
 
-  m_TimeToChangeDir = tCur + ezTime::Seconds(m_fPathLength / m_fSpeed);
+  m_TimeToChangeDir = tCur + ezTime::MakeFromSeconds(m_fPathLength / m_fSpeed);
 
   const ezVec3 vEmitterPos = GetOwnerSystem()->GetTransform().m_vPosition;
   const float fMaxDistanceToEmitterSquared = ezMath::Square(m_fMaxEmitterDistance);
@@ -128,13 +128,13 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
       vPivot = vDir.CrossRH(vPartToEm);
       vPivot.NormalizeIfNotZero().IgnoreResult();
 
-      qRot.SetFromAxisAndAngle(vPivot, m_MaxSteeringAngle);
+      qRot = ezQuat::MakeFromAxisAndAngle(vPivot, m_MaxSteeringAngle);
 
       itVelocity.Current() = qRot * vVelocity;
     }
     else
     {
-      itVelocity.Current() = ezVec3::CreateRandomDeviation(GetRNG(), m_MaxSteeringAngle, vDir) * m_fSpeed;
+      itVelocity.Current() = ezVec3::MakeRandomDeviation(GetRNG(), m_MaxSteeringAngle, vDir) * m_fSpeed;
     }
 
     itPosition.Advance();

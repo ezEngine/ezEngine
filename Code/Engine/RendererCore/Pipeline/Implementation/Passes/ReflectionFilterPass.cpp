@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
 #include <RendererCore/Pipeline/Passes/ReflectionFilterPass.h>
 #include <RendererCore/Pipeline/View.h>
@@ -31,9 +32,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezReflectionFilterPass::ezReflectionFilterPass()
   : ezRenderPipelinePass("ReflectionFilterPass")
-  , m_fIntensity(1.0f)
-  , m_fSaturation(1.0f)
-  , m_uiIrradianceOutputIndex(0)
+
 {
   {
     m_hFilteredSpecularConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezReflectionFilteredSpecularConstants>();
@@ -159,6 +158,29 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
 
     renderViewContext.m_pRenderContext->Dispatch(1).IgnoreResult();
   }
+}
+
+ezResult ezReflectionFilterPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_fIntensity;
+  inout_stream << m_fSaturation;
+  inout_stream << m_uiSpecularOutputIndex;
+  inout_stream << m_uiIrradianceOutputIndex;
+  // inout_stream << m_hInputCubemap; Runtime only property
+  return EZ_SUCCESS;
+}
+
+ezResult ezReflectionFilterPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  inout_stream >> m_fIntensity;
+  inout_stream >> m_fSaturation;
+  inout_stream >> m_uiSpecularOutputIndex;
+  inout_stream >> m_uiIrradianceOutputIndex;
+  return EZ_SUCCESS;
 }
 
 ezUInt32 ezReflectionFilterPass::GetInputCubemap() const

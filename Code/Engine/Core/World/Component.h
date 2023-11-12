@@ -118,7 +118,7 @@ public:
   EZ_ALWAYS_INLINE bool SendMessage(ezMessage& ref_msg) const { return SendMessageInternal(ref_msg, false); }
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(const ezMessage& msg, ezTime delay = ezTime::Zero(), ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessage(const ezMessage& msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Returns whether the given Message is handled by this component.
   virtual bool HandlesMessage(const ezMessage& msg) const;
@@ -128,6 +128,12 @@ public:
 
   /// \brief Retrieves a custom flag. Index must be between 0 and 7.
   bool GetUserFlag(ezUInt8 uiFlagIndex) const;
+
+  /// \brief Adds ezObjectFlags::CreatedByPrefab to the component. See the flag for details.
+  void SetCreatedByPrefab() { m_ComponentFlags.Add(ezObjectFlags::CreatedByPrefab); }
+
+  /// \brief Checks whether the ezObjectFlags::CreatedByPrefab flag is set on this component.
+  bool WasCreatedByPrefab() const { return m_ComponentFlags.IsSet(ezObjectFlags::CreatedByPrefab); }
 
 protected:
   friend class ezWorld;
@@ -215,25 +221,44 @@ protected:
   /// Messages will be dispatched to this type. Default is what GetDynamicRTTI() returns, can be redirected if necessary.
   const ezRTTI* m_pMessageDispatchType = nullptr;
 
-private:
   bool IsInitialized() const;
   bool IsInitializing() const;
   bool IsSimulationStarted() const;
 
+private:
   // updates the component's active state depending on the owner object's active state
   void UpdateActiveState(bool bOwnerActive);
+
+  ezGameObject* Reflection_GetOwner() const;
+  ezWorld* Reflection_GetWorld() const;
+  void Reflection_Update();
 
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;
 
   ezComponentId m_InternalId;
-  ezBitflags<ezObjectFlags> m_ComponentFlags;
-  ezUInt32 m_uiUniqueID;
+  ezBitflags<ezObjectFlags> m_ComponentFlags = ezObjectFlags::ActiveFlag;
+  ezUInt32 m_uiUniqueID = ezInvalidIndex;
 
   ezComponentManagerBase* m_pManager = nullptr;
   ezGameObject* m_pOwner = nullptr;
 
   static ezWorldModuleTypeId s_TypeId;
+};
+
+struct ezComponent_ScriptBaseClassFunctions
+{
+  enum Enum
+  {
+    Initialize,
+    Deinitialize,
+    OnActivated,
+    OnDeactivated,
+    OnSimulationStarted,
+    Update,
+
+    Count
+  };
 };
 
 #include <Core/World/Implementation/Component_inl.h>

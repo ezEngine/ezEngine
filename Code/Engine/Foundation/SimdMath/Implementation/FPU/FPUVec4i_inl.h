@@ -22,6 +22,11 @@ EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInternal::QuadInt v)
   m_v = v;
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::MakeZero()
+{
+  return ezSimdVec4i(0);
+}
+
 EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 xyzw)
 {
   m_v.Set(xyzw);
@@ -356,12 +361,6 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
   result[3] = m_v.w > v.m_v.w;
 
   return ezSimdVec4b(result[0], result[1], result[2], result[3]);
-}
-
-// static
-EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
-{
-  return ezVec4I32::ZeroVector();
 }
 
 // static

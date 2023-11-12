@@ -19,16 +19,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", ezFileBrowserAttribute::MeshesWithAnimations)),
+    EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", ezDependencyFlags::None)),
     EZ_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract),
-    EZ_MEMBER_PROPERTY("Additive", m_bAdditive),
     EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezContainerAttribute(false, false, false)),
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
-    EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", ezDependencyFlags::None)),
+    EZ_MEMBER_PROPERTY("Additive", m_bAdditive),
     EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionSource, m_RootMotionMode),
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
-    //EZ_MEMBER_PROPERTY("Joint1", m_sJoint1),
-    //EZ_MEMBER_PROPERTY("Joint2", m_sJoint2),
     EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
@@ -63,8 +61,8 @@ void ezAnimationClipAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
   }
 }
 
-ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 
@@ -96,7 +94,7 @@ double ezAnimationClipAssetDocument::GetCommonAssetUiState(ezCommonAssetUiState:
   return SUPER::GetCommonAssetUiState(state);
 }
 
-ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -372,7 +370,7 @@ void ezAnimationClipAssetDocumentGenerator::GetImportModes(ezStringView sParentD
     info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
     info.m_sName = "AnimationClipImport";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Animation_Clip.png";
+    info.m_sIcon = ":/AssetIcons/Animation_Clip.svg";
   }
 }
 

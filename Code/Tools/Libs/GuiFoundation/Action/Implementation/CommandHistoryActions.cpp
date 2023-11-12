@@ -15,10 +15,8 @@ ezActionDescriptorHandle ezCommandHistoryActions::s_hRedo;
 void ezCommandHistoryActions::RegisterActions()
 {
   s_hCommandHistoryCategory = EZ_REGISTER_CATEGORY("CmdHistoryCategory");
-  s_hUndo = EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1(
-    "Document.Undo", ezActionScope::Document, "Document", "Ctrl+Z", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Undo);
-  s_hRedo = EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1(
-    "Document.Redo", ezActionScope::Document, "Document", "Ctrl+Y", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Redo);
+  s_hUndo = EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1("Document.Undo", ezActionScope::Document, "Document", "Ctrl+Z", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Undo);
+  s_hRedo = EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1("Document.Redo", ezActionScope::Document, "Document", "Ctrl+Y", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Redo);
 }
 
 void ezCommandHistoryActions::UnregisterActions()
@@ -28,16 +26,14 @@ void ezCommandHistoryActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRedo);
 }
 
-void ezCommandHistoryActions::MapActions(const char* szMapping, const char* szPath)
+void ezCommandHistoryActions::MapActions(ezStringView sMapping, ezStringView sTargetMenu)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/CmdHistoryCategory");
-
-  pMap->MapAction(s_hCommandHistoryCategory, szPath, 3.0f);
-  pMap->MapAction(s_hUndo, sSubPath, 1.0f);
-  pMap->MapAction(s_hRedo, sSubPath, 2.0f);
+  pMap->MapAction(s_hCommandHistoryCategory, sTargetMenu, 3.0f);
+  pMap->MapAction(s_hUndo, sTargetMenu, "CmdHistoryCategory", 1.0f);
+  pMap->MapAction(s_hRedo, sTargetMenu, "CmdHistoryCategory", 2.0f);
 }
 
 ezCommandHistoryAction::ezCommandHistoryAction(const ezActionContext& context, const char* szName, ButtonType button)
@@ -48,10 +44,10 @@ ezCommandHistoryAction::ezCommandHistoryAction(const ezActionContext& context, c
   switch (m_ButtonType)
   {
     case ezCommandHistoryAction::ButtonType::Undo:
-      SetIconPath(":/GuiFoundation/Icons/Undo16.png");
+      SetIconPath(":/GuiFoundation/Icons/Undo.svg");
       break;
     case ezCommandHistoryAction::ButtonType::Redo:
-      SetIconPath(":/GuiFoundation/Icons/Redo16.png");
+      SetIconPath(":/GuiFoundation/Icons/Redo.svg");
       break;
   }
 

@@ -32,6 +32,8 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Core/IssueReporting.h
 	${JOLT_PHYSICS_ROOT}/Core/JobSystem.h
 	${JOLT_PHYSICS_ROOT}/Core/JobSystem.inl
+	${JOLT_PHYSICS_ROOT}/Core/JobSystemSingleThreaded.cpp
+	${JOLT_PHYSICS_ROOT}/Core/JobSystemSingleThreaded.h
 	${JOLT_PHYSICS_ROOT}/Core/JobSystemThreadPool.cpp
 	${JOLT_PHYSICS_ROOT}/Core/JobSystemThreadPool.h
 	${JOLT_PHYSICS_ROOT}/Core/JobSystemWithBarrier.cpp
@@ -58,6 +60,7 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Core/StaticArray.h
 	${JOLT_PHYSICS_ROOT}/Core/StreamIn.h
 	${JOLT_PHYSICS_ROOT}/Core/StreamOut.h
+	${JOLT_PHYSICS_ROOT}/Core/StreamUtils.h
 	${JOLT_PHYSICS_ROOT}/Core/StreamWrapper.h
 	${JOLT_PHYSICS_ROOT}/Core/StringTools.cpp
 	${JOLT_PHYSICS_ROOT}/Core/StringTools.h
@@ -123,7 +126,6 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Math/Real.h
 	${JOLT_PHYSICS_ROOT}/Math/Swizzle.h
 	${JOLT_PHYSICS_ROOT}/Math/Trigonometry.h
-	${JOLT_PHYSICS_ROOT}/Math/UVec4.cpp
 	${JOLT_PHYSICS_ROOT}/Math/UVec4.h
 	${JOLT_PHYSICS_ROOT}/Math/UVec4.inl
 	${JOLT_PHYSICS_ROOT}/Math/UVec8.h
@@ -159,6 +161,7 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/ObjectStream/SerializableObject.h
 	${JOLT_PHYSICS_ROOT}/ObjectStream/TypeDeclarations.cpp
 	${JOLT_PHYSICS_ROOT}/ObjectStream/TypeDeclarations.h
+	${JOLT_PHYSICS_ROOT}/Physics/Body/AllowedDOFs.h
 	${JOLT_PHYSICS_ROOT}/Physics/Body/Body.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/Body/Body.h
 	${JOLT_PHYSICS_ROOT}/Physics/Body/Body.inl
@@ -177,6 +180,7 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Physics/Body/BodyManager.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/Body/BodyManager.h
 	${JOLT_PHYSICS_ROOT}/Physics/Body/BodyPair.h
+	${JOLT_PHYSICS_ROOT}/Physics/Body/BodyType.h
 	${JOLT_PHYSICS_ROOT}/Physics/Body/MassProperties.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/Body/MassProperties.h
 	${JOLT_PHYSICS_ROOT}/Physics/Body/MotionProperties.cpp
@@ -335,6 +339,8 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/SixDOFConstraint.h
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/SliderConstraint.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/SliderConstraint.h
+	${JOLT_PHYSICS_ROOT}/Physics/Constraints/SpringSettings.cpp
+	${JOLT_PHYSICS_ROOT}/Physics/Constraints/SpringSettings.h
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/SwingTwistConstraint.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/SwingTwistConstraint.h
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/TwoBodyConstraint.cpp
@@ -342,6 +348,7 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Physics/DeterminismLog.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/DeterminismLog.h
 	${JOLT_PHYSICS_ROOT}/Physics/EActivation.h
+	${JOLT_PHYSICS_ROOT}/Physics/EPhysicsUpdateError.h
 	${JOLT_PHYSICS_ROOT}/Physics/IslandBuilder.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/IslandBuilder.h
 	${JOLT_PHYSICS_ROOT}/Physics/LargeIslandSplitter.cpp
@@ -358,9 +365,20 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Physics/PhysicsUpdateContext.h
 	${JOLT_PHYSICS_ROOT}/Physics/Ragdoll/Ragdoll.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/Ragdoll/Ragdoll.h
+	${JOLT_PHYSICS_ROOT}/Physics/SoftBody/SoftBodyCreationSettings.cpp
+	${JOLT_PHYSICS_ROOT}/Physics/SoftBody/SoftBodyCreationSettings.h
+	${JOLT_PHYSICS_ROOT}/Physics/SoftBody/SoftBodyMotionProperties.h
+	${JOLT_PHYSICS_ROOT}/Physics/SoftBody/SoftBodyMotionProperties.cpp
+	${JOLT_PHYSICS_ROOT}/Physics/SoftBody/SoftBodyShape.cpp
+	${JOLT_PHYSICS_ROOT}/Physics/SoftBody/SoftBodyShape.h
+	${JOLT_PHYSICS_ROOT}/Physics/SoftBody/SoftBodySharedSettings.cpp
+	${JOLT_PHYSICS_ROOT}/Physics/SoftBody/SoftBodySharedSettings.h
+	${JOLT_PHYSICS_ROOT}/Physics/SoftBody/SoftBodyVertex.h
 	${JOLT_PHYSICS_ROOT}/Physics/StateRecorder.h
 	${JOLT_PHYSICS_ROOT}/Physics/StateRecorderImpl.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/StateRecorderImpl.h
+	${JOLT_PHYSICS_ROOT}/Physics/Vehicle/MotorcycleController.cpp
+	${JOLT_PHYSICS_ROOT}/Physics/Vehicle/MotorcycleController.h
 	${JOLT_PHYSICS_ROOT}/Physics/Vehicle/TrackedVehicleController.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/Vehicle/TrackedVehicleController.h
 	${JOLT_PHYSICS_ROOT}/Physics/Vehicle/VehicleAntiRollBar.cpp
@@ -427,7 +445,35 @@ endif()
 source_group(TREE ${JOLT_PHYSICS_ROOT} FILES ${JOLT_PHYSICS_SRC_FILES})
 
 # Create Jolt lib
-add_library(Jolt STATIC ${JOLT_PHYSICS_SRC_FILES})
+add_library(Jolt ${JOLT_PHYSICS_SRC_FILES})
+
+if (BUILD_SHARED_LIBS)
+	# Set default visibility to hidden
+	set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+
+	if (GENERATE_DEBUG_SYMBOLS)
+		if (MSVC)
+			# MSVC specific option to enable PDB generation
+			set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG:FASTLINK")
+		else()
+			# Clang/GCC option to enable debug symbol generation
+			set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} -g")
+		endif()
+	endif()
+
+	# Set linker flags for other build types to be the same as release
+	set(CMAKE_SHARED_LINKER_FLAGS_RELEASEASAN "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
+	set(CMAKE_SHARED_LINKER_FLAGS_RELEASEUBSAN "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
+	set(CMAKE_SHARED_LINKER_FLAGS_RELEASECOVERAGE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
+	set(CMAKE_SHARED_LINKER_FLAGS_DISTRIBUTION "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
+
+	# Public define to instruct user code to import Jolt symbols (rather than use static linking)
+	target_compile_definitions(Jolt PUBLIC JPH_SHARED_LIBRARY)
+
+	# Private define to instruct the library to export symbols for shared linking
+	target_compile_definitions(Jolt PRIVATE JPH_BUILD_SHARED_LIBRARY)
+endif()
+
 target_include_directories(Jolt PUBLIC ${PHYSICS_REPO_ROOT})
 target_precompile_headers(Jolt PRIVATE ${JOLT_PHYSICS_ROOT}/Jolt.h)
 target_compile_definitions(Jolt PUBLIC "$<$<CONFIG:Debug>:_DEBUG;JPH_PROFILE_ENABLED;JPH_DEBUG_RENDERER>")
@@ -458,6 +504,16 @@ if (OBJECT_LAYER_BITS)
 	target_compile_definitions(Jolt PUBLIC JPH_OBJECT_LAYER_BITS=${OBJECT_LAYER_BITS})
 endif()
 
+# Setting to periodically trace broadphase stats to help determine if the broadphase layer configuration is optimal
+if (TRACK_BROADPHASE_STATS)
+	target_compile_definitions(Jolt PUBLIC JPH_TRACK_BROADPHASE_STATS)
+endif()
+
+# Setting to periodically trace narrowphase stats to help determine which collision queries could be optimized
+if (TRACK_NARROWPHASE_STATS)
+	target_compile_definitions(Jolt PUBLIC JPH_TRACK_NARROWPHASE_STATS)
+endif()
+
 # Emit the instruction set definitions to ensure that child projects use the same settings even if they override the used instruction sets (a mismatch causes link errors)
 function(EMIT_X86_INSTRUCTION_SET_DEFINITIONS)
 	if (USE_AVX512)
@@ -468,7 +524,7 @@ function(EMIT_X86_INSTRUCTION_SET_DEFINITIONS)
 	endif()
 	if (USE_AVX)
 		target_compile_definitions(Jolt PUBLIC JPH_USE_AVX)
-	endif()	
+	endif()
 	if (USE_SSE4_1)
 		target_compile_definitions(Jolt PUBLIC JPH_USE_SSE4_1)
 	endif()
@@ -502,7 +558,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 		EMIT_X86_INSTRUCTION_SET_DEFINITIONS()
 	endif()
 else()
-	if (CROSS_COMPILE_ARM OR CMAKE_OSX_ARCHITECTURES MATCHES "arm64" OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
+	if (XCODE)
+		# XCode builds for multiple architectures, we can't set global flags
+	elseif (CROSS_COMPILE_ARM OR CMAKE_OSX_ARCHITECTURES MATCHES "arm64" OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
 		# ARM64 uses no special commandline flags
 	elseif ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64" OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "AMD64")
 		# x64

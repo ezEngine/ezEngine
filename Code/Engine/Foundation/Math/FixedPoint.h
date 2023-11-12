@@ -23,7 +23,7 @@ class ezFixedPoint
 {
 public:
   /// \brief Default constructor does not do any initialization.
-  EZ_ALWAYS_INLINE ezFixedPoint() {} // [tested]
+  EZ_ALWAYS_INLINE ezFixedPoint() = default; // [tested]
 
   /// \brief Construct from an integer.
   /* implicit */ ezFixedPoint(ezInt32 iIntVal) { *this = iIntVal; } // [tested]

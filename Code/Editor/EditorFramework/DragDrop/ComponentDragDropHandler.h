@@ -39,5 +39,5 @@ protected:
 
   virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
 
-  ezVec3 m_vAlignAxisWithNormal = ezVec3::ZeroVector();
+  ezVec3 m_vAlignAxisWithNormal = ezVec3::MakeZero();
 };

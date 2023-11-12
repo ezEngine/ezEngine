@@ -183,7 +183,7 @@ ezResult ezWindow::Initialize()
   SetWindowLongPtrW(windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
   // show window and activate if required
-  ShowWindow(windowHandle, m_CreationDescription.m_bSetForegroundOnInit ? SW_SHOWNORMAL : SW_SHOWNOACTIVATE);
+  ShowWindow(windowHandle, m_CreationDescription.m_bSetForegroundOnInit ? SW_SHOWDEFAULT : SW_SHOWNOACTIVATE);
   if (m_CreationDescription.m_bSetForegroundOnInit)
   {
     SetActiveWindow(windowHandle);
@@ -221,8 +221,10 @@ ezResult ezWindow::Destroy()
   if (!m_bInitialized)
     return EZ_SUCCESS;
 
-  if (GetInputDevice() && GetInputDevice()->GetClipMouseCursor())
+  if (GetInputDevice() && GetInputDevice()->GetClipMouseCursor() != ezMouseCursorClipMode::NoClip)
+  {
     GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+  }
 
   EZ_LOG_BLOCK("ezWindow::Destroy");
 
@@ -272,7 +274,7 @@ ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
 {
   auto windowHandle = ezMinWindows::ToNative(m_hWindowHandle);
   BOOL res = ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, newWindowSize.width, newWindowSize.height, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
-  return res == TRUE ? EZ_SUCCESS : EZ_FAILURE;
+  return res != FALSE ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 void ezWindow::ProcessWindowMessages()

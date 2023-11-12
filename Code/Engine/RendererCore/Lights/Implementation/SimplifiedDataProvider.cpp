@@ -12,13 +12,11 @@ EZ_DEFINE_AS_POD_TYPE(ezSimplifiedDataConstants);
 
 ezSimplifiedDataGPU::ezSimplifiedDataGPU()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezSimplifiedDataConstants>();
 }
 
 ezSimplifiedDataGPU::~ezSimplifiedDataGPU()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
@@ -42,9 +40,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimplifiedDataProvider, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSimplifiedDataProvider::ezSimplifiedDataProvider() {}
+ezSimplifiedDataProvider::ezSimplifiedDataProvider() = default;
 
-ezSimplifiedDataProvider::~ezSimplifiedDataProvider() {}
+ezSimplifiedDataProvider::~ezSimplifiedDataProvider() = default;
 
 void* ezSimplifiedDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
 {

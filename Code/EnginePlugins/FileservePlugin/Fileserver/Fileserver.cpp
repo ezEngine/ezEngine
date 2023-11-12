@@ -484,7 +484,7 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
   for (ezUInt32 i = 0; i < 10; ++i)
   {
     network->UpdateRemoteInterface();
-    ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
   }
 
   network->ShutdownConnection();

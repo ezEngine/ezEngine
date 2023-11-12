@@ -7,7 +7,22 @@
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
-typedef ezComponentManager<class ezAnimatedMeshComponent, ezBlockStorageType::FreeList> ezAnimatedMeshComponentManager;
+class EZ_GAMEENGINE_DLL ezAnimatedMeshComponentManager : public ezComponentManager<class ezAnimatedMeshComponent, ezBlockStorageType::FreeList>
+{
+public:
+  ezAnimatedMeshComponentManager(ezWorld* pWorld);
+  ~ezAnimatedMeshComponentManager();
+
+  virtual void Initialize() override;
+
+  void Update(const ezWorldModule::UpdateContext& context);
+  void AddToUpdateList(ezAnimatedMeshComponent* pComponent);
+
+private:
+  void ResourceEventHandler(const ezResourceEvent& e);
+
+  ezDeque<ezComponentHandle> m_ComponentsToUpdate;
+};
 
 class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezMeshComponentBase
 {
@@ -39,6 +54,8 @@ public:
   ezAnimatedMeshComponent();
   ~ezAnimatedMeshComponent();
 
+  void RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton);
+
 protected:
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);     // [ msg handler ]
   void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg); // [ msg handler ]
@@ -47,9 +64,10 @@ protected:
 
   void MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds);
 
-  ezTransform m_RootTransform = ezTransform::IdentityTransform();
+  ezTransform m_RootTransform = ezTransform::MakeIdentity();
   ezBoundingBox m_MaxBounds;
   ezSkinningState m_SkinningState;
+  ezSkeletonResourceHandle m_hDefaultSkeleton;
 };
 
 

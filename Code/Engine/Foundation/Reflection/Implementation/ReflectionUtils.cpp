@@ -330,7 +330,7 @@ namespace
   struct SetValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
+    EZ_FORCE_INLINE void operator()(const ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
     {
       ezVariantToProperty<T> setter(value, pProp);
       pProp->SetValuePtr(pObject, setter);
@@ -350,7 +350,7 @@ namespace
   struct SetArrayValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value)
+    EZ_FORCE_INLINE void operator()(const ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value)
     {
       ezVariantToProperty<T> setter(value, pProp);
       pProp->SetValue(pObject, uiIndex, setter);
@@ -360,7 +360,7 @@ namespace
   struct InsertArrayValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value)
+    EZ_FORCE_INLINE void operator()(const ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value)
     {
       ezVariantToProperty<T> setter(value, pProp);
       pProp->Insert(pObject, uiIndex, setter);
@@ -370,7 +370,7 @@ namespace
   struct InsertSetValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
+    EZ_FORCE_INLINE void operator()(const ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
     {
       ezVariantToProperty<T> setter(value, pProp);
       pProp->Insert(pObject, setter);
@@ -380,7 +380,7 @@ namespace
   struct RemoveSetValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
+    EZ_FORCE_INLINE void operator()(const ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
     {
       ezVariantToProperty<T> setter(value, pProp);
       pProp->Remove(pObject, setter);
@@ -400,7 +400,7 @@ namespace
   struct SetMapValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()(ezAbstractMapProperty* pProp, void* pObject, const char* szKey, const ezVariant& value)
+    EZ_FORCE_INLINE void operator()(const ezAbstractMapProperty* pProp, void* pObject, const char* szKey, const ezVariant& value)
     {
       ezVariantToProperty<T> setter(value, pProp);
       pProp->Insert(pObject, szKey, setter);
@@ -690,7 +690,7 @@ ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProper
   return res;
 }
 
-void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
+void ezReflectionUtils::SetMemberPropertyValue(const ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
 {
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "SetMemberPropertyValue: missing data!");
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
@@ -698,7 +698,7 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
 
   if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Bitflags | ezPropertyFlags::IsEnum))
   {
-    ezAbstractEnumerationProperty* pEnumerationProp = static_cast<ezAbstractEnumerationProperty*>(pProp);
+    auto pEnumerationProp = static_cast<const ezAbstractEnumerationProperty*>(pProp);
 
     // Value can either be an integer or a string (human readable value)
     if (value.IsA<ezString>())
@@ -736,7 +736,7 @@ ezVariant ezReflectionUtils::GetArrayPropertyValue(const ezAbstractArrayProperty
   return res;
 }
 
-void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value)
+void ezReflectionUtils::SetArrayPropertyValue(const ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value)
 {
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "GetArrayPropertyValue: missing data!");
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
@@ -754,7 +754,7 @@ void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, vo
   }
 }
 
-void ezReflectionUtils::InsertSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
+void ezReflectionUtils::InsertSetPropertyValue(const ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
 {
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "InsertSetPropertyValue: missing data!");
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
@@ -764,7 +764,7 @@ void ezReflectionUtils::InsertSetPropertyValue(ezAbstractSetProperty* pProp, voi
   DispatchTo(func, pProp, pProp, pObject, value);
 }
 
-void ezReflectionUtils::RemoveSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
+void ezReflectionUtils::RemoveSetPropertyValue(const ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
 {
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "RemoveSetPropertyValue: missing data!");
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
@@ -784,7 +784,7 @@ ezVariant ezReflectionUtils::GetMapPropertyValue(const ezAbstractMapProperty* pP
   return value;
 }
 
-void ezReflectionUtils::SetMapPropertyValue(ezAbstractMapProperty* pProp, void* pObject, const char* szKey, const ezVariant& value)
+void ezReflectionUtils::SetMapPropertyValue(const ezAbstractMapProperty* pProp, void* pObject, const char* szKey, const ezVariant& value)
 {
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "SetMapPropertyValue: missing data!");
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
@@ -794,7 +794,7 @@ void ezReflectionUtils::SetMapPropertyValue(ezAbstractMapProperty* pProp, void* 
   DispatchTo(func, pProp, pProp, pObject, szKey, value);
 }
 
-void ezReflectionUtils::InsertArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, const ezVariant& value, ezUInt32 uiIndex)
+void ezReflectionUtils::InsertArrayPropertyValue(const ezAbstractArrayProperty* pProp, void* pObject, const ezVariant& value, ezUInt32 uiIndex)
 {
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "InsertArrayPropertyValue: missing data!");
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
@@ -811,7 +811,7 @@ void ezReflectionUtils::InsertArrayPropertyValue(ezAbstractArrayProperty* pProp,
   DispatchTo(func, pProp, pProp, pObject, uiIndex, value);
 }
 
-void ezReflectionUtils::RemoveArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex)
+void ezReflectionUtils::RemoveArrayPropertyValue(const ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex)
 {
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "RemoveArrayPropertyValue: missing data!");
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
@@ -827,136 +827,124 @@ void ezReflectionUtils::RemoveArrayPropertyValue(ezAbstractArrayProperty* pProp,
   pProp->Remove(pObject, uiIndex);
 }
 
-ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex)
+const ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex)
 {
   if (pRtti == nullptr)
     return nullptr;
 
-  ezHybridArray<ezAbstractProperty*, 32> props;
+  ezHybridArray<const ezAbstractProperty*, 32> props;
   pRtti->GetAllProperties(props);
   if (uiPropertyIndex < props.GetCount())
   {
-    ezAbstractProperty* pProp = props[uiPropertyIndex];
+    const ezAbstractProperty* pProp = props[uiPropertyIndex];
     if (pProp->GetCategory() == ezPropertyCategory::Member)
-      return static_cast<ezAbstractMemberProperty*>(pProp);
+      return static_cast<const ezAbstractMemberProperty*>(pProp);
   }
 
   return nullptr;
 }
 
-ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRtti, const char* szPropertyName)
+const ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRtti, const char* szPropertyName)
 {
   if (pRtti == nullptr)
     return nullptr;
 
-  if (ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropertyName))
+  if (const ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropertyName))
   {
     if (pProp->GetCategory() == ezPropertyCategory::Member)
-      return static_cast<ezAbstractMemberProperty*>(pProp);
+      return static_cast<const ezAbstractMemberProperty*>(pProp);
   }
 
   return nullptr;
 }
 
-void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pRtti, ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies)
+void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pBaseRtti, ezSet<const ezRTTI*>& out_types)
 {
-  ezRTTI* pFirst = ezRTTI::GetFirstInstance();
-  while (pFirst != nullptr)
-  {
-    if (pFirst->IsDerivedFrom(pRtti))
-    {
-      out_types.Insert(pFirst);
-      if (bIncludeDependencies)
-      {
-        GatherDependentTypes(pFirst, out_types);
-      }
-    }
-    pFirst = pFirst->GetNextInstance();
-  }
+  ezRTTI::ForEachDerivedType(pBaseRtti,
+    [&](const ezRTTI* pRtti) {
+      out_types.Insert(pRtti);
+    });
 }
 
-void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_types)
+void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_typesAsSet, ezDynamicArray<const ezRTTI*>* out_pTypesAsStack /*= nullptr*/)
 {
-  const ezRTTI* pParentRtti = pRtti->GetParentType();
-  if (pParentRtti != nullptr)
+  auto AddType = [&](const ezRTTI* pNewRtti) {
+    if (pNewRtti != pRtti && pNewRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType) == false && inout_typesAsSet.Contains(pNewRtti) == false)
+    {
+      inout_typesAsSet.Insert(pNewRtti);
+      if (out_pTypesAsStack != nullptr)
+      {
+        out_pTypesAsStack->PushBack(pNewRtti);
+      }
+
+      GatherDependentTypes(pNewRtti, inout_typesAsSet, out_pTypesAsStack);
+    }
+  };
+
+  if (const ezRTTI* pParentRtti = pRtti->GetParentType())
   {
-    inout_types.Insert(pParentRtti);
-    GatherDependentTypes(pParentRtti, inout_types);
+    AddType(pParentRtti);
   }
 
-  const ezArrayPtr<ezAbstractProperty*>& rttiProps = pRtti->GetProperties();
-  const ezUInt32 uiCount = rttiProps.GetCount();
-
-  for (ezUInt32 i = 0; i < uiCount; ++i)
+  for (const ezAbstractProperty* prop : pRtti->GetProperties())
   {
-    ezAbstractProperty* prop = rttiProps[i];
-    if (prop->GetFlags().IsSet(ezPropertyFlags::StandardType))
+    if (prop->GetCategory() == ezPropertyCategory::Constant)
       continue;
+
     if (prop->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
       continue;
-    switch (prop->GetCategory())
+
+    AddType(prop->GetSpecificType());
+  }
+
+  for (const ezAbstractFunctionProperty* func : pRtti->GetFunctions())
+  {
+    ezUInt32 uiNumArgs = func->GetArgumentCount();
+    for (ezUInt32 i = 0; i < uiNumArgs; ++i)
     {
-      case ezPropertyCategory::Member:
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
-      case ezPropertyCategory::Map:
-      {
-        const ezRTTI* pPropRtti = prop->GetSpecificType();
-
-        if (inout_types.Contains(pPropRtti))
-          continue;
-
-        inout_types.Insert(pPropRtti);
-        GatherDependentTypes(pPropRtti, inout_types);
-      }
-      break;
-      case ezPropertyCategory::Function:
-      case ezPropertyCategory::Constant:
-      default:
-        break;
+      AddType(func->GetArgumentType(i));
     }
+  }
+
+  for (const ezPropertyAttribute* attr : pRtti->GetAttributes())
+  {
+    AddType(attr->GetDynamicRTTI());
   }
 }
 
-bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes)
+ezResult ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes)
 {
   out_sortedTypes.Clear();
   out_sortedTypes.Reserve(types.GetCount());
 
-  ezMap<const ezRTTI*, ezSet<const ezRTTI*>> dependencies;
-
   ezSet<const ezRTTI*> accu;
+  ezDynamicArray<const ezRTTI*> tmpStack;
 
   for (const ezRTTI* pType : types)
   {
-    auto it = dependencies.Insert(pType, ezSet<const ezRTTI*>());
-    GatherDependentTypes(pType, it.Value());
-  }
+    if (accu.Contains(pType))
+      continue;
 
+    GatherDependentTypes(pType, accu, &tmpStack);
 
-  while (!dependencies.IsEmpty())
-  {
-    bool bDeadEnd = true;
-    for (auto it = dependencies.GetIterator(); it.IsValid(); ++it)
+    while (tmpStack.IsEmpty() == false)
     {
-      // Are the types dependencies met?
-      if (accu.ContainsSet(it.Value()))
-      {
-        out_sortedTypes.PushBack(it.Key());
-        accu.Insert(it.Key());
-        dependencies.Remove(it);
-        bDeadEnd = false;
-        break;
-      }
+      const ezRTTI* pDependentType = tmpStack.PeekBack();
+      EZ_ASSERT_DEBUG(pDependentType != pType, "A type must not be reported as dependency of itself");
+      tmpStack.PopBack();
+
+      if (types.Contains(pDependentType) == false)
+        return EZ_FAILURE;
+
+      out_sortedTypes.PushBack(pDependentType);
     }
 
-    if (bDeadEnd)
-    {
-      return false;
-    }
+    accu.Insert(pType);
+    out_sortedTypes.PushBack(pType);
   }
 
-  return true;
+  EZ_ASSERT_DEV(types.GetCount() == out_sortedTypes.GetCount(), "Not all types have been sorted or the sorted list contains duplicates");
+  return EZ_SUCCESS;
 }
 
 bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode)
@@ -1131,9 +1119,9 @@ ezInt64 ezReflectionUtils::MakeEnumerationValid(const ezRTTI* pEnumerationRtti, 
   }
 }
 
-bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbstractProperty* pProp)
+bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, const ezAbstractProperty* pProp)
 {
-  //#VAR TEST
+  // #VAR TEST
   const ezRTTI* pPropType = pProp->GetSpecificType();
 
   ezVariant vTemp;
@@ -1145,7 +1133,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
   {
     case ezPropertyCategory::Member:
     {
-      ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
+      auto pSpecific = static_cast<const ezAbstractMemberProperty*>(pProp);
 
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
@@ -1207,7 +1195,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
     break;
     case ezPropertyCategory::Array:
     {
-      ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
+      auto pSpecific = static_cast<const ezAbstractArrayProperty*>(pProp);
 
       const ezUInt32 uiCount = pSpecific->GetCount(pObject);
       const ezUInt32 uiCount2 = pSpecific->GetCount(pObject2);
@@ -1277,7 +1265,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
     break;
     case ezPropertyCategory::Set:
     {
-      ezAbstractSetProperty* pSpecific = static_cast<ezAbstractSetProperty*>(pProp);
+      auto pSpecific = static_cast<const ezAbstractSetProperty*>(pProp);
 
       ezHybridArray<ezVariant, 16> values;
       pSpecific->GetValues(pObject, values);
@@ -1327,7 +1315,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
     break;
     case ezPropertyCategory::Map:
     {
-      ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
+      auto pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
 
       ezHybridArray<ezString, 16> keys;
       pSpecific->GetKeys(pObject, keys);
@@ -1429,7 +1417,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, const
 }
 
 
-void ezReflectionUtils::DeleteObject(void* pObject, ezAbstractProperty* pOwnerProperty)
+void ezReflectionUtils::DeleteObject(void* pObject, const ezAbstractProperty* pOwnerProperty)
 {
   if (!pObject)
     return;
@@ -1502,15 +1490,15 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
     case ezVariant::Type::Quaternion:
       return ezVariant(ezQuat(0.0f, 0.0f, 0.0f, 1.0f));
     case ezVariant::Type::Matrix3:
-      return ezVariant(ezMat3::IdentityMatrix());
+      return ezVariant(ezMat3::MakeIdentity());
     case ezVariant::Type::Matrix4:
-      return ezVariant(ezMat4::IdentityMatrix());
+      return ezVariant(ezMat4::MakeIdentity());
     case ezVariant::Type::Transform:
-      return ezVariant(ezTransform::IdentityTransform());
+      return ezVariant(ezTransform::MakeIdentity());
     case ezVariant::Type::String:
       return ezVariant(ezString());
     case ezVariant::Type::StringView:
-      return ezVariant(ezStringView());
+      return ezVariant(ezStringView(), false);
     case ezVariant::Type::DataBuffer:
       return ezVariant(ezDataBuffer());
     case ezVariant::Type::Time:
@@ -1519,6 +1507,10 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
       return ezVariant(ezUuid());
     case ezVariant::Type::Angle:
       return ezVariant(ezAngle());
+    case ezVariant::Type::HashedString:
+      return ezVariant(ezHashedString());
+    case ezVariant::Type::TempHashedString:
+      return ezVariant(ezTempHashedString());
     case ezVariant::Type::VariantArray:
       return ezVariantArray();
     case ezVariant::Type::VariantDictionary:
@@ -1669,16 +1661,16 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(const ezRTTI* pRtti)
 
 void ezReflectionUtils::SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject)
 {
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
-  for (ezAbstractProperty* pProp : properties)
+  for (auto pProp : properties)
   {
     if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
       const ezVariant defValue = ezReflectionUtils::GetDefaultValue(pProp);
 
-      ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), pObject, defValue);
+      ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pObject, defValue);
     }
   }
 }

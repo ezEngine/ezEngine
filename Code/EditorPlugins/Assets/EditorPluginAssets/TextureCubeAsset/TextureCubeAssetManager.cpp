@@ -17,7 +17,8 @@ ezTextureCubeAssetDocumentManager::ezTextureCubeAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Texture Cube";
   m_DocTypeDesc.m_sFileExtension = "ezTextureCubeAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_Cube.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_Cube.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureCubeAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_Cube");
@@ -39,7 +40,7 @@ void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentM
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTextureCubeAssetDocument>())
       {
-        ezQtTextureCubeAssetDocumentWindow* pDocWnd = new ezQtTextureCubeAssetDocumentWindow(static_cast<ezTextureCubeAssetDocument*>(e.m_pDocument));
+        new ezQtTextureCubeAssetDocumentWindow(static_cast<ezTextureCubeAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -50,9 +51,9 @@ void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentM
 }
 
 void ezTextureCubeAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezTextureCubeAssetDocument(szPath);
+  out_pDocument = new ezTextureCubeAssetDocument(sPath);
 }
 
 void ezTextureCubeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

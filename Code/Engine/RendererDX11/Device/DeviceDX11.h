@@ -21,8 +21,8 @@ struct ID3D11Resource;
 struct ID3D11Query;
 struct IDXGIAdapter;
 
-typedef ezGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0> ezGALFormatLookupEntryDX11;
-typedef ezGALFormatLookupTable<ezGALFormatLookupEntryDX11> ezGALFormatLookupTableDX11;
+using ezGALFormatLookupEntryDX11 = ezGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0>;
+using ezGALFormatLookupTableDX11 = ezGALFormatLookupTable<ezGALFormatLookupEntryDX11>;
 
 class ezGALPassDX11;
 
@@ -70,6 +70,8 @@ protected:
   virtual ezGALPass* BeginPassPlatform(const char* szName) override;
   virtual void EndPassPlatform(ezGALPass* pPass) override;
 
+  virtual void FlushPlatform() override;
+
 
   // State creation functions
 
@@ -96,6 +98,9 @@ protected:
 
   virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) override;
+
+  virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) override;
+  virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) override;
 
   virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) override;
   virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) override;
@@ -132,6 +137,8 @@ protected:
 
   virtual void WaitIdlePlatform() override;
 
+  virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const override;
+
   /// \endcond
 
 private:
@@ -163,20 +170,21 @@ private:
 
   void WaitForFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence);
 
-  ID3D11Device* m_pDevice;
-  ID3D11Device3* m_pDevice3;
+  ID3D11Device* m_pDevice = nullptr;
+  ID3D11Device3* m_pDevice3 = nullptr;
   ID3D11DeviceContext* m_pImmediateContext;
 
-  ID3D11Debug* m_pDebug;
+  ID3D11Debug* m_pDebug = nullptr;
 
-  IDXGIFactory1* m_pDXGIFactory;
+  IDXGIFactory1* m_pDXGIFactory = nullptr;
 
-  IDXGIAdapter1* m_pDXGIAdapter;
+  IDXGIAdapter1* m_pDXGIAdapter = nullptr;
 
-  IDXGIDevice1* m_pDXGIDevice;
+  IDXGIDevice1* m_pDXGIDevice = nullptr;
 
   ezGALFormatLookupTableDX11 m_FormatLookupTable;
 
+  // NOLINTNEXTLINE
   ezUInt32 m_uiFeatureLevel; // D3D_FEATURE_LEVEL can't be forward declared
 
   ezUniquePtr<ezGALPassDX11> m_pDefaultPass;

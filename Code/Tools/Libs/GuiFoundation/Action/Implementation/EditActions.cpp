@@ -45,57 +45,51 @@ void ezEditActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hDelete);
 }
 
-void ezEditActions::MapActions(const char* szMapping, const char* szPath, bool bDeleteAction, bool bAdvancedPasteActions)
+void ezEditActions::MapActions(ezStringView sMapping, bool bDeleteAction, bool bAdvancedPasteActions)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/EditCategory");
+  pMap->MapAction(s_hEditCategory, "G.Edit", 3.5f);
 
-  pMap->MapAction(s_hEditCategory, szPath, 3.5f);
-
-  pMap->MapAction(s_hCopy, sSubPath, 1.0f);
-  pMap->MapAction(s_hPaste, sSubPath, 2.0f);
+  pMap->MapAction(s_hCopy, "G.Edit", "EditCategory", 1.0f);
+  pMap->MapAction(s_hPaste, "G.Edit", "EditCategory", 2.0f);
 
   if (bAdvancedPasteActions)
   {
-    pMap->MapAction(s_hPasteAsChild, sSubPath, 2.5f);
-    pMap->MapAction(s_hPasteAtOriginalLocation, sSubPath, 2.7f);
+    pMap->MapAction(s_hPasteAsChild, "G.Edit", "EditCategory", 2.5f);
+    pMap->MapAction(s_hPasteAtOriginalLocation, "G.Edit", "EditCategory", 2.7f);
   }
 
   if (bDeleteAction)
-    pMap->MapAction(s_hDelete, sSubPath, 3.0f);
+    pMap->MapAction(s_hDelete, "G.Edit", "EditCategory", 3.0f);
 }
 
 
-void ezEditActions::MapContextMenuActions(const char* szMapping, const char* szPath)
+void ezEditActions::MapContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/EditCategory");
+  pMap->MapAction(s_hEditCategory, "", 10.0f);
 
-  pMap->MapAction(s_hEditCategory, szPath, 10.0f);
-
-  pMap->MapAction(s_hCopy, sSubPath, 1.0f);
-  pMap->MapAction(s_hPasteAsChild, sSubPath, 2.0f);
-  pMap->MapAction(s_hDelete, sSubPath, 3.0f);
+  pMap->MapAction(s_hCopy, "EditCategory", 1.0f);
+  pMap->MapAction(s_hPasteAsChild, "EditCategory", 2.0f);
+  pMap->MapAction(s_hDelete, "EditCategory", 3.0f);
 }
 
 
-void ezEditActions::MapViewContextMenuActions(const char* szMapping, const char* szPath)
+void ezEditActions::MapViewContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/EditCategory");
+  pMap->MapAction(s_hEditCategory, "", 10.0f);
 
-  pMap->MapAction(s_hEditCategory, szPath, 10.0f);
-
-  pMap->MapAction(s_hCopy, sSubPath, 1.0f);
-  pMap->MapAction(s_hPasteAsChild, sSubPath, 2.0f);
-  pMap->MapAction(s_hPasteAtOriginalLocation, sSubPath, 2.5f);
-  pMap->MapAction(s_hDelete, sSubPath, 3.0f);
+  pMap->MapAction(s_hCopy, "EditCategory", 1.0f);
+  pMap->MapAction(s_hPasteAsChild, "EditCategory", 2.0f);
+  pMap->MapAction(s_hPasteAtOriginalLocation, "EditCategory", 2.5f);
+  pMap->MapAction(s_hDelete, "EditCategory", 3.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -110,19 +104,19 @@ ezEditAction::ezEditAction(const ezActionContext& context, const char* szName, B
   switch (m_ButtonType)
   {
     case ezEditAction::ButtonType::Copy:
-      SetIconPath(":/GuiFoundation/Icons/Copy16.png");
+      SetIconPath(":/GuiFoundation/Icons/Copy.svg");
       break;
     case ezEditAction::ButtonType::Paste:
-      SetIconPath(":/GuiFoundation/Icons/Paste16.png");
+      SetIconPath(":/GuiFoundation/Icons/Paste.svg");
       break;
     case ezEditAction::ButtonType::PasteAsChild:
-      SetIconPath(":/GuiFoundation/Icons/Paste16.png"); /// \todo Icon
+      SetIconPath(":/GuiFoundation/Icons/Paste.svg"); /// \todo Icon
       break;
     case ezEditAction::ButtonType::PasteAtOriginalLocation:
-      SetIconPath(":/GuiFoundation/Icons/Paste16.png");
+      SetIconPath(":/GuiFoundation/Icons/Paste.svg");
       break;
     case ezEditAction::ButtonType::Delete:
-      SetIconPath(":/GuiFoundation/Icons/Delete16.png");
+      SetIconPath(":/GuiFoundation/Icons/Delete.svg");
       break;
   }
 

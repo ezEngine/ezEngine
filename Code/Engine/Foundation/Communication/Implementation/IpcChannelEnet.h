@@ -11,7 +11,7 @@ class ezRemoteMessage;
 class EZ_FOUNDATION_DLL ezIpcChannelEnet : public ezIpcChannel
 {
 public:
-  ezIpcChannelEnet(const char* szAddress, Mode::Enum mode);
+  ezIpcChannelEnet(ezStringView sAddress, Mode::Enum mode);
   ~ezIpcChannelEnet();
 
 protected:

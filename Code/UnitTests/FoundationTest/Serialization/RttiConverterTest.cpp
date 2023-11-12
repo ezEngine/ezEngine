@@ -38,8 +38,7 @@ void TestSerialize(T* pObject)
   ezRttiConverterWriter conv(&graph, &context, true, true);
 
   const ezRTTI* pRtti = ezGetStaticRTTI<T>();
-  ezUuid guid;
-  guid.CreateNewUuid();
+  const ezUuid guid = ezUuid::MakeUuid();
 
   context.RegisterObject(guid, pRtti, pObject);
   ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, pObject, "root");
@@ -141,7 +140,7 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     t1.m_fFloat1 = 5.0f;
     t1.m_UInt8 = 222;
     t1.m_variant = "A";
-    t1.m_Angle = ezAngle::Degree(5);
+    t1.m_Angle = ezAngle::MakeFromDegree(5);
     t1.m_DataBuffer.PushBack(1);
     t1.m_DataBuffer.PushBack(5);
     t1.m_vVec3I = ezVec3I32(0, 1, 333);
@@ -164,7 +163,7 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     t1.m_Struct.m_fFloat1 = 5.0f;
     t1.m_Struct.m_UInt8 = 222;
     t1.m_Struct.m_variant = "A";
-    t1.m_Struct.m_Angle = ezAngle::Degree(5);
+    t1.m_Struct.m_Angle = ezAngle::MakeFromDegree(5);
     t1.m_Struct.m_DataBuffer.PushBack(1);
     t1.m_Struct.m_DataBuffer.PushBack(5);
     t1.m_Struct.m_vVec3I = ezVec3I32(0, 1, 333);
@@ -226,11 +225,11 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     t1.m_Struct.m_fFloat1 = 5.0f;
     t1.m_Struct.m_UInt8 = 222;
     t1.m_Struct.m_variant = "A";
-    t1.m_Struct.m_Angle = ezAngle::Degree(5);
+    t1.m_Struct.m_Angle = ezAngle::MakeFromDegree(5);
     t1.m_Struct.m_DataBuffer.PushBack(1);
     t1.m_Struct.m_DataBuffer.PushBack(5);
     t1.m_Struct.m_vVec3I = ezVec3I32(0, 1, 333);
-    t1.m_Time = ezTime::Seconds(22.2f);
+    t1.m_Time = ezTime::MakeFromSeconds(22.2f);
     t1.m_enumClass = ezExampleEnum::Value3;
     t1.m_bitflagsClass = ezExampleBitflags::Value1 | ezExampleBitflags::Value2;
     t1.m_array.PushBack(40.0f);

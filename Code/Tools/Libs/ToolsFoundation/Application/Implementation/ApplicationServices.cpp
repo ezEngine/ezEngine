@@ -43,9 +43,18 @@ ezString ezApplicationServices::GetApplicationPreferencesFolder() const
 
 ezString ezApplicationServices::GetProjectPreferencesFolder() const
 {
+  return GetProjectPreferencesFolder(ezToolsProject::GetSingleton()->GetProjectDirectory());
+}
+
+ezString ezApplicationServices::GetProjectPreferencesFolder(ezStringView sProjectFilePath) const
+{
   ezStringBuilder path = GetApplicationUserDataFolder();
 
-  ezStringBuilder ProjectName = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  sProjectFilePath.TrimWordEnd("ezProject");
+  sProjectFilePath.TrimWordEnd("ezRemoteProject");
+  sProjectFilePath.Trim("/\\");
+
+  ezStringBuilder ProjectName = sProjectFilePath;
 
   ezStringBuilder ProjectPath = ProjectName;
   ProjectPath.PathParentDirectory();

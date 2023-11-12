@@ -126,19 +126,19 @@ private:
     float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const;
 
   /// \brief The tree depth, used for finding a nodes unique ID
-  ezUInt32 m_uiMaxTreeDepth;
+  ezUInt32 m_uiMaxTreeDepth = 0;
 
   // \brief Also used for finding a nodes unique ID
-  ezUInt32 m_uiAddIDTopLevel;
+  ezUInt32 m_uiAddIDTopLevel = 0;
 
   /// \brief The square bounding Box (to prevent long thin nodes)
   ezBoundingBox m_BBox;
 
   /// \brief The actual bounding box (to discard objects that are outside the world)
-  float m_fRealMinX, m_fRealMaxX, m_fRealMinY, m_fRealMaxY, m_fRealMinZ, m_fRealMaxZ;
+  float m_fRealMinX = 0, m_fRealMaxX = 0, m_fRealMinY = 0, m_fRealMaxY = 0, m_fRealMinZ = 0, m_fRealMaxZ = 0;
 
   /// \brief Used to turn the map into a multi-map.
-  ezUInt32 m_uiMultiMapCounter;
+  ezUInt32 m_uiMultiMapCounter = 0;
 
   /// \brief Every node has a unique index, the map allows to store many objects at each node, using that index
   ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::ezObjectData> m_NodeMap;

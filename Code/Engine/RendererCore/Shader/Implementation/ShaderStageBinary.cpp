@@ -100,7 +100,7 @@ ezShaderConstantBufferLayout::ezShaderConstantBufferLayout()
   m_uiTotalSize = 0;
 }
 
-ezShaderConstantBufferLayout::~ezShaderConstantBufferLayout() {}
+ezShaderConstantBufferLayout::~ezShaderConstantBufferLayout() = default;
 
 ezResult ezShaderConstantBufferLayout::Write(ezStreamWriter& inout_stream) const
 {
@@ -149,7 +149,7 @@ ezShaderResourceBinding::ezShaderResourceBinding()
   m_pLayout = nullptr;
 }
 
-ezShaderResourceBinding::~ezShaderResourceBinding() {}
+ezShaderResourceBinding::~ezShaderResourceBinding() = default;
 
 //////////////////////////////////////////////////////////////////////////
 

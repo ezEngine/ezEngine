@@ -147,20 +147,24 @@ void ezQtDocumentTreeView::SetAllowDeleteObjects(bool bAllow)
   m_bAllowDeleteObjects = bAllow;
 }
 
-void ezQtDocumentTreeView::keyPressEvent(QKeyEvent* e)
+bool ezQtDocumentTreeView::event(QEvent* pEvent)
 {
-  if (ezQtProxy::TriggerDocumentAction(m_pDocument, e))
-    return;
-
-  if (e == QKeySequence::Delete)
+  if (pEvent->type() == QEvent::ShortcutOverride || pEvent->type() == QEvent::KeyPress)
   {
-    if (m_bAllowDeleteObjects)
+    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(pEvent);
+    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, pEvent->type() == QEvent::ShortcutOverride))
+      return true;
+
+    if (pEvent->type() == QEvent::KeyPress && keyEvent == QKeySequence::Delete)
     {
-      m_pDocument->DeleteSelectedObjects();
+      if (m_bAllowDeleteObjects)
+      {
+        m_pDocument->DeleteSelectedObjects();
+      }
+      pEvent->accept();
+      return true;
     }
   }
-  else
-  {
-    QTreeView::keyPressEvent(e);
-  }
+
+  return QTreeView::event(pEvent);
 }

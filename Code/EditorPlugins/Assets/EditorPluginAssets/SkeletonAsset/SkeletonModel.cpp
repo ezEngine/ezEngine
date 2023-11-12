@@ -9,7 +9,7 @@ ezQtJointAdapter::ezQtJointAdapter(const ezSkeletonAssetDocument* pDocument)
 {
 }
 
-ezQtJointAdapter::~ezQtJointAdapter() {}
+ezQtJointAdapter::~ezQtJointAdapter() = default;
 
 QVariant ezQtJointAdapter::data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const
 {
@@ -17,7 +17,7 @@ QVariant ezQtJointAdapter::data(const ezDocumentObject* pObject, int iRow, int i
   {
     case Qt::DecorationRole:
     {
-      QIcon icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveY.png"); // Giv ICon Plez!
+      QIcon icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveY.svg"); // Giv ICon Plez!
       return icon;
     }
     break;

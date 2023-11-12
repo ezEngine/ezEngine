@@ -106,10 +106,11 @@ ezUInt64 ezSkeletonResourceDescriptor::GetHeapMemoryUsage() const
 
 ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(6);
+  inout_stream.WriteVersion(7);
 
   m_Skeleton.Save(inout_stream);
   inout_stream << m_RootTransform;
+  inout_stream << m_fMaxImpulse;
 
   const ezUInt16 uiNumGeom = static_cast<ezUInt16>(m_Geometry.GetCount());
   inout_stream << uiNumGeom;
@@ -121,9 +122,9 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& inout_stream) c
     inout_stream << geo.m_uiAttachedToJoint;
     inout_stream << geo.m_Type;
     inout_stream << geo.m_Transform;
-    inout_stream << geo.m_sName;
-    inout_stream << geo.m_hSurface;
-    inout_stream << geo.m_uiCollisionLayer;
+
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(geo.m_VertexPositions));
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(geo.m_TriangleIndices));
   }
 
   return EZ_SUCCESS;
@@ -131,14 +132,19 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& inout_stream) c
 
 ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion version = inout_stream.ReadVersion(6);
+  const ezTypeVersion version = inout_stream.ReadVersion(7);
 
-  if (version != 6)
+  if (version < 6)
     return EZ_FAILURE;
 
   m_Skeleton.Load(inout_stream);
 
   inout_stream >> m_RootTransform;
+
+  if (version >= 7)
+  {
+    inout_stream >> m_fMaxImpulse;
+  }
 
   m_Geometry.Clear();
 
@@ -153,10 +159,28 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
     inout_stream >> geo.m_uiAttachedToJoint;
     inout_stream >> geo.m_Type;
     inout_stream >> geo.m_Transform;
-    inout_stream >> geo.m_sName;
-    inout_stream >> geo.m_hSurface;
-    inout_stream >> geo.m_uiCollisionLayer;
+
+    if (version <= 6)
+    {
+      ezStringBuilder sName;
+      ezSurfaceResourceHandle hSurface;
+      ezUInt8 uiCollisionLayer;
+
+      inout_stream >> sName;
+      inout_stream >> hSurface;
+      inout_stream >> uiCollisionLayer;
+    }
+
+    if (version >= 7)
+    {
+      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(geo.m_VertexPositions));
+      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(geo.m_TriangleIndices));
+    }
   }
+
+  // make sure the geometry is sorted by bones
+  // this allows to make the algorithm for creating the bone geometry more efficient
+  m_Geometry.Sort([](const ezSkeletonResourceGeometry& lhs, const ezSkeletonResourceGeometry& rhs) -> bool { return lhs.m_uiAttachedToJoint < rhs.m_uiAttachedToJoint; });
 
   return EZ_SUCCESS;
 }

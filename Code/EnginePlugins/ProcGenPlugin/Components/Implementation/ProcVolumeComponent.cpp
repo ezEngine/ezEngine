@@ -33,6 +33,11 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
     EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnTransformChanged)
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Construction/Procedural Generation"),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
@@ -89,6 +94,8 @@ void ezProcVolumeComponent::SetValue(float fValue)
 
 void ezProcVolumeComponent::SetSortOrder(float fOrder)
 {
+  fOrder = ezMath::Clamp(fOrder, -64.0f, 64.0f);
+
   if (m_fSortOrder != fOrder)
   {
     m_fSortOrder = fOrder;
@@ -163,12 +170,12 @@ void ezProcVolumeComponent::InvalidateArea(const ezBoundingBox& box)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("FadeOutStart", GetFadeOutStart, SetFadeOutStart)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -179,7 +186,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Procedural Generation"),
     new ezSphereManipulatorAttribute("Radius"),
     new ezSphereVisualizerAttribute("Radius", ezColor::LimeGreen),
   }
@@ -206,11 +212,11 @@ void ezProcVolumeSphereComponent::SetRadius(float fRadius)
   }
 }
 
-void ezProcVolumeSphereComponent::SetFadeOutStart(float fFadeOutStart)
+void ezProcVolumeSphereComponent::SetFalloff(float fFalloff)
 {
-  if (m_fFadeOutStart != fFadeOutStart)
+  if (m_fFalloff != fFalloff)
   {
-    m_fFadeOutStart = fFadeOutStart;
+    m_fFalloff = fFalloff;
 
     InvalidateArea();
   }
@@ -223,38 +229,43 @@ void ezProcVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream
   ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_fRadius;
-  s << m_fFadeOutStart;
+  s << m_fFalloff;
 }
 
 void ezProcVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRadius;
-  s >> m_fFadeOutStart;
+  s >> m_fFalloff;
+
+  if (uiVersion < 2)
+  {
+    m_fFalloff = 1.0f - m_fFalloff;
+  }
 }
 
 void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), s_ProcVolumeCategory);
 }
 
 void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
 {
-  ref_msg.m_pCollection->AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFadeOutStart);
+  ref_msg.m_pCollection->AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFalloff);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("FadeOutStart", GetFadeOutStart, SetFadeOutStart)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0.5f)), new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f))),
+    EZ_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0.5f)), new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -265,7 +276,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Procedural Generation"),
     new ezBoxManipulatorAttribute("Extents", 1.0f, true),
     new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::LimeGreen),
   }
@@ -292,11 +302,11 @@ void ezProcVolumeBoxComponent::SetExtents(const ezVec3& vExtents)
   }
 }
 
-void ezProcVolumeBoxComponent::SetFadeOutStart(const ezVec3& vFadeOutStart)
+void ezProcVolumeBoxComponent::SetFalloff(const ezVec3& vFalloff)
 {
-  if (m_vFadeOutStart != vFadeOutStart)
+  if (m_vFalloff != vFalloff)
   {
-    m_vFadeOutStart = vFadeOutStart;
+    m_vFalloff = vFalloff;
 
     InvalidateArea();
   }
@@ -309,27 +319,32 @@ void ezProcVolumeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
-  s << m_vFadeOutStart;
+  s << m_vFalloff;
 }
 
 void ezProcVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
-  s >> m_vFadeOutStart;
+  s >> m_vFalloff;
+
+  if (uiVersion < 2)
+  {
+    m_vFalloff = ezVec3(1.0f) - m_vFalloff;
+  }
 }
 
 void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), s_ProcVolumeCategory);
 }
 
 void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
 {
-  ref_msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart);
+  ref_msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFalloff);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -374,7 +389,7 @@ void ezProcVolumeImageComponent::DeserializeComponent(ezWorldReader& inout_strea
 
 void ezProcVolumeImageComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
 {
-  ref_msg.m_pCollection->AddImage(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart, m_hImage);
+  ref_msg.m_pCollection->AddImage(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFalloff, m_hImage);
 }
 
 void ezProcVolumeImageComponent::SetImageFile(const char* szFile)
@@ -401,3 +416,49 @@ void ezProcVolumeImageComponent::SetImage(const ezImageDataResourceHandle& hReso
 {
   m_hImage = hResource;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezProcVolumeSphereComponent_1_2 : public ezGraphPatch
+{
+public:
+  ezProcVolumeSphereComponent_1_2()
+    : ezGraphPatch("ezProcVolumeSphereComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pFadeOutStart = pNode->FindProperty("FadeOutStart");
+    if (pFadeOutStart && pFadeOutStart->m_Value.IsA<float>())
+    {
+      float fFalloff = 1.0f - pFadeOutStart->m_Value.Get<float>();
+      pNode->AddProperty("Falloff", fFalloff);
+    }
+  }
+};
+
+ezProcVolumeSphereComponent_1_2 g_ezProcVolumeSphereComponent_1_2;
+
+class ezProcVolumeBoxComponent_1_2 : public ezGraphPatch
+{
+public:
+  ezProcVolumeBoxComponent_1_2()
+    : ezGraphPatch("ezProcVolumeBoxComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pFadeOutStart = pNode->FindProperty("FadeOutStart");
+    if (pFadeOutStart && pFadeOutStart->m_Value.IsA<ezVec3>())
+    {
+      ezVec3 vFalloff = ezVec3(1.0f) - pFadeOutStart->m_Value.Get<ezVec3>();
+      pNode->AddProperty("Falloff", vFalloff);
+    }
+  }
+};
+
+ezProcVolumeBoxComponent_1_2 g_ezProcVolumeBoxComponent_1_2;

@@ -7,9 +7,15 @@
 #include <GameEngine/Animation/FollowPathComponent.h>
 #include <GameEngine/Animation/PathComponent.h>
 
+#include <RendererCore/Debug/DebugRenderer.h>
+
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFollowPathMode, 1)
+  EZ_ENUM_CONSTANTS(ezFollowPathMode::OnlyPosition, ezFollowPathMode::AlignUpZ, ezFollowPathMode::FullRotation)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_COMPONENT_TYPE(ezFollowPathComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -21,6 +27,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezFollowPathComponent, 1, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("LookAhead", m_fLookAhead)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("Smoothing", m_fSmoothing)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ENUM_MEMBER_PROPERTY("FollowMode", ezFollowPathMode, m_FollowMode),  
+    EZ_MEMBER_PROPERTY("TiltAmount", m_fTiltAmount)->AddAttributes(new ezDefaultValueAttribute(5.0f)),
+    EZ_MEMBER_PROPERTY("MaxTilt", m_MaxTilt)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(90.0f))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
@@ -126,30 +135,63 @@ void ezFollowPathComponent::Update(bool bForce)
   }
 
   ezVec3 vTarget = transformAhead.m_vPosition - transform.m_vPosition;
-  vTarget.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+  if (m_FollowMode == ezFollowPathMode::AlignUpZ)
+  {
+    const ezPlane plane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), transform.m_vPosition);
+    vTarget = plane.GetCoplanarDirection(vTarget);
+  }
+  vTarget.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
 
-  ezVec3 vUp = transform.m_vUpDirection;
+  ezVec3 vUp = (m_FollowMode == ezFollowPathMode::FullRotation) ? transform.m_vUpDirection : ezVec3::MakeAxisZ();
   ezVec3 vRight = vTarget.CrossRH(vUp);
-  vRight.NormalizeIfNotZero(ezVec3::UnitYAxis()).IgnoreResult();
+  vRight.NormalizeIfNotZero(ezVec3::MakeAxisY()).IgnoreResult();
+
   vUp = vRight.CrossRH(vTarget);
-  vUp.NormalizeIfNotZero(ezVec3::UnitZAxis()).IgnoreResult();
+  vUp.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
+
+  // check if we want to tilt the platform when turning
+  ezAngle deltaAngle = ezAngle::MakeFromDegree(0.0f);
+  if (m_FollowMode == ezFollowPathMode::AlignUpZ && !ezMath::IsZero(m_fTiltAmount, 0.0001f) && !ezMath::IsZero(m_MaxTilt.GetDegree(), 0.0001f))
+  {
+    if (m_bLastStateValid)
+    {
+      ezVec3 vLastTarget = m_vLastTargetPosition - m_vLastPosition;
+      {
+        const ezPlane plane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), transform.m_vPosition);
+        vLastTarget = plane.GetCoplanarDirection(vLastTarget);
+        vLastTarget.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
+      }
+
+      const float fTiltStrength = ezMath::Sign((vTarget - vLastTarget).Dot(vRight)) * ezMath::Sign(m_fTiltAmount);
+      ezAngle tiltAngle = ezMath::Min(vLastTarget.GetAngleBetween(vTarget) * ezMath::Abs(m_fTiltAmount), m_MaxTilt);
+      deltaAngle = ezMath::Lerp(tiltAngle * fTiltStrength, m_LastTiltAngle, 0.85f); // this smooths out the tilting from being jittery
+
+      ezQuat rot = ezQuat::MakeFromAxisAndAngle(vTarget, deltaAngle);
+      vUp = rot * vUp;
+      vRight = rot * vRight;
+    }
+  }
 
   {
     m_bLastStateValid = true;
     m_vLastPosition = transform.m_vPosition;
     m_vLastUpDir = transform.m_vUpDirection;
     m_vLastTargetPosition = transformAhead.m_vPosition;
+    m_LastTiltAngle = deltaAngle;
   }
 
-  ezMat3 mRot;
-  mRot.SetColumn(0, vTarget);
-  mRot.SetColumn(1, -vRight);
-  mRot.SetColumn(2, vUp);
+  ezMat3 mRot = ezMat3::MakeIdentity();
+  if (m_FollowMode != ezFollowPathMode::OnlyPosition)
+  {
+    mRot.SetColumn(0, vTarget);
+    mRot.SetColumn(1, -vRight);
+    mRot.SetColumn(2, vUp);
+  }
 
   ezTransform tFinal;
   tFinal.m_vPosition = transform.m_vPosition;
   tFinal.m_vScale.Set(1);
-  tFinal.m_qRotation.SetFromMat3(mRot);
+  tFinal.m_qRotation = ezQuat::MakeFromMat3(mRot);
 
   GetOwner()->SetGlobalTransform(pPathObject->GetGlobalTransform() * tFinal);
 }
@@ -188,10 +230,6 @@ void ezFollowPathComponent::SetDistanceAlongPath(float fDistance)
 
     pPathComponent->SetLinearSamplerTo(m_PathSampler, m_fStartDistance);
 
-    ezVec3 m_vLastPosition;
-    ezVec3 m_vLastTargetPosition;
-    ezVec3 m_vLastUpDir;
-
     Update(true);
   }
 }
@@ -201,13 +239,13 @@ float ezFollowPathComponent::GetDistanceAlongPath() const
   return m_fStartDistance;
 }
 
-void ezFollowPathComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezFollowPathComponent::SerializeComponent(ezWorldWriter& ref_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(ref_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = ref_stream.GetStream();
 
-  stream.WriteGameObjectHandle(m_hPathObject);
+  ref_stream.WriteGameObjectHandle(m_hPathObject);
 
   s << m_fStartDistance;
   s << m_fSpeed;
@@ -216,15 +254,18 @@ void ezFollowPathComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSmoothing;
   s << m_bIsRunning;
   s << m_bIsRunningForwards;
+  s << m_FollowMode;
+  s << m_fTiltAmount;
+  s << m_MaxTilt;
 }
 
-void ezFollowPathComponent::DeserializeComponent(ezWorldReader& stream)
+void ezFollowPathComponent::DeserializeComponent(ezWorldReader& ref_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(ref_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = ref_stream.GetStream();
 
-  m_hPathObject = stream.ReadGameObjectHandle();
+  m_hPathObject = ref_stream.ReadGameObjectHandle();
 
   s >> m_fStartDistance;
   s >> m_fSpeed;
@@ -233,6 +274,9 @@ void ezFollowPathComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSmoothing;
   s >> m_bIsRunning;
   s >> m_bIsRunningForwards;
+  s >> m_FollowMode;
+  s >> m_fTiltAmount;
+  s >> m_MaxTilt;
 }
 
 void ezFollowPathComponent::OnActivated()

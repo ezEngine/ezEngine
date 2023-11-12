@@ -444,6 +444,7 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, 
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
   {
+    EZ_ASSERT_DEBUG(m_pEntries != nullptr, "No entries present"); // To fix static analysis
     out_value = m_pEntries[uiIndex].value;
     return true;
   }
@@ -459,6 +460,7 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, 
   if (uiIndex != ezInvalidIndex)
   {
     out_pValue = &m_pEntries[uiIndex].value;
+    EZ_ANALYSIS_ASSUME(out_pValue != nullptr);
     return true;
   }
 
@@ -473,6 +475,7 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, 
   if (uiIndex != ezInvalidIndex)
   {
     out_pValue = &m_pEntries[uiIndex].value;
+    EZ_ANALYSIS_ASSUME(out_pValue != nullptr);
     return true;
   }
 
@@ -565,6 +568,8 @@ V& ezHashTableBase<K, V, H>::FindOrAdd(const K& key, bool* out_pExisted)
     MarkEntryAsValid(uiIndex);
     ++m_uiCount;
   }
+
+  EZ_ASSERT_DEBUG(m_pEntries != nullptr, "Entries should be present");
   return m_pEntries[uiIndex].value;
 }
 
@@ -623,7 +628,7 @@ ezUInt64 ezHashTableBase<K, V, H>::GetHeapMemoryUsage() const
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::SetCapacity(ezUInt32 uiCapacity)
 {
-  EZ_ASSERT_DEV(ezMath::IsPowerOf2(uiCapacity), "uiCapacity must be a power of two to avoid modulo during lookup.");
+  EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(uiCapacity), "uiCapacity must be a power of two to avoid modulo during lookup.");
   const ezUInt32 uiOldCapacity = m_uiCapacity;
   m_uiCapacity = uiCapacity;
 
@@ -715,7 +720,7 @@ void ezHashTableBase<K, V, H>::SetFlags(ezUInt32 uiEntryIndex, ezUInt32 uiFlags)
   m_pEntryFlags[uiIndex] &= ~(FLAGS_MASK << uiSubIndex);
   m_pEntryFlags[uiIndex] |= (uiFlags << uiSubIndex);
 #else
-  EZ_ASSERT_DEV(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
+  EZ_ASSERT_DEBUG(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
   m_pEntryFlags[uiEntryIndex] = uiFlags;
 #endif
 }

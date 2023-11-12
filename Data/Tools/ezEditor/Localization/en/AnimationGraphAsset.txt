@@ -1,0 +1,53 @@
+# Asset Types
+
+Animation Controller;Animation Controller
+
+# Component Types
+
+ezAnimationControllerComponent;Animation Controller;;https://ezengine.net/pages/docs/animation/skeletal-animation/animation-graphs/animation-controller-component.html
+
+# Properties
+
+ezBoneWeightsAnimNode;Bone Weights
+
+ezControllerInputAnimNode;Controller Input
+
+ezCompareNumberAnimNode;Compare Number
+
+ezLogicNotAnimNode;NOT
+ezLogicAndAnimNode;AND
+ezLogicOrAnimNode;OR
+ezLogicEventAndAnimNode;Event AND
+
+ezAnimClip2D;Clip 2D
+
+ezGetBlackboardNumberAnimNode;Blackboard: Get Number
+ezSetBlackboardNumberAnimNode;Blackboard: Set Number
+ezCompareBlackboardNumberAnimNode;Blackboard: Check Number
+ezCheckBlackboardBoolAnimNode;Blackboard: Check Bool
+ezGetBlackboardBoolAnimNode;Blackboard: Get Bool
+ezSetBlackboardBoolAnimNode;Blackboard: Set Bool
+ezOnBlackboardValueChangedAnimNode;Blackboard: On Value Changed
+
+ezLogInfoAnimNode;Log Info
+ezLogErrorAnimNode;Log Error
+
+ezSendEventAnimNode;Send Event
+
+ezMathExpressionAnimNode;Expression
+
+ezLerpPosesAnimNode;Lerp Poses
+
+ezSampleFrameAnimNode;Sample Frame
+ezSampleAnimClipAnimNode; Sample Clip
+ezPoseResultAnimNode; Pose Result
+ezSwitchPoseAnimNode; Switch Pose
+ezSampleBlendSpace1DAnimNode;Sample BlendSpace 1D
+ezSampleBlendSpace2DAnimNode;Sample BlendSpace 2D
+ezSwitchBoneWeightsAnimNode;Bone Weights Switch
+ezSampleAnimClipSequenceAnimNode;Sample Clip Sequence
+ezRestPoseAnimNode;Rest Pose
+
+ezBoolToNumberAnimNode;Bool To Number
+
+ezRootRotationAnimNode;Root Rotation

@@ -5,7 +5,7 @@ export class ShootingStar2 extends ez.TypescriptComponent {
     /* BEGIN AUTO-GENERATED: VARIABLES */
     /* END AUTO-GENERATED: VARIABLES */
 
-    ragdoll:boolean = false;
+    ragdollFinished:boolean = false;
 
     constructor() {
         super()
@@ -19,9 +19,8 @@ export class ShootingStar2 extends ez.TypescriptComponent {
 
     OnMsgDamage(msg: ez.MsgDamage): void {
 
-        if (!this.ragdoll) {
-            this.ragdoll = true;
-
+        if (!this.ragdollFinished) {
+            
             var col = this.GetOwner().TryGetComponentOfBaseType(ez.JoltBoneColliderComponent);
             
             if (col != null) {
@@ -29,10 +28,24 @@ export class ShootingStar2 extends ez.TypescriptComponent {
                 col.SetActiveFlag(false);
             }
             
+            var da = this.GetOwner().TryGetComponentOfBaseType(ez.JoltDynamicActorComponent);
+            
+            if (da != null) {
+                // if present, deactivate the dynamic actor component, it isn't needed anymore
+                da.SetActiveFlag(false);
+            }            
+            
             var rdc = this.GetOwner().TryGetComponentOfBaseType(ez.JoltRagdollComponent);
             
             if (rdc != null) {
-                rdc.Start = ez.JoltRagdollStart.WaitForPose;
+                
+                if (rdc.IsActiveAndSimulating()) {
+                    this.ragdollFinished = true;
+                    return;
+                }
+
+                rdc.StartMode = ez.JoltRagdollStartMode.WithCurrentMeshPose;
+                rdc.SetActiveFlag(true);
 
                 // we want the ragdoll to get a kick, so send an impulse message
                 var imp = new ez.MsgPhysicsAddImpulse();
@@ -40,8 +53,6 @@ export class ShootingStar2 extends ez.TypescriptComponent {
                 imp.Impulse.MulNumber(Math.min(msg.Damage, 5) * 10);
                 imp.GlobalPosition = msg.GlobalPosition.Clone();
                 rdc.SendMessage(imp);
-
-                // ez.Log.Info("Impulse: " + imp.Impulse.x + ", " + imp.Impulse.y + ", " + imp.Impulse.z)
             }
         }
     }

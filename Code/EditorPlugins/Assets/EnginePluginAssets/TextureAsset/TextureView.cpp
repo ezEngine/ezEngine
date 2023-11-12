@@ -5,6 +5,7 @@
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/RendererReflection.h>
 
 ezTextureViewContext::ezTextureViewContext(ezTextureContext* pContext)
   : ezEngineProcessViewContext(pContext)
@@ -12,12 +13,13 @@ ezTextureViewContext::ezTextureViewContext(ezTextureContext* pContext)
   m_pTextureContext = pContext;
 }
 
-ezTextureViewContext::~ezTextureViewContext() {}
+ezTextureViewContext::~ezTextureViewContext() = default;
 
 ezViewHandle ezTextureViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Texture Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
   pView->SetRenderPassProperty("DepthPrePass", "Active", false);
@@ -47,8 +49,6 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     ezUInt32 uiWidth = pResource->GetWidth();
     ezUInt32 uiHeight = pResource->GetHeight();
 
-    const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
-
     ezStringBuilder sText;
     if (!ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, sText, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
     {
@@ -57,6 +57,6 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
     sText.PrependFormat("{0}x{1} - ", uiWidth, uiHeight);
 
-    ezDebugRenderer::DrawInfoText(m_hView, ezDebugRenderer::ScreenPlacement::BottomLeft, "AssetStats", sText);
+    ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "AssetStats", sText);
   }
 }

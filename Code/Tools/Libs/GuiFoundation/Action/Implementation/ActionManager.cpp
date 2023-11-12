@@ -135,8 +135,7 @@ ezString ezActionManager::FindActionCategory(const char* szActionName)
   return ezString();
 }
 
-ezResult ezActionManager::ExecuteAction(
-  const char* szCategory, const char* szActionName, const ezActionContext& context, const ezVariant& value /*= ezVariant()*/)
+ezResult ezActionManager::ExecuteAction(const char* szCategory, const char* szActionName, const ezActionContext& context, const ezVariant& value /*= ezVariant()*/)
 {
   ezString sCategory = szCategory;
 

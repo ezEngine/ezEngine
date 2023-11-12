@@ -42,52 +42,6 @@ ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocator;
 ezJoltMaterial::ezJoltMaterial() = default;
 ezJoltMaterial::~ezJoltMaterial() = default;
 
-//#define EZ_Jolt_DETAILED_MEMORY_STATS EZ_ON
-//#define EZ_Jolt_DETAILED_MEMORY_STATS EZ_OFF
-//
-// ezJoltAllocatorCallback::ezJoltAllocatorCallback()
-//  : m_Allocator("Jolt", ezFoundation::GetAlignedAllocator())
-//{
-//}
-//
-// void* ezJoltAllocatorCallback::allocate(size_t size, const char* typeName, const char* filename, int line)
-//{
-//  void* pPtr = m_Allocator.Allocate(size, 16);
-//
-//#if EZ_ENABLED(EZ_Jolt_DETAILED_MEMORY_STATS)
-//  ezStringBuilder s;
-//  s.Set(typeName, " - ", filename);
-//  m_Allocations[pPtr] = s;
-//#endif
-//
-//  return pPtr;
-//}
-//
-// void ezJoltAllocatorCallback::deallocate(void* ptr)
-//{
-//  if (ptr == nullptr)
-//    return;
-//
-//#if EZ_ENABLED(EZ_Jolt_DETAILED_MEMORY_STATS)
-//  m_Allocations.Remove(ptr);
-//#endif
-//
-//  m_Allocator.Deallocate(ptr);
-//}
-//
-// void ezJoltAllocatorCallback::VerifyAllocations()
-//{
-//#if EZ_ENABLED(EZ_Jolt_DETAILED_MEMORY_STATS)
-//  EZ_ASSERT_DEV(m_Allocations.IsEmpty(), "There are {0} unfreed allocations", m_Allocations.GetCount());
-//
-//  for (auto it = m_Allocations.GetIterator(); it.IsValid(); ++it)
-//  {
-//    const char* s = it.Value().GetData();
-//    ezLog::Info(s);
-//  }
-//#endif
-//}
-
 static void JoltTraceFunc(const char* szText, ...)
 {
   ezStringBuilder tmp;

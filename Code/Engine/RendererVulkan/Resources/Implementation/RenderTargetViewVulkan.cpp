@@ -51,11 +51,6 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
   vk::Image vkImage = pTextureVulkan->GetImage();
   const bool bIsArrayView = IsArrayView(texDesc, m_Description);
 
-  if (pTextureVulkan->GetFormatOverrideEnabled())
-  {
-    vkViewFormat = pTextureVulkan->GetImageFormat();
-  }
-
   vk::ImageViewCreateInfo imageViewCreationInfo;
   if (bIsDepthFormat)
   {

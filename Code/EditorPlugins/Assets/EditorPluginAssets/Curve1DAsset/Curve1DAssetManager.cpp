@@ -13,7 +13,8 @@ ezCurve1DAssetDocumentManager::ezCurve1DAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Curve1D";
   m_DocTypeDesc.m_sFileExtension = "ezCurve1DAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Curve1D.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Curve1D.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Utilities";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCurve1DAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_Curve");
@@ -35,7 +36,7 @@ void ezCurve1DAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCurve1DAssetDocument>())
       {
-        ezQtCurve1DAssetDocumentWindow* pDocWnd = new ezQtCurve1DAssetDocumentWindow(e.m_pDocument);
+        new ezQtCurve1DAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -46,9 +47,9 @@ void ezCurve1DAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
 }
 
 void ezCurve1DAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezCurve1DAssetDocument(szPath);
+  out_pDocument = new ezCurve1DAssetDocument(sPath);
 }
 
 void ezCurve1DAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

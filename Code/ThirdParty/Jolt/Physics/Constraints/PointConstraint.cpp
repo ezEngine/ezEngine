@@ -25,11 +25,11 @@ JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(PointConstraintSettings)
 }
 
 void PointConstraintSettings::SaveBinaryState(StreamOut &inStream) const
-{ 
+{
 	ConstraintSettings::SaveBinaryState(inStream);
 
 	inStream.Write(mSpace);
-	inStream.Write(mPoint1);	
+	inStream.Write(mPoint1);
 	inStream.Write(mPoint2);
 }
 
@@ -63,6 +63,14 @@ PointConstraint::PointConstraint(Body &inBody1, Body &inBody2, const PointConstr
 	}
 }
 
+void PointConstraint::NotifyShapeChanged(const BodyID &inBodyID, Vec3Arg inDeltaCOM)
+{
+	if (mBody1->GetID() == inBodyID)
+		mLocalSpacePosition1 -= inDeltaCOM;
+	else if (mBody2->GetID() == inBodyID)
+		mLocalSpacePosition2 -= inDeltaCOM;
+}
+
 void PointConstraint::SetPoint1(EConstraintSpace inSpace, RVec3Arg inPoint1)
 {
 	if (inSpace == EConstraintSpace::WorldSpace)
@@ -80,7 +88,7 @@ void PointConstraint::SetPoint2(EConstraintSpace inSpace, RVec3Arg inPoint2)
 }
 
 void PointConstraint::CalculateConstraintProperties()
-{	
+{
 	mPointConstraintPart.CalculateConstraintProperties(*mBody1, Mat44::sRotation(mBody1->GetRotation()), mLocalSpacePosition1, *mBody2, Mat44::sRotation(mBody2->GetRotation()), mLocalSpacePosition2);
 }
 

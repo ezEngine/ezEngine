@@ -37,20 +37,20 @@ ezReflectedTypeStorageAccessor::~ezReflectedTypeStorageAccessor()
   ezReflectedTypeStorageManager::RemoveStorageAccessor(this);
 }
 
-const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty, ezVariant index, ezStatus* pRes) const
+const ezVariant ezReflectedTypeStorageAccessor::GetValue(ezStringView sProperty, ezVariant index, ezStatus* pRes) const
 {
-  const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
+  const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
   if (pProp == nullptr)
   {
     if (pRes)
-      *pRes = ezStatus(ezFmt("Property '{0}' not found in type '{1}'", szProperty, GetType()->GetTypeName()));
+      *pRes = ezStatus(ezFmt("Property '{0}' not found in type '{1}'", sProperty, GetType()->GetTypeName()));
     return ezVariant();
   }
 
   if (pRes)
     *pRes = ezStatus(EZ_SUCCESS);
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
-  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
     switch (pProp->GetCategory())
     {
@@ -74,7 +74,7 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
           }
         }
         if (pRes)
-          *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid or out of bounds.", index, szProperty));
+          *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid or out of bounds.", index, sProperty));
       }
       break;
       case ezPropertyCategory::Map:
@@ -94,7 +94,7 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
           }
         }
         if (pRes)
-          *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid or out of bounds.", index, szProperty));
+          *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid or out of bounds.", index, sProperty));
       }
       break;
       default:
@@ -104,12 +104,12 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
   return ezVariant();
 }
 
-bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVariant& value, ezVariant index)
+bool ezReflectedTypeStorageAccessor::SetValue(ezStringView sProperty, const ezVariant& value, ezVariant index)
 {
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
-  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
+    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return false;
     EZ_ASSERT_DEV(pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>() || value.IsValid(), "");
@@ -218,17 +218,17 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
   return false;
 }
 
-ezInt32 ezReflectedTypeStorageAccessor::GetCount(const char* szProperty) const
+ezInt32 ezReflectedTypeStorageAccessor::GetCount(ezStringView sProperty) const
 {
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
-  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
     if (storageInfo->m_Type == ezVariant::Type::Invalid)
-      return false;
+      return -1;
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
+    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
-      return false;
+      return -1;
 
     switch (pProp->GetCategory())
     {
@@ -250,17 +250,17 @@ ezInt32 ezReflectedTypeStorageAccessor::GetCount(const char* szProperty) const
   return -1;
 }
 
-bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezDynamicArray<ezVariant>& out_keys) const
+bool ezReflectedTypeStorageAccessor::GetKeys(ezStringView sProperty, ezDynamicArray<ezVariant>& out_keys) const
 {
   out_keys.Clear();
 
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
-  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
     if (storageInfo->m_Type == ezVariant::Type::Invalid)
       return false;
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
+    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return false;
 
@@ -296,15 +296,15 @@ bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezDynamicAr
   }
   return false;
 }
-bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVariant index, const ezVariant& value)
+bool ezReflectedTypeStorageAccessor::InsertValue(ezStringView sProperty, ezVariant index, const ezVariant& value)
 {
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
-  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
     if (storageInfo->m_Type == ezVariant::Type::Invalid)
       return false;
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
+    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return false;
 
@@ -378,15 +378,15 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
   return false;
 }
 
-bool ezReflectedTypeStorageAccessor::RemoveValue(const char* szProperty, ezVariant index)
+bool ezReflectedTypeStorageAccessor::RemoveValue(ezStringView sProperty, ezVariant index)
 {
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
-  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
     if (storageInfo->m_Type == ezVariant::Type::Invalid)
       return false;
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
+    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return false;
 
@@ -429,15 +429,15 @@ bool ezReflectedTypeStorageAccessor::RemoveValue(const char* szProperty, ezVaria
   return false;
 }
 
-bool ezReflectedTypeStorageAccessor::MoveValue(const char* szProperty, ezVariant oldIndex, ezVariant newIndex)
+bool ezReflectedTypeStorageAccessor::MoveValue(ezStringView sProperty, ezVariant oldIndex, ezVariant newIndex)
 {
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
-  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
     if (storageInfo->m_Type == ezVariant::Type::Invalid)
       return false;
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
+    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return false;
 
@@ -488,15 +488,15 @@ bool ezReflectedTypeStorageAccessor::MoveValue(const char* szProperty, ezVariant
   return false;
 }
 
-ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szProperty, const ezVariant& value) const
+ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(ezStringView sProperty, const ezVariant& value) const
 {
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
-  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sProperty, storageInfo))
   {
     if (storageInfo->m_Type == ezVariant::Type::Invalid)
       return ezVariant();
 
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
+    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(sProperty);
     if (pProp == nullptr)
       return ezVariant();
 

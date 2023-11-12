@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-typedef ezSettingsComponentManager<class ezStageSpaceComponent> ezStageSpaceComponentManager;
+using ezStageSpaceComponentManager = ezSettingsComponentManager<class ezStageSpaceComponent>;
 
 /// \brief Singleton to set the type of stage space and its global transform in the world.
 ///

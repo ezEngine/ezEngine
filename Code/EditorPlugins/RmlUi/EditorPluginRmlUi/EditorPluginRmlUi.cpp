@@ -16,17 +16,17 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("RmlUiAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("RmlUiAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("RmlUiAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
       ezProjectActions::MapActions("RmlUiAssetMenuBar");
-      ezDocumentActions::MapActions("RmlUiAssetMenuBar", "Menu.File", false);
-      ezAssetActions::MapMenuActions("RmlUiAssetMenuBar", "Menu.File");
-      ezCommandHistoryActions::MapActions("RmlUiAssetMenuBar", "Menu.Edit");
+      ezDocumentActions::MapMenuActions("RmlUiAssetMenuBar");
+      ezAssetActions::MapMenuActions("RmlUiAssetMenuBar");
+      ezCommandHistoryActions::MapActions("RmlUiAssetMenuBar");
     }
 
     // Tool Bar
     {
       ezActionMapManager::RegisterActionMap("RmlUiAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapActions("RmlUiAssetToolBar", "", true);
+      ezDocumentActions::MapToolbarActions("RmlUiAssetToolBar");
       ezCommandHistoryActions::MapActions("RmlUiAssetToolBar", "");
       ezAssetActions::MapToolBarActions("RmlUiAssetToolBar", true);
     }

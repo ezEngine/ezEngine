@@ -43,7 +43,7 @@ struct EZ_FOUNDATION_DLL ezRemoteEvent
   ezUInt32 m_uiOtherAppID;
 };
 
-typedef ezDelegate<void(ezRemoteMessage&)> ezRemoteMessageHandler;
+using ezRemoteMessageHandler = ezDelegate<void(ezRemoteMessage&)>;
 
 struct EZ_FOUNDATION_DLL ezRemoteMessageQueue
 {
@@ -75,7 +75,7 @@ public:
   /// \param uiPort The port over which the connection should run.
   /// \param bStartUpdateThread If true, a thread is started that will regularly call UpdateNetwork() and UpdatePingToServer().
   /// If false, this has to be called manually in regular intervals.
-  ezResult StartServer(ezUInt32 uiConnectionToken, const char* szAddress, bool bStartUpdateThread = true);
+  ezResult StartServer(ezUInt32 uiConnectionToken, ezStringView sAddress, bool bStartUpdateThread = true);
 
   /// \brief Starts the network interface as a client. Tries to connect to the given address.
   ///
@@ -86,12 +86,12 @@ public:
   ///
   /// If this function succeeds, it still might not be connected to a server.
   /// Use WaitForConnectionToServer() to enforce a connection.
-  ezResult ConnectToServer(ezUInt32 uiConnectionToken, const char* szAddress, bool bStartUpdateThread = true);
+  ezResult ConnectToServer(ezUInt32 uiConnectionToken, ezStringView sAddress, bool bStartUpdateThread = true);
 
   /// \brief Can only be called after ConnectToServer(). Updates the network in a loop until a connection is established, or the time has run out.
   ///
   /// A timeout of exactly zero means to wait indefinitely.
-  ezResult WaitForConnectionToServer(ezTime timeout = ezTime::Seconds(10));
+  ezResult WaitForConnectionToServer(ezTime timeout = ezTime::MakeFromSeconds(10));
 
   /// \brief Closes the connection in an orderly fashion
   void ShutdownConnection();
@@ -201,7 +201,7 @@ protected:
   ///@{
 
   /// \brief Derived classes have to implement this to start a network connection
-  virtual ezResult InternalCreateConnection(ezRemoteMode mode, const char* szServerAddress) = 0;
+  virtual ezResult InternalCreateConnection(ezRemoteMode mode, ezStringView sServerAddress) = 0;
 
   /// \brief Derived classes have to implement this to shutdown a network connection
   virtual void InternalShutdownConnection() = 0;
@@ -216,7 +216,7 @@ protected:
   virtual ezResult InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data) = 0;
 
   /// \brief Derived classes can override this to interpret an address differently
-  virtual ezResult DetermineTargetAddress(const char* szConnectTo, ezUInt32& out_IP, ezUInt16& out_Port);
+  virtual ezResult DetermineTargetAddress(ezStringView sConnectTo, ezUInt32& out_IP, ezUInt16& out_Port);
 
   /// Derived classes should update this when the information is available
   // ezString m_ServerInfoName;
@@ -241,7 +241,7 @@ private:
   void StartUpdateThread();
   void StopUpdateThread();
   ezResult Transmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data);
-  ezResult CreateConnection(ezUInt32 uiConnectionToken, ezRemoteMode mode, const char* szServerAddress, bool bStartUpdateThread);
+  ezResult CreateConnection(ezUInt32 uiConnectionToken, ezRemoteMode mode, ezStringView sServerAddress, bool bStartUpdateThread);
   ezUInt32 ExecuteMessageHandlersForQueue(ezRemoteMessageQueue& queue);
 
   mutable ezMutex m_Mutex;

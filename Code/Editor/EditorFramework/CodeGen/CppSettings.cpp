@@ -24,9 +24,6 @@ ezResult ezCppSettings::Save(ezStringView sFile)
     case Compiler::None:
       ezOpenDdlUtils::StoreString(ddl, "", "Compiler");
       break;
-    case Compiler::Vs2019:
-      ezOpenDdlUtils::StoreString(ddl, "Vs2019", "Compiler");
-      break;
     case Compiler::Vs2022:
       ezOpenDdlUtils::StoreString(ddl, "Vs2022", "Compiler");
       break;
@@ -56,9 +53,7 @@ ezResult ezCppSettings::Load(ezStringView sFile)
 
     if (auto pValue = pTarget->FindChildOfType(ezOpenDdlPrimitiveType::String, "Compiler"))
     {
-      if (pValue->GetPrimitivesString()[0] == "Vs2019")
-        m_Compiler = Compiler::Vs2019;
-      else if (pValue->GetPrimitivesString()[0] == "Vs2022")
+      if (pValue->GetPrimitivesString()[0] == "Vs2022")
         m_Compiler = Compiler::Vs2022;
       else
         m_Compiler = Compiler::None;

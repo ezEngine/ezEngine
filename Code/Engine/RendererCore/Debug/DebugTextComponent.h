@@ -5,7 +5,7 @@
 
 struct ezMsgExtractRenderData;
 
-typedef ezComponentManager<class ezDebugTextComponent, ezBlockStorageType::Compact> ezDebugTextComponentManager;
+using ezDebugTextComponentManager = ezComponentManager<class ezDebugTextComponent, ezBlockStorageType::Compact>;
 
 /// \brief This component prints debug text at the owner object's position.
 class EZ_RENDERERCORE_DLL ezDebugTextComponent : public ezComponent
@@ -27,10 +27,10 @@ public:
   ezString m_sText;       // [ property ]
   ezColorGammaUB m_Color; // [ property ]
 
-  float m_fValue0; // [ property ]
-  float m_fValue1; // [ property ]
-  float m_fValue2; // [ property ]
-  float m_fValue3; // [ property ]
+  float m_fValue0 = 0.0f; // [ property ]
+  float m_fValue1 = 0.0f; // [ property ]
+  float m_fValue2 = 0.0f; // [ property ]
+  float m_fValue3 = 0.0f; // [ property ]
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]

@@ -26,10 +26,10 @@ void ezTypeScriptActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hEditScript);
 }
 
-void ezTypeScriptActions::MapActions(const char* szMapping, const char* szPath)
+void ezTypeScriptActions::MapActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 11.0f);
 
@@ -48,7 +48,7 @@ ezTypeScriptAction::ezTypeScriptAction(const ezActionContext& context, const cha
   switch (m_Type)
   {
     case ActionType::EditScript:
-      SetIconPath(":/GuiFoundation/Icons/vscode16.png");
+      SetIconPath(":/GuiFoundation/Icons/vscode.svg");
       break;
   }
 }

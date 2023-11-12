@@ -13,7 +13,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
 void VariantToPropertyTest(void* pIntStruct, const ezRTTI* pRttiInt, const char* szPropName, ezVariant::Type::Enum type)
 {
-  ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRttiInt, szPropName);
+  const ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRttiInt, szPropName);
   EZ_TEST_BOOL(pProp != nullptr);
   if (pProp)
   {
@@ -65,7 +65,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float Properties")
   {
     ezFloatStruct floatStruct;
-    ezRTTI* pRttiFloat = ezRTTI::FindTypeByName("ezFloatStruct");
+    const ezRTTI* pRttiFloat = ezRTTI::FindTypeByName("ezFloatStruct");
     EZ_TEST_BOOL(pRttiFloat != nullptr);
 
     VariantToPropertyTest(&floatStruct, pRttiFloat, "Float", ezVariant::Type::Float);
@@ -81,7 +81,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Misc Properties")
   {
     ezPODClass podClass;
-    ezRTTI* pRttiPOD = ezRTTI::FindTypeByName("ezPODClass");
+    const ezRTTI* pRttiPOD = ezRTTI::FindTypeByName("ezPODClass");
     EZ_TEST_BOOL(pRttiPOD != nullptr);
 
     VariantToPropertyTest(&podClass, pRttiPOD, "Bool", ezVariant::Type::Bool);
@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Math Properties")
   {
     ezMathClass mathClass;
-    ezRTTI* pRttiMath = ezRTTI::FindTypeByName("ezMathClass");
+    const ezRTTI* pRttiMath = ezRTTI::FindTypeByName("ezMathClass");
     EZ_TEST_BOOL(pRttiMath != nullptr);
 
     VariantToPropertyTest(&mathClass, pRttiMath, "Vec2", ezVariant::Type::Vector2);
@@ -117,15 +117,15 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     VariantToPropertyTest(&mathClass, pRttiMath, "Quat", ezVariant::Type::Quaternion);
     EZ_TEST_BOOL(mathClass.GetQuat() == ezQuat(0.0f, 0.0f, 0.0f, 1.0f));
     VariantToPropertyTest(&mathClass, pRttiMath, "Mat3", ezVariant::Type::Matrix3);
-    EZ_TEST_BOOL(mathClass.GetMat3() == ezMat3::IdentityMatrix());
+    EZ_TEST_BOOL(mathClass.GetMat3() == ezMat3::MakeIdentity());
     VariantToPropertyTest(&mathClass, pRttiMath, "Mat4", ezVariant::Type::Matrix4);
-    EZ_TEST_BOOL(mathClass.GetMat4() == ezMat4::IdentityMatrix());
+    EZ_TEST_BOOL(mathClass.GetMat4() == ezMat4::MakeIdentity());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enumeration Properties")
   {
     ezEnumerationsClass enumClass;
-    ezRTTI* pRttiEnum = ezRTTI::FindTypeByName("ezEnumerationsClass");
+    const ezRTTI* pRttiEnum = ezRTTI::FindTypeByName("ezEnumerationsClass");
     EZ_TEST_BOOL(pRttiEnum != nullptr);
 
     VariantToPropertyTest(&enumClass, pRttiEnum, "Enum", ezVariant::Type::Int64);
@@ -141,7 +141,7 @@ void AccessorPropertyTest(ezIReflectedTypeAccessor& ref_accessor, const char* sz
   EZ_TEST_BOOL(oldValue.IsValid());
   EZ_TEST_BOOL(oldValue.GetType() == type);
 
-  ezAbstractProperty* pProp = ref_accessor.GetType()->FindPropertyByName(szProperty);
+  const ezAbstractProperty* pProp = ref_accessor.GetType()->FindPropertyByName(szProperty);
   ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
   EZ_TEST_BOOL(defaultValue.GetType() == type);
   bool bSetSuccess = ref_accessor.SetValue(szProperty, defaultValue);
@@ -168,14 +168,14 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor, const ez
   ezUInt32 uiPropCount = pType->GetProperties().GetCount();
   for (ezUInt32 i = 0; i < uiPropCount; ++i)
   {
-    ezAbstractProperty* pProp = pType->GetProperties()[i];
+    const ezAbstractProperty* pProp = pType->GetProperties()[i];
     const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
 
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Member:
       {
-        ezAbstractMemberProperty* pProp3 = static_cast<ezAbstractMemberProperty*>(pProp);
+        auto pProp3 = static_cast<const ezAbstractMemberProperty*>(pProp);
         if (pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum))
         {
           AccessorPropertyTest(ref_accessor, pProp->GetPropertyName(), ezVariant::Type::Int64);
@@ -224,12 +224,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor)
 static ezUInt32 GetTypeCount()
 {
   ezUInt32 uiCount = 0;
-  ezRTTI* pType = ezRTTI::GetFirstInstance();
-  while (pType != nullptr)
-  {
-    uiCount++;
-    pType = pType->GetNextInstance();
-  }
+  ezRTTI::ForEachType([&](const ezRTTI* pRtti) { uiCount++; });
   return uiCount;
 }
 

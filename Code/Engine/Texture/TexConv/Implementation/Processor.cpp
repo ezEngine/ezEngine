@@ -5,7 +5,7 @@
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
-// clang=format off
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvCompressionMode, 1)
   EZ_ENUM_CONSTANTS(ezTexConvCompressionMode::None, ezTexConvCompressionMode::Medium, ezTexConvCompressionMode::High)
 EZ_END_STATIC_REFLECTED_ENUM;
@@ -16,10 +16,10 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexConvUsage, 1)
   EZ_ENUM_CONSTANT(ezTexConvUsage::Auto), EZ_ENUM_CONSTANT(ezTexConvUsage::Color), EZ_ENUM_CONSTANT(ezTexConvUsage::Linear),
-    EZ_ENUM_CONSTANT(ezTexConvUsage::Hdr), EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap), EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap_Inverted),
-    EZ_ENUM_CONSTANT(ezTexConvUsage::BumpMap),
+  EZ_ENUM_CONSTANT(ezTexConvUsage::Hdr), EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap), EZ_ENUM_CONSTANT(ezTexConvUsage::NormalMap_Inverted),
+  EZ_ENUM_CONSTANT(ezTexConvUsage::BumpMap),
 EZ_END_STATIC_REFLECTED_ENUM;
-// clang=format on
+// clang-format on
 
 ezTexConvProcessor::ezTexConvProcessor() = default;
 
@@ -315,7 +315,7 @@ ezResult ezTexConvProcessor::GenerateLowResOutput(const ezImage& srcImg, ezImage
   EZ_PROFILE_SCOPE("GenerateLowResOutput");
 
   // don't early out here in this case, otherwise external processes may consider the output to be incomplete
-  //if (srcImg.GetNumMipLevels() <= uiLowResMip)
+  // if (srcImg.GetNumMipLevels() <= uiLowResMip)
   //{
   //  // probably just a low-resolution input image, do not generate output, but also do not fail
   //  ezLog::Warning("LowRes image not generated, original resolution is already below threshold.");

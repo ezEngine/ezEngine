@@ -17,7 +17,7 @@
 namespace
 {
   // no tracking for the tracker data itself
-  typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, 0> TrackerDataAllocator;
+  using TrackerDataAllocator = ezAllocator<ezMemoryPolicies::ezHeapAllocation, 0>;
 
   static TrackerDataAllocator* s_pTrackerDataAllocator;
 
@@ -29,7 +29,7 @@ namespace
 
   struct AllocatorData
   {
-    EZ_ALWAYS_INLINE AllocatorData() {}
+    EZ_ALWAYS_INLINE AllocatorData() = default;
 
     ezHybridString<32, TrackerDataAllocatorWrapper> m_sName;
     ezBitflags<ezMemoryTrackingFlags> m_Flags;
@@ -48,7 +48,7 @@ namespace
 
     ezMutex m_Mutex;
 
-    typedef ezIdTable<ezAllocatorId, AllocatorData, TrackerDataAllocatorWrapper> AllocatorTable;
+    using AllocatorTable = ezIdTable<ezAllocatorId, AllocatorData, TrackerDataAllocatorWrapper>;
     AllocatorTable m_AllocatorData;
 
     ezAllocatorId m_StaticAllocatorId;
@@ -109,9 +109,9 @@ ezAllocatorId ezMemoryTracker::Iterator::Id() const
   return CAST_ITER(m_pData)->Id();
 }
 
-const char* ezMemoryTracker::Iterator::Name() const
+ezStringView ezMemoryTracker::Iterator::Name() const
 {
-  return CAST_ITER(m_pData)->Value().m_sName.GetData();
+  return CAST_ITER(m_pData)->Value().m_sName;
 }
 
 ezAllocatorId ezMemoryTracker::Iterator::ParentId() const
@@ -143,14 +143,14 @@ ezMemoryTracker::Iterator::~Iterator()
 
 
 // static
-ezAllocatorId ezMemoryTracker::RegisterAllocator(const char* szName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId)
+ezAllocatorId ezMemoryTracker::RegisterAllocator(ezStringView sName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId)
 {
   Initialize();
 
   EZ_LOCK(*s_pTrackerData);
 
   AllocatorData data;
-  data.m_sName = szName;
+  data.m_sName = sName;
   data.m_Flags = flags;
   data.m_ParentId = parentId;
 
@@ -280,16 +280,16 @@ void ezMemoryTracker::ResetPerFrameAllocatorStats()
   {
     AllocatorData& data = it.Value();
     data.m_Stats.m_uiPerFrameAllocationSize = 0;
-    data.m_Stats.m_PerFrameAllocationTime.SetZero();
+    data.m_Stats.m_PerFrameAllocationTime = ezTime::MakeZero();
   }
 }
 
 // static
-const char* ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
+ezStringView ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
 {
   EZ_LOCK(*s_pTrackerData);
 
-  return s_pTrackerData->m_AllocatorData[allocatorId].m_sName.GetData();
+  return s_pTrackerData->m_AllocatorData[allocatorId].m_sName;
 }
 
 // static

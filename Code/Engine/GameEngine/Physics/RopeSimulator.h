@@ -18,8 +18,8 @@ class EZ_GAMEENGINE_DLL ezRopeSimulator
 public:
   struct Node
   {
-    ezSimdVec4f m_vPosition = ezSimdVec4f::ZeroVector();
-    ezSimdVec4f m_vPreviousPosition = ezSimdVec4f::ZeroVector();
+    ezSimdVec4f m_vPosition = ezSimdVec4f::MakeZero();
+    ezSimdVec4f m_vPreviousPosition = ezSimdVec4f::MakeZero();
 
     // could add per node acceleration
     // could add per node mass
@@ -50,6 +50,8 @@ public:
   void SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);
   void SimulateTillEquilibrium(ezSimdFloat fAllowedMovement = 0.005f, ezUInt32 uiMaxIterations = 1000);
   bool HasEquilibrium(ezSimdFloat fAllowedMovement) const;
+  float GetTotalLength() const;
+  ezSimdVec4f GetPositionAtLength(float fLength) const;
 
 private:
   ezSimdFloat EnforceDistanceConstraint();

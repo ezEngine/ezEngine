@@ -34,7 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDefaultCharacterComponent, 1, ezComponentMode::Dyn
     EZ_MEMBER_PROPERTY("MaxStepUp", m_fMaxStepUp)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("MaxStepDown", m_fMaxStepDown)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, 1000.0f)),
-    EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
+    EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1.0f), ezAngle::MakeFromDegree(360.0f))),
     EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum"), new ezDefaultValueAttribute(ezStringView("Footstep"))),
     EZ_MEMBER_PROPERTY("WalkInteractionDistance", m_fWalkInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("RunInteractionDistance", m_fRunInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
@@ -74,13 +74,13 @@ ezJoltDefaultCharacterComponent::~ezJoltDefaultCharacterComponent() = default;
 
 void ezJoltDefaultCharacterComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, GetCurrentCapsuleHeight() - GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, GetCurrentCapsuleHeight() - GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
 }
 
 void ezJoltDefaultCharacterComponent::OnApplyRootMotion(ezMsgApplyRootMotion& msg)
 {
-  m_vAbsoluteRootMotion = msg.m_vTranslation;
+  m_vAbsoluteRootMotion += msg.m_vTranslation;
   m_InputRotateZ += msg.m_RotationZ;
 }
 
@@ -113,7 +113,7 @@ void ezJoltDefaultCharacterComponent::SerializeComponent(ezWorldWriter& inout_st
 void ezJoltDefaultCharacterComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_RotateSpeed;
@@ -172,7 +172,7 @@ void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController
   const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards)), ezMath::Abs((float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft)));
 
   m_vInputDirection += ezVec2((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), (float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
-  m_vInputDirection.NormalizeIfNotZero(ezVec2::ZeroVector()).IgnoreResult();
+  m_vInputDirection.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
   m_vInputDirection *= fDistanceToMove;
 
   m_InputRotateZ += m_RotateSpeed * (float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft);
@@ -273,8 +273,7 @@ void ezJoltDefaultCharacterComponent::ApplyRotationZ()
   if (m_InputRotateZ.GetRadian() == 0.0f)
     return;
 
-  ezQuat qRotZ;
-  qRotZ.SetFromAxisAndAngle(ezVec3(0, 0, 1), m_InputRotateZ);
+  ezQuat qRotZ = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), m_InputRotateZ);
   m_InputRotateZ.SetRadian(0.0);
 
   GetOwner()->SetGlobalRotation(qRotZ * GetOwner()->GetGlobalRotation());
@@ -334,7 +333,7 @@ void ezJoltDefaultCharacterComponent::ClampLateralVelocity()
 
     const float fSpeedAlongRealDir = vRealDirLateral.Dot(m_vVelocityLateral);
 
-    m_vVelocityLateral.SetLength(fSpeedAlongRealDir).IgnoreResult();
+    m_vVelocityLateral = vRealDirLateral * fSpeedAlongRealDir;
   }
   else
     m_vVelocityLateral.SetZero();
@@ -392,28 +391,25 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
     switch (GetJoltCharacter()->GetGroundState())
     {
       case JPH::CharacterBase::EGroundState::OnGround:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: On Ground", ezColor::Brown);
+        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: On Ground", ezColor::Brown);
         break;
       case JPH::CharacterBase::EGroundState::InAir:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: In Air", ezColor::CornflowerBlue);
+        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: In Air", ezColor::CornflowerBlue);
         break;
       case JPH::CharacterBase::EGroundState::NotSupported:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: Not Supported", ezColor::Yellow);
+        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: Not Supported", ezColor::Yellow);
         break;
       case JPH::CharacterBase::EGroundState::OnSteepGround:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: Steep", ezColor::OrangeRed);
+        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: Steep", ezColor::OrangeRed);
         break;
     }
 
-    const ezTransform newTransform = GetOwner()->GetGlobalTransform();
-    const float fDistTraveled = (m_PreviousTransform.m_vPosition - newTransform.m_vPosition).GetLength();
-    const float fSpeedTraveled = fDistTraveled * GetInverseUpdateTimeDelta();
-
-    const float fDistTraveledLateral = (m_PreviousTransform.m_vPosition.GetAsVec2() - newTransform.m_vPosition.GetAsVec2()).GetLength();
-    const float fSpeedTraveledLateral = fDistTraveled * GetInverseUpdateTimeDelta();
-
-    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", ezFmt("Speed 1: {} m/s", fSpeedTraveled), ezColor::WhiteSmoke);
-    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", ezFmt("Speed 2: {} m/s", fSpeedTraveledLateral), ezColor::WhiteSmoke);
+    // const ezTransform newTransform = GetOwner()->GetGlobalTransform();
+    // const float fDistTraveled = (m_PreviousTransform.m_vPosition - newTransform.m_vPosition).GetLength();
+    // const float fSpeedTraveled = fDistTraveled * GetInverseUpdateTimeDelta();
+    // const float fSpeedTraveledLateral = fDistTraveled * GetInverseUpdateTimeDelta();
+    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", ezFmt("Speed 1: {} m/s", fSpeedTraveled), ezColor::WhiteSmoke);
+    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", ezFmt("Speed 2: {} m/s", fSpeedTraveledLateral), ezColor::WhiteSmoke);
   }
 
   if (m_DebugFlags.IsSet(ezJoltCharacterDebugFlags::VisGroundContact))
@@ -423,10 +419,9 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
 
     if (!gnom.IsZero(0.01f))
     {
-      ezQuat rot;
-      rot.SetShortestRotation(ezVec3::UnitXAxis(), gnom);
+      ezQuat rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), gnom);
 
-      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::ZeroColor(), ezColor::Aquamarine, ezTransform(gpos, rot));
+      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), ezColor::Aquamarine, ezTransform(gpos, rot));
     }
   }
 
@@ -455,8 +450,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
   m_bFeetOnSolidGround = false;
 
   ezTransform shapeTrans = GetOwner()->GetGlobalTransform();
-  ezQuat shapeRot;
-  shapeRot.SetShortestRotation(ezVec3(0, 1, 0), ezVec3(0, 0, 1));
+  ezQuat shapeRot = ezQuat::MakeShortestRotation(ezVec3(0, 1, 0), ezVec3(0, 0, 1));
 
   const float radius = m_fFootRadius;
   const float halfHeight = ezMath::Max(0.0f, m_fMaxStepDown - radius);
@@ -476,14 +470,14 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
     if (gnom.IsZero(0.01f))
     {
-      rot.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+      rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezVec3::MakeAxisZ());
       color = ezColor::OrangeRed;
     }
     else
     {
-      rot.SetShortestRotation(ezVec3::UnitXAxis(), gnom);
+      rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), gnom);
 
-      if (gnom.Dot(ezVec3::UnitZAxis()) > ezMath::Cos(ezAngle::Degree(40)))
+      if (gnom.Dot(ezVec3::MakeAxisZ()) > ezMath::Cos(ezAngle::MakeFromDegree(40)))
       {
         m_bFeetOnSolidGround = true;
         color = ezColor::GreenYellow;
@@ -492,7 +486,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
     if (m_DebugFlags.IsAnySet(ezJoltCharacterDebugFlags::VisFootCheck))
     {
-      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::ZeroColor(), color, ezTransform(gpos, rot));
+      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), color, ezTransform(gpos, rot));
     }
   }
 
@@ -602,7 +596,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
     cfg.m_fMaxStepDown = 0;
   }
 
-  ezVec3 vGroundVelocity = ezVec3::ZeroVector();
+  ezVec3 vGroundVelocity = ezVec3::MakeZero();
 
   ContactPoint groundContact;
   {
@@ -622,11 +616,30 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
       vGroundVelocity.SetZero();
   }
 
-  // AIR: apply 'drag' to the lateral velocity
-  // m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, GetUpdateTimeDelta());
+  const bool bWasOnGround = GetJoltCharacter()->GetGroundState() == JPH::CharacterVirtual::EGroundState::OnGround;
 
-  ezVec3 vVelocityToApply = cfg.m_vVelocity + vGroundVelocity; // TODO +m_vVelocityLateral.GetAsVec3(0);
-  vVelocityToApply += GetInverseUpdateTimeDelta() * (GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
+  if (bWasOnGround)
+  {
+    m_vVelocityLateral.SetZero();
+  }
+
+  // AIR: apply 'drag' to the lateral velocity
+  m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, GetUpdateTimeDelta());
+
+  ezVec3 vRootVelocity = GetInverseUpdateTimeDelta() * (GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
+
+  if (!m_vVelocityLateral.IsZero())
+  {
+    // remove the lateral velocity component from the root motion
+    // to prevent root motion being amplified when both values are active
+    ezVec3 vLatDir = m_vVelocityLateral.GetNormalized().GetAsVec3(0);
+    float fProj = ezMath::Max(0.0f, vLatDir.Dot(vRootVelocity));
+    vRootVelocity -= vLatDir * fProj;
+  }
+
+  ezVec3 vVelocityToApply = cfg.m_vVelocity + vGroundVelocity;
+  vVelocityToApply += m_vVelocityLateral.GetAsVec3(0);
+  vVelocityToApply += vRootVelocity;
   vVelocityToApply.z = m_fVelocityUp;
 
   RawMoveWithVelocity(vVelocityToApply, cfg.m_fMaxStepUp, cfg.m_fMaxStepDown);
@@ -640,15 +653,21 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
     }
   }
 
-  StoreLateralVelocity();
-  // TODO: store or apply+clamp ClampLateralVelocity();
-
   // retrieve the actual up velocity
   float groundVerticalVelocity = GetJoltCharacter()->GetGroundVelocity().GetZ();
   if (GetJoltCharacter()->GetGroundState() == JPH::CharacterVirtual::EGroundState::OnGround // If on ground
-    && (m_fVelocityUp - groundVerticalVelocity) < 0.1f) // And not moving away from ground
+      && (m_fVelocityUp - groundVerticalVelocity) < 0.1f)                                   // And not moving away from ground
   {
     m_fVelocityUp = groundVerticalVelocity;
+  }
+
+  if (bWasOnGround)
+  {
+    StoreLateralVelocity();
+  }
+  else
+  {
+    ClampLateralVelocity();
   }
 
   m_fVelocityUp += GetUpdateTimeDelta() * pModule->GetCharacterGravity().z;
@@ -664,4 +683,3 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Character_Implementation_JoltDefaultCharacterComponent);
-

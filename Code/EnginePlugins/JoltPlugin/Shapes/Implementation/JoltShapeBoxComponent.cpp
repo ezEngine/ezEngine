@@ -46,7 +46,7 @@ void ezJoltShapeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) co
 void ezJoltShapeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
   s >> m_vHalfExtents;
@@ -54,7 +54,7 @@ void ezJoltShapeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezJoltShapeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingBox(-m_vHalfExtents, m_vHalfExtents), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vHalfExtents, m_vHalfExtents)), ezInvalidSpatialDataCategory);
 }
 
 void ezJoltShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) const
@@ -64,7 +64,7 @@ void ezJoltShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) con
 
 void ezJoltShapeBoxComponent::SetHalfExtents(const ezVec3& value)
 {
-  m_vHalfExtents = value.CompMax(ezVec3::ZeroVector());
+  m_vHalfExtents = value.CompMax(ezVec3::MakeZero());
 
   if (IsActiveAndInitialized())
   {
@@ -88,7 +88,7 @@ void ezJoltShapeBoxComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_S
 
   ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
   sub.m_pShape = pNewShape;
-  sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+  sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 }
 
 

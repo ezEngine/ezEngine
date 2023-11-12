@@ -19,7 +19,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  endif
 
 // Comment in to get verbose output on the function of the directory watcher
-//#  define DEBUG_FILE_WATCHER
+// #  define DEBUG_FILE_WATCHER
 
 #  ifdef DEBUG_FILE_WATCHER
 #    define DEBUG_LOG(...) ezLog::Debug(__VA_ARGS__)
@@ -345,15 +345,15 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
       else
       {
         ezStringBuilder dirPath;
-        mirror->Enumerate(moveFrom.path, [&](const char* path, typename ezFileSystemMirrorType::Type type) {
+        mirror->Enumerate(moveFrom.path, [&](ezStringView sPath, typename ezFileSystemMirrorType::Type type) {
                 if (type == ezFileSystemMirrorType::Type::File)
                 {
-                  func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
+                  func(sPath, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
                 }
                 else
                 {
-                  func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
-                  dirPath = path;
+                  func(sPath, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
+                  dirPath = sPath;
                   EnsureTrailingSlash(dirPath);
                   auto it = m_pImpl->m_pathToWd.Find(dirPath);
                   if (it.IsValid())
@@ -364,6 +364,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
                     m_pImpl->m_pathToWd.Remove(it);
                   }
                 }
+                //
               })
           .AssertSuccess();
         mirror->RemoveDirectory(moveFrom.path).AssertSuccess();
@@ -693,12 +694,12 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
 
 void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo)
 {
-  ezLog::Warning("ezDirectoryWatcher not supported on this linux system");
+  ezLog::Warning("ezDirectoryWatcher not supported on this Linux system");
 }
 
 void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo)
 {
-  ezLog::Warning("ezDirectoryWatcher not supported on this linux system");
+  ezLog::Warning("ezDirectoryWatcher not supported on this Linux system");
 }
 
 #endif

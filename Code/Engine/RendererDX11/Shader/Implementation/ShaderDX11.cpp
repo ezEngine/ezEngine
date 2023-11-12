@@ -7,16 +7,11 @@
 
 ezGALShaderDX11::ezGALShaderDX11(const ezGALShaderCreationDescription& Description)
   : ezGALShader(Description)
-  , m_pVertexShader(nullptr)
-  , m_pHullShader(nullptr)
-  , m_pDomainShader(nullptr)
-  , m_pGeometryShader(nullptr)
-  , m_pPixelShader(nullptr)
-  , m_pComputeShader(nullptr)
+
 {
 }
 
-ezGALShaderDX11::~ezGALShaderDX11() {}
+ezGALShaderDX11::~ezGALShaderDX11() = default;
 
 void ezGALShaderDX11::SetDebugName(const char* szName) const
 {

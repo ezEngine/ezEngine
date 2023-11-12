@@ -4,6 +4,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Declarations.h>
+#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Types/TypedPointer.h>
 #include <Foundation/Types/Types.h>
@@ -100,12 +101,14 @@ public:
   ezVariant(const char* value);
   ezVariant(const ezString& value);
   ezVariant(const ezUntrackedString& value);
-  ezVariant(const ezStringView& value);
+  ezVariant(const ezStringView& value, bool bCopyString = true);
   ezVariant(const ezDataBuffer& value);
   ezVariant(const ezTime& value);
   ezVariant(const ezUuid& value);
   ezVariant(const ezAngle& value);
   ezVariant(const ezColorGammaUB& value);
+  ezVariant(const ezHashedString& value);
+  ezVariant(const ezTempHashedString& value);
 
   ezVariant(const ezVariantArray& value);
   ezVariant(const ezVariantDictionary& value);
@@ -175,6 +178,9 @@ public:
 
   /// \brief Returns whether the stored type is a string (ezString or ezStringView).
   bool IsString() const; // [tested]
+
+  /// \brief Returns whether the stored type is a hashed string (ezHashedString or ezTempHashedString).
+  bool IsHashedString() const;
 
   /// \brief Returns whether the stored type is exactly the given type.
   ///
@@ -383,13 +389,14 @@ private:
   static bool IsNumberStatic(ezUInt32 type);
   static bool IsFloatingPointStatic(ezUInt32 type);
   static bool IsStringStatic(ezUInt32 type);
+  static bool IsHashedStringStatic(ezUInt32 type);
   static bool IsVector2Static(ezUInt32 type);
   static bool IsVector3Static(ezUInt32 type);
   static bool IsVector4Static(ezUInt32 type);
 
   // Needed to prevent including ezRTTI in ezVariant.h
   static bool IsDerivedFrom(const ezRTTI* pType1, const ezRTTI* pType2);
-  static const char* GetTypeName(const ezRTTI* pType);
+  static ezStringView GetTypeName(const ezRTTI* pType);
 
   template <typename T>
   T ConvertNumber() const;
@@ -409,6 +416,20 @@ EZ_ALWAYS_INLINE T ezDynamicCast(const ezVariant& variant)
 
   return nullptr;
 }
+
+// Simple math operator overloads. An invalid variant is returned if the given variants have incompatible types.
+EZ_FOUNDATION_DLL ezVariant operator+(const ezVariant& a, const ezVariant& b);
+EZ_FOUNDATION_DLL ezVariant operator-(const ezVariant& a, const ezVariant& b);
+EZ_FOUNDATION_DLL ezVariant operator*(const ezVariant& a, const ezVariant& b);
+EZ_FOUNDATION_DLL ezVariant operator/(const ezVariant& a, const ezVariant& b);
+
+namespace ezMath
+{
+  /// \brief An overload of ezMath::Lerp to interpolate variants. A and b must have the same type.
+  ///
+  /// If the type can't be interpolated like e.g. strings, a is returned for a fFactor less than 0.5, b is returned for a fFactor greater or equal to 0.5.
+  EZ_FOUNDATION_DLL ezVariant Lerp(const ezVariant& a, const ezVariant& b, double fFactor);
+} // namespace ezMath
 
 #include <Foundation/Types/Implementation/VariantHelper_inl.h>
 

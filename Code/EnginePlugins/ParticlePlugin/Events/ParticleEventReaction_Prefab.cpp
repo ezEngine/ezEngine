@@ -14,7 +14,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Prefab, 1, ezRTTI
   {
     EZ_MEMBER_PROPERTY("Prefab", m_sPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
     EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
-    //EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("CompatibleAsset_Prefab"), new ezExposeColorAlphaAttribute),
   }
   EZ_END_PROPERTIES;
 }
@@ -24,17 +23,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReaction_Prefab, 1, ezRTTIDefault
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEventReactionFactory_Prefab::ezParticleEventReactionFactory_Prefab()
-{
-  // m_Parameters = EZ_DEFAULT_NEW(ezParticlePrefabParameters);
-}
+ezParticleEventReactionFactory_Prefab::ezParticleEventReactionFactory_Prefab() = default;
 
 enum class ReactionPrefabVersion
 {
   Version_0 = 0,
   Version_1,
   Version_2,
-  // Version_3, // added Prefab parameters
 
   // insert new version numbers above
   Version_Count,
@@ -53,20 +48,6 @@ void ezParticleEventReactionFactory_Prefab::Save(ezStreamWriter& inout_stream) c
 
   // Version 2
   inout_stream << m_Alignment;
-
-  // Version 3
-  // stream << m_Parameters->m_FloatParams.GetCount();
-  // for (ezUInt32 i = 0; i < m_Parameters->m_FloatParams.GetCount(); ++i)
-  //{
-  //  stream << m_Parameters->m_FloatParams[i].m_sName;
-  //  stream << m_Parameters->m_FloatParams[i].m_Value;
-  //}
-  // stream << m_Parameters->m_ColorParams.GetCount();
-  // for (ezUInt32 i = 0; i < m_Parameters->m_ColorParams.GetCount(); ++i)
-  //{
-  //  stream << m_Parameters->m_ColorParams[i].m_sName;
-  //  stream << m_Parameters->m_ColorParams[i].m_Value;
-  //}
 }
 
 void ezParticleEventReactionFactory_Prefab::Load(ezStreamReader& inout_stream)
@@ -85,29 +66,6 @@ void ezParticleEventReactionFactory_Prefab::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> m_Alignment;
   }
-
-  // if (uiVersion >= 3)
-  //{
-  //  ezUInt32 numFloats, numColors;
-
-  //  stream >> numFloats;
-  //  m_Parameters->m_FloatParams.SetCountUninitialized(numFloats);
-
-  //  for (ezUInt32 i = 0; i < m_Parameters->m_FloatParams.GetCount(); ++i)
-  //  {
-  //    stream >> m_Parameters->m_FloatParams[i].m_sName;
-  //    stream >> m_Parameters->m_FloatParams[i].m_Value;
-  //  }
-
-  //  stream >> numColors;
-  //  m_Parameters->m_ColorParams.SetCountUninitialized(numColors);
-
-  //  for (ezUInt32 i = 0; i < m_Parameters->m_ColorParams.GetCount(); ++i)
-  //  {
-  //    stream >> m_Parameters->m_ColorParams[i].m_sName;
-  //    stream >> m_Parameters->m_ColorParams[i].m_Value;
-  //  }
-  //}
 }
 
 
@@ -126,119 +84,7 @@ void ezParticleEventReactionFactory_Prefab::CopyReactionProperties(ezParticleEve
 
   if (!m_sPrefab.IsEmpty())
     pReaction->m_hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(m_sPrefab);
-
-  // pReaction->m_Parameters = m_Parameters;
 }
-//
-// const ezRangeView<const char*, ezUInt32> ezParticleEventReactionFactory_Prefab::GetParameters() const
-//{
-//  return ezRangeView<const char*, ezUInt32>(
-//      [this]() -> ezUInt32 { return 0; },
-//      [this]() -> ezUInt32 { return m_Parameters->m_FloatParams.GetCount() + m_Parameters->m_ColorParams.GetCount(); },
-//      [this](ezUInt32& it) { ++it; },
-//      [this](const ezUInt32& it) -> const char* {
-//        if (it < m_Parameters->m_FloatParams.GetCount())
-//          return m_Parameters->m_FloatParams[it].m_sName.GetData();
-//        else
-//          return m_Parameters->m_ColorParams[it - m_Parameters->m_FloatParams.GetCount()].m_sName.GetData();
-//      });
-//}
-//
-// void ezParticleEventReactionFactory_Prefab::SetParameter(const char* szKey, const ezVariant& var)
-//{
-//  const ezTempHashedString th(szKey);
-//  if (var.CanConvertTo<float>())
-//  {
-//    float value = var.ConvertTo<float>();
-//
-//    for (ezUInt32 i = 0; i < m_Parameters->m_FloatParams.GetCount(); ++i)
-//    {
-//      if (m_Parameters->m_FloatParams[i].m_sName == th)
-//      {
-//        if (m_Parameters->m_FloatParams[i].m_Value != value)
-//        {
-//          m_Parameters->m_FloatParams[i].m_Value = value;
-//        }
-//        return;
-//      }
-//    }
-//
-//    auto& e = m_Parameters->m_FloatParams.ExpandAndGetRef();
-//    e.m_sName.Assign(szKey);
-//    e.m_Value = value;
-//
-//    return;
-//  }
-//
-//  if (var.CanConvertTo<ezColor>())
-//  {
-//    ezColor value = var.ConvertTo<ezColor>();
-//
-//    for (ezUInt32 i = 0; i < m_Parameters->m_ColorParams.GetCount(); ++i)
-//    {
-//      if (m_Parameters->m_ColorParams[i].m_sName == th)
-//      {
-//        if (m_Parameters->m_ColorParams[i].m_Value != value)
-//        {
-//          m_Parameters->m_ColorParams[i].m_Value = value;
-//        }
-//        return;
-//      }
-//    }
-//
-//    auto& e = m_Parameters->m_ColorParams.ExpandAndGetRef();
-//    e.m_sName.Assign(szKey);
-//    e.m_Value = value;
-//
-//    return;
-//  }
-//}
-//
-// void ezParticleEventReactionFactory_Prefab::RemoveParameter(const char* szKey)
-//{
-//  const ezTempHashedString th(szKey);
-//
-//  for (ezUInt32 i = 0; i < m_Parameters->m_FloatParams.GetCount(); ++i)
-//  {
-//    if (m_Parameters->m_FloatParams[i].m_sName == th)
-//    {
-//      m_Parameters->m_FloatParams.RemoveAtAndSwap(i);
-//      return;
-//    }
-//  }
-//
-//  for (ezUInt32 i = 0; i < m_Parameters->m_ColorParams.GetCount(); ++i)
-//  {
-//    if (m_Parameters->m_ColorParams[i].m_sName == th)
-//    {
-//      m_Parameters->m_ColorParams.RemoveAtAndSwap(i);
-//      return;
-//    }
-//  }
-//}
-//
-// bool ezParticleEventReactionFactory_Prefab::GetParameter(const char* szKey, ezVariant& out_value) const
-//{
-//  const ezTempHashedString th(szKey);
-//
-//  for (const auto& e : m_Parameters->m_FloatParams)
-//  {
-//    if (e.m_sName == th)
-//    {
-//      out_value = e.m_Value;
-//      return true;
-//    }
-//  }
-//  for (const auto& e : m_Parameters->m_ColorParams)
-//  {
-//    if (e.m_sName == th)
-//    {
-//      out_value = e.m_Value;
-//      return true;
-//    }
-//  }
-//  return false;
-//}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -284,12 +130,11 @@ void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
   }
 
   // rotate the prefab randomly along its main axis (the X axis)
-  ezQuat qRot;
-  qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Radian((float)m_pOwnerEffect->GetRNG().DoubleZeroToOneInclusive() * ezMath::Pi<float>() * 2.0f));
+  ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromRadian((float)m_pOwnerEffect->GetRNG().DoubleZeroToOneInclusive() * ezMath::Pi<float>() * 2.0f));
 
-  vAlignDir.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+  vAlignDir.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
 
-  trans.m_qRotation.SetShortestRotation(ezVec3(1, 0, 0), vAlignDir);
+  trans.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vAlignDir);
   trans.m_qRotation = trans.m_qRotation * qRot;
 
   ezResourceLock<ezPrefabResource> pPrefab(m_hPrefab, ezResourceAcquireMode::BlockTillLoaded);

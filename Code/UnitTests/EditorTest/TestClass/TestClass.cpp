@@ -9,6 +9,7 @@
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <QMimeData>
@@ -84,10 +85,23 @@ ezEditorTest::~ezEditorTest() = default;
 
 ezEditorTestApplication* ezEditorTest::CreateApplication()
 {
-  return EZ_DEFAULT_NEW(ezEditorTestApplication);
+  ezEditorTestApplication* pTestApplication = EZ_DEFAULT_NEW(ezEditorTestApplication);
+
+  m_CommandLineArguments = ezCommandLineUtils::GetGlobalInstance()->GetCommandLineArray();
+  EZ_ASSERT_DEV(m_CommandLineArguments.GetCount() > 0, "There should always be at least 1 command line argument (the executable name)");
+
+  m_CommandLineArgumentPointers.Clear();
+  for (auto& s : m_CommandLineArguments)
+  {
+    m_CommandLineArgumentPointers.PushBack(s.GetData());
+  }
+
+  pTestApplication->SetCommandLineArguments(m_CommandLineArgumentPointers.GetCount(), m_CommandLineArgumentPointers.GetData());
+
+  return pTestApplication;
 }
 
-ezResult ezEditorTest::GetImage(ezImage& ref_img)
+ezResult ezEditorTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber)
 {
   if (!m_CapturedImage.IsValid())
     return EZ_FAILURE;
@@ -136,12 +150,12 @@ ezResult ezEditorTest::InitializeTest()
 #endif
   }
 
-  if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11") && s_bIsReferenceDriver)
+  if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && s_bIsReferenceDriver)
   {
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
   }
-  else if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11") && s_bIsAMDDriver)
+  else if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && s_bIsAMDDriver)
   {
     // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
@@ -287,7 +301,7 @@ ezResult ezEditorTest::CaptureImage(ezQtDocumentWindow* pWindow, const char* szI
     if (ezOSFile::ExistsFile(sImgPath))
       break;
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
   }
 
   if (!ezOSFile::ExistsFile(sImgPath))
@@ -307,13 +321,7 @@ void ezEditorTest::CloseCurrentProject()
 
 void ezEditorTest::SafeProfilingData()
 {
-  ezFileWriter fileWriter;
-  if (fileWriter.Open(":appdata/profiling.json") == EZ_SUCCESS)
-  {
-    ezProfilingSystem::ProfilingData profilingData;
-    ezProfilingSystem::Capture(profilingData);
-    profilingData.Write(fileWriter).IgnoreResult();
-  }
+  ezProfilingUtils::SaveProfilingCapture(":appdata/profiling.json").IgnoreResult();
 }
 
 void ezEditorTest::ProcessEvents(ezUInt32 uiIterations)
@@ -352,19 +360,17 @@ std::unique_ptr<QMimeData> ezEditorTest::AssetsToDragMimeData(ezArrayPtr<ezUuid>
 
 std::unique_ptr<QMimeData> ezEditorTest::ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects)
 {
-  std::unique_ptr<QMimeData> mimeData(new QMimeData());
-  QByteArray encodedData;
-
-  QDataStream stream(&encodedData, QIODevice::WriteOnly);
-
-  int iCount = (int)objects.GetCount();
-  stream << iCount;
-
+  ezHybridArray<const ezDocumentObject*, 32> Dragged;
   for (const ezDocumentObject* pObject : objects)
   {
-    stream.writeRawData((const char*)&pObject, sizeof(void*));
+    Dragged.PushBack(pObject);
   }
 
+  QByteArray encodedData;
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+  stream << Dragged;
+
+  std::unique_ptr<QMimeData> mimeData(new QMimeData());
   mimeData->setData("application/ezEditor.ObjectSelection", encodedData);
   return std::move(mimeData);
 }
@@ -416,14 +422,17 @@ const ezDocumentObject* ezEditorTest::DropAsset(ezScene2Document* pDoc, const ch
   return {};
 }
 
-const ezDocumentObject* ezEditorTest::CreateGameObject(ezScene2Document* pDoc)
+const ezDocumentObject* ezEditorTest::CreateGameObject(ezScene2Document* pDoc, const ezDocumentObject* pParent, ezStringView sName)
 {
   auto pAccessor = pDoc->GetObjectAccessor();
   pAccessor->StartTransaction("Add Game Object");
 
   ezUuid guid;
-  EZ_TEST_STATUS(pAccessor->AddObject(pDoc->GetObjectManager()->GetRootObject(), "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), guid));
+  EZ_TEST_STATUS(pAccessor->AddObject(pParent != nullptr ? pParent : pDoc->GetObjectManager()->GetRootObject(), "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), guid));
+  const ezDocumentObject* pObject = pAccessor->GetObject(guid);
+  EZ_TEST_STATUS(pAccessor->SetValue(pObject, "Name", sName));
+
   pAccessor->FinishTransaction();
 
-  return pAccessor->GetObject(guid);
+  return pObject;
 }

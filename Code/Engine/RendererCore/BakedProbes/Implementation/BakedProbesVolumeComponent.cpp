@@ -21,7 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesVolumeComponent, 1, ezComponentMode::Static
   EZ_BEGIN_ATTRIBUTES
   {
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
-    new ezCategoryAttribute("Rendering/Baking"),
+    new ezCategoryAttribute("Lighting/Baking"),
     new ezBoxManipulatorAttribute("Extents", 1.0f, true),
     new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::OrangeRed),
   }
@@ -76,7 +76,7 @@ void ezBakedProbesVolumeComponent::DeserializeComponent(ezWorldReader& inout_str
 
 void ezBakedProbesVolumeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezInvalidSpatialDataCategory);
+  ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), ezInvalidSpatialDataCategory);
 }
 
 

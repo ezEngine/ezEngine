@@ -11,7 +11,7 @@ template <ezUInt32 TrackingFlags = ezMemoryTrackingFlags::Default>
 class ezStackAllocator : public ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>
 {
 public:
-  ezStackAllocator(const char* szName, ezAllocatorBase* pParent);
+  ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent);
   ~ezStackAllocator();
 
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc) override;

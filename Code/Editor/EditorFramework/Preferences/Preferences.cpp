@@ -104,10 +104,10 @@ void ezPreferences::Save() const
 {
   bool bNothingToSerialize = true;
 
-  ezHybridArray<ezAbstractProperty*, 32> allProperties;
+  ezHybridArray<const ezAbstractProperty*, 32> allProperties;
   GetDynamicRTTI()->GetAllProperties(allProperties);
 
-  for (ezAbstractProperty* pProp : allProperties)
+  for (const ezAbstractProperty* pProp : allProperties)
   {
     if (pProp->GetCategory() == ezPropertyCategory::Constant || pProp->GetFlags().IsAnySet(ezPropertyFlags::ReadOnly))
       continue;

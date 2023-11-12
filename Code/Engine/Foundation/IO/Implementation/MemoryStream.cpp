@@ -9,7 +9,7 @@ ezMemoryStreamReader::ezMemoryStreamReader(const ezMemoryStreamStorageInterface*
 {
 }
 
-ezMemoryStreamReader::~ezMemoryStreamReader() {}
+ezMemoryStreamReader::~ezMemoryStreamReader() = default;
 
 ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {
@@ -89,7 +89,7 @@ void ezMemoryStreamReader::SetDebugSourceInformation(ezStringView sDebugSourceIn
 // Writer implementation
 ezMemoryStreamWriter::ezMemoryStreamWriter(ezMemoryStreamStorageInterface* pStreamStorage)
   : m_pStreamStorage(pStreamStorage)
-  , m_uiWritePosition(0)
+
 {
 }
 

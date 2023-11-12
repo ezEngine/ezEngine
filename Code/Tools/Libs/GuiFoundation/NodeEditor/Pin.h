@@ -44,12 +44,14 @@ public:
   virtual void keyPressEvent(QKeyEvent* pEvent) override {}
 
 protected:
-  virtual bool AdjustRenderingForHighlight(ezQtPinHighlightState state);
+  virtual bool UpdatePinColors(const ezColorGammaUB* pOverwriteColor = nullptr);
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
   ezQtPinHighlightState m_HighlightState = ezQtPinHighlightState::None;
   QGraphicsTextItem* m_pLabel;
   QPointF m_PinCenter;
+
+  bool m_bTranslatePinName = true;
 
 private:
   bool m_bIsActive = true;

@@ -29,9 +29,12 @@ ezTaskGroupID ezTaskSystem::StartSingleTask(
 void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGroup)
 {
   // call task finished callback and deallocate the task (if last reference)
-  if (pTask && pTask->m_OnTaskFinished.IsValid() && pTask->m_iRemainingRuns == 0)
+  if (pTask && pTask->m_iRemainingRuns == 0)
   {
-    pTask->m_OnTaskFinished(pTask);
+    if (pTask->m_OnTaskFinished.IsValid())
+    {
+      pTask->m_OnTaskFinished(pTask);
+    }
 
     // make sure to clear the task sharedptr BEFORE we mark the task (group) as finished,
     // so that if this is the last reference, the task gets deallocated first
@@ -55,20 +58,20 @@ void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGr
       pGroup->m_uiGroupCounter += 2;
     }
 
-    // wake up all threads that are waiting for this group
-    pGroup->m_CondVarGroupFinished.SignalAll();
-
     {
       EZ_LOCK(s_TaskSystemMutex);
+
+      // unless an outside reference is held onto a task, this will deallocate the tasks
+      pGroup->m_Tasks.Clear();
 
       for (ezUInt32 dep = 0; dep < pGroup->m_OthersDependingOnMe.GetCount(); ++dep)
       {
         DependencyHasFinished(pGroup->m_OthersDependingOnMe[dep].m_pTaskGroup);
       }
-
-      // unless an outside reference is held onto a task, this will deallocate the tasks
-      pGroup->m_Tasks.Clear();
     }
+
+    // wake up all threads that are waiting for this group
+    pGroup->m_CondVarGroupFinished.SignalAll();
 
     if (pGroup->m_OnFinishedCallback.IsValid())
     {
@@ -181,13 +184,13 @@ ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunn
         {
           if (it->m_pTask == pTask)
           {
-            s_pState->m_Tasks[i].Remove(it);
-
             // we set the task to finished, even though it was not executed
             pTask->m_iRemainingRuns = 0;
 
             // tell the system that one task of that group is 'finished', to ensure its dependencies will get scheduled
             TaskHasFinished(std::move(it->m_pTask), it->m_pBelongsToGroup);
+
+            s_pState->m_Tasks[i].Remove(it);
             return EZ_SUCCESS;
           }
 
@@ -335,7 +338,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
     // therefore at some point we will start executing these tasks, no matter how low the frame rate is
     //
     // this gives us some buffer to smooth out performance drops
-    s_FrameTimeThreshold += ezTime::Milliseconds(0.2);
+    s_FrameTimeThreshold += ezTime::MakeFromMilliseconds(0.2);
   }
 
   // if the queue is really full, we have to guarantee more progress
@@ -393,7 +396,7 @@ void ezTaskSystem::FinishFrameTasks()
     const ezTime tDiff = tNow - s_LastFrameUpdate;
 
     // prevent division by zero (inside ComputeThreadUtilization)
-    if (tDiff > ezTime::Seconds(0.0))
+    if (tDiff > ezTime::MakeFromSeconds(0.0))
     {
       s_LastFrameUpdate = tNow;
 

@@ -21,8 +21,13 @@ ezResult ezDeferredFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiB
   return m_Writer.WriteBytes(pWriteBuffer, uiBytesToWrite);
 }
 
-ezResult ezDeferredFileWriter::Close()
+ezResult ezDeferredFileWriter::Close(bool* out_pWasWrittenTo /*= nullptr*/)
 {
+  if (out_pWasWrittenTo)
+  {
+    *out_pWasWrittenTo = false;
+  }
+
   if (m_bAlreadyClosed)
     return EZ_SUCCESS;
 
@@ -38,8 +43,6 @@ ezResult ezDeferredFileWriter::Close()
     {
       ezUInt8 tmp1[1024 * 4];
       ezUInt8 tmp2[1024 * 4];
-
-      ezUInt64 readLeft = m_Storage.GetStorageSize64();
 
       ezMemoryStreamReader storageReader(&m_Storage);
 
@@ -66,6 +69,11 @@ ezResult ezDeferredFileWriter::Close()
 write_data:
   ezFileWriter file;
   EZ_SUCCEED_OR_RETURN(file.Open(m_sOutputFile, 0)); // use the minimum cache size, we want to pass data directly through to disk
+
+  if (out_pWasWrittenTo)
+  {
+    *out_pWasWrittenTo = true;
+  }
 
   m_sOutputFile.Clear();
   return m_Storage.CopyToStream(file);

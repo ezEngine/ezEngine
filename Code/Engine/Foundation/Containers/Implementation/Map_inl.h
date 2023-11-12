@@ -14,7 +14,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
 
   if (m_pElement == nullptr)
   {
-    EZ_ASSERT_DEV(m_pElement != nullptr, "The Iterator is invalid (end).");
+    EZ_ASSERT_DEBUG(m_pElement != nullptr, "The Iterator is invalid (end).");
     return;
   }
 
@@ -65,7 +65,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
 
   if (m_pElement == nullptr)
   {
-    EZ_ASSERT_DEV(m_pElement != nullptr, "The Iterator is invalid (end).");
+    EZ_ASSERT_DEBUG(m_pElement != nullptr, "The Iterator is invalid (end).");
     return;
   }
 
@@ -571,8 +571,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 template <typename KeyType, typename ValueType, typename Comparer>
 void ezMapBase<KeyType, ValueType, Comparer>::ReleaseNode(Node* pNode)
 {
-  EZ_ASSERT_DEV(pNode != nullptr, "pNode is invalid.");
-  EZ_ASSERT_DEV(pNode != &m_NilNode, "pNode is invalid.");
+  EZ_ASSERT_DEBUG(pNode != nullptr && pNode != &m_NilNode, "pNode is invalid.");
 
   ezMemoryUtils::Destruct<Node>(pNode, 1);
 
@@ -778,7 +777,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Remove(const Iterator& pos)
 {
-  EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The Iterator(pos) is invalid.");
+  EZ_ASSERT_DEBUG(pos.m_pElement != nullptr, "The Iterator(pos) is invalid.");
 
   Iterator temp(pos);
   ++temp;

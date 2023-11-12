@@ -18,55 +18,51 @@ class EZ_FOUNDATION_DLL ezAbstractObjectNode
 public:
   struct Property
   {
-    const char* m_szPropertyName;
+    ezStringView m_sPropertyName;
     ezVariant m_Value;
   };
 
   ezAbstractObjectNode()
-    : m_pOwner(nullptr)
-    , m_uiTypeVersion(0)
-    , m_szType(nullptr)
-    , m_szNodeName(nullptr)
-  {
-  }
+
+    = default;
 
   const ezHybridArray<Property, 16>& GetProperties() const { return m_Properties; }
 
-  void AddProperty(const char* szName, const ezVariant& value);
+  void AddProperty(ezStringView sName, const ezVariant& value);
 
-  void RemoveProperty(const char* szName);
+  void RemoveProperty(ezStringView sName);
 
-  void ChangeProperty(const char* szName, const ezVariant& value);
+  void ChangeProperty(ezStringView sName, const ezVariant& value);
 
-  void RenameProperty(const char* szOldName, const char* szNewName);
+  void RenameProperty(ezStringView sOldName, ezStringView sNewName);
 
   void ClearProperties();
 
   // \brief Inlines a custom variant type. Use to patch properties that have been turned into custom variant type.
   // \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE, EZ_DECLARE_CUSTOM_VARIANT_TYPE
-  ezResult InlineProperty(const char* szName);
+  ezResult InlineProperty(ezStringView sName);
 
   const ezAbstractObjectGraph* GetOwner() const { return m_pOwner; }
   const ezUuid& GetGuid() const { return m_Guid; }
   ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
   void SetTypeVersion(ezUInt32 uiTypeVersion) { m_uiTypeVersion = uiTypeVersion; }
-  const char* GetType() const { return m_szType; }
-  void SetType(const char* szType);
+  ezStringView GetType() const { return m_sType; }
+  void SetType(ezStringView sType);
 
-  const Property* FindProperty(const char* szName) const;
-  Property* FindProperty(const char* szName);
+  const Property* FindProperty(ezStringView sName) const;
+  Property* FindProperty(ezStringView sName);
 
-  const char* GetNodeName() const { return m_szNodeName; }
+  ezStringView GetNodeName() const { return m_sNodeName; }
 
 private:
   friend class ezAbstractObjectGraph;
 
-  ezAbstractObjectGraph* m_pOwner;
+  ezAbstractObjectGraph* m_pOwner = nullptr;
 
   ezUuid m_Guid;
-  ezUInt32 m_uiTypeVersion;
-  const char* m_szType;
-  const char* m_szNodeName;
+  ezUInt32 m_uiTypeVersion = 0;
+  ezStringView m_sType;
+  ezStringView m_sNodeName;
 
   ezHybridArray<Property, 16> m_Properties;
 };
@@ -90,7 +86,7 @@ struct EZ_FOUNDATION_DLL ezAbstractGraphDiffOperation
 
 struct EZ_FOUNDATION_DLL ezObjectChangeType
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum : ezInt8
   {
@@ -120,7 +116,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezDiffOperation);
 class EZ_FOUNDATION_DLL ezAbstractObjectGraph
 {
 public:
-  ezAbstractObjectGraph() {}
+  ezAbstractObjectGraph() = default;
   ~ezAbstractObjectGraph();
 
   void Clear();
@@ -128,15 +124,15 @@ public:
   using FilterFunction = ezDelegate<bool(const ezAbstractObjectNode*, const ezAbstractObjectNode::Property*)>;
   ezAbstractObjectNode* Clone(ezAbstractObjectGraph& ref_cloneTarget, const ezAbstractObjectNode* pRootNode = nullptr, FilterFunction filter = FilterFunction()) const;
 
-  const char* RegisterString(const char* szString);
+  ezStringView RegisterString(ezStringView sString);
 
   const ezAbstractObjectNode* GetNode(const ezUuid& guid) const;
   ezAbstractObjectNode* GetNode(const ezUuid& guid);
 
-  const ezAbstractObjectNode* GetNodeByName(const char* szName) const;
-  ezAbstractObjectNode* GetNodeByName(const char* szName);
+  const ezAbstractObjectNode* GetNodeByName(ezStringView sName) const;
+  ezAbstractObjectNode* GetNodeByName(ezStringView sName);
 
-  ezAbstractObjectNode* AddNode(const ezUuid& guid, const char* szType, ezUInt32 uiTypeVersion, const char* szNodeName = nullptr);
+  ezAbstractObjectNode* AddNode(const ezUuid& guid, ezStringView sType, ezUInt32 uiTypeVersion, ezStringView sNodeName = {});
   void RemoveNode(const ezUuid& guid);
 
   const ezMap<ezUuid, ezAbstractObjectNode*>& GetAllNodes() const { return m_Nodes; }
@@ -184,5 +180,5 @@ private:
 
   ezSet<ezString> m_Strings;
   ezMap<ezUuid, ezAbstractObjectNode*> m_Nodes;
-  ezMap<const char*, ezAbstractObjectNode*, CompareConstChar> m_NodesByName;
+  ezMap<ezStringView, ezAbstractObjectNode*> m_NodesByName;
 };

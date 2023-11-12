@@ -404,6 +404,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
       if (pVariable == nullptr)
       {
         ReportError(pIdentifierToken, ezFmt("Undeclared identifier '{}'", sIdentifier));
+        return nullptr;
       }
       return ParseSwizzle(Unpack(pVariable));
     }
@@ -680,7 +681,7 @@ ezExpressionAST::Node* ezExpressionParser::GetVariable(ezStringView sVarName)
   ezHashedString sHashedVarName;
   sHashedVarName.Assign(sVarName);
 
-  ezExpressionAST::Node* pVariableNode;
+  ezExpressionAST::Node* pVariableNode = nullptr;
   if (m_KnownVariables.TryGetValue(sHashedVarName, pVariableNode) == false && m_Options.m_bTreatUnknownVariablesAsInputs)
   {
     pVariableNode = m_pAST->CreateInput({sHashedVarName, ezProcessingStream::DataType::Float});

@@ -9,7 +9,7 @@
 #include <GameEngine/GameEngineDLL.h>
 struct ezMsgSetPlaying;
 
-typedef ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating> ezPropertyAnimComponentManager;
+using ezPropertyAnimComponentManager = ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating>;
 
 /// \brief Animates properties on other objects and components according to the property animation resource
 ///
@@ -61,7 +61,7 @@ protected:
 
   struct Binding
   {
-    ezAbstractMemberProperty* m_pMemberProperty = nullptr;
+    const ezAbstractMemberProperty* m_pMemberProperty = nullptr;
     mutable void* m_pObject = nullptr; // needs to be updated in case components / objects get relocated in memory
   };
 

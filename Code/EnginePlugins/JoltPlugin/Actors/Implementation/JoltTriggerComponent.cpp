@@ -67,7 +67,7 @@ void ezJoltTriggerComponent::SerializeComponent(ezWorldWriter& inout_stream) con
 void ezJoltTriggerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -141,7 +141,7 @@ void ezJoltTriggerComponent::PostTriggerMessage(const ezGameObjectHandle& hOther
   msg.m_sMessage = m_sTriggerMessage;
   msg.m_hTriggeringObject = hOtherObject;
 
-  m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
+  m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
 }
 
 

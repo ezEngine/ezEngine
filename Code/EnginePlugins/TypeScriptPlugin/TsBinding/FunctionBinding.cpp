@@ -13,7 +13,7 @@ ezResult ezTypeScriptBinding::Init_FunctionBinding()
   return EZ_SUCCESS;
 }
 
-ezUInt32 ezTypeScriptBinding::ComputeFunctionBindingHash(const ezRTTI* pType, ezAbstractFunctionProperty* pFunc)
+ezUInt32 ezTypeScriptBinding::ComputeFunctionBindingHash(const ezRTTI* pType, const ezAbstractFunctionProperty* pFunc)
 {
   ezStringBuilder sFuncName;
 
@@ -27,23 +27,23 @@ void ezTypeScriptBinding::SetupRttiFunctionBindings()
   if (!s_BoundFunctions.IsEmpty())
     return;
 
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezComponent>())
-      continue;
+  ezRTTI::ForEachDerivedType<ezComponent>(
+    [&](const ezRTTI* pRtti) {
+      for (const ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
+      {
+        // TODO: static members ?
+        if (pFunc->GetFunctionType() != ezFunctionType::Member)
+          continue;
 
-    for (ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
-    {
-      // TODO: static members ?
-      if (pFunc->GetFunctionType() != ezFunctionType::Member)
-        continue;
+        const ezUInt32 uiHash = ComputeFunctionBindingHash(pRtti, pFunc);
+        if (auto pExistingBinding = s_BoundFunctions.GetValue(uiHash))
+        {
+          EZ_ASSERT_DEV(ezStringUtils::IsEqual(pExistingBinding->m_pFunc->GetPropertyName(), pFunc->GetPropertyName()), "Hash collision for bound function name!");
+        }
 
-      const ezUInt32 uiHash = ComputeFunctionBindingHash(pRtti, pFunc);
-      EZ_ASSERT_DEV(!s_BoundFunctions.Contains(uiHash), "Hash collision for bound function name!");
-
-      s_BoundFunctions[uiHash].m_pFunc = pFunc;
-    }
-  }
+        s_BoundFunctions[uiHash].m_pFunc = pFunc;
+      }
+    });
 }
 
 const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
@@ -79,7 +79,7 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
   {
     case ezVariant::Type::Invalid:
     {
-      if (ezStringUtils::IsEqual(pRtti->GetTypeName(), "ezVariant"))
+      if (pRtti->GetTypeName() == "ezVariant")
         return "any";
 
       return nullptr;
@@ -123,6 +123,7 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
 
     case ezVariant::Type::String:
     case ezVariant::Type::StringView:
+    case ezVariant::Type::HashedString:
       return "string";
 
     case ezVariant::Type::Time:
@@ -151,7 +152,7 @@ void ezTypeScriptBinding::GenerateExposedFunctionsCode(ezStringBuilder& out_Code
 {
   ezStringBuilder sFunc;
 
-  for (ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
+  for (const ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
   {
     // TODO: static members ?
     if (pFunc->GetFunctionType() != ezFunctionType::Member)

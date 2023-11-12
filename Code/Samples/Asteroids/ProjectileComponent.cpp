@@ -23,7 +23,7 @@ ezCVarFloat CVar_SparksSpeed("g_SparksSpeed", 50.0f, ezCVarFlags::Default, "Proj
 ProjectileComponent::ProjectileComponent()
 {
   m_fSpeed = 0.0f;
-  m_TimeToLive = ezTime::Seconds(CVar_ProjectileTimeToLive);
+  m_TimeToLive = ezTime::MakeFromSeconds(CVar_ProjectileTimeToLive);
   m_iBelongsToPlayer = -1;
   m_bDoesDamage = false;
 }
@@ -70,7 +70,7 @@ void ProjectileComponent::Update()
         continue;
     }
 
-    ezBoundingSphere bs(pColliderObject->GetLocalPosition(), Collider.m_fCollisionRadius);
+    ezBoundingSphere bs = ezBoundingSphere::MakeFromCenterAndRadius(pColliderObject->GetLocalPosition(), Collider.m_fCollisionRadius);
 
     const ezVec3 vPos = GetOwner()->GetLocalPosition();
 
@@ -95,8 +95,7 @@ void ProjectileComponent::Update()
 
         for (ezInt32 i = 0; i < CVar_SparksPerHit; ++i)
         {
-          ezQuat qRot;
-          qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree((i - (CVar_SparksPerHit / 2)) * fSteps));
+          ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree((i - (CVar_SparksPerHit / 2)) * fSteps));
 
           {
             ezGameObjectDesc desc;
@@ -133,12 +132,12 @@ void ProjectileComponent::Update()
 
       if (pShipComponent)
       {
-        m_TimeToLive = ezTime::Seconds(0);
+        m_TimeToLive = ezTime::MakeFromSeconds(0);
       }
       else
       {
         m_fSpeed = 0.0f;
-        m_TimeToLive = ezTime::Seconds(CVar_SparksTimeToLive);
+        m_TimeToLive = ezTime::MakeFromSeconds(CVar_SparksTimeToLive);
       }
     }
   }

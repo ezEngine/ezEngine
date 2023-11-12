@@ -65,7 +65,7 @@ void ezGeometry::Clear()
   m_Lines.Clear();
 }
 
-ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices /*= ezVec4U16::ZeroVector()*/, const ezColorLinearUB& boneWeights /*= ezColorLinearUB(255, 0, 0, 0)*/)
+ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices /*= ezVec4U16::MakeZero()*/, const ezColorLinearUB& boneWeights /*= ezColorLinearUB(255, 0, 0, 0)*/)
 {
   Vertex& v = m_Vertices.ExpandAndGetRef();
   v.m_vPosition = vPos;
@@ -693,22 +693,22 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
   // create icosahedron
   {
     ezMat3 mRotX, mRotZ, mRotZh;
-    mRotX.SetRotationMatrixX(ezAngle::Degree(360.0f / 6.0f));
-    mRotZ.SetRotationMatrixZ(ezAngle::Degree(-360.0f / 5.0f));
-    mRotZh.SetRotationMatrixZ(ezAngle::Degree(-360.0f / 10.0f));
+    mRotX = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(360.0f / 6.0f));
+    mRotZ = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(-360.0f / 5.0f));
+    mRotZh = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(-360.0f / 10.0f));
 
     ezUInt32 vert[12];
     ezVec3 vDir(0, 0, 1);
 
     vDir.Normalize();
-    vert[0] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), options.m_Color, boneIndices);
+    vert[0] = AddVertex(vDir * fRadius, vDir, ezVec2::MakeZero(), options.m_Color, boneIndices);
 
     vDir = mRotX * vDir;
 
     for (ezInt32 i = 0; i < 5; ++i)
     {
       vDir.Normalize();
-      vert[1 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), options.m_Color, boneIndices);
+      vert[1 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::MakeZero(), options.m_Color, boneIndices);
       vDir = mRotZ * vDir;
     }
 
@@ -718,13 +718,13 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
     for (ezInt32 i = 0; i < 5; ++i)
     {
       vDir.Normalize();
-      vert[6 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), options.m_Color, boneIndices);
+      vert[6 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::MakeZero(), options.m_Color, boneIndices);
       vDir = mRotZ * vDir;
     }
 
     vDir.Set(0, 0, -1);
     vDir.Normalize();
-    vert[11] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), options.m_Color, boneIndices);
+    vert[11] = AddVertex(vDir * fRadius, vDir, ezVec2::MakeZero(), options.m_Color, boneIndices);
 
 
     Tris[0].PushBack(Triangle(vert[0], vert[2], vert[1]));
@@ -781,7 +781,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
         else
         {
           const ezVec3 vCenter = (m_Vertices[Edges[i].m_uiVertex[0]].m_vPosition + m_Vertices[Edges[i].m_uiVertex[1]].m_vPosition).GetNormalized();
-          uiNewVert[i] = AddVertex(vCenter * fRadius, vCenter, ezVec2::ZeroVector(), options.m_Color, boneIndices);
+          uiNewVert[i] = AddVertex(vCenter * fRadius, vCenter, ezVec2::MakeZero(), options.m_Color, boneIndices);
 
           NewVertices[Edges[i]] = uiNewVert[i];
         }
@@ -806,17 +806,17 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
   TransformVertices(options.m_Transform, uiFirstVertex);
 }
 
-void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const GeoOptions& options, ezAngle fraction /*= ezAngle::Degree(360.0f)*/)
+void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const GeoOptions& options, ezAngle fraction /*= ezAngle::MakeFromDegree(360.0f)*/)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only {0} segments", uiSegments);
   EZ_ASSERT_DEV(fraction.GetDegree() >= -0.01f, "A cylinder cannot be built with more less than 0 degree");
   EZ_ASSERT_DEV(fraction.GetDegree() <= 360.01f, "A cylinder cannot be built with more than 360 degree");
 
-  fraction = ezMath::Clamp(fraction, ezAngle(), ezAngle::Degree(360.0f));
+  fraction = ezMath::Clamp(fraction, ezAngle(), ezAngle::MakeFromDegree(360.0f));
 
   const bool bFlipWinding = options.IsFlipWindingNecessary();
   const bool bIsFraction = fraction.GetDegree() < 360.0f;
-  const ezAngle fDegStep = ezAngle::Degree(fraction.GetDegree() / uiSegments);
+  const ezAngle fDegStep = ezAngle::MakeFromDegree(fraction.GetDegree() / uiSegments);
 
   const ezVec3 vTopCenter(0, 0, fPositiveLength);
   const ezVec3 vBottomCenter(0, 0, -fNegativeLength);
@@ -984,7 +984,7 @@ void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, floa
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only {0} segments", uiSegments);
 
   const bool bFlipWinding = options.IsFlipWindingNecessary();
-  const ezAngle fDegStep = ezAngle::Degree(360.0f / uiSegments);
+  const ezAngle fDegStep = ezAngle::MakeFromDegree(360.0f / uiSegments);
 
   const ezVec3 vTopCenter(0, 0, fPositiveLength);
   const ezVec3 vBottomCenter(0, 0, -fNegativeLength);
@@ -1033,7 +1033,7 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
 
   ezHybridArray<ezUInt32, 512> VertsBottom;
 
-  const ezAngle fDegStep = ezAngle::Degree(360.0f / uiSegments);
+  const ezAngle fDegStep = ezAngle::MakeFromDegree(360.0f / uiSegments);
 
   const ezUInt32 uiTip = AddVertex(ezVec3(0, 0, fHeight), ezVec3(0, 0, 1), ezVec2(0), options);
 
@@ -1072,15 +1072,15 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
   EZ_ASSERT_DEV(uiStacks >= 2, "Sphere must have at least 2 stacks");
 
   const bool bFlipWinding = options.IsFlipWindingNecessary();
-  const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float)(uiSegments));
-  const ezAngle fDegreeDiffStacks = ezAngle::Degree(180.0f / (float)(uiStacks));
+  const ezAngle fDegreeDiffSegments = ezAngle::MakeFromDegree(360.0f / (float)(uiSegments));
+  const ezAngle fDegreeDiffStacks = ezAngle::MakeFromDegree(180.0f / (float)(uiStacks));
 
   const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
 
   // first create all the vertex positions
   for (ezUInt32 st = 1; st < uiStacks; ++st)
   {
-    const ezAngle fDegreeStack = ezAngle::Degree(-90.0f + (st * fDegreeDiffStacks.GetDegree()));
+    const ezAngle fDegreeStack = ezAngle::MakeFromDegree(-90.0f + (st * fDegreeDiffStacks.GetDegree()));
     const float fCosDS = ezMath::Cos(fDegreeStack);
     const float fSinDS = ezMath::Sin(fDegreeStack);
     const float fY = -fSinDS * fRadius;
@@ -1157,15 +1157,15 @@ void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiSt
   EZ_ASSERT_DEV(uiStacks >= 1, "Sphere must have at least 1 stacks");
 
   const bool bFlipWinding = options.IsFlipWindingNecessary();
-  const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float)(uiSegments));
-  const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float)(uiStacks));
+  const ezAngle fDegreeDiffSegments = ezAngle::MakeFromDegree(360.0f / (float)(uiSegments));
+  const ezAngle fDegreeDiffStacks = ezAngle::MakeFromDegree(90.0f / (float)(uiStacks));
 
   const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
 
   // first create all the vertex positions
   for (ezUInt32 st = 0; st < uiStacks; ++st)
   {
-    const ezAngle fDegreeStack = ezAngle::Degree(-90.0f + ((st + 1) * fDegreeDiffStacks.GetDegree()));
+    const ezAngle fDegreeStack = ezAngle::MakeFromDegree(-90.0f + ((st + 1) * fDegreeDiffStacks.GetDegree()));
     const float fCosDS = ezMath::Cos(fDegreeStack);
     const float fSinDS = ezMath::Sin(fDegreeStack);
     const float fY = -fSinDS * fRadius;
@@ -1242,7 +1242,7 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
   EZ_ASSERT_DEV(fHeight >= 0.0f, "Height must be positive");
 
   const bool bFlipWinding = options.IsFlipWindingNecessary();
-  const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float)(uiStacks));
+  const ezAngle fDegreeDiffStacks = ezAngle::MakeFromDegree(90.0f / (float)(uiStacks));
 
   const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
 
@@ -1255,14 +1255,14 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
   {
     for (ezUInt32 st = 0; st < uiStacks; ++st)
     {
-      const ezAngle fDegreeStack = ezAngle::Degree(-90.0f + ((st + 1) * fDegreeDiffStacks.GetDegree()));
+      const ezAngle fDegreeStack = ezAngle::MakeFromDegree(-90.0f + ((st + 1) * fDegreeDiffStacks.GetDegree()));
       const float fCosDS = ezMath::Cos(fDegreeStack);
       const float fSinDS = ezMath::Sin(fDegreeStack);
       const float fY = -fSinDS * fRadius;
 
       for (ezUInt32 sp = 0; sp < uiSegments; ++sp)
       {
-        const ezAngle fDegree = ezAngle::Degree(sp * fDegreeStepSlices);
+        const ezAngle fDegree = ezAngle::MakeFromDegree(sp * fDegreeStepSlices);
 
         ezVec3 vPos;
         vPos.x = ezMath::Cos(fDegree) * fRadius * fCosDS;
@@ -1277,14 +1277,14 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
 
     for (ezUInt32 st = 0; st < uiStacks; ++st)
     {
-      const ezAngle fDegreeStack = ezAngle::Degree(0.0f - (st * fDegreeDiffStacks.GetDegree()));
+      const ezAngle fDegreeStack = ezAngle::MakeFromDegree(0.0f - (st * fDegreeDiffStacks.GetDegree()));
       const float fCosDS = ezMath::Cos(fDegreeStack);
       const float fSinDS = ezMath::Sin(fDegreeStack);
       const float fY = fSinDS * fRadius;
 
       for (ezUInt32 sp = 0; sp < uiSegments; ++sp)
       {
-        const ezAngle fDegree = ezAngle::Degree(sp * fDegreeStepSlices);
+        const ezAngle fDegree = ezAngle::MakeFromDegree(sp * fDegreeStepSlices);
 
         ezVec3 vPos;
         vPos.x = ezMath::Cos(fDegree) * fRadius * fCosDS;
@@ -1353,8 +1353,8 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
   const float fCylinderRadius = (fOuterRadius - fInnerRadius) * 0.5f;
   const float fLoopRadius = fInnerRadius + fCylinderRadius;
 
-  const ezAngle fAngleStepSegment = ezAngle::Degree(360.0f / uiSegments);
-  const ezAngle fAngleStepCylinder = ezAngle::Degree(360.0f / uiSegmentDetail);
+  const ezAngle fAngleStepSegment = ezAngle::MakeFromDegree(360.0f / uiSegments);
+  const ezAngle fAngleStepCylinder = ezAngle::MakeFromDegree(360.0f / uiSegmentDetail);
 
   const ezUInt16 uiFirstVertex = static_cast<ezUInt16>(m_Vertices.GetCount());
 
@@ -1495,7 +1495,7 @@ void ezGeometry::AddStairs(const ezVec3& vSize, ezUInt32 uiNumSteps, ezAngle cur
 {
   const bool bFlipWinding = options.IsFlipWindingNecessary();
 
-  curvature = ezMath::Clamp(curvature, -ezAngle::Degree(360), ezAngle::Degree(360));
+  curvature = ezMath::Clamp(curvature, -ezAngle::MakeFromDegree(360), ezAngle::MakeFromDegree(360));
   const ezAngle curveStep = curvature / (float)uiNumSteps;
 
   const float fStepDiv = 1.0f / uiNumSteps;
@@ -1526,8 +1526,7 @@ void ezGeometry::AddStairs(const ezVec3& vSize, ezUInt32 uiNumSteps, ezAngle cur
   ezVec3 vSideNormal1(0, 1, 0);
   ezVec3 vStepFrontNormal(-1, 0, 0);
 
-  ezQuat qRot;
-  qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), curveStep);
+  ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), curveStep);
 
   for (ezUInt32 step = 0; step < uiNumSteps; ++step)
   {
@@ -1630,9 +1629,9 @@ void ezGeometry::AddArch(const ezVec3& vSize, ezUInt32 uiNumSegments, float fThi
   // sanitize input values
   {
     if (angle.GetRadian() == 0.0f)
-      angle = ezAngle::Degree(360);
+      angle = ezAngle::MakeFromDegree(360);
 
-    angle = ezMath::Clamp(angle, ezAngle::Degree(-360.0f), ezAngle::Degree(360.0f));
+    angle = ezMath::Clamp(angle, ezAngle::MakeFromDegree(-360.0f), ezAngle::MakeFromDegree(360.0f));
 
     fThickness = ezMath::Clamp(fThickness, 0.01f, ezMath::Min(vSize.x, vSize.y) * 0.45f);
 
@@ -1688,7 +1687,7 @@ void ezGeometry::AddArch(const ezVec3& vSize, ezUInt32 uiNumSegments, float fThi
     }
   }
 
-  const bool isFullCircle = ezMath::Abs(angle.GetRadian()) >= ezAngle::Degree(360).GetRadian();
+  const bool isFullCircle = ezMath::Abs(angle.GetRadian()) >= ezAngle::MakeFromDegree(360).GetRadian();
 
   const float fOuterUstep = 3.0f / uiNumSegments;
   for (ezUInt32 segment = 0; segment < uiNumSegments; ++segment)

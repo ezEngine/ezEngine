@@ -10,9 +10,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezProcessingStreamProcessor::ezProcessingStreamProcessor()
-  : m_pStreamGroup(nullptr)
-{
-}
+
+  = default;
 
 ezProcessingStreamProcessor::~ezProcessingStreamProcessor()
 {

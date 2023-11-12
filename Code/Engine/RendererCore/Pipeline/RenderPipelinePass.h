@@ -8,6 +8,7 @@
 #include <RendererCore/Pipeline/RenderPipelineNode.h>
 
 struct ezGALTextureCreationDescription;
+class ezStreamWriter;
 
 /// \brief Passed to ezRenderPipelinePass::InitRenderPipelinePass to inform about
 /// existing connections on each input / output pin index.
@@ -59,6 +60,9 @@ public:
   /// \brief Allows for the pass to write data back using ezView::SetRenderPassReadBackProperty. E.g. picking results etc.
   virtual void ReadBackProperties(ezView* pView);
 
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream);
+
   void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter());
 
   EZ_ALWAYS_INLINE ezRenderPipeline* GetPipeline() { return m_pPipeline; }
@@ -67,10 +71,10 @@ public:
 private:
   friend class ezRenderPipeline;
 
-  bool m_bActive;
+  bool m_bActive = true;
 
   const bool m_bIsStereoAware;
   ezHashedString m_sName;
 
-  ezRenderPipeline* m_pPipeline;
+  ezRenderPipeline* m_pPipeline = nullptr;
 };

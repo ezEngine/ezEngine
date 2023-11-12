@@ -267,28 +267,28 @@ void ezQtPropertyAnimModel::BuildMapping(
     switch (pTrack->m_Target)
     {
       case ezPropertyAnimTarget::Color:
-        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/ColorGradient.png");
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/ColorGradient.svg");
         break;
       case ezPropertyAnimTarget::Number:
-        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/Curve1D.png");
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/Curve1D.svg");
         break;
       case ezPropertyAnimTarget::VectorX:
       case ezPropertyAnimTarget::RotationX:
-        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveX.png");
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveX.svg");
         name.Append(".x");
         break;
       case ezPropertyAnimTarget::VectorY:
       case ezPropertyAnimTarget::RotationY:
-        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveY.png");
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveY.svg");
         name.Append(".y");
         break;
       case ezPropertyAnimTarget::VectorZ:
       case ezPropertyAnimTarget::RotationZ:
-        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveZ.png");
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveZ.svg");
         name.Append(".z");
         break;
       case ezPropertyAnimTarget::VectorW:
-        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveW.png");
+        pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveW.svg");
         name.Append(".w");
         break;
     }

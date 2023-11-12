@@ -12,7 +12,8 @@ ezParticleEffectAssetDocumentManager::ezParticleEffectAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Particle Effect";
   m_DocTypeDesc.m_sFileExtension = "ezParticleEffectAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Particle_Effect.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Particle_Effect.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Effects";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezParticleEffectAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Particle_Effect");
@@ -34,8 +35,7 @@ void ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent(const ezDocume
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezParticleEffectAssetDocument>())
       {
-        ezQtParticleEffectAssetDocumentWindow* pDocWnd =
-          new ezQtParticleEffectAssetDocumentWindow(static_cast<ezParticleEffectAssetDocument*>(e.m_pDocument));
+        new ezQtParticleEffectAssetDocumentWindow(static_cast<ezParticleEffectAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -46,9 +46,9 @@ void ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent(const ezDocume
 }
 
 void ezParticleEffectAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezParticleEffectAssetDocument(szPath);
+  out_pDocument = new ezParticleEffectAssetDocument(sPath);
 }
 
 void ezParticleEffectAssetDocumentManager::InternalGetSupportedDocumentTypes(

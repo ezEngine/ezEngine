@@ -34,7 +34,7 @@ public:
   };
 
   /// \brief Custom decider whether to include a file into the archive
-  typedef ezDelegate<InclusionMode(const char*)> InclusionCallback;
+  using InclusionCallback = ezDelegate<InclusionMode(ezStringView)>;
 
   /// \brief Iterates over all files in a folder and adds them to m_Entries for later.
   ///

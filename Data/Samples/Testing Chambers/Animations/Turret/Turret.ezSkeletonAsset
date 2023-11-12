@@ -68,7 +68,7 @@ o
 			s{"Animations/Turret/Turret.glb"}
 		}
 		Uuid %DocumentID{u4{15670882188369860531,5160132352143365795}}
-		u4 %Hash{5848841858734359319}
+		u4 %Hash{8599245648190961084}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2250784937224855489,8131906298234352154}}
@@ -184,12 +184,19 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xF304353F,0xD704353F,0xF97E5AB3,0x0B7FCDBA}}
 		Vec3 %GizmoOffsetTranslationRO{f{0xE4C2893F,0,0x9C7E8C3F}}
+		s %JointType{"ezSkeletonJointType::None"}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"BarrelRecoilBone"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0xA0A2B82F,0xFAC2893F,0x1191E733,0x404D913A,0xEC4C913A,0xC69EA1B5,0xEBFF7F3F,0x0000803F,0x0000803F,0x0000803F}}
@@ -206,12 +213,19 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xF204353F,0,0,0xF404353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"SocketMesh"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
@@ -231,12 +245,19 @@ o
 		{
 			Uuid{u4{10286145735859231655,5322923474099417519}}
 		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xF204353F,0,0,0xF404353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"SocketBone"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
@@ -259,6 +280,8 @@ o
 		u1 %CollisionLayer{0}
 		s %File{"Animations/Turret/Turret.glb"}
 		b %FlipForwardDir{0}
+		f %MaxImpulse{0x0000C842}
+		s %PreviewMesh{"{ 9a8ebd2a-dd92-4ea9-8dbe-ad1ad6feda14 }"}
 		s %RightDir{"ezBasisAxis::PositiveZ"}
 		s %Surface{""}
 		f %UniformScaling{0x0000803F}
@@ -279,12 +302,19 @@ o
 			Uuid{u4{17647195495414389915,4721293689371298683}}
 			Uuid{u4{16587509676623798703,4840547266392564697}}
 		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xF204353F,0,0,0xF404353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Armature"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
@@ -304,12 +334,19 @@ o
 		{
 			Uuid{u4{10544932915657330354,4652513731524458081}}
 		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xF204353F,0,0,0xF404353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x83FF7FAF,0,0xCDCC8C3F}}
+		s %JointType{"ezSkeletonJointType::None"}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"BarrelBone"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0x85FF7FAF,0xCDCC8C3F,0xD7FF7F2F,0xA748003F,0xD6FFFF3E,0xD8FFFF3E,0xB36EFFBE,0x0000803F,0x0000803F,0x0000803F}}
@@ -326,12 +363,19 @@ o
 	{
 		VarArray %BoneShapes{}
 		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xF204353F,0,0,0xF404353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"BarrelMesh"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
@@ -426,6 +470,23 @@ o
 }
 o
 {
+	Uuid %id{u4{13569856615221415969,9151104531254943604}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEditableSkeletonBoneCollider"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10395479654444300045,10796011810626369603}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -438,6 +499,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeleton"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8114326279546664217,12970061331727704798}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkeletonJointType"}
 		u3 %TypeVersion{1}
 	}
 }

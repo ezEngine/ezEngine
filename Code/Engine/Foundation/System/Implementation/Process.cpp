@@ -23,11 +23,11 @@ void ezProcessOptions::AddArgument(const ezFormatString& arg)
   m_Arguments.PushBack(formatted);
 }
 
-void ezProcessOptions::AddCommandLine(const char* szCmdLine)
+void ezProcessOptions::AddCommandLine(ezStringView sCmdLine)
 {
   ezStringBuilder curArg;
 
-  ezStringView cmdView(szCmdLine);
+  ezStringView cmdView = sCmdLine;
 
   bool isInString = false;
 
@@ -120,10 +120,10 @@ void ezProcessOptions::BuildCommandLineString(ezStringBuilder& ref_sCmd) const
   ref_sCmd.Trim(" ");
 }
 
-void ezProcess::BuildFullCommandLineString(const ezProcessOptions& opt, const char* szProcess, ezStringBuilder& cmd) const
+void ezProcess::BuildFullCommandLineString(const ezProcessOptions& opt, ezStringView sProcess, ezStringBuilder& cmd) const
 {
   // have to set the full path to the process as the very first argument
-  cmd.Set("\"", szProcess, "\"");
+  cmd.Set("\"", sProcess, "\"");
 
   opt.BuildCommandLineString(cmd);
 }

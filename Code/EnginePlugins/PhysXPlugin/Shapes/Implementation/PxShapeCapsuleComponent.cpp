@@ -57,8 +57,8 @@ void ezPxShapeCapsuleComponent::DeserializeComponent(ezWorldReader& inout_stream
 
 void ezPxShapeCapsuleComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, -m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, +m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, -m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, +m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
 }
 
 void ezPxShapeCapsuleComponent::SetRadius(float value)
@@ -85,7 +85,7 @@ void ezPxShapeCapsuleComponent::CreateShapes(ezDynamicArray<physx::PxShape*>& ou
 {
   const float fScale = GetOwner()->GetGlobalTransformSimd().GetMaxScale();
 
-  out_ShapeTransform.q = PxQuat(ezAngle::Degree(90.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f));
+  out_ShapeTransform.q = PxQuat(ezAngle::MakeFromDegree(90.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f));
 
   PxCapsuleGeometry capsule;
   capsule.radius = ezMath::Max(m_fRadius * fScale, 0.01f);

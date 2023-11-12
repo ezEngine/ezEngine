@@ -10,7 +10,7 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/EndianHelper.h>
 
-typedef ezUInt16 ezTypeVersion;
+using ezTypeVersion = ezUInt16;
 
 template <ezUInt16 Size, typename AllocatorWrapper>
 struct ezHybridString;

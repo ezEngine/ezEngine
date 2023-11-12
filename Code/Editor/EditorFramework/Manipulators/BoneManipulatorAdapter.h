@@ -42,7 +42,7 @@ protected:
   ezVariantArray m_Keys;
   ezDynamicArray<ezExposedBone> m_Bones;
   ezDeque<ElementGizmo> m_Gizmos;
-  ezTransform m_RootTransform = ezTransform::IdentityTransform();
+  ezTransform m_RootTransform = ezTransform::MakeIdentity();
 
   void RetrieveBones();
   void ConfigureGizmos();

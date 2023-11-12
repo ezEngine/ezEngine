@@ -68,7 +68,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
       ezGameObject* pObject = nullptr;
       if (GetWorld()->TryGetObject(hit.m_hActorObject, pObject))
       {
-        const ezVec3 vTargetPos = pObject->GetGlobalPosition();
+        const ezVec3 vTargetPos = hit.m_vCenterPosition;
         const ezVec3 vDistToTarget = vTargetPos - vOwnPosition;
         ezVec3 vDirToTarget = vDistToTarget;
         const float fDistance = vDirToTarget.GetLength();
@@ -81,7 +81,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         else
         {
           // otherwise, if we are so close, that the distance is zero, pick a random direction away from it
-          vDirToTarget.CreateRandomDirection(GetWorld()->GetRandomNumberGenerator());
+          vDirToTarget = ezVec3::MakeRandomDirection(GetWorld()->GetRandomNumberGenerator());
         }
 
         // linearly scale damage and impulse down by distance
@@ -94,6 +94,9 @@ void ezAreaDamageComponent::ApplyAreaDamage()
           msg.m_vGlobalPosition = vTargetPos;
           msg.m_vImpulse = vDirToTarget * m_fImpulse * fScale;
           msg.m_uiObjectFilterID = hit.m_uiObjectFilterID;
+          msg.m_pInternalPhysicsShape = hit.m_pInternalPhysicsShape;
+          msg.m_pInternalPhysicsActor = hit.m_pInternalPhysicsActor;
+
 
           pObject->SendMessage(msg);
         }
@@ -117,7 +120,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
           }
 
           // delay the damage a little bit for nicer chain reactions
-          pObject->PostEventMessage(msg, this, ezTime::Milliseconds(200));
+          pObject->PostEventMessage(msg, this, ezTime::MakeFromMilliseconds(200));
         }
       }
     }
@@ -161,7 +164,7 @@ void ezAreaDamageComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 ezAreaDamageComponentManager::ezAreaDamageComponentManager(ezWorld* pWorld)
   : SUPER(pWorld)
-  , m_pPhysicsInterface(nullptr)
+
 {
 }
 
@@ -171,4 +174,3 @@ void ezAreaDamageComponentManager::Initialize()
 
   m_pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
-

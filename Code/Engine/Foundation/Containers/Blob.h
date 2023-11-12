@@ -21,11 +21,7 @@ public:
   using PointerType = T*;
 
   /// \brief Initializes the ezBlobPtr to be empty.
-  EZ_ALWAYS_INLINE ezBlobPtr()
-    : m_pPtr(nullptr)
-    , m_uiCount(0u)
-  {
-  }
+  ezBlobPtr() = default;
 
   /// \brief Initializes the ezBlobPtr with the given pointer and number of elements. No memory is allocated or copied.
   template <typename U>
@@ -141,14 +137,14 @@ public:
   /// \brief Index access.
   EZ_FORCE_INLINE const ValueType& operator[](ezUInt64 uiIndex) const // [tested]
   {
-    EZ_ASSERT_DEV(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return *static_cast<const ValueType*>(GetPtr() + uiIndex);
   }
 
   /// \brief Index access.
   EZ_FORCE_INLINE ValueType& operator[](ezUInt64 uiIndex) // [tested]
   {
-    EZ_ASSERT_DEV(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return *static_cast<ValueType*>(GetPtr() + uiIndex);
   }
 
@@ -184,14 +180,14 @@ public:
     ezMath::Swap(m_uiCount, other.m_uiCount);
   }
 
-  typedef const T* const_iterator;
-  typedef const_reverse_pointer_iterator<T> const_reverse_iterator;
-  typedef T* iterator;
-  typedef reverse_pointer_iterator<T> reverse_iterator;
+  using const_iterator = const T*;
+  using const_reverse_iterator = const_reverse_pointer_iterator<T>;
+  using iterator = T*;
+  using reverse_iterator = reverse_pointer_iterator<T>;
 
 private:
-  PointerType m_pPtr;
-  ezUInt64 m_uiCount;
+  PointerType m_pPtr = nullptr;
+  ezUInt64 m_uiCount = 0u;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -337,7 +333,7 @@ public:
 
   /// \brief Sets the blob to the content of pSource.
   /// This will allocate the necessary memory if needed and then copy uiSize bytes from pSource.
-  void SetFrom(void* pSource, ezUInt64 uiSize);
+  void SetFrom(const void* pSource, ezUInt64 uiSize);
 
   /// \brief Deallocates the memory allocated by this instance.
   void Clear();

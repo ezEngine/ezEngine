@@ -69,7 +69,7 @@ void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiSer
 
       if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
       {
-        WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0)).IgnoreResult();
+        WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::MakeFromSeconds(2.0)).IgnoreResult();
       }
 
       ++m_uiRedrawCountSent;
@@ -112,17 +112,10 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   m_bProcessCrashed = false;
   m_bClientIsConfigured = false;
 
-  QStringList args;
-  if (m_bProcessShouldWaitForDebugger)
-  {
-    args << "-WaitForDebugger";
-  }
+  ezStringBuilder tmp;
 
-  if (!m_sRenderer.IsEmpty())
-  {
-    args << "-renderer";
-    args << m_sRenderer.GetData();
-  }
+  QStringList args = QCoreApplication::arguments();
+  args.pop_front(); // Remove first argument which is the name of the path to the editor executable
 
   {
     ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
@@ -144,7 +137,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   // set up the EditorEngineProcess telemetry server on a different port
   {
     args << "-TelemetryPort";
-    args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050");
+    args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050").GetData(tmp);
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -281,14 +274,15 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
   s_Events.Broadcast(e);
 }
 
-void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
+bool ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
 {
-  m_IPC.SendMessage(pMessage);
+  bool res = m_IPC.SendMessage(pMessage);
 
   if (m_pRemoteProcess)
   {
     m_pRemoteProcess->SendMessage(pMessage);
   }
+  return res;
 }
 
 ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
@@ -335,7 +329,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   EZ_PROFILE_SCOPE("RestartProcess");
   EZ_LOG_BLOCK("Restarting Engine Process");
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Engine Process...", ezTime::Seconds(5));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Engine Process...", ezTime::MakeFromSeconds(5));
 
   ShutdownProcess();
 
@@ -435,14 +429,20 @@ void ezEditorEngineProcessConnection::Update()
   }
 }
 
-void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
+bool ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
 {
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wtautological-undefined-compare"
+#endif
   EZ_ASSERT_DEV(this != nullptr, "No connection between editor and engine was created. This typically happens when an asset document does "
-                                 "not enable the engine-connection through the constructor of ezAssetDocument.");
-
+                                 "not enable the engine-connection through the constructor of ezAssetDocument."); // NOLINT
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(pMessage);
+  return ezEditorEngineProcessConnection::GetSingleton()->SendMessage(pMessage);
 }
 
 void ezEditorEngineConnection::SendHighlightObjectMessage(ezViewHighlightMsgToEngine* pMessage)

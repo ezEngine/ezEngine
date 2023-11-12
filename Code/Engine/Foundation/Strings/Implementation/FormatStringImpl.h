@@ -18,21 +18,27 @@ class ezFormatStringImpl : public ezFormatString
   static constexpr ezUInt32 MaxNumParameters = 12;
 
 public:
+  ezFormatStringImpl(ezStringView sFormat, ARGS&&... args)
+    : m_Arguments(std::forward<ARGS>(args)...)
+  {
+    m_sString = sFormat;
+  }
+
   ezFormatStringImpl(const char* szFormat, ARGS&&... args)
     : m_Arguments(std::forward<ARGS>(args)...)
   {
-    m_szString = szFormat;
+    m_sString = szFormat;
   }
 
   /// \brief Generates the formatted text. Make sure to only call this function once and only when the formatted string is really needed.
   ///
   /// Requires an ezStringBuilder as storage, ie. writes the formatted text into it. Additionally it returns a const char* to that
   /// string builder data for convenience.
-  virtual const char* GetText(ezStringBuilder& ref_sSb) const override
+  virtual ezStringView GetText(ezStringBuilder& ref_sStorage) const override
   {
-    if (ezStringUtils::IsNullOrEmpty(m_szString))
+    if (m_sString.IsEmpty())
     {
-      return "";
+      return {};
     }
 
     ezStringView param[MaxNumParameters];
@@ -40,54 +46,17 @@ public:
     char tmp[MaxNumParameters][TempStringLength];
     ReplaceString<0>(tmp, param);
 
-    const char* szString = m_szString;
+    return BuildFormattedText(ref_sStorage, param, MaxNumParameters);
+  }
 
-    int iLastParam = -1;
+  virtual const char* GetTextCStr(ezStringBuilder& out_sString) const override
+  {
+    ezStringView param[MaxNumParameters];
 
-    SBClear(ref_sSb);
-    while (*szString != '\0')
-    {
-      if (*szString == '%')
-      {
-        if (*(szString + 1) == '%')
-        {
-          SBAppendView(ref_sSb, "%");
-        }
-        else
-        {
-          EZ_ASSERT_DEBUG(false, "Single percentage signs are not allowed in ezFormatString. Did you forgot to migrate a printf-style "
-                                 "string? Use double percentage signs for the actual character.");
-        }
+    char tmp[MaxNumParameters][TempStringLength];
+    ReplaceString<0>(tmp, param);
 
-        szString += 2;
-      }
-      else if (*szString == '{' && *(szString + 1) >= '0' && *(szString + 1) <= '9' && *(szString + 2) == '}')
-      {
-        iLastParam = *(szString + 1) - '0';
-        SBAppendView(ref_sSb, param[iLastParam]);
-
-        szString += 3;
-      }
-      else if (*szString == '{' && *(szString + 1) == '}')
-      {
-        ++iLastParam;
-        EZ_ASSERT_DEV(iLastParam < MaxNumParameters, "Too many placeholders in format string");
-
-        if (iLastParam < MaxNumParameters)
-        {
-          SBAppendView(ref_sSb, param[iLastParam]);
-        }
-
-        szString += 2;
-      }
-      else
-      {
-        const ezUInt32 character = ezUnicodeUtils::DecodeUtf8ToUtf32(szString);
-        SBAppendChar(ref_sSb, character);
-      }
-    }
-
-    return SBReturn(ref_sSb);
+    return BuildFormattedText(out_sString, param, MaxNumParameters).GetStartPointer();
   }
 
 private:

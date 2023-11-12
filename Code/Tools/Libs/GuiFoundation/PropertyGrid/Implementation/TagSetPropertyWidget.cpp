@@ -70,7 +70,7 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
   {
     if (!pTag->m_sCategory.IsEqual(szCurrentCategory))
     {
-      /*QAction* pCategory = */ m_pMenu->addSection(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"),
+      /*QAction* pCategory = */ m_pMenu->addSection(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag.svg"),
         QLatin1String("[") + QString(pTag->m_sCategory.GetData()) + QLatin1String("]"));
 
       szCurrentCategory = pTag->m_sCategory;
@@ -108,7 +108,7 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
   // therefore, for every empty category, add an entry
   for (const auto& catname : categories)
   {
-    /*QAction* pCategory = */ m_pMenu->addSection(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"),
+    /*QAction* pCategory = */ m_pMenu->addSection(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag.svg"),
       QLatin1String("[") + QString(catname.GetData(tmp)) + QLatin1String("]"));
   }
 }
@@ -162,7 +162,7 @@ void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
   else
     sText = "<none>";
 
-  // m_pWidget->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
+  // m_pWidget->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag.svg"));
   m_pWidget->setText(sText);
 }
 

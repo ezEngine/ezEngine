@@ -56,7 +56,7 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
     ezGALResourceFormat::Enum viewFormat = m_Description.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : m_Description.m_OverrideViewFormat;
     vk::ImageViewCreateInfo viewCreateInfo;
-    viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eResourceViewType;
+    viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
     viewCreateInfo.image = image;
     viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(texDesc, m_Description);
     viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;
@@ -64,12 +64,6 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
     m_resourceImageInfo.imageLayout = bIsDepth ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal;
     m_resourceImageInfoArray.imageLayout = m_resourceImageInfo.imageLayout;
-
-    if (pParentTexture->GetFormatOverrideEnabled())
-    {
-      EZ_ASSERT_DEV(m_Description.m_OverrideViewFormat == ezGALResourceFormat::Invalid, "Resource views on this texture can not use a override view format (not implemented)");
-      viewCreateInfo.format = pParentTexture->GetImageFormat();
-    }
 
     m_range = viewCreateInfo.subresourceRange;
     if (texDesc.m_Type == ezGALTextureType::Texture3D) // no array support
@@ -117,7 +111,7 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
       vk::BufferViewCreateInfo viewCreateInfo;
       viewCreateInfo.buffer = pParentBuffer->GetVkBuffer();
-      viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eResourceViewType;
+      viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
       viewCreateInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
       viewCreateInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
 

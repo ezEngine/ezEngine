@@ -34,9 +34,9 @@ namespace ezModelImporter2
 
   EZ_FORCE_INLINE void ozz2ez(const ozz::math::Quaternion& in, ezQuat& ref_qOut)
   {
-    ref_qOut.v.x = (float)in.x;
-    ref_qOut.v.y = (float)in.y;
-    ref_qOut.v.z = (float)in.z;
+    ref_qOut.x = (float)in.x;
+    ref_qOut.y = (float)in.y;
+    ref_qOut.z = (float)in.z;
     ref_qOut.w = (float)in.w;
   }
 
@@ -83,8 +83,11 @@ namespace ezModelImporter2
         m_Options.m_uiNumAnimKeyframes = uiMaxKeyframes;
       }
 
-      const double fOneDivTicksPerSec = 1.0 / 1000.0;
-      //pAnim->mTicksPerSecond;
+      // Usually assimp should give us the correct number of ticks per second here,
+      // e.g. for GLTF files it should be 1000.
+      // However, sometimes this 'breaks' (usually someone changes assimp).
+      // If that happens again in the future, we may need to add a custom property to override the value.
+      const double fOneDivTicksPerSec = 1.0 / pAnim->mTicksPerSecond;
 
       const ezUInt32 uiNumChannels = pAnim->mNumChannels;
 
@@ -251,7 +254,7 @@ namespace ezModelImporter2
         }
       }
 
-      pAnimOut->SetDuration(ezTime::Seconds(fMaxTimestamp));
+      pAnimOut->SetDuration(ezTime::MakeFromSeconds(fMaxTimestamp));
 
       return EZ_SUCCESS;
     }

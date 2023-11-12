@@ -95,8 +95,6 @@ ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 
 ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 {
-  auto* pDocument = GetOwnerWindow()->GetDocument();
-
   if (e->button() == Qt::MouseButton::MiddleButton)
   {
     if (e->modifiers() & Qt::KeyboardModifier::ControlModifier)
@@ -215,7 +213,7 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
   ezTransform t;
   t.SetIdentity();
   t.m_vPosition = ezMath::Lerp(vPosOnNearPlane0, vPosOnNearPlane1, 0.5f);
-  t.m_qRotation.SetFromMat3(m_pCamera->GetViewMatrix().GetRotationalPart());
+  t.m_qRotation = ezQuat::MakeFromMat3(m_pCamera->GetViewMatrix().GetRotationalPart());
 
   // box coordinates in screen space
   ezVec3 vBoxPosSS0 = t.m_qRotation * vPosOnNearPlane0;

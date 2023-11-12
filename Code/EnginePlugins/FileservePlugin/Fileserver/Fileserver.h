@@ -87,7 +87,7 @@ public:
   void BroadcastReloadResourcesCommand();
 
   static ezResult SendConnectionInfo(
-    const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& myIPs, ezTime timeout = ezTime::Seconds(10));
+    const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& myIPs, ezTime timeout = ezTime::MakeFromSeconds(10));
 
 private:
   void NetworkEventHandler(const ezRemoteEvent& e);

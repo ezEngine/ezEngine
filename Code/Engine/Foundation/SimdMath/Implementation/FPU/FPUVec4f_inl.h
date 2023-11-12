@@ -1,6 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f() {}
+EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f() = default;
 
 EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float xyzw)
 {
@@ -106,7 +106,7 @@ void ezSimdVec4f::NormalizeIfNotZero(const ezSimdFloat& fEpsilon)
 {
   ezSimdFloat sqLength = GetLengthSquared<N>();
   m_v *= sqLength.GetInvSqrt<acc>();
-  m_v = sqLength > fEpsilon.m_v ? m_v : ezVec4::ZeroVector();
+  m_v = sqLength > fEpsilon.m_v ? m_v : ezVec4::MakeZero();
 }
 
 template <int N>
@@ -485,12 +485,6 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
   {
     return ezVec4(0.0f, m_v.z, -m_v.y, 0.0f);
   }
-}
-
-// static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::ZeroVector()
-{
-  return ezVec4::ZeroVector();
 }
 
 // static

@@ -157,7 +157,7 @@ public:
   ///
   /// \sa SetSdkRootDirectory
   /// \sa DetectSdkRootDirectory
-  static const char* GetSdkRootDirectory();
+  static ezStringView GetSdkRootDirectory();
 
   /// \brief Special directories are used when mounting data directories as basic references.
   ///

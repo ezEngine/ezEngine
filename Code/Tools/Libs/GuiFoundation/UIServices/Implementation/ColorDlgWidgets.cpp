@@ -72,8 +72,7 @@ void ezQtColorAreaWidget::UpdateImage()
   {
     for (int x = 0; x < width; ++x)
     {
-      ezColor c;
-      c.SetHSV(m_fHue, (double)x / (width - 1), (double)y / (height - 1));
+      ezColor c = ezColor::MakeHSV(m_fHue, (double)x / (width - 1), (double)y / (height - 1));
 
       ezColorGammaUB cg = c;
       m_Image.setPixel(x, (height - 1) - y, qRgb(cg.r, cg.g, cg.b));
@@ -171,14 +170,12 @@ void ezQtColorRangeWidget::paintEvent(QPaintEvent* event)
 void ezQtColorRangeWidget::UpdateImage()
 {
   const int width = rect().width();
-  const int height = rect().height();
 
   m_Image = QImage(width, 1, QImage::Format::Format_RGB32);
 
   for (int x = 0; x < width; ++x)
   {
-    ezColor c;
-    c.SetHSV(((double)x / (width - 1.0)) * 360.0, 1, 1);
+    ezColor c = ezColor::MakeHSV(((double)x / (width - 1.0)) * 360.0, 1, 1);
 
     ezColorGammaUB cg = c;
     m_Image.setPixel(x, 0, qRgb(cg.r, cg.g, cg.b));

@@ -31,6 +31,8 @@ namespace ezModelImporter2
     ezResult ImportMaterials();
     ezResult ImportAnimations();
 
+    ezResult ImportBoneColliders(ezEditableSkeletonJoint* pJoint);
+
     Assimp::Importer m_Importer;
     const aiScene* m_pScene = nullptr;
     ezUInt32 m_uiTotalMeshVertices = 0;

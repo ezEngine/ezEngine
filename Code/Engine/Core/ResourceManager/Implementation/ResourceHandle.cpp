@@ -32,6 +32,11 @@ const ezString& ezTypelessResourceHandle::GetResourceID() const
   return m_pResource->GetResourceID();
 }
 
+const ezRTTI* ezTypelessResourceHandle::GetResourceType() const
+{
+  return IsValid() ? m_pResource->GetDynamicRTTI() : nullptr;
+}
+
 void ezTypelessResourceHandle::operator=(const ezTypelessResourceHandle& rhs)
 {
   EZ_ASSERT_DEBUG(this != &rhs, "Cannot assign a resource handle to itself! This would invalidate the handle.");

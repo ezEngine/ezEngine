@@ -104,9 +104,9 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
       m_pRenameSystem = new QToolButton(pSystemsPanel);
       connect(m_pRenameSystem, &QAbstractButton::clicked, this, &ezQtParticleEffectAssetDocumentWindow::onRenameSystem);
 
-      m_pAddSystem->setIcon(QIcon(":/GuiFoundation/Icons/Add16.png"));
-      m_pRemoveSystem->setIcon(QIcon(":/GuiFoundation/Icons/Delete16.png"));
-      m_pRenameSystem->setIcon(QIcon(":/GuiFoundation/Icons/Rename16.png"));
+      m_pAddSystem->setIcon(QIcon(":/GuiFoundation/Icons/Add.svg"));
+      m_pRemoveSystem->setIcon(QIcon(":/GuiFoundation/Icons/Delete.svg"));
+      m_pRenameSystem->setIcon(QIcon(":/GuiFoundation/Icons/Rename.svg"));
 
       pGroup->layout()->addWidget(m_pRenameSystem);
       pGroup->layout()->addWidget(m_pSystemsCombo);
@@ -227,7 +227,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(5.0f), ezVec3(-2, 0, 0.5f));
+    m_pViewWidget->ConfigureRelative(ezVec3(0), ezVec3(5.0f), ezVec3(-2, 0, 0.5f), 1.0f);
     AddViewWidget(m_pViewWidget);
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "ParticleEffectAssetViewToolBar");
     setCentralWidget(pContainer);
@@ -349,8 +349,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
   ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   GetDocument()->GetObjectAccessor()->StartTransaction("Add Particle System");
-  ezUuid systemGuid;
-  systemGuid.CreateNewUuid();
+  ezUuid systemGuid = ezUuid::MakeUuid();
 
   {
     ezAddObjectCommand cmd;
@@ -393,11 +392,11 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
       for (auto pChild : children)
       {
-        if (ezStringUtils::IsEqual(pChild->GetParentProperty(), "LifeTime"))
+        if (pChild->GetParentProperty() == "LifeTime"_ezsv)
         {
           ezSetObjectPropertyCommand cmd;
           cmd.m_Object = pChild->GetGuid();
-          cmd.m_NewValue = ezTime::Seconds(1);
+          cmd.m_NewValue = ezTime::MakeFromSeconds(1);
           cmd.m_sProperty = "Value";
           cmd.m_Index = 0;
 
@@ -449,7 +448,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
         for (auto pChild : children)
         {
-          if (ezStringUtils::IsEqual(pChild->GetParentProperty(), "Speed"))
+          if (pChild->GetParentProperty() == "Speed"_ezsv)
           {
             ezSetObjectPropertyCommand cmd2;
             cmd2.m_Object = pChild->GetGuid();
@@ -554,8 +553,6 @@ void ezQtParticleEffectAssetDocumentWindow::onRemoveSystem(bool)
 
   const ezDocumentObject* pObject = static_cast<ezDocumentObject*>(m_pSystemsCombo->itemData(index).value<void*>());
 
-  ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
-
   GetDocument()->GetObjectAccessor()->StartTransaction("Rename Particle System");
 
   ezRemoveObjectCommand cmd;
@@ -603,8 +600,6 @@ void ezQtParticleEffectAssetDocumentWindow::onRenameSystem(bool)
 
     break;
   }
-
-  ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   m_sSelectedSystem = sName.toUtf8().data();
 
@@ -718,7 +713,7 @@ void ezQtParticleEffectAssetDocumentWindow::UpdateSystemList()
 
   for (ezDocumentObject* pChild : pRootObject->GetChildren())
   {
-    if (ezStringUtils::IsEqual(pChild->GetParentProperty(), "ParticleSystems"))
+    if (pChild->GetParentProperty() == "ParticleSystems"_ezsv)
     {
       s = pChild->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
       newParticleSystems[s] = pChild;

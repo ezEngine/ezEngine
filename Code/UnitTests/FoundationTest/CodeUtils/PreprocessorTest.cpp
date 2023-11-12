@@ -8,25 +8,25 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(CodeUtils);
 
-ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
+ezResult FileLocator(ezStringView sCurAbsoluteFile, ezStringView sIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
 {
   ezStringBuilder& s = out_sAbsoluteFilePath;
 
   if (incType == ezPreprocessor::RelativeInclude)
   {
-    s = szCurAbsoluteFile;
+    s = sCurAbsoluteFile;
     s.PathParentDirectory();
-    s.AppendPath(szIncludeFile);
+    s.AppendPath(sIncludeFile);
     s.MakeCleanPath();
   }
   else if (incType == ezPreprocessor::GlobalInclude)
   {
     s = "Preprocessor";
-    s.AppendPath(szIncludeFile);
+    s.AppendPath(sIncludeFile);
     s.MakeCleanPath();
   }
   else
-    s = szIncludeFile;
+    s = sIncludeFile;
 
   return EZ_SUCCESS;
 }
@@ -79,7 +79,7 @@ public:
           break;
       }
 
-      m_sOutput.AppendFormat("{0}\r\n", event.m_szInfo);
+      m_sOutput.AppendFormat("{0}\r\n", event.m_sInfo);
     }
 
     m_EventStack.PopBack();
@@ -204,6 +204,8 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
       PPTestSettings("Redefine"),
       PPTestSettings("ErrorBadBrackets"),
       PPTestSettings("IfTrueFalse"),
+      PPTestSettings("RawStrings1"),
+      PPTestSettings("RawStrings2"),
     };
 
     ezStringBuilder sOutput;
@@ -226,7 +228,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void(const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
         pp.AddCustomDefine("PP_OBJ").IgnoreResult();
         pp.AddCustomDefine("PP_FUNC(a) a").IgnoreResult();
-        pp.SetPassThroughUnknownCmdsCB([](const char* s) -> bool { return ezStringUtils::IsEqual(s, "version"); }); // TestSettings[i].m_bPassThroughUnknownCommands);
+        pp.SetPassThroughUnknownCmdsCB([](ezStringView s) -> bool { return s == "version"; }); // TestSettings[i].m_bPassThroughUnknownCommands);
 
         {
           fileName.Format("Preprocessor/{0}.txt", TestSettings[i].m_szFileName);

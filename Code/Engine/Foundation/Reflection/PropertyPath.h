@@ -6,6 +6,7 @@
 
 class ezAbstractProperty;
 
+
 ///\brief Reflected property step that can be used to init an ezPropertyPath
 struct EZ_FOUNDATION_DLL ezPropertyPathStep
 {
@@ -33,7 +34,7 @@ public:
   /// The '[index]' part is only added for properties that require indices (arrays and maps).
   ezResult InitializeFromPath(const ezRTTI& rootObjectRtti, const char* szPath);
   ///\brief Resolves a path provided as an array of ezPropertyPathStep.
-  ezResult InitializeFromPath(const ezRTTI& rootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path);
+  ezResult InitializeFromPath(const ezRTTI* pRootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path);
 
   ///\brief Applies the entire path and allows writing to the target object.
   ezResult WriteToLeafObject(void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
@@ -42,7 +43,7 @@ public:
 
   ///\brief Applies the path up to the last step and allows a functor to write to the final property.
   ezResult WriteProperty(
-    void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, ezAbstractProperty* pProp, const ezVariant& index)> func) const;
+    void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
   ///\brief Applies the path up to the last step and allows a functor to read from the final property.
   ezResult ReadProperty(
     void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
@@ -68,7 +69,7 @@ public:
 private:
   struct ResolvedStep
   {
-    ezAbstractProperty* m_pProperty = nullptr;
+    const ezAbstractProperty* m_pProperty = nullptr;
     ezVariant m_Index;
   };
 

@@ -42,7 +42,7 @@ void ezTypeScriptBinding::SetVec2Property(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& vFallback /*= ezVec2::ZeroVector()*/)
+ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& vFallback /*= ezVec2::MakeZero()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
     return vFallback;
@@ -60,7 +60,7 @@ ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ez
 }
 
 ezVec2 ezTypeScriptBinding::GetVec2Property(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& vFallback /*= ezVec2::ZeroVector()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& vFallback /*= ezVec2::MakeZero()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -113,7 +113,7 @@ void ezTypeScriptBinding::SetVec3Property(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& vFallback /*= ezVec3::ZeroVector()*/)
+ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& vFallback /*= ezVec3::MakeZero()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
     return vFallback;
@@ -134,7 +134,7 @@ ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ez
 }
 
 ezVec3 ezTypeScriptBinding::GetVec3Property(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& vFallback /*= ezVec3::ZeroVector()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& vFallback /*= ezVec3::MakeZero()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -204,7 +204,7 @@ void ezTypeScriptBinding::SetMat3Property(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezMat3 ezTypeScriptBinding::GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& mFallback /*= ezMat3::ZeroVector()*/)
+ezMat3 ezTypeScriptBinding::GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& mFallback /*= ezMat3::MakeZero()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
     return mFallback;
@@ -231,7 +231,7 @@ ezMat3 ezTypeScriptBinding::GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ez
 }
 
 ezMat3 ezTypeScriptBinding::GetMat3Property(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& mFallback /*= ezMat3::ZeroVector()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& mFallback /*= ezMat3::MakeZero()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -308,7 +308,7 @@ void ezTypeScriptBinding::SetMat4Property(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezMat4 ezTypeScriptBinding::GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& mFallback /*= ezMat4::ZeroVector()*/)
+ezMat4 ezTypeScriptBinding::GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& mFallback /*= ezMat4::MakeZero()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
     return mFallback;
@@ -342,7 +342,7 @@ ezMat4 ezTypeScriptBinding::GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ez
 }
 
 ezMat4 ezTypeScriptBinding::GetMat4Property(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& mFallback /*= ezMat4::ZeroVector()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& mFallback /*= ezMat4::MakeZero()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -366,9 +366,9 @@ void ezTypeScriptBinding::PushQuat(duk_context* pDuk, const ezQuat& value)
   duk.PushGlobalObject();                                   // [ global ]
   EZ_VERIFY(duk.PushLocalObject("__Quat").Succeeded(), ""); // [ global __Quat ]
   duk_get_prop_string(duk, -1, "Quat");                     // [ global __Quat Quat ]
-  duk_push_number(duk, value.v.x);                          // [ global __Quat Quat x ]
-  duk_push_number(duk, value.v.y);                          // [ global __Quat Quat x y ]
-  duk_push_number(duk, value.v.z);                          // [ global __Quat Quat x y z ]
+  duk_push_number(duk, value.x);                            // [ global __Quat Quat x ]
+  duk_push_number(duk, value.y);                            // [ global __Quat Quat x y ]
+  duk_push_number(duk, value.z);                            // [ global __Quat Quat x y z ]
   duk_push_number(duk, value.w);                            // [ global __Quat Quat x y z w ]
   duk_new(duk, 4);                                          // [ global __Quat result ]
   duk_remove(duk, -2);                                      // [ global result ]
@@ -381,9 +381,9 @@ void ezTypeScriptBinding::SetQuat(duk_context* pDuk, ezInt32 iObjIdx, const ezQu
 {
   ezDuktapeHelper duk(pDuk);
 
-  duk.SetNumberProperty("x", value.v.x, iObjIdx);
-  duk.SetNumberProperty("y", value.v.y, iObjIdx);
-  duk.SetNumberProperty("z", value.v.z, iObjIdx);
+  duk.SetNumberProperty("x", value.x, iObjIdx);
+  duk.SetNumberProperty("y", value.y, iObjIdx);
+  duk.SetNumberProperty("z", value.z, iObjIdx);
   duk.SetNumberProperty("w", value.w, iObjIdx);
 }
 
@@ -398,7 +398,7 @@ void ezTypeScriptBinding::SetQuatProperty(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat qFallback /*= ezQuat::IdentityQuaternion()*/)
+ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat qFallback /*= ezQuat::MakeIdentity()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
     return qFallback;
@@ -406,13 +406,13 @@ ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat q
   ezQuat res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.v.x = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.v.x));
+  res.x = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.x));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.v.y = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.v.y));
+  res.y = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.y));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
-  res.v.z = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.v.z));
+  res.z = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.z));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "w"), "");
   res.w = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.w));
@@ -422,7 +422,7 @@ ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat q
 }
 
 ezQuat ezTypeScriptBinding::GetQuatProperty(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat qFallback /*= ezQuat::IdentityQuaternion()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat qFallback /*= ezQuat::MakeIdentity()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -544,7 +544,7 @@ void ezTypeScriptBinding::SetTransformProperty(duk_context* pDuk, const char* sz
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezTransform ezTypeScriptBinding::GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::IdentityTransform()*/)
+ezTransform ezTypeScriptBinding::GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::MakeIdentity()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
     return fallback;
@@ -559,7 +559,7 @@ ezTransform ezTypeScriptBinding::GetTransform(duk_context* pDuk, ezInt32 iObjIdx
 }
 
 ezTransform ezTypeScriptBinding::GetTransformProperty(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::IdentityTransform()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::MakeIdentity()*/)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -635,6 +635,10 @@ void ezTypeScriptBinding::PushVariant(duk_context* pDuk, const ezVariant& value)
       duk.PushString(value.Get<ezStringView>());
       break;
 
+    case ezVariant::Type::HashedString:
+      duk.PushString(value.Get<ezHashedString>());
+      break;
+
     case ezVariant::Type::Vector2I:
     {
       const ezVec2I32 v = value.Get<ezVec2I32>();
@@ -676,6 +680,10 @@ void ezTypeScriptBinding::PushVariant(duk_context* pDuk, const ezVariant& value)
       // case ezVariant::Type::Vector4I:
       // case ezVariant::Type::Vector4U:
 
+    case ezVariant::Type::TypedObject:
+      duk.PushUndefined();
+      break;
+
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       duk.PushUndefined();
@@ -708,7 +716,7 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
   {
     case ezVariant::Type::Invalid:
     {
-      if (ezStringUtils::IsEqual(pType->GetTypeName(), "ezVariant"))
+      if (pType->GetTypeName() == "ezVariant")
       {
         switch (duk_get_type(duk.GetContext(), iObjIdx))
         {
@@ -731,10 +739,10 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
       return duk.GetBoolValue(iObjIdx);
 
     case ezVariant::Type::Angle:
-      return ezAngle::Radian(duk.GetFloatValue(iObjIdx));
+      return ezAngle::MakeFromRadian(duk.GetFloatValue(iObjIdx));
 
     case ezVariant::Type::Time:
-      return ezTime::Seconds(duk.GetFloatValue(iObjIdx));
+      return ezTime::MakeFromSeconds(duk.GetFloatValue(iObjIdx));
 
     case ezVariant::Type::Int8:
     case ezVariant::Type::Int16:
@@ -758,7 +766,14 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
       return duk.GetStringValue(iObjIdx);
 
     case ezVariant::Type::StringView:
-      return ezStringView(duk.GetStringValue(iObjIdx));
+      return ezVariant(ezStringView(duk.GetStringValue(iObjIdx)), false);
+
+    case ezVariant::Type::HashedString:
+    {
+      ezHashedString sValue;
+      sValue.Assign(duk.GetStringValue(iObjIdx));
+      return sValue;
+    }
 
     case ezVariant::Type::Vector2:
       return ezTypeScriptBinding::GetVec2(duk, iObjIdx);
@@ -817,6 +832,9 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
 
       // case ezVariant::Type::Uuid:
       //  break;
+
+    case ezVariant::Type::TypedObject:
+      return ezVariant();
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;

@@ -11,9 +11,10 @@ struct EZ_CORE_DLL ezMsgParentChanged : public ezMessage
   {
     ParentLinked,
     ParentUnlinked,
+    Invalid
   };
 
-  Type m_Type;
+  Type m_Type = Type::Invalid;
   ezGameObjectHandle m_hParent; // previous or new parent, depending on m_Type
 };
 
@@ -39,10 +40,11 @@ struct EZ_CORE_DLL ezMsgComponentsChanged : public ezMessage
   enum class Type
   {
     ComponentAdded,
-    ComponentRemoved
+    ComponentRemoved,
+    Invalid
   };
 
-  Type m_Type;
+  Type m_Type = Type::Invalid;
   ezGameObjectHandle m_hOwner;
   ezComponentHandle m_hComponent;
 };

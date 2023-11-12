@@ -9,9 +9,18 @@
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
+// clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractGeometry);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractGeometry, 1, ezRTTIDefaultAllocator<ezMsgExtractGeometry>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& ref_objects, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags /*= nullptr*/)
 {
@@ -65,7 +74,7 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
     return;
   }
 
-  ezMat4 transform = ezMat4::IdentityMatrix();
+  ezMat4 transform = ezMat4::MakeIdentity();
   transform.SetRotationalPart(mTransform);
 
   ezStringBuilder line;

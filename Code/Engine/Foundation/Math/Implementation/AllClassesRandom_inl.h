@@ -5,7 +5,7 @@
 #include <Foundation/Math/Vec3.h>
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomPointInSphere(ezRandom& inout_rng)
+ezVec3Template<Type> ezVec3Template<Type>::MakeRandomPointInSphere(ezRandom& inout_rng)
 {
   double px, py, pz;
   double len = 0.0;
@@ -23,22 +23,22 @@ ezVec3Template<Type> ezVec3Template<Type>::CreateRandomPointInSphere(ezRandom& i
 }
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDirection(ezRandom& inout_rng)
+ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDirection(ezRandom& inout_rng)
 {
-  ezVec3Template<Type> vec = CreateRandomPointInSphere(inout_rng);
+  ezVec3Template<Type> vec = MakeRandomPointInSphere(inout_rng);
   vec.Normalize();
   return vec;
 }
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation)
+ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation)
 {
   const double twoPi = 2.0 * ezMath::Pi<double>();
 
   const double cosAngle = ezMath::Cos(maxDeviation);
 
   const double x = inout_rng.DoubleZeroToOneInclusive() * (1 - cosAngle) + cosAngle;
-  const ezAngle phi = ezAngle::Radian((float)(inout_rng.DoubleZeroToOneInclusive() * twoPi));
+  const ezAngle phi = ezAngle::MakeFromRadian((float)(inout_rng.DoubleZeroToOneInclusive() * twoPi));
   const double invSqrt = ezMath::Sqrt(1 - (x * x));
   const double y = invSqrt * ezMath::Cos(phi);
   const double z = invSqrt * ezMath::Sin(phi);
@@ -47,35 +47,34 @@ ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationX(ezRandom& inou
 }
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation)
+ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation)
 {
-  ezVec3Template<Type> vec = CreateRandomDeviationX(inout_rng, maxDeviation);
+  ezVec3Template<Type> vec = MakeRandomDeviationX(inout_rng, maxDeviation);
   ezMath::Swap(vec.x, vec.y);
   return vec;
 }
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation)
+ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation)
 {
-  ezVec3Template<Type> vec = CreateRandomDeviationX(inout_rng, maxDeviation);
+  ezVec3Template<Type> vec = MakeRandomDeviationX(inout_rng, maxDeviation);
   ezMath::Swap(vec.x, vec.z);
   return vec;
 }
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal)
+ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal)
 {
   // If you need to do this very often:
   // *** Pre-compute this once: ***
 
   // how to get from the X axis to our desired basis
-  ezQuatTemplate<Type> qRotXtoDir;
-  qRotXtoDir.SetShortestRotation(ezVec3Template<Type>(1, 0, 0), vNormal);
+  ezQuatTemplate<Type> qRotXtoDir = ezQuat::MakeShortestRotation(ezVec3Template<Type>(1, 0, 0), vNormal);
 
   // *** Then call this with the precomputed value as often as needed: ***
 
   // create a random vector along X
-  ezVec3Template<Type> vec = CreateRandomDeviationX(inout_rng, maxDeviation);
+  ezVec3Template<Type> vec = MakeRandomDeviationX(inout_rng, maxDeviation);
   // rotate from X to our basis
   return qRotXtoDir * vec;
 }

@@ -9,7 +9,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezConeAngleGizmo::ezConeAngleGizmo()
 {
-  m_Angle = ezAngle::Degree(1.0f);
+  m_Angle = ezAngle::MakeFromDegree(1.0f);
   m_fAngleScale = 1.0f;
   m_fRadius = 1.0f;
 
@@ -18,7 +18,7 @@ ezConeAngleGizmo::ezConeAngleGizmo()
   m_hConeAngle.ConfigureHandle(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 0, 128), ezGizmoFlags::Pickable);
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezConeAngleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -110,24 +110,26 @@ ezEditorInput ezConeAngleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
-  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
+  const QPoint mousePosition = e->globalPosition().toPoint();
+
+  const ezVec2I32 vNewMousePos = ezVec2I32(mousePosition.x(), mousePosition.y());
   const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
 
   m_vLastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
-  const ezAngle aSpeed = ezAngle::Degree(1.0f);
+  const ezAngle aSpeed = ezAngle::MakeFromDegree(1.0f);
 
   {
     m_Angle += vDiff.x * aSpeed;
     m_Angle -= vDiff.y * aSpeed;
 
-    m_Angle = ezMath::Clamp(m_Angle, ezAngle(), ezAngle::Degree(179.0f));
+    m_Angle = ezMath::Clamp(m_Angle, ezAngle(), ezAngle::MakeFromDegree(179.0f));
 
     m_fAngleScale = ezMath::Tan(m_Angle * 0.5f);
   }

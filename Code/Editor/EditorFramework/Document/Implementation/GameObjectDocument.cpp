@@ -33,8 +33,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezEvent<const ezGameObjectDocumentEvent&> ezGameObjectDocument::s_GameObjectDocumentEvents;
 
 ezGameObjectDocument::ezGameObjectDocument(
-  const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
-  : ezAssetDocument(szDocumentPath, pObjectManager, engineConnectionType)
+  ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+  : ezAssetDocument(sDocumentPath, pObjectManager, engineConnectionType)
 {
   using Meta = ezObjectMetaData<ezUuid, ezGameObjectMetaData>;
   m_GameObjectMetaData = EZ_DEFAULT_NEW(Meta);
@@ -87,7 +87,7 @@ void ezGameObjectDocument::GameObjectDocumentEventHandler(const ezGameObjectDocu
         // on play, the engine log has a lot of activity, so makes sense to clear that first
         ezQtLogPanel::GetSingleton()->EngineLog->GetLog()->Clear();
         // but I think we usually want to keep the editor log around
-        //ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
+        // ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
       }
     }
     break;
@@ -248,7 +248,7 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
     if (pInfo)
     {
-      ezStringBuilder sPath = pInfo->m_pAssetInfo->m_sDataDirParentRelativePath;
+      ezStringBuilder sPath = pInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
       sPath = sPath.GetFileName();
 
       out_sResult.Set("Prefab: ", sPath);
@@ -258,6 +258,8 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
   }
 
   const bool bHasChildren = pObject->GetTypeAccessor().GetCount("Children") > 0;
+
+  ezStringBuilder tmp;
 
   const ezInt32 iComponents = pObject->GetTypeAccessor().GetCount("Components");
   for (ezInt32 i = 0; i < iComponents; i++)
@@ -270,15 +272,22 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
     {
       bHasIcon = true;
 
+      ezColor color = ezColor::MakeZero();
+
+      if (auto pCatAttr = pChild->GetTypeAccessor().GetType()->GetAttributeByType<ezCategoryAttribute>())
+      {
+        color = ezColorScheme::GetCategoryColor(pCatAttr->GetCategory(), ezColorScheme::CategoryColorUsage::SceneTreeIcon);
+      }
+
       ezStringBuilder sIconName;
-      sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName());
-      *out_pIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData());
+      sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName(), ".svg");
+      *out_pIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData(), color);
     }
 
     if (out_sResult.IsEmpty())
     {
       // try to translate the component name, that will typically make it a nice clean name already
-      out_sResult = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName());
+      out_sResult = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName().GetData(tmp));
 
       // if no translation is available, clean up the component name in a simple way
       if (out_sResult.EndsWith_NoCase("Component"))
@@ -326,7 +335,7 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
           auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
 
           if (pAsset)
-            sValue = pAsset->m_pAssetInfo->m_sDataDirParentRelativePath;
+            sValue = pAsset->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
           else
             sValue = "<unknown>";
         }
@@ -442,7 +451,7 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
 
     ezSimdTransform tParent = m_GlobalTransforms[pParent];
 
-    tLocal.SetLocalTransform(tParent, simdT);
+    tLocal = ezSimdTransform::MakeLocalTransform(tParent, simdT);
   }
   else
   {
@@ -738,7 +747,7 @@ ezStatus ezGameObjectDocument::CreateGameObjectHere()
 
   if (true)
   {
-    cmdAdd.m_NewObjectGuid.CreateNewUuid();
+    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
     auto res = history->AddCommand(cmdAdd);
@@ -1017,15 +1026,14 @@ ezTransform ezGameObjectDocument::ComputeGlobalTransform(const ezDocumentObject*
 {
   if (pObject == nullptr || pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
   {
-    m_GlobalTransforms[pObject] = ezSimdTransform::IdentityTransform();
-    return ezTransform::IdentityTransform();
+    m_GlobalTransforms[pObject] = ezSimdTransform::MakeIdentity();
+    return ezTransform::MakeIdentity();
   }
 
   const ezSimdTransform tParent = ezSimdConversion::ToTransform(ComputeGlobalTransform(pObject->GetParent()));
   const ezSimdTransform tLocal = QueryLocalTransformSimd(pObject);
 
-  ezSimdTransform tGlobal;
-  tGlobal.SetGlobalTransform(tParent, tLocal);
+  ezSimdTransform tGlobal = ezSimdTransform::MakeGlobalTransform(tParent, tLocal);
 
   m_GlobalTransforms[pObject] = tGlobal;
 

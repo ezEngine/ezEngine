@@ -3,13 +3,13 @@
 #include <Foundation/Memory/CommonAllocators.h>
 
 #if EZ_ENABLED(EZ_USE_GUARDED_ALLOCATIONS)
-typedef ezGuardedAllocator DefaultHeapType;
-typedef ezGuardedAllocator DefaultAlignedHeapType;
-typedef ezGuardedAllocator DefaultStaticHeapType;
+using DefaultHeapType = ezGuardedAllocator;
+using DefaultAlignedHeapType = ezGuardedAllocator;
+using DefaultStaticHeapType = ezGuardedAllocator;
 #else
-typedef ezHeapAllocator DefaultHeapType;
-typedef ezAlignedHeapAllocator DefaultAlignedHeapType;
-typedef ezHeapAllocator DefaultStaticHeapType;
+using DefaultHeapType = ezHeapAllocator;
+using DefaultAlignedHeapType = ezAlignedHeapAllocator;
+using DefaultStaticHeapType = ezHeapAllocator;
 #endif
 
 enum
@@ -64,7 +64,7 @@ ezAllocatorBase* ezFoundation::GetStaticAllocator()
 #  if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
 #    if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    typedef ezAllocatorBase* (*GetStaticAllocatorFunc)();
+    using GetStaticAllocatorFunc = ezAllocatorBase* (*)();
 
     HMODULE hThisModule = GetModuleHandle(nullptr);
     GetStaticAllocatorFunc func = (GetStaticAllocatorFunc)GetProcAddress(hThisModule, EZ_CUSTOM_STATIC_ALLOCATOR_FUNC);

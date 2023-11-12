@@ -7,7 +7,7 @@ const ezTimestamp ezTimestamp::CurrentTimestamp()
   timeval currentTime;
   gettimeofday(&currentTime, nullptr);
 
-  return ezTimestamp(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
+  return ezTimestamp::MakeFromInt(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
 }
 
 bool operator!=(const tm& lhs, const tm& rhs)
@@ -47,21 +47,21 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   time_t iTimeStamp = mktime(&timeinfo);
   // mktime may have 'patched' our time to be valid, we don't want that to count as a valid date.
   if (iTimeStamp == (time_t)-1 || timeinfoCopy != timeinfo)
-    return ezTimestamp();
+    return ezTimestamp::MakeInvalid();
 
   iTimeStamp += timeinfo.tm_gmtoff;
   // Subtract one hour if daylight saving time was activated by mktime.
   if (timeinfo.tm_isdst == 1)
     iTimeStamp -= 3600;
-  return ezTimestamp(iTimeStamp, ezSIUnitOfTime::Second);
+  return ezTimestamp::MakeFromInt(iTimeStamp, ezSIUnitOfTime::Second);
 }
 
-bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
+ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 {
   tm timeinfo = {0};
   time_t iTime = (time_t)timestamp.GetInt64(ezSIUnitOfTime::Second);
   if (gmtime_r(&iTime, &timeinfo) == nullptr)
-    return false;
+    return EZ_FAILURE;
 
   m_iYear = timeinfo.tm_year + 1900;
   m_uiMonth = timeinfo.tm_mon + 1;
@@ -72,5 +72,5 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiSecond = timeinfo.tm_sec;
   m_uiMicroseconds = 0;
 
-  return true;
+  return EZ_SUCCESS;
 }

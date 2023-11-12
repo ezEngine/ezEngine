@@ -7,11 +7,11 @@
 
 ezGALQueryDX11::ezGALQueryDX11(const ezGALQueryCreationDescription& Description)
   : ezGALQuery(Description)
-  , m_pDXQuery(nullptr)
+
 {
 }
 
-ezGALQueryDX11::~ezGALQueryDX11() {}
+ezGALQueryDX11::~ezGALQueryDX11() = default;
 
 ezResult ezGALQueryDX11::InitPlatform(ezGALDevice* pDevice)
 {

@@ -26,12 +26,12 @@ class ezSkeletonAssetDocument : public ezSimpleAssetDocument<ezEditableSkeleton>
   EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonAssetDocument, ezSimpleAssetDocument<ezEditableSkeleton>);
 
 public:
-  ezSkeletonAssetDocument(const char* szDocumentPath);
+  ezSkeletonAssetDocument(ezStringView sDocumentPath);
   ~ezSkeletonAssetDocument();
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-  ezStatus WriteResource(ezStreamWriter& inout_stream) const;
+  ezStatus WriteResource(ezStreamWriter& inout_stream, const ezEditableSkeleton& skeleton) const;
 
   bool m_bIsTransforming = false;
 
@@ -57,13 +57,16 @@ public:
   void SetRenderTwistLimits(bool bEnable);
   bool GetRenderTwistLimits() const { return m_bRenderTwistLimits; }
 
+  void SetRenderPreviewMesh(bool bEnable);
+  bool GetRenderPreviewMesh() const { return m_bRenderPreviewMesh; }
+
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
-  void MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton);
+  const ezEditableSkeleton* MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton);
 
   ezEvent<const ezSkeletonAssetEvent&> m_Events;
   bool m_bRenderBones = true;
@@ -71,6 +74,7 @@ protected:
   bool m_bRenderJoints = false; // currently not exposed
   bool m_bRenderSwingLimits = true;
   bool m_bRenderTwistLimits = true;
+  bool m_bRenderPreviewMesh = true;
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -75,9 +75,9 @@ private:
   ezLargeBlockAllocator<BlockSizeInByte>* m_pBlockAllocator;
 
   ezDynamicArray<ezDataBlock<T, BlockSizeInByte>> m_Blocks;
-  ezUInt32 m_uiCount;
+  ezUInt32 m_uiCount = 0;
 
-  ezUInt32 m_uiFreelistStart;
+  ezUInt32 m_uiFreelistStart = ezInvalidIndex;
 
   ezDynamicBitfield m_UsedEntries;
 };

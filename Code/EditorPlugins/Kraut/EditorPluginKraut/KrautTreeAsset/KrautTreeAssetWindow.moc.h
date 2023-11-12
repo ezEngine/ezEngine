@@ -24,7 +24,7 @@ protected:
 
 private:
   void SendRedrawMsg();
-  void QueryObjectBBox(ezInt32 iPurpose);
+  void QueryObjectBBox(ezInt32 iPurpose = 0);
 
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;

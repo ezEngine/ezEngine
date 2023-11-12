@@ -482,7 +482,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
       ezRemoveObjectCommand cmd;
       cmd.m_Object = trackGuid.Get<ezUuid>();
 
-      pHistory->AddCommand(cmd);
+      pHistory->AddCommand(cmd).AssertSuccess();
     }
   }
 
@@ -537,7 +537,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems()
 
     cmdSet.m_sProperty = "ObjectPath";
     cmdSet.m_NewValue = varRes;
-    pDoc->GetCommandHistory()->AddCommand(cmdSet);
+    pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
   }
 
   pHistory->FinishTransaction();
@@ -698,8 +698,6 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
 
 void ezQtPropertyAnimAssetDocumentWindow::UpdateGradientEditor()
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-
   if (m_pGradientToDisplay == nullptr || m_iMapGradientToTrack < 0)
   {
     // TODO: clear gradient editor ?
@@ -769,8 +767,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 uiCurveIdx, ez
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  auto pProp = pDoc->GetPropertyObject();
-
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
   const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
@@ -784,11 +780,11 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 uiCurveIdx, ez
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Value";
   cmdSet.m_NewValue = newPosY;
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, ezUInt32 cpIdx)
@@ -797,8 +793,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, 
     return;
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-
-  auto pProp = pDoc->GetPropertyObject();
 
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
@@ -813,7 +807,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, 
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
@@ -822,8 +816,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveId
     return;
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-
-  auto pProp = pDoc->GetPropertyObject();
 
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
@@ -844,7 +836,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveId
 
   cmdSet.m_sProperty = rightTangent ? "RightTangent" : "LeftTangent";
   cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
-  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, bool bLink)
@@ -853,8 +845,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(ezUInt32 uiCurveId
     return;
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-
-  auto pProp = pDoc->GetPropertyObject();
 
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
@@ -868,7 +858,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(ezUInt32 uiCurveId
   cmdLink.m_Object = cpGuid.Get<ezUuid>();
   cmdLink.m_sProperty = "Linked";
   cmdLink.m_NewValue = bLink;
-  GetDocument()->GetCommandHistory()->AddCommand(cmdLink);
+  GetDocument()->GetCommandHistory()->AddCommand(cmdLink).AssertSuccess();
 
   if (bLink)
   {
@@ -886,8 +876,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 uiC
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  auto pProp = pDoc->GetPropertyObject();
-
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
   const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
@@ -900,7 +888,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 uiC
   cmd.m_Object = cpGuid.Get<ezUuid>();
   cmd.m_sProperty = rightTangent ? "RightTangentMode" : "LeftTangentMode";
   cmd.m_NewValue = mode;
-  GetDocument()->GetCommandHistory()->AddCommand(cmd);
+  GetDocument()->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -917,7 +905,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(double posX, co
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::Seconds(posX));
+  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::MakeFromSeconds(posX));
   pDoc->InsertGradientColorCpAt(trackGuid.Get<ezUuid>(), tickX, color);
 }
 
@@ -930,7 +918,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(double posX, ez
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::Seconds(posX));
+  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::MakeFromSeconds(posX));
   pDoc->InsertGradientAlphaCpAt(trackGuid.Get<ezUuid>(), tickX, alpha);
 }
 
@@ -943,7 +931,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(double posX
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::Seconds(posX));
+  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::MakeFromSeconds(posX));
   pDoc->InsertGradientIntensityCpAt(trackGuid.Get<ezUuid>(), tickX, intensity);
 }
 
@@ -968,8 +956,8 @@ void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, double new
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(ezTime::Seconds(newPosX));
-  history->AddCommand(cmdSet);
+  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(ezTime::MakeFromSeconds(newPosX));
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -1009,7 +997,7 @@ void ezQtPropertyAnimAssetDocumentWindow::RemoveGradientCP(ezInt32 idx, const ch
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -1051,15 +1039,15 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx, 
 
   cmdSet.m_sProperty = "Red";
   cmdSet.m_NewValue = color.r;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Green";
   cmdSet.m_NewValue = color.g;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Blue";
   cmdSet.m_NewValue = color.b;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -1087,7 +1075,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx, 
 
   cmdSet.m_sProperty = "Alpha";
   cmdSet.m_NewValue = alpha;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -1114,7 +1102,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 i
 
   cmdSet.m_sProperty = "Intensity";
   cmdSet.m_NewValue = intensity;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -1160,7 +1148,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved(ezUInt32 cpIdx, ez
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
@@ -1180,7 +1168,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation(QString name)
@@ -1296,8 +1284,7 @@ void ezQtPropertyAnimAssetTreeView::onAfterModelReset()
     for (const auto& idx : newSelection)
     {
       selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::Select | QItemSelectionModel::SelectionFlag::Rows);
-    }
-  });
+    } });
 }
 
 void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)

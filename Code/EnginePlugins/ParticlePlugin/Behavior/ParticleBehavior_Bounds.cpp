@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Bounds, 1, ezRTTIDefau
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxVisualizerAttribute("BoxExtents", 1.0f, ezColor::LightGreen, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "PositionOffset")
+    new ezBoxVisualizerAttribute("BoxExtents", 1.0f, ezColor::LightGreen, nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "PositionOffset")
   }
   EZ_END_ATTRIBUTES;
 }
@@ -31,7 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Bounds, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Bounds::ezParticleBehaviorFactory_Bounds() {}
+ezParticleBehaviorFactory_Bounds::ezParticleBehaviorFactory_Bounds() = default;
 
 const ezRTTI* ezParticleBehaviorFactory_Bounds::GetBehaviorType() const
 {

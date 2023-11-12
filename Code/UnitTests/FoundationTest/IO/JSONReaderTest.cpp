@@ -232,6 +232,12 @@ namespace JSONReaderTestDetail
         ref_compare.PopFront();
         break;
 
+      case ezVariant::Type::StringView:
+        // ezLog::Printf("Expect: %s - Is: %s\n", var.Get<ezString>().GetData(), Compare.PeekFront().GetData());
+        EZ_TEST_STRING(ref_compare.PeekFront(), var.Get<ezStringView>());
+        ref_compare.PopFront();
+        break;
+
       case ezVariant::Type::Vector2:
       {
         ezStringBuilder sTemp;
@@ -317,7 +323,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Quaternion:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("quat ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezQuat>().v.x, 4), ezArgF(var.Get<ezQuat>().v.y, 4), ezArgF(var.Get<ezQuat>().v.z, 4), ezArgF(var.Get<ezQuat>().w, 4));
+        sTemp.Format("quat ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezQuat>().x, 4), ezArgF(var.Get<ezQuat>().y, 4), ezArgF(var.Get<ezQuat>().z, 4), ezArgF(var.Get<ezQuat>().w, 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -486,8 +492,38 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
 
     sCompare.PushBack("</object>");
 
-    JSONReaderTestDetail::TraverseTree(reader.GetTopLevelObject(), sCompare);
+    if (EZ_TEST_BOOL(reader.GetTopLevelElementType() == ezJSONReader::ElementType::Dictionary))
+    {
+      JSONReaderTestDetail::TraverseTree(reader.GetTopLevelObject(), sCompare);
 
-    EZ_TEST_BOOL(sCompare.IsEmpty());
+      EZ_TEST_BOOL(sCompare.IsEmpty());
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Array document")
+  {
+    const char* szTestData = "[\"a\",\"b\"]";
+
+    // NOTE: The way this test is implemented, it might break, if the HashMap uses another insertion algorithm.
+    // ezVariantDictionary is an ezHashmap and this test currently relies on one exact order in of the result.
+    // If this should ever change (or be arbitrary at runtime), the test needs to be implemented in a more robust way.
+
+    JSONReaderTestDetail::StringStream stream(szTestData);
+
+    ezJSONReader reader;
+    EZ_TEST_BOOL(reader.Parse(stream).Succeeded());
+
+    ezDeque<ezString> sCompare;
+    sCompare.PushBack("<array>");
+    sCompare.PushBack("a");
+    sCompare.PushBack("b");
+    sCompare.PushBack("</array>");
+
+    if (EZ_TEST_BOOL(reader.GetTopLevelElementType() == ezJSONReader::ElementType::Array))
+    {
+      JSONReaderTestDetail::TraverseTree(reader.GetTopLevelArray(), sCompare);
+
+      EZ_TEST_BOOL(sCompare.IsEmpty());
+    }
   }
 }

@@ -5,7 +5,6 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameEngine/Animation/TransformComponent.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 3, ezRTTINoAllocator)
@@ -20,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 3, ezRTTINoAllocator)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Transform"),
+    new ezCategoryAttribute("Animation"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS
@@ -55,6 +54,16 @@ void ezTransformComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
   inout_stream.GetStream() >> m_AnimationTime;
   inout_stream.GetStream() >> m_fAnimationSpeed;
+}
+
+void ezTransformComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  // reset to start state
+  m_AnimationTime = ezTime::MakeZero();
+  m_Flags.Add(ezTransformComponentFlags::Running);
+  m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
 }
 
 bool ezTransformComponent::IsRunning(void) const
@@ -121,7 +130,7 @@ float CalculateAcceleratedMovement(
 
     if (fDist > fDistanceInMeters)
     {
-      ref_timeSinceStartInSec = ezTime::Seconds(fDistanceInMeters / fMaxVelocity);
+      ref_timeSinceStartInSec = ezTime::MakeFromSeconds(fDistanceInMeters / fMaxVelocity);
       return fDistanceInMeters;
     }
 
@@ -179,7 +188,7 @@ float CalculateAcceleratedMovement(
   // if the time is, however, outside the whole path, just return the upper end
   if (ref_timeSinceStartInSec.GetSeconds() >= fAccTime + fMaxVelTime + fDecTime)
   {
-    ref_timeSinceStartInSec = ezTime::Seconds(fAccTime + fMaxVelTime + fDecTime); // clamp the time
+    ref_timeSinceStartInSec = ezTime::MakeFromSeconds(fAccTime + fMaxVelTime + fDecTime); // clamp the time
     return fDistanceInMeters;
   }
 

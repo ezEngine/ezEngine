@@ -31,14 +31,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemovePathNodeComponents, 
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSceneExportModifier_RemovePathNodeComponents::ModifyWorld(ezWorld& world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
+void ezSceneExportModifier_RemovePathNodeComponents::ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
 {
   if (!bForExport)
     return;
 
-  EZ_LOCK(world.GetWriteMarker());
+  EZ_LOCK(ref_world.GetWriteMarker());
 
-  if (ezPathComponentManager* pSiMan = world.GetComponentManager<ezPathComponentManager>())
+  if (ezPathComponentManager* pSiMan = ref_world.GetComponentManager<ezPathComponentManager>())
   {
     for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
     {
@@ -47,7 +47,7 @@ void ezSceneExportModifier_RemovePathNodeComponents::ModifyWorld(ezWorld& world,
     }
   }
 
-  if (ezPathNodeComponentManager* pSiMan = world.GetComponentManager<ezPathNodeComponentManager>())
+  if (ezPathNodeComponentManager* pSiMan = ref_world.GetComponentManager<ezPathNodeComponentManager>())
   {
     for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
     {

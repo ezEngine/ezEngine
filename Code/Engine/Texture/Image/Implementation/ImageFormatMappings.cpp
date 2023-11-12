@@ -4,8 +4,7 @@
 
 #define MAKE_FOURCC(a, b, c, d) (a) | ((b) << 8) | ((c) << 16) | ((d) << 24)
 
-typedef enum DXGI_FORMAT
-{
+using DXGI_FORMAT = enum DXGI_FORMAT {
   DXGI_FORMAT_UNKNOWN = 0,
   DXGI_FORMAT_R32G32B32A32_TYPELESS = 1,
   DXGI_FORMAT_R32G32B32A32_FLOAT = 2,
@@ -123,7 +122,7 @@ typedef enum DXGI_FORMAT
   DXGI_FORMAT_A8P8 = 114,
   DXGI_FORMAT_B4G4R4A4_UNORM = 115,
   DXGI_FORMAT_FORCE_UINT = 0xffffffffUL
-} DXGI_FORMAT;
+};
 
 ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
 {

@@ -14,7 +14,7 @@ public:
   // Means this object can be copied using memcpy instead of copy construction.
   EZ_DECLARE_POD_TYPE();
 
-  typedef Type ComponentType;
+  using ComponentType = Type;
 
 public:
   /// \brief Default constructor does not initialize anything.
@@ -31,23 +31,26 @@ public:
   }
 #endif
 
-  /// \brief Resets the box to an invalid state. ExpandToInclude can then be used to make it into a bounding box for objects.
-  void SetInvalid(); // [tested]
+  /// \brief Creates a box that is located at the origin and has zero size. This is a 'valid' box.
+  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeZero();
 
-  /// \brief Sets the box from a center point and half-extents for each axis.
-  void SetCenterAndHalfExtents(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vHalfExtents); // [tested]
+  /// \brief Creates a box that is in an invalid state. ExpandToInclude can then be used to make it into a bounding box for objects.
+  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeInvalid(); // [tested]
+
+  /// \brief Creates a box from a center point and half-extents for each axis.
+  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeFromCenterAndHalfExtents(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vHalfExtents); // [tested]
+
+  /// \brief Creates a box with the given minimum and maximum values.
+  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeFromMinMax(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax); // [tested]
+
+  /// \brief Creates a box around the given set of points. If uiNumPoints is zero, the returned box is invalid (same as MakeInvalid() returns).
+  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
 
   /// \brief Checks whether the box is in an invalid state.
   bool IsValid() const; // [tested]
 
   /// \brief Checks whether any component is NaN.
   bool IsNaN() const; // [tested]
-
-  /// \brief Directly sets the minimum and maximum values.
-  void SetElements(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax); // [tested]
-
-  /// \brief Creates a new bounding-box around the given set of points.
-  void SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
 
   /// \brief Writes the 8 different corners of the box to the given array.
   void GetCorners(ezVec3Template<Type>* out_pCorners) const; // [tested]

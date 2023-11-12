@@ -45,8 +45,8 @@ private:
   ezInt32 m_iTestIndex;
   ezInt32 m_iSubTestIndex;
 
-  ezQtTestModelEntry* m_pParentEntry;
-  ezUInt32 m_uiIndexInParent;
+  ezQtTestModelEntry* m_pParentEntry = nullptr;
+  ezUInt32 m_uiIndexInParent = 0;
   std::deque<ezQtTestModelEntry*> m_SubEntries;
 };
 
@@ -104,6 +104,7 @@ private:
   ezQtTestModelEntry m_Root;
   QColor m_SucessColor;
   QColor m_FailedColor;
+  QColor m_CustomStatusColor;
   QColor m_TestColor;
   QColor m_SubTestColor;
   QIcon m_TestIcon;

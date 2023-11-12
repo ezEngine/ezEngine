@@ -12,7 +12,6 @@ public:
   enum class Compiler
   {
     None,
-    Vs2019,
     Vs2022,
   };
 

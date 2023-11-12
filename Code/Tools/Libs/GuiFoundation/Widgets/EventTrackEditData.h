@@ -12,7 +12,7 @@ class EZ_GUIFOUNDATION_DLL ezEventTrackControlPointData : public ezReflectedClas
   EZ_ADD_DYNAMIC_REFLECTION(ezEventTrackControlPointData, ezReflectedClass);
 
 public:
-  ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
+  ezTime GetTickAsTime() const { return ezTime::MakeFromSeconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 iFps);
   const char* GetEventName() const { return m_sEvent.GetData(); }
   void SetEventName(const char* szSz) { m_sEvent.Assign(szSz); }
@@ -40,7 +40,7 @@ public:
 
   const ezSet<ezString>& GetAvailableEvents() const { return m_AvailableEvents; }
 
-  void AddAvailableEvent(const char* szEvent);
+  void AddAvailableEvent(ezStringView sEvent);
 
   ezResult WriteToDDL(const char* szFile);
   ezResult ReadFromDDL(const char* szFile);

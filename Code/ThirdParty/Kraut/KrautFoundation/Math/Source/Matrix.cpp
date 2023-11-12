@@ -253,7 +253,7 @@ namespace AE_NS_FOUNDATION
     if (fDet == 0.0f)
     {
       AE_CHECK_DEV (false, "Determinant of Matrix is zero, cannot invert it.");
-      return aeMatrix::ZeroMatrix ();
+      return aeMatrix::MakeZero ();
     }
 
     float fOneDivDet = aeMath::Invert (fDet);

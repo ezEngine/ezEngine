@@ -11,12 +11,14 @@ class ezMessage;
 class EZ_FOUNDATION_DLL ezAbstractMessageHandler
 {
 public:
-  EZ_ALWAYS_INLINE void operator()(void* pInstance, ezMessage& ref_msg) { (*m_DispatchFunc)(pInstance, ref_msg); }
+  virtual ~ezAbstractMessageHandler() = default;
+
+  EZ_ALWAYS_INLINE void operator()(void* pInstance, ezMessage& ref_msg) { (*m_DispatchFunc)(this, pInstance, ref_msg); }
 
   EZ_FORCE_INLINE void operator()(const void* pInstance, ezMessage& ref_msg)
   {
     EZ_ASSERT_DEV(m_bIsConst, "Calling a non const message handler with a const instance.");
-    (*m_ConstDispatchFunc)(pInstance, ref_msg);
+    (*m_ConstDispatchFunc)(this, pInstance, ref_msg);
   }
 
   EZ_ALWAYS_INLINE ezMessageId GetMessageId() const { return m_Id; }
@@ -24,16 +26,16 @@ public:
   EZ_ALWAYS_INLINE bool IsConst() const { return m_bIsConst; }
 
 protected:
-  using DispatchFunc = void (*)(void*, ezMessage&);
-  using ConstDispatchFunc = void (*)(const void*, ezMessage&);
+  using DispatchFunc = void (*)(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage&);
+  using ConstDispatchFunc = void (*)(ezAbstractMessageHandler* pSelf, const void* pInstance, ezMessage&);
 
   union
   {
-    DispatchFunc m_DispatchFunc;
+    DispatchFunc m_DispatchFunc = nullptr;
     ConstDispatchFunc m_ConstDispatchFunc;
   };
-  ezMessageId m_Id;
-  bool m_bIsConst;
+  ezMessageId m_Id = ezSmallInvalidIndex;
+  bool m_bIsConst = false;
 };
 
 struct ezMessageSenderInfo
@@ -65,7 +67,7 @@ namespace ezInternal
         m_bIsConst = false;
       }
 
-      static void Dispatch(void* pInstance, ezMessage& ref_msg)
+      static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg)
       {
         Class* pTargetInstance = static_cast<Class*>(pInstance);
         (pTargetInstance->*Method)(static_cast<MessageType&>(ref_msg));
@@ -88,7 +90,7 @@ namespace ezInternal
       }
 
       /// \brief Casts the given message to the type of this message handler, then passes that to the class instance.
-      static void Dispatch(const void* pInstance, ezMessage& ref_msg)
+      static void Dispatch(ezAbstractMessageHandler* pSelf, const void* pInstance, ezMessage& ref_msg)
       {
         const Class* pTargetInstance = static_cast<const Class*>(pInstance);
         (pTargetInstance->*Method)(static_cast<MessageType&>(ref_msg));

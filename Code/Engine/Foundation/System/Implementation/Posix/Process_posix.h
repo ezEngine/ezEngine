@@ -446,7 +446,7 @@ ezResult ezProcess::ResumeSuspended()
   return EZ_SUCCESS;
 }
 
-ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
+ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
 {
   int childStatus = 0;
   EZ_SCOPE_EXIT(m_pImpl->StopStreamWatcher());
@@ -478,7 +478,7 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
       {
         return EZ_FAILURE;
       }
-      ezThreadUtils::Sleep(ezMath::Min(ezTime::Milliseconds(100.0), timeout - timeSpent));
+      ezThreadUtils::Sleep(ezMath::Min(ezTime::MakeFromMilliseconds(100.0), timeout - timeSpent));
     }
   }
 

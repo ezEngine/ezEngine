@@ -216,7 +216,7 @@ void ezQtDoubleSpinBox::mousePressEvent(QMouseEvent* event)
       m_bDragging = true;
       m_iDragDelta = 0;
       m_bModified = false;
-      m_LastDragPos = event->globalPos();
+      m_LastDragPos = event->globalPosition().toPoint();
       grabMouse();
       event->accept();
       return;
@@ -271,11 +271,11 @@ void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
   {
     if (m_bDragging)
     {
-      int iDelta = m_LastDragPos.y() - event->globalPos().y();
+      int iDelta = m_LastDragPos.y() - event->globalPosition().toPoint().y();
       m_iDragDelta += iDelta;
       {
-        m_LastDragPos = event->globalPos();
-        const QRect dsize = ezWidgetUtils::GetClosestScreen(event->globalPos()).availableGeometry();
+        m_LastDragPos = event->globalPosition().toPoint();
+        const QRect dsize = ezWidgetUtils::GetClosestScreen(event->globalPosition().toPoint()).availableGeometry();
         if (m_LastDragPos.y() < (dsize.top() + 10))
         {
           m_LastDragPos.setY(dsize.bottom() - 10);

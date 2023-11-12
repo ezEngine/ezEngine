@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/EditorPluginScene/Icons/SceneExport16.png</normaloff>:/EditorPluginScene/Icons/SceneExport16.png</iconset>
+    <normaloff>:/EditorPluginScene/Icons/SceneExport.svg</normaloff>:/EditorPluginScene/Icons/SceneExport.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -50,6 +50,13 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="CompileCpp">
+     <property name="text">
+      <string>Compile C++ Plugin</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="TransformAll">

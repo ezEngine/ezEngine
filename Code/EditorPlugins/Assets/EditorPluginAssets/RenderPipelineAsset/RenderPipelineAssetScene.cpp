@@ -9,4 +9,4 @@ ezQtRenderPipelineAssetScene::ezQtRenderPipelineAssetScene(QObject* pParent)
 }
 
 
-ezQtRenderPipelineAssetScene::~ezQtRenderPipelineAssetScene() {}
+ezQtRenderPipelineAssetScene::~ezQtRenderPipelineAssetScene() = default;

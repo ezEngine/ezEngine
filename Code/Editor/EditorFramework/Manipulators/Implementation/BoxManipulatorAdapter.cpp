@@ -101,9 +101,7 @@ void ezBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
       ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
-      pObjectAccessor->GetValue(m_pObject, GetProperty(szSizeProperty), oldSize);
-
-      const ezVec3 vOldSize = oldSize.ConvertTo<ezVec3>();
+      pObjectAccessor->GetValue(m_pObject, GetProperty(szSizeProperty), oldSize).AssertSuccess();
 
       ezVariant newValue = vNewSize;
 
@@ -111,7 +109,7 @@ void ezBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
       if (!ezStringUtils::IsNullOrEmpty(szSizeProperty))
       {
-        pObjectAccessor->SetValue(m_pObject, GetProperty(szSizeProperty), newValue);
+        pObjectAccessor->SetValue(m_pObject, GetProperty(szSizeProperty), newValue).AssertSuccess();
       }
 
       if (pAttr->m_bRecenterParent)
@@ -121,8 +119,6 @@ void ezBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
         if (const ezGameObjectDocument* pGameDoc = ezDynamicCast<const ezGameObjectDocument*>(pParent->GetDocumentObjectManager()->GetDocument()))
         {
           ezTransform tParent = pGameDoc->GetGlobalTransform(pParent);
-
-          ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
           if (m_vOldSize.x != vNewSizeNeg.x)
             tParent.m_vPosition -= tParent.m_qRotation * ezVec3((vNewSizeNeg.x - m_vOldSize.x) * 0.5f, 0, 0);

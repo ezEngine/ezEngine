@@ -58,7 +58,7 @@ ezQtColorGradientWidget::ezQtColorGradientWidget(QWidget* pParent)
 }
 
 
-ezQtColorGradientWidget::~ezQtColorGradientWidget() {}
+ezQtColorGradientWidget::~ezQtColorGradientWidget() = default;
 
 void ezQtColorGradientWidget::SetScrubberPosition(double fPosition)
 {
@@ -217,9 +217,6 @@ void ezQtColorGradientWidget::PaintColorGradient(QPainter& p) const
 
     for (ezInt32 posX = 0; posX < width; ++posX)
     {
-
-      const ezInt32 xPos = GradientArea.left() + posX;
-
       ezColorGammaUB rgba;
       float intensity;
 
@@ -530,7 +527,7 @@ void ezQtColorGradientWidget::mousePressEvent(QMouseEvent* event)
   {
     if (event->button() == Qt::MouseButton::RightButton)
     {
-      m_LastMousePosition = event->globalPos();
+      m_LastMousePosition = event->globalPosition();
     }
 
     if (event->buttons() == Qt::MouseButton::LeftButton)
@@ -670,8 +667,8 @@ void ezQtColorGradientWidget::mouseMoveEvent(QMouseEvent* event)
         // scroll displayed area
         if (m_fDisplayExtentMinX < m_fDisplayExtentMaxX)
         {
-          const QPoint mouseMove = event->globalPos() - m_LastMousePosition;
-          m_LastMousePosition = event->globalPos();
+          const QPointF mouseMove = event->globalPosition() - m_LastMousePosition;
+          m_LastMousePosition = event->globalPosition();
 
           const double range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
 

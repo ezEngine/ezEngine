@@ -6,7 +6,7 @@
 
 struct ezMemoryTrackingFlags
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {
@@ -48,17 +48,13 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     EZ_FORCE_INLINE AllocationInfo()
-      : m_pStackTrace(nullptr)
-      , m_uiSize(0)
-      , m_uiAlignment(0)
-      , m_uiStackTraceLength(0)
-    {
-    }
 
-    void** m_pStackTrace;
-    size_t m_uiSize;
-    ezUInt16 m_uiAlignment;
-    ezUInt16 m_uiStackTraceLength;
+      = default;
+
+    void** m_pStackTrace = nullptr;
+    size_t m_uiSize = 0;
+    ezUInt16 m_uiAlignment = 0;
+    ezUInt16 m_uiStackTraceLength = 0;
 
     EZ_ALWAYS_INLINE const ezArrayPtr<void*> GetStackTrace() const { return ezArrayPtr<void*>(m_pStackTrace, (ezUInt32)m_uiStackTraceLength); }
 
@@ -78,7 +74,7 @@ public:
     ~Iterator();
 
     ezAllocatorId Id() const;
-    const char* Name() const;
+    ezStringView Name() const;
     ezAllocatorId ParentId() const;
     const ezAllocatorBase::Stats& Stats() const;
 
@@ -98,7 +94,7 @@ public:
     void* m_pData;
   };
 
-  static ezAllocatorId RegisterAllocator(const char* szName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId);
+  static ezAllocatorId RegisterAllocator(ezStringView sName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId);
   static void DeregisterAllocator(ezAllocatorId allocatorId);
 
   static void AddAllocation(
@@ -109,7 +105,7 @@ public:
 
   static void ResetPerFrameAllocatorStats();
 
-  static const char* GetAllocatorName(ezAllocatorId allocatorId);
+  static ezStringView GetAllocatorName(ezAllocatorId allocatorId);
   static const ezAllocatorBase::Stats& GetAllocatorStats(ezAllocatorId allocatorId);
   static ezAllocatorId GetAllocatorParentId(ezAllocatorId allocatorId);
   static const AllocationInfo& GetAllocationInfo(ezAllocatorId allocatorId, const void* pPtr);

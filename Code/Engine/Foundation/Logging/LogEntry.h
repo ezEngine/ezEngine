@@ -41,7 +41,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezLogEntry);
 class EZ_FOUNDATION_DLL ezLogEntryDelegate : public ezLogInterface
 {
 public:
-  typedef ezDelegate<void(ezLogEntry&)> Callback;
+  using Callback = ezDelegate<void(ezLogEntry&)>;
   /// \brief Log events will be delegated to the given callback.
   ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum logLevel = ezLogMsgType::All);
   virtual void HandleLogMessage(const ezLoggingEventData& le) override;

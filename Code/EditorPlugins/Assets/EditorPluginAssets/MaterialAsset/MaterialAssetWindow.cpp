@@ -46,7 +46,7 @@ ezActionDescriptorHandle ezMaterialAssetActions::s_hMaterialModelAction;
 
 void ezMaterialAssetActions::RegisterActions()
 {
-  s_hMaterialModelAction = EZ_REGISTER_DYNAMIC_MENU("MaterialAsset.Model", ezMaterialModelAction, ":/EditorFramework/Icons/Perspective.png");
+  s_hMaterialModelAction = EZ_REGISTER_DYNAMIC_MENU("MaterialAsset.Model", ezMaterialModelAction, ":/EditorFramework/Icons/Perspective.svg");
 }
 
 void ezMaterialAssetActions::UnregisterActions()
@@ -54,12 +54,12 @@ void ezMaterialAssetActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMaterialModelAction);
 }
 
-void ezMaterialAssetActions::MapActions(const char* szMapping, const char* szPath)
+void ezMaterialAssetActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  pMap->MapAction(s_hMaterialModelAction, szPath, 45.0f);
+  pMap->MapAction(s_hMaterialModelAction, "", 45.0f);
 }
 
 
@@ -111,7 +111,8 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     m_ViewConfig.ApplyPerspectiveSetting(90, 0.01f, 100.0f);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(0.0f), ezVec3(+0.23f, -0.04f, 0.02f));
+    m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(+0.23f, -0.04f, 0.02f));
+
     AddViewWidget(m_pViewWidget);
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
 
@@ -140,7 +141,8 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     QSplitter* pSplitter = new QSplitter(Qt::Orientation::Horizontal, m_pVsePanel);
 
     m_pScene = new ezQtVisualShaderScene(this);
-    m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+    m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+
     m_pNodeView = new ezQtNodeView(m_pVsePanel);
     m_pNodeView->SetScene(m_pScene);
     pSplitter->addWidget(m_pNodeView);
@@ -301,8 +303,11 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetMaterialDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
+
   // Write Asset Data
-  GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false);
+  if (GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false).Failed())
+    return;
+
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -339,8 +344,7 @@ void ezQtMaterialAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
       if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
       {
         GetDocument()->GetSelectionManager()->SetSelection(GetMaterialDocument()->GetPropertyObject());
-      }
-    });
+      } });
   }
 }
 
@@ -397,22 +401,22 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
   }
 }
 
-void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
-  if (type != ezDirectoryWatcherType::File || !ezPathUtils::HasExtension(filename, "DDL"))
+  if (type != ezDirectoryWatcherType::File || !ezPathUtils::HasExtension(sFilename, "DDL"))
     return;
 
   // lalala ... this is to allow writes to the file to 'hopefully' finish before we try to read it
-  ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
 
-  ezVisualShaderTypeRegistry::GetSingleton()->UpdateNodeData(filename);
+  ezVisualShaderTypeRegistry::GetSingleton()->UpdateNodeData(sFilename);
 
   // TODO: We write an invalid hash in the file, should maybe compute the correct one on the fly
   // but that would involve the asset curator which would also save / transform everything which is
   // not what we want.
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(0, GetMaterialDocument()->GetAssetTypeVersion());
-  GetMaterialDocument()->RecreateVisualShaderFile(AssetHeader);
+  GetMaterialDocument()->RecreateVisualShaderFile(AssetHeader).LogFailure();
 }
 
 void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e)

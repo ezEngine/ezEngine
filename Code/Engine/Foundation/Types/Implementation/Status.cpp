@@ -26,14 +26,30 @@ ezStatus::ezStatus(const ezFormatString& fmt)
   m_sMessage = fmt.GetText(sMsg);
 }
 
-void ezStatus::LogFailure(ezLogInterface* pLog)
+bool ezStatus::LogFailure(ezLogInterface* pLog)
 {
   if (Failed())
   {
     ezLogInterface* pInterface = pLog ? pLog : ezLog::GetThreadLocalLogSystem();
     ezLog::Error(pInterface, "{0}", m_sMessage);
   }
+
+  return Failed();
 }
 
+void ezStatus::AssertSuccess(const char* szMsg /*= nullptr*/) const
+{
+  if (Succeeded())
+    return;
+
+  if (szMsg)
+  {
+    EZ_REPORT_FAILURE(szMsg, m_sMessage.GetData());
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("An operation failed unexpectedly.", m_sMessage.GetData());
+  }
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Status);

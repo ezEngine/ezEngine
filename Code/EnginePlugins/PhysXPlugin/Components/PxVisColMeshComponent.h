@@ -10,7 +10,7 @@
 class ezPxVisColMeshComponentManager : public ezComponentManager<class ezPxVisColMeshComponent, ezBlockStorageType::Compact>
 {
 public:
-  typedef ezComponentManager<ezPxVisColMeshComponent, ezBlockStorageType::Compact> SUPER;
+  using SUPER = ezComponentManager<ezPxVisColMeshComponent, ezBlockStorageType::Compact>;
 
   ezPxVisColMeshComponentManager(ezWorld* pWorld)
     : SUPER(pWorld)

@@ -32,8 +32,7 @@ namespace
 
     void Update(const ezWorldModule::UpdateContext& context)
     {
-      ezQuat qRot;
-      qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(2.0f));
+      ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(2.0f));
 
       m_qRotation = qRot * m_qRotation;
 

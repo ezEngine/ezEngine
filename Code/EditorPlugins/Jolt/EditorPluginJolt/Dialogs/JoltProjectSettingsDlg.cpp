@@ -115,12 +115,13 @@ void ezQtJoltProjectSettingsDlg::SetupTable()
   FilterTable->horizontalHeader()->setHighlightSections(false);
 
   QStringList headers;
+  ezStringBuilder tmp;
 
   for (ezUInt32 r = 0; r < uiLayers; ++r)
   {
     m_IndexRemap[r] = m_Config.GetNamedGroupIndex(r);
 
-    headers.push_back(QString::fromUtf8(m_Config.GetGroupName(m_IndexRemap[r])));
+    headers.push_back(QString::fromUtf8(m_Config.GetGroupName(m_IndexRemap[r]).GetData(tmp)));
   }
 
   FilterTable->setVerticalHeaderLabels(headers);

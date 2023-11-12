@@ -34,7 +34,7 @@ ezResult ezAssetTable::WriteAssetTable()
 
     for (auto it = allSubAssetsLocked->GetIterator(); it.IsValid(); ++it)
     {
-      sTemp = it.Value().m_pAssetInfo->m_sAbsolutePath;
+      sTemp = it.Value().m_pAssetInfo->m_Path.GetAbsolutePath();
 
       // ignore all assets that are not located in this data directory
       if (!sTemp.IsPathBelowFolder(m_sDataDir))
@@ -123,7 +123,10 @@ ezAssetTableWriter::ezAssetTableWriter(const ezApplicationFileSystemConfig& file
       ezLog::Error("Failed to resolve data directory named '{}' at '{}'", m_FileSystemConfig.m_DataDirs[i].m_sRootName, m_FileSystemConfig.m_DataDirs[i].m_sDataDirSpecialPath);
       m_DataDirRoots.PushBack({});
     }
-    m_DataDirRoots.PushBack(sDataDirPath);
+    else
+    {
+      m_DataDirRoots.PushBack(sDataDirPath);
+    }
   }
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetTableWriter::AssetCuratorEvents, this));
@@ -206,8 +209,7 @@ void ezAssetTableWriter::NeedsReloadResource(const ezUuid& assetGuid)
   {
     EZ_LOCK(m_AssetTableMutex);
     m_bNeedToReloadResources = true;
-    ezAssetDocumentManager* pManager = asset->m_pAssetInfo->GetManager();
-    const ezString& sDocType = asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
+    ezString sDocType = asset->m_Data.m_sSubAssetsDocumentTypeName.GetString();
     ezStringBuilder sGuid;
     ezConversionUtils::ToString(assetGuid, sGuid);
     const ezUInt32 uiDataDirIndex = FindDataDir(*asset);
@@ -257,7 +259,7 @@ ezResult ezAssetTableWriter::WriteAssetTables(const ezPlatformProfile* pAssetPro
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 
-  m_NextTableFlush = ezTime::Now() + ezTime::Seconds(1.5);
+  m_NextTableFlush = ezTime::Now() + ezTime::MakeFromSeconds(1.5);
   return res;
 }
 
@@ -274,6 +276,7 @@ void ezAssetTableWriter::AssetCuratorEvents(const ezAssetCuratorEvent& e)
         return;
       [[fallthrough]];*/
     case ezAssetCuratorEvent::Type::AssetAdded:
+    case ezAssetCuratorEvent::Type::AssetMoved:
     {
       ezUInt32 uiDataDirIndex = FindDataDir(*e.m_pInfo);
       if (ezAssetTable* pTable = GetAssetTable(uiDataDirIndex, pProfile))
@@ -337,13 +340,5 @@ ezAssetTable* ezAssetTableWriter::GetAssetTable(ezUInt32 uiDataDirIndex, const e
 
 ezUInt32 ezAssetTableWriter::FindDataDir(const ezSubAsset& asset)
 {
-  for (ezUInt32 i = 0; i < m_DataDirRoots.GetCount(); ++i)
-  {
-    if (asset.m_pAssetInfo->m_sAbsolutePath.StartsWith(m_DataDirRoots[i]))
-    {
-      return i;
-    }
-  }
-  EZ_REPORT_FAILURE("The data dir for an asset was not found.");
-  return 0;
+  return asset.m_pAssetInfo->m_Path.GetDataDirIndex();
 }

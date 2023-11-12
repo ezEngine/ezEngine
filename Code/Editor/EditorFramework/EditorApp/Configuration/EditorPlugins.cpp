@@ -154,12 +154,12 @@ ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ref_ddl)
   return EZ_SUCCESS;
 }
 
-void ezQtEditorApp::DetectAvailablePluginBundles()
+void ezQtEditorApp::DetectAvailablePluginBundles(ezStringView sSearchDirectory)
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   // find all ezPluginBundle files
   {
-    ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();
+    ezStringBuilder sSearch = sSearchDirectory;
 
     sSearch.AppendPath("*.ezPluginBundle");
 
@@ -241,7 +241,7 @@ void ezQtEditorApp::DetectAvailablePluginBundles()
 void ezQtEditorApp::LoadEditorPlugins()
 {
   EZ_PROFILE_SCOPE("LoadEditorPlugins");
-  DetectAvailablePluginBundles();
+  DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
 
   ezPlugin::InitializeStaticallyLinkedPlugins();
 }

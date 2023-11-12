@@ -12,7 +12,7 @@ namespace
   static ezVariantArray GetDefaultTags()
   {
     ezVariantArray value(ezStaticAllocatorWrapper::GetAllocator());
-    value.PushBack(ezStringView("CastShadow"));
+    value.PushBack("CastShadow");
     return value;
   }
 } // namespace
@@ -35,6 +35,40 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsActive),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetCreatedByPrefab),
+    EZ_SCRIPT_FUNCTION_PROPERTY(WasCreatedByPrefab),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(HasName, In, "Name"),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetParent),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FindChildByName, In, "Name", In, "Recursive")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FindChildByPath, In, "Path")->AddFlags(ezPropertyFlags::Const),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalPosition, In, "Position"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalPosition),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalRotation, In, "Rotation"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalRotation),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalScaling, In, "Scaling"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalScaling),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalTransform, In, "Transform"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalTransform),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirForwards),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirRight),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirUp),
+
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetLinearVelocity),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetAngularVelocity),
+#endif
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetTeamID, In, "Id"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetTeamID),    
+  }
+  EZ_END_FUNCTIONS;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
@@ -137,6 +171,31 @@ void ezGameObject::Reflection_SetMode(ezObjectMode::Enum mode)
   }
 }
 
+ezGameObject* ezGameObject::Reflection_GetParent() const
+{
+  return GetWorld()->GetObjectUnchecked(m_uiParentIndex);
+}
+
+void ezGameObject::Reflection_SetGlobalPosition(const ezVec3& vPosition)
+{
+  SetGlobalPosition(vPosition);
+}
+
+void ezGameObject::Reflection_SetGlobalRotation(const ezQuat& qRotation)
+{
+  SetGlobalRotation(qRotation);
+}
+
+void ezGameObject::Reflection_SetGlobalScaling(const ezVec3& vScaling)
+{
+  SetGlobalScaling(vScaling);
+}
+
+void ezGameObject::Reflection_SetGlobalTransform(const ezTransform& transform)
+{
+  SetGlobalTransform(transform);
+}
+
 bool ezGameObject::DetermineDynamicMode(ezComponent* pComponentToIgnore /*= nullptr*/) const
 {
   if (m_Flags.IsSet(ezObjectFlags::ForceDynamic))
@@ -195,7 +254,7 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
 
   ezSimdTransform oldGlobalTransform = GetGlobalTransformSimd();
 
-  m_pTransformationData->UpdateGlobalTransformNonRecursive();
+  m_pTransformationData->UpdateGlobalTransformNonRecursive(GetWorld()->GetUpdateCounter());
 
   if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
   {
@@ -219,6 +278,11 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
   {
     it->UpdateGlobalTransformAndBoundsRecursive();
   }
+}
+
+void ezGameObject::UpdateLastGlobalTransform()
+{
+  m_pTransformationData->UpdateLastGlobalTransform(GetWorld()->GetUpdateCounter());
 }
 
 void ezGameObject::ConstChildIterator::Next()
@@ -347,6 +411,7 @@ void ezGameObject::SetParent(const ezGameObjectHandle& hParent, ezGameObject::Tr
 
   ezGameObject* pParent = nullptr;
   bool _ = pWorld->TryGetObject(hParent, pParent);
+  EZ_IGNORE_UNUSED(_);
   pWorld->SetParent(this, pParent, preserve);
 }
 
@@ -599,14 +664,49 @@ ezVec3 ezGameObject::GetGlobalDirUp() const
   return GetGlobalRotation() * coordinateSystem.m_vUpDir;
 }
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+void ezGameObject::SetLastGlobalTransform(const ezSimdTransform& transform)
+{
+  m_pTransformationData->m_lastGlobalTransform = transform;
+  m_pTransformationData->m_uiLastGlobalTransformUpdateCounter = GetWorld()->GetUpdateCounter();
+}
+
+ezVec3 ezGameObject::GetLinearVelocity() const
+{
+  const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
+  const ezSimdVec4f linearVelocity = (m_pTransformationData->m_globalTransform.m_Position - m_pTransformationData->m_lastGlobalTransform.m_Position) * invDeltaSeconds;
+  return ezSimdConversion::ToVec3(linearVelocity);
+}
+
+ezVec3 ezGameObject::GetAngularVelocity() const
+{
+  const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
+  const ezSimdQuat q = m_pTransformationData->m_globalTransform.m_Rotation * -m_pTransformationData->m_lastGlobalTransform.m_Rotation;
+  ezSimdVec4f angularVelocity = ezSimdVec4f::MakeZero();
+
+  ezSimdVec4f axis;
+  ezSimdFloat angle;
+  if (q.GetRotationAxisAndAngle(axis, angle).Succeeded())
+  {
+    angularVelocity = axis * (angle * invDeltaSeconds);
+  }
+  return ezSimdConversion::ToVec3(angularVelocity);
+}
+#endif
+
+void ezGameObject::UpdateGlobalTransform()
+{
+  m_pTransformationData->UpdateGlobalTransformRecursive(GetWorld()->GetUpdateCounter());
+}
+
 void ezGameObject::UpdateLocalBounds()
 {
   ezMsgUpdateLocalBounds msg;
-  msg.m_ResultingLocalBounds.SetInvalid();
+  msg.m_ResultingLocalBounds = ezBoundingBoxSphere::MakeInvalid();
 
   SendMessage(msg);
 
-  const bool bIsAlwaysVisible = m_pTransformationData->m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+  const bool bIsAlwaysVisible = m_pTransformationData->m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::MakeZero();
   bool bRecreateSpatialData = false;
 
   if (m_pTransformationData->m_hSpatialData.IsInvalidated() == false)
@@ -639,7 +739,7 @@ void ezGameObject::UpdateLocalBounds()
 
 void ezGameObject::UpdateGlobalTransformAndBounds()
 {
-  m_pTransformationData->UpdateGlobalTransformRecursive();
+  m_pTransformationData->UpdateGlobalTransformRecursive(GetWorld()->GetUpdateCounter());
   m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
 }
 
@@ -719,15 +819,15 @@ void ezGameObject::SetTeamID(ezUInt16 uiId)
   }
 }
 
-ezUInt64 ezGameObject::GetNumFramesSinceVisible() const
+ezVisibilityState ezGameObject::GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible) const
 {
   if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
   {
     const ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
-    return pSpatialSystem->GetNumFramesSinceVisible(m_pTransformationData->m_hSpatialData);
+    return pSpatialSystem->GetVisibilityState(m_pTransformationData->m_hSpatialData, uiNumFramesBeforeInvisible);
   }
 
-  return 0;
+  return ezVisibilityState::Direct;
 }
 
 void ezGameObject::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
@@ -895,7 +995,7 @@ void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezOb
   GetWorld()->PostMessageRecursive(GetHandle(), msg, delay, queueType);
 }
 
-void ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent)
+bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent)
 {
   if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&ref_msg))
   {
@@ -915,13 +1015,15 @@ void ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSend
   }
 #endif
 
+  bool bResult = false;
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    pEventMsgHandler->SendMessage(ref_msg);
+    bResult |= pEventMsgHandler->SendMessage(ref_msg);
   }
+  return bResult;
 }
 
-void ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const
+bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const
 {
   if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&ref_msg))
   {
@@ -931,10 +1033,12 @@ void ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSend
   ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(ref_msg, this, eventMsgHandlers);
 
+  bool bResult = false;
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    pEventMsgHandler->SendMessage(ref_msg);
+    bResult |= pEventMsgHandler->SendMessage(ref_msg);
   }
+  return bResult;
 }
 
 void ezGameObject::PostEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
@@ -949,7 +1053,7 @@ void ezGameObject::PostEventMessage(ezMessage& ref_msg, const ezComponent* pSend
 
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    pEventMsgHandler->PostMessage(ref_msg);
+    pEventMsgHandler->PostMessage(ref_msg, delay, queueType);
   }
 }
 
@@ -1027,7 +1131,7 @@ void ezGameObject::TransformationData::UpdateLocalTransform()
 
   if (m_pParentData != nullptr)
   {
-    tLocal.SetLocalTransform(m_pParentData->m_globalTransform, m_globalTransform);
+    tLocal = ezSimdTransform::MakeLocalTransform(m_pParentData->m_globalTransform, m_globalTransform);
   }
   else
   {
@@ -1040,28 +1144,28 @@ void ezGameObject::TransformationData::UpdateLocalTransform()
   m_localScaling.SetW(1.0f);
 }
 
-void ezGameObject::TransformationData::UpdateGlobalTransformNonRecursive()
+void ezGameObject::TransformationData::UpdateGlobalTransformNonRecursive(ezUInt32 uiUpdateCounter)
 {
   if (m_pParentData != nullptr)
   {
-    UpdateGlobalTransformWithParent();
+    UpdateGlobalTransformWithParent(uiUpdateCounter);
   }
   else
   {
-    UpdateGlobalTransformWithoutParent();
+    UpdateGlobalTransformWithoutParent(uiUpdateCounter);
   }
 }
 
-void ezGameObject::TransformationData::UpdateGlobalTransformRecursive()
+void ezGameObject::TransformationData::UpdateGlobalTransformRecursive(ezUInt32 uiUpdateCounter)
 {
   if (m_pParentData != nullptr)
   {
-    m_pParentData->UpdateGlobalTransformRecursive();
-    UpdateGlobalTransformWithParent();
+    m_pParentData->UpdateGlobalTransformRecursive(uiUpdateCounter);
+    UpdateGlobalTransformWithParent(uiUpdateCounter);
   }
   else
   {
-    UpdateGlobalTransformWithoutParent();
+    UpdateGlobalTransformWithoutParent(uiUpdateCounter);
   }
 }
 
@@ -1083,7 +1187,7 @@ void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(ezSpatia
 
   UpdateGlobalBounds();
 
-  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::MakeZero();
   if (m_hSpatialData.IsInvalidated() == false && bIsAlwaysVisible == false && m_globalBounds != oldGlobalBounds)
   {
     ref_spatialSystem.UpdateSpatialDataBounds(m_hSpatialData, m_globalBounds);
@@ -1098,7 +1202,7 @@ void ezGameObject::TransformationData::RecreateSpatialData(ezSpatialSystem& ref_
     m_hSpatialData.Invalidate();
   }
 
-  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::MakeZero();
   if (bIsAlwaysVisible)
   {
     m_hSpatialData = ref_spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject, m_uiSpatialDataCategoryBitmask, m_pObject->m_Tags);

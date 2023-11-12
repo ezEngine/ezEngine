@@ -25,6 +25,10 @@ endif()
 
 set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
 
+# Set a global variable pointing to the root of the EZ source tree
+set(EZ_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set_property(GLOBAL PROPERTY EZ_ROOT ${EZ_ROOT})
+
 ez_build_filter_init()
 
 ez_detect_project_name(DETECTED_NAME)
@@ -63,6 +67,7 @@ if (NOT ${SELECTED_FILTER_NAME} MATCHES "Everything")
 	set(CMAKE_SUPPRESS_REGENERATION true)
 endif()
 add_subdirectory(${EZ_CMAKE_RELPATH_CODE})
+add_subdirectory(Data)
 
 ez_add_external_projects_folder("_1")
 ez_add_external_projects_folder("_2")

@@ -9,6 +9,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <ToolsFoundation/FileSystem/DataDirPath.h>
 #include <atomic>
 
 struct ezAssetCuratorEvent;
@@ -68,19 +69,19 @@ private:
   void StartProcess();
   void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
 
-  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
-  bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
+  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path);
+  bool GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path);
   void OnProcessCrashed();
 
 
   ezUuid m_AssetGuid;
   ezUInt64 m_uiAssetHash = 0;
   ezUInt64 m_uiThumbHash = 0;
-  ezStringBuilder m_sAssetPath;
+  ezDataDirPath m_AssetPath;
   ezEditorProcessCommunicationChannel* m_pIPC;
-  bool m_bProcessShouldBeRunning;
-  bool m_bProcessCrashed;
-  bool m_bWaiting;
+  bool m_bProcessShouldBeRunning = false;
+  bool m_bProcessCrashed = false;
+  bool m_bWaiting = false;
   ezTransformStatus m_Status;
   ezDynamicArray<ezLogEntry> m_LogEntries;
   ezDynamicArray<ezString> m_TransitiveHull;
@@ -129,7 +130,7 @@ private:
 
   // Process thread and its state
   ezUniquePtr<ezProcessThread> m_pThread;
-  std::atomic<bool> m_ForceStop = false; ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
+  std::atomic<bool> m_bForceStop = false; ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
 
   // Locks writes to m_ProcessTaskState to make sure the state machine does not go from running to stopped before having fired stopping.
   mutable ezMutex m_ProcessorMutex;

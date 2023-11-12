@@ -12,7 +12,8 @@ ezRmlUiAssetDocumentManager::ezRmlUiAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "RmlUi";
   m_DocTypeDesc.m_sFileExtension = "ezRmlUiAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/RmlUi.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/RmlUi.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Input";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezRmlUiAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Rml_UI");
@@ -34,7 +35,7 @@ void ezRmlUiAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezRmlUiAssetDocument>())
       {
-        ezQtRmlUiAssetDocumentWindow* pDocWnd = new ezQtRmlUiAssetDocumentWindow(static_cast<ezRmlUiAssetDocument*>(e.m_pDocument));
+        new ezQtRmlUiAssetDocumentWindow(static_cast<ezRmlUiAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -45,9 +46,9 @@ void ezRmlUiAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
 }
 
 void ezRmlUiAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezRmlUiAssetDocument(szPath);
+  out_pDocument = new ezRmlUiAssetDocument(sPath);
 }
 
 void ezRmlUiAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

@@ -14,6 +14,7 @@ ezStateMachineAssetManager::ezStateMachineAssetManager()
   m_DocTypeDesc.m_sDocumentTypeName = "StateMachine";
   m_DocTypeDesc.m_sFileExtension = "ezStateMachineAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/StateMachine.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Logic";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezStateMachineAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_StateMachine");
@@ -37,7 +38,7 @@ void ezStateMachineAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezStateMachineAssetDocument>())
       {
-        ezQtStateMachineAssetDocumentWindow* pDocWnd = new ezQtStateMachineAssetDocumentWindow(e.m_pDocument);
+        new ezQtStateMachineAssetDocumentWindow(e.m_pDocument); // Not a memory leak
       }
     }
     break;
@@ -48,9 +49,9 @@ void ezStateMachineAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
 }
 
 void ezStateMachineAssetManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezStateMachineAssetDocument(szPath);
+  out_pDocument = new ezStateMachineAssetDocument(sPath);
 }
 
 void ezStateMachineAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

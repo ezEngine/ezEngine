@@ -93,9 +93,9 @@ namespace AE_NS_FOUNDATION
   // *** Common Matrix Operations ***
   public:
 
-    static const aeMatrix IdentityMatrix ();
+    static const aeMatrix MakeIdentity ();
 
-    static const aeMatrix ZeroMatrix ();
+    static const aeMatrix MakeZero ();
 
     //! Transponates this matrix.
     void Transpose (void);

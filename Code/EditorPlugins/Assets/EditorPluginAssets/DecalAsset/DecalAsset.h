@@ -8,7 +8,7 @@ struct ezPropertyMetaStateEvent;
 
 struct ezDecalMode
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum
   {
@@ -54,10 +54,10 @@ class ezDecalAssetDocument : public ezSimpleAssetDocument<ezDecalAssetProperties
   EZ_ADD_DYNAMIC_REFLECTION(ezDecalAssetDocument, ezSimpleAssetDocument<ezDecalAssetProperties>);
 
 public:
-  ezDecalAssetDocument(const char* szDocumentPath);
+  ezDecalAssetDocument(ezStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;

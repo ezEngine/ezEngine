@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/StaticRingBuffer.h>
 
-typedef ezConstructionCounter cc;
+using cc = ezConstructionCounter;
 
 EZ_CREATE_SIMPLE_TEST(Containers, StaticRingBuffer)
 {

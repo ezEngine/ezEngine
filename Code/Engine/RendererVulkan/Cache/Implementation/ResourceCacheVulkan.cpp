@@ -106,15 +106,10 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
     const auto& formatInfo = s_pDevice->GetFormatLookupTable().GetFormatInfo(format);
 
     AttachmentDesc& depthAttachment = out_desc.attachments.ExpandAndGetRef();
-    depthAttachment.format = formatInfo.m_eRenderTarget;
-    if (pTex->GetFormatOverrideEnabled())
-    {
-      depthAttachment.format = pTex->GetImageFormat();
-    }
-
+    depthAttachment.format = formatInfo.m_format;
     depthAttachment.samples = ezConversionUtilsVulkan::GetSamples(texDesc.m_SampleCount);
 
-    if (renderingSetup.m_bDiscardDepth)
+    if (renderingSetup.m_bDiscardDepth && !renderingSetup.m_bClearDepth)
     {
       depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
       depthAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
@@ -151,15 +146,10 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
     const auto& formatInfo = s_pDevice->GetFormatLookupTable().GetFormatInfo(format);
 
     AttachmentDesc& colorAttachment = out_desc.attachments.ExpandAndGetRef();
-    colorAttachment.format = formatInfo.m_eRenderTarget;
-    if (pTex->GetFormatOverrideEnabled())
-    {
-      colorAttachment.format = pTex->GetImageFormat();
-    }
-
+    colorAttachment.format = formatInfo.m_format;
     colorAttachment.samples = ezConversionUtilsVulkan::GetSamples(texDesc.m_SampleCount);
 
-    if (renderingSetup.m_bDiscardColor)
+    if (renderingSetup.m_bDiscardColor && !(renderingSetup.m_uiRenderTargetClearMask & (1u << i)))
     {
       colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
       colorAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;

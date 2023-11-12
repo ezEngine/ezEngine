@@ -277,8 +277,7 @@ void ezQtColorDialog::ComputeRgbAndHsv(const ezColor& color)
 
 void ezQtColorDialog::RecomputeRGB()
 {
-  ezColor col;
-  col.SetHSV(m_fHue, m_fSaturation, m_fValue);
+  ezColor col = ezColor::MakeHSV(m_fHue, m_fSaturation, m_fValue);
   ezColorGammaUB colGamma = col;
 
   m_uiGammaRed = colGamma.r;
@@ -299,7 +298,7 @@ void ezQtColorDialog::RecomputeHSV()
 
 void ezQtColorDialog::RecomputeHDR()
 {
-  m_CurrentColor.SetHSV(m_fHue, m_fSaturation, m_fValue);
+  m_CurrentColor = ezColor::MakeHSV(m_fHue, m_fSaturation, m_fValue);
   m_CurrentColor.ApplyHdrExposureValue(m_fExposureValue);
   m_CurrentColor.a = ezMath::ColorByteToFloat(m_uiAlpha);
 }

@@ -31,7 +31,7 @@ const ezTimestamp ezTimestamp::CurrentTimestamp()
 {
   FILETIME fileTime;
   GetSystemTimeAsFileTime(&fileTime);
-  return ezTimestamp(FileTimeToEpoch(fileTime), ezSIUnitOfTime::Microsecond);
+  return ezTimestamp::MakeFromInt(FileTimeToEpoch(fileTime), ezSIUnitOfTime::Microsecond);
 }
 
 const ezTimestamp ezDateTime::GetTimestamp() const
@@ -50,19 +50,19 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   BOOL res = SystemTimeToFileTime(&st, &fileTime);
   ezTimestamp timestamp;
   if (res != 0)
-    timestamp.SetInt64(FileTimeToEpoch(fileTime), ezSIUnitOfTime::Microsecond);
+    timestamp = ezTimestamp::MakeFromInt(FileTimeToEpoch(fileTime), ezSIUnitOfTime::Microsecond);
 
   return timestamp;
 }
 
-bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
+ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 {
   FILETIME fileTime = EpochToFileTime(timestamp.GetInt64(ezSIUnitOfTime::Microsecond));
 
   SYSTEMTIME st;
   BOOL res = FileTimeToSystemTime(&fileTime, &st);
   if (res == 0)
-    return false;
+    return EZ_FAILURE;
 
   m_iYear = (ezInt16)st.wYear;
   m_uiMonth = (ezUInt8)st.wMonth;
@@ -72,5 +72,5 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiMinute = (ezUInt8)st.wMinute;
   m_uiSecond = (ezUInt8)st.wSecond;
   m_uiMicroseconds = ezUInt32(st.wMilliseconds * 1000);
-  return true;
+  return EZ_SUCCESS;
 }

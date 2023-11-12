@@ -123,9 +123,9 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
 }
 
 
-void ezVisualShaderTypeRegistry::UpdateNodeData(const char* szCfgFileRelative)
+void ezVisualShaderTypeRegistry::UpdateNodeData(ezStringView sCfgFileRelative)
 {
-  ezStringBuilder sPath(":app/VisualShader/", szCfgFileRelative);
+  ezStringBuilder sPath(":app/VisualShader/", sCfgFileRelative);
 
   LoadConfigFile(sPath);
 }
@@ -219,7 +219,7 @@ void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
 
     while (pNode != nullptr)
     {
-      if (!pNode->IsCustomType() || !ezStringUtils::IsEqual(pNode->GetCustomType(), "Node"))
+      if (!pNode->IsCustomType() || pNode->GetCustomType() != "Node")
       {
         ezLog::Error("Top-Level object is not a 'Node' type");
         continue;
@@ -295,7 +295,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
 {
   for (const ezOpenDdlReaderElement* pElement = pNode->GetFirstChild(); pElement != nullptr; pElement = pElement->GetSibling())
   {
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), szPinType))
+    if (pElement->GetCustomType() == szPinType)
     {
       ezVisualShaderPinDescriptor pin;
 
@@ -408,7 +408,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
 {
   for (const ezOpenDdlReaderElement* pElement = pNode->GetFirstChild(); pElement != nullptr; pElement = pElement->GetSibling())
   {
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Property"))
+    if (pElement->GetCustomType() == "Property")
     {
       ezInt8 iValueGroup = -1;
 
@@ -522,13 +522,13 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
 
   while (pElement)
   {
-    if (ezStringUtils::IsEqual(pElement->GetName(), "Color"))
+    if (pElement->GetName() == "Color")
     {
       GetColorFromDdl(pElement, nd.m_Color);
     }
     else if (pElement->HasPrimitives(ezOpenDdlPrimitiveType::String))
     {
-      if (ezStringUtils::IsEqual(pElement->GetName(), "NodeType"))
+      if (pElement->GetName() == "NodeType")
       {
         if (pElement->GetPrimitivesString()[0] == "Main")
           nd.m_NodeType = ezVisualShaderNodeType::Main;
@@ -537,11 +537,11 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
         else
           nd.m_NodeType = ezVisualShaderNodeType::Generic;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "Category"))
+      else if (pElement->GetName() == "Category")
       {
         nd.m_sCategory = pElement->GetPrimitivesString()[0];
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CheckPermutations"))
+      else if (pElement->GetName() == "CheckPermutations")
       {
         temp = pElement->GetPrimitivesString()[0];
         temp.ReplaceAll(" ", "");
@@ -550,75 +550,75 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
         temp.Trim("\n");
         nd.m_sCheckPermutations = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePermutations"))
+      else if (pElement->GetName() == "CodePermutations")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodePermutations = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeRenderStates"))
+      else if (pElement->GetName() == "CodeRenderStates")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodeRenderState = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeVertexShader"))
+      else if (pElement->GetName() == "CodeVertexShader")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodeVertexShader = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeGeometryShader"))
+      else if (pElement->GetName() == "CodeGeometryShader")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodeGeometryShader = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeMaterialParams"))
+      else if (pElement->GetName() == "CodeMaterialParams")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodeMaterialParams = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeMaterialCB"))
+      else if (pElement->GetName() == "CodeMaterialCB")
       {
         temp = pElement->GetPrimitivesString()[0];
         nd.m_sShaderCodeMaterialCB = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelDefines"))
+      else if (pElement->GetName() == "CodePixelDefines")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodePixelDefines = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelIncludes"))
+      else if (pElement->GetName() == "CodePixelIncludes")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodePixelIncludes = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelSamplers"))
+      else if (pElement->GetName() == "CodePixelSamplers")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodePixelSamplers = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelConstants"))
+      else if (pElement->GetName() == "CodePixelConstants")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodePixelConstants = temp;
       }
-      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelBody"))
+      else if (pElement->GetName() == "CodePixelBody")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))

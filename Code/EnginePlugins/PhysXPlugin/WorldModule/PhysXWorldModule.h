@@ -93,7 +93,7 @@ private:
   physx::PxControllerManager* m_pCharacterManager = nullptr;
   ezPxSimulationEventCallback* m_pSimulationEventCallback = nullptr;
 
-  ezUInt32 m_uiNextShapeId;
+  ezUInt32 m_uiNextShapeId = 0;
   ezDynamicArray<ezUInt32> m_FreeShapeIds;
 
   ezDeque<ezPxUserData> m_AllocatedUserData;

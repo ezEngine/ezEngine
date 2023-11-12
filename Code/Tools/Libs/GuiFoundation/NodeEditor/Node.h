@@ -14,13 +14,13 @@ class ezQtPin;
 class ezDocumentNodeManager;
 class QLabel;
 class ezDocumentObject;
-class QGraphicsGridLayout;
 class QGraphicsTextItem;
+class QGraphicsPixmapItem;
 class QGraphicsDropShadowEffect;
 
 struct ezNodeFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -73,7 +73,9 @@ protected:
 
   QColor m_HeaderColor;
   QRectF m_HeaderRect;
-  QGraphicsTextItem* m_pLabel = nullptr;
+  QGraphicsTextItem* m_pTitleLabel = nullptr;
+  QGraphicsTextItem* m_pSubtitleLabel = nullptr;
+  QGraphicsPixmapItem* m_pIcon = nullptr;
 
 private:
   const ezDocumentNodeManager* m_pManager = nullptr;

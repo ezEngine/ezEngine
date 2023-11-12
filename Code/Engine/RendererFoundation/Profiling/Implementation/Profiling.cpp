@@ -120,7 +120,7 @@ void ezProfilingScopeAndMarker::Stop(ezGALCommandEncoder* pCommandEncoder, GPUTi
 }
 
 ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALCommandEncoder* pCommandEncoder, const char* szName)
-  : ezProfilingScope(szName, nullptr, ezTime::Zero())
+  : ezProfilingScope(szName, nullptr, ezTime::MakeZero())
   , m_pCommandEncoder(pCommandEncoder)
 {
   m_pTimingScope = Start(pCommandEncoder, szName);

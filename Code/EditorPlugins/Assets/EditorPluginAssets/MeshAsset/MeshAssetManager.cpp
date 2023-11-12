@@ -18,7 +18,8 @@ ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Mesh";
   m_DocTypeDesc.m_sFileExtension = "ezMeshAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Mesh.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Mesh.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMeshAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Static");
@@ -78,7 +79,7 @@ ezResult ezMeshAssetDocumentManager::OpenPickedDocument(const ezDocumentObject* 
   // now we need to open the mesh and we cannot wait for it (usually that is queued for GUI reasons)
   // though we do not want a window
   ezMeshAssetDocument* pMeshDoc =
-    static_cast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->OpenDocument(pSubAsset->m_pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None));
+    static_cast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->OpenDocument(pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath(), ezDocumentFlags::None));
 
   if (!pMeshDoc)
     return EZ_FAILURE;
@@ -107,7 +108,7 @@ void ezMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMeshAssetDocument>())
       {
-        ezQtMeshAssetDocumentWindow* pDocWnd = new ezQtMeshAssetDocumentWindow(static_cast<ezMeshAssetDocument*>(e.m_pDocument));
+        new ezQtMeshAssetDocumentWindow(static_cast<ezMeshAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
@@ -118,9 +119,9 @@ void ezMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager:
 }
 
 void ezMeshAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezMeshAssetDocument(szPath);
+  out_pDocument = new ezMeshAssetDocument(sPath);
 }
 
 void ezMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

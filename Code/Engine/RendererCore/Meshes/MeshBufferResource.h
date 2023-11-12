@@ -137,7 +137,11 @@ class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource
   EZ_RESOURCE_DECLARE_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescriptor);
 
 public:
-  ezMeshBufferResource();
+  ezMeshBufferResource()
+    : ezResource(DoUpdate::OnAnyThread, 1)
+
+  {
+  }
   ~ezMeshBufferResource();
 
   EZ_ALWAYS_INLINE ezUInt32 GetPrimitiveCount() const { return m_uiPrimitiveCount; }
@@ -161,8 +165,8 @@ private:
 
   ezBoundingBoxSphere m_Bounds;
   ezVertexDeclarationInfo m_VertexDeclaration;
-  ezUInt32 m_uiPrimitiveCount;
+  ezUInt32 m_uiPrimitiveCount = 0;
   ezGALBufferHandle m_hVertexBuffer;
   ezGALBufferHandle m_hIndexBuffer;
-  ezGALPrimitiveTopology::Enum m_Topology;
+  ezGALPrimitiveTopology::Enum m_Topology = ezGALPrimitiveTopology::Enum::Default;
 };

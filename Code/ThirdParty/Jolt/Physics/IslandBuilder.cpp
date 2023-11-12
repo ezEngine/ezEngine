@@ -114,7 +114,7 @@ void IslandBuilder::LinkBodies(uint32 inFirst, uint32 inSecond)
 	// Start the algorithm with the two bodies
 	uint32 first_link_to = inFirst;
 	uint32 second_link_to = inSecond;
-	
+
 	for (;;)
 	{
 		// Follow the chain until we get to the body with lowest index
@@ -161,7 +161,9 @@ void IslandBuilder::LinkConstraint(uint32 inConstraintIndex, uint32 inFirst, uin
 	LinkBodies(inFirst, inSecond);
 
 	JPH_ASSERT(inConstraintIndex < mNumConstraints);
-	mConstraintLinks[inConstraintIndex] = min(inFirst, inSecond); // Use fact that invalid index is 0xffffffff, we want the active body of two
+	uint32 min_value = min(inFirst, inSecond); // Use fact that invalid index is 0xffffffff, we want the active body of two
+	JPH_ASSERT(min_value != Body::cInactiveIndex); // At least one of the bodies must be active
+	mConstraintLinks[inConstraintIndex] = min_value;
 }
 
 void IslandBuilder::LinkContact(uint32 inContactIndex, uint32 inFirst, uint32 inSecond)
@@ -182,20 +184,20 @@ void IslandBuilder::ValidateIslands(uint32 inNumActiveBodies) const
 		// If the bodies in this link ended up in different groups we have a problem
 		if (mBodyLinks[mLinkValidation[i].mFirst].mIslandIndex != mBodyLinks[mLinkValidation[i].mSecond].mIslandIndex)
 		{
-			Trace("Fail: %d, %d", mLinkValidation[i].mFirst, mLinkValidation[i].mSecond);
-			Trace("Num Active: %d", inNumActiveBodies);
+			Trace("Fail: %u, %u", mLinkValidation[i].mFirst, mLinkValidation[i].mSecond);
+			Trace("Num Active: %u", inNumActiveBodies);
 
 			for (uint32 j = 0; j < mNumLinkValidation; ++j)
-				Trace("builder.Link(%d, %d);", mLinkValidation[j].mFirst, mLinkValidation[j].mSecond);
-			
+				Trace("builder.Link(%u, %u);", mLinkValidation[j].mFirst, mLinkValidation[j].mSecond);
+
 			IslandBuilder tmp;
 			tmp.Init(inNumActiveBodies);
 			for (uint32 j = 0; j < mNumLinkValidation; ++j)
 			{
-				Trace("Link %d -> %d", mLinkValidation[j].mFirst, mLinkValidation[j].mSecond);
+				Trace("Link %u -> %u", mLinkValidation[j].mFirst, mLinkValidation[j].mSecond);
 				tmp.LinkBodies(mLinkValidation[j].mFirst, mLinkValidation[j].mSecond);
 				for (uint32 t = 0; t < inNumActiveBodies; ++t)
-					Trace("%d -> %d", t, (uint32)tmp.mBodyLinks[t].mLinkedTo);
+					Trace("%u -> %u", t, (uint32)tmp.mBodyLinks[t].mLinkedTo);
 			}
 
 			JPH_ASSERT(false, "IslandBuilder validation failed");
@@ -443,7 +445,7 @@ void IslandBuilder::ResetIslands(TempAllocator *inTempAllocator)
 		inTempAllocator->Free(mContactIslands, mNumContacts * sizeof(uint32));
 		mContactIslands = nullptr;
 	}
-	
+
 	if (mConstraintIslands != nullptr)
 	{
 		inTempAllocator->Free(mConstraintIslandEnds, (mNumIslands + 1) * sizeof(uint32));
@@ -451,7 +453,7 @@ void IslandBuilder::ResetIslands(TempAllocator *inTempAllocator)
 		inTempAllocator->Free(mConstraintIslands, mNumConstraints * sizeof(uint32));
 		mConstraintIslands = nullptr;
 	}
-	
+
 	inTempAllocator->Free(mBodyIslandEnds, (mNumActiveBodies + 1) * sizeof(uint32));
 	mBodyIslandEnds = nullptr;
 	inTempAllocator->Free(mBodyIslands, mNumActiveBodies * sizeof(uint32));

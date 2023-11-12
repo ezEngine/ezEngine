@@ -44,7 +44,6 @@ bool ezGreyBoxEditTool::GetSupportsMoveParentOnly() const
 
 void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_msg)
 {
-  auto pSceneDoc = GetDocument();
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
 
   ref_msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue(); // negative density = local space
@@ -95,7 +94,7 @@ void ezGreyBoxEditTool::UpdateGizmoState()
   ezManipulatorManager::GetSingleton()->HideActiveManipulator(GetDocument(), GetDocument()->GetActiveEditTool() != nullptr);
 
   m_DrawBoxGizmo.SetVisible(IsActive());
-  m_DrawBoxGizmo.SetTransformation(ezTransform::IdentityTransform());
+  m_DrawBoxGizmo.SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezGreyBoxEditTool::GameObjectEventHandler(const ezGameObjectEvent& e)
@@ -171,22 +170,22 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
     pHistory->StartTransaction("Add Grey-Box");
 
     ezUuid objGuid, compGuid;
-    objGuid.CreateNewUuid();
-    compGuid.CreateNewUuid();
+    objGuid = ezUuid::MakeUuid();
+    compGuid = ezUuid::MakeUuid();
 
     {
       ezAddObjectCommand cmdAdd;
       cmdAdd.m_NewObjectGuid = objGuid;
       cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
       cmdAdd.m_sParentProperty = "Children";
-      pHistory->AddCommand(cmdAdd);
+      pHistory->AddCommand(cmdAdd).AssertSuccess();
     }
     {
       ezSetObjectPropertyCommand cmdPos;
       cmdPos.m_NewValue = vCenter;
       cmdPos.m_Object = objGuid;
       cmdPos.m_sProperty = "LocalPosition";
-      pHistory->AddCommand(cmdPos);
+      pHistory->AddCommand(cmdPos).AssertSuccess();
     }
     {
       ezAddObjectCommand cmdComp;
@@ -195,7 +194,7 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
       cmdComp.m_sParentProperty = "Components";
       cmdComp.m_Parent = objGuid;
       cmdComp.m_Index = -1;
-      pHistory->AddCommand(cmdComp);
+      pHistory->AddCommand(cmdComp).AssertSuccess();
     }
     if (materialGuid.IsValid())
     {
@@ -204,7 +203,7 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
       cmdMat.m_NewValue = ezConversionUtils::ToString(materialGuid, tmp).GetData();
       cmdMat.m_Object = compGuid;
       cmdMat.m_sProperty = "Material";
-      pHistory->AddCommand(cmdMat);
+      pHistory->AddCommand(cmdMat).AssertSuccess();
     }
     {
       ezSetObjectPropertyCommand cmdSize;
@@ -212,27 +211,27 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
 
       cmdSize.m_NewValue = negx;
       cmdSize.m_sProperty = "SizeNegX";
-      pHistory->AddCommand(cmdSize);
+      pHistory->AddCommand(cmdSize).AssertSuccess();
 
       cmdSize.m_NewValue = posx;
       cmdSize.m_sProperty = "SizePosX";
-      pHistory->AddCommand(cmdSize);
+      pHistory->AddCommand(cmdSize).AssertSuccess();
 
       cmdSize.m_NewValue = negy;
       cmdSize.m_sProperty = "SizeNegY";
-      pHistory->AddCommand(cmdSize);
+      pHistory->AddCommand(cmdSize).AssertSuccess();
 
       cmdSize.m_NewValue = posy;
       cmdSize.m_sProperty = "SizePosY";
-      pHistory->AddCommand(cmdSize);
+      pHistory->AddCommand(cmdSize).AssertSuccess();
 
       cmdSize.m_NewValue = negz;
       cmdSize.m_sProperty = "SizeNegZ";
-      pHistory->AddCommand(cmdSize);
+      pHistory->AddCommand(cmdSize).AssertSuccess();
 
       cmdSize.m_NewValue = posz;
       cmdSize.m_sProperty = "SizePosZ";
-      pHistory->AddCommand(cmdSize);
+      pHistory->AddCommand(cmdSize).AssertSuccess();
     }
 
     pHistory->FinishTransaction();

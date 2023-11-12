@@ -127,6 +127,13 @@ namespace ezConversionUtils
     {
       const char c = *sText.GetStartPointer();
 
+      // c++ ' seperator can appear starting with the second digit
+      if (iCurRes > 0 && c == '\'')
+      {
+        sText.ChopAwayFirstCharacterAscii();
+        continue;
+      }
+
       // end of digits reached -> return success (allows to write something like "239*4" -> parses first part as 239)
       if (c < '0' || c > '9')
         break;
@@ -197,6 +204,13 @@ namespace ezConversionUtils
         if (c == '.')
         {
           Part = Fraction;
+          sText.ChopAwayFirstCharacterAscii();
+          continue;
+        }
+
+        // c++ ' separator can appear starting with the second digit
+        if (uiIntegerPart > 0 && c == '\'')
+        {
           sText.ChopAwayFirstCharacterAscii();
           continue;
         }
@@ -648,7 +662,7 @@ namespace ezConversionUtils
 
   const ezStringBuilder& ToString(const ezQuat& value, ezStringBuilder& out_sResult)
   {
-    out_sResult.Format("{ x={0}, y={1}, z={2}, w={3} }", value.v.x, value.v.y, value.v.z, value.w);
+    out_sResult.Format("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
     return out_sResult;
   }
 
@@ -694,6 +708,18 @@ namespace ezConversionUtils
     return out_sResult;
   }
 
+  const ezStringBuilder& ToString(const ezHashedString& value, ezStringBuilder& out_sResult)
+  {
+    out_sResult = value.GetView();
+    return out_sResult;
+  }
+
+  const ezStringBuilder& ToString(const ezTempHashedString& value, ezStringBuilder& out_sResult)
+  {
+    out_sResult.Format("0x{}", ezArgU(value.GetHash(), 16, true, 16));
+    return out_sResult;
+  }
+
   const ezStringBuilder& ToString(const ezDynamicArray<ezVariant>& value, ezStringBuilder& out_sResult)
   {
     out_sResult.Append("[");
@@ -704,6 +730,19 @@ namespace ezConversionUtils
     if (!value.IsEmpty())
       out_sResult.Shrink(0, 2);
     out_sResult.Append("]");
+    return out_sResult;
+  }
+
+  const ezStringBuilder& ToString(const ezHashTable<ezString, ezVariant>& value, ezStringBuilder& out_sResult)
+  {
+    out_sResult.Append("{");
+    for (auto it : value)
+    {
+      out_sResult.Append(it.Key(), "=", it.Value().ConvertTo<ezString>(), ", ");
+    }
+    if (!value.IsEmpty())
+      out_sResult.Shrink(0, 2);
+    out_sResult.Append("}");
     return out_sResult;
   }
 
@@ -839,6 +878,17 @@ namespace ezConversionUtils
 
     const ezUInt32 uiLen = sColorName.GetElementCount();
 
+    auto twoCharsToByte = [](const char* szColorChars, ezUInt8& out_uiByte) -> ezResult {
+      ezInt8 firstChar = HexCharacterToIntValue(szColorChars[0]);
+      ezInt8 secondChar = HexCharacterToIntValue(szColorChars[1]);
+      if (firstChar < 0 || secondChar < 0)
+      {
+        return EZ_FAILURE;
+      }
+      out_uiByte = (static_cast<ezUInt8>(firstChar) << 4) | static_cast<ezUInt8>(secondChar);
+      return EZ_SUCCESS;
+    };
+
     if (sColorName.StartsWith("#"))
     {
       if (uiLen == 7 || uiLen == 9) // #RRGGBB or #RRGGBBAA
@@ -847,12 +897,18 @@ namespace ezConversionUtils
 
         const char* szColorName = sColorName.GetStartPointer();
 
-        cv[0] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 1)) << 4) | HexCharacterToIntValue(*(szColorName + 2)));
-        cv[1] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 3)) << 4) | HexCharacterToIntValue(*(szColorName + 4)));
-        cv[2] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 5)) << 4) | HexCharacterToIntValue(*(szColorName + 6)));
+        if (twoCharsToByte(szColorName + 1, cv[0]).Failed())
+          return ezColor::Black;
+        if (twoCharsToByte(szColorName + 3, cv[1]).Failed())
+          return ezColor::Black;
+        if (twoCharsToByte(szColorName + 5, cv[2]).Failed())
+          return ezColor::Black;
 
         if (uiLen == 9)
-          cv[3] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 7)) << 4) | HexCharacterToIntValue(*(szColorName + 8)));
+        {
+          if (twoCharsToByte(szColorName + 7, cv[3]).Failed())
+            return ezColor::Black;
+        }
 
         if (out_pValidColorName)
           *out_pValidColorName = true;

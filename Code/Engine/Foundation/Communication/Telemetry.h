@@ -44,7 +44,7 @@ public:
   /// Connections to invalid IP addresses will however always fail.
   ///
   /// This function will set the ezTelemetry connection mode to 'Client'. This is mutually exclusive with CreateServer().
-  static ezResult ConnectToServer(const char* szConnectTo = nullptr);
+  static ezResult ConnectToServer(ezStringView sConnectTo = {});
 
   /// \brief Opens a connection as a server.
   ///
@@ -93,18 +93,18 @@ public:
 
   /// \brief Returns the name of the machine on which the Server is running. Only meaningful if there is an active connection (see
   /// IsConnectedToServer() ).
-  static const char* GetServerName() { return s_sServerName; }
+  static ezStringView GetServerName() { return s_sServerName; }
 
   /// \brief Sets the name of the telemetry server. This is broadcast to connected clients, which can display this string for usability.
   ///
   /// Usually this would be used to send the application name, to make it easier to see to which app the tool is connected,
   /// but setting a custom name can be used to add important details, e.g. whether the app is running in single-player or multi-player mode etc.
   /// The server name can be changed at any time.
-  static void SetServerName(const char* szName);
+  static void SetServerName(ezStringView sName);
 
   /// \brief Returns the IP address of the machine on which the Server is running. Only meaningful if there is an active connection (see
   /// IsConnectedToServer() ).
-  static const char* GetServerIP() { return s_sServerIP.GetData(); }
+  static ezStringView GetServerIP() { return s_sServerIP; }
 
   /// \brief Returns a 'unique' ID for the application instance to which this Client is connected.
   ///
@@ -144,7 +144,7 @@ public:
   /// In that case it might also make sense to use GetTelemetryMutex() to lock the entire section while waiting for the message.
   static void UpdateNetwork();
 
-  typedef void (*ProcessMessagesCallback)(void* pPassThrough);
+  using ProcessMessagesCallback = void (*)(void*);
 
   static void AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback callback = nullptr, void* pPassThrough = nullptr);
 
@@ -179,7 +179,7 @@ public:
     EventType m_EventType;
   };
 
-  typedef ezEvent<const TelemetryEventData&, ezMutex> ezEventTelemetry;
+  using ezEventTelemetry = ezEvent<const TelemetryEventData&, ezMutex>;
 
   /// \brief Adds an event handler that is called for every ezTelemetry event.
   static void AddEventHandler(ezEventTelemetry::Handler handler) { s_TelemetryEvents.AddEventHandler(handler); }
@@ -192,7 +192,7 @@ public:
 private:
   static void UpdateServerPing();
 
-  static ezResult OpenConnection(ConnectionMode Mode, const char* szConnectTo = nullptr);
+  static ezResult OpenConnection(ConnectionMode Mode, ezStringView sConnectTo = {});
 
   static void Transmit(TransmitMode tm, const void* pData, ezUInt32 uiDataBytes);
 
@@ -205,7 +205,7 @@ private:
   static void FlushOutgoingQueues();
 
   static void InitializeAsServer();
-  static ezResult InitializeAsClient(const char* szConnectTo);
+  static ezResult InitializeAsClient(ezStringView sConnectTo);
   static ConnectionMode s_ConnectionMode;
 
   static ezUInt32 s_uiApplicationID;
@@ -224,7 +224,7 @@ private:
 
   static ezTime s_PingToServer;
 
-  typedef ezDeque<ezTelemetryMessage> MessageDeque;
+  using MessageDeque = ezDeque<ezTelemetryMessage>;
 
   struct MessageQueue
   {

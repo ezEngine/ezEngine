@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/EditorFramework/Icons/DataDirectories16.png</normaloff>:/EditorFramework/Icons/DataDirectories16.png</iconset>
+    <normaloff>:/EditorFramework/Icons/DataDirectory.svg</normaloff>:/EditorFramework/Icons/DataDirectory.svg</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -53,7 +53,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-         <normaloff>:/GuiFoundation/Icons/OpenFolder16.png</normaloff>:/GuiFoundation/Icons/OpenFolder16.png</iconset>
+         <normaloff>:/GuiFoundation/Icons/OpenFolder.svg</normaloff>:/GuiFoundation/Icons/OpenFolder.svg</iconset>
        </property>
       </widget>
      </item>
@@ -98,7 +98,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-         <normaloff>:/GuiFoundation/Icons/DataDirAdd16.png</normaloff>:/GuiFoundation/Icons/DataDirAdd16.png</iconset>
+         <normaloff>:/GuiFoundation/Icons/FolderAdd.svg</normaloff>:/GuiFoundation/Icons/FolderAdd.svg</iconset>
        </property>
       </widget>
      </item>
@@ -112,7 +112,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-         <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
+         <normaloff>:/GuiFoundation/Icons/Delete.svg</normaloff>:/GuiFoundation/Icons/Delete.svg</iconset>
        </property>
       </widget>
      </item>
@@ -139,7 +139,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-         <normaloff>:/GuiFoundation/Icons/MoveUp16.png</normaloff>:/GuiFoundation/Icons/MoveUp16.png</iconset>
+         <normaloff>:/GuiFoundation/Icons/MoveUp.svg</normaloff>:/GuiFoundation/Icons/MoveUp.svg</iconset>
        </property>
       </widget>
      </item>
@@ -153,7 +153,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-         <normaloff>:/GuiFoundation/Icons/MoveDown16.png</normaloff>:/GuiFoundation/Icons/MoveDown16.png</iconset>
+         <normaloff>:/GuiFoundation/Icons/MoveDown.svg</normaloff>:/GuiFoundation/Icons/MoveDown.svg</iconset>
        </property>
       </widget>
      </item>

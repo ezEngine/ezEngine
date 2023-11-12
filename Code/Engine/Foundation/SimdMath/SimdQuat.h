@@ -9,31 +9,32 @@ public:
 
   ezSimdQuat(); // [tested]
 
-  ezSimdQuat(const ezSimdVec4f& v); // [tested]
+  explicit ezSimdQuat(const ezSimdVec4f& v); // [tested]
 
   /// \brief Static function that returns a quaternion that represents the identity rotation (none).
-  static ezSimdQuat IdentityQuaternion(); // [tested]
+  [[nodiscard]] static const ezSimdQuat MakeIdentity(); // [tested]
 
-public:
-  /// \brief Sets the Quaternion to the identity.
-  void SetIdentity(); // [tested]
+  /// \brief Sets the individual elements of the quaternion directly. Note that x,y,z do NOT represent a rotation axis, and w does NOT represent an
+  /// angle.
+  ///
+  /// Use this function only if you have good understanding of quaternion math and know exactly what you are doing.
+  [[nodiscard]] static ezSimdQuat MakeFromElements(ezSimdFloat x, ezSimdFloat y, ezSimdFloat z, ezSimdFloat w); // [tested]
 
   /// \brief Creates a quaternion from a rotation-axis and an angle (angle is given in Radians or as an ezAngle)
-  void SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle); // [tested]
+  [[nodiscard]] static ezSimdQuat MakeFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle); // [tested]
 
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
-  void SetShortestRotation(const ezSimdVec4f& vDirFrom, const ezSimdVec4f& vDirTo); // [tested]
+  [[nodiscard]] static ezSimdQuat MakeShortestRotation(const ezSimdVec4f& vDirFrom, const ezSimdVec4f& vDirTo); // [tested]
 
-  /// \brief Sets this quaternion to be the spherical linear interpolation of the other two.
-  void SetSlerp(const ezSimdQuat& qFrom, const ezSimdQuat& qTo, const ezSimdFloat& t); // [tested]
+  /// \brief Returns a quaternion that is the spherical linear interpolation of the other two.
+  [[nodiscard]] static ezSimdQuat MakeSlerp(const ezSimdQuat& qFrom, const ezSimdQuat& qTo, const ezSimdFloat& t); // [tested]
 
 public:
   /// \brief Normalizes the quaternion to unit length. ALL rotation-quaternions should be normalized at all times (automatically).
   void Normalize(); // [tested]
 
   /// \brief Returns the rotation-axis and angle (in Radians), that this quaternion rotates around.
-  ezResult GetRotationAxisAndAngle(
-    ezSimdVec4f& ref_vAxis, ezSimdFloat& ref_fAngle, const ezSimdFloat& fEpsilon = ezMath::DefaultEpsilon<float>()) const; // [tested]
+  ezResult GetRotationAxisAndAngle(ezSimdVec4f& ref_vAxis, ezSimdFloat& ref_fAngle, const ezSimdFloat& fEpsilon = ezMath::DefaultEpsilon<float>()) const; // [tested]
 
   /// \brief Returns the Quaternion as a matrix.
   ezSimdMat4f GetAsMat4() const; // [tested]
@@ -53,13 +54,13 @@ public:
 
 public:
   /// \brief Returns a Quaternion that represents the negative / inverted rotation.
-  ezSimdQuat operator-() const; // [tested]
+  [[nodiscard]] ezSimdQuat operator-() const; // [tested]
 
   /// \brief Rotates v by q
-  ezSimdVec4f operator*(const ezSimdVec4f& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4f operator*(const ezSimdVec4f& v) const; // [tested]
 
   /// \brief Concatenates the rotations of q1 and q2
-  ezSimdQuat operator*(const ezSimdQuat& q2) const; // [tested]
+  [[nodiscard]] ezSimdQuat operator*(const ezSimdQuat& q2) const; // [tested]
 
   bool operator==(const ezSimdQuat& q2) const; // [tested]
   bool operator!=(const ezSimdQuat& q2) const; // [tested]

@@ -39,24 +39,18 @@ void ezSceneActions::RegisterActions()
   s_hSceneCategory = EZ_REGISTER_CATEGORY("SceneCategory");
   s_hSceneUtilsMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.Utils.Menu", "");
 
-  s_hExportScene = EZ_REGISTER_ACTION_1(
-    "Scene.ExportAndRun", ezActionScope::Document, "Scene", "Ctrl+E", ezSceneAction, ezSceneAction::ActionType::ExportAndRunScene);
-  s_hGameModeSimulate = EZ_REGISTER_ACTION_1(
-    "Scene.GameMode.Simulate", ezActionScope::Document, "Scene", "F5", ezSceneAction, ezSceneAction::ActionType::StartGameModeSimulate);
-  s_hGameModePlay = EZ_REGISTER_ACTION_1(
-    "Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::StartGameModePlay);
+  s_hExportScene = EZ_REGISTER_ACTION_1("Scene.ExportAndRun", ezActionScope::Document, "Scene", "Ctrl+R", ezSceneAction, ezSceneAction::ActionType::ExportAndRunScene);
+  s_hGameModeSimulate = EZ_REGISTER_ACTION_1("Scene.GameMode.Simulate", ezActionScope::Document, "Scene", "F5", ezSceneAction, ezSceneAction::ActionType::StartGameModeSimulate);
+  s_hGameModePlay = EZ_REGISTER_ACTION_1("Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::StartGameModePlay);
 
   s_hGameModePlayFromHere = EZ_REGISTER_ACTION_1("Scene.GameMode.PlayFromHere", ezActionScope::Document, "Scene", "Ctrl+Shift+F5", ezSceneAction,
     ezSceneAction::ActionType::StartGameModePlayFromHere);
 
-  s_hGameModeStop =
-    EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction, ezSceneAction::ActionType::StopGameMode);
+  s_hGameModeStop = EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction, ezSceneAction::ActionType::StopGameMode);
 
-  s_hUtilExportSceneToOBJ =
-    EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::ExportSceneToOBJ);
+  s_hUtilExportSceneToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::ExportSceneToOBJ);
 
-  s_hKeepSimulationChanges = EZ_REGISTER_ACTION_1(
-    "Scene.KeepSimulationChanges", ezActionScope::Document, "Scene", "K", ezSceneAction, ezSceneAction::ActionType::KeepSimulationChanges);
+  s_hKeepSimulationChanges = EZ_REGISTER_ACTION_1("Scene.KeepSimulationChanges", ezActionScope::Document, "Scene", "K", ezSceneAction, ezSceneAction::ActionType::KeepSimulationChanges);
 
   s_hCreateThumbnail = EZ_REGISTER_ACTION_1("Scene.CreateThumbnail", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::CreateThumbnail);
   // unfortunately the macros use lambdas thus using a loop to generate the strings does not work
@@ -132,22 +126,22 @@ void ezSceneActions::UnregisterActions()
   }
 }
 
-void ezSceneActions::MapMenuActions(const char* szMapping)
+void ezSceneActions::MapMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
-    const char* szSubPath = "Menu.Scene/SceneCategory";
-    const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
+    const char* szSubPath = "G.Scene/SceneCategory";
+    const char* szUtilsSubPath = "G.Scene/Scene.Utils.Menu";
 
-    pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 2.0f);
+    pMap->MapAction(s_hSceneUtilsMenu, "G.Scene", 2.0f);
     // pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f); // now available through the export scene dialog
     pMap->MapAction(s_hKeepSimulationChanges, szUtilsSubPath, 1.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
-    pMap->MapAction(s_hFavoriteCamsMenu, "Menu.Scene", 3.0f);
-    const char* szFavCamsSubPath = "Menu.Scene/Scene.FavoriteCams.Menu";
+    pMap->MapAction(s_hFavoriteCamsMenu, "G.Scene", 3.0f);
+    const char* szFavCamsSubPath = "G.Scene/Scene.FavoriteCams.Menu";
 
     for (ezUInt32 i = 0; i < 10; ++i)
     {
@@ -157,7 +151,7 @@ void ezSceneActions::MapMenuActions(const char* szMapping)
       pMap->MapAction(s_hCreateLevelCamera[i], szFavCamsSubPath, 40.0f + i);
     }
 
-    pMap->MapAction(s_hSceneCategory, "Menu.Scene", 4.0f);
+    pMap->MapAction(s_hSceneCategory, "G.Scene", 4.0f);
     pMap->MapAction(s_hExportScene, szSubPath, 1.0f);
     pMap->MapAction(s_hGameModeStop, szSubPath, 4.0f);
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 5.0f);
@@ -166,9 +160,9 @@ void ezSceneActions::MapMenuActions(const char* szMapping)
   }
 }
 
-void ezSceneActions::MapToolbarActions(const char* szMapping)
+void ezSceneActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
@@ -184,14 +178,12 @@ void ezSceneActions::MapToolbarActions(const char* szMapping)
   }
 }
 
-void ezSceneActions::MapViewContextMenuActions(const char* szMapping, const char* szPath)
+void ezSceneActions::MapViewContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/SceneCategory");
-
-  pMap->MapAction(s_hGameModePlayFromHere, szPath, 1.0f);
+  pMap->MapAction(s_hGameModePlayFromHere, "", 1.0f);
 }
 
 ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName, ezSceneAction::ActionType type)
@@ -205,38 +197,38 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
   switch (m_Type)
   {
     case ActionType::ExportAndRunScene:
-      SetIconPath(":/EditorPluginScene/Icons/SceneExport16.png");
+      SetIconPath(":/EditorPluginScene/Icons/SceneExport.svg");
       break;
 
     case ActionType::StartGameModeSimulate:
       SetCheckable(true);
-      SetIconPath(":/EditorPluginScene/Icons/ScenePlay16.png");
+      SetIconPath(":/EditorPluginScene/Icons/ScenePlay.svg");
       SetChecked(m_pSceneDocument->GetGameMode() == GameMode::Simulate);
       SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Play);
       break;
 
     case ActionType::StartGameModePlay:
-      SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame16.png");
+      SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame.svg");
       break;
 
     case ActionType::StartGameModePlayFromHere:
-      SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame16.png"); // TODO: icon
+      SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame.svg"); // TODO: icon
       break;
 
     case ActionType::StopGameMode:
-      SetIconPath(":/EditorPluginScene/Icons/SceneStop16.png");
+      SetIconPath(":/EditorPluginScene/Icons/SceneStop.svg");
       break;
 
     case ActionType::ExportSceneToOBJ:
-      // SetIconPath(":/EditorPluginScene/Icons/SceneStop16.png"); // TODO: icon
+      // SetIconPath(":/EditorPluginScene/Icons/SceneStop.svg"); // TODO: icon
       break;
 
     case ActionType::KeepSimulationChanges:
-      SetIconPath(":/EditorPluginScene/Icons/PullObjectState16.png");
+      SetIconPath(":/EditorPluginScene/Icons/PullObjectState.svg");
       break;
 
     case ActionType::CreateThumbnail:
-      // SetIconPath(":/EditorPluginScene/Icons/PullObjectState16.png"); // TODO: icon
+      // SetIconPath(":/EditorPluginScene/Icons/PullObjectState.svg"); // TODO: icon
       break;
 
     case ActionType::JumpToCamera0:
@@ -249,7 +241,7 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
     case ActionType::JumpToCamera7:
     case ActionType::JumpToCamera8:
     case ActionType::JumpToCamera9:
-      SetIconPath(":/TypeIcons/ezCameraComponent.png");
+      SetIconPath(":/TypeIcons/ezCameraComponent.svg");
       break;
 
     default:
@@ -287,14 +279,11 @@ void ezSceneAction::Execute(const ezVariant& value)
       range.BeginNextStep("Build C++");
       if (dlg.s_bCompileCpp)
       {
-        if (ezCppProject::BuildCodeIfNecessary(dlg.m_CppSettings).Failed())
-        {
-          ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to build the C++ code. See log for details."));
+        if (ezCppProject::EnsureCppPluginReady().Failed())
           return;
-        }
-
-        ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
       }
+
+      bool bDidTransformAll = false;
 
       range.BeginNextStep("Transform Assets");
       if (dlg.s_bTransformAll)
@@ -303,6 +292,7 @@ void ezSceneAction::Execute(const ezVariant& value)
         {
           // once all assets have been transformed, disable it for the next export
           dlg.s_bTransformAll = false;
+          bDidTransformAll = true;
         }
       }
 
@@ -313,7 +303,7 @@ void ezSceneAction::Execute(const ezVariant& value)
       {
         // if the thumbnail doesn't exist, or is very old, update it anyway
 
-        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(m_pSceneDocument->GetDocumentPath());
+        ezStringBuilder sThumbnailPath = m_pSceneDocument->GetAssetDocumentManager()->GenerateResourceThumbnailPath(m_pSceneDocument->GetDocumentPath());
 
         ezFileStats stat;
         if (ezOSFile::GetFileStats(sThumbnailPath, stat).Failed())
@@ -323,7 +313,7 @@ void ezSceneAction::Execute(const ezVariant& value)
         else
         {
           auto tNow = ezTimestamp::CurrentTimestamp();
-          auto tComp = stat.m_LastModificationTime + ezTime::Hours(24) * 7;
+          auto tComp = stat.m_LastModificationTime + ezTime::MakeFromHours(24) * 7;
 
           if (tComp.GetInt64(ezSIUnitOfTime::Second) < tNow.GetInt64(ezSIUnitOfTime::Second))
           {
@@ -334,30 +324,10 @@ void ezSceneAction::Execute(const ezVariant& value)
 
 
       // Convert collections
+      if (!bDidTransformAll)
       {
-        EZ_PROFILE_SCOPE("ConvertCollections");
         ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
-        ezSet<ezUuid> collections;
-        {
-          ezAssetCurator::ezLockedAssetTable allAssets = pCurator->GetKnownAssets();
-
-          //#TODO_ASSET Instead of hard-coding this to 'Collection' add a virtual function to all asset managers that defines those that need to be transformed on scene export.
-          ezTempHashedString sCollection = "Collection";
-          for (auto it : *allAssets)
-          {
-            if (it.Value()->m_Info->m_sAssetsDocumentTypeName == sCollection)
-            {
-              collections.Insert(it.Value()->m_Info->m_DocumentID);
-            }
-          }
-        }
-
-        const ezPlatformProfile* pCurrentProfile = pCurator->GetActiveAssetProfile();
-        for (const auto& guid : collections)
-        {
-          // Ignore result
-          pCurator->TransformAsset(guid, ezTransformFlags::TriggeredManually | ezTransformFlags::ForceTransform, pCurrentProfile);
-        }
+        pCurator->TransformAssetsForSceneExport(pCurator->GetActiveAssetProfile());
       }
 
       dlg.s_bUpdateThumbnail = false;

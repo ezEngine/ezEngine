@@ -15,8 +15,8 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManagerEvent
     NodeMoved,
     AfterPinsConnected,
     BeforePinsDisonnected,
-    BeforePinsChanged, // todo
-    AfterPinsChanged,  // todo
+    BeforePinsChanged,
+    AfterPinsChanged,
     BeforeNodeAdded,
     AfterNodeAdded,
     BeforeNodeRemoved,
@@ -71,13 +71,14 @@ public:
     Circle,
     Rect,
     RoundRect,
+    Arrow,
     Default = Circle
   };
 
-  ezPin(Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject)
+  ezPin(Type type, ezStringView sName, const ezColorGammaUB& color, const ezDocumentObject* pObject)
     : m_Type(type)
     , m_Color(color)
-    , m_sName(szName)
+    , m_sName(sName)
     , m_pParent(pObject)
   {
   }
@@ -111,8 +112,8 @@ public:
   ezVec2 GetNodePos(const ezDocumentObject* pObject) const;
   const ezConnection& GetConnection(const ezDocumentObject* pObject) const;
 
-  const ezPin* GetInputPinByName(const ezDocumentObject* pObject, const char* szName) const;
-  const ezPin* GetOutputPinByName(const ezDocumentObject* pObject, const char* szName) const;
+  const ezPin* GetInputPinByName(const ezDocumentObject* pObject, ezStringView sName) const;
+  const ezPin* GetOutputPinByName(const ezDocumentObject* pObject, ezStringView sName) const;
   ezArrayPtr<const ezUniquePtr<const ezPin>> GetInputPins(const ezDocumentObject* pObject) const;
   ezArrayPtr<const ezUniquePtr<const ezPin>> GetOutputPins(const ezDocumentObject* pObject) const;
 
@@ -127,10 +128,12 @@ public:
 
   bool IsNode(const ezDocumentObject* pObject) const;
   bool IsConnection(const ezDocumentObject* pObject) const;
+  bool IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const;
 
   ezArrayPtr<const ezConnection* const> GetConnections(const ezPin& pin) const;
   bool HasConnections(const ezPin& pin) const;
   bool IsConnected(const ezPin& source, const ezPin& target) const;
+
   ezStatus CanConnect(const ezRTTI* pObjectType, const ezPin& source, const ezPin& target, CanConnectResult& ref_result) const;
   ezStatus CanDisconnect(const ezConnection* pConnection) const;
   ezStatus CanDisconnect(const ezDocumentObject* pObject) const;
@@ -154,9 +157,12 @@ protected:
   /// \brief Returns true if adding a connection between the two pins would create a circular graph
   bool WouldConnectionCreateCircle(const ezPin& source, const ezPin& target) const;
 
+  void GetDynamicPinNames(const ezDocumentObject* pObject, ezStringView sPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const;
+  virtual bool TryRecreatePins(const ezDocumentObject* pObject);
+
   struct NodeInternal
   {
-    ezVec2 m_vPos = ezVec2::ZeroVector();
+    ezVec2 m_vPos = ezVec2::MakeZero();
     ezHybridArray<ezUniquePtr<ezPin>, 6> m_Inputs;
     ezHybridArray<ezUniquePtr<ezPin>, 6> m_Outputs;
   };
@@ -164,6 +170,7 @@ protected:
 private:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const;
   virtual bool InternalIsConnection(const ezDocumentObject* pObject) const;
+  virtual bool InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const { return false; }
   virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const;
   virtual ezStatus InternalCanDisconnect(const ezPin& source, const ezPin& target) const { return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalCanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const { return ezStatus(EZ_SUCCESS); }
@@ -171,6 +178,7 @@ private:
 
   void ObjectHandler(const ezDocumentObjectEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
 
   void RestoreOldMetaDataAfterLoading(const ezAbstractObjectGraph& graph, const ezAbstractObjectNode::Property& connectionsProperty, const ezDocumentObject* pSourceObject);
 

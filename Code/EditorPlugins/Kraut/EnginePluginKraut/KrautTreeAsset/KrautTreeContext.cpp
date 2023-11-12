@@ -100,7 +100,7 @@ void ezKrautTreeContext::OnInitialize()
     ezSimpleWindComponent* pWind = nullptr;
     ezSimpleWindComponent::CreateComponent(pObj, pWind);
 
-    pWind->m_Deviation = ezAngle::Degree(180);
+    pWind->m_Deviation = ezAngle::MakeFromDegree(180);
     pWind->m_MinWindStrength = ezWindStrength::Calm;
     pWind->m_MaxWindStrength = ezWindStrength::ModerateBreeze;
   }
@@ -120,7 +120,7 @@ void ezKrautTreeContext::OnInitialize()
       {
         // Build geometry
         ezGeometry::GeoOptions opt;
-        opt.m_Transform.SetTranslationMatrix(ezVec3(0, 0, -0.05f));
+        opt.m_Transform = ezMat4::MakeTranslation(ezVec3(0, 0, -0.05f));
 
         ezGeometry geom;
         geom.AddCylinder(8.0f, 7.9f, 0.05f, 0.05f, true, true, 32, opt);
@@ -197,8 +197,7 @@ void ezKrautTreeContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMs
   if (m_pMainObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());

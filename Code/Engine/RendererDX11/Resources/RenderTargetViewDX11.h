@@ -28,11 +28,11 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11RenderTargetView* m_pRenderTargetView;
+  ID3D11RenderTargetView* m_pRenderTargetView = nullptr;
 
-  ID3D11DepthStencilView* m_pDepthStencilView;
+  ID3D11DepthStencilView* m_pDepthStencilView = nullptr;
 
-  ID3D11UnorderedAccessView* m_pUnorderedAccessView;
+  ID3D11UnorderedAccessView* m_pUnorderedAccessView = nullptr;
 };
 
 #include <RendererDX11/Resources/Implementation/RenderTargetViewDX11_inl.h>

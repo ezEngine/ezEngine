@@ -13,21 +13,43 @@ public:
   virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const override;
 };
 
+/// \brief This custom mirror additionally sends over the connection meta data as properties to the engine side so that the graph can be reconstructed there.
+/// This is necessary as DocumentNodeManager_DefaultConnection does not contain any data, instead all data is in the DocumentNodeManager_ConnectionMetaData object.
+class ezRenderPipelineObjectMirrorEditor : public ezIPCObjectMirrorEditor
+{
+  using SUPER = ezIPCObjectMirrorEditor;
+
+public:
+  void InitNodeSender(const ezDocumentNodeManager* pNodeManager);
+  void DeInitNodeSender();
+  virtual void ApplyOp(ezObjectChange& ref_change) override;
+
+private:
+  void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
+  void SendConnection(const ezConnection& connection);
+
+  const ezDocumentNodeManager* m_pNodeManager = nullptr;
+};
+
 class ezRenderPipelineAssetDocument : public ezAssetDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineAssetDocument, ezAssetDocument);
 
 public:
-  ezRenderPipelineAssetDocument(const char* szDocumentPath);
+  ezRenderPipelineAssetDocument(ezStringView sDocumentPath);
+  ~ezRenderPipelineAssetDocument();
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
+  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
   virtual bool Paste(
-    const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
+    const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
 
   virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;

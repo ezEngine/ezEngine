@@ -5,7 +5,7 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
-typedef ezComponentManagerSimple<class ezSimpleWindComponent, ezComponentUpdateType::WhenSimulating> ezSimpleWindComponentManager;
+using ezSimpleWindComponentManager = ezComponentManagerSimple<class ezSimpleWindComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_GAMEENGINE_DLL ezSimpleWindComponent : public ezComponent
 {

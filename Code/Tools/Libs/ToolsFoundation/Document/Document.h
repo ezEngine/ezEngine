@@ -58,7 +58,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocument : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezDocument, ezReflectedClass);
 
 public:
-  ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl);
+  ezDocument(ezStringView sPath, ezDocumentObjectManager* pDocumentObjectManagerImpl);
   virtual ~ezDocument();
 
   /// \name Document State Functions
@@ -99,15 +99,16 @@ protected:
 
 public:
   /// \brief Returns the absolute path to the document.
-  const char* GetDocumentPath() const { return m_sDocumentPath; }
+  ezStringView GetDocumentPath() const { return m_sDocumentPath; }
 
   /// \brief Saves the document, if it is modified.
   /// If bForce is true, the document will be written, even if it is not considered modified.
   ezStatus SaveDocument(bool bForce = false);
-  typedef ezDelegate<void(ezDocument* doc, ezStatus res)> AfterSaveCallback;
+  using AfterSaveCallback = ezDelegate<void(ezDocument*, ezStatus)>;
   ezTaskGroupID SaveDocumentAsync(AfterSaveCallback callback, bool bForce = false);
+  void DocumentRenamed(ezStringView sNewDocumentPath);
 
-  static ezStatus ReadDocument(const char* szDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
+  static ezStatus ReadDocument(ezStringView sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
     ezUniquePtr<ezAbstractObjectGraph>& ref_pTypes);
   static ezStatus ReadAndRegisterTypes(const ezAbstractObjectGraph& types);
 
@@ -123,7 +124,16 @@ public:
   const ezDocumentTypeDescriptor* GetDocumentTypeDescriptor() const { return m_pTypeDescriptor; }
 
   /// \brief Returns the document's type name. Same as GetDocumentTypeDescriptor()->m_sDocumentTypeName.
-  const char* GetDocumentTypeName() const { return m_pTypeDescriptor->m_sDocumentTypeName; }
+  ezStringView GetDocumentTypeName() const
+  {
+    if (m_pTypeDescriptor == nullptr)
+    {
+      // if this is a document without a type descriptor, use the RTTI type name as a fallback
+      return GetDynamicRTTI()->GetTypeName();
+    }
+
+    return m_pTypeDescriptor->m_sDocumentTypeName;
+  }
 
   const ezDocumentInfo* GetDocumentInfo() const { return m_pDocumentInfo; }
 
@@ -151,7 +161,7 @@ public:
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const {}
   /// \brief Creates the abstract graph of data to be copied and returns the mime type for the clipboard to identify the data
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const { return false; };
-  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
   {
     return false;
   };
@@ -220,14 +230,11 @@ public:
   /// \brief Removes the link between a prefab instance and its template, turning the instance into a regular object.
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection);
 
-  virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType,
-    ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(),
-    ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>());
-  virtual ezStatus CreatePrefabDocument(const char* szFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed,
-    ezUuid& out_newDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, bool bKeepOpen = false);
+  virtual ezStatus CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = {}, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {});
+  virtual ezStatus CreatePrefabDocument(ezStringView sFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed, ezUuid& out_newDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, bool bKeepOpen = false, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {});
+
   // Returns new guid of replaced object.
-  virtual ezUuid ReplaceByPrefab(
-    const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab);
+  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab);
   // Returns new guid of reverted object.
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject);
 
@@ -265,7 +272,7 @@ protected:
   ///@{
 
   virtual void UpdatePrefabsRecursive(ezDocumentObject* pObject);
-  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab);
+  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab);
 
   ///@}
 

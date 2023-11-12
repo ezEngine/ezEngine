@@ -1,32 +1,33 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat() {}
+EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat() = default;
 
 EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat(const ezSimdVec4f& v)
+  : m_v(v)
 {
-  m_v = v;
 }
 
-// static
-EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::IdentityQuaternion()
+EZ_ALWAYS_INLINE const ezSimdQuat ezSimdQuat::MakeIdentity()
 {
   return ezSimdQuat(ezSimdVec4f(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
-EZ_ALWAYS_INLINE void ezSimdQuat::SetIdentity()
+EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::MakeFromElements(ezSimdFloat x, ezSimdFloat y, ezSimdFloat z, ezSimdFloat w)
 {
-  m_v.Set(0.0f, 0.0f, 0.0f, 1.0f);
+  return ezSimdQuat(ezSimdVec4f(x, y, z, w));
 }
 
-EZ_ALWAYS_INLINE void ezSimdQuat::SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle)
+inline ezSimdQuat ezSimdQuat::MakeFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle)
 {
   ///\todo optimize
-  const ezAngle halfAngle = ezAngle::Radian(fAngle) * 0.5f;
+  const ezAngle halfAngle = ezAngle::MakeFromRadian(fAngle) * 0.5f;
   float s = ezMath::Sin(halfAngle);
   float c = ezMath::Cos(halfAngle);
 
-  m_v = vRotationAxis * s;
-  m_v.SetW(c);
+  ezSimdQuat res;
+  res.m_v = vRotationAxis * s;
+  res.m_v.SetW(c);
+  return res;
 }
 
 EZ_ALWAYS_INLINE void ezSimdQuat::Normalize()
@@ -67,7 +68,7 @@ EZ_ALWAYS_INLINE ezSimdMat4f ezSimdQuat::GetAsMat4() const
   const ezSimdVec4f yy2_xx2_xx2 = xx2yy2zz2.Get<ezSwizzle::YXXX>();
   const ezSimdVec4f zz2_zz2_yy2 = xx2yy2zz2.Get<ezSwizzle::ZZYX>();
   ezSimdVec4f diagonal = ezSimdVec4f(1.0f) - (yy2_xx2_xx2 + zz2_zz2_yy2);
-  diagonal.SetW(ezSimdFloat::Zero());
+  diagonal.SetW(ezSimdFloat::MakeZero());
 
   // non diagonal terms
   // xy2 +- wz2
@@ -98,7 +99,7 @@ EZ_ALWAYS_INLINE ezSimdMat4f ezSimdQuat::GetAsMat4() const
   const ezSimdVec4f addZ_u_subY_u = adds.GetCombined<ezSwizzle::ZXYX>(subs);
   const ezSimdVec4f col2 = addZ_u_subY_u.GetCombined<ezSwizzle::XZZW>(diagonal);
 
-  return ezSimdMat4f(col0, col1, col2, ezSimdVec4f(0, 0, 0, 1));
+  return ezSimdMat4f::MakeFromColumns(col0, col1, col2, ezSimdVec4f(0, 0, 0, 1));
 }
 
 EZ_ALWAYS_INLINE bool ezSimdQuat::IsValid(const ezSimdFloat& fEpsilon) const
@@ -113,7 +114,7 @@ EZ_ALWAYS_INLINE bool ezSimdQuat::IsNaN() const
 
 EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::operator-() const
 {
-  return m_v.FlipSign(ezSimdVec4b(true, true, true, false));
+  return ezSimdQuat(m_v.FlipSign(ezSimdVec4b(true, true, true, false)));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdQuat::operator*(const ezSimdVec4f& v) const

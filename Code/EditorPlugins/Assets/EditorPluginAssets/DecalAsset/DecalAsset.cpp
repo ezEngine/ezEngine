@@ -70,12 +70,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezDecalAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezDecalAssetDocument::ezDecalAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezDecalAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 
-ezTransformStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pAssetProfile);
 }
@@ -172,7 +172,7 @@ ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
   AddSupportedFileType("png");
 }
 
-ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() {}
+ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() = default;
 
 void ezDecalAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
@@ -190,7 +190,7 @@ void ezDecalAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelati
     info.m_Priority = isDecal ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "DecalImport.All";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Decal.png";
+    info.m_sIcon = ":/AssetIcons/Decal.svg";
   }
 }
 

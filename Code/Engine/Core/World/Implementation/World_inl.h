@@ -393,6 +393,11 @@ EZ_ALWAYS_INLINE const ezSharedPtr<ezTask>& ezWorld::GetUpdateTask()
   return m_pUpdateTask;
 }
 
+EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetUpdateCounter() const
+{
+  return m_Data.m_uiUpdateCounter;
+}
+
 EZ_FORCE_INLINE ezSpatialSystem* ezWorld::GetSpatialSystem()
 {
   CheckForWriteAccess();
@@ -549,4 +554,16 @@ EZ_ALWAYS_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) con
 EZ_ALWAYS_INLINE bool ezWorld::ReportErrorWhenStaticObjectMoves() const
 {
   return m_Data.m_bReportErrorWhenStaticObjectMoves;
+}
+
+EZ_ALWAYS_INLINE float ezWorld::GetInvDeltaSeconds() const
+{
+  const float fDelta = (float)m_Data.m_Clock.GetTimeDiff().GetSeconds();
+  if (fDelta > 0.0f)
+  {
+    return 1.0f / fDelta;
+  }
+
+  // when the clock is paused just use zero
+  return 0.0f;
 }

@@ -14,8 +14,7 @@ ezQtTestModelEntry::ezQtTestModelEntry(const ezTestFrameworkResult* pResult, ezI
   : m_pResult(pResult)
   , m_iTestIndex(iTestIndex)
   , m_iSubTestIndex(iSubTestIndex)
-  , m_pParentEntry(nullptr)
-  , m_uiIndexInParent(0)
+
 {
 }
 
@@ -94,6 +93,7 @@ ezQtTestModel::ezQtTestModel(QObject* pParent, ezQtTestFramework* pTestFramework
   // Derive state colors from the current active palette.
   m_SucessColor = ToneColor(palette.text().color(), QColor(Qt::green)).toRgb();
   m_FailedColor = ToneColor(palette.text().color(), QColor(Qt::red)).toRgb();
+  m_CustomStatusColor = ToneColor(palette.text().color(), QColor(Qt::yellow)).toRgb();
 
   m_TestColor = ToneColor(palette.base().color(), QColor(Qt::cyan)).toRgb();
   m_SubTestColor = ToneColor(palette.base().color(), QColor(Qt::blue)).toRgb();
@@ -146,6 +146,11 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int iRole) const
   const ezQtTestModelEntry* pParentEntry = pEntry->GetParentEntry();
   const ezQtTestModelEntry::ezTestModelEntryType entryType = pEntry->GetNodeType();
 
+  const ezInt32 iExecutingTest = m_pTestFramework->GetCurrentTestIndex();
+  const ezInt32 iExecutingSubTest = m_pTestFramework->GetCurrentSubTestIndex();
+
+  const bool bIsExecuting = pEntry->GetTestIndex() == iExecutingTest && pEntry->GetSubTestIndex() == iExecutingSubTest;
+
   bool bTestEnabled = true;
   bool bParentEnabled = true;
   bool bIsSubTest = entryType == ezQtTestModelEntry::SubTestNode;
@@ -162,6 +167,11 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int iRole) const
   }
 
   const ezTestResultData& TestResult = *pEntry->GetTestResult();
+
+  if (bIsExecuting && iRole == Qt::BackgroundRole)
+  {
+    return QColor(115, 100, 40);
+  }
 
   // Name
   if (index.column() == Columns::Name)
@@ -362,6 +372,11 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int iRole) const
             }
             else
             {
+              if (!TestResult.m_sCustomStatus.empty())
+              {
+                return QString(TestResult.m_sCustomStatus.c_str());
+              }
+
               return QString("Pending");
             }
           }
@@ -404,6 +419,11 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int iRole) const
         {
           return TestResult.m_bSuccess ? m_SucessColor : m_FailedColor;
         }
+        else if (!TestResult.m_sCustomStatus.empty())
+        {
+          return m_CustomStatusColor;
+        }
+
         return QVariant();
       }
       case Qt::TextAlignmentRole:

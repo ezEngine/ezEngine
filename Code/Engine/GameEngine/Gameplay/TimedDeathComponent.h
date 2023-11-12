@@ -7,7 +7,7 @@
 #include <GameEngine/GameEngineDLL.h>
 
 struct ezMsgComponentInternalTrigger;
-typedef ezComponentManager<class ezTimedDeathComponent, ezBlockStorageType::Compact> ezTimedDeathComponentManager;
+using ezTimedDeathComponentManager = ezComponentManager<class ezTimedDeathComponent, ezBlockStorageType::Compact>;
 using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
 /// \brief This component deletes the object it is attached to after a timeout.
@@ -38,8 +38,8 @@ public:
   ezTimedDeathComponent();
   ~ezTimedDeathComponent();
 
-  ezTime m_MinDelay = ezTime::Seconds(1.0);   // [ property ]
-  ezTime m_DelayRange = ezTime::Seconds(0.0); // [ property ]
+  ezTime m_MinDelay = ezTime::MakeFromSeconds(1.0);   // [ property ]
+  ezTime m_DelayRange = ezTime::MakeFromSeconds(0.0); // [ property ]
 
   void SetTimeoutPrefab(const char* szPrefab); // [ property ]
   const char* GetTimeoutPrefab() const;        // [ property ]

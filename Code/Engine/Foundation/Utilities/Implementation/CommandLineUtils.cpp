@@ -141,32 +141,32 @@ ezUInt32 ezCommandLineUtils::GetParameterCount() const
   return m_Commands.GetCount();
 }
 
-const char* ezCommandLineUtils::GetParameter(ezUInt32 uiParam) const
+const ezString& ezCommandLineUtils::GetParameter(ezUInt32 uiParam) const
 {
-  return m_Commands[uiParam].GetData();
+  return m_Commands[uiParam];
 }
 
-ezInt32 ezCommandLineUtils::GetOptionIndex(const char* szOption, bool bCaseSensitive) const
+ezInt32 ezCommandLineUtils::GetOptionIndex(ezStringView sOption, bool bCaseSensitive) const
 {
-  EZ_ASSERT_DEV(ezStringUtils::StartsWith(szOption, "-"), "All command line option names must start with a hyphen (e.g. -file)");
+  EZ_ASSERT_DEV(sOption.StartsWith("-"), "All command line option names must start with a hyphen (e.g. -file)");
 
   for (ezUInt32 i = 0; i < m_Commands.GetCount(); ++i)
   {
-    if ((bCaseSensitive && m_Commands[i].IsEqual(szOption)) || (!bCaseSensitive && m_Commands[i].IsEqual_NoCase(szOption)))
+    if ((bCaseSensitive && m_Commands[i].IsEqual(sOption)) || (!bCaseSensitive && m_Commands[i].IsEqual_NoCase(sOption)))
       return i;
   }
 
   return -1;
 }
 
-bool ezCommandLineUtils::HasOption(const char* szOption, bool bCaseSensitive /*= false*/) const
+bool ezCommandLineUtils::HasOption(ezStringView sOption, bool bCaseSensitive /*= false*/) const
 {
-  return GetOptionIndex(szOption, bCaseSensitive) >= 0;
+  return GetOptionIndex(sOption, bCaseSensitive) >= 0;
 }
 
-ezUInt32 ezCommandLineUtils::GetStringOptionArguments(const char* szOption, bool bCaseSensitive) const
+ezUInt32 ezCommandLineUtils::GetStringOptionArguments(ezStringView sOption, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(szOption, bCaseSensitive);
+  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   // not found -> no parameters
   if (iIndex < 0)
@@ -185,20 +185,20 @@ ezUInt32 ezCommandLineUtils::GetStringOptionArguments(const char* szOption, bool
   return uiParamCount;
 }
 
-const char* ezCommandLineUtils::GetStringOption(const char* szOption, ezUInt32 uiArgument, const char* szDefault, bool bCaseSensitive) const
+ezStringView ezCommandLineUtils::GetStringOption(ezStringView sOption, ezUInt32 uiArgument, ezStringView sDefault, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(szOption, bCaseSensitive);
+  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   // not found -> no parameters
   if (iIndex < 0)
-    return szDefault;
+    return sDefault;
 
   ezUInt32 uiParamCount = 0;
 
   for (ezUInt32 uiParam = iIndex + 1; uiParam < m_Commands.GetCount(); ++uiParam)
   {
     if (m_Commands[uiParam].StartsWith("-")) // next command is the next option -> not enough parameters
-      return szDefault;
+      return sDefault;
 
     // found the right one, return it
     if (uiParamCount == uiArgument)
@@ -207,22 +207,22 @@ const char* ezCommandLineUtils::GetStringOption(const char* szOption, ezUInt32 u
     ++uiParamCount;
   }
 
-  return szDefault;
+  return sDefault;
 }
 
-const ezString ezCommandLineUtils::GetAbsolutePathOption(const char* szOption, ezUInt32 uiArgument /*= 0*/, const char* szDefault /*= ""*/, bool bCaseSensitive /*= false*/) const
+const ezString ezCommandLineUtils::GetAbsolutePathOption(ezStringView sOption, ezUInt32 uiArgument /*= 0*/, ezStringView sDefault /*= {} */, bool bCaseSensitive /*= false*/) const
 {
-  const char* szPath = GetStringOption(szOption, uiArgument, szDefault, bCaseSensitive);
+  ezStringView sPath = GetStringOption(sOption, uiArgument, sDefault, bCaseSensitive);
 
-  if (ezStringUtils::IsNullOrEmpty(szPath))
-    return szPath;
+  if (sPath.IsEmpty())
+    return sPath;
 
-  return ezOSFile::MakePathAbsoluteWithCWD(szPath);
+  return ezOSFile::MakePathAbsoluteWithCWD(sPath);
 }
 
-bool ezCommandLineUtils::GetBoolOption(const char* szOption, bool bDefault, bool bCaseSensitive) const
+bool ezCommandLineUtils::GetBoolOption(ezStringView sOption, bool bDefault, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(szOption, bCaseSensitive);
+  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   if (iIndex < 0)
     return bDefault;
@@ -240,9 +240,9 @@ bool ezCommandLineUtils::GetBoolOption(const char* szOption, bool bDefault, bool
   return bRes;
 }
 
-ezInt32 ezCommandLineUtils::GetIntOption(const char* szOption, ezInt32 iDefault, bool bCaseSensitive) const
+ezInt32 ezCommandLineUtils::GetIntOption(ezStringView sOption, ezInt32 iDefault, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(szOption, bCaseSensitive);
+  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   if (iIndex < 0)
     return iDefault;
@@ -257,9 +257,9 @@ ezInt32 ezCommandLineUtils::GetIntOption(const char* szOption, ezInt32 iDefault,
   return iRes;
 }
 
-ezUInt32 ezCommandLineUtils::GetUIntOption(const char* szOption, ezUInt32 uiDefault, bool bCaseSensitive) const
+ezUInt32 ezCommandLineUtils::GetUIntOption(ezStringView sOption, ezUInt32 uiDefault, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(szOption, bCaseSensitive);
+  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   if (iIndex < 0)
     return uiDefault;
@@ -274,9 +274,9 @@ ezUInt32 ezCommandLineUtils::GetUIntOption(const char* szOption, ezUInt32 uiDefa
   return uiRes;
 }
 
-double ezCommandLineUtils::GetFloatOption(const char* szOption, double fDefault, bool bCaseSensitive) const
+double ezCommandLineUtils::GetFloatOption(ezStringView sOption, double fDefault, bool bCaseSensitive) const
 {
-  const ezInt32 iIndex = GetOptionIndex(szOption, bCaseSensitive);
+  const ezInt32 iIndex = GetOptionIndex(sOption, bCaseSensitive);
 
   if (iIndex < 0)
     return fDefault;
@@ -291,9 +291,9 @@ double ezCommandLineUtils::GetFloatOption(const char* szOption, double fDefault,
   return fRes;
 }
 
-void ezCommandLineUtils::InjectCustomArgument(const char* szArgument)
+void ezCommandLineUtils::InjectCustomArgument(ezStringView sArgument)
 {
-  m_Commands.PushBack(szArgument);
+  m_Commands.PushBack(sArgument);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_CommandLineUtils);

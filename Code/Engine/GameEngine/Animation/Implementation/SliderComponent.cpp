@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 3, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("Distance", m_fDistanceToTravel)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("RandomStart", m_RandomStart)->AddAttributes(new ezClampValueAttribute(ezTime::Zero(), ezVariant())),
+    EZ_MEMBER_PROPERTY("RandomStart", m_RandomStart)->AddAttributes(new ezClampValueAttribute(ezTime::MakeZero(), ezVariant())),
   }
   EZ_END_PROPERTIES;
 
@@ -65,8 +65,7 @@ void ezSliderComponent::Update()
     else
       m_AnimationTime += GetWorld()->GetClock().GetTimeDiff();
 
-    const float fNewDistance =
-      CalculateAcceleratedMovement(m_fDistanceToTravel, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
+    const float fNewDistance = CalculateAcceleratedMovement(m_fDistanceToTravel, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 
     const float fDistanceDiff = fNewDistance - m_fLastDistance;
 
@@ -107,13 +106,16 @@ void ezSliderComponent::Update()
   }
 }
 
-
-
 void ezSliderComponent::OnSimulationStarted()
 {
+  SUPER::OnSimulationStarted();
+
+  // reset to start state
+  m_fLastDistance = 0.0f;
+
   if (m_RandomStart.IsPositive())
   {
-    m_AnimationTime = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomStart.GetSeconds()));
+    m_AnimationTime = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomStart.GetSeconds()));
   }
 }
 

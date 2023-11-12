@@ -48,29 +48,19 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 
-ezSceneLayerBase::ezSceneLayerBase()
-{
-}
+ezSceneLayerBase::ezSceneLayerBase() = default;
 
-ezSceneLayerBase::~ezSceneLayerBase()
-{
-}
+ezSceneLayerBase::~ezSceneLayerBase() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSceneLayer::ezSceneLayer()
-{
-}
+ezSceneLayer::ezSceneLayer() = default;
 
-ezSceneLayer::~ezSceneLayer()
-{
-}
+ezSceneLayer::~ezSceneLayer() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSceneDocumentSettings::ezSceneDocumentSettings()
-{
-}
+ezSceneDocumentSettings::ezSceneDocumentSettings() = default;
 
 ezSceneDocumentSettings::~ezSceneDocumentSettings()
 {
@@ -80,8 +70,8 @@ ezSceneDocumentSettings::~ezSceneDocumentSettings()
   }
 }
 
-ezScene2Document::ezScene2Document(const char* szDocumentPath)
-  : ezSceneDocument(szDocumentPath, ezSceneDocument::DocumentType::Scene)
+ezScene2Document::ezScene2Document(ezStringView sDocumentPath)
+  : ezSceneDocument(sDocumentPath, ezSceneDocument::DocumentType::Scene)
 {
   // Separate selection for the layer panel.
   m_pLayerSelection = EZ_DEFAULT_NEW(ezSelectionManager, m_pObjectManager.Borrow());
@@ -140,9 +130,9 @@ void ezScene2Document::InitializeAfterLoading(bool bFirstTimeCreation)
   if (pRoot->GetChildren().IsEmpty())
   {
     ezUuid objectGuid;
-    pAccessor->AddObject(pRoot, "Layers", 0, ezGetStaticRTTI<ezSceneLayer>(), objectGuid);
+    pAccessor->AddObject(pRoot, "Layers", 0, ezGetStaticRTTI<ezSceneLayer>(), objectGuid).AssertSuccess();
     const ezDocumentObject* pObject = pAccessor->GetObject(objectGuid);
-    pAccessor->SetValue(pObject, "Layer", GetGuid());
+    pAccessor->SetValue(pObject, "Layer", GetGuid()).AssertSuccess();
   }
 
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
@@ -381,8 +371,8 @@ void ezScene2Document::HandleObjectStateFromEngineMsg2(const ezPushObjectStateMs
         // retrieve all the bone keys and values, these will contain the exposed default values, in case a bone has never been overridden before
         ezVariantArray boneValues, boneKeys;
         ezExposedParameterCommandAccessor proxy(pAccessor, pBonesProperty, pParameterSourceProp);
-        proxy.GetValues(pComponent, pBonesProperty, boneValues);
-        proxy.GetKeys(pComponent, pBonesProperty, boneKeys);
+        proxy.GetValues(pComponent, pBonesProperty, boneValues).AssertSuccess();
+        proxy.GetKeys(pComponent, pBonesProperty, boneKeys).AssertSuccess();
 
         // apply all the new bone transforms
         for (const auto& bone : pState->m_BoneTransforms)
@@ -405,7 +395,7 @@ void ezScene2Document::HandleObjectStateFromEngineMsg2(const ezPushObjectStateMs
           ezVariant var;
           var.CopyTypedObject(&b, ezGetStaticRTTI<ezExposedBone>());
 
-          proxy.SetValue(pComponent, pBonesProperty, var, bone.Key());
+          proxy.SetValue(pComponent, pBonesProperty, var, bone.Key()).AssertSuccess();
         }
 
         // found a component/property to apply bones to, so we can stop
@@ -415,7 +405,7 @@ void ezScene2Document::HandleObjectStateFromEngineMsg2(const ezPushObjectStateMs
 
     pHistory->FinishTransaction();
   }
-  SetActiveLayer(activeLayer);
+  SetActiveLayer(activeLayer).LogFailure();
 }
 
 void ezScene2Document::UpdateLayers()
@@ -597,7 +587,7 @@ ezStatus ezScene2Document::DeleteLayer(const ezUuid& layerGuid)
     auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
     if (assetInfo.isValid())
     {
-      sName = ezPathUtils::GetFileName(assetInfo->m_pAssetInfo->m_sDataDirParentRelativePath);
+      sName = ezPathUtils::GetFileName(assetInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath());
     }
     else
     {
@@ -763,7 +753,7 @@ ezStatus ezScene2Document::SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded)
       auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
       if (assetInfo.isValid())
       {
-        sAbsPath = assetInfo->m_pAssetInfo->m_sAbsolutePath;
+        sAbsPath = assetInfo->m_pAssetInfo->m_Path;
       }
       else
       {

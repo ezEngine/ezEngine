@@ -16,7 +16,7 @@ class ezRestoreResourceMsgToEngine;
 class ezEngineProcessGameApplication : public ezGameApplication
 {
 public:
-  typedef ezGameApplication SUPER;
+  using SUPER = ezGameApplication;
 
   ezEngineProcessGameApplication();
   ~ezEngineProcessGameApplication();

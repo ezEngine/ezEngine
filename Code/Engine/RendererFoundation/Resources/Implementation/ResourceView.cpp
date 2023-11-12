@@ -10,7 +10,7 @@ ezGALResourceView::ezGALResourceView(ezGALResourceBase* pResource, const ezGALRe
   EZ_ASSERT_DEV(m_pResource != nullptr, "Resource must not be null");
 }
 
-ezGALResourceView::~ezGALResourceView() {}
+ezGALResourceView::~ezGALResourceView() = default;
 
 
 

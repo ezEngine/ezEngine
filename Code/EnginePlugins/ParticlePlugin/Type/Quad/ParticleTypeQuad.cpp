@@ -25,7 +25,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 2, ezRTTIDefaultAlloc
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Orientation", ezQuadParticleOrientation, m_Orientation),
-    EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(90))),
+    EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(90))),
     EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezParticleTypeRenderMode, m_RenderMode),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezDefaultValueAttribute(ezStringView("{ e00262e8-58f5-42f5-880d-569257047201 }"))),// wrap in ezStringView to prevent a memory leak report
     EZ_ENUM_MEMBER_PROPERTY("TextureAtlas", ezParticleTextureAtlasType, m_TextureAtlasType),
@@ -294,8 +294,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
   };
 
   auto SetTangentDataEmitterDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
-    ezMat3 mRotation;
-    mRotation.SetRotationMatrix(vEmitterDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
+    ezMat3 mRotation = ezMat3::MakeAxisRotation(vEmitterDir, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
 
     m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
     m_TangentParticleData[uiDstIdx].TangentX = mRotation * vEmitterDirOrtho;
@@ -307,8 +306,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
     ezVec3 vOrthoDir = vEmitterDir.CrossRH(vDirToParticle);
     vOrthoDir.NormalizeIfNotZero(ezVec3(1, 0, 0)).IgnoreResult();
 
-    ezMat3 mRotation;
-    mRotation.SetRotationMatrix(vOrthoDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
+    ezMat3 mRotation = ezMat3::MakeAxisRotation(vOrthoDir, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
 
     m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
     m_TangentParticleData[uiDstIdx].TangentX = vOrthoDir;
@@ -316,13 +314,13 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
   };
 
   auto SetTangentDataFromAxis = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+    EZ_ASSERT_DEBUG(pAxis != nullptr, "Axis must be valid");
     ezVec3 vNormal = pAxis[uiSrcIdx];
     vNormal.Normalize();
 
     const ezVec3 vTangentStart = vNormal.GetOrthogonalVector().GetNormalized();
 
-    ezMat3 mRotation;
-    mRotation.SetRotationMatrix(vNormal, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
+    ezMat3 mRotation = ezMat3::MakeAxisRotation(vNormal, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
 
     const ezVec3 vTangentX = mRotation * vTangentStart;
 
@@ -482,7 +480,7 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
       {
         const ezUInt64 uiElementIdx = uiStartIndex + i;
 
-        pAxis[uiElementIdx] = ezVec3::CreateRandomDirection(rng);
+        pAxis[uiElementIdx] = ezVec3::MakeRandomDirection(rng);
       }
     }
     else if (m_Orientation == ezQuadParticleOrientation::Fixed_EmitterDir || m_Orientation == ezQuadParticleOrientation::Fixed_WorldUp)
@@ -503,16 +501,15 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
         vNormal = coord.m_vUpDir;
       }
 
-      if (m_MaxDeviation > ezAngle::Degree(1.0f))
+      if (m_MaxDeviation > ezAngle::MakeFromDegree(1.0f))
       {
         // how to get from the X axis to the desired normal
-        ezQuat qRotToDir;
-        qRotToDir.SetShortestRotation(ezVec3(1, 0, 0), vNormal);
+        ezQuat qRotToDir = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vNormal);
 
         for (ezUInt32 i = 0; i < uiNumElements; ++i)
         {
           const ezUInt64 uiElementIdx = uiStartIndex + i;
-          const ezVec3 vRandomX = ezVec3::CreateRandomDeviationX(rng, m_MaxDeviation);
+          const ezVec3 vRandomX = ezVec3::MakeRandomDeviationX(rng, m_MaxDeviation);
 
           pAxis[uiElementIdx] = qRotToDir * vRandomX;
         }
@@ -613,4 +610,3 @@ ezParticleTypeQuadFactory_1_2 g_ezParticleTypeQuadFactory_1_2;
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Quad_ParticleTypeQuad);
-

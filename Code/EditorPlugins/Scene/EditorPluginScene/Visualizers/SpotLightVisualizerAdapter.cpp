@@ -5,9 +5,9 @@
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezSpotLightVisualizerAdapter::ezSpotLightVisualizerAdapter() {}
+ezSpotLightVisualizerAdapter::ezSpotLightVisualizerAdapter() = default;
 
-ezSpotLightVisualizerAdapter::~ezSpotLightVisualizerAdapter() {}
+ezSpotLightVisualizerAdapter::~ezSpotLightVisualizerAdapter() = default;
 
 void ezSpotLightVisualizerAdapter::Finalize()
 {
@@ -31,7 +31,7 @@ void ezSpotLightVisualizerAdapter::Update()
   if (!pAttr->GetAngleProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAngleProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAngleProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezAngle>(), "Invalid property bound to ezSpotLightVisualizerAttribute 'angle'");
     m_fAngleScale = ezMath::Tan(value.ConvertTo<ezAngle>() * 0.5f);
@@ -40,7 +40,7 @@ void ezSpotLightVisualizerAdapter::Update()
   if (!pAttr->GetColorProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezSpotLightVisualizerAttribute 'color'");
     m_hGizmo.SetColor(value.ConvertTo<ezColor>());
@@ -50,11 +50,11 @@ void ezSpotLightVisualizerAdapter::Update()
   if (!pAttr->GetRangeProperty().IsEmpty() && !pAttr->GetIntensityProperty().IsEmpty())
   {
     ezVariant range;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRangeProperty()), range);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRangeProperty()), range).AssertSuccess();
     EZ_ASSERT_DEBUG(range.CanConvertTo<float>(), "Invalid property bound to ezPointLightVisualizerAttribute 'radius'");
 
     ezVariant intensity;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetIntensityProperty()), intensity);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetIntensityProperty()), intensity).AssertSuccess();
     EZ_ASSERT_DEBUG(intensity.CanConvertTo<float>(), "Invalid property bound to ezPointLightVisualizerAttribute 'intensity'");
 
     m_fScale = ezLightComponent::CalculateEffectiveRange(range.ConvertTo<float>(), intensity.ConvertTo<float>());

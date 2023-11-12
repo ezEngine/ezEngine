@@ -186,16 +186,16 @@ public:
 
   /// \brief An error that needs to be fixed as soon as possible.
   template <typename... ARGS>
-  static void Error(const char* szFormat, ARGS&&... args)
+  static void Error(ezStringView sFormat, ARGS&&... args)
   {
-    Error(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Error(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Error() to output messages to a specific log.
   template <typename... ARGS>
-  static void Error(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
+  static void Error(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
-    Error(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Error(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Not an error, but definitely a big problem, that should be looked into very soon.
@@ -203,16 +203,16 @@ public:
 
   /// \brief Not an error, but definitely a big problem, that should be looked into very soon.
   template <typename... ARGS>
-  static void SeriousWarning(const char* szFormat, ARGS&&... args)
+  static void SeriousWarning(ezStringView sFormat, ARGS&&... args)
   {
-    SeriousWarning(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    SeriousWarning(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of SeriousWarning() to output messages to a specific log.
   template <typename... ARGS>
-  static void SeriousWarning(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
+  static void SeriousWarning(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
-    SeriousWarning(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    SeriousWarning(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief A potential problem or a performance warning. Might be possible to ignore it.
@@ -220,16 +220,16 @@ public:
 
   /// \brief A potential problem or a performance warning. Might be possible to ignore it.
   template <typename... ARGS>
-  static void Warning(const char* szFormat, ARGS&&... args)
+  static void Warning(ezStringView sFormat, ARGS&&... args)
   {
-    Warning(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Warning(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Warning() to output messages to a specific log.
   template <typename... ARGS>
-  static void Warning(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
+  static void Warning(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
-    Warning(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Warning(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Status information that something was completed successfully.
@@ -237,16 +237,16 @@ public:
 
   /// \brief Status information that something was completed successfully.
   template <typename... ARGS>
-  static void Success(const char* szFormat, ARGS&&... args)
+  static void Success(ezStringView sFormat, ARGS&&... args)
   {
-    Success(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Success(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Success() to output messages to a specific log.
   template <typename... ARGS>
-  static void Success(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
+  static void Success(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
-    Success(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Success(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Status information that is important.
@@ -254,16 +254,16 @@ public:
 
   /// \brief Status information that is important.
   template <typename... ARGS>
-  static void Info(const char* szFormat, ARGS&&... args)
+  static void Info(ezStringView sFormat, ARGS&&... args)
   {
-    Info(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Info(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Info() to output messages to a specific log.
   template <typename... ARGS>
-  static void Info(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
+  static void Info(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
-    Info(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Info(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Status information that is nice to have during development.
@@ -275,16 +275,16 @@ public:
   ///
   /// This function is compiled out in non-development builds.
   template <typename... ARGS>
-  static void Dev(const char* szFormat, ARGS&&... args)
+  static void Dev(ezStringView sFormat, ARGS&&... args)
   {
-    Dev(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Dev(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Dev() to output messages to a specific log.
   template <typename... ARGS>
-  static void Dev(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
+  static void Dev(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
-    Dev(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Dev(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Status information during debugging. Very verbose. Usually only temporarily added to the code.
@@ -296,16 +296,16 @@ public:
   ///
   /// This function is compiled out in non-debug builds.
   template <typename... ARGS>
-  static void Debug(const char* szFormat, ARGS&&... args)
+  static void Debug(ezStringView sFormat, ARGS&&... args)
   {
-    Debug(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Debug(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Debug() to output messages to a specific log.
   template <typename... ARGS>
-  static void Debug(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
+  static void Debug(ezLogInterface* pInterface, ezStringView sFormat, ARGS&&... args)
   {
-    Debug(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Debug(pInterface, ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Instructs log writers to flush their caches, to ensure all log output (even non-critical information) is written.
@@ -324,11 +324,11 @@ public:
   /// However, a flush is always ignored if not a single message was logged in between.
   ///
   /// \return Returns true if the flush is executed.
-  static bool Flush(ezUInt32 uiNumNewMsgThreshold = 0, ezTime timeIntervalThreshold = ezTime::Seconds(10), ezLogInterface* pInterface = GetThreadLocalLogSystem());
+  static bool Flush(ezUInt32 uiNumNewMsgThreshold = 0, ezTime timeIntervalThreshold = ezTime::MakeFromSeconds(10), ezLogInterface* pInterface = GetThreadLocalLogSystem());
 
   /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known.
   /// pInterface must be != nullptr.
-  static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString);
+  static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, ezStringView sString);
 
   /// \brief Calls low-level OS functionality to print a string to the typical outputs, e.g. printf and OutputDebugString.
   ///

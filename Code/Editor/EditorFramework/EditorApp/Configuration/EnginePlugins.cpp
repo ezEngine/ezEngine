@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -36,7 +37,14 @@ bool ezQtEditorApp::CheckForEnginePluginModifications()
 
     if (plugin.m_bMissing)
     {
-      DetectAvailablePluginBundles();
+      DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+
+      ezCppSettings cppSettings;
+      if (cppSettings.Load().Succeeded())
+      {
+        ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezCppProject::GetPluginSourceDir(cppSettings));
+      }
+
       break;
     }
   }
@@ -69,9 +77,12 @@ bool ezQtEditorApp::CheckForEnginePluginModifications()
 
 void ezQtEditorApp::RestartEngineProcessIfPluginsChanged(bool bForce)
 {
+  if (!ezToolsProject::IsProjectOpen())
+    return;
+
   if (!bForce)
   {
-    if (m_LastPluginModificationCheck + ezTime::Seconds(2) > ezTime::Now())
+    if (m_LastPluginModificationCheck + ezTime::MakeFromSeconds(2) > ezTime::Now())
       return;
   }
 

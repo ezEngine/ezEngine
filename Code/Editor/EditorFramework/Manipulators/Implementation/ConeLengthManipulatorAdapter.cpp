@@ -4,9 +4,9 @@
 #include <EditorFramework/Manipulators/ConeLengthManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezConeLengthManipulatorAdapter::ezConeLengthManipulatorAdapter() {}
+ezConeLengthManipulatorAdapter::ezConeLengthManipulatorAdapter() = default;
 
-ezConeLengthManipulatorAdapter::~ezConeLengthManipulatorAdapter() {}
+ezConeLengthManipulatorAdapter::~ezConeLengthManipulatorAdapter() = default;
 
 void ezConeLengthManipulatorAdapter::Finalize()
 {

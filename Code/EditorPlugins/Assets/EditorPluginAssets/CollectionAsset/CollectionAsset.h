@@ -25,8 +25,8 @@ class ezCollectionAssetDocument : public ezSimpleAssetDocument<ezCollectionAsset
   EZ_ADD_DYNAMIC_REFLECTION(ezCollectionAssetDocument, ezSimpleAssetDocument<ezCollectionAssetData>);
 
 public:
-  ezCollectionAssetDocument(const char* szDocumentPath);
+  ezCollectionAssetDocument(ezStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 };

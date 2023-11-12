@@ -15,6 +15,8 @@ public:
 
   virtual void Extract(
     const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
   void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
@@ -34,6 +36,7 @@ private:
     ezTexture2DResourceHandle m_hTexture;
     const ezTypedMemberProperty<ezColor>* m_pColorProperty;
     const ezTypedMemberProperty<ezColorGammaUB>* m_pColorGammaProperty;
+    ezColor m_FallbackColor = ezColor::White;
   };
 
   ezHashTable<const ezRTTI*, ShapeIconInfo> m_ShapeIconInfos;

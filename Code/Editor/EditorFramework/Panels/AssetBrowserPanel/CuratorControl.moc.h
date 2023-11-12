@@ -31,7 +31,7 @@ private:
   void AssetProcessorEvents(const ezAssetProcessorEvent& e);
   void ProjectEvents(const ezToolsProjectEvent& e);
 
-  bool m_bScheduled;
-  QToolButton* m_pBackgroundProcess;
+  bool m_bScheduled = false;
+  QToolButton* m_pBackgroundProcess = nullptr;
 };
 

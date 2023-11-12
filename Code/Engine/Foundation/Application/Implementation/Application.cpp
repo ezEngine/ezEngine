@@ -8,20 +8,16 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 
-ezApplication::ezApplication(const char* szAppName)
-  : m_iReturnCode(0)
-  , m_uiArgumentCount(0)
-  , m_pArguments(nullptr)
-  , m_bReportMemoryLeaks(true)
-  , m_sAppName(szAppName)
+ezApplication::ezApplication(ezStringView sAppName)
+  : m_sAppName(sAppName)
 {
 }
 
 ezApplication::~ezApplication() = default;
 
-void ezApplication::SetApplicationName(const char* szAppName)
+void ezApplication::SetApplicationName(ezStringView sAppName)
 {
-  m_sAppName = szAppName;
+  m_sAppName = sAppName;
 }
 
 ezCommandLineOptionBool opt_WaitForDebugger("app", "-WaitForDebugger", "If specified, the application will wait at startup until a debugger is attached.", false);
@@ -41,7 +37,7 @@ ezResult ezApplication::BeforeCoreSystemsStartup()
   {
     while (!ezSystemInformation::IsDebuggerAttached())
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
     }
 
     EZ_DEBUG_BREAK;

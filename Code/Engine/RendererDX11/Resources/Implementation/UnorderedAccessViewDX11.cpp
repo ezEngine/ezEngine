@@ -15,11 +15,11 @@ bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALUnor
 ezGALUnorderedAccessViewDX11::ezGALUnorderedAccessViewDX11(
   ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description)
   : ezGALUnorderedAccessView(pResource, Description)
-  , m_pDXUnorderedAccessView(nullptr)
+
 {
 }
 
-ezGALUnorderedAccessViewDX11::~ezGALUnorderedAccessViewDX11() {}
+ezGALUnorderedAccessViewDX11::~ezGALUnorderedAccessViewDX11() = default;
 
 ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
@@ -83,6 +83,7 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
     {
       case ezGALTextureType::Texture2D:
       case ezGALTextureType::Texture2DProxy:
+      case ezGALTextureType::Texture2DShared:
 
         if (!bIsArrayView)
         {

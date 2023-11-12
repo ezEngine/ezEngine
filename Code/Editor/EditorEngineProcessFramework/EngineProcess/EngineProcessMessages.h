@@ -22,7 +22,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineMsg : public ezProcessMe
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineMsg, ezProcessMessage);
 
 public:
-  ezEditorEngineMsg() {}
+  ezEditorEngineMsg() = default;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezUpdateReflectionTypeMsgToEditor : public ezEditorEngineMsg
@@ -134,6 +134,15 @@ public:
   ezString m_sResult;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDynamicStringEnumMsgToEditor : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicStringEnumMsgToEditor, ezEditorEngineMsg);
+
+public:
+  ezString m_sEnumName;
+  ezHybridArray<ezString, 8> m_EnumValues;
+};
+
 ///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
 /// \brief Base class for all messages that are tied to some document.
@@ -222,7 +231,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentClearMsgToEngine : public ez
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentClearMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
-  ezDocumentClearMsgToEngine() {}
+  ezDocumentClearMsgToEngine() = default;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentOpenResponseMsgToEditor : public ezEditorEngineDocumentMsg
@@ -230,7 +239,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentOpenResponseMsgToEditor : pu
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenResponseMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
-  ezDocumentOpenResponseMsgToEditor() {}
+  ezDocumentOpenResponseMsgToEditor() = default;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewDestroyedMsgToEngine : public ezEditorEngineViewMsg
@@ -299,14 +308,12 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezExportDocumentMsgToEngine : public e
 
 public:
   ezExportDocumentMsgToEngine()
-    : m_uiAssetHash(0)
-    , m_uiVersion(0)
-  {
-  }
+
+    = default;
 
   ezString m_sOutputFile;
-  ezUInt64 m_uiAssetHash;
-  ezUInt16 m_uiVersion;
+  ezUInt64 m_uiAssetHash = 0;
+  ezUInt16 m_uiVersion = 0;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezExportDocumentMsgToEditor : public ezEditorEngineDocumentMsg
@@ -333,7 +340,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEditor : public 
   EZ_ADD_DYNAMIC_REFLECTION(ezCreateThumbnailMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
-  ezCreateThumbnailMsgToEditor() {}
+  ezCreateThumbnailMsgToEditor() = default;
   ezDataBuffer m_ThumbnailData; ///< Raw 8-bit RGBA data (256x256x4 bytes)
 };
 
@@ -564,16 +571,6 @@ public:
 
   ezUInt32 m_uiViewID; /// passed through from ezQuerySelectionBBoxMsgToEngine
   ezInt32 m_iPurpose;  /// passed through from ezQuerySelectionBBoxMsgToEngine
-};
-
-/// \brief Send by the runtime scene whenever a visual script with debug output enabled does anything.
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezVisualScriptActivityMsgToEditor : public ezEditorEngineDocumentMsg
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptActivityMsgToEditor, ezEditorEngineDocumentMsg);
-
-public:
-  ezUuid m_ComponentGuid;
-  ezDataBuffer m_Activity;
 };
 
 /// \brief Send between editor documents, such that one document can know about objects in another document.

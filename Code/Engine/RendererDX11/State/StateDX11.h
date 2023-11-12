@@ -27,7 +27,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11BlendState* m_pDXBlendState;
+  ID3D11BlendState* m_pDXBlendState = nullptr;
 };
 
 class EZ_RENDERERDX11_DLL ezGALDepthStencilStateDX11 : public ezGALDepthStencilState
@@ -47,7 +47,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11DepthStencilState* m_pDXDepthStencilState;
+  ID3D11DepthStencilState* m_pDXDepthStencilState = nullptr;
 };
 
 class EZ_RENDERERDX11_DLL ezGALRasterizerStateDX11 : public ezGALRasterizerState
@@ -67,7 +67,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11RasterizerState* m_pDXRasterizerState;
+  ID3D11RasterizerState* m_pDXRasterizerState = nullptr;
 };
 
 class EZ_RENDERERDX11_DLL ezGALSamplerStateDX11 : public ezGALSamplerState
@@ -87,7 +87,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11SamplerState* m_pDXSamplerState;
+  ID3D11SamplerState* m_pDXSamplerState = nullptr;
 };
 
 

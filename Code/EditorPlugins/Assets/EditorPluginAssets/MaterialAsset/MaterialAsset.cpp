@@ -4,16 +4,169 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <EditorPluginAssets/MaterialAsset/ShaderTypeRegistry.h>
 #include <EditorPluginAssets/VisualShader/VsCodeGenerator.h>
+#include <Foundation/CodeUtils/Preprocessor.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Shader/Implementation/Helper.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>
 #endif
+
+namespace
+{
+  ezResult AddDefines(ezPreprocessor& inout_pp, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+  {
+    ezStringBuilder sDefine;
+
+    const char* szName = pProp->GetPropertyName();
+    if (pProp->GetSpecificType()->GetVariantType() == ezVariantType::Bool)
+    {
+      sDefine.Set(szName, " ", pObject->GetTypeAccessor().GetValue(szName).Get<bool>() ? "TRUE" : "FALSE");
+      return inout_pp.AddCustomDefine(sDefine);
+    }
+    else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+    {
+      ezInt64 iValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezInt64>();
+
+      ezHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumValues;
+      ezReflectionUtils::GetEnumKeysAndValues(pProp->GetSpecificType(), enumValues, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+      for (auto& enumValue : enumValues)
+      {
+        sDefine.Format("{} {}", enumValue.m_sKey, enumValue.m_iValue);
+        EZ_SUCCEED_OR_RETURN(inout_pp.AddCustomDefine(sDefine));
+
+        if (enumValue.m_iValue == iValue)
+        {
+          sDefine.Set(szName, " ", enumValue.m_sKey);
+          EZ_SUCCEED_OR_RETURN(inout_pp.AddCustomDefine(sDefine));
+        }
+      }
+
+      return EZ_SUCCESS;
+    }
+
+    EZ_REPORT_FAILURE("Invalid shader permutation property type '{0}'", pProp->GetSpecificType()->GetTypeName());
+    return EZ_FAILURE;
+  }
+
+  ezResult ParseMaterialConfig(ezStringView sRelativeFileName, const ezDocumentObject* pShaderPropertyObject, ezVariantDictionary& out_materialConfig)
+  {
+    ezStringBuilder sFileContent;
+    {
+      ezFileReader File;
+      if (File.Open(sRelativeFileName).Failed())
+        return EZ_FAILURE;
+
+      sFileContent.ReadAll(File);
+    }
+
+    ezShaderHelper::ezTextSectionizer sections;
+    ezShaderHelper::GetShaderSections(sFileContent, sections);
+
+    ezUInt32 uiFirstLine = 0;
+    ezStringView sMaterialConfig = sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALCONFIG, uiFirstLine);
+
+    ezPreprocessor pp;
+    pp.SetPassThroughPragma(false);
+    pp.SetPassThroughLine(false);
+
+    // set material permutation var
+    {
+      EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine("TRUE 1"));
+      EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine("FALSE 0"));
+
+      ezHybridArray<const ezAbstractProperty*, 32> properties;
+      pShaderPropertyObject->GetType()->GetAllProperties(properties);
+
+      ezStringBuilder sDefine;
+      ezStringBuilder sValue;
+      for (auto& pProp : properties)
+      {
+        const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();
+        if (pCategory == nullptr || ezStringUtils::IsEqual(pCategory->GetCategory(), "Permutation") == false)
+          continue;
+
+        EZ_SUCCEED_OR_RETURN(AddDefines(pp, pShaderPropertyObject, pProp));
+      }
+    }
+
+    pp.SetFileOpenFunction([&](ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& out_fileContent, ezTimestamp& out_fileModification) {
+        if (sAbsoluteFile == "MaterialConfig")
+        {
+          out_fileContent.PushBackRange(ezMakeArrayPtr((const ezUInt8*)sMaterialConfig.GetStartPointer(), sMaterialConfig.GetElementCount()));
+          return EZ_SUCCESS;
+        }
+
+        ezFileReader r;
+        if (r.Open(sAbsoluteFile).Failed())
+        {
+          ezLog::Error("Could not find include file '{0}'", sAbsoluteFile);
+          return EZ_FAILURE;
+        }
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+        ezFileStats stats;
+        if (ezFileSystem::GetFileStats(sAbsoluteFile, stats).Succeeded())
+        {
+          out_fileModification = stats.m_LastModificationTime;
+        }
+#endif
+
+        ezUInt8 Temp[4096];
+        while (ezUInt64 uiRead = r.ReadBytes(Temp, 4096))
+        {
+          out_fileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
+        }
+
+        return EZ_SUCCESS; });
+
+    bool bFoundUndefinedVars = false;
+    pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e) {
+        if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
+        {
+          bFoundUndefinedVars = true;
+
+          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}. Only material permutation variables are allowed in material config sections.", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
+        } });
+
+    ezStringBuilder sOutput;
+    if (pp.Process("MaterialConfig", sOutput, false).Failed() || bFoundUndefinedVars)
+    {
+      ezLog::Error("Preprocessing the material config section failed");
+      return EZ_FAILURE;
+    }
+
+    ezHybridArray<ezStringView, 32> allAssignments;
+    sOutput.Split(false, allAssignments, "\n", ";", "\r");
+
+    ezStringBuilder temp;
+    ezHybridArray<ezStringView, 4> components;
+    for (const ezStringView& assignment : allAssignments)
+    {
+      temp = assignment;
+      temp.Trim(" \t\r\n;");
+      if (temp.IsEmpty())
+        continue;
+
+      temp.Split(false, components, " ", "\t", "=", "\r");
+
+      if (components.GetCount() != 2)
+      {
+        ezLog::Error("Malformed shader state assignment: '{0}'", temp);
+        continue;
+      }
+
+      out_materialConfig[components[0]] = components[1];
+    }
+
+    return EZ_SUCCESS;
+  }
+} // namespace
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialAssetPreview, 1)
@@ -44,7 +197,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 6, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 7, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -119,20 +272,20 @@ void ezMaterialAssetProperties::SetShaderMode(ezEnum<ezMaterialShaderMode> mode)
   {
     case ezMaterialShaderMode::BaseMaterial:
     {
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "");
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "");
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "").AssertSuccess();
     }
     break;
     case ezMaterialShaderMode::File:
     {
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "");
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "");
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "").AssertSuccess();
     }
     break;
     case ezMaterialShaderMode::Custom:
     {
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "");
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", ezConversionUtils::ToString(m_pDocument->GetGuid(), tmp).GetData());
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", ezConversionUtils::ToString(m_pDocument->GetGuid(), tmp).GetData()).AssertSuccess();
     }
     break;
   }
@@ -227,7 +380,7 @@ void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
     // Force generate if custom shader is missing
     ezAssetFileHeader AssetHeader;
     AssetHeader.SetFileHashAndVersion(0, m_pDocument->GetAssetTypeVersion());
-    m_pDocument->RecreateVisualShaderFile(AssetHeader);
+    m_pDocument->RecreateVisualShaderFile(AssetHeader).LogFailure();
     pType = ezShaderTypeRegistry::GetSingleton()->GetShaderType(szShaderPath);
   }
 
@@ -238,7 +391,7 @@ void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
     cmd.m_sParentProperty = "ShaderProperties";
     cmd.m_Parent = m_pDocument->GetPropertyObject()->GetGuid();
     cmd.m_NewObjectGuid = cmd.m_Parent;
-    cmd.m_NewObjectGuid.CombineWithSeed(ezUuid::StableUuidForString("ShaderProperties"));
+    cmd.m_NewObjectGuid.CombineWithSeed(ezUuid::MakeStableUuidFromString("ShaderProperties"));
 
     auto res = pHistory->AddCommand(cmd);
     EZ_ASSERT_DEV(res.m_Result.Succeeded(), "Addition of new properties should never fail.");
@@ -253,9 +406,9 @@ void ezMaterialAssetProperties::SaveOldValues()
   {
     const ezIReflectedTypeAccessor& accessor = pPropObject->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     pType->GetAllProperties(properties);
-    for (ezAbstractProperty* pProp : properties)
+    for (auto pProp : properties)
     {
       if (pProp->GetCategory() == ezPropertyCategory::Member)
       {
@@ -273,9 +426,9 @@ void ezMaterialAssetProperties::LoadOldValues()
   {
     const ezIReflectedTypeAccessor& accessor = pPropObject->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     pType->GetAllProperties(properties);
-    for (ezAbstractProperty* pProp : properties)
+    for (auto pProp : properties)
     {
       if (pProp->GetCategory() == ezPropertyCategory::Member)
       {
@@ -291,7 +444,7 @@ void ezMaterialAssetProperties::LoadOldValues()
             cmd.m_NewValue = it.Value();
 
             // Do not check for success, if a cached value failed to apply, simply ignore it.
-            pHistory->AddCommand(cmd);
+            pHistory->AddCommand(cmd).AssertSuccess();
           }
         }
       }
@@ -338,8 +491,8 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
     {
       EZ_ASSERT_DEV(pAsset->m_pAssetInfo->GetManager() == m_pDocument->GetDocumentManager(), "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
 
-      ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_pAssetInfo->m_sAbsolutePath);
-      ezStringBuilder sResult = pAsset->m_pAssetInfo->GetManager()->GetRelativeOutputFileName(m_pDocument->GetAssetDocumentTypeDescriptor(), sProjectDir, pAsset->m_pAssetInfo->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+      ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_pAssetInfo->m_Path);
+      ezStringBuilder sResult = pAsset->m_pAssetInfo->GetManager()->GetRelativeOutputFileName(m_pDocument->GetAssetDocumentTypeDescriptor(), sProjectDir, pAsset->m_pAssetInfo->m_Path, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
       sResult.Prepend("AssetCache/");
       return sResult;
@@ -360,8 +513,8 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezMaterialAssetDocument::ezMaterialAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
   ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocument::EditorEventHandler, this));
 }
@@ -465,7 +618,7 @@ ezUuid ezMaterialAssetDocument::GetMaterialNodeGuid(const ezAbstractObjectGraph&
 {
   for (auto it = graph.GetAllNodes().GetIterator(); it.IsValid(); ++it)
   {
-    if (ezStringUtils::IsEqual(it.Value()->GetType(), ezGetStaticRTTI<ezMaterialAssetProperties>()->GetTypeName()))
+    if (it.Value()->GetType() == ezGetStaticRTTI<ezMaterialAssetProperties>()->GetTypeName())
     {
       return it.Value()->GetGuid();
     }
@@ -473,11 +626,11 @@ ezUuid ezMaterialAssetDocument::GetMaterialNodeGuid(const ezAbstractObjectGraph&
   return ezUuid();
 }
 
-void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
+void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab)
 {
   // Base
   ezAbstractObjectGraph baseGraph;
-  ezPrefabUtils::LoadGraph(baseGraph, szBasePrefab);
+  ezPrefabUtils::LoadGraph(baseGraph, sBasePrefab);
   baseGraph.PruneGraph(GetMaterialNodeGuid(baseGraph));
 
   // NewBase
@@ -579,7 +732,19 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
       cmd.m_Object.CombineWithSeed(PrefabSeed);
       cmd.m_NewValue = op.m_Value;
       cmd.m_sProperty = op.m_sProperty;
-      GetCommandHistory()->AddCommand(cmd);
+
+      auto pObj = GetObjectAccessor()->GetObject(cmd.m_Object);
+      if (!pObj)
+        continue;
+
+      auto pProp = pObj->GetType()->FindPropertyByName(op.m_sProperty);
+      if (!pProp)
+        continue;
+
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        continue;
+
+      GetCommandHistory()->AddCommand(cmd).AssertSuccess();
     }
   }
 
@@ -625,9 +790,9 @@ public:
   }
 };
 
-ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
+  if (sOutputTag.IsEqual(ezMaterialAssetDocumentManager::s_szShaderOutputTag))
   {
     ezStatus ret = RecreateVisualShaderFile(AssetHeader);
 
@@ -712,13 +877,13 @@ ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(const char* sz
   }
   else
   {
-    return SUPER::InternalTransformAsset(szTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
+    return SUPER::InternalTransformAsset(szTargetFile, sOutputTag, pAssetProfile, AssetHeader, transformFlags);
   }
 }
 
-ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
+  EZ_ASSERT_DEV(sOutputTag.IsEmpty(), "Additional output '{0}' not implemented!", sOutputTag);
 
   return WriteMaterialAsset(stream, pAssetProfile, true);
 }
@@ -798,7 +963,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
   // now generate the .ezMaterialBin file
   {
-    const ezUInt8 uiVersion = 6;
+    const ezUInt8 uiVersion = 7;
 
     inout_stream0 << uiVersion;
 
@@ -806,7 +971,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
     uiCompressionMode = 1;
-    ezCompressedStreamWriterZstd stream(&inout_stream0, ezCompressedStreamWriterZstd::Compression::Average);
+    ezCompressedStreamWriterZstd stream(&inout_stream0, 0, ezCompressedStreamWriterZstd::Compression::Average);
 #else
     ezStreamWriter& stream = stream0;
 #endif
@@ -815,26 +980,28 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
     stream << pProp->m_sBaseMaterial;
     stream << pProp->m_sSurface;
-    stream << pProp->ResolveRelativeShaderPath();
 
-    ezHybridArray<ezAbstractProperty*, 16> Textures2D;
-    ezHybridArray<ezAbstractProperty*, 16> TexturesCube;
-    ezHybridArray<ezAbstractProperty*, 16> Permutation;
-    ezHybridArray<ezAbstractProperty*, 16> Constants;
+    ezString sRelativeShaderPath = pProp->ResolveRelativeShaderPath();
+    stream << sRelativeShaderPath;
+
+    ezHybridArray<const ezAbstractProperty*, 16> Textures2D;
+    ezHybridArray<const ezAbstractProperty*, 16> TexturesCube;
+    ezHybridArray<const ezAbstractProperty*, 16> Permutations;
+    ezHybridArray<const ezAbstractProperty*, 16> Constants;
 
     const ezDocumentObject* pObject = GetShaderPropertyObject();
-    if (pObject)
+    if (pObject != nullptr)
     {
       bool hasBaseMaterial = ezPrefabUtils::GetPrefabRoot(pObject, *m_DocumentObjectMetaData).IsValid();
       auto pType = pObject->GetTypeAccessor().GetType();
-      ezHybridArray<ezAbstractProperty*, 32> properties;
+      ezHybridArray<const ezAbstractProperty*, 32> properties;
       pType->GetAllProperties(properties);
 
       ezHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pObject, ezVariant()});
       ezDefaultObjectState defaultState(GetObjectAccessor(), selection.GetArrayPtr());
 
-      for (auto* pProp : properties)
+      for (auto pProp : properties)
       {
         if (hasBaseMaterial && defaultState.IsDefaultValue(pProp))
           continue;
@@ -855,7 +1022,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
         }
         else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Permutation"))
         {
-          Permutation.PushBack(pProp);
+          Permutations.PushBack(pProp);
         }
         else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Constant"))
         {
@@ -870,26 +1037,23 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
     // write out the permutation variables
     {
-      const ezUInt16 uiPermVars = Permutation.GetCount();
+      const ezUInt16 uiPermVars = Permutations.GetCount();
       stream << uiPermVars;
 
-      for (ezUInt32 p = 0; p < uiPermVars; ++p)
+      for (auto pProp : Permutations)
       {
-        const char* szName = Permutation[p]->GetPropertyName();
-        if (Permutation[p]->GetSpecificType()->GetVariantType() == ezVariantType::Bool)
+        const char* szName = pProp->GetPropertyName();
+        if (pProp->GetSpecificType()->GetVariantType() == ezVariantType::Bool)
         {
           sValue = pObject->GetTypeAccessor().GetValue(szName).Get<bool>() ? "TRUE" : "FALSE";
         }
-        else if (Permutation[p]->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
         {
-          ezStringBuilder s;
-          ezReflectionUtils::EnumerationToString(Permutation[p]->GetSpecificType(), pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezInt64>(), s);
-
-          sValue = s.FindLastSubString("::") + 2;
+          ezReflectionUtils::EnumerationToString(pProp->GetSpecificType(), pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezInt64>(), sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
         }
         else
         {
-          EZ_REPORT_FAILURE("Invalid shader permutation property type '{0}'", Permutation[p]->GetSpecificType()->GetTypeName());
+          EZ_REPORT_FAILURE("Invalid shader permutation property type '{0}'", pProp->GetSpecificType()->GetTypeName());
         }
 
         stream << szName;
@@ -902,9 +1066,9 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
       const ezUInt16 uiTextures = Textures2D.GetCount();
       stream << uiTextures;
 
-      for (ezUInt32 p = 0; p < uiTextures; ++p)
+      for (auto pProp : Textures2D)
       {
-        const char* szName = Textures2D[p]->GetPropertyName();
+        const char* szName = pProp->GetPropertyName();
         sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
 
         stream << szName;
@@ -917,9 +1081,9 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
       const ezUInt16 uiTextures = TexturesCube.GetCount();
       stream << uiTextures;
 
-      for (ezUInt32 p = 0; p < uiTextures; ++p)
+      for (auto pProp : TexturesCube)
       {
-        const char* szName = TexturesCube[p]->GetPropertyName();
+        const char* szName = pProp->GetPropertyName();
         sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
 
         stream << szName;
@@ -932,14 +1096,28 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
       const ezUInt16 uiConstants = Constants.GetCount();
       stream << uiConstants;
 
-      for (ezUInt32 p = 0; p < uiConstants; ++p)
+      for (auto pProp : Constants)
       {
-        const char* szName = Constants[p]->GetPropertyName();
+        const char* szName = pProp->GetPropertyName();
         ezVariant value = pObject->GetTypeAccessor().GetValue(szName);
 
         stream << szName;
         stream << value;
       }
+    }
+
+    // render data category
+    {
+      ezVariantDictionary materialConfig;
+      if (pObject != nullptr)
+      {
+        EZ_SUCCEED_OR_RETURN(ParseMaterialConfig(sRelativeShaderPath, pObject, materialConfig));
+      }
+
+      ezVariant renderDataCategory;
+      materialConfig.TryGetValue("RenderDataCategory", renderDataCategory);
+
+      stream << renderDataCategory.ConvertTo<ezString>();
     }
 
     // find and embed low res texture data
@@ -950,7 +1128,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
         ezDynamicArray<ezUInt32> content;
 
         // embed 2D texture data
-        for (ezAbstractProperty* prop : Textures2D)
+        for (auto prop : Textures2D)
         {
           const char* szName = prop->GetPropertyName();
           sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
@@ -964,7 +1142,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
           if (!asset.isValid())
             continue;
 
-          sValue = asset->m_pAssetInfo->GetManager()->GetAbsoluteOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, asset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
+          sValue = asset->m_pAssetInfo->GetManager()->GetAbsoluteOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, asset->m_pAssetInfo->m_Path, "", pAssetProfile);
 
           sFilename = sValue.GetFileName();
           sFilename.Append("-lowres");
@@ -1159,7 +1337,7 @@ void ezMaterialAssetDocument::RemoveDisconnectedNodes()
       ezRemoveNodeCommand rem;
       rem.m_Object = it.Key()->GetGuid();
 
-      pHistory->AddCommand(rem);
+      pHistory->AddCommand(rem).AssertSuccess();
     }
 
     pHistory->FinishTransaction();
@@ -1221,7 +1399,7 @@ bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_obj
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
-bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);

@@ -22,7 +22,6 @@ struct EZ_CORE_DLL ezExposedPrefabParameterDesc
 
   void Save(ezStreamWriter& inout_stream) const;
   void Load(ezStreamReader& inout_stream);
-  void LoadOld(ezStreamReader& inout_stream);
 };
 
 class EZ_CORE_DLL ezPrefabResource : public ezResource

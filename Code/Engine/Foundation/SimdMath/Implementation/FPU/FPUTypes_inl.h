@@ -4,8 +4,8 @@
 
 namespace ezInternal
 {
-  typedef ezVec4 QuadFloat;
-  typedef ezVec4I32 QuadInt;
-  typedef ezVec4U32 QuadUInt;
-  typedef ezVec4U32 QuadBool;
+  using QuadFloat = ezVec4;
+  using QuadInt = ezVec4I32;
+  using QuadUInt = ezVec4U32;
+  using QuadBool = ezVec4U32;
 } // namespace ezInternal

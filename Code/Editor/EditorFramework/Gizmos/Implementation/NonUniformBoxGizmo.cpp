@@ -34,7 +34,7 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
   }
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezNonUniformBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -60,7 +60,7 @@ void ezNonUniformBoxGizmo::OnVisibleChanged(bool bVisible)
 void ezNonUniformBoxGizmo::OnTransformationChanged(const ezTransform& transform)
 {
   ezMat4 scale, rot;
-  scale.SetScalingMatrix(m_vNegSize + m_vPosSize);
+  scale = ezMat4::MakeScaling(m_vNegSize + m_vPosSize);
 
   const ezVec3 center = ezMath::Lerp(-m_vNegSize, m_vPosSize, 0.5f);
 
@@ -206,13 +206,10 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
-
-  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
-  const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
 
   m_vNegSize = m_vStartNegSize;
   m_vPosSize = m_vStartPosSize;
@@ -316,7 +313,7 @@ ezResult ezNonUniformBoxGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScre
   const ezVec3 vPlaneNormal = m_vMoveAxis.CrossRH(vPlaneTangent);
 
   ezPlane Plane;
-  Plane.SetFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
+  Plane = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
 
   ezVec3 vIntersection;
   if (m_pCamera->IsPerspective())

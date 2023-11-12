@@ -21,14 +21,14 @@ void ezRttiConverterContext::OnUnknownTypeError(ezStringView sTypeName)
 ezUuid ezRttiConverterContext::GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const
 {
   ezUuid guid = parentGuid;
-  guid.HashCombine(ezUuid::StableUuidForString(pProp->GetPropertyName()));
+  guid.HashCombine(ezUuid::MakeStableUuidFromString(pProp->GetPropertyName()));
   if (index.IsA<ezString>())
   {
-    guid.HashCombine(ezUuid::StableUuidForString(index.Get<ezString>()));
+    guid.HashCombine(ezUuid::MakeStableUuidFromString(index.Get<ezString>()));
   }
   else if (index.CanConvertTo<ezUInt32>())
   {
-    guid.HashCombine(ezUuid::StableUuidForInt(index.ConvertTo<ezUInt32>()));
+    guid.HashCombine(ezUuid::MakeStableUuidFromInt(index.ConvertTo<ezUInt32>()));
   }
   else if (index.IsValid())
   {
@@ -106,6 +106,11 @@ ezUuid ezRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, const void* pO
   return guid;
 }
 
+const ezRTTI* ezRttiConverterContext::FindTypeByName(ezStringView sName) const
+{
+  return ezRTTI::FindTypeByName(sName);
+}
+
 ezUuid ezRttiConverterContext::EnqueObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject)
 {
   EZ_ASSERT_DEBUG(guid.IsValid(), "For stable serialization, guid must be well defined");
@@ -164,11 +169,11 @@ ezRttiConverterWriter::ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRt
 }
 
 ezRttiConverterWriter::ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, FilterFunction filter)
+  : m_pContext(pContext)
+  , m_pGraph(pGraph)
+  , m_Filter(filter)
 {
   EZ_ASSERT_DEBUG(filter.IsValid(), "Either filter function must be valid or a different ctor must be chosen.");
-  m_pGraph = pGraph;
-  m_pContext = pContext;
-  m_Filter = filter;
 }
 
 ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtti, const void* pObject, const char* szNodeName)

@@ -91,7 +91,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, 
 template <typename Destination, typename Source>
 EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, Source&& source)
 {
-  typedef typename std::is_rvalue_reference<decltype(source)>::type IsRValueRef;
+  using IsRValueRef = typename std::is_rvalue_reference<decltype(source)>::type;
   CopyOrMoveConstruct<Destination, Source>(pDestination, std::forward<Source>(source), IsRValueRef());
 }
 
@@ -372,6 +372,8 @@ template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsPod)
 {
   // Nothing to do here. See Construct of for more info.
+
+  static_assert(std::is_trivially_destructible<T>::value != 0, "Class is declared as POD but has a non-trivial destructor. Remove the destructor or don't declare it as POD.");
 }
 
 template <typename T>
