@@ -36,6 +36,7 @@ struct ezSubstanceGraphOutput
   ezEnum<ezTexConvCompressionMode> m_CompressionMode;
   ezEnum<ezSubstanceUsage> m_Usage;
   ezUInt8 m_uiNumChannels = 1;
+  bool m_bPreserveAlphaCoverage = false;
   ezString m_sName;
   ezString m_sLabel;
   ezUuid m_Uuid;
@@ -46,6 +47,7 @@ struct ezSubstanceGraphOutput
            m_CompressionMode == other.m_CompressionMode &&
            m_Usage == other.m_Usage &&
            m_uiNumChannels == other.m_uiNumChannels &&
+           m_bPreserveAlphaCoverage == other.m_bPreserveAlphaCoverage &&
            m_sName == other.m_sName &&
            m_sLabel == other.m_sLabel &&
            m_Uuid == other.m_Uuid;
