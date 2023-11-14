@@ -209,6 +209,14 @@ void ezColor::ScaleRGB(float fFactor)
   b *= fFactor;
 }
 
+void ezColor::ScaleRGBA(float fFactor)
+{
+  r *= fFactor;
+  g *= fFactor;
+  b *= fFactor;
+  a *= fFactor;
+}
+
 float ezColor::ComputeHdrMultiplier() const
 {
   return ezMath::Max(1.0f, r, g, b);

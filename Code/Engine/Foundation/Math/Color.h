@@ -3,7 +3,7 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec4.h>
 
-/// \brief ezColor represents and RGBA color in linear color space. Values are stored as float, allowing HDR values and full precision color
+/// \brief ezColor represents an RGBA color in linear color space. Values are stored as float, allowing HDR values and full precision color
 /// modifications.
 ///
 /// ezColor is the central class to handle colors throughout the engine. With floating point precision it can handle any value, including HDR colors.
@@ -12,7 +12,7 @@
 /// When you need to pass colors to the GPU you have multiple options.
 ///   * If you can spare the bandwidth, you should prefer to use floating point formats, e.g. the same as ezColor on the CPU.
 ///   * If you need higher precision and HDR values, you can use ezColorLinear16f as a storage format with only half the memory footprint.
-///   * If you need to use preserve memory and LDR values are sufficient, you should use ezColorGammaUB. This format uses 8 Bit per pixel
+///   * If you need to preserve memory and LDR values are sufficient, you should use ezColorGammaUB. This format uses 8 Bit per pixel
 ///     but stores colors in Gamma space, resulting in higher precision in the range that the human eye can distinguish better.
 ///     However, when you store a color in Gamma space, you need to make sure to convert it back to linear space before doing ANY computations
 ///     with it. E.g. your shader needs to convert the color.
@@ -256,7 +256,7 @@ public:
   /// \brief Converts the color part to HSV format.
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
-  void GetHSV(float& ref_fHue, float& ref_fSat, float& ref_fVal) const; // [tested]
+  void GetHSV(float& out_fHue, float& out_fSat, float& out_fValue) const; // [tested]
 
   /// \brief Conversion to const float*
   const float* GetData() const { return &r; }
@@ -302,6 +302,9 @@ public:
 
   /// \brief Multiplies the given factor into red, green and blue, but not alpha.
   void ScaleRGB(float fFactor);
+
+  /// \brief Multiplies the given factor into red, green, blue and also alpha.
+  void ScaleRGBA(float fFactor);
 
   /// \brief Returns 1 for an LDR color (all ´RGB components < 1). Otherwise the value of the largest component. Ignores alpha.
   float ComputeHdrMultiplier() const;
