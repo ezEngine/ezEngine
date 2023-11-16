@@ -12,7 +12,7 @@
 
 namespace ezProcGenInternal
 {
-  extern Pattern* GetPattern(ezTempHashedString sName);
+  extern Pattern* GetPattern(ezProcPlacementPattern::Enum pattern);
 }
 
 using namespace ezProcGenInternal;
@@ -140,8 +140,6 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
             pOutput->m_ObjectsToPlace.ExpandAndGetRef() = ezResourceManager::LoadResource<ezPrefabResource>(sTemp);
           }
 
-          pOutput->m_pPattern = ezProcGenInternal::GetPattern("Bayer");
-
           chunk >> pOutput->m_fFootprint;
 
           chunk >> pOutput->m_vMinOffset;
@@ -176,6 +174,14 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           {
             chunk >> pOutput->m_Mode;
           }
+
+          ezEnum<ezProcPlacementPattern> pattern = ezProcPlacementPattern::RegularGrid;
+          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 7)
+          {
+            chunk >> pattern;
+          }
+          
+          pOutput->m_pPattern = ezProcGenInternal::GetPattern(pattern);
 
           m_PlacementOutputs.PushBack(pOutput);
         }
@@ -251,7 +257,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezProcGenGraphResource, ezProcGenGraphResourceD
   auto pOutput = EZ_DEFAULT_NEW(PlacementOutput);
   pOutput->m_sName.Assign("MissingPlacementOutput");
   pOutput->m_ObjectsToPlace.PushBack(ezResourceManager::GetResourceTypeMissingFallback<ezPrefabResource>());
-  pOutput->m_pPattern = ezProcGenInternal::GetPattern("Bayer");
+  pOutput->m_pPattern = ezProcGenInternal::GetPattern(ezProcPlacementPattern::RegularGrid);
   pOutput->m_fFootprint = 3.0f;
   pOutput->m_vMinOffset.Set(-1.0f, -1.0f, -0.5f);
   pOutput->m_vMaxOffset.Set(1.0f, 1.0f, 0.0f);

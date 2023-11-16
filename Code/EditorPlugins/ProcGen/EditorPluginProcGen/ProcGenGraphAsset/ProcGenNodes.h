@@ -76,6 +76,7 @@ public:
   ezString m_sColorGradient;
 
   ezEnum<ezProcPlacementMode> m_PlacementMode;
+  ezEnum<ezProcPlacementPattern> m_PlacementPattern;
 
   ezRenderPipelineNodeInputPin m_DensityPin;
   ezRenderPipelineNodeInputPin m_ScalePin;

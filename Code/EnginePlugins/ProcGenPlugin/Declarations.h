@@ -99,6 +99,24 @@ struct ezProcPlacementMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcPlacementMode);
 
+struct ezProcPlacementPattern
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    RegularGrid,
+    HexGrid,
+    Natural,
+
+    COUNT,
+
+    Default = Natural
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcPlacementPattern);
+
 struct ezProcVolumeImageMode
 {
   using StorageType = ezUInt8;
@@ -138,8 +156,9 @@ namespace ezProcGenInternal
   {
     struct Point
     {
-      ezVec2 m_Coordinates;
-      float m_fThreshold;
+      float x;
+      float y;
+      float threshold;
     };
 
     ezArrayPtr<Point> m_Points;

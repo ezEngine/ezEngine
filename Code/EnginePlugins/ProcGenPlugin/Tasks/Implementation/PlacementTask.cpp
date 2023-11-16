@@ -69,7 +69,7 @@ void PlacementTask::FindPlacementPoints()
   for (ezUInt32 i = 0; i < patternPoints.GetCount(); ++i)
   {
     auto& patternPoint = patternPoints[i];
-    ezSimdVec4f patternCoords = ezSimdConversion::ToVec3(patternPoint.m_Coordinates.GetAsVec3(0.0f));
+    ezSimdVec4f patternCoords = ezSimdVec4f(patternPoint.x, patternPoint.y, 0.0f);
 
     ezPhysicsCastResult hitResult;
 
@@ -176,7 +176,7 @@ void PlacementTask::ExecuteVM()
     {
       auto& inputPoint = m_InputPoints[i];
       const ezUInt32 uiPointIndex = inputPoint.m_uiPointIndex;
-      const float fThreshold = pPattern->m_Points[uiPointIndex].m_fThreshold;
+      const float fThreshold = pPattern->m_Points[uiPointIndex].threshold;
 
       if (m_Density[i] >= fThreshold)
       {
