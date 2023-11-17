@@ -19,18 +19,6 @@ ezResult ezCppSettings::Save(ezStringView sFile)
 
   ezOpenDdlUtils::StoreString(ddl, m_sPluginName, "PluginName");
 
-  switch (m_Compiler)
-  {
-    case Compiler::None:
-      ezOpenDdlUtils::StoreString(ddl, "", "Compiler");
-      break;
-    case Compiler::Vs2022:
-      ezOpenDdlUtils::StoreString(ddl, "Vs2022", "Compiler");
-      break;
-
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
-
   ddl.EndObject();
 
   return EZ_SUCCESS;
@@ -49,14 +37,6 @@ ezResult ezCppSettings::Load(ezStringView sFile)
     if (auto pValue = pTarget->FindChildOfType(ezOpenDdlPrimitiveType::String, "PluginName"))
     {
       m_sPluginName = pValue->GetPrimitivesString()[0];
-    }
-
-    if (auto pValue = pTarget->FindChildOfType(ezOpenDdlPrimitiveType::String, "Compiler"))
-    {
-      if (pValue->GetPrimitivesString()[0] == "Vs2022")
-        m_Compiler = Compiler::Vs2022;
-      else
-        m_Compiler = Compiler::None;
     }
   }
 

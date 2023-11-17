@@ -104,7 +104,6 @@ ezTestAppRun ezEditorTestProject::CreateCppSolution()
   EZ_TEST_BOOL(!ezCppProject::ExistsSolution(cpp));
 
   cpp.m_sPluginName = "TestPlugin";
-  cpp.m_Compiler = ezCppSettings::Compiler::Vs2022;
 
   EZ_TEST_RESULT(cpp.Save());
   EZ_TEST_RESULT(ezCppProject::CleanBuildDir(cpp));

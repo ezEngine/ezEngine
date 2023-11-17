@@ -45,7 +45,7 @@ Project.RecentDocuments.Menu;&Recently Opened
 Project.Close;Close Project
 G.Project.Cpp;C++ Project
 Project.SetupCppProject;&Setup C++ Plugin...
-Project.OpenCppProject;&Open Solution
+Project.OpenCppProject;&Open in IDE
 Project.CompileCppProject;&Compile Plugin
 Project.RegenerateCppSolution;&Regenerate C++ Solution
 Project.ExportProject;&Export Project...
@@ -265,3 +265,7 @@ ezVariantType::Time;Time
 ezVariantType::Uuid;Uuid
 ezVariantType::Angle;Angle
 ezVariantType::ColorGamma;ColorGamma
+
+# Compiler Preferences
+
+ezCompilerPreferences::CppCompiler;C++ Compiler

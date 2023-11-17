@@ -349,6 +349,19 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
       EndArray();
     }
       return;
+    case ezVariant::Type::VariantDictionary:
+    {
+      BeginObject();
+
+      const auto& dict = value.Get<ezVariantDictionary>();
+
+      for(auto& kv : dict)
+      {
+        AddVariableVariant(kv.Key(), kv.Value());
+      }
+      EndObject();
+    }
+      return;
 
     default:
       break;
