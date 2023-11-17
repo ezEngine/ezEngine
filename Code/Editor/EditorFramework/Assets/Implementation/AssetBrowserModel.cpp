@@ -60,12 +60,25 @@ struct FileComparer
       sSortB = b.m_sAbsFilePath.GetAbsolutePath().GetFileNameAndExtension();
     }
 
-    if (m_bSortByRecentlyUsed && pInfoA && pInfoB)
+    if (m_bSortByRecentlyUsed)
     {
-      if (pInfoA->m_LastAccess.GetSeconds() != pInfoB->m_LastAccess.GetSeconds())
+      if (pInfoA && pInfoB)
       {
-        return pInfoA->m_LastAccess > pInfoB->m_LastAccess;
+        if (pInfoA->m_LastAccess != pInfoB->m_LastAccess)
+        {
+          return pInfoA->m_LastAccess > pInfoB->m_LastAccess;
+        }
       }
+      else if (pInfoA && pInfoA->m_LastAccess.IsPositive())
+      {
+        return true;
+      }
+      else if (pInfoB && pInfoB->m_LastAccess.IsPositive())
+      {
+        return false;
+      }
+
+      // in all other cases, fall through and do the file name comparison
     }
 
     ezInt32 iValue = sSortA.Compare_NoCase(sSortB);
