@@ -29,7 +29,8 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
 
   setCentralWidget(m_pQuadViewWidget);
 
-  SetTargetFramerate(60);
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  SetTargetFramerate(pPreferences->GetMaxFramerate());
 
   {
     // Menu Bar
