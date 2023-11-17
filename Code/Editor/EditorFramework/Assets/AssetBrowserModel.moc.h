@@ -20,6 +20,7 @@ public:
   explicit ezQtAssetFilter(QObject* pParent);
   virtual bool IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const = 0;
   virtual ezStringView GetFilterRelativePath(ezStringView sDataDirParentRelativePath) const { return sDataDirParentRelativePath; }
+  virtual bool GetSortByRecentUse() const { return false; }
 
 Q_SIGNALS:
   void FilterChanged();

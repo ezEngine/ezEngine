@@ -27,7 +27,7 @@ public:
   bool GetShowItemsInHiddenFolders() const { return m_bShowItemsInHiddenFolders; }
 
   void SetSortByRecentUse(bool bSort);
-  bool GetSortByRecentUse() const { return m_bSortByRecentUse; }
+  virtual bool GetSortByRecentUse() const override { return m_bSortByRecentUse; }
 
   void SetTextFilter(const char* szText);
   const char* GetTextFilter() const { return m_SearchFilter.GetSearchText(); }
