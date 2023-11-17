@@ -910,6 +910,9 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
     }
     m_pModel->OnFileSystemUpdate();
 
+    // it is necessary to flush the events queued on the main thread, otherwise opening the asset may not work as intended
+    ezAssetCurator::GetSingleton()->MainThreadTick(true);
+
     ezInt32 iNewIndex = m_pModel->FindIndex(sNewPath);
     if (iNewIndex != -1)
     {
@@ -924,21 +927,14 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
   {
     m_bOpenAfterRename = false;
 
-    // I don't understand why, but if we immediately execute on_ListAssets_doubleClicked() here, then the opened document will be in a broken state
-    // maybe something else has to happen on the main thread first ?
-    // using a delay (even of 0) fixes the problem
-    QTimer::singleShot(100, this, [this, sNewPath]()
-      {
-        ezInt32 iNewIndex = m_pModel->FindIndex(sNewPath);
-        if (iNewIndex != -1)
-        {
-          QModelIndex idx = m_pModel->index(iNewIndex, 0);
-          on_ListAssets_doubleClicked(idx);
-        } //
-      });
+    ezInt32 iNewIndex = m_pModel->FindIndex(sNewPath);
+    if (iNewIndex != -1)
+    {
+      QModelIndex idx = m_pModel->index(iNewIndex, 0);
+      on_ListAssets_doubleClicked(idx);
+    }
   }
 }
-
 
 void ezQtAssetBrowserWidget::ImportSelection()
 {
