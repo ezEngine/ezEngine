@@ -285,7 +285,11 @@ void ezQtParticleEffectAssetDocumentWindow::SelectSystem(ezDocumentObject* pObje
     m_pPropertyGridBehavior->ClearSelection();
     m_pPropertyGridType->ClearSelection();
 
+    if (m_pSystemsCombo->currentIndex() != -1)
+    {
+      // prevent infinite recursion
     m_pSystemsCombo->setCurrentIndex(-1);
+  }
   }
   else
   {
@@ -347,8 +351,9 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
   }
 
   ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  ezObjectAccessorBase* pAccessor = GetDocument()->GetObjectAccessor();
 
-  GetDocument()->GetObjectAccessor()->StartTransaction("Add Particle System");
+  pAccessor->StartTransaction("Add Particle System");
   ezUuid systemGuid = ezUuid::MakeUuid();
 
   {
@@ -361,7 +366,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
     if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
     {
-      GetDocument()->GetObjectAccessor()->CancelTransaction();
+      pAccessor->CancelTransaction();
       return;
     }
   }
@@ -377,14 +382,14 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
     if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
     {
-      GetDocument()->GetObjectAccessor()->CancelTransaction();
+      pAccessor->CancelTransaction();
       return;
     }
   }
 
   // default system setup
   {
-    const ezDocumentObject* pSystemObject = GetDocument()->GetObjectAccessor()->GetObject(systemGuid);
+    const ezDocumentObject* pSystemObject = pAccessor->GetObject(systemGuid);
 
     // default life
     {
@@ -402,7 +407,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
           if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
           {
-            GetDocument()->GetObjectAccessor()->CancelTransaction();
+        pAccessor->CancelTransaction();
             return;
           }
 
@@ -421,7 +426,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
       if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
       {
-        GetDocument()->GetObjectAccessor()->CancelTransaction();
+        pAccessor->CancelTransaction();
         return;
       }
     }
@@ -436,11 +441,11 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
       if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
       {
-        GetDocument()->GetObjectAccessor()->CancelTransaction();
+        pAccessor->CancelTransaction();
         return;
       }
 
-      const ezDocumentObject* pConeObject = GetDocument()->GetObjectAccessor()->GetObject(cmd.m_NewObjectGuid);
+      const ezDocumentObject* pConeObject = pAccessor->GetObject(cmd.m_NewObjectGuid);
 
       // default speed
       {
@@ -458,7 +463,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
             if (GetDocument()->GetCommandHistory()->AddCommand(cmd2).Failed())
             {
-              GetDocument()->GetObjectAccessor()->CancelTransaction();
+              pAccessor->CancelTransaction();
               return;
             }
 
@@ -478,7 +483,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
       if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
       {
-        GetDocument()->GetObjectAccessor()->CancelTransaction();
+        pAccessor->CancelTransaction();
         return;
       }
 
@@ -491,7 +496,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
         if (GetDocument()->GetCommandHistory()->AddCommand(cmd2).Failed())
         {
-          GetDocument()->GetObjectAccessor()->CancelTransaction();
+          pAccessor->CancelTransaction();
           return;
         }
       }
@@ -505,7 +510,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
         if (GetDocument()->GetCommandHistory()->AddCommand(cmd2).Failed())
         {
-          GetDocument()->GetObjectAccessor()->CancelTransaction();
+          pAccessor->CancelTransaction();
           return;
         }
       }
@@ -521,7 +526,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
       if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
       {
-        GetDocument()->GetObjectAccessor()->CancelTransaction();
+        pAccessor->CancelTransaction();
         return;
       }
     }
@@ -536,13 +541,13 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
       if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
       {
-        GetDocument()->GetObjectAccessor()->CancelTransaction();
+        pAccessor->CancelTransaction();
         return;
       }
     }
   }
 
-  GetDocument()->GetObjectAccessor()->FinishTransaction();
+  pAccessor->FinishTransaction();
 }
 
 void ezQtParticleEffectAssetDocumentWindow::onRemoveSystem(bool)
