@@ -910,6 +910,9 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
     }
     m_pModel->OnFileSystemUpdate();
 
+    // it is necessary to flush the events queued on the main thread, otherwise opening the asset may not work as intended
+    ezAssetCurator::GetSingleton()->MainThreadTick(true);
+
     ezInt32 iNewIndex = m_pModel->FindIndex(sNewPath);
     if (iNewIndex != -1)
     {
@@ -923,6 +926,7 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
   if (m_bOpenAfterRename)
   {
     m_bOpenAfterRename = false;
+
     ezInt32 iNewIndex = m_pModel->FindIndex(sNewPath);
     if (iNewIndex != -1)
     {
@@ -931,7 +935,6 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
     }
   }
 }
-
 
 void ezQtAssetBrowserWidget::ImportSelection()
 {
