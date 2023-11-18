@@ -46,6 +46,16 @@ ezTransformStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
     CreateMeshFromGeom(pProp, desc);
   }
 
+  // if there is no material set for a slot, use the "Pattern" material as a fallback
+  for (ezUInt32 matIdx = 0; matIdx < desc.GetMaterials().GetCount(); ++matIdx)
+  {
+    if (desc.GetMaterials()[matIdx].m_sPath.IsEmpty())
+    {
+      // Data/Base/Materials/Common/Pattern.ezMaterialAsset
+      desc.SetMaterial(matIdx, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
+    }
+  }
+
   range.BeginNextStep("Writing Result");
   desc.Save(stream);
 
@@ -58,7 +68,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
 
   ezGeometry geom;
-  //const ezMat4 mTrans(mTransformation, ezVec3::MakeZero());
+  // const ezMat4 mTrans(mTransformation, ezVec3::MakeZero());
 
   ezGeometry::GeoOptions opt;
   opt.m_Transform = ezMat4(mTransformation, ezVec3::MakeZero());
@@ -180,11 +190,13 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
       desc.SetMaterial(0, "");
   }
 
+  // the the procedurally generated geometry we can always use fixed, low precision data, because we know that the geometry isn't detailed enough to run into problems
+  // and then we can unclutter the UI a little by not showing those options at all
   auto& mbd = desc.MeshBufferDesc();
   mbd.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezMeshTexCoordPrecision::ToResourceFormat(pProp->m_TexCoordPrecision));
-  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(pProp->m_NormalPrecision));
-  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(pProp->m_NormalPrecision));
+  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::_16Bit /*pProp->m_TexCoordPrecision*/));
+  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_10Bit /*pProp->m_NormalPrecision*/));
+  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::_10Bit /*pProp->m_NormalPrecision*/));
 
   mbd.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
   desc.AddSubMesh(mbd.GetPrimitiveCount(), 0, 0);

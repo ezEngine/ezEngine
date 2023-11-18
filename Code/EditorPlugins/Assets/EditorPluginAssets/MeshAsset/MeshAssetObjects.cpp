@@ -87,12 +87,20 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
     props["Cap2"].m_Visibility = ezPropertyUiState::Invisible;
     props["Angle"].m_Visibility = ezPropertyUiState::Invisible;
     props["ImportMaterials"].m_Visibility = ezPropertyUiState::Invisible;
+    props["RecalculateNormals"].m_Visibility = ezPropertyUiState::Invisible;
+    props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Invisible;
+    props["NormalPrecision"].m_Visibility = ezPropertyUiState::Invisible;
+    props["TexCoordPrecision"].m_Visibility = ezPropertyUiState::Invisible;
 
     switch (primType)
     {
       case ezMeshPrimitive::File:
         props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
         props["ImportMaterials"].m_Visibility = ezPropertyUiState::Default;
+        props["RecalculateNormals"].m_Visibility = ezPropertyUiState::Default;
+        props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Default;
+        props["NormalPrecision"].m_Visibility = ezPropertyUiState::Default;
+        props["TexCoordPrecision"].m_Visibility = ezPropertyUiState::Default;
         break;
 
       case ezMeshPrimitive::Box:
