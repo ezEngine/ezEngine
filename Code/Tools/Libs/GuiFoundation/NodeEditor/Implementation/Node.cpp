@@ -183,7 +183,7 @@ void ezQtNode::UpdateState()
   else
   {
     ezStringBuilder tmp;
-    m_pTitleLabel->setPlainText(ezTranslate(typeAccessor.GetType()->GetTypeName().GetData(tmp)));
+    m_pTitleLabel->setPlainText(ezMakeQString(ezTranslate(typeAccessor.GetType()->GetTypeName().GetData(tmp))));
   }
 }
 

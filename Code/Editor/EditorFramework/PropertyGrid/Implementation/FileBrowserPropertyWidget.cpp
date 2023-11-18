@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/QtFileLineEdit.moc.h>
@@ -66,9 +67,9 @@ void ezQtFilePropertyWidget::OnInit()
   auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
   EZ_ASSERT_DEV(pAttr != nullptr, "ezQtFilePropertyWidget was created without a ezFileBrowserAttribute!");
 
-  if (!ezStringUtils::IsNullOrEmpty(pAttr->GetCustomAction()))
+  if (!pAttr->GetCustomAction().IsEmpty())
   {
-    m_pButton->menu()->addAction(QIcon(), ezTranslate(pAttr->GetCustomAction()), this, SLOT(OnCustomAction()));
+    m_pButton->menu()->addAction(QIcon(), ezMakeQString(ezTranslate(pAttr->GetCustomAction())), this, SLOT(OnCustomAction()));
   }
 }
 
@@ -168,21 +169,23 @@ void ezQtFilePropertyWidget::on_BrowseFile_clicked()
   if (sStartDir.IsEmpty())
     sStartDir = ezToolsProject::GetSingleton()->GetProjectFile();
 
-  QString sResult = QFileDialog::getOpenFileName(this, pFileAttribute->GetDialogTitle(), sStartDir.GetData(), pFileAttribute->GetTypeFilter(), nullptr, QFileDialog::Option::DontResolveSymlinks);
-
-  if (sResult.isEmpty())
+  ezQtAssetBrowserDlg dlg(this, pFileAttribute->GetDialogTitle(), sFile, pFileAttribute->GetTypeFilter());
+  if (dlg.exec() == QDialog::Rejected)
     return;
 
-  sFile = sResult.toUtf8().data();
-  sStartDir = sFile;
+  ezStringView sResult = dlg.GetSelectedAssetPathRelative();
 
-  if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sFile))
+  if (sResult.IsEmpty())
+    return;
+
+  // the returned path is a "datadir parent relative path" and we must remove the first folder
+  if (const char* nextSep = sResult.FindSubString("/"))
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("The selected file is not under any data directory.\nPlease select another file "
-                                                          "or copy it into one of the project's data directories.");
-    return;
+    sResult.SetStartPosition(nextSep + 1);
   }
 
-  m_pWidget->setText(sFile.GetData());
+  sStartDir = sResult;
+
+  m_pWidget->setText(ezMakeQString(sResult));
   on_TextFinished_triggered();
 }

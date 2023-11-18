@@ -125,7 +125,7 @@ void ezQtDynamicBitflagsPropertyWidget::BuildMenu()
     ezInt32 iConstant = it.Key();
 
     QWidgetAction* pAction = new QWidgetAction(m_pMenu);
-    QCheckBox* pCheckBox = new QCheckBox(QString::fromUtf8(ezTranslate(sContantName)), m_pMenu);
+    QCheckBox* pCheckBox = new QCheckBox(ezMakeQString(ezTranslate(sContantName)), m_pMenu);
     pCheckBox->setCheckable(true);
     pCheckBox->setCheckState(Qt::Unchecked);
     pAction->setDefaultWidget(pCheckBox);

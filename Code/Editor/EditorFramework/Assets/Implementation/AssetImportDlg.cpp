@@ -71,7 +71,7 @@ void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
   for (const auto& option : data2.m_ImportOptions)
   {
     QIcon icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(option.m_sIcon);
-    pCombo->addItem(icon, ezTranslate(option.m_sName.GetData()));
+    pCombo->addItem(icon, ezMakeQString(ezTranslate(option.m_sName)));
   }
 
   pCombo->setProperty("row", uiRow);

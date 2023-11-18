@@ -24,8 +24,8 @@ public:
   const ezUuid& GetLastSelectedAsset() const { return m_LastSelected; }
 
 private Q_SLOTS:
-  void SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
-  void SlotAssetSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags);
+  void SlotAssetSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags);
   void SlotAssetCleared();
 
 private:
@@ -36,4 +36,3 @@ private:
   QStatusBar* m_pStatusBar;
   ezQtCuratorControl* m_pCuratorControl;
 };
-

@@ -19,8 +19,8 @@ ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName)
 {
   ezStringBuilder sPanel("AppPanel_", szPanelName);
 
-  setObjectName(QString::fromUtf8(sPanel.GetData()));
-  setWindowTitle(QString::fromUtf8(ezTranslate(szPanelName)));
+  setObjectName(ezMakeQString(sPanel));
+  setWindowTitle(ezMakeQString(ezTranslate(szPanelName)));
 
   s_AllApplicationPanels.PushBack(this);
 

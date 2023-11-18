@@ -5,6 +5,7 @@
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Types/Uuid.h>
 #include <QAbstractItemModel>
+#include <QFileIconProvider>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
 struct ezAssetInfo;
@@ -144,4 +145,6 @@ private:
 
   ezDynamicArray<VisibleEntry> m_EntriesToDisplay;
   ezSet<ezUuid> m_DisplayedEntries;
+
+  QFileIconProvider m_IconProvider;
 };

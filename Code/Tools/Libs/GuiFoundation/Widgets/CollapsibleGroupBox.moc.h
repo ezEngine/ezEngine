@@ -11,7 +11,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCollapsibleGroupBox : public ezQtGroupBoxBase, pr
 public:
   explicit ezQtCollapsibleGroupBox(QWidget* pParent);
 
-  virtual void SetTitle(const char* szTitle) override;
+  virtual void SetTitle(ezStringView sTitle) override;
   virtual void SetIcon(const QIcon& icon) override;
   virtual void SetFillColor(const QColor& color) override;
 

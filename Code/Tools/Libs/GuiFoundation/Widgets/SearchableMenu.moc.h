@@ -26,7 +26,7 @@ public:
   ezQtSearchableMenu(QObject* pParent);
 
   /// \brief Use slashes in the szInternalPath to separate sub-items.
-  void AddItem(const char* szDisplayName, const char* szInternalPath, const QVariant& variant, QIcon icon = QIcon());
+  void AddItem(ezStringView sDisplayName, const char* szInternalPath, const QVariant& variant, QIcon icon = QIcon());
 
   /// \brief Returns the currently entered search text.
   QString GetSearchText() const;

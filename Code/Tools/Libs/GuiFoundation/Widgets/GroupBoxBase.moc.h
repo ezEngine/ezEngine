@@ -12,7 +12,7 @@ class EZ_GUIFOUNDATION_DLL ezQtGroupBoxBase : public QWidget
 public:
   ezQtGroupBoxBase(QWidget* pParent, bool bCollapsible);
 
-  virtual void SetTitle(const char* szTitle);
+  virtual void SetTitle(ezStringView sTitle);
   QString GetTitle() const;
 
   virtual void SetBoldTitle(bool bBold);

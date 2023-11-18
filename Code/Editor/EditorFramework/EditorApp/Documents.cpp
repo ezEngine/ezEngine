@@ -10,7 +10,7 @@ void ezQtEditorApp::OpenDocumentQueued(const char* szDocument, const ezDocumentO
   QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szDocument), Q_ARG(void*, (void*)pOpenContext));
 }
 
-ezDocument* ezQtEditorApp::OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
+ezDocument* ezQtEditorApp::OpenDocument(ezStringView sDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
   EZ_PROFILE_SCOPE("OpenDocument");
 
@@ -19,28 +19,28 @@ ezDocument* ezQtEditorApp::OpenDocument(const char* szDocument, ezBitflags<ezDoc
 
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
 
-  if (ezDocumentManager::FindDocumentTypeFromPath(szDocument, false, pTypeDesc).Failed())
+  if (ezDocumentManager::FindDocumentTypeFromPath(sDocument, false, pTypeDesc).Failed())
   {
     ezStringBuilder sTemp;
-    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'", ezPathUtils::GetFileExtension(szDocument), szDocument);
+    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'", ezPathUtils::GetFileExtension(sDocument), sDocument);
     ezQtUiServices::MessageBoxWarning(sTemp);
     return nullptr;
   }
 
   // does the same document already exist and is open ?
-  ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(szDocument);
+  ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(sDocument);
   if (!pDocument)
   {
-    ezStatus res = pTypeDesc->m_pManager->CanOpenDocument(szDocument);
+    ezStatus res = pTypeDesc->m_pManager->CanOpenDocument(sDocument);
     if (res.m_Result.Succeeded())
     {
-      res = pTypeDesc->m_pManager->OpenDocument(pTypeDesc->m_sDocumentTypeName, szDocument, pDocument, flags, pOpenContext);
+      res = pTypeDesc->m_pManager->OpenDocument(pTypeDesc->m_sDocumentTypeName, sDocument, pDocument, flags, pOpenContext);
     }
 
     if (res.m_Result.Failed())
     {
       ezStringBuilder s;
-      s.Format("Failed to open document: \n'{0}'", szDocument);
+      s.Format("Failed to open document: \n'{0}'", sDocument);
       ezQtUiServices::MessageBoxStatus(res, s);
       return nullptr;
     }
