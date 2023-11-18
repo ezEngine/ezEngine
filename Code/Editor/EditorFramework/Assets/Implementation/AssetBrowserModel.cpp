@@ -501,6 +501,12 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
         }
         return ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Document.svg");
       }
+
+      case Qt::DecorationRole:
+      {
+        QFileInfo fi(ezMakeQString(entry.m_sAbsFilePath));
+        return m_IconProvider.icon(fi);
+      }
     }
   }
   else if (entry.m_Guid.IsValid()) // Asset or sub-asset
