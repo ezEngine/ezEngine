@@ -248,7 +248,6 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   FinishWindowCreation();
 
   UpdateSystemList();
-  SendLiveResourcePreview();
 
   GetParticleDocument()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::ParticleEventHandler, this));
 }
@@ -273,7 +272,7 @@ ezParticleEffectAssetDocument* ezQtParticleEffectAssetDocumentWindow::GetParticl
   return static_cast<ezParticleEffectAssetDocument*>(GetDocument());
 }
 
-void ezQtParticleEffectAssetDocumentWindow::SelectSystem(ezDocumentObject* pObject)
+void ezQtParticleEffectAssetDocumentWindow::SelectSystem(const ezDocumentObject* pObject)
 {
   if (pObject == nullptr)
   {
@@ -288,8 +287,8 @@ void ezQtParticleEffectAssetDocumentWindow::SelectSystem(ezDocumentObject* pObje
     if (m_pSystemsCombo->currentIndex() != -1)
     {
       // prevent infinite recursion
-    m_pSystemsCombo->setCurrentIndex(-1);
-  }
+      m_pSystemsCombo->setCurrentIndex(-1);
+    }
   }
   else
   {
@@ -323,6 +322,79 @@ void ezQtParticleEffectAssetDocumentWindow::onSystemSelected(int index)
   }
 }
 
+ezStatus ezQtParticleEffectAssetDocumentWindow::SetupSystem(ezStringView sName)
+{
+  const ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  ezObjectAccessorBase* pAccessor = GetDocument()->GetObjectAccessor();
+
+  ezUuid systemGuid = ezUuid::MakeUuid();
+
+  EZ_SUCCEED_OR_RETURN(pAccessor->AddObject(pRootObject, "ParticleSystems", -1, ezGetStaticRTTI<ezParticleSystemDescriptor>(), systemGuid));
+
+  const ezDocumentObject* pSystemObject = pAccessor->GetObject(systemGuid);
+
+  EZ_SUCCEED_OR_RETURN(pAccessor->SetValue(pSystemObject, "Name", sName));
+
+  // default system setup
+  {
+    {
+      ezVarianceTypeTime val;
+      val.m_Value = ezTime::MakeFromSeconds(1.0f);
+      EZ_SUCCEED_OR_RETURN(pAccessor->SetValue(pSystemObject, "LifeTime", val));
+    }
+
+    // add emitter
+    {
+      ezUuid emitterGuid = ezUuid::MakeUuid();
+      EZ_SUCCEED_OR_RETURN(pAccessor->AddObject(pSystemObject, "Emitters", -1, ezGetStaticRTTI<ezParticleEmitterFactory_Continuous>(), emitterGuid));
+    }
+
+    // add cone velocity initializer
+    {
+      ezUuid velocityGuid = ezUuid::MakeUuid();
+      EZ_SUCCEED_OR_RETURN(pAccessor->AddObject(pSystemObject, "Initializers", -1, ezGetStaticRTTI<ezParticleInitializerFactory_VelocityCone>(), velocityGuid));
+
+      const ezDocumentObject* pConeObject = pAccessor->GetObject(velocityGuid);
+
+      // default speed
+      {
+        ezVarianceTypeFloat val;
+        val.m_Value = 4.0f;
+        EZ_SUCCEED_OR_RETURN(pAccessor->SetValue(pConeObject, "Speed", val));
+      }
+    }
+
+    // add color initializer
+    {
+      ezUuid colorInitGuid = ezUuid::MakeUuid();
+      EZ_SUCCEED_OR_RETURN(pAccessor->AddObject(pSystemObject, "Initializers", -1, ezGetStaticRTTI<ezParticleInitializerFactory_RandomColor>(), colorInitGuid));
+
+      const ezDocumentObject* pColorObject = pAccessor->GetObject(colorInitGuid);
+
+      EZ_SUCCEED_OR_RETURN(pAccessor->SetValue(pColorObject, "Color1", ezColor::Red));
+      EZ_SUCCEED_OR_RETURN(pAccessor->SetValue(pColorObject, "Color2", ezColor::Yellow));
+    }
+
+    // add gravity behavior
+    {
+      ezUuid gravityGuid = ezUuid::MakeUuid();
+      EZ_SUCCEED_OR_RETURN(pAccessor->AddObject(pSystemObject, "Behaviors", -1, ezGetStaticRTTI<ezParticleBehaviorFactory_Gravity>(), gravityGuid));
+    }
+
+    // add quad renderer
+    {
+      ezUuid quadGuid = ezUuid::MakeUuid();
+      EZ_SUCCEED_OR_RETURN(pAccessor->AddObject(pSystemObject, "Types", -1, ezGetStaticRTTI<ezParticleTypeQuadFactory>(), quadGuid));
+    }
+  }
+
+  m_sSelectedSystem = sName;
+  UpdateSystemList();
+  SelectSystem(pSystemObject);
+
+  return ezStatus(EZ_SUCCESS);
+}
+
 void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 {
   bool ok = false;
@@ -350,204 +422,20 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
     break;
   }
 
-  ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
   ezObjectAccessorBase* pAccessor = GetDocument()->GetObjectAccessor();
 
   pAccessor->StartTransaction("Add Particle System");
-  ezUuid systemGuid = ezUuid::MakeUuid();
 
+  if (SetupSystem(qtToEzString(sName)).Failed())
   {
-    ezAddObjectCommand cmd;
-    cmd.m_Parent = pRootObject->GetGuid();
-    cmd.m_Index = -1;
-    cmd.m_pType = ezGetStaticRTTI<ezParticleSystemDescriptor>();
-    cmd.m_NewObjectGuid = systemGuid;
-    cmd.m_sParentProperty = "ParticleSystems";
-
-    if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
-    {
-      pAccessor->CancelTransaction();
-      return;
-    }
+    pAccessor->CancelTransaction();
+  }
+  else
+  {
+    pAccessor->FinishTransaction();
   }
 
-  m_sSelectedSystem = sName.toUtf8().data();
-
-  {
-    ezSetObjectPropertyCommand cmd;
-    cmd.m_Object = systemGuid;
-    cmd.m_NewValue = sName.toUtf8().data();
-    cmd.m_sProperty = "Name";
-    cmd.m_Index = 0;
-
-    if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
-    {
-      pAccessor->CancelTransaction();
-      return;
-    }
-  }
-
-  // default system setup
-  {
-    const ezDocumentObject* pSystemObject = pAccessor->GetObject(systemGuid);
-
-    // default life
-    {
-      const ezHybridArray<ezDocumentObject*, 8>& children = pSystemObject->GetChildren();
-
-      for (auto pChild : children)
-      {
-        if (pChild->GetParentProperty() == "LifeTime"_ezsv)
-        {
-          ezSetObjectPropertyCommand cmd;
-          cmd.m_Object = pChild->GetGuid();
-          cmd.m_NewValue = ezTime::MakeFromSeconds(1);
-          cmd.m_sProperty = "Value";
-          cmd.m_Index = 0;
-
-          if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
-          {
-        pAccessor->CancelTransaction();
-            return;
-          }
-
-          break;
-        }
-      }
-    }
-
-    // add emitter
-    {
-      ezAddObjectCommand cmd;
-      cmd.m_Parent = systemGuid;
-      cmd.m_Index = -1;
-      cmd.m_pType = ezGetStaticRTTI<ezParticleEmitterFactory_Continuous>();
-      cmd.m_sParentProperty = "Emitters";
-
-      if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
-      {
-        pAccessor->CancelTransaction();
-        return;
-      }
-    }
-
-    // add cone velocity initializer
-    {
-      ezAddObjectCommand cmd;
-      cmd.m_Parent = systemGuid;
-      cmd.m_Index = -1;
-      cmd.m_pType = ezGetStaticRTTI<ezParticleInitializerFactory_VelocityCone>();
-      cmd.m_sParentProperty = "Initializers";
-
-      if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
-      {
-        pAccessor->CancelTransaction();
-        return;
-      }
-
-      const ezDocumentObject* pConeObject = pAccessor->GetObject(cmd.m_NewObjectGuid);
-
-      // default speed
-      {
-        const ezHybridArray<ezDocumentObject*, 8>& children = pConeObject->GetChildren();
-
-        for (auto pChild : children)
-        {
-          if (pChild->GetParentProperty() == "Speed"_ezsv)
-          {
-            ezSetObjectPropertyCommand cmd2;
-            cmd2.m_Object = pChild->GetGuid();
-            cmd2.m_NewValue = 4.0f;
-            cmd2.m_sProperty = "Value";
-            cmd2.m_Index = 0;
-
-            if (GetDocument()->GetCommandHistory()->AddCommand(cmd2).Failed())
-            {
-              pAccessor->CancelTransaction();
-              return;
-            }
-
-            break;
-          }
-        }
-      }
-    }
-
-    // add color initializer
-    {
-      ezAddObjectCommand cmd;
-      cmd.m_Parent = systemGuid;
-      cmd.m_Index = -1;
-      cmd.m_pType = ezGetStaticRTTI<ezParticleInitializerFactory_RandomColor>();
-      cmd.m_sParentProperty = "Initializers";
-
-      if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
-      {
-        pAccessor->CancelTransaction();
-        return;
-      }
-
-      // color 1
-      {
-        ezSetObjectPropertyCommand cmd2;
-        cmd2.m_Object = cmd.m_NewObjectGuid;
-        cmd2.m_sProperty = "Color1";
-        cmd2.m_NewValue = ezColor::Red;
-
-        if (GetDocument()->GetCommandHistory()->AddCommand(cmd2).Failed())
-        {
-          pAccessor->CancelTransaction();
-          return;
-        }
-      }
-
-      // color 2
-      {
-        ezSetObjectPropertyCommand cmd2;
-        cmd2.m_Object = cmd.m_NewObjectGuid;
-        cmd2.m_sProperty = "Color2";
-        cmd2.m_NewValue = ezColor::Yellow;
-
-        if (GetDocument()->GetCommandHistory()->AddCommand(cmd2).Failed())
-        {
-          pAccessor->CancelTransaction();
-          return;
-        }
-      }
-    }
-
-    // add gravity behavior
-    {
-      ezAddObjectCommand cmd;
-      cmd.m_Parent = systemGuid;
-      cmd.m_Index = -1;
-      cmd.m_pType = ezGetStaticRTTI<ezParticleBehaviorFactory_Gravity>();
-      cmd.m_sParentProperty = "Behaviors";
-
-      if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
-      {
-        pAccessor->CancelTransaction();
-        return;
-      }
-    }
-
-    // add quad renderer
-    {
-      ezAddObjectCommand cmd;
-      cmd.m_Parent = systemGuid;
-      cmd.m_Index = -1;
-      cmd.m_pType = ezGetStaticRTTI<ezParticleTypeQuadFactory>();
-      cmd.m_sParentProperty = "Types";
-
-      if (GetDocument()->GetCommandHistory()->AddCommand(cmd).Failed())
-      {
-        pAccessor->CancelTransaction();
-        return;
-      }
-    }
-  }
-
-  pAccessor->FinishTransaction();
+  m_bDoLiveResourceUpdate = true;
 }
 
 void ezQtParticleEffectAssetDocumentWindow::onRemoveSystem(bool)
@@ -570,6 +458,8 @@ void ezQtParticleEffectAssetDocumentWindow::onRemoveSystem(bool)
   }
 
   GetDocument()->GetObjectAccessor()->FinishTransaction();
+
+  UpdateSystemList();
 }
 
 void ezQtParticleEffectAssetDocumentWindow::onRenameSystem(bool)
@@ -623,6 +513,8 @@ void ezQtParticleEffectAssetDocumentWindow::onRenameSystem(bool)
   }
 
   GetDocument()->GetObjectAccessor()->FinishTransaction();
+
+  UpdateSystemList();
 }
 
 void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
@@ -659,12 +551,7 @@ void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
 
 void ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_sProperty == "Name" || e.m_sProperty == "ParticleSystems")
-  {
-    UpdateSystemList();
-  }
-
-  SendLiveResourcePreview();
+  m_bDoLiveResourceUpdate = true;
 }
 
 void ezQtParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -674,8 +561,7 @@ void ezQtParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocume
     case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
     case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-      UpdateSystemList();
-      SendLiveResourcePreview();
+      m_bDoLiveResourceUpdate = true;
       break;
 
     default:
@@ -777,6 +663,12 @@ void ezQtParticleEffectAssetDocumentWindow::SendRedrawMsg()
   // do not try to redraw while the process is crashed, it is obviously futile
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
+
+  if (m_bDoLiveResourceUpdate)
+  {
+    SendLiveResourcePreview();
+    m_bDoLiveResourceUpdate = false;
+  }
 
   {
     ezSimulationSettingsMsgToEngine msg;

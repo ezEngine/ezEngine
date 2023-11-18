@@ -42,7 +42,8 @@ private:
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void ParticleEventHandler(const ezParticleEffectAssetEvent& e);
   void UpdateSystemList();
-  void SelectSystem(ezDocumentObject* pObject);
+  void SelectSystem(const ezDocumentObject* pObject);
+  ezStatus SetupSystem(ezStringView sName);
 
   ezParticleEffectAssetDocument* m_pAssetDoc;
 
@@ -61,5 +62,6 @@ private:
 
   ezString m_sSelectedSystem;
   ezMap<ezString, ezDocumentObject*> m_ParticleSystems;
+  bool m_bDoLiveResourceUpdate = true;
 };
 
