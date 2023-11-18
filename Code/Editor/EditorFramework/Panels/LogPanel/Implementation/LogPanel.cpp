@@ -16,7 +16,7 @@ ezQtLogPanel::ezQtLogPanel()
   pDummy->layout()->setContentsMargins(0, 0, 0, 0);
 
   setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.svg"));
-  setWindowTitle(QString::fromUtf8(ezTranslate("Panel.Log")));
+  setWindowTitle(ezMakeQString(ezTranslate("Panel.Log")));
   setWidget(pDummy);
 
   EditorLog->GetSearchWidget()->setPlaceholderText(QStringLiteral("Search Editor Log"));

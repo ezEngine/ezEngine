@@ -276,7 +276,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFileBrowserAttribute, 1, ezRTTIDefaultAllocato
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(ezStringView, ezStringView),
+    EZ_CONSTRUCTOR_PROPERTY(ezStringView, ezStringView, ezStringView),
   }
   EZ_END_FUNCTIONS;
 }

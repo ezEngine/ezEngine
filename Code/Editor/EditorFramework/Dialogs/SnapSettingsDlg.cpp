@@ -49,7 +49,7 @@ ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* pParent)
 
   for (ezUInt32 i = 0; i < m_Translation.GetCount(); ++i)
   {
-    TranslationSnap->addItem(ezTranslate(m_Translation[i].m_szKey));
+    TranslationSnap->addItem(ezMakeQString(ezTranslate(m_Translation[i].m_szKey)));
 
     if (ezSnapProvider::GetTranslationSnapValue() == m_Translation[i].m_fValue)
       uiSelectedT = i;
@@ -57,7 +57,7 @@ ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* pParent)
 
   for (ezUInt32 i = 0; i < m_Rotation.GetCount(); ++i)
   {
-    RotationSnap->addItem(ezTranslate(m_Rotation[i].m_szKey));
+    RotationSnap->addItem(ezMakeQString(ezTranslate(m_Rotation[i].m_szKey)));
 
     if (ezSnapProvider::GetRotationSnapValue() == ezAngle::MakeFromDegree(m_Rotation[i].m_fValue))
       uiSelectedR = i;
@@ -65,7 +65,7 @@ ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* pParent)
 
   for (ezUInt32 i = 0; i < m_Scale.GetCount(); ++i)
   {
-    ScaleSnap->addItem(ezTranslate(m_Scale[i].m_szKey));
+    ScaleSnap->addItem(ezMakeQString(ezTranslate(m_Scale[i].m_szKey)));
 
     if (ezSnapProvider::GetScaleSnapValue() == m_Scale[i].m_fValue)
       uiSelectedS = i;

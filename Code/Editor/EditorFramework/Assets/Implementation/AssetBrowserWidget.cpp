@@ -12,6 +12,7 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QFile>
 
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
@@ -206,9 +207,9 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
   }
 
   documentTypes.Sort([](const ezDocumentTypeDescriptor* a, const ezDocumentTypeDescriptor* b) -> bool
-    { return ezStringUtils::Compare(ezTranslate(a->m_sDocumentTypeName), ezTranslate(b->m_sDocumentTypeName)) < 0; });
+    { return ezTranslate(a->m_sDocumentTypeName).Compare(ezTranslate(b->m_sDocumentTypeName)) < 0; });
 
-  QAction* pAction = pSubMenu->addAction(ezTranslate("Folder"));
+  QAction* pAction = pSubMenu->addAction(ezMakeQString(ezTranslate("Folder")));
   pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Folder.svg"));
   connect(pAction, &QAction::triggered, static_cast<eqQtAssetBrowserFolderView*>(TreeFolderFilter), &eqQtAssetBrowserFolderView::NewFolder);
 
@@ -219,7 +220,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
     if (!desc->m_bCanCreate || desc->m_sFileExtension.IsEmpty())
       continue;
 
-    QAction* pAction = pSubMenu->addAction(ezTranslate(desc->m_sDocumentTypeName));
+    QAction* pAction = pSubMenu->addAction(ezMakeQString(ezTranslate(desc->m_sDocumentTypeName)));
     pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon, ezColorScheme::GetCategoryColor(desc->m_sAssetCategory, ezColorScheme::CategoryColorUsage::MenuEntryIcon)));
     pAction->setProperty("AssetType", desc->m_sDocumentTypeName.GetData());
     pAction->setProperty("AssetManager", QVariant::fromValue<void*>(desc->m_pManager));

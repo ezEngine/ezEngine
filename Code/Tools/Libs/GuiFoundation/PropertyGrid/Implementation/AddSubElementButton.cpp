@@ -117,7 +117,7 @@ QMenu* ezQtAddSubElementButton::CreateCategoryMenu(const char* szCategory, ezMap
   sPath = szCategory;
   sPath = sPath.GetFileName();
 
-  QMenu* pNewMenu = pParentMenu->addMenu(ezTranslate(sPath));
+  QMenu* pNewMenu = pParentMenu->addMenu(ezMakeQString(ezTranslate(sPath)));
   existingMenus[szCategory] = pNewMenu;
 
   return pNewMenu;

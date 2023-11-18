@@ -34,7 +34,7 @@ ezQtCVarPanel::ezQtCVarPanel()
   , m_SingletonRegistrar(this)
 {
   setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.svg"));
-  setWindowTitle(QString::fromUtf8(ezTranslate("Panel.CVar")));
+  setWindowTitle(ezMakeQString(ezTranslate("Panel.CVar")));
   m_pCVarWidget = new ezQtCVarWidget(this);
   m_pCVarWidget->layout()->setContentsMargins(0, 0, 0, 0);
   // m_pCVarWidget->setContentsMargins(0, 0, 0, 0);

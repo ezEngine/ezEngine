@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/QtFileLineEdit.moc.h>
@@ -66,9 +67,9 @@ void ezQtFilePropertyWidget::OnInit()
   auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
   EZ_ASSERT_DEV(pAttr != nullptr, "ezQtFilePropertyWidget was created without a ezFileBrowserAttribute!");
 
-  if (!ezStringUtils::IsNullOrEmpty(pAttr->GetCustomAction()))
+  if (!pAttr->GetCustomAction().IsEmpty())
   {
-    m_pButton->menu()->addAction(QIcon(), ezTranslate(pAttr->GetCustomAction()), this, SLOT(OnCustomAction()));
+    m_pButton->menu()->addAction(QIcon(), ezMakeQString(ezTranslate(pAttr->GetCustomAction())), this, SLOT(OnCustomAction()));
   }
 }
 

@@ -24,7 +24,7 @@ public:
   virtual ~ezTranslator();
 
   /// \brief The given string (with the given hash) shall be translated
-  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) = 0;
+  virtual ezStringView Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage) = 0;
 
   /// \brief Called to reset internal state
   virtual void Reset();
@@ -48,7 +48,7 @@ private:
 class EZ_FOUNDATION_DLL ezTranslatorPassThrough : public ezTranslator
 {
 public:
-  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override { return szString; }
+  virtual ezStringView Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage) override { return sString; }
 };
 
 /// \brief Can store translated strings and all translation requests will come from that storage. Returns nullptr if the requested string is
@@ -57,10 +57,10 @@ class EZ_FOUNDATION_DLL ezTranslatorStorage : public ezTranslator
 {
 public:
   /// \brief Stores szString as the translation for the string with the given hash
-  virtual void StoreTranslation(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage);
+  virtual void StoreTranslation(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage);
 
   /// \brief Returns the translated string for uiStringHash, or nullptr, if not available
-  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
+  virtual ezStringView Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
 
   /// \brief Clears all stored translation strings
   virtual void Reset() override;
@@ -80,7 +80,7 @@ public:
   /// Can be used from external code to (temporarily) deactivate error logging (a bit hacky)
   static bool s_bActive;
 
-  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
+  virtual ezStringView Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
 };
 
 /// \brief Loads translations from files. Each translator can have different search paths, but the files to be loaded are the same for all of them.
@@ -94,7 +94,7 @@ public:
   /// This function depends on ezFileSystemIterator to be available.
   void AddTranslationFilesFromFolder(const char* szFolder);
 
-  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
+  virtual ezStringView Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
 
   virtual void Reload() override;
 
@@ -108,7 +108,7 @@ private:
 class EZ_FOUNDATION_DLL ezTranslatorMakeMoreReadable : public ezTranslatorStorage
 {
 public:
-  virtual const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
+  virtual ezStringView Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage) override;
 };
 
 /// \brief Handles looking up translations for strings.
@@ -122,7 +122,7 @@ public:
 
   /// \brief Prefer to use the ezTranslate macro instead of calling this function directly. Will query all translators for a translation,
   /// until one is found.
-  static const char* Translate(const char* szString, ezUInt64 uiStringHash, ezTranslationUsage usage);
+  static ezStringView Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage);
 
   /// \brief Deletes all translators.
   static void Clear();

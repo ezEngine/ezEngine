@@ -55,7 +55,7 @@ ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* pParent, const ezHyb
     TableDocuments->setCellWidget(iRow, 2, pButtonSave);
 
     QTableWidgetItem* pItem0 = new QTableWidgetItem();
-    pItem0->setData(Qt::DisplayRole, QString::fromUtf8(ezTranslate(pDoc->GetDocumentTypeDescriptor()->m_sDocumentTypeName)));
+    pItem0->setData(Qt::DisplayRole, ezMakeQString(ezTranslate(pDoc->GetDocumentTypeDescriptor()->m_sDocumentTypeName)));
     pItem0->setIcon(ezQtUiServices::GetCachedIconResource(pDoc->GetDocumentTypeDescriptor()->m_sIcon));
     TableDocuments->setItem(iRow, 0, pItem0);
 

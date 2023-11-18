@@ -52,7 +52,7 @@ void ezQtPin::SetPin(const ezPin& pin)
 
   if (m_bTranslatePinName)
   {
-    m_pLabel->setPlainText(ezTranslate(pin.GetName()));
+    m_pLabel->setPlainText(ezMakeQString(ezTranslate(pin.GetName())));
   }
   else
   {

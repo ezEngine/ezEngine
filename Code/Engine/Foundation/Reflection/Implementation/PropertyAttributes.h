@@ -424,27 +424,25 @@ class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezTypeWidgetAttribute
 
 public:
   // Predefined common type filters
-  static constexpr const char* Meshes = "*.obj;*.fbx;*.gltf;*.glb";
-  static constexpr const char* MeshesWithAnimations = "*.fbx;*.gltf;*.glb";
-  static constexpr const char* ImagesLdrOnly = "*.dds;*.tga;*.png;*.jpg;*.jpeg";
-  static constexpr const char* ImagesHdrOnly = "*.hdr;*.exr";
-  static constexpr const char* ImagesLdrAndHdr = "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr;*.exr";
-  static constexpr const char* CubemapsLdrAndHdr = "*.dds;*.hdr";
+  static constexpr ezStringView Meshes = "*.obj;*.fbx;*.gltf;*.glb"_ezsv;
+  static constexpr ezStringView MeshesWithAnimations = "*.fbx;*.gltf;*.glb"_ezsv;
+  static constexpr ezStringView ImagesLdrOnly = "*.dds;*.tga;*.png;*.jpg;*.jpeg"_ezsv;
+  static constexpr ezStringView ImagesHdrOnly = "*.hdr;*.exr"_ezsv;
+  static constexpr ezStringView ImagesLdrAndHdr = "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr;*.exr"_ezsv;
+  static constexpr ezStringView CubemapsLdrAndHdr = "*.dds;*.hdr"_ezsv;
 
   ezFileBrowserAttribute() = default;
-  ezFileBrowserAttribute(const char* szDialogTitle,
-    const char* szTypeFilter, const char* szCustomAction = nullptr,
-    ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail)
-    : m_sDialogTitle(szDialogTitle)
-    , m_sTypeFilter(szTypeFilter)
-    , m_sCustomAction(szCustomAction)
+  ezFileBrowserAttribute(ezStringView sDialogTitle, ezStringView sTypeFilter, ezStringView sCustomAction = {}, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail)
+    : m_sDialogTitle(sDialogTitle)
+    , m_sTypeFilter(sTypeFilter)
+    , m_sCustomAction(sCustomAction)
     , m_DependencyFlags(depencyFlags)
   {
   }
 
-  const char* GetDialogTitle() const { return m_sDialogTitle; }
-  const char* GetTypeFilter() const { return m_sTypeFilter; }
-  const char* GetCustomAction() const { return m_sCustomAction; }
+  ezStringView GetDialogTitle() const { return m_sDialogTitle; }
+  ezStringView GetTypeFilter() const { return m_sTypeFilter; }
+  ezStringView GetCustomAction() const { return m_sCustomAction; }
   ezBitflags<ezDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
 
 private:

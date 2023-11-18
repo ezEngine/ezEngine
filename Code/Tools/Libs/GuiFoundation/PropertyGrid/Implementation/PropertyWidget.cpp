@@ -1141,7 +1141,7 @@ void ezQtPropertyEditorEnumWidget::OnInit()
 
     const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
 
-    m_pWidget->addItem(QString::fromUtf8(ezTranslate(pConstant->GetPropertyName())), pConstant->GetConstant().ConvertTo<ezInt64>());
+    m_pWidget->addItem(ezMakeQString(ezTranslate(pConstant->GetPropertyName())), pConstant->GetConstant().ConvertTo<ezInt64>());
   }
 }
 
@@ -1211,7 +1211,7 @@ void ezQtPropertyEditorBitflagsWidget::OnInit()
     const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
 
     QWidgetAction* pAction = new QWidgetAction(m_pMenu);
-    QCheckBox* pCheckBox = new QCheckBox(QString::fromUtf8(ezTranslate(pConstant->GetPropertyName())), m_pMenu);
+    QCheckBox* pCheckBox = new QCheckBox(ezMakeQString(ezTranslate(pConstant->GetPropertyName())), m_pMenu);
     pCheckBox->setCheckable(true);
     pCheckBox->setCheckState(Qt::Unchecked);
     pAction->setDefaultWidget(pCheckBox);
@@ -1224,13 +1224,15 @@ void ezQtPropertyEditorBitflagsWidget::OnInit()
   {
     QWidgetAction* pAllAction = new QWidgetAction(m_pMenu);
     m_pAllButton = new QPushButton(QString::fromUtf8("All"), m_pMenu);
-    connect(m_pAllButton, &QPushButton::clicked, this, [this](bool bChecked){ SetAllChecked(true); });
+    connect(m_pAllButton, &QPushButton::clicked, this, [this](bool bChecked)
+      { SetAllChecked(true); });
     pAllAction->setDefaultWidget(m_pAllButton);
     m_pMenu->addAction(pAllAction);
 
     QWidgetAction* pClearAction = new QWidgetAction(m_pMenu);
     m_pClearButton = new QPushButton(QString::fromUtf8("Clear"), m_pMenu);
-    connect(m_pClearButton, &QPushButton::clicked, this, [this](bool bChecked){ SetAllChecked(false); });
+    connect(m_pClearButton, &QPushButton::clicked, this, [this](bool bChecked)
+      { SetAllChecked(false); });
     pClearAction->setDefaultWidget(m_pClearButton);
     m_pMenu->addAction(pClearAction);
   }
@@ -1359,7 +1361,8 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
 
   if (!points.IsEmpty())
   {
-    points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool { return lhs.x < rhs.x; });
+    points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool
+      { return lhs.x < rhs.x; });
 
     const double normX = 1.0 / (maxX - minX);
     const double normY = 1.0 / (maxY - minY);

@@ -17,6 +17,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QClipboard>
 #include <QDragEnterEvent>
 #include <QLabel>
@@ -1667,7 +1668,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
     // help URL
     {
       ezStringBuilder tmp;
-      QString url = ezTranslateHelpURL(pCommonType->GetTypeName().GetData(tmp));
+      QString url = ezMakeQString(ezTranslateHelpURL(pCommonType->GetTypeName().GetData(tmp)));
 
       if (!url.isEmpty())
       {
@@ -1763,12 +1764,13 @@ void ezQtVariantPropertyWidget::OnInit()
     auto type = static_cast<ezVariantType::Enum>(i);
     if (GetVariantTypeDisplayName(type, sName).Succeeded())
     {
-      m_pTypeList->addItem(ezTranslate(sName), i);
+      m_pTypeList->addItem(ezMakeQString(ezTranslate(sName)), i);
     }
   }
 
   connect(m_pTypeList, &QComboBox::currentIndexChanged,
-    [this](int iIndex) {
+    [this](int iIndex)
+    {
       ChangeVariantType(static_cast<ezVariantType::Enum>(m_pTypeList->itemData(iIndex).toInt()));
     });
 }
