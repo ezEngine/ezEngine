@@ -44,12 +44,19 @@ ezQtAssetBrowserPanel::~ezQtAssetBrowserPanel()
   AssetBrowserWidget->SaveState("AssetBrowserPanel2");
 }
 
-void ezQtAssetBrowserPanel::SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
+void ezQtAssetBrowserPanel::SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags)
 {
-  ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPathAbsolute.toUtf8().data());
+  if (guid.IsValid())
+  {
+    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPathAbsolute.toUtf8().data());
+  }
+  else
+  {
+    ezQtUiServices::OpenFileInDefaultProgram(qtToEzString(sAssetPathAbsolute));
+  }
 }
 
-void ezQtAssetBrowserPanel::SlotAssetSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
+void ezQtAssetBrowserPanel::SlotAssetSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags)
 {
   m_LastSelected = guid;
 }

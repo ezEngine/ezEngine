@@ -18,8 +18,6 @@
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   : QWidget(pParent)
 {
-  m_bDialogMode = false;
-
   setupUi(this);
 
   ButtonListMode->setVisible(false);
@@ -95,7 +93,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
 
     TypeFilter->clear();
 
-    if (!m_bDialogMode)
+    if (m_Mode == Mode::Browser)
     {
       // '<All Files>' Filter
       TypeFilter->addItem(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("<All Files>"));
@@ -115,22 +113,39 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
   }
 
   // make sure to apply the previously active type filter settings to the UI
-  ezSet<ezString> importExtensions;
-  ezAssetDocumentGenerator::GetSupportsFileTypes(importExtensions);
-  m_pFilter->UpdateImportExtensions(importExtensions);
+  if (m_Mode == Mode::Browser)
+  {
+    ezSet<ezString> importExtensions;
+    ezAssetDocumentGenerator::GetSupportsFileTypes(importExtensions);
+    m_pFilter->UpdateImportExtensions(importExtensions);
+  }
+
   OnTypeFilterChanged();
 }
 
-void ezQtAssetBrowserWidget::SetDialogMode()
+void ezQtAssetBrowserWidget::SetMode(Mode mode)
 {
-  if (m_bDialogMode)
+  if (m_Mode == mode)
     return;
 
-  m_pToolbar->hide();
-  m_bDialogMode = true;
+  m_Mode = mode;
 
-  TreeFolderFilter->SetDialogMode(true);
-  ListAssets->SetDialogMode(true);
+  switch (m_Mode)
+  {
+    case Mode::Browser:
+      m_pToolbar->show();
+      TreeFolderFilter->SetDialogMode(false);
+      ListAssets->SetDialogMode(false);
+      break;
+    case Mode::FilePicker:
+      TypeFilter->setVisible(false);
+      [[fallthrough]];
+    case Mode::AssetPicker:
+      m_pToolbar->hide();
+      TreeFolderFilter->SetDialogMode(true);
+      ListAssets->SetDialogMode(true);
+      break;
+  }
 
   UpdateAssetTypes();
 }
@@ -187,7 +202,7 @@ void ezQtAssetBrowserWidget::ProjectEventHandler(const ezToolsProjectEvent& e)
 
 void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedAsset)
 {
-  if (m_bDialogMode)
+  if (m_Mode != Mode::Browser)
     return;
 
   const ezHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
@@ -285,12 +300,16 @@ void ezQtAssetBrowserWidget::AddImportedViaMenu(QMenu* pMenu)
 
 void ezQtAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex& index)
 {
-  Q_EMIT ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+  const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+
+  Q_EMIT ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString(), itemType.GetValue());
 }
 
 void ezQtAssetBrowserWidget::on_ListAssets_activated(const QModelIndex& index)
 {
-  Q_EMIT ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+  const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+
+  Q_EMIT ItemSelected(m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString(), itemType.GetValue());
 }
 
 void ezQtAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& index)
@@ -304,12 +323,13 @@ void ezQtAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& inde
     {
       ezAssetCurator::GetSingleton()->UpdateAssetLastAccessTime(guid);
     }
-    Q_EMIT ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+    Q_EMIT ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString(), itemType.GetValue());
   }
   else if (itemType.IsSet(ezAssetBrowserItemFlags::File))
   {
-    QString sAbsPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
-    ezQtUiServices::OpenFileInDefaultProgram(qtToEzString(sAbsPath));
+    Q_EMIT ItemChosen(ezUuid::MakeInvalid(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString(), itemType.GetValue());
+
+    // ezQtUiServices::OpenFileInDefaultProgram(qtToEzString(sAbsPath));
   }
   else if (itemType.IsAnySet(ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::DataDirectory))
   {
@@ -388,11 +408,25 @@ void ezQtAssetBrowserWidget::OnTypeFilterChanged()
     if (iNumChecked == 1)
       TypeFilter->setCurrentIndex(iCheckedFilter);
     else
-      TypeFilter->setCurrentIndex(m_bDialogMode ? 0 : 2); // "<All Assets>"
+      TypeFilter->setCurrentIndex((m_Mode != Mode::Browser) ? 0 : 2); // "<All Assets>"
 
     int index = TypeFilter->currentIndex();
-    m_pFilter->SetShowNonImportableFiles(!m_bDialogMode && index == 0);
-    m_pFilter->SetShowFiles(!m_bDialogMode && (index == 0 || index == 1));
+
+    switch (m_Mode)
+    {
+      case Mode::Browser:
+        m_pFilter->SetShowNonImportableFiles(index == 0);
+        m_pFilter->SetShowFiles(index == 0 || index == 1);
+        break;
+      case Mode::AssetPicker:
+        m_pFilter->SetShowNonImportableFiles(false);
+        m_pFilter->SetShowFiles(false);
+        break;
+      case Mode::FilePicker:
+        m_pFilter->SetShowNonImportableFiles(true);
+        m_pFilter->SetShowFiles(true);
+        break;
+    }
   }
 
   QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
@@ -412,7 +446,7 @@ void ezQtAssetBrowserWidget::keyPressEvent(QKeyEvent* e)
 {
   QWidget::keyPressEvent(e);
 
-  if (e->key() == Qt::Key_Delete && !m_bDialogMode)
+  if (e->key() == Qt::Key_Delete && m_Mode == Mode::Browser)
   {
     e->accept();
     DeleteSelection();
@@ -537,8 +571,22 @@ void ezQtAssetBrowserWidget::on_TypeFilter_currentIndexChanged(int index)
 
   ezStringBuilder sFilter;
 
-  m_pFilter->SetShowNonImportableFiles(!m_bDialogMode && index == 0);
-  m_pFilter->SetShowFiles(!m_bDialogMode && (index == 0 || index == 1));
+  switch (m_Mode)
+  {
+    case Mode::Browser:
+      m_pFilter->SetShowNonImportableFiles(index == 0);
+      m_pFilter->SetShowFiles(index == 0 || index == 1);
+      break;
+    case Mode::AssetPicker:
+      m_pFilter->SetShowNonImportableFiles(false);
+      m_pFilter->SetShowFiles(false);
+      break;
+    case Mode::FilePicker:
+      m_pFilter->SetShowNonImportableFiles(true);
+      m_pFilter->SetShowFiles(true);
+      break;
+  }
+
 
   switch (index)
   {
@@ -575,7 +623,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
 
   if (ListAssets->selectionModel()->hasSelection())
   {
-    if (!m_bDialogMode)
+    if (m_Mode == Mode::Browser)
     {
       QString sTitle = "Open Selection";
       QIcon icon = QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg"));
@@ -618,7 +666,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
   pSortAction->setChecked(m_pFilter->GetSortByRecentUse());
 
 
-  if (!m_bDialogMode && ListAssets->selectionModel()->hasSelection())
+  if (m_Mode == Mode::Browser && ListAssets->selectionModel()->hasSelection())
   {
     QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
     bool bImportable = false;
@@ -777,8 +825,10 @@ void ezQtAssetBrowserWidget::OnAssetSelectionChanged(const QItemSelection& selec
   {
     QModelIndex index = ListAssets->selectionModel()->selectedIndexes()[0];
 
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+
     ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
-    Q_EMIT ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+    Q_EMIT ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString(), itemType.GetValue());
   }
 }
 
@@ -792,8 +842,10 @@ void ezQtAssetBrowserWidget::OnAssetSelectionCurrentChanged(const QModelIndex& c
   {
     QModelIndex index = ListAssets->selectionModel()->selectedIndexes()[0];
 
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+
     ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
-    Q_EMIT ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+    Q_EMIT ItemSelected(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString(), itemType.GetValue());
   }
 }
 
@@ -981,7 +1033,6 @@ void ezQtAssetBrowserWidget::OnListToggleSortByRecentlyUsed()
   m_pFilter->SetSortByRecentUse(!m_pFilter->GetSortByRecentUse());
 }
 
-
 void ezQtAssetBrowserWidget::SetSelectedAsset(ezUuid preselectedAsset)
 {
   if (!preselectedAsset.IsValid())
@@ -991,6 +1042,17 @@ void ezQtAssetBrowserWidget::SetSelectedAsset(ezUuid preselectedAsset)
   // ListAssets->scrollTo either hangs, or has no effect
   // so we put this into the message queue, and do it later
   QMetaObject::invokeMethod(this, "OnScrollToItem", Qt::ConnectionType::QueuedConnection, Q_ARG(ezUuid, preselectedAsset));
+}
+
+void ezQtAssetBrowserWidget::SetSelectedFile(ezStringView sAbsPath)
+{
+  if (sAbsPath.IsEmpty())
+    return;
+
+  // cannot do this immediately, since the UI is probably still building up
+  // ListAssets->scrollTo either hangs, or has no effect
+  // so we put this into the message queue, and do it later
+  QMetaObject::invokeMethod(this, "OnScrollToFile", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, ezMakeQString(sAbsPath)));
 }
 
 void ezQtAssetBrowserWidget::OnScrollToItem(ezUuid preselectedAsset)
@@ -1010,14 +1072,32 @@ void ezQtAssetBrowserWidget::OnScrollToItem(ezUuid preselectedAsset)
   raise();
 }
 
-void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
+void ezQtAssetBrowserWidget::OnScrollToFile(QString sPreselectedFile)
+{
+  for (ezInt32 i = 0; i < m_pModel->rowCount(); ++i)
+  {
+    QModelIndex idx = m_pModel->index(i, 0);
+
+    if (m_pModel->data(idx, ezQtAssetBrowserModel::UserRoles::AbsolutePath).value<QString>() == sPreselectedFile)
+    {
+      ListAssets->selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::ClearAndSelect);
+      ListAssets->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::SelectionFlag::ClearAndSelect);
+      ListAssets->scrollTo(idx, QAbstractItemView::ScrollHint::EnsureVisible);
+      return;
+    }
+  }
+
+  raise();
+}
+
+void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(ezStringView sFilters)
 {
   m_sAllTypesFilter.Clear();
 
-  if (!ezStringUtils::IsNullOrEmpty(szFilters))
+  if (!sFilters.IsEmpty())
   {
     ezStringBuilder sFilter;
-    const ezStringBuilder sAllFilters(";", szFilters, ";");
+    const ezStringBuilder sAllFilters(";", sFilters, ";");
 
     m_sAllTypesFilter = sAllFilters;
 
@@ -1039,4 +1119,9 @@ void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
   }
 
   m_pFilter->SetTypeFilter(m_sAllTypesFilter);
+}
+
+void ezQtAssetBrowserWidget::UseFileExtensionFilters(ezStringView sFileExtensions)
+{
+  m_pFilter->SetFileExtensionFilters(sFileExtensions);
 }

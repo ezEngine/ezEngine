@@ -167,7 +167,7 @@ public:
   bool GuiOpenProject(bool bImmediate = false);
 
   void OpenDocumentQueued(const char* szDocument, const ezDocumentObject* pOpenContext = nullptr);
-  ezDocument* OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
+  ezDocument* OpenDocument(ezStringView sDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
   ezDocument* CreateDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
 
   ezResult CreateOrOpenProject(bool bCreate, ezStringView sFile);

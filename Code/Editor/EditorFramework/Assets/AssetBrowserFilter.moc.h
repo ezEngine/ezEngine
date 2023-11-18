@@ -38,6 +38,8 @@ public:
   void SetTypeFilter(const char* szTypes);
   const char* GetTypeFilter() const { return m_sTypeFilter; }
 
+  void SetFileExtensionFilters(ezStringView sExtensions);
+
   /// \brief If set, the given item will be visible no matter what until any other filter is changed.
   /// This is used to ensure that newly created assets are always visible, even if they are excluded from the current filter.
   void SetTemporaryPinnedItem(ezStringView sDataDirParentRelativePath);
@@ -69,4 +71,5 @@ private:
   bool m_bTransitive = false;
   ezSet<ezUuid> m_Uses;
   ezSet<ezString> m_ImportExtensions;
+  ezSet<ezString> m_FileExtensions;
 };
