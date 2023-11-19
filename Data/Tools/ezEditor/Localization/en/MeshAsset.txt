@@ -6,8 +6,8 @@ Mesh;Mesh
 
 # UI
 
-MeshImport.WithMaterials;Mesh and Materials
-MeshImport.NoMaterials;Mesh only
+MeshImport.WithMaterials;Mesh with Materials
+MeshImport.NoMaterials;Mesh
 
 # Enums
 

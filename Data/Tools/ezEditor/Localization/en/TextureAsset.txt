@@ -9,6 +9,7 @@ Render Target;Render Target
 TextureAsset.LodSlider;Mipmap
 TextureAsset.ChannelMode;Channel to Display
 
+TextureImport.Auto;Texture 2D
 TextureImport.Diffuse;Diffuse Texture
 TextureImport.Normal;Normal Map
 TextureImport.HDR;HDR Texture

@@ -113,36 +113,33 @@ ezLUTAssetDocumentGenerator::ezLUTAssetDocumentGenerator()
 
 ezLUTAssetDocumentGenerator::~ezLUTAssetDocumentGenerator() = default;
 
-void ezLUTAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezLUTAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = sParentDirRelativePath;
-
-  const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
-
-  baseOutputFile.ChangeFileExtension(GetDocumentExtension());
-
-  ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
+  ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
   info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
-  info.m_sOutputFileParentRelative = baseOutputFile;
-
   info.m_sName = "LUTImport.Cube";
   info.m_sIcon = ":/AssetIcons/LUT.svg";
 }
 
-ezStatus ezLUTAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezLUTAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
 {
+  ezStringBuilder sOutFile = sInputFileAbs;
+  sOutFile.ChangeFileExtension(GetDocumentExtension());
+  ezOSFile::FindFreeFilename(sOutFile);
+
   auto pApp = ezQtEditorApp::GetSingleton();
 
-  out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
+  ezStringBuilder sInputFileRel = sInputFileAbs;
+  pApp->MakePathDataDirectoryRelative(sInputFileRel);
+
+  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
   if (out_pGeneratedDocument == nullptr)
     return ezStatus("Could not create target document");
 
   ezLUTAssetDocument* pAssetDoc = ezDynamicCast<ezLUTAssetDocument*>(out_pGeneratedDocument);
-  if (pAssetDoc == nullptr)
-    return ezStatus("Target document is not a valid ezLUTAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("Input", sDataDirRelativePath);
+  accessor.SetValue("Input", sInputFileRel.GetView());
 
   return ezStatus(EZ_SUCCESS);
 }

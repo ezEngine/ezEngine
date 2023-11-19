@@ -234,61 +234,61 @@ ezTextureCubeAssetDocumentGenerator::ezTextureCubeAssetDocumentGenerator()
 
 ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() = default;
 
-void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = sParentDirRelativePath;
+  const ezStringBuilder baseFilename = sAbsInputFile.GetFileName();
+  const bool isHDR = sAbsInputFile.HasExtension("hdr") || sAbsInputFile.HasExtension("exr");
 
-  const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
-  const bool isHDR = ezPathUtils::HasExtension(sParentDirRelativePath, "hdr") || ezPathUtils::HasExtension(sParentDirRelativePath, "exr");
-
-  /// \todo Make this configurable
   const bool isCubemap = ((baseFilename.FindSubString_NoCase("cubemap") != nullptr) || (baseFilename.FindSubString_NoCase("skybox") != nullptr));
 
-  baseOutputFile.ChangeFileExtension(GetDocumentExtension());
+  // TODO: if (sAbsInputFile.IsEmpty()) -> CubemapImport.SkyboxAuto
 
   if (isHDR)
   {
     {
-      ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
+      ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
       info.m_Priority = isCubemap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::Undecided;
       info.m_sName = "CubemapImport.SkyboxHDR";
-      info.m_sOutputFileParentRelative = baseOutputFile;
       info.m_sIcon = ":/AssetIcons/Texture_Cube.svg";
     }
   }
   else
   {
     {
-      ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
+      ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
       info.m_Priority = isCubemap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::Undecided;
       info.m_sName = "CubemapImport.Skybox";
-      info.m_sOutputFileParentRelative = baseOutputFile;
       info.m_sIcon = ":/AssetIcons/Texture_Cube.svg";
     }
   }
 }
 
-ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
 {
+  ezStringBuilder sOutFile = sInputFileAbs;
+  sOutFile.ChangeFileExtension(GetDocumentExtension());
+  ezOSFile::FindFreeFilename(sOutFile);
+
   auto pApp = ezQtEditorApp::GetSingleton();
 
-  out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
+  ezStringBuilder sInputFileRel = sInputFileAbs;
+  pApp->MakePathDataDirectoryRelative(sInputFileRel);
+
+  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
   if (out_pGeneratedDocument == nullptr)
     return ezStatus("Could not create target document");
 
   ezTextureCubeAssetDocument* pAssetDoc = ezDynamicCast<ezTextureCubeAssetDocument*>(out_pGeneratedDocument);
-  if (pAssetDoc == nullptr)
-    return ezStatus("Target document is not a valid ezTextureCubeAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("Input1", sDataDirRelativePath);
+  accessor.SetValue("Input1", sInputFileRel.GetView());
   accessor.SetValue("ChannelMapping", (int)ezTextureCubeChannelMappingEnum::RGB1);
 
-  if (info.m_sName == "CubemapImport.SkyboxHDR")
+  if (sMode == "CubemapImport.SkyboxHDR")
   {
     accessor.SetValue("Usage", (int)ezTexConvUsage::Hdr);
   }
-  else if (info.m_sName == "CubemapImport.Skybox")
+  else if (sMode == "CubemapImport.Skybox")
   {
     accessor.SetValue("Usage", (int)ezTexConvUsage::Color);
   }
