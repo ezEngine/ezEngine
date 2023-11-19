@@ -64,6 +64,8 @@ Document.Save;&Save
 Document.SaveAll;Save All
 Document.SaveAs;Save &As...
 Document.Close;Close
+Document.CloseAll;Close All
+Document.CloseAllButThis;Close All But This
 Document.OpenContainingFolder;Open in Explorer
 Document.CopyAssetGuid;Copy Asset Guid;Stores the assets GUID in the clipboard.
 Document.MoveWindow;Move to Container Window

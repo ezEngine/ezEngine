@@ -26,6 +26,8 @@ ezActionDescriptorHandle ezDocumentActions::s_hSave;
 ezActionDescriptorHandle ezDocumentActions::s_hSaveAs;
 ezActionDescriptorHandle ezDocumentActions::s_hSaveAll;
 ezActionDescriptorHandle ezDocumentActions::s_hClose;
+ezActionDescriptorHandle ezDocumentActions::s_hCloseAll;
+ezActionDescriptorHandle ezDocumentActions::s_hCloseAllButThis;
 ezActionDescriptorHandle ezDocumentActions::s_hOpenContainingFolder;
 ezActionDescriptorHandle ezDocumentActions::s_hCopyAssetGuid;
 ezActionDescriptorHandle ezDocumentActions::s_hUpdatePrefabs;
@@ -37,6 +39,8 @@ void ezDocumentActions::RegisterActions()
   s_hSaveAll = EZ_REGISTER_ACTION_1("Document.SaveAll", ezActionScope::Document, "Document", "Ctrl+Shift+S", ezDocumentAction, ezDocumentAction::ButtonType::SaveAll);
   s_hSaveAs = EZ_REGISTER_ACTION_1("Document.SaveAs", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
   s_hClose = EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
+  s_hCloseAll = EZ_REGISTER_ACTION_1("Document.CloseAll", ezActionScope::Document, "Document", "Ctrl+Shift+W", ezDocumentAction, ezDocumentAction::ButtonType::CloseAll);
+  s_hCloseAllButThis = EZ_REGISTER_ACTION_1("Document.CloseAllButThis", ezActionScope::Document, "Document", "Shift+Alt+W", ezDocumentAction, ezDocumentAction::ButtonType::CloseAllButThis);
   s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
   s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyAssetGuid);
   s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
@@ -49,6 +53,8 @@ void ezDocumentActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSaveAs);
   ezActionManager::UnregisterAction(s_hSaveAll);
   ezActionManager::UnregisterAction(s_hClose);
+  ezActionManager::UnregisterAction(s_hCloseAll);
+  ezActionManager::UnregisterAction(s_hCloseAllButThis);
   ezActionManager::UnregisterAction(s_hOpenContainingFolder);
   ezActionManager::UnregisterAction(s_hCopyAssetGuid);
   ezActionManager::UnregisterAction(s_hUpdatePrefabs);
@@ -63,9 +69,11 @@ void ezDocumentActions::MapMenuActions(ezStringView sMapping, ezStringView sTarg
   pMap->MapAction(s_hSaveAs, sTargetMenu, 6.0f);
   pMap->MapAction(s_hSaveAll, sTargetMenu, 7.0f);
   pMap->MapAction(s_hClose, sTargetMenu, 8.0f);
-  pMap->MapAction(s_hOpenContainingFolder, sTargetMenu, 10.0f);
+  pMap->MapAction(s_hCloseAll, sTargetMenu, 9.0f);
+  pMap->MapAction(s_hCloseAllButThis, sTargetMenu, 10.0f);
+  pMap->MapAction(s_hOpenContainingFolder, sTargetMenu, 11.0f);
 
-  pMap->MapAction(s_hCopyAssetGuid, sTargetMenu, 11.0f);
+  pMap->MapAction(s_hCopyAssetGuid, sTargetMenu, 12.0f);
 }
 
 void ezDocumentActions::MapToolbarActions(ezStringView sMapping)
@@ -110,6 +118,12 @@ ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* s
       SetIconPath(":/GuiFoundation/Icons/SaveAll.svg");
       break;
     case ezDocumentAction::ButtonType::Close:
+      SetIconPath("");
+      break;
+    case ezDocumentAction::ButtonType::CloseAll:
+      SetIconPath("");
+      break;
+    case ezDocumentAction::ButtonType::CloseAllButThis:
       SetIconPath("");
       break;
     case ezDocumentAction::ButtonType::OpenContainingFolder:
@@ -228,12 +242,48 @@ void ezDocumentAction::Execute(const ezVariant& value)
 
     case ezDocumentAction::ButtonType::Close:
     {
-      ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
+      ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
 
-      if (!pWnd->CanCloseWindow())
+      if (!pWindow->CanCloseWindow())
         return;
 
-      pWnd->CloseDocumentWindow();
+      pWindow->CloseDocumentWindow();
+    }
+    break;
+
+    case ezDocumentAction::ButtonType::CloseAll:
+    {
+      auto& documentWindows = ezQtDocumentWindow::GetAllDocumentWindows();
+      for (ezQtDocumentWindow* pWindow : documentWindows)
+      {
+        if (!pWindow->CanCloseWindow())
+          continue;
+
+        // Prevent closing the document root window.
+        if (ezStringUtils::Compare(pWindow->GetUniqueName(), "Settings") == 0)
+          continue;
+
+        pWindow->CloseDocumentWindow();
+      }
+    }
+    break;
+
+    case ezDocumentAction::ButtonType::CloseAllButThis:
+    {
+      ezQtDocumentWindow* pThisWindow = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
+
+      auto& documentWindows = ezQtDocumentWindow::GetAllDocumentWindows();
+      for (ezQtDocumentWindow* pWindow : documentWindows)
+      {
+        if (!pWindow->CanCloseWindow() || pWindow == pThisWindow)
+          continue;
+
+        // Prevent closing the document root window.
+        if (ezStringUtils::Compare(pWindow->GetUniqueName(), "Settings") == 0)
+          continue;
+
+        pWindow->CloseDocumentWindow();
+      }
     }
     break;
 
