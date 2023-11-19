@@ -20,6 +20,9 @@ public:
   static ezActionDescriptorHandle s_hSaveAll;
 
   static ezActionDescriptorHandle s_hClose;
+  static ezActionDescriptorHandle s_hCloseAll;
+  static ezActionDescriptorHandle s_hCloseAllButThis;
+
   static ezActionDescriptorHandle s_hOpenContainingFolder;
   static ezActionDescriptorHandle s_hCopyAssetGuid;
 
@@ -39,6 +42,8 @@ public:
     SaveAs,
     SaveAll,
     Close,
+    CloseAll,
+    CloseAllButThis,
     OpenContainingFolder,
     UpdatePrefabs,
     CopyAssetGuid,

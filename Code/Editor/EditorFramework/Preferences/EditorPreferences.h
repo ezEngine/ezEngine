@@ -54,9 +54,13 @@ public:
   void SetGizmoSize(float f);
   float GetGizmoSize() const { return m_fGizmoSize; }
 
+  void SetMaxFramerate(ezUInt16 uiFPS);
+  ezUInt16 GetMaxFramerate() const { return m_uiMaxFramerate; }
+
 private:
   void SyncGlobalSettings();
 
   float m_fGizmoSize = 1.5f;
   bool m_bShowInDevelopmentFeatures = false;
+  ezUInt16 m_uiMaxFramerate = 60;
 };

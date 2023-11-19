@@ -174,40 +174,40 @@ ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
 
 ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() = default;
 
-void ezDecalAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezDecalAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = sParentDirRelativePath;
+  const ezStringBuilder baseFilename = sAbsInputFile.GetFileName();
 
-  const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
-
-  baseOutputFile.ChangeFileExtension(GetDocumentExtension());
-
-  /// \todo Make this configurable
   const bool isDecal = (baseFilename.FindSubString_NoCase("decal") != nullptr);
 
   {
-    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
     info.m_Priority = isDecal ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "DecalImport.All";
-    info.m_sOutputFileParentRelative = baseOutputFile;
     info.m_sIcon = ":/AssetIcons/Decal.svg";
   }
 }
 
-ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
 {
+  ezStringBuilder sOutFile = sInputFileAbs;
+  sOutFile.ChangeFileExtension(GetDocumentExtension());
+  ezOSFile::FindFreeFilename(sOutFile);
+
   auto pApp = ezQtEditorApp::GetSingleton();
-  out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
+
+  ezStringBuilder sInputFileRel = sInputFileAbs;
+  pApp->MakePathDataDirectoryRelative(sInputFileRel);
+
+  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
 
   if (out_pGeneratedDocument == nullptr)
     return ezStatus("Could not create target document");
 
   ezDecalAssetDocument* pAssetDoc = ezDynamicCast<ezDecalAssetDocument*>(out_pGeneratedDocument);
-  if (pAssetDoc == nullptr)
-    return ezStatus("Target document is not a valid ezDecalAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("BaseColor", sDataDirRelativePath);
+  accessor.SetValue("BaseColor", sInputFileRel.GetView());
 
   return ezStatus(EZ_SUCCESS);
 }

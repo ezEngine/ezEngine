@@ -9,21 +9,23 @@ class ezQtAssetBrowserDlg : public QDialog, public Ui_AssetBrowserDlg
   Q_OBJECT
 
 public:
-  ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, const char* szVisibleFilters);
+  ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters);
+  ezQtAssetBrowserDlg(QWidget* pParent, ezStringView sWindowTitle, ezStringView sPreselectedFileAbs, ezStringView sFileExtensions);
   ~ezQtAssetBrowserDlg();
 
-  const char* GetSelectedAssetPathRelative() const { return m_sSelectedAssetPathRelative; }
-  const char* GetSelectedAssetPathAbsolute() const { return m_sSelectedAssetPathAbsolute; }
+  ezStringView GetSelectedAssetPathRelative() const { return m_sSelectedAssetPathRelative; }
+  ezStringView GetSelectedAssetPathAbsolute() const { return m_sSelectedAssetPathAbsolute; }
   const ezUuid GetSelectedAssetGuid() const { return m_SelectedAssetGuid; }
 
 private Q_SLOTS:
-  void on_ButtonFileDialog_clicked();
-  void on_AssetBrowserWidget_ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
-  void on_AssetBrowserWidget_ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void on_AssetBrowserWidget_ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags);
+  void on_AssetBrowserWidget_ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags);
   void on_AssetBrowserWidget_ItemCleared();
   void on_ButtonSelect_clicked();
 
 private:
+  void Init(QWidget* pParent);
+
   ezString m_sSelectedAssetPathRelative;
   ezString m_sSelectedAssetPathAbsolute;
   ezUuid m_SelectedAssetGuid;

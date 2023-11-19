@@ -20,9 +20,18 @@ public:
   ezQtAssetBrowserWidget(QWidget* pParent);
   ~ezQtAssetBrowserWidget();
 
-  void SetDialogMode();
+  enum class Mode
+  {
+    Browser,
+    AssetPicker,
+    FilePicker,
+  };
+
+  void SetMode(Mode mode);
   void SetSelectedAsset(ezUuid preselectedAsset);
-  void ShowOnlyTheseTypeFilters(const char* szFilters);
+  void SetSelectedFile(ezStringView sAbsPath);
+  void ShowOnlyTheseTypeFilters(ezStringView sFilters);
+  void UseFileExtensionFilters(ezStringView sFileExtensions);
 
   void SaveState(const char* szSettingsName);
   void RestoreState(const char* szSettingsName);
@@ -33,8 +42,8 @@ public:
   const ezQtAssetBrowserFilter* GetAssetBrowserFilter() const { return m_pFilter; }
 
 Q_SIGNALS:
-  void ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
-  void ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags);
+  void ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute, ezUInt8 uiAssetBrowserItemFlags);
   void ItemCleared();
 
 private Q_SLOTS:
@@ -52,6 +61,7 @@ private Q_SLOTS:
   void on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt);
   void on_TypeFilter_currentIndexChanged(int index);
   void OnScrollToItem(ezUuid preselectedAsset);
+  void OnScrollToFile(QString sPreselectedFile);
   void OnShowSubFolderItemsToggled();
   void OnShowHiddenFolderItemsToggled();
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
@@ -71,6 +81,8 @@ private Q_SLOTS:
   void ImportSelection();
   void OnOpenImportReferenceAsset();
   void DeleteSelection();
+  void OnImportAsAboutToShow();
+  void OnImportAsClicked();
 
 
 private:
@@ -82,8 +94,9 @@ private:
   void ProjectEventHandler(const ezToolsProjectEvent& e);
   void AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedAsset);
   void AddImportedViaMenu(QMenu* pMenu);
+  void GetSelectedImportableFiles(ezDynamicArray<ezString>& out_Files) const;
 
-  bool m_bDialogMode = false;
+  Mode m_Mode = Mode::Browser;
   ezQtToolBarActionMapView* m_pToolbar = nullptr;
   ezString m_sAllTypesFilter;
   ezQtAssetBrowserModel* m_pModel = nullptr;

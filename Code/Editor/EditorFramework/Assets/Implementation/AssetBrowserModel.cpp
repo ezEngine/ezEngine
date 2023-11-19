@@ -19,9 +19,10 @@ ezQtAssetFilter::ezQtAssetFilter(QObject* pParent)
 struct FileComparer
 {
   FileComparer(ezQtAssetBrowserModel* pModel, const ezHashTable<ezUuid, ezSubAsset>& allAssets)
-    : m_Model(pModel)
+    : m_pModel(pModel)
     , m_AllAssets(allAssets)
   {
+    m_bSortByRecentlyUsed = m_pModel->m_pFilter->GetSortByRecentUse();
   }
 
   bool Less(const ezQtAssetBrowserModel::VisibleEntry& a, const ezQtAssetBrowserModel::VisibleEntry& b) const
@@ -59,6 +60,27 @@ struct FileComparer
       sSortB = b.m_sAbsFilePath.GetAbsolutePath().GetFileNameAndExtension();
     }
 
+    if (m_bSortByRecentlyUsed)
+    {
+      if (pInfoA && pInfoB)
+      {
+        if (pInfoA->m_LastAccess != pInfoB->m_LastAccess)
+        {
+          return pInfoA->m_LastAccess > pInfoB->m_LastAccess;
+        }
+      }
+      else if (pInfoA && pInfoA->m_LastAccess.IsPositive())
+      {
+        return true;
+      }
+      else if (pInfoB && pInfoB->m_LastAccess.IsPositive())
+      {
+        return false;
+      }
+
+      // in all other cases, fall through and do the file name comparison
+    }
+
     ezInt32 iValue = sSortA.Compare_NoCase(sSortB);
     if (iValue == 0)
     {
@@ -70,8 +92,6 @@ struct FileComparer
         return pInfoA == nullptr;
     }
     return iValue < 0;
-
-    // return m_Model->m_pFilter->Less(pInfoA, pInfoB);
   }
 
   EZ_ALWAYS_INLINE bool operator()(const ezQtAssetBrowserModel::VisibleEntry& a, const ezQtAssetBrowserModel::VisibleEntry& b) const
@@ -79,8 +99,9 @@ struct FileComparer
     return Less(a, b);
   }
 
-  ezQtAssetBrowserModel* m_Model;
+  ezQtAssetBrowserModel* m_pModel = nullptr;
   const ezHashTable<ezUuid, ezSubAsset>& m_AllAssets;
+  bool m_bSortByRecentlyUsed = false;
 };
 
 ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* pFilter)
@@ -232,6 +253,7 @@ void ezQtAssetBrowserModel::resetModel()
 
   ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
   const ezHashTable<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
+
   FileComparer cmp(this, AllAssets);
   m_EntriesToDisplay.Sort(cmp);
 
@@ -479,6 +501,12 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
         }
         return ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Document.svg");
       }
+
+      case Qt::DecorationRole:
+      {
+        QFileInfo fi(ezMakeQString(entry.m_sAbsFilePath));
+        return m_IconProvider.icon(fi);
+      }
     }
   }
   else if (entry.m_Guid.IsValid()) // Asset or sub-asset
@@ -545,13 +573,13 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
             break;
         }
 
-      return QString::fromUtf8(sToolTip, sToolTip.GetElementCount());
-    }
-    case Qt::DecorationRole:
-    {
-      if (m_bIconMode)
+        return QString::fromUtf8(sToolTip, sToolTip.GetElementCount());
+      }
+      case Qt::DecorationRole:
       {
-        ezString sThumbnailPath = pSubAsset->m_pAssetInfo->GetManager()->GenerateResourceThumbnailPath(pSubAsset->m_pAssetInfo->m_Path, pSubAsset->m_Data.m_sName);
+        if (m_bIconMode)
+        {
+          ezString sThumbnailPath = pSubAsset->m_pAssetInfo->GetManager()->GenerateResourceThumbnailPath(pSubAsset->m_pAssetInfo->m_Path, pSubAsset->m_Data.m_sName);
 
           ezUInt64 uiUserData1, uiUserData2;
           AssetGuid.GetValues(uiUserData1, uiUserData2);

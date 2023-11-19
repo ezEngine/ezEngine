@@ -235,7 +235,25 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
     }
   }
 
-  if (!itemType.IsAnySet(ezAssetBrowserItemFlags::Asset | ezAssetBrowserItemFlags::SubAsset))
+  if (itemType.IsAnySet(ezAssetBrowserItemFlags::File) && !itemType.IsAnySet(ezAssetBrowserItemFlags::Asset))
+  {
+    // Draw thumbnail.
+    {
+      QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin, ItemSideMargin, 0, 0);
+      thumbnailRect.setSize(QSize(uiThumbnailSize, uiThumbnailSize));
+      QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+      icon.paint(pPainter, thumbnailRect);
+    }
+
+    // Draw icon.
+    {
+      QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
+      thumbnailRect.setSize(QSize(16, 16));
+      QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIcon));
+      icon.paint(pPainter, thumbnailRect);
+    }
+  }
+  else if (itemType.IsAnySet(ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::DataDirectory))
   {
     // Draw icon.
     {
@@ -245,7 +263,7 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
       icon.paint(pPainter, thumbnailRect);
     }
   }
-  else
+  else // asset
   {
     // Draw thumbnail.
     {

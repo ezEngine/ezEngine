@@ -113,9 +113,18 @@ QVariant ezQtLogModel::data(const QModelIndex& index, int iRole) const
   switch (iRole)
   {
     case Qt::DisplayRole:
+    {
+      if (msg.m_sMsg.FindSubString("\n") != nullptr)
+      {
+        ezStringBuilder sTemp = msg.m_sMsg;
+        sTemp.ReplaceAll("\n", " ");
+        return ezMakeQString(sTemp);
+      }
+      return ezMakeQString(msg.m_sMsg);
+    }
     case Qt::ToolTipRole:
     {
-      return QString::fromUtf8(msg.m_sMsg.GetData());
+      return ezMakeQString(msg.m_sMsg);
     }
     case Qt::ForegroundRole:
     {

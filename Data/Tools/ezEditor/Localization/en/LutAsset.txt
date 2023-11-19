@@ -5,3 +5,7 @@ LUT;Lookup Table
 # Properties
 
 ezLUTAssetProperties::CUBEfile;CUBE File
+
+# UI
+
+LUTImport.Cube;Lookup Table

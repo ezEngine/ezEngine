@@ -17,7 +17,8 @@ public:
   virtual void dragMoveEvent(QDragMoveEvent* e) override;
   virtual void dragEnterEvent(QDragEnterEvent* e) override;
   virtual void dropEvent(QDropEvent* e) override;
+  virtual void paintEvent(QPaintEvent* e) override;
 
-  ezQtAssetPropertyWidget* m_pOwner;
+  ezQtAssetPropertyWidget* m_pOwner = nullptr;
 };
 

@@ -1,0 +1,48 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "linux-clang-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "EZ_EXPERIMENTAL_EDITOR_ON_LINUX": "ON",
+        "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
+        "EZ_ENABLE_FOLDER_UNITY_FILES" : "OFF"
+      },
+      "environment": {}
+    },
+    {
+      "name": "linux-clang-debug",
+      "inherits" : ["linux-clang-base"],
+      "hidden" : true,
+      "binaryDir": "${sourceDir}/build-debug-clang-ide",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-clang-dev",
+      "inherits" : ["linux-clang-base"],
+      "hidden" : true,
+      "binaryDir": "${sourceDir}/build-dev-clang-ide",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Dev"
+      }
+    },
+    {
+      "name": "linux-clang-shipping",
+      "inherits" : ["linux-clang-base"],
+      "hidden" : true,
+      "binaryDir": "${sourceDir}/build-shipping-clang-ide",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Shipping"
+      }
+    }
+  ]
+}

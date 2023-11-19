@@ -20,6 +20,7 @@
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
 #include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
+#include <GameEngine/Gameplay/GreyBoxComponent.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
@@ -86,9 +87,9 @@ void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 
 void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-
 
 void OnLoadPlugin()
 {
@@ -166,9 +167,12 @@ void OnLoadPlugin()
   ezQuadViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar");
 
   // Visualizers
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxReflectionProbeVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
+    { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
+    { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxReflectionProbeVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
+    { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
 
   // SceneGraph Context Menu
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu").AssertSuccess();
@@ -183,6 +187,7 @@ void OnLoadPlugin()
   // component property meta states
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezGreyBoxComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin()
@@ -192,6 +197,7 @@ void OnUnloadPlugin()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
   ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(AssetCuratorEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezGreyBoxComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
 
@@ -215,6 +221,7 @@ EZ_PLUGIN_ON_UNLOADED()
 void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
   static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezCameraComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
@@ -232,6 +239,7 @@ void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e
 void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
   static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezSkyLightComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
@@ -244,4 +252,57 @@ void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent&
   props["CubeMap"].m_Visibility = bIsStatic ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   // props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   // props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+}
+
+void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezGreyBoxComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  auto& props = *e.m_pPropertyStates;
+
+  const ezInt64 iShapeType = e.m_pObject->GetTypeAccessor().GetValue("Shape").ConvertTo<ezInt64>();
+
+  props["Detail"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Detail"].m_sNewLabelText = "Detail";
+  props["Curvature"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Thickness"].m_Visibility = ezPropertyUiState::Invisible;
+  props["SlopedTop"].m_Visibility = ezPropertyUiState::Invisible;
+  props["SlopedBottom"].m_Visibility = ezPropertyUiState::Invisible;
+
+  switch (iShapeType)
+  {
+    case ezGreyBoxShape::Box:
+      break;
+    case ezGreyBoxShape::RampX:
+    case ezGreyBoxShape::RampY:
+      break;
+    case ezGreyBoxShape::Column:
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      break;
+    case ezGreyBoxShape::StairsX:
+    case ezGreyBoxShape::StairsY:
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      props["Curvature"].m_Visibility = ezPropertyUiState::Default;
+      props["SlopedTop"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail"].m_sNewLabelText = "Steps";
+      break;
+    case ezGreyBoxShape::ArchX:
+    case ezGreyBoxShape::ArchY:
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      props["Curvature"].m_Visibility = ezPropertyUiState::Default;
+      props["Thickness"].m_Visibility = ezPropertyUiState::Default;
+      break;
+    case ezGreyBoxShape::SpiralStairs:
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      props["Curvature"].m_Visibility = ezPropertyUiState::Default;
+      props["Thickness"].m_Visibility = ezPropertyUiState::Default;
+      props["SlopedTop"].m_Visibility = ezPropertyUiState::Default;
+      props["SlopedBottom"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail"].m_sNewLabelText = "Steps";
+      break;
+  }
 }

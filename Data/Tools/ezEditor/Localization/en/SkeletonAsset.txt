@@ -8,7 +8,7 @@ ezSkeletonComponent;Skeleton;;https://ezengine.net/pages/docs/animation/skeletal
 
 # UI
 
-SkeletonImport;Animation Skeleton
+SkeletonImport;Skeleton
 
 Skeleton.RenderBones;Render Bones
 Skeleton.RenderColliders;Render Colliders

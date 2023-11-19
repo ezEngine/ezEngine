@@ -203,7 +203,8 @@ void ezQtContainerWindow::RestoreWindowLayout()
   if (m_iWindowLayoutRestoreScheduled > 0)
     return;
 
-  show();
+  bool bCreteDefaultLayout = true;
+  EZ_SCOPE_EXIT(bCreteDefaultLayout ? showMaximized() : show(););
 
   ezStringBuilder sFile;
   if (!GetProjectLayoutPath(sFile, false))
@@ -219,19 +220,24 @@ void ezQtContainerWindow::RestoreWindowLayout()
     QSettings Settings(sFile.GetData(), QSettings::IniFormat);
     Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
     {
-      restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
-      restoreState(Settings.value("WindowState", saveState()).toByteArray());
-      auto dockState = Settings.value("DockManagerState");
-      if (dockState.isValid() && dockState.typeId() == QMetaType::QByteArray)
+      QByteArray geom = Settings.value("WindowGeometry", QByteArray()).toByteArray();
+      if (!geom.isEmpty())
       {
-        m_pDockManager->restoreState(dockState.toByteArray(), 1);
-        // As document windows can't be in a closed state (as pressing x destroys them),
-        // we need to fix any document window that was accidentally saved in its closed state.
-        for (ads::CDockWidget* dock : m_DocumentDocks)
+        bCreteDefaultLayout = false;
+        restoreGeometry(geom);
+        restoreState(Settings.value("WindowState", saveState()).toByteArray());
+        auto dockState = Settings.value("DockManagerState");
+        if (dockState.isValid() && dockState.typeId() == QMetaType::QByteArray)
         {
-          if (dock->isClosed())
+          m_pDockManager->restoreState(dockState.toByteArray(), 1);
+          // As document windows can't be in a closed state (as pressing x destroys them),
+          // we need to fix any document window that was accidentally saved in its closed state.
+          for (ads::CDockWidget* dock : m_DocumentDocks)
           {
-            dock->toggleView();
+            if (dock->isClosed())
+            {
+              dock->toggleView();
+            }
           }
         }
       }

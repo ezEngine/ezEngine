@@ -228,6 +228,12 @@ public:
   /// \brief Checks whether the given file exists.
   static bool ExistsDirectory(ezStringView sDirectory); // [tested]
 
+  /// \brief If the given file already exists, determines a file path that doesn't exist yet.
+  ///
+  /// If the original file already exists, sSuffix is appended and then a number starting at 1.
+  /// Loops until it finds a filename that is not yet taken.
+  static void FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuffix = "-");
+
   /// \brief Deletes the given file. Returns EZ_SUCCESS, if the file was deleted or did not exist in the first place. Returns EZ_FAILURE
   static ezResult DeleteFile(ezStringView sFile); // [tested]
 

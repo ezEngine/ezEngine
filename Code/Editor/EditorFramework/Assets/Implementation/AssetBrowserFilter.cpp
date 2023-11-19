@@ -162,6 +162,21 @@ void ezQtAssetBrowserFilter::SetTypeFilter(const char* szTypes)
   Q_EMIT TypeFilterChanged();
 }
 
+void ezQtAssetBrowserFilter::SetFileExtensionFilters(ezStringView sExtensions)
+{
+  m_FileExtensions.Clear();
+
+  ezHybridArray<ezStringView, 8> filters;
+  sExtensions.Split(false, filters, ";", "*", ".");
+
+  ezStringBuilder tmp;
+  for (ezStringView filter : filters)
+  {
+    tmp = filter;
+    tmp.ToLower();
+    m_FileExtensions.Insert(tmp);
+  }
+}
 
 void ezQtAssetBrowserFilter::SetTemporaryPinnedItem(ezStringView sDataDirParentRelativePath)
 {
@@ -188,9 +203,10 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
   if (!m_bShowFiles && !pInfo && !bIsFolder)
     return true;
 
+  ezStringBuilder sExt;
   if (m_bShowFiles && !m_bShowNonImportableFiles && !pInfo && !bIsFolder)
   {
-    ezStringBuilder sExt = sDataDirParentRelativePath.GetFileExtension();
+    sExt = sDataDirParentRelativePath.GetFileExtension();
     sExt.ToLower();
     if (!m_ImportExtensions.Contains(sExt))
       return true;
@@ -211,7 +227,7 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     }
   }
 
-  if (!m_bShowItemsInHiddenFolders)
+  if (!m_bShowItemsInHiddenFolders && !(m_bUsesSearchActive && !m_SearchFilter.IsEmpty()))
   {
     if (ezStringUtils::FindSubString_NoCase(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount() + 1, "_data/", sDataDirParentRelativePath.GetEndPointer()) !=
         nullptr)
@@ -247,12 +263,20 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     }
   }
 
+  // Always show folders
+  if (bIsFolder)
+    return false;
+
+  if (!m_FileExtensions.IsEmpty())
+  {
+    sExt = sDataDirParentRelativePath.GetFileExtension();
+    sExt.ToLower();
+
+    return !m_FileExtensions.Contains(sExt);
+  }
+
   if (!m_sTypeFilter.IsEmpty())
   {
-    // Always show folders even if type filter is set.
-    if (bIsFolder)
-      return false;
-
     if (pInfo == nullptr) // if this is no asset, but we have an asset type filter active, always hide this thing
       return true;
 

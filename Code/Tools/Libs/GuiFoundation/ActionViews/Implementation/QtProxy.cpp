@@ -265,7 +265,7 @@ void ezQtMenuProxy::Update()
   auto pMenu = static_cast<ezMenuAction*>(m_pAction);
 
   m_pMenu->setIcon(ezQtUiServices::GetCachedIconResource(pMenu->GetIconPath()));
-  m_pMenu->setTitle(QString::fromUtf8(ezTranslate(pMenu->GetName())));
+  m_pMenu->setTitle(ezMakeQString(ezTranslate(pMenu->GetName())));
 }
 
 void ezQtMenuProxy::SetAction(ezAction* pAction)
@@ -314,7 +314,7 @@ void ezQtButtonProxy::Update()
   m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(pDesc->m_sShortcut.GetData())));
 
   const QString sDisplayShortcut = m_pQtAction->shortcut().toString(QKeySequence::NativeText);
-  QString sTooltip = ezTranslateTooltip(pButton->GetName());
+  QString sTooltip = ezMakeQString(ezTranslateTooltip(pButton->GetName()));
 
   ezStringBuilder sDisplay = ezTranslate(pButton->GetName());
 
@@ -514,7 +514,7 @@ void ezQtDynamicActionAndMenuProxy::Update()
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
   const QString sDisplayShortcut = m_pQtAction->shortcut().toString(QKeySequence::NativeText);
-  QString sTooltip = ezTranslateTooltip(pButton->GetName());
+  QString sTooltip = ezMakeQString(ezTranslateTooltip(pButton->GetName()));
 
   if (sTooltip.isEmpty())
   {
@@ -701,8 +701,8 @@ void ezQtSliderProxy::Update()
   pSliderAction->setMinimum(minVal);
   pSliderAction->setMaximum(maxVal);
   pSliderAction->setValue(pAction->GetValue());
-  pSliderAction->setText(ezTranslate(pAction->GetName()));
-  pSliderAction->setToolTip(ezTranslateTooltip(pAction->GetName()));
+  pSliderAction->setText(ezMakeQString(ezTranslate(pAction->GetName())));
+  pSliderAction->setToolTip(ezMakeQString(ezTranslateTooltip(pAction->GetName())));
   pSliderAction->setEnabled(pAction->IsEnabled());
   pSliderAction->setVisible(pAction->IsVisible());
 }

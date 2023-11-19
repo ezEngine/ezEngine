@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "user-specific",
+      "hidden": true,
+      "cacheVariables": {
+        "EZ_QT_DIR" : "path to qt here"
+      }
+    },
+    {
+      "name": "Debug",
+      "displayName": "Debug",
+      "inherits": [ "linux-clang-debug", "user-specific"]
+    },
+    {
+      "name": "Dev",
+      "displayName": "Dev",
+      "inherits": [ "linux-clang-dev", "user-specific"]
+    },
+    {
+      "name": "Shipping",
+      "displayName": "Shipping",
+      "inherits": [ "linux-clang-shipping", "user-specific"]
+    }
+  ]
+}

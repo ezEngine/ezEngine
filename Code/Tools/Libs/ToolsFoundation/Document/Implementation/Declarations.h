@@ -24,6 +24,7 @@ struct ezDocumentFlags
     StorageType RequestWindow : 1;
     StorageType AddToRecentFilesList : 1;
     StorageType AsyncSave : 1;
+    StorageType EmptyDocument : 1;
   };
 };
 

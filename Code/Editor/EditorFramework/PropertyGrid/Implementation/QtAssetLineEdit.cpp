@@ -77,3 +77,33 @@ void ezQtAssetLineEdit::dropEvent(QDropEvent* e)
     return;
   }
 }
+
+void ezQtAssetLineEdit::paintEvent(QPaintEvent* e)
+{
+  if (hasFocus())
+  {
+    QLineEdit::paintEvent(e);
+  }
+  else
+  {
+    QPainter p(this);
+
+    // Paint background
+    QStyleOptionFrame panel;
+    initStyleOption(&panel);
+    style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
+
+    // Clip to line edit contents
+    QRect r = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
+    auto margins = textMargins();
+    r = r.marginsRemoved(margins);
+    p.setClipRect(r);
+
+    // Render asset name
+    r.adjust(2, 0, 2, 0);
+    QTextOption opt(Qt::AlignLeft | Qt::AlignVCenter);
+    opt.setWrapMode(QTextOption::NoWrap);
+    ezStringBuilder sAsset = qtToEzString(text());
+    p.drawText(r, ezMakeQString(sAsset.GetFileName()), opt);
+  }
+}

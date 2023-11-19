@@ -30,7 +30,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 5, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("SizeNegZ", GetSizeNegZ, SetSizeNegZ),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SizePosZ", GetSizePosZ, SetSizePosZ),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezGroupAttribute("Misc"), new ezDefaultValueAttribute(16), new ezClampValueAttribute(3, 32)),
-    EZ_ACCESSOR_PROPERTY("Curvature", GetCurvature, SetCurvature),
+    EZ_ACCESSOR_PROPERTY("Curvature", GetCurvature, SetCurvature)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(-360), ezAngle::MakeFromDegree(360))),
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SlopedTop", GetSlopedTop, SetSlopedTop),
     EZ_ACCESSOR_PROPERTY("SlopedBottom", GetSlopedBottom, SetSlopedBottom),
@@ -478,7 +478,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
 
     case ezGreyBoxShape::Column:
       opt.m_Transform.SetScalingFactors(size).IgnoreResult();
-      geom.AddCylinder(0.5f, 0.5f, 0.5f, 0.5f, true, true, static_cast<ezUInt16>(m_uiDetail), opt);
+      geom.AddCylinder(0.5f, 0.5f, 0.5f, 0.5f, true, true, ezMath::Min<ezUInt16>(bOnlyRoughDetails ? 14 : 32, static_cast<ezUInt16>(m_uiDetail)), opt);
       break;
 
     case ezGreyBoxShape::StairsX:

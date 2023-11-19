@@ -15,9 +15,9 @@ ezQtGroupBoxBase::ezQtGroupBoxBase(QWidget* pParent, bool bCollapsible)
   m_bCollapsible = bCollapsible;
 }
 
-void ezQtGroupBoxBase::SetTitle(const char* szTitle)
+void ezQtGroupBoxBase::SetTitle(ezStringView sTitle)
 {
-  m_sTitle = szTitle;
+  m_sTitle = ezMakeQString(sTitle);
 }
 
 QString ezQtGroupBoxBase::GetTitle() const

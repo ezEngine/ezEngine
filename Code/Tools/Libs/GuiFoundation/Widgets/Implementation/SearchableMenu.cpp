@@ -150,7 +150,7 @@ bool ezQtSearchableMenu::eventFilter(QObject* pObject, QEvent* event)
   return false;
 }
 
-void ezQtSearchableMenu::AddItem(const char* szDisplayName, const char* szInternalPath, const QVariant& variant, QIcon icon)
+void ezQtSearchableMenu::AddItem(ezStringView sDisplayName, const char* szInternalPath, const QVariant& variant, QIcon icon)
 {
   QStandardItem* pParent = m_pItemModel->invisibleRootItem();
 
@@ -162,7 +162,7 @@ void ezQtSearchableMenu::AddItem(const char* szDisplayName, const char* szIntern
     pParent = CreateCategoryMenu(sCategory);
   }
 
-  QStandardItem* pThisItem = new QStandardItem(szDisplayName);
+  QStandardItem* pThisItem = new QStandardItem(ezMakeQString(sDisplayName));
   pThisItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
   pThisItem->setData(szInternalPath, InternalPathRole);
   pThisItem->setData(variant, VariantRole);

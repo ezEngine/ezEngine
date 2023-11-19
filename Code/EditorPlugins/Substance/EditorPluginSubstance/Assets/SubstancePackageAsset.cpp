@@ -200,7 +200,7 @@ namespace
     ezStringBuilder sFileContent;
     EZ_SUCCEED_OR_RETURN(GetSbsContent(sAbsolutePath, sFileContent));
 
-    QXmlStreamReader reader(sFileContent);
+    QXmlStreamReader reader(sFileContent.GetData());
     EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(reader, "dependencies"));
 
     while (reader.readNextStartElement())
@@ -373,6 +373,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSubstanceGraphOutput, ezNoBase, 1, ezRTTIDefaul
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezSubstanceUsage, m_Usage),
     EZ_MEMBER_PROPERTY("NumChannels", m_uiNumChannels)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 4)),
     EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode)->AddAttributes(new ezDefaultValueAttribute(ezTexConvCompressionMode::High)),
+    EZ_MEMBER_PROPERTY("PreserveAlphaCoverage", m_bPreserveAlphaCoverage),
     EZ_MEMBER_PROPERTY("Uuid", m_Uuid)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
@@ -579,7 +580,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
 
   ezHybridArray<ezSubstanceGraph, 2> graphs;
 
-  QXmlStreamReader reader(sFileContent);
+  QXmlStreamReader reader(sFileContent.GetData());
   EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(reader, "content"));
 
   while (reader.atEnd() == false)
@@ -622,6 +623,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
           newOutput.m_bEnabled = existingOutput.m_bEnabled;
           newOutput.m_CompressionMode = existingOutput.m_CompressionMode;
           newOutput.m_uiNumChannels = existingOutput.m_uiNumChannels;
+          newOutput.m_bPreserveAlphaCoverage = existingOutput.m_bPreserveAlphaCoverage;
           newOutput.m_Usage = existingOutput.m_Usage;
           newOutput.m_sLabel = existingOutput.m_sLabel;
           break;
@@ -746,6 +748,13 @@ ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, co
       arguments << "-rgba";
       arguments << "in0.rgba";
       break;
+  }
+
+  if (graphOutput.m_bPreserveAlphaCoverage)
+  {
+    arguments << "-mipsPreserveCoverage";
+    arguments << "-mipsAlphaThreshold";
+    arguments << "0.5";
   }
 
   EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));

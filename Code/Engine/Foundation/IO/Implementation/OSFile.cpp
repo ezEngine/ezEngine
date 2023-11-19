@@ -280,6 +280,29 @@ bool ezOSFile::ExistsDirectory(ezStringView sDirectory)
   return bRes;
 }
 
+void ezOSFile::FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuffix /*= {}*/)
+{
+  EZ_ASSERT_DEV(!inout_sPath.IsEmpty() && inout_sPath.IsAbsolutePath(), "Invalid input path.");
+
+  if (!ezOSFile::ExistsFile(inout_sPath))
+    return;
+
+  const ezString orgName = inout_sPath.GetFileName();
+
+  ezStringBuilder newName;
+
+  for (ezUInt32 i = 1; i < 100000; ++i)
+  {
+    newName.Format("{}{}{}", orgName, sSuffix, i);
+
+    inout_sPath.ChangeFileName(newName);
+    if (!ezOSFile::ExistsFile(inout_sPath))
+      return;
+  }
+
+  EZ_REPORT_FAILURE("Something went wrong.");
+}
+
 ezResult ezOSFile::DeleteFile(ezStringView sFile)
 {
   const ezTime t0 = ezTime::Now();

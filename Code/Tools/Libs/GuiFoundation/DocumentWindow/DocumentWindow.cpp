@@ -136,7 +136,7 @@ void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEv
 
     // if the application does not have focus, drastically reduce the update rate to limit CPU draw etc.
     if (QApplication::activeWindow() == nullptr)
-      iTargetFramerate = ezMath::Min(10, iTargetFramerate / 4);
+      iTargetFramerate = ezMath::Max(10, iTargetFramerate / 4);
 
     // We do not hit the requested framerate directly if the system framerate can't be evenly divided. We will chose the next higher framerate.
     if (iTargetFramerate < iSystemFramerate)

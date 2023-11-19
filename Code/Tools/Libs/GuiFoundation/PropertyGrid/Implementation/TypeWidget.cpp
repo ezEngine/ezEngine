@@ -196,12 +196,14 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
   PropertyGroup* pCurrentGroup = nullptr;
   float fOrder = -1.0f;
 
-  auto AddProperty = [&](const ezAbstractProperty* pProp) {
+  auto AddProperty = [&](const ezAbstractProperty* pProp)
+  {
     const ezGroupAttribute* pGroup = pProp->GetAttributeByType<ezGroupAttribute>();
     if (pGroup != nullptr)
     {
       ezUniquePtr<PropertyGroup>* pFound =
-        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g) { return g->m_sGroup == pGroup->GetGroup(); });
+        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g)
+          { return g->m_sGroup == pGroup->GetGroup(); });
       if (pFound != end(groups))
       {
         pCurrentGroup = pFound->Borrow();
@@ -217,7 +219,8 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
     if (pCurrentGroup == nullptr)
     {
       ezUniquePtr<PropertyGroup>* pFound =
-        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g) { return g->m_sGroup.IsEmpty(); });
+        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g)
+          { return g->m_sGroup.IsEmpty(); });
       if (pFound != end(groups))
       {
         pCurrentGroup = pFound->Borrow();
@@ -302,7 +305,8 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
     pCurrentGroup = nullptr;
   }
 
-  groups.Sort([](const ezUniquePtr<PropertyGroup>& lhs, const ezUniquePtr<PropertyGroup>& rhs) -> bool { return lhs->m_fOrder < rhs->m_fOrder; });
+  groups.Sort([](const ezUniquePtr<PropertyGroup>& lhs, const ezUniquePtr<PropertyGroup>& rhs) -> bool
+    { return lhs->m_fOrder < rhs->m_fOrder; });
 
   BuildUI(pType, manipulatorMap, groups, szIncludeProperties, szExcludeProperties);
 }
@@ -365,7 +369,8 @@ void ezQtTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEv
 
 void ezQtTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)
 {
-  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const ezPropertySelection& sel) { return pObject == sel.m_pObject; }))
+  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const ezPropertySelection& sel)
+        { return pObject == sel.m_pObject; }))
     return;
 
 
@@ -433,8 +438,8 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
       if (itData.IsValid() && !itData.Value().m_sNewLabelText.IsEmpty())
       {
         const char* szLabelText = itData.Value().m_sNewLabelText;
-        it.Value().m_pLabel->setText(QString::fromUtf8(ezTranslate(szLabelText)));
-        it.Value().m_pLabel->setToolTip(QString::fromUtf8(ezTranslateTooltip(szLabelText)));
+        it.Value().m_pLabel->setText(ezMakeQString(ezTranslate(szLabelText)));
+        it.Value().m_pLabel->setToolTip(ezMakeQString(ezTranslateTooltip(szLabelText)));
       }
       else
       {
@@ -443,11 +448,11 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
 
         // unless there is a specific override, we want to show the exact property name
         // also we don't want to force people to add translations for each and every property name
-        it.Value().m_pLabel->setText(QString::fromUtf8(ezTranslate(it.Value().m_sOriginalLabelText)));
+        it.Value().m_pLabel->setText(ezMakeQString(ezTranslate(it.Value().m_sOriginalLabelText)));
 
         // though do try to get a tooltip for the property
         // this will not log an error message, if the string is not translated
-        it.Value().m_pLabel->setToolTip(QString::fromUtf8(ezTranslateTooltip(it.Value().m_sOriginalLabelText)));
+        it.Value().m_pLabel->setToolTip(ezMakeQString(ezTranslateTooltip(it.Value().m_sOriginalLabelText)));
 
         ezTranslatorLogMissing::s_bActive = temp;
       }

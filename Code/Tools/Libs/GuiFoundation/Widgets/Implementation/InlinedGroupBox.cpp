@@ -38,9 +38,9 @@ ezQtInlinedGroupBox::ezQtInlinedGroupBox(QWidget* pParent)
   installEventFilter(this);
 }
 
-void ezQtInlinedGroupBox::SetTitle(const char* szTitle)
+void ezQtInlinedGroupBox::SetTitle(ezStringView sTitle)
 {
-  ezQtGroupBoxBase::SetTitle(szTitle);
+  ezQtGroupBoxBase::SetTitle(sTitle);
   update();
 }
 

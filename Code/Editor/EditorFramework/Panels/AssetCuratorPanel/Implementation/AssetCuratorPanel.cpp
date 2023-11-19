@@ -63,7 +63,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
   // using pDummy instead of 'this' breaks auto-connect for slots
   setWidget(pDummy);
   setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/AssetCurator.svg"));
-  setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetCurator")));
+  setWindowTitle(ezMakeQString(ezTranslate("Panel.AssetCurator")));
 
   connect(ListAssets, &QTreeView::doubleClicked, this, &ezQtAssetCuratorPanel::onListAssetsDoubleClicked);
   connect(CheckIndirect, &QCheckBox::toggled, this, &ezQtAssetCuratorPanel::onCheckIndirectToggled);
@@ -82,7 +82,8 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
     connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr,
     "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::dataChanged, this,
-              [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles) {
+              [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
+              {
                 if (m_SelectedIndex.isValid() && topLeft.row() <= m_SelectedIndex.row() && m_SelectedIndex.row() <= bottomRight.row())
                 {
                   UpdateIssueInfo();
@@ -91,7 +92,8 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
     "signal/slot connection failed");
 
   EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this,
-              [this]() {
+              [this]()
+              {
                 m_SelectedIndex = QPersistentModelIndex();
                 UpdateIssueInfo();
               }),
@@ -153,7 +155,8 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
 
   ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
 
-  auto getNiceName = [](const ezString& sDep) -> ezStringBuilder {
+  auto getNiceName = [](const ezString& sDep) -> ezStringBuilder
+  {
     if (ezConversionUtils::IsStringUuid(sDep))
     {
       ezUuid guid = ezConversionUtils::ConvertStringToUuid(sDep);
@@ -175,7 +178,8 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     return sDep;
   };
 
-  ezLogEntryDelegate logger(([this](ezLogEntry& ref_entry) -> void { TransformLog->GetLog()->AddLogMsg(std::move(ref_entry)); }));
+  ezLogEntryDelegate logger(([this](ezLogEntry& ref_entry) -> void
+    { TransformLog->GetLog()->AddLogMsg(std::move(ref_entry)); }));
   ezStringBuilder text;
   if (pAssetInfo->m_TransformState == ezAssetInfo::MissingTransformDependency)
   {

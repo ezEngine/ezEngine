@@ -5,6 +5,7 @@
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Types/Uuid.h>
 #include <QAbstractItemModel>
+#include <QFileIconProvider>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
 struct ezAssetInfo;
@@ -20,6 +21,7 @@ public:
   explicit ezQtAssetFilter(QObject* pParent);
   virtual bool IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const = 0;
   virtual ezStringView GetFilterRelativePath(ezStringView sDataDirParentRelativePath) const { return sDataDirParentRelativePath; }
+  virtual bool GetSortByRecentUse() const { return false; }
 
 Q_SIGNALS:
   void FilterChanged();
@@ -143,4 +145,6 @@ private:
 
   ezDynamicArray<VisibleEntry> m_EntriesToDisplay;
   ezSet<ezUuid> m_DisplayedEntries;
+
+  QFileIconProvider m_IconProvider;
 };

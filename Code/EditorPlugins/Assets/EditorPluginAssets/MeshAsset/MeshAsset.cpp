@@ -46,6 +46,16 @@ ezTransformStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
     CreateMeshFromGeom(pProp, desc);
   }
 
+  // if there is no material set for a slot, use the "Pattern" material as a fallback
+  for (ezUInt32 matIdx = 0; matIdx < desc.GetMaterials().GetCount(); ++matIdx)
+  {
+    if (desc.GetMaterials()[matIdx].m_sPath.IsEmpty())
+    {
+      // Data/Base/Materials/Common/Pattern.ezMaterialAsset
+      desc.SetMaterial(matIdx, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
+    }
+  }
+
   range.BeginNextStep("Writing Result");
   desc.Save(stream);
 
@@ -58,7 +68,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
 
   ezGeometry geom;
-  //const ezMat4 mTrans(mTransformation, ezVec3::MakeZero());
+  // const ezMat4 mTrans(mTransformation, ezVec3::MakeZero());
 
   ezGeometry::GeoOptions opt;
   opt.m_Transform = ezMat4(mTransformation, ezVec3::MakeZero());
@@ -180,11 +190,13 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
       desc.SetMaterial(0, "");
   }
 
+  // the the procedurally generated geometry we can always use fixed, low precision data, because we know that the geometry isn't detailed enough to run into problems
+  // and then we can unclutter the UI a little by not showing those options at all
   auto& mbd = desc.MeshBufferDesc();
   mbd.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezMeshTexCoordPrecision::ToResourceFormat(pProp->m_TexCoordPrecision));
-  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(pProp->m_NormalPrecision));
-  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(pProp->m_NormalPrecision));
+  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::_16Bit /*pProp->m_TexCoordPrecision*/));
+  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_10Bit /*pProp->m_NormalPrecision*/));
+  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::_10Bit /*pProp->m_NormalPrecision*/));
 
   mbd.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
   desc.AddSubMesh(mbd.GetPrimitiveCount(), 0, 0);
@@ -285,49 +297,49 @@ ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
 
 ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator() = default;
 
-void ezMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = sParentDirRelativePath;
-  baseOutputFile.ChangeFileExtension(GetDocumentExtension());
-
   {
-    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "MeshImport.WithMaterials";
-    info.m_sOutputFileParentRelative = baseOutputFile;
     info.m_sIcon = ":/AssetIcons/Mesh.svg";
   }
 
   {
-    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "MeshImport.NoMaterials";
-    info.m_sOutputFileParentRelative = baseOutputFile;
     info.m_sIcon = ":/AssetIcons/Mesh.svg";
   }
 }
 
-ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
 {
+  ezStringBuilder sOutFile = sInputFileAbs;
+  sOutFile.ChangeFileExtension(GetDocumentExtension());
+  ezOSFile::FindFreeFilename(sOutFile);
+
   auto pApp = ezQtEditorApp::GetSingleton();
 
-  out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
+  ezStringBuilder sInputFileRel = sInputFileAbs;
+  pApp->MakePathDataDirectoryRelative(sInputFileRel);
+
+  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
   if (out_pGeneratedDocument == nullptr)
     return ezStatus("Could not create target document");
 
   ezMeshAssetDocument* pAssetDoc = ezDynamicCast<ezMeshAssetDocument*>(out_pGeneratedDocument);
-  if (pAssetDoc == nullptr)
-    return ezStatus("Target document is not a valid ezMeshAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("MeshFile", sDataDirRelativePath);
+  accessor.SetValue("MeshFile", sInputFileRel.GetView());
 
-  if (info.m_sName == "MeshImport.WithMaterials")
+  if (sMode == "MeshImport.WithMaterials")
   {
     accessor.SetValue("ImportMaterials", true);
   }
 
-  if (info.m_sName == "MeshImport.NoMaterials")
+  if (sMode == "MeshImport.NoMaterials")
   {
     accessor.SetValue("ImportMaterials", false);
   }
