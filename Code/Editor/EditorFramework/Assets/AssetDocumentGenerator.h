@@ -57,7 +57,7 @@ public:
   /// \brief Used to fill out which import modes may be available for the given asset.
   ///
   /// Note: sAbsInputFile may be empty, in this case it should fill out the array for "general purpose" import (any file of the supported types).
-  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ImportMode>& out_Modes) const = 0;
+  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ImportMode>& out_modes) const = 0;
 
   /// \brief Returns the target asset document file extension.
   virtual ezStringView GetDocumentExtension() const = 0;
@@ -72,10 +72,10 @@ public:
   bool SupportsFileType(ezStringView sFile) const;
 
   /// \brief Instantiates all currently available generators.
-  static void CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_Generators);
+  static void CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_generators);
 
   /// \brief Destroys the previously instantiated generators.
-  static void DestroyGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
+  static void DestroyGenerators(const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
 
 protected:
   void AddSupportedFileType(ezStringView sExtension);

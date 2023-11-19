@@ -232,7 +232,7 @@ public:
   ///
   /// If the original file already exists, sSuffix is appended and then a number starting at 1.
   /// Loops until it finds a filename that is not yet taken.
-  static void FindFreeFilename(ezStringBuilder& inout_Path, ezStringView sSuffix = "-");
+  static void FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuffix = "-");
 
   /// \brief Deletes the given file. Returns EZ_SUCCESS, if the file was deleted or did not exist in the first place. Returns EZ_FAILURE
   static ezResult DeleteFile(ezStringView sFile); // [tested]

@@ -67,28 +67,26 @@ void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_sFil
   }
 }
 
-void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_Generators)
+void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_generators)
 {
   ezRTTI::ForEachDerivedType<ezAssetDocumentGenerator>(
     [&](const ezRTTI* pRtti)
     {
-      out_Generators.PushBack(pRtti->GetAllocator()->Allocate<ezAssetDocumentGenerator>());
+      out_generators.PushBack(pRtti->GetAllocator()->Allocate<ezAssetDocumentGenerator>());
     },
     ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   // sort by name
-  out_Generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool
+  out_generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool
     { return lhs->GetDocumentExtension().Compare_NoCase(rhs->GetDocumentExtension()) < 0; });
 }
 
-void ezAssetDocumentGenerator::DestroyGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
+void ezAssetDocumentGenerator::DestroyGenerators(const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
 {
   for (ezAssetDocumentGenerator* pGen : generators)
   {
     pGen->GetDynamicRTTI()->GetAllocator()->Deallocate(pGen);
   }
-
-  generators.Clear();
 }
 
 void ezAssetDocumentGenerator::ImportAssets(const ezDynamicArray<ezString>& filesToImport)

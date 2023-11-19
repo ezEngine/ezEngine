@@ -280,14 +280,14 @@ bool ezOSFile::ExistsDirectory(ezStringView sDirectory)
   return bRes;
 }
 
-void ezOSFile::FindFreeFilename(ezStringBuilder& inout_Path, ezStringView sSuffix /*= {}*/)
+void ezOSFile::FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuffix /*= {}*/)
 {
-  EZ_ASSERT_DEV(!inout_Path.IsEmpty() && inout_Path.IsAbsolutePath(), "Invalid input path.");
+  EZ_ASSERT_DEV(!inout_sPath.IsEmpty() && inout_sPath.IsAbsolutePath(), "Invalid input path.");
 
-  if (!ezOSFile::ExistsFile(inout_Path))
+  if (!ezOSFile::ExistsFile(inout_sPath))
     return;
 
-  const ezString orgName = inout_Path.GetFileName();
+  const ezString orgName = inout_sPath.GetFileName();
 
   ezStringBuilder newName;
 
@@ -295,8 +295,8 @@ void ezOSFile::FindFreeFilename(ezStringBuilder& inout_Path, ezStringView sSuffi
   {
     newName.Format("{}{}{}", orgName, sSuffix, i);
 
-    inout_Path.ChangeFileName(newName);
-    if (!ezOSFile::ExistsFile(inout_Path))
+    inout_sPath.ChangeFileName(newName);
+    if (!ezOSFile::ExistsFile(inout_sPath))
       return;
   }
 
