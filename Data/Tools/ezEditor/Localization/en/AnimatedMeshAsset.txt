@@ -8,7 +8,7 @@ ezAnimatedMeshComponent;Animated Mesh;;https://ezengine.net/pages/docs/animation
 
 # UI
 
-AnimatedMeshImport.NoMaterials;Animated Mesh only
-AnimatedMeshImport.WithMaterials;Animated Mesh and Materials
+AnimatedMeshImport.NoMaterials;Animated Mesh
+AnimatedMeshImport.WithMaterials;Animated Mesh with Materials
 
 # Properties

@@ -81,6 +81,8 @@ private Q_SLOTS:
   void ImportSelection();
   void OnOpenImportReferenceAsset();
   void DeleteSelection();
+  void OnImportAsAboutToShow();
+  void OnImportAsClicked();
 
 
 private:
@@ -92,6 +94,7 @@ private:
   void ProjectEventHandler(const ezToolsProjectEvent& e);
   void AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedAsset);
   void AddImportedViaMenu(QMenu* pMenu);
+  void GetSelectedImportableFiles(ezDynamicArray<ezString>& out_Files) const;
 
   Mode m_Mode = Mode::Browser;
   ezQtToolBarActionMapView* m_pToolbar = nullptr;

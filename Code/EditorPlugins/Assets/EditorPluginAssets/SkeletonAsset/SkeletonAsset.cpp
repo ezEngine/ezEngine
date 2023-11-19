@@ -435,34 +435,35 @@ ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
 
 ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator() = default;
 
-void ezSkeletonAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezSkeletonAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = sParentDirRelativePath;
-  baseOutputFile.ChangeFileExtension(GetDocumentExtension());
-
   {
-    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
     info.m_sName = "SkeletonImport";
-    info.m_sOutputFileParentRelative = baseOutputFile;
     info.m_sIcon = ":/AssetIcons/Skeleton.svg";
   }
 }
 
-ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
 {
+  ezStringBuilder sOutFile = sInputFileAbs;
+  sOutFile.ChangeFileExtension(GetDocumentExtension());
+  ezOSFile::FindFreeFilename(sOutFile);
+
   auto pApp = ezQtEditorApp::GetSingleton();
 
-  out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
+  ezStringBuilder sInputFileRel = sInputFileAbs;
+  pApp->MakePathDataDirectoryRelative(sInputFileRel);
+
+  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
   if (out_pGeneratedDocument == nullptr)
     return ezStatus("Could not create target document");
 
   ezSkeletonAssetDocument* pAssetDoc = ezDynamicCast<ezSkeletonAssetDocument*>(out_pGeneratedDocument);
-  if (pAssetDoc == nullptr)
-    return ezStatus("Target document is not a valid ezSkeletonAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("File", sDataDirRelativePath);
+  accessor.SetValue("File", sInputFileRel.GetView());
 
   return ezStatus(EZ_SUCCESS);
 }

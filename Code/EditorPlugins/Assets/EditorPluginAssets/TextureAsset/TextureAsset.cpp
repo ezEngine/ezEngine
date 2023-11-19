@@ -511,19 +511,6 @@ ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szT
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentGenerator>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-enum class TextureType
-{
-  Diffuse,
-  Normal,
-  Occlusion,
-  Roughness,
-  Metalness,
-  ORM,
-  Height,
-  HDR,
-  Linear,
-};
-
 ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
 {
   AddSupportedFileType("tga");
@@ -537,11 +524,9 @@ ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
 
 ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator() = default;
 
-void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+ezTextureAssetDocumentGenerator::TextureType ezTextureAssetDocumentGenerator::DetermineTextureType(ezStringView sFile)
 {
-  ezStringBuilder baseOutputFile = sParentDirRelativePath;
-
-  ezStringBuilder baseFilename = baseOutputFile.GetFileName();
+  ezStringBuilder baseFilename = sFile.GetFileName();
 
   while (baseFilename.TrimWordEnd("_") ||
          baseFilename.TrimWordEnd("K") ||
@@ -560,54 +545,88 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
   {
   }
 
-  baseOutputFile.ChangeFileExtension(GetDocumentExtension());
-
-  TextureType tt = TextureType::Diffuse;
-
-  if (ezPathUtils::HasExtension(sParentDirRelativePath, "hdr"))
+  if (sFile.HasExtension("hdr"))
   {
-    tt = TextureType::HDR;
+    return TextureType::HDR;
   }
-  else if (ezPathUtils::HasExtension(sParentDirRelativePath, "exr"))
+  else if (sFile.HasExtension("exr"))
   {
-    tt = TextureType::HDR;
+    return TextureType::HDR;
   }
   else if (baseFilename.EndsWith_NoCase("_d") || baseFilename.EndsWith_NoCase("diffuse") || baseFilename.EndsWith_NoCase("diff") || baseFilename.EndsWith_NoCase("col") || baseFilename.EndsWith_NoCase("color"))
   {
-    tt = TextureType::Diffuse;
+    return TextureType::Diffuse;
   }
   else if (baseFilename.EndsWith_NoCase("_n") || baseFilename.EndsWith_NoCase("normal") || baseFilename.EndsWith_NoCase("normals") || baseFilename.EndsWith_NoCase("nrm") || baseFilename.EndsWith_NoCase("norm") || baseFilename.EndsWith_NoCase("_nor"))
   {
-    tt = TextureType::Normal;
+    return TextureType::Normal;
   }
   else if (baseFilename.EndsWith_NoCase("_arm") || baseFilename.EndsWith_NoCase("_orm"))
   {
-    tt = TextureType::ORM;
+    return TextureType::ORM;
   }
   else if (baseFilename.EndsWith_NoCase("_rough") || baseFilename.EndsWith_NoCase("roughness") || baseFilename.EndsWith_NoCase("_rgh"))
   {
-    tt = TextureType::Roughness;
+    return TextureType::Roughness;
   }
   else if (baseFilename.EndsWith_NoCase("_ao"))
   {
-    tt = TextureType::Occlusion;
+    return TextureType::Occlusion;
   }
   else if (baseFilename.EndsWith_NoCase("_height") || baseFilename.EndsWith_NoCase("_disp"))
   {
-    tt = TextureType::Height;
+    return TextureType::Height;
   }
   else if (baseFilename.EndsWith_NoCase("_metal") || baseFilename.EndsWith_NoCase("_met") || baseFilename.EndsWith_NoCase("metallic") || baseFilename.EndsWith_NoCase("metalness"))
   {
-    tt = TextureType::Metalness;
+    return TextureType::Metalness;
   }
   else if (baseFilename.EndsWith_NoCase("_alpha"))
   {
-    tt = TextureType::Linear;
+    return TextureType::Linear;
   }
 
-  ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
+  return TextureType::Diffuse;
+}
+
+void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
+{
+  if (sAbsInputFile.IsEmpty())
+  {
+    {
+      ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+      info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+      info2.m_sName = "TextureImport.Auto";
+      info2.m_sIcon = ":/AssetIcons/Texture_2D.svg";
+    }
+
+    //{
+    //  ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    //  info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    //  info2.m_sName = "TextureImport.Diffuse";
+    //  info2.m_sIcon = ":/AssetIcons/Texture_2D.svg";
+    //}
+
+    //{
+    //  ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    //  info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    //  info2.m_sName = "TextureImport.Linear";
+    //  info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
+    //}
+
+    //{
+    //  ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
+    //  info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    //  info2.m_sName = "TextureImport.Normal";
+    //  info2.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
+    //}
+    return;
+  }
+
+  const TextureType tt = DetermineTextureType(sAbsInputFile);
+
+  ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
   info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
-  info.m_sOutputFileParentRelative = baseOutputFile;
 
   // first add the default option
   switch (tt)
@@ -680,82 +699,117 @@ void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRela
 
   if (tt != TextureType::Diffuse)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Diffuse";
     info2.m_sIcon = ":/AssetIcons/Texture_2D.svg";
   }
 
   if (tt != TextureType::Linear)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Linear";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Normal)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Normal";
     info2.m_sIcon = ":/AssetIcons/Texture_Normals.svg";
   }
 
   if (tt != TextureType::Metalness)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Metalness";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Roughness)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Roughness";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Occlusion)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Occlusion";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::ORM)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.ORM";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 
   if (tt != TextureType::Height)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::ImportMode& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Height";
     info2.m_sIcon = ":/AssetIcons/Texture_Linear.svg";
   }
 }
 
-ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
 {
+  if (sMode == "TextureImport.Auto")
+  {
+    const TextureType tt = DetermineTextureType(sInputFileAbs);
+
+    switch (tt)
+    {
+      case TextureType::Diffuse:
+        sMode = "TextureImport.Diffuse";
+        break;
+      case TextureType::Normal:
+        sMode = "TextureImport.Normal";
+        break;
+      case TextureType::Occlusion:
+        sMode = "TextureImport.Occlusion";
+        break;
+      case TextureType::Roughness:
+        sMode = "TextureImport.Roughness";
+        break;
+      case TextureType::Metalness:
+        sMode = "TextureImport.Metalness";
+        break;
+      case TextureType::ORM:
+        sMode = "TextureImport.ORM";
+        break;
+      case TextureType::Height:
+        sMode = "TextureImport.Height";
+        break;
+      case TextureType::HDR:
+        sMode = "TextureImport.HDR";
+        break;
+      case TextureType::Linear:
+        sMode = "TextureImport.Linear";
+        break;
+    }
+  }
+
+  ezStringBuilder sOutFile = sInputFileAbs;
+  sOutFile.ChangeFileExtension(GetDocumentExtension());
+  ezOSFile::FindFreeFilename(sOutFile);
+
   auto pApp = ezQtEditorApp::GetSingleton();
 
-  out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
+  ezStringBuilder sInputFileRel = sInputFileAbs;
+  pApp->MakePathDataDirectoryRelative(sInputFileRel);
+
+  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
   if (out_pGeneratedDocument == nullptr)
     return ezStatus("Could not create target document");
 
@@ -764,46 +818,46 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sDataDirRelative
     return ezStatus("Target document is not a valid ezTextureAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("Input1", sDataDirRelativePath);
+  accessor.SetValue("Input1", sInputFileRel.GetView());
   accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
   accessor.SetValue("Usage", (int)ezTexConvUsage::Linear);
 
-  if (info.m_sName == "TextureImport.Diffuse")
+  if (sMode == "TextureImport.Diffuse")
   {
     accessor.SetValue("Usage", (int)ezTexConvUsage::Color);
   }
-  else if (info.m_sName == "TextureImport.Normal")
+  else if (sMode == "TextureImport.Normal")
   {
     accessor.SetValue("Usage", (int)ezTexConvUsage::NormalMap);
   }
-  else if (info.m_sName == "TextureImport.HDR")
+  else if (sMode == "TextureImport.HDR")
   {
     accessor.SetValue("Usage", (int)ezTexConvUsage::Hdr);
   }
-  else if (info.m_sName == "TextureImport.Linear")
+  else if (sMode == "TextureImport.Linear")
   {
   }
-  else if (info.m_sName == "TextureImport.Occlusion")
+  else if (sMode == "TextureImport.Occlusion")
   {
     accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::R1);
     accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowestQuality);
   }
-  else if (info.m_sName == "TextureImport.Height")
+  else if (sMode == "TextureImport.Height")
   {
     accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::R1);
     accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);
   }
-  else if (info.m_sName == "TextureImport.Roughness")
+  else if (sMode == "TextureImport.Roughness")
   {
     accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::R1);
     accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);
   }
-  else if (info.m_sName == "TextureImport.Metalness")
+  else if (sMode == "TextureImport.Metalness")
   {
     accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::R1);
     accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);
   }
-  else if (info.m_sName == "TextureImport.ORM")
+  else if (sMode == "TextureImport.ORM")
   {
     accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
     accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);

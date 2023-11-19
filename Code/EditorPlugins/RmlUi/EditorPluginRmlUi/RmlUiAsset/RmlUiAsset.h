@@ -19,19 +19,3 @@ protected:
 
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 };
-
-//////////////////////////////////////////////////////////////////////////
-
-class ezRmlUiAssetDocumentGenerator : public ezAssetDocumentGenerator
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiAssetDocumentGenerator, ezAssetDocumentGenerator);
-
-public:
-  ezRmlUiAssetDocumentGenerator();
-  ~ezRmlUiAssetDocumentGenerator();
-
-  virtual void GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const override;
-  virtual ezStatus Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
-  virtual ezStringView GetDocumentExtension() const override { return "ezRmlUiAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "RmlUis"; }
-};

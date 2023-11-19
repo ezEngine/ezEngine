@@ -5,9 +5,9 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ToolsFoundation/Document/DocumentUtils.h>
 
-void ezQtEditorApp::OpenDocumentQueued(const char* szDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
+void ezQtEditorApp::OpenDocumentQueued(ezStringView sDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
-  QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szDocument), Q_ARG(void*, (void*)pOpenContext));
+  QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, ezMakeQString(sDocument)), Q_ARG(void*, (void*)pOpenContext));
 }
 
 ezDocument* ezQtEditorApp::OpenDocument(ezStringView sDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
@@ -71,7 +71,7 @@ The following types are missing:\n",
   return pDocument;
 }
 
-ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
+ezDocument* ezQtEditorApp::CreateDocument(ezStringView sDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
   EZ_PROFILE_SCOPE("CreateDocument");
 
@@ -81,11 +81,11 @@ ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezD
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
 
   {
-    ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(szDocument, &pTypeDesc);
+    ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(sDocument, &pTypeDesc);
     if (res.Failed())
     {
       ezStringBuilder s;
-      s.Format("Failed to create document: \n'{0}'", szDocument);
+      s.Format("Failed to create document: \n'{0}'", sDocument);
       ezQtUiServices::MessageBoxStatus(res, s);
       return nullptr;
     }
@@ -93,11 +93,11 @@ ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezD
 
   ezDocument* pDocument = nullptr;
   {
-    ezStatus result = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, szDocument, pDocument, flags, pOpenContext);
+    ezStatus result = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, sDocument, pDocument, flags, pOpenContext);
     if (result.m_Result.Failed())
     {
       ezStringBuilder s;
-      s.Format("Failed to create document: \n'{0}'", szDocument);
+      s.Format("Failed to create document: \n'{0}'", sDocument);
       ezQtUiServices::MessageBoxStatus(result, s);
       return nullptr;
     }

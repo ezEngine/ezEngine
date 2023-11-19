@@ -87,8 +87,8 @@ public:
   ezSkeletonAssetDocumentGenerator();
   ~ezSkeletonAssetDocumentGenerator();
 
-  virtual void GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const override;
-  virtual ezStatus Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
   virtual ezStringView GetDocumentExtension() const override { return "ezSkeletonAsset"; }
   virtual ezStringView GetGeneratorGroup() const override { return "AnimationSkeletonGroup"; }
+  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument) override;
 };

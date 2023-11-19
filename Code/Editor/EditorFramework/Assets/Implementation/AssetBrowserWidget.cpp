@@ -298,6 +298,21 @@ void ezQtAssetBrowserWidget::AddImportedViaMenu(QMenu* pMenu)
   }
 }
 
+void ezQtAssetBrowserWidget::GetSelectedImportableFiles(ezDynamicArray<ezString>& out_Files) const
+{
+  out_Files.Clear();
+
+  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
+  for (const QModelIndex& id : selection)
+  {
+    const bool bImportable = id.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
+    if (bImportable)
+    {
+      out_Files.PushBack(qtToEzString(id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString()));
+    }
+  }
+}
+
 void ezQtAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex& index)
 {
   const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
@@ -503,6 +518,92 @@ void ezQtAssetBrowserWidget::DeleteSelection()
   }
 }
 
+void ezQtAssetBrowserWidget::OnImportAsAboutToShow()
+{
+  QMenu* pMenu = qobject_cast<QMenu*>(sender());
+
+  if (!pMenu->actions().isEmpty())
+    return;
+
+  ezHybridArray<ezString, 8> filesToImport;
+  GetSelectedImportableFiles(filesToImport);
+
+  if (filesToImport.IsEmpty())
+    return;
+
+  ezSet<ezString> extensions;
+  ezStringBuilder sExt;
+  for (const auto& file : filesToImport)
+  {
+    sExt = file.GetFileExtension();
+    sExt.ToLower();
+    extensions.Insert(sExt);
+  }
+
+  ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
+  ezAssetDocumentGenerator::CreateGenerators(generators);
+  ezHybridArray<ezAssetDocumentGenerator::ImportMode, 16> importModes;
+
+  for (ezAssetDocumentGenerator* pGen : generators)
+  {
+    for (ezStringView ext : extensions)
+    {
+      if (pGen->SupportsFileType(ext))
+      {
+        pGen->GetImportModes({}, importModes);
+        break;
+      }
+    }
+  }
+
+  for (const auto& mode : importModes)
+  {
+    QAction* act = pMenu->addAction(QIcon(ezMakeQString(mode.m_sIcon)), ezMakeQString(ezTranslate(mode.m_sName)));
+    act->setData(ezMakeQString(mode.m_sName));
+    connect(act, &QAction::triggered, this, &ezQtAssetBrowserWidget::OnImportAsClicked);
+  }
+
+  ezAssetDocumentGenerator::DestroyGenerators(generators);
+}
+
+void ezQtAssetBrowserWidget::OnImportAsClicked()
+{
+  ezHybridArray<ezString, 8> filesToImport;
+  GetSelectedImportableFiles(filesToImport);
+
+  QAction* act = qobject_cast<QAction*>(sender());
+  ezString sMode = qtToEzString(act->data().toString());
+
+  ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
+  ezAssetDocumentGenerator::CreateGenerators(generators);
+
+  ezHybridArray<ezAssetDocumentGenerator::ImportMode, 16> importModes;
+  for (ezAssetDocumentGenerator* pGen : generators)
+  {
+    importModes.Clear();
+    pGen->GetImportModes({}, importModes);
+
+    for (const auto& mode : importModes)
+    {
+      if (mode.m_sName == sMode)
+      {
+        for (const ezString& file : filesToImport)
+        {
+          if (pGen->SupportsFileType(file))
+          {
+            pGen->Import(file, sMode, true).LogFailure();
+          }
+        }
+
+        goto done;
+      }
+    }
+  }
+
+done:
+  ezAssetDocumentGenerator::DestroyGenerators(generators);
+}
+
 void ezQtAssetBrowserWidget::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 {
   switch (e.m_Type)
@@ -697,6 +798,8 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
     {
       m.addSeparator();
       m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Import.svg")), QLatin1String("Import..."), this, SLOT(ImportSelection()));
+      QMenu* imp = m.addMenu(QIcon(QLatin1String(":/GuiFoundation/Icons/Import.svg")), "Import As");
+      connect(imp, &QMenu::aboutToShow, this, &ezQtAssetBrowserWidget::OnImportAsAboutToShow);
       AddImportedViaMenu(&m);
     }
   }
@@ -999,20 +1102,14 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
 void ezQtAssetBrowserWidget::ImportSelection()
 {
   ezHybridArray<ezString, 4> filesToImport;
-  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
-  for (const QModelIndex& id : selection)
-  {
-    const bool bImportable = id.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
-    if (bImportable)
-    {
-      filesToImport.PushBack(qtToEzString(id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString()));
-    }
-  }
+  GetSelectedImportableFiles(filesToImport);
+
   if (filesToImport.IsEmpty())
     return;
 
   ezAssetDocumentGenerator::ImportAssets(filesToImport);
 
+  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
   for (const QModelIndex& id : selection)
   {
     Q_EMIT m_pModel->dataChanged(id, id);
