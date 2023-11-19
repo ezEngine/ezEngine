@@ -378,9 +378,12 @@ void ezQtAssetBrowserWidget::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentag
 
 void ezQtAssetBrowserWidget::OnTextFilterChanged()
 {
-  SearchWidget->setText(QString::fromUtf8(m_pFilter->GetTextFilter()));
-
-  QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
+  QString sText = ezMakeQString(m_pFilter->GetTextFilter());
+  if (SearchWidget->text() != sText)
+  {
+    SearchWidget->setText(sText);
+    QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
+  }
 }
 
 void ezQtAssetBrowserWidget::OnTypeFilterChanged()

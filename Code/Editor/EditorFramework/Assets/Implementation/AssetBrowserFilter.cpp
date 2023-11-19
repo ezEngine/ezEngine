@@ -227,7 +227,7 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     }
   }
 
-  if (!m_bShowItemsInHiddenFolders)
+  if (!m_bShowItemsInHiddenFolders && !(m_bUsesSearchActive && !m_SearchFilter.IsEmpty()))
   {
     if (ezStringUtils::FindSubString_NoCase(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount() + 1, "_data/", sDataDirParentRelativePath.GetEndPointer()) !=
         nullptr)
