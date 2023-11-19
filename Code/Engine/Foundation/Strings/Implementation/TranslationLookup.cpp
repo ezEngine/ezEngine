@@ -63,6 +63,9 @@ ezStringView ezTranslationLookup::Translate(ezStringView sString, ezUInt64 uiStr
       return sResult;
   }
 
+  if (usage != ezTranslationUsage::Default)
+    return {};
+
   return sString;
 }
 
@@ -244,6 +247,9 @@ ezStringView ezTranslatorLogMissing::Translate(ezStringView sString, ezUInt64 ui
 
 ezStringView ezTranslatorMakeMoreReadable::Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
+  if (usage != ezTranslationUsage::Default)
+    return {};
+
   ezStringView sResult = ezTranslatorStorage::Translate(sString, uiStringHash, usage);
 
   if (!sResult.IsEmpty())
