@@ -45,8 +45,6 @@ void ezQtAssetBrowserDlg::Init(QWidget* pParent)
 ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters)
   : QDialog(pParent)
 {
-  Init(pParent);
-
   {
     ezStringBuilder temp = sVisibleFilters;
     ezHybridArray<ezStringView, 4> compTypes;
@@ -66,10 +64,10 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
     }
 
     m_sVisibleFilters = allFiltered;
-
-    AssetBrowserWidget->SetMode(ezQtAssetBrowserWidget::Mode::AssetPicker);
   }
+  Init(pParent);
 
+  AssetBrowserWidget->SetMode(ezQtAssetBrowserWidget::Mode::AssetPicker);
 
   if (m_sVisibleFilters != ";;") // that's an empty filter list
   {
@@ -84,6 +82,8 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
 ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, ezStringView sWindowTitle, ezStringView sPreselectedFileAbs, ezStringView sFileExtensions)
   : QDialog(pParent)
 {
+  m_sVisibleFilters = sFileExtensions;
+
   Init(pParent);
 
   ezStringBuilder title(sFileExtensions, ")");
@@ -92,11 +92,7 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, ezStringView sWindowT
   title.PrependFormat("{} (", sWindowTitle);
   setWindowTitle(ezMakeQString(title));
 
-  {
-    m_sVisibleFilters = sFileExtensions;
-    AssetBrowserWidget->SetMode(ezQtAssetBrowserWidget::Mode::FilePicker);
-  }
-
+  AssetBrowserWidget->SetMode(ezQtAssetBrowserWidget::Mode::FilePicker);
   AssetBrowserWidget->UseFileExtensionFilters(sFileExtensions);
 
   ezStringBuilder sParentRelPath = sPreselectedFileAbs;
@@ -104,7 +100,6 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, ezStringView sWindowT
   {
     AssetBrowserWidget->GetAssetBrowserFilter()->SetTemporaryPinnedItem(sParentRelPath);
   }
-
 
   AssetBrowserWidget->SetSelectedFile(sPreselectedFileAbs);
 

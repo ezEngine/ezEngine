@@ -187,7 +187,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("ShaderMode", ezMaterialShaderMode, GetShaderMode, SetShaderMode),
-    EZ_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader", "CustomAction_CreateShaderFromTemplate")),
     // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
@@ -926,9 +926,14 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::File)
   {
-    // remove shader file dependency, if it isn't used
-    pInfo->m_TransformDependencies.Remove(GetProperties()->GetShader());
-    pInfo->m_ThumbnailDependencies.Remove(GetProperties()->GetShader());
+    const bool bInUseByBaseMaterial = GetProperties()->m_ShaderMode == ezMaterialShaderMode::BaseMaterial && ezStringUtils::IsEqual(GetProperties()->GetShader(), GetProperties()->GetBaseMaterial());
+
+    // remove shader file dependency, if it isn't used and differs from the base material
+    if (!bInUseByBaseMaterial)
+    {
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetShader());
+      pInfo->m_ThumbnailDependencies.Remove(GetProperties()->GetShader());
+    }
   }
 
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
