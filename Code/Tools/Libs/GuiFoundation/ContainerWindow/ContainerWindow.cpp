@@ -236,6 +236,33 @@ void ezQtContainerWindow::RestoreWindowLayout()
           {
             if (dock->isClosed())
             {
+              if (dock->dockContainer() == nullptr)
+              {
+                if (m_DocumentDocks.GetCount() >= 2)
+                {
+                  // If we can (we are not the only dock window), we are going to attach to a window that isn't us, ideally the settings window.
+                  ezUInt32 uiBestIndex = 0;
+                  for (ezUInt32 i = 0; i < m_DocumentDocks.GetCount(); i++)
+                  {
+                    if (ezStringUtils::IsEqual(m_DocumentWindows[i]->GetUniqueName(), "Settings"))
+                    {
+                      uiBestIndex = i;
+                      break;
+                    }
+                    else if (m_DocumentDocks[i] != dock)
+                    {
+                      uiBestIndex = i;
+                    }
+                  }
+
+                  ads::CDockAreaWidget* dockArea = m_DocumentDocks[uiBestIndex]->dockAreaWidget();
+                  m_pDockManager->addDockWidgetTabToArea(dock, dockArea);
+                }
+                else
+                {
+                  m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, dock);
+                }
+              }
               dock->toggleView();
             }
           }
