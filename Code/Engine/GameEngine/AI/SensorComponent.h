@@ -20,6 +20,8 @@ struct EZ_GAMEENGINE_DLL ezMsgSensorDetectedObjectsChanged : public ezMessage
 /// Derived component classes implemented different shapes like sphere cylinder or cone.
 /// All sensors do a query with the specified spatial category in the world's spatial system first, therefore it is necessary to have objects
 /// with matching spatial category for the sensors to detect them. This can be achieved with components like e.g. ezMarkerComponent.
+/// The radius of an ezMarkerComponent extends the sensor shape, so a marker is detected once its sphere overlaps the shape.
+/// This way the marker defines how far away it can be sensed, e.g. a large radius for a loud noise.
 /// Visibility tests via raycasts are done afterwards by default but can be disabled.
 /// The components store an array of all their currently detected objects and send an ezMsgSensorDetectedObjectsChanged message if this array changes.
 class EZ_GAMEENGINE_DLL ezSensorComponent : public ezComponent

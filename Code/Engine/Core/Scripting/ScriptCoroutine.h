@@ -147,6 +147,9 @@ private:
 };
 
 /// A function property that creates an instance of the given coroutine type and starts it immediately.
+///
+/// Execute() returns the ezScriptCoroutineHandle in out_returnValue, so that the caller can check whether the coroutine is finished or stop it.
+/// The handle is invalid if no coroutine was created (e.g. ezScriptCoroutineCreationMode::DontCreateNew while one is running).
 class EZ_CORE_DLL ezScriptCoroutineFunctionProperty : public ezScriptFunctionProperty
 {
 public:

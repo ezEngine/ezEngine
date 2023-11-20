@@ -49,6 +49,9 @@ public:
   void SetRadius(float fRadius);                                  // [ property ]
   float GetRadius() const;                                        // [ property ]
 
+  /// The category registered for the marker type. Invalid if no marker type is set.
+  ezSpatialData::Category GetSpatialCategory() const { return m_SpatialCategory; }
+
 protected:
   void OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const; // [ msg handler ]
   void UpdateMarker();

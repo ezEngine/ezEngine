@@ -4,7 +4,34 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/AI/SensorComponent.h>
+#include <GameEngine/Gameplay/MarkerComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+
+namespace
+{
+  /// The largest radius of the markers on pObject in the given spatial category, in world space. 0 for objects without such a marker.
+  float GetMarkerRadius(const ezGameObject* pObject, ezSpatialData::Category category)
+  {
+    ezTempHybridArray<const ezMarkerComponent*, 4> markers;
+    pObject->TryGetComponentsOfBaseType(markers);
+
+    float fRadius = 0.0f;
+    for (const ezMarkerComponent* pMarker : markers)
+    {
+      if (pMarker->IsActive() && pMarker->GetSpatialCategory() == category)
+      {
+        fRadius = ezMath::Max(fRadius, pMarker->GetRadius());
+      }
+    }
+
+    if (fRadius > 0.0f)
+    {
+      fRadius *= pObject->GetGlobalTransformSimd().GetMaxScale();
+    }
+
+    return fRadius;
+  }
+} // namespace
 
 // clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSensorDetectedObjectsChanged);
@@ -329,12 +356,13 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
   params.m_pExcludeTags = &m_ExcludeTags;
 
   ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
-  ezSimdFloat radiusSquared = m_fRadius * m_fRadius;
+  const float fInvScale = 1.0f / scale;
 
   GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
     {
     ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
-    const bool bInRadius = localSpacePos.GetLengthSquared<3>() <= radiusSquared;
+    const float fRadius = m_fRadius + GetMarkerRadius(pObject, m_SpatialCategory) * fInvScale;
+    const bool bInRadius = localSpacePos.GetLengthSquared<3>() <= ezSimdFloat(fRadius * fRadius);
 
     if (bInRadius)
     {
@@ -409,14 +437,15 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
   params.m_pExcludeTags = &m_ExcludeTags;
 
   ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
-  ezSimdFloat radiusSquared = m_fRadius * m_fRadius;
-  ezSimdFloat halfHeight = m_fHeight * 0.5f;
+  const float fInvScale = 1.0f / ezMath::Max(xyScale, scale.z);
 
   GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
     {
     ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
-    const bool bInRadius = localSpacePos.GetLengthSquared<2>() <= radiusSquared;
-    const bool bInHeight = localSpacePos.Abs().z() <= halfHeight;
+    const float fMarkerRadius = GetMarkerRadius(pObject, m_SpatialCategory) * fInvScale;
+    const float fRadius = m_fRadius + fMarkerRadius;
+    const bool bInRadius = localSpacePos.GetLengthSquared<2>() <= ezSimdFloat(fRadius * fRadius);
+    const bool bInHeight = localSpacePos.Abs().z() <= ezSimdFloat(m_fHeight * 0.5f + fMarkerRadius);
 
     if (bInRadius && bInHeight)
     {
@@ -494,16 +523,42 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
   ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
   const ezSimdFloat nearSquared = m_fNearDistance * m_fNearDistance;
   const ezSimdFloat farSquared = m_fFarDistance * m_fFarDistance;
-  const ezSimdFloat cosAngle = ezMath::Cos(m_Angle * 0.5f);
+  const ezAngle halfAngle = m_Angle * 0.5f;
+  const ezSimdFloat cosAngle = ezMath::Cos(halfAngle);
+  const float fInvScale = 1.0f / scale;
 
   GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
     {
     ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
     const ezSimdFloat fDistanceSquared = localSpacePos.GetLengthSquared<3>();
-    const bool bInDistance = fDistanceSquared >= nearSquared && fDistanceSquared <= farSquared;
-
     const ezSimdVec4f normalizedPos = localSpacePos * fDistanceSquared.GetInvSqrt();
-    const bool bInAngle = normalizedPos.x() >= cosAngle;
+
+    const float fMarkerRadius = GetMarkerRadius(pObject, m_SpatialCategory) * fInvScale;
+
+    bool bInDistance = false;
+    bool bInAngle = false;
+
+    if (fMarkerRadius <= 0.0f)
+    {
+      bInDistance = fDistanceSquared >= nearSquared && fDistanceSquared <= farSquared;
+      bInAngle = normalizedPos.x() >= cosAngle;
+    }
+    else
+    {
+      // the marker is a sphere, it is detected as soon as it overlaps the cone (approximately)
+      const float fDistance = fDistanceSquared.GetSqrt();
+      bInDistance = fDistance >= m_fNearDistance - fMarkerRadius && fDistance <= m_fFarDistance + fMarkerRadius;
+
+      if (fDistance <= fMarkerRadius)
+      {
+        bInAngle = true;
+      }
+      else
+      {
+        const ezAngle angleToCenter = ezMath::ACos(ezMath::Clamp<float>(normalizedPos.x(), -1.0f, 1.0f));
+        bInAngle = angleToCenter <= halfAngle + ezMath::ASin(fMarkerRadius / fDistance);
+      }
+    }
 
     if (bInDistance && bInAngle)
     {

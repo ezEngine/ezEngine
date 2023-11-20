@@ -2,6 +2,7 @@
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Core/Input/InputManager.h>
+#include <Core/Interfaces/SoundInterface.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/System/WindowManager.h>
 #include <Core/World/World.h>
@@ -165,7 +166,7 @@ ezCommandLineOptionInt opt_Seed("_App", "-seed",
 Only useful together with -fixedtimestep.",
   -1, -1);
 ezCommandLineOptionBool opt_Unattended("_App", "-unattended",
-  "Don't block on a modal dialogs and ignore user input.\n\
+  "Don't block on a modal dialogs, ignore user input and mute the sound.\n\
 Implied by all other unattended options.",
   false);
 
@@ -241,6 +242,16 @@ void ezGameApplication::Unattended_Start()
     cursor.m_OSCursor = ezMouseCursorOverride::ForceOSCursor;
     cursor.m_bForceNoClip = true;
     m_IgnoreInputCursorOverride.Request(cursor);
+  }
+
+  if (m_bUnattended)
+  {
+    // nobody is listening, e.g. when an agent drives the game, so don't disturb anyone
+    // the sound plugin is loaded with the project plugins, before this
+    if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
+    {
+      pSoundInterface->SetMasterChannelMute(true);
+    }
   }
 
   if (m_FixedTimeStep.IsPositive())

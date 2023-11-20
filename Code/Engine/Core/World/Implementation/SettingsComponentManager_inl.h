@@ -74,9 +74,15 @@ void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicAr
 template <typename ComponentType>
 ezComponent* ezSettingsComponentManager<ComponentType>::CreateComponentStorage()
 {
-  if (!m_Components.IsEmpty())
+  for (const auto& pComponent : m_Components)
   {
-    ezLog::Warning("A component of type '{0}' is already present in this world. Having more than one is not allowed.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
+    // deleted components keep their storage until the end of the frame (ezWorld::DeleteDeadComponents()),
+    // so a component that gets deleted and re-created in the same frame (e.g. a prefab being re-instantiated) is not a duplicate
+    if (!pComponent->GetHandle().IsInvalidated())
+    {
+      ezLog::Warning("A component of type '{0}' is already present in this world. Having more than one is not allowed.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
+      break;
+    }
   }
 
   m_Components.PushBack(EZ_NEW(GetAllocator(), ComponentType));
