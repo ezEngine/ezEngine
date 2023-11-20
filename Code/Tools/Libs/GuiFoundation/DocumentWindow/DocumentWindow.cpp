@@ -307,7 +307,16 @@ bool ezQtDocumentWindow::eventFilter(QObject* obj, QEvent* e)
       if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, e->type() == QEvent::ShortcutOverride))
         return true;
     }
+
+    // Some central widgets consume the shortcut (or any key press for that matter) instead of passing it up the parent hierarchy. For example a QGraphicsView will forward any key-press to the QGraphicsScene which will consume every event. As a workaround, we overrule the central widget by default when it comes to shortcuts.
+    if (obj == centralWidget())
+    {
+      QKeyEvent* keyEvent = static_cast<QKeyEvent*>(e);
+      if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, e->type() == QEvent::ShortcutOverride))
+        return true;
+    }
   }
+
   return false;
 }
 
@@ -324,6 +333,9 @@ bool ezQtDocumentWindow::event(QEvent* event)
 
 void ezQtDocumentWindow::FinishWindowCreation()
 {
+  if (centralWidget())
+    centralWidget()->installEventFilter(this);
+
   ScheduleRestoreWindowLayout();
 }
 
