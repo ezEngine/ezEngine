@@ -1,0 +1,3888 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{10793381761597648662,164400246272734934}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Middle1.L"}
+			s %Parent{"Wrist.L"}
+			Transform %Transform{f{0x92D4FF31,0xCCAFE53C,0xD2893E32,0x7BB8D23C,0x3DFF9EBC,0x29888A3C,0x97D47F3F,0xFBFF7F3F,0xFFFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"Middle1.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12110237118612552575,799815769802920815}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Middle3.L"}
+			s %Parent{"Middle2.L"}
+			Transform %Transform{f{0xD80105B2,0xC873253D,0x1C05E133,0x9499F6BD,0x896FCC3B,0x9A659ABC,0x2A167E3F,0x0000803F,0x0100803F,0x0000803F}}
+		}
+		s %Name{"Middle3.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{682896947666096288,898825725017525285}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Ring3.R"}
+			s %Parent{"Ring2.R"}
+			Transform %Transform{f{0xADBBD5B2,0x8C030B3D,0x052ABF33,0x1900F2BD,0x76C424BD,0x0CD5293D,0xA3C67D3F,0x0000803F,0xFDFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"Ring3.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{2785784094775583522,1030517632349468921}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Body"}
+			s %Parent{"Root"}
+			Transform %Transform{f{0x169EED39,0x4136543F,0x06CD3ABD,0,0xE52E713E,0,0x46CC783F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Body"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{14286281479331507238,1259950512424145329}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Index1.R"}
+			s %Parent{"Wrist.R"}
+			Transform %Transform{f{0x82A37AB1,0x07B0E53C,0x9A3E88B2,0x412011BC,0xD2F368BC,0x711EBF3D,0xC7D87E3F,0x0000803F,0xFEFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"Index1.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{15992329250094061401,1361881499516374039}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"UpperLeg.L"}
+			s %Parent{"Body"}
+			Transform %Transform{f{0x0E0BF63D,0x203DCA3D,0x9A93963C,0xD21D09BF,0xAFDBAC3C,0xEEED553F,0xAF49F5BD,0xF8FF7F3F,0xF6FF7F3F,0x45FE7F3F}}
+		}
+		s %Name{"UpperLeg.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{15987212138915279552,2125955331079953686}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"<root-transform>"}
+			s %Parent{""}
+			Transform %Transform{f{0,0,0,0x0000003F,0x000000BF,0x000000BF,0x0000003F,0x0000803F,0x0000803F,0x000080BF}}
+		}
+		s %Name{"<root-transform>"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{6646932326757804349,2128841747855806902}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Pinky1.L"}
+			s %Parent{"Wrist.L"}
+			Transform %Transform{f{0x108F0133,0xD3AFE53C,0xE3BC8332,0xDB878B3C,0xC74A93BD,0xA0CA673E,0xE9A2783F,0x0000803F,0x0100803F,0x0000803F}}
+		}
+		s %Name{"Pinky1.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{18423126106250692294,2337739742827526801}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Foot.R"}
+			s %Parent{"Root"}
+			Transform %Transform{f{0x794D8CBD,0xD861BA3C,0x9EDA313E,0x823B343F,0xEBCE273D,0x151327BD,0x0D33353F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Foot.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12609847027669953898,2573876574966633208}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{15987212138915279552,2125955331079953686}}
+			Uuid{u4{13760777950342593800,10734831675770644298}}
+			Uuid{u4{17883452471400961937,8193650138879775574}}
+			Uuid{u4{8439540989797532729,13992015746369606764}}
+			Uuid{u4{13087942873959083964,13865115194059737106}}
+			Uuid{u4{12015477915696290850,17181121755819096152}}
+			Uuid{u4{12844131720585767756,12574906565346329354}}
+			Uuid{u4{18020920403400226375,17963077269831412644}}
+			Uuid{u4{2785784094775583522,1030517632349468921}}
+			Uuid{u4{11454194761782020983,5943491166345412384}}
+			Uuid{u4{18119863689413669686,18251721086207107036}}
+			Uuid{u4{12703197172274676961,10130243751902537891}}
+			Uuid{u4{16385357844242919075,2962378406420929668}}
+			Uuid{u4{10047647925203016898,4806265384129449623}}
+			Uuid{u4{16216826681291670059,10804179172785714570}}
+			Uuid{u4{7956244545081818295,17901210203215051278}}
+			Uuid{u4{7557478673096829771,10076444770456357916}}
+			Uuid{u4{14696602863016027604,12167078430368234822}}
+			Uuid{u4{17682618259757740310,18013633449772335752}}
+			Uuid{u4{835548037029981426,10960421678285604687}}
+			Uuid{u4{6191808115520939512,15626632829197506142}}
+			Uuid{u4{17161358536943103597,8184612807691237803}}
+			Uuid{u4{10115757986849859546,4492450974482644969}}
+			Uuid{u4{10793381761597648662,164400246272734934}}
+			Uuid{u4{9416356524281214294,6421563697162861044}}
+			Uuid{u4{12110237118612552575,799815769802920815}}
+			Uuid{u4{9228758799994436206,11418811010062654497}}
+			Uuid{u4{555255680417275161,3779402038804035974}}
+			Uuid{u4{9065454561144982460,15499005285494863949}}
+			Uuid{u4{6113975453220314086,4345111201999535925}}
+			Uuid{u4{15364286849691161515,13972970529043302500}}
+			Uuid{u4{6646932326757804349,2128841747855806902}}
+			Uuid{u4{6038136446432812680,4603555170161016705}}
+			Uuid{u4{8656753094221852563,5170098287631599809}}
+			Uuid{u4{8653498771242938242,17768452207274002901}}
+			Uuid{u4{8651527828836939917,6165490785434818020}}
+			Uuid{u4{6584862399970518951,9261684618855333623}}
+			Uuid{u4{3059482154808810811,4982616416995449940}}
+			Uuid{u4{8499204671615877145,16804851899510999180}}
+			Uuid{u4{17433542769179375390,14022549836962681816}}
+			Uuid{u4{4423136508804945069,4111363307112490437}}
+			Uuid{u4{14488731655238346741,8709893804124046246}}
+			Uuid{u4{14286281479331507238,1259950512424145329}}
+			Uuid{u4{15317221076057128747,2586660154007833252}}
+			Uuid{u4{8232472757950991380,7927070580786806898}}
+			Uuid{u4{11000724365650376622,14902486899494675922}}
+			Uuid{u4{8025277708909990160,7847940580120149314}}
+			Uuid{u4{3159571552381914572,12238999027205517417}}
+			Uuid{u4{16283778604829967131,14347981513982723716}}
+			Uuid{u4{15629849052357729668,15638917024578847882}}
+			Uuid{u4{13913485667157311970,15444090955034961884}}
+			Uuid{u4{2324587649515531802,18108681008064036161}}
+			Uuid{u4{682896947666096288,898825725017525285}}
+			Uuid{u4{17800846064031972981,12826343740614182728}}
+			Uuid{u4{1251042778246309375,7398217061556156113}}
+			Uuid{u4{16337062008310060375,8509099890061278146}}
+			Uuid{u4{12075035705688320889,11223333898145793924}}
+			Uuid{u4{11982862493221687403,6901716570955890745}}
+			Uuid{u4{2620253824757997349,6255189131932706506}}
+			Uuid{u4{3858020241805877973,9825751113361287060}}
+			Uuid{u4{8570683339616179327,6923229745614239755}}
+			Uuid{u4{15992329250094061401,1361881499516374039}}
+			Uuid{u4{8921337763307938823,16703421080229474246}}
+			Uuid{u4{14838413500439601606,5844016365727817855}}
+			Uuid{u4{405304785501648878,9269628115121268373}}
+			Uuid{u4{9294555848641899485,11162790600810104294}}
+			Uuid{u4{16410447818599581563,13943005242810003569}}
+			Uuid{u4{18423126106250692294,2337739742827526801}}
+			Uuid{u4{13560386011431206800,15641670414719250530}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15317221076057128747,2586660154007833252}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Index2.R"}
+			s %Parent{"Index1.R"}
+			Transform %Transform{f{0x42A5FC32,0x57B4FE3D,0x509AFCB1,0xC58058BD,0xCDCA093D,0x322B88BD,0xEFED7E3F,0x0100803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Index2.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{16385357844242919075,2962378406420929668}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Chest"}
+			s %Parent{"Torso"}
+			Transform %Transform{f{0xE8C30230,0x997B5D3E,0xE7E54AB2,0x26526E3B,0x110F492F,0xE40611B1,0x91FF7F3F,0xFEFF7F3F,0xFEFF7F3F,0x0100803F}}
+		}
+		s %Name{"Chest"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{555255680417275161,3779402038804035974}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Ring1.L"}
+			s %Parent{"Wrist.L"}
+			Transform %Transform{f{0xE4289B32,0xCEAFE53C,0x2B205632,0x6D4F153C,0x3D324EBD,0x4107033E,0xBE8E7D3F,0x0000803F,0xFDFF7F3F,0x0000803F}}
+		}
+		s %Name{"Ring1.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{4423136508804945069,4111363307112490437}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"LowerArm.R"}
+			s %Parent{"UpperArm.R"}
+			Transform %Transform{f{0xB1E91AB3,0x1D463A3E,0x519FF133,0x89B352BE,0xEF6F46BE,0xC6DDA53E,0xF821673F,0xFFFF7F3F,0xFEFF7F3F,0x0000803F}}
+		}
+		s %Name{"LowerArm.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{6113975453220314086,4345111201999535925}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Ring3.L"}
+			s %Parent{"Ring2.L"}
+			Transform %Transform{f{0x000080B2,0x64030B3D,0x00003CB3,0x1500F2BD,0x68C4243D,0x0ED529BD,0xA3C67D3F,0x0100803F,0xFFFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"Ring3.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{10115757986849859546,4492450974482644969}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Index4.L"}
+			s %Parent{"Index3.L"}
+			Transform %Transform{f{0,0xF4EBF13C,0x00802B34,0xC3B6F4BC,0x803F203C,0xEC98A23B,0xD0DE7F3F,0xFFFF7F3F,0xFBFF7F3F,0xFEFF7F3F}}
+		}
+		s %Name{"Index4.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{6038136446432812680,4603555170161016705}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Pinky2.L"}
+			s %Parent{"Pinky1.L"}
+			Transform %Transform{f{0x28003131,0x3DB9F43D,0x8B2E1433,0x372004BE,0x41FC203E,0x4C5884BD,0x5B1A7A3F,0xFFFF7F3F,0xFDFF7F3F,0x0100803F}}
+		}
+		s %Name{"Pinky2.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{10047647925203016898,4806265384129449623}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Neck"}
+			s %Parent{"Chest"}
+			Transform %Transform{f{0x2E70C9AF,0xDF72083E,0x61A2DAB1,0x7C2C1BBC,0x3DFA3535,0xB9F774B0,0x0FFD7F3F,0x0000803F,0x0000803F,0x0100803F}}
+		}
+		s %Name{"Neck"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{3059482154808810811,4982616416995449940}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Thumb3.L"}
+			s %Parent{"Thumb2.L"}
+			Transform %Transform{f{0x6C471EB3,0x7D66033D,0x166568B4,0x7A6DB5BD,0xC7BF63BD,0x24D7F93D,0x58AC7C3F,0xFFFF7F3F,0xFAFF7F3F,0x0000803F}}
+		}
+		s %Name{"Thumb3.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8656753094221852563,5170098287631599809}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Pinky3.L"}
+			s %Parent{"Pinky2.L"}
+			Transform %Transform{f{0x41E83733,0x789CD93C,0x8B3D24B2,0x17F4B9BD,0x5EDF67BD,0x84EDBCBC,0x3C767E3F,0xFFFF7F3F,0xFEFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"Pinky3.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{9988564216411326882,5473313751273278713}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Skeleton"}
+		VarArray %Dependencies
+		{
+			s{"Assets/Quaternius/Swat.gltf"}
+		}
+		Uuid %DocumentID{u4{9988564216411326882,5473313751273278713}}
+		u4 %Hash{15237465982109023061}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{12609847027669953898,2573876574966633208}}
+		}
+		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+		}
+		VarArray %References
+		{
+			s{"Assets/Quaternius/Swat.gltf"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{14838413500439601606,5844016365727817855}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"UpperLeg.R"}
+			s %Parent{"Body"}
+			Transform %Transform{f{0x4BE6F7BD,0x183DCA3D,0x3993963C,0x92130E3F,0xDB71003E,0xA8084E3F,0x35F02C3E,0xFFFF7F3F,0xFBFF7F3F,0x40FE7F3F}}
+		}
+		s %Name{"UpperLeg.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{11454194761782020983,5943491166345412384}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Hips"}
+			s %Parent{"Body"}
+			Transform %Transform{f{0x70EE50BA,0xE311EB3C,0x9379073D,0x04318EBD,0x415D8FB4,0xA1B809B3,0xDA617F3F,0xFFFF7F3F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Hips"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8651527828836939917,6165490785434818020}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Thumb1.L"}
+			s %Parent{"Wrist.L"}
+			Transform %Transform{f{0xAEB593B3,0xFCAFE53C,0x47D73133,0x59157E3B,0xCC5F4B3E,0xAF07B1BE,0x14C46A3F,0x0100803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Thumb1.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{2620253824757997349,6255189131932706506}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Thumb1.R"}
+			s %Parent{"Wrist.R"}
+			Transform %Transform{f{0x0000E031,0xE8AFE53C,0x00008232,0x7C37A03C,0x352E3EBE,0x31CDDE3E,0x557A613F,0xFEFF7F3F,0xFFFF7F3F,0x0100803F}}
+		}
+		s %Name{"Thumb1.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{9416356524281214294,6421563697162861044}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Middle2.L"}
+			s %Parent{"Middle1.L"}
+			Transform %Transform{f{0xDEA644B1,0x02B4FD3D,0xE91C7B32,0x179CBFBD,0xE87FCC3C,0x8532243D,0x19977E3F,0xFEFF7F3F,0x0100803F,0xFEFF7F3F}}
+		}
+		s %Name{"Middle2.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{11982862493221687403,6901716570955890745}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Pinky4.R"}
+			s %Parent{"Pinky3.R"}
+			Transform %Transform{f{0x863D9032,0x00F6E13C,0x6AC15634,0x5D83EFBD,0xEB69963C,0xBDFA3D3B,0xE1327E3F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Pinky4.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8570683339616179327,6923229745614239755}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Thumb3.R"}
+			s %Parent{"Thumb2.R"}
+			Transform %Transform{f{0x048975B3,0x5A66033D,0x26A9EF33,0x7F6DB5BD,0xC3BF633D,0x17D7F9BD,0x58AC7C3F,0x0000803F,0x0000803F,0x0100803F}}
+		}
+		s %Name{"Thumb3.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{1251042778246309375,7398217061556156113}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Pinky1.R"}
+			s %Parent{"Wrist.R"}
+			Transform %Transform{f{0x83170633,0x05B0E53C,0xB9A08432,0xD2878B3C,0xC64A933D,0x9BCA67BE,0xEAA2783F,0xFFFF7F3F,0x0000803F,0x0100803F}}
+		}
+		s %Name{"Pinky1.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8025277708909990160,7847940580120149314}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Middle1.R"}
+			s %Parent{"Wrist.R"}
+			Transform %Transform{f{0x0000E031,0xE8AFE53C,0x00008232,0x77B8D23C,0x38FF9E3C,0x19888ABC,0x97D47F3F,0xFDFF7F3F,0xFEFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"Middle1.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8232472757950991380,7927070580786806898}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Index3.R"}
+			s %Parent{"Index2.R"}
+			Transform %Transform{f{0xE460B731,0xB428063D,0x2C3694B3,0x00D4B5BD,0xDD263ABC,0xB5AECABC,0xCFE47E3F,0x0000803F,0xFFFF7F3F,0x0000803F}}
+		}
+		s %Name{"Index3.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{17161358536943103597,8184612807691237803}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Index3.L"}
+			s %Parent{"Index2.L"}
+			Transform %Transform{f{0x14D67FB1,0xC128063D,0x610796B3,0x4EF1A1BD,0x6EF73E3C,0x373CCD3C,0xB0197F3F,0x0100803F,0x0100803F,0x0000803F}}
+		}
+		s %Name{"Index3.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{17883452471400961937,8193650138879775574}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Pistol"}
+			s %Parent{"CharacterArmature"}
+			Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Pistol"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{16337062008310060375,8509099890061278146}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Pinky2.R"}
+			s %Parent{"Pinky1.R"}
+			Transform %Transform{f{0x7FAD6C33,0x52B9F43D,0x7E520633,0x76A001BE,0xEAE437BE,0x0EDC253E,0x3247763F,0x0100803F,0xFFFF7F3F,0x0000803F}}
+		}
+		s %Name{"Pinky2.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{14488731655238346741,8709893804124046246}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Wrist.R"}
+			s %Parent{"LowerArm.R"}
+			Transform %Transform{f{0xFF38AB33,0x3DED703E,0xD9DE3432,0x53B62C3C,0x96C9ADBC,0x421021BD,0xE9BA7F3F,0x0000803F,0xFCFF7F3F,0x0100803F}}
+		}
+		s %Name{"Wrist.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{6584862399970518951,9261684618855333623}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Thumb2.L"}
+			s %Parent{"Thumb1.L"}
+			Transform %Transform{f{0x63DFA733,0xF791A83D,0x6EFAF933,0xC4EA2A3D,0xCEE2F9BD,0xAB73AE3D,0x9EEC7C3F,0xFEFF7F3F,0xFCFF7F3F,0xFEFF7F3F}}
+		}
+		s %Name{"Thumb2.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{405304785501648878,9269628115121268373}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"LowerLeg.R"}
+			s %Parent{"UpperLeg.R"}
+			Transform %Transform{f{0x307CA5B2,0x72AFDD3E,0x283F8BB2,0x51902B3E,0x5FDD2FBF,0x4D902B3E,0x53DD2F3F,0x0100803F,0x0000803F,0x0100803F}}
+		}
+		s %Name{"LowerLeg.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{3858020241805877973,9825751113361287060}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Thumb2.R"}
+			s %Parent{"Thumb1.R"}
+			Transform %Transform{f{0x47E8AE33,0x0592A83D,0x8FB7DBB3,0xABEA2A3D,0xD7E2F93D,0xA773AEBD,0x9EEC7C3F,0x0000803F,0x0000803F,0xFFFF7F3F}}
+		}
+		s %Name{"Thumb2.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{7557478673096829771,10076444770456357916}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"UpperArm.L"}
+			s %Parent{"Shoulder.L"}
+			Transform %Transform{f{0xE47CE9B2,0xBB6A863D,0x716132B3,0xA6CC2C3F,0xE1C9CEBE,0x938AC6BE,0xD604F6BE,0x0000803F,0xFEFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"UpperArm.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12703197172274676961,10130243751902537891}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Torso"}
+			s %Parent{"Abdomen"}
+			Transform %Transform{f{0xD757D72F,0x46E4253E,0xFCC35232,0x2008AF3D,0xDF2E73BE,0x5FB23D3C,0xB5B1773F,0x0000803F,0xFFFF7F3F,0xFDFF7F3F}}
+		}
+		s %Name{"Torso"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{13760777950342593800,10734831675770644298}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"CharacterArmature"}
+			s %Parent{""}
+			Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"CharacterArmature"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{16216826681291670059,10804179172785714570}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Head"}
+			s %Parent{"Neck"}
+			Transform %Transform{f{0x6073B02F,0xD1239D3D,0x72DB8132,0xFCCAC8BC,0x8D6290B9,0x174BFC38,0x4FEC7F3F,0x0100803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Head"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{835548037029981426,10960421678285604687}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Index1.L"}
+			s %Parent{"Wrist.L"}
+			Transform %Transform{f{0xC6724CB0,0xEDAFE53C,0x2AD5A8B2,0x4C2011BC,0xCDF3683C,0x721EBFBD,0xC7D87E3F,0xFFFF7F3F,0xFDFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"Index1.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{9294555848641899485,11162790600810104294}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Foot.L"}
+			s %Parent{"Root"}
+			Transform %Transform{f{0xB4F8F63D,0xD861BA3C,0x2E843FBE,0x394A1D3F,0xCC32B23E,0xFE3AB1BE,0xD8201E3F,0x0100803F,0x0200803F,0xFFFF7F3F}}
+		}
+		s %Name{"Foot.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12075035705688320889,11223333898145793924}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Pinky3.R"}
+			s %Parent{"Pinky2.R"}
+			Transform %Transform{f{0xCE3AD0B0,0x9E9CD93C,0x33D268B1,0x1AF4B9BD,0x56DF673D,0x91EDBC3C,0x3C767E3F,0xFFFF7F3F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Pinky3.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{9228758799994436206,11418811010062654497}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Middle4.L"}
+			s %Parent{"Middle3.L"}
+			Transform %Transform{f{0x16FF13B2,0xB35C253D,0xA70FF3B3,0x6B059CBC,0x0446163C,0xC03436BC,0x4DED7F3F,0x0000803F,0xFFFF7F3F,0x0000803F}}
+		}
+		s %Name{"Middle4.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{14696602863016027604,12167078430368234822}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"LowerArm.L"}
+			s %Parent{"UpperArm.L"}
+			Transform %Transform{f{0x80BAA830,0x13463A3E,0x80E7A5B2,0xF17AF8BD,0x1733F2BC,0xA2BC3CBE,0x2E93793F,0xFEFF7F3F,0xFFFF7F3F,0xFEFF7F3F}}
+		}
+		s %Name{"LowerArm.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{3159571552381914572,12238999027205517417}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Middle2.R"}
+			s %Parent{"Middle1.R"}
+			Transform %Transform{f{0xC81544B1,0xEFB3FD3D,0x56AD45B2,0x25B3D0BD,0x1B00BBBC,0x6947B3BC,0xE3897E3F,0xFDFF7F3F,0xFEFF7F3F,0xFEFF7F3F}}
+		}
+		s %Name{"Middle2.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12844131720585767756,12574906565346329354}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Swat_Legs"}
+			s %Parent{"CharacterArmature"}
+			Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Swat_Legs"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{17800846064031972981,12826343740614182728}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Ring4.R"}
+			s %Parent{"Ring3.R"}
+			Transform %Transform{f{0x02FADFB2,0x1CE5073D,0x74A561B2,0xD9F799BD,0x0B75F6BC,0xDF1CF53B,0xF1267F3F,0x0000803F,0x0100803F,0x0100803F}}
+		}
+		s %Name{"Ring4.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{13087942873959083964,13865115194059737106}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Swat_Feet"}
+			s %Parent{"CharacterArmature"}
+			Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Swat_Feet"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{16410447818599581563,13943005242810003569}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"PT.L"}
+			s %Parent{"Root"}
+			Transform %Transform{f{0xD076113F,0x1863203F,0xC586683E,0x633A2FBB,0xDEFF0D38,0xC564C2B3,0xC4FF7F3F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"PT.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{15364286849691161515,13972970529043302500}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Ring4.L"}
+			s %Parent{"Ring3.L"}
+			Transform %Transform{f{0x95157F32,0x20E5073D,0xB996B733,0xD9F799BD,0x0D75F63C,0xDE1CF5BB,0xF1267F3F,0x0100803F,0x0100803F,0x0000803F}}
+		}
+		s %Name{"Ring4.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8439540989797532729,13992015746369606764}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Swat_Body"}
+			s %Parent{"CharacterArmature"}
+			Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Swat_Body"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{17433542769179375390,14022549836962681816}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"UpperArm.R"}
+			s %Parent{"Shoulder.R"}
+			Transform %Transform{f{0x06122EB3,0xCA6A863D,0x653C9D33,0xB97A20BF,0x16759DBE,0xF5F5E0BE,0x1AAE103F,0xFEFF7F3F,0xFEFF7F3F,0x0000803F}}
+		}
+		s %Name{"UpperArm.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{16283778604829967131,14347981513982723716}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Middle3.R"}
+			s %Parent{"Middle2.R"}
+			Transform %Transform{f{0x3EFCC432,0xB673253D,0x337C22B4,0x9699F6BD,0x8A6FCCBB,0x9F659A3C,0x2A167E3F,0xFEFF7F3F,0x0100803F,0xFEFF7F3F}}
+		}
+		s %Name{"Middle3.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{11000724365650376622,14902486899494675922}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Index4.R"}
+			s %Parent{"Index3.R"}
+			Transform %Transform{f{0x942803B2,0xDCEBF13C,0x60CD1834,0xC5B6F4BC,0x823F20BC,0xFA98A2BB,0xCFDE7F3F,0x0000803F,0xFDFF7F3F,0x0100803F}}
+		}
+		s %Name{"Index4.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{13913485667157311970,15444090955034961884}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Ring1.R"}
+			s %Parent{"Wrist.R"}
+			Transform %Transform{f{0xF043C5B1,0xC9AFE53C,0xB0013F33,0x6A4F153C,0x3D324E3D,0x3F0703BE,0xBE8E7D3F,0xFFFF7F3F,0xFFFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"Ring1.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{9065454561144982460,15499005285494863949}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Ring2.L"}
+			s %Parent{"Ring1.L"}
+			Transform %Transform{f{0x40B81CB3,0x87B4FB3D,0x4531D9B3,0x6FCCA7BD,0x8F5E243E,0xEEB915BD,0x6DA27B3F,0xFFFF7F3F,0x0000803F,0x0100803F}}
+		}
+		s %Name{"Ring2.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{6191808115520939512,15626632829197506142}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Index2.L"}
+			s %Parent{"Index1.L"}
+			Transform %Transform{f{0xF1F18BB2,0x66B4FE3D,0xC68DCA31,0x327D27BD,0x24AB03BD,0x1A4E893D,0xA3137F3F,0xFEFF7F3F,0xFEFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"Index2.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{15629849052357729668,15638917024578847882}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Middle4.R"}
+			s %Parent{"Middle3.R"}
+			Transform %Transform{f{0xEEEE85B1,0xB75C253D,0x7DA7F8B3,0x7D059CBC,0x024616BC,0xCF34363C,0x4DED7F3F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Middle4.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{13560386011431206800,15641670414719250530}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"PT.R"}
+			s %Parent{"Root"}
+			Transform %Transform{f{0x69D094BC,0x1AB6D83E,0x55B0283F,0x633A2FBB,0xDEFF0EB8,0x36C3C333,0xC4FF7F3F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"PT.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8921337763307938823,16703421080229474246}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"LowerLeg.L"}
+			s %Parent{"UpperLeg.L"}
+			Transform %Transform{f{0xD6C8B1B2,0x70AFDD3E,0x62B017B3,0x714E3F3E,0x4B962E3F,0x774E3FBE,0x3F962E3F,0x0000803F,0xFDFF7F3F,0x0100803F}}
+		}
+		s %Name{"LowerLeg.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8499204671615877145,16804851899510999180}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Shoulder.R"}
+			s %Parent{"Chest"}
+			Transform %Transform{f{0xA8D3C8BD,0x78B6ED3C,0x844AAE3C,0xF392E9BE,0x6B19573F,0x4BF2DA3D,0x01B78B3E,0x0200803F,0x0000803F,0x0300803F}}
+		}
+		s %Name{"Shoulder.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12015477915696290850,17181121755819096152}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Swat_Head"}
+			s %Parent{"CharacterArmature"}
+			Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Swat_Head"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8653498771242938242,17768452207274002901}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Pinky4.L"}
+			s %Parent{"Pinky3.L"}
+			Transform %Transform{f{0x250F00B2,0x04F6E13C,0x4EFF4BB3,0x5B83EFBD,0xD96996BC,0x5EFB3DBB,0xE1327E3F,0xFEFF7F3F,0xFEFF7F3F,0xFEFF7F3F}}
+		}
+		s %Name{"Pinky4.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{7956244545081818295,17901210203215051278}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Shoulder.L"}
+			s %Parent{"Chest"}
+			Transform %Transform{f{0xD535CA3D,0x7CB6ED3C,0x5E4AAE3C,0xF992E93E,0x6819573F,0x26F2DA3D,0x16B78BBE,0x0100803F,0x0100803F,0x0000803F}}
+		}
+		s %Name{"Shoulder.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{18020920403400226375,17963077269831412644}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Root"}
+			s %Parent{"CharacterArmature"}
+			Transform %Transform{f{0,0,0x130C943D,0,0xFFFFFF33,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
+		s %Name{"Root"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{17682618259757740310,18013633449772335752}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Wrist.L"}
+			s %Parent{"LowerArm.L"}
+			Transform %Transform{f{0xC9CB2331,0x3EED703E,0xDACC9932,0xD326383C,0xD75C913C,0xDCB02B3C,0xF1ED7F3F,0xF8FF7F3F,0xFFFF7F3F,0xFFFF7F3F}}
+		}
+		s %Name{"Wrist.L"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{2324587649515531802,18108681008064036161}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Ring2.R"}
+			s %Parent{"Ring1.R"}
+			Transform %Transform{f{0xCB4A5233,0x78B4FB3D,0xE4531CB3,0x6DCCA7BD,0x8E5E24BE,0xEBB9153D,0x6DA27B3F,0x0000803F,0x0000803F,0x0100803F}}
+		}
+		s %Name{"Ring2.R"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{18119863689413669686,18251721086207107036}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		ezExposedBone %DefaultValue
+		{
+			s %Name{"Abdomen"}
+			s %Parent{"Hips"}
+			Transform %Transform{f{0x93242CB1,0x584DD93D,0xF04603B2,0x9AB6433D,0xE0E3E634,0x26ACF132,0x25B57F3F,0x0000803F,0x0100803F,0x0000803F}}
+		}
+		s %Name{"Abdomen"}
+		s %Type{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{8423270417965881012,4619680152526180771}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{13911758401609731712,5570987286121717509}}
+		}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x8E45F03E,0xF4AAEFBE,0x8F1E07BF,0x8FF6073F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x5037C03D,0x00D87FBB,0xCC05C63F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Head"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
+		Transform %Transform{f{0x6073B02F,0xD1239D3D,0x72DB8132,0xFCCAC8BC,0x8D6290B9,0x174BFC38,0x4FEC7F3F,0x0100803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{14911702986931175320,4621236201900054055}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{9051360305577829567,4919874197647556579}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{8721334244341672077,4698979834359259278}}
+			Uuid{u4{6118268964314804887,5261391564594437376}}
+			Uuid{u4{17437409722822552731,4922029162334319331}}
+			Uuid{u4{18380226671917519539,5736784464953632258}}
+			Uuid{u4{15427992796290104734,4843960232246481122}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x2A1B793E,0x34F5303F,0x57F42DBF,0x3720123D}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x17750C3E,0xB47B573E,0x1206833F}}
+		s %JointType{"ezSkeletonJointType::Fixed"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Wrist.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xFF38AB33,0x3DED703E,0xD9DE3432,0x53B62C3C,0x96C9ADBC,0x421021BD,0xE9BA7F3F,0x0000803F,0xFCFF7F3F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{6343807367385021852,4639034491098586064}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xEB0B29BF,0x39391CBC,0x51C2A63C,0x6A29403F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x009B5E3D,0x8A5185BE,0x13454C3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Index4.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0,0xF4EBF13C,0x00802B34,0xC3B6F4BC,0x803F203C,0xEC98A23B,0xD0DE7F3F,0xFFFF7F3F,0xFBFF7F3F,0xFEFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{15846969129693414295,4654878644797982021}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{15286972430439122622,5703129039197453490}}
+			Uuid{u4{14585727257789939082,5583031896538134635}}
+			Uuid{u4{11653560662417397159,5223360034268350465}}
+			Uuid{u4{216681392829477813,4765089145243391276}}
+			Uuid{u4{9191019764546078336,5244818765211547279}}
+			Uuid{u4{15669201375821756075,5147885773298157204}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"CharacterArmature"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{502885616059560834,4657271590818047821}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{4561217341610580108,4901455178346639359}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x89AFED3E,0xEF18EDBE,0x893F08BF,0x4C18093F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xA052BB3D,0xC0EAD2BD,0x98B4AE3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0xF204353F,0x000000B3,0x00009C33,0xF304353F}}
+		s %Name{"Shoulder.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xD535CA3D,0x7CB6ED3C,0x5E4AAE3C,0xF992E93E,0x6819573F,0x26F2DA3D,0x16B78BBE,0x0100803F,0x0100803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{12347777860206865596,4664690723111537976}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xFEFFFFBE,0x0100003F,0x0100003F,0xFEFFFFBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xD7313B3F,0x20D0943C,0x1AB6D83E}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"PT.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x69D094BC,0x1AB6D83E,0x55B0283F,0x633A2FBB,0xDEFF0EB8,0x36C3C333,0xC4FF7F3F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{2088877177860925569,4677202731214402358}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Box"}
+		f %Length{0x9A99193E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0x295C0F3E}
+		f %Width{0xE17A943E}
+	}
+}
+o
+{
+	Uuid %id{u4{8721334244341672077,4698979834359259278}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{14795531152600116124,4907761375706211818}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xE0626B3E,0x633F353F,0x92F12ABF,0x798850BB}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3DAE153E,0x688E573E,0x0A407F3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Index1.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x82A37AB1,0x07B0E53C,0x9A3E88B2,0x412011BC,0xD2F368BC,0x711EBF3D,0xC7D87E3F,0x0000803F,0xFEFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{18149205853178483877,4707919094677045571}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{11179706784827459207,5130121267846967039}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x41AB40BF,0x183C1EBC,0x96A79E3C,0xB879283F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3052033D,0x6E2480BE,0x82527B3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Middle1.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x92D4FF31,0xCCAFE53C,0xD2893E32,0x7BB8D23C,0x3DFF9EBC,0x29888A3C,0x97D47F3F,0xFBFF7F3F,0xFFFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{15410847513600782740,4753515779168085772}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{11500610437493751728,5340922504809852284}}
+		}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xD56EBABE,0x920411BF,0x6E0F323F,0x2D3C803E}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x6058813C,0xEEA55DBE,0x8AED013F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0x0000A0B2,0xF50435BF,0x000000B3,0xF504353F}}
+		s %Name{"LowerLeg.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
+		Transform %Transform{f{0xD6C8B1B2,0x70AFDD3E,0x62B017B3,0x714E3F3E,0x4B962E3F,0x774E3FBE,0x3F962E3F,0x0000803F,0xFDFF7F3F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{216681392829477813,4765089145243391276}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Swat_Head"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{4512896549404898198,4778487524603781749}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{12116263625261103531,4859390167402807618}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x89AFED3E,0xEF18EDBE,0x893F08BF,0x4C18093F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x5878B93D,0x801DC03D,0xBBA8AE3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Shoulder.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xA8D3C8BD,0x78B6ED3C,0x844AAE3C,0xF392E9BE,0x6B19573F,0x4BF2DA3D,0x01B78B3E,0x0200803F,0x0000803F,0x0300803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{3989508454162390448,4784685769060026153}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{74478743354682814,4961844362318544386}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x6D962EBF,0x9BECFDBB,0x419C1B3E,0x2422373F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x00CEF4BB,0x44D388BE,0x1AD3543F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Ring3.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x000080B2,0x64030B3D,0x00003CB3,0x1500F2BD,0x68C4243D,0x0ED529BD,0xA3C67D3F,0x0100803F,0xFFFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{727447881716786578,4785978399293002704}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{1235975476245731971,4862418666275374207}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x41AB40BF,0x183C1EBC,0x96A79E3C,0xB879283F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3052033D,0x6E2480BE,0x83527B3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Ring1.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xE4289B32,0xCEAFE53C,0x2B205632,0x6D4F153C,0x3D324EBD,0x4107033E,0xBE8E7D3F,0x0000803F,0xFDFF7F3F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{10038048126366587012,4821470093025728124}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0xCDCC4C3E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xCDCC4C3D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{17594705928444006545,4834020666545179989}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{6559495923043195276,5201389893414310929}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{12199772051252616871,5067240686169673242}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x5AFA4EBF,0x57DCE53D,0x65EC123E,0xC5400F3F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xE0EDF63C,0x10C161BE,0x8C259F3F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0x050000BF,0x090000BF,0x000000BF,0x0500003F}}
+		s %Name{"LowerArm.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0xDB0FC93F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
+		Transform %Transform{f{0x80BAA830,0x13463A3E,0x80E7A5B2,0xF17AF8BD,0x1733F2BC,0xA2BC3CBE,0x2E93793F,0xFEFF7F3F,0xFFFF7F3F,0xFEFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{12916574970452773504,4842623366910337718}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{463094370092504766,5249866784172758149}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x0AF6D33D,0xA7A53C3F,0xE6842ABF,0x575150BD}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xB659203E,0x7809633E,0x3308603F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Ring2.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xCB4A5233,0x78B4FB3D,0xE4531CB3,0x6DCCA7BD,0x8E5E24BE,0xEBB9153D,0x6DA27B3F,0x0000803F,0x0000803F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{15427992796290104734,4843960232246481122}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{10123564125390332555,5486118085797400767}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xE0626B3E,0x633F353F,0x92F12ABF,0x798850BB}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3CAE153E,0x688E573E,0x0C407F3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Thumb1.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x0000E031,0xE8AFE53C,0x00008232,0x7C37A03C,0x352E3EBE,0x31CDDE3E,0x557A613F,0xFEFF7F3F,0xFFFF7F3F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{18293712460607961013,4856033632540615966}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{14118256927399889285,5486964771709597030}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x41AB40BF,0x183C1EBC,0x96A79E3C,0xB879283F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3052033D,0x6E2480BE,0x83527B3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Pinky1.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x108F0133,0xD3AFE53C,0xE3BC8332,0xDB878B3C,0xC74A93BD,0xA0CA673E,0xE9A2783F,0x0000803F,0x0100803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{12116263625261103531,4859390167402807618}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{18070242316992791192,5145853847233947132}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{7611325865203795118,5258681946136089853}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x9FB9003E,0x13675E3F,0xEC97883E,0x1EB2CB3E}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xC04BBA3D,0x3093173E,0xC864B33F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0x5D71A83E,0xB18FF03E,0xDA3692BD,0xAAE7503F}}
+		s %Name{"UpperArm.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0xC2B8B23F}}
+		Angle %SwingLimitZ{f{0xC2B8B23F}}
+		Transform %Transform{f{0x06122EB3,0xCA6A863D,0x653C9D33,0xB97A20BF,0x16759DBE,0xF5F5E0BE,0x1AAE103F,0xFEFF7F3F,0xFEFF7F3F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{1235975476245731971,4862418666275374207}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{3989508454162390448,4784685769060026153}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x9DEE40BF,0xF01FF53D,0x33F9853D,0x329A243F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x0040ECB9,0x523C89BE,0x93525D3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Ring2.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x40B81CB3,0x87B4FB3D,0x4531D9B3,0x6FCCA7BD,0x8F5E243E,0xEEB915BD,0x6DA27B3F,0xFFFF7F3F,0x0000803F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{18382231333302167231,4893775230136021821}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Box"}
+		f %Length{0x1F856B3E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xEC51383E}
+		f %Width{0x0000803E}
+	}
+}
+o
+{
+	Uuid %id{u4{4561217341610580108,4901455178346639359}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{7190848468935875477,5482258722514400457}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{17594705928444006545,4834020666545179989}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x56205E3F,0xE98F053E,0xE133CC3E,0x5B79883E}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x002BBD3D,0x78D420BE,0x2C77B33F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0xE6D592BE,0xA153FE3E,0x0000A833,0xF3B351BF}}
+		s %Name{"UpperArm.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0xC2B8B23F}}
+		Angle %SwingLimitZ{f{0xC2B8B23F}}
+		Transform %Transform{f{0xE47CE9B2,0xBB6A863D,0x716132B3,0xA6CC2C3F,0xE1C9CEBE,0x938AC6BE,0xD604F6BE,0x0000803F,0xFEFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{14795531152600116124,4907761375706211818}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{6779708125827323568,5163737570728629416}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x6BD69B3E,0xF0692D3F,0xB2042BBF,0x0CB1403D}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3833523E,0xB4A44D3E,0xBE58633F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Index2.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x42A5FC32,0x57B4FE3D,0x509AFCB1,0xC58058BD,0xCDCA093D,0x322B88BD,0xEFED7E3F,0x0100803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{9051360305577829567,4919874197647556579}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Sphere"}
+		f %Length{0xCDCCCC3D}
+		Vec3 %Offset{f{0x295C8F3D,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xCDCC4C3D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{17437409722822552731,4922029162334319331}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{12916574970452773504,4842623366910337718}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xE0626B3E,0x633F353F,0x92F12ABF,0x798850BB}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3EAE153E,0x648E573E,0x0C407F3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Ring1.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xF043C5B1,0xC9AFE53C,0xB0013F33,0x6A4F153C,0x3D324E3D,0x3F0703BE,0xBE8E7D3F,0xFFFF7F3F,0xFFFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{10537295198716254081,4930534536339701383}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{8007355389546450565,5104036981068963814}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x15D224BF,0x18F2923D,0x9EE7243E,0xD59C3E3F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x60A7FBBC,0x00F886BE,0x67FE593F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Pinky3.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x41E83733,0x789CD93C,0x8B3D24B2,0x17F4B9BD,0x5EDF67BD,0x84EDBCBC,0x3C767E3F,0xFFFF7F3F,0xFEFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{74478743354682814,4961844362318544386}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xA9C815BF,0x0A9B3FBD,0x49EA183E,0xA0B44B3F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x80D45DBC,0xF63984BE,0x1ECC4C3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Ring4.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x95157F32,0x20E5073D,0xB996B733,0xD9F799BD,0x0D75F63C,0xDE1CF5BB,0xF1267F3F,0x0100803F,0x0100803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{9565954702906014894,4961966910742520349}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{614965940802016414,4993462822720823986}}
+		}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xFEFFFFBE,0x0100003F,0x0100003F,0xFEFFFFBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xA8E07B3E,0x724D8C3D,0xE061BA3C}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Foot.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x794D8CBD,0xD861BA3C,0x9EDA313E,0x823B343F,0xEBCE273D,0x151327BD,0x0D33353F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{15234677075198781842,4986985900728650609}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Sphere"}
+		f %Length{0xCDCCCC3D}
+		Vec3 %Offset{f{0xAE47E13D,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xCDCCCC3D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{614965940802016414,4993462822720823986}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Box"}
+		f %Length{0xCDCC4C3E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0x295C8F3D}
+		f %Width{0xCDCCCC3D}
+	}
+}
+o
+{
+	Uuid %id{u4{9523856708897926790,5000015094097300420}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{2088877177860925569,4677202731214402358}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{4591321176394267780,5219787692521014297}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x8C22C9BE,0x6DE7243F,0x9F710F3F,0xB2F5AEBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x58B5313D,0x00A805BC,0x7075763F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Abdomen"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
+		Transform %Transform{f{0x93242CB1,0x584DD93D,0xF04603B2,0x9AB6433D,0xE0E3E634,0x26ACF132,0x25B57F3F,0x0000803F,0x0100803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{17138592504197167772,5022800580387435079}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xBFB13ABF,0x1C4385BE,0x18FCDDBD,0x22991F3F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xC037CC3D,0xCCB37EBE,0x4ED8633F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Thumb3.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x6C471EB3,0x7D66033D,0x166568B4,0x7A6DB5BD,0xC7BF63BD,0x24D7F93D,0x58AC7C3F,0xFFFF7F3F,0xFAFF7F3F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{14807553563306384522,5045252662680131908}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{9129558466487222154,5446741677796828834}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{7516667322407009703,5635366411442975901}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x8B80BCBE,0x008C1A3F,0x018C1A3F,0x8B80BCBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xC09AC93D,0xC03BCA3D,0xE47D6D3F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0xF183843E,0x00000034,0xEB4677BF,0x0000E0B3}}
+		s %Name{"UpperLeg.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0xAA619C3F}}
+		Angle %SwingLimitZ{f{0xAA619C3F}}
+		Transform %Transform{f{0x4BE6F7BD,0x183DCA3D,0x3993963C,0x92130E3F,0xDB71003E,0xA8084E3F,0x35F02C3E,0xFFFF7F3F,0xFBFF7F3F,0x40FE7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{265366642295938185,5045866116939200339}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{15234677075198781842,4986985900728650609}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{9898826392966223526,5192547782434747725}}
+			Uuid{u4{8094979054841470854,5364506213211728418}}
+			Uuid{u4{14807553563306384522,5045252662680131908}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xFEFFFFBE,0x0100003F,0x0100003F,0xFEFFFFBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3096DA3C,0x00A0EDB9,0x4136543F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Body"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x169EED39,0x4136543F,0x06CD3ABD,0,0xE52E713E,0,0x46CC783F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{12199772051252616871,5067240686169673242}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{6834986758906462849,5219424249283372450}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{4092869496529873066,5650915245000162911}}
+			Uuid{u4{18149205853178483877,4707919094677045571}}
+			Uuid{u4{727447881716786578,4785978399293002704}}
+			Uuid{u4{18293712460607961013,4856033632540615966}}
+			Uuid{u4{13581559445010458757,5638815771912153668}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xCAC83EBF,0xCE06B9BB,0x92B44CBA,0xBFB02A3F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x4094043D,0xE0727CBE,0xB637813F}}
+		s %JointType{"ezSkeletonJointType::Fixed"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Wrist.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xC9CB2331,0x3EED703E,0xDACC9932,0xD326383C,0xD75C913C,0xDCB02B3C,0xF1ED7F3F,0xF8FF7F3F,0xFFFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{8007355389546450565,5104036981068963814}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xD54715BF,0x55ECE73D,0xA0ACCC3D,0xF7574C3F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x00C61EBD,0x90BB82BE,0x8094533F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Pinky4.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x250F00B2,0x04F6E13C,0x4EFF4BB3,0x5B83EFBD,0xD96996BC,0x5EFB3DBB,0xE1327E3F,0xFEFF7F3F,0xFEFF7F3F,0xFEFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{7131812006070929544,5114329647796828139}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{750891538614053548,5477998722701283061}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{8423270417965881012,4619680152526180771}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x89AFED3E,0xEF18EDBE,0x893F08BF,0x4C18093F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x8027AD3D,0x00EB85BB,0x2246BC3F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Neck"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
+		Transform %Transform{f{0x2E70C9AF,0xDF72083E,0x61A2DAB1,0x7C2C1BBC,0x3DFA3535,0xB9F774B0,0x0FFD7F3F,0x0000803F,0x0000803F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{13971872136231229839,5118896610536921425}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{6792792116447529622,5229632739331308227}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x67C8513E,0x1F893A3F,0xEE4B27BF,0x2CD1A93B}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x66693C3E,0x80695F3E,0x991D613F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Middle2.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xC81544B1,0xEFB3FD3D,0x56AD45B2,0x25B3D0BD,0x1B00BBBC,0x6947B3BC,0xE3897E3F,0xFDFF7F3F,0xFEFF7F3F,0xFEFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{11179706784827459207,5130121267846967039}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{14068831302251678644,5371363735892503809}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x560345BF,0x1E817B3C,0x1705803C,0x3E5F233F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x406CDA3C,0x50E08BBE,0x00305C3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Middle2.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xDEA644B1,0x02B4FD3D,0xE91C7B32,0x179CBFBD,0xE87FCC3C,0x8532243D,0x19977E3F,0xFEFF7F3F,0x0100803F,0xFEFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{18070242316992791192,5145853847233947132}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x9A99193E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xCDCC4C3D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{15669201375821756075,5147885773298157204}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{265366642295938185,5045866116939200339}}
+			Uuid{u4{2129895462450666384,5245566446885980535}}
+			Uuid{u4{3389730080301935747,5722134378895305242}}
+			Uuid{u4{9565954702906014894,4961966910742520349}}
+			Uuid{u4{12347777860206865596,4664690723111537976}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x130C943D,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Root"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0,0,0x130C943D,0,0xFFFFFF33,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{6779708125827323568,5163737570728629416}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{1486322948106630528,5457525549858488585}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xFCC873BE,0xB66C28BF,0x2CE4363F,0x0C9615BC}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xE8245D3E,0xE424493E,0x3A805B3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Index3.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xE460B731,0xB428063D,0x2C3694B3,0x00D4B5BD,0xDD263ABC,0xB5AECABC,0xCFE47E3F,0x0000803F,0xFFFF7F3F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{14348302532678174848,5167289790779770452}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{12846220761595920061,5246457813115412861}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{7131812006070929544,5114329647796828139}}
+			Uuid{u4{502885616059560834,4657271590818047821}}
+			Uuid{u4{4512896549404898198,4778487524603781749}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x64AEEE3E,0x3716EEBE,0xF3D007BF,0x6EA9083F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x08ED863D,0x00AF90BB,0xD762AB3F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Chest"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
+		Transform %Transform{f{0xE8C30230,0x997B5D3E,0xE7E54AB2,0x26526E3B,0x110F492F,0xE40611B1,0x91FF7F3F,0xFEFF7F3F,0xFEFF7F3F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{9898826392966223526,5192547782434747725}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{9523856708897926790,5000015094097300420}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x8B80BCBE,0x008C1A3F,0x018C1A3F,0x8B80BCBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x603B673D,0x00E773BC,0xD08E5B3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Hips"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x70EE50BA,0xE311EB3C,0x9379073D,0x04318EBD,0x415D8FB4,0xA1B809B3,0xDA617F3F,0xFFFF7F3F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{6559495923043195276,5201389893414310929}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0xCDCC4C3E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xCDCC4C3D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{9990395220448909450,5206135688360859653}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{17138592504197167772,5022800580387435079}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x66802FBF,0xB1BACCBE,0x113277BD,0x39FA1A3F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xA065AA3D,0xB8D67BBE,0x6AD96A3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Thumb2.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x63DFA733,0xF791A83D,0x6EFAF933,0xC4EA2A3D,0xCEE2F9BD,0xAB73AE3D,0x9EEC7C3F,0xFEFF7F3F,0xFCFF7F3F,0xFEFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{6834986758906462849,5219424249283372450}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Sphere"}
+		f %Length{0xCDCCCC3D}
+		Vec3 %Offset{f{0x295C8F3D,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xCDCC4C3D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{4591321176394267780,5219787692521014297}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{18382231333302167231,4893775230136021821}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{14348302532678174848,5167289790779770452}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x938BC0BE,0x9ADC1D3F,0xCE28173F,0xCB5EB8BE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x4021183D,0x00F0A1BB,0x43F28F3F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0x00000033,0xD6D0313E,0x000000B3,0x5D1C7C3F}}
+		s %Name{"Torso"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
+		Transform %Transform{f{0xD757D72F,0x46E4253E,0xFCC35232,0x2008AF3D,0xDF2E73BE,0x5FB23D3C,0xB5B1773F,0x0000803F,0xFFFF7F3F,0xFDFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{11653560662417397159,5223360034268350465}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Swat_Feet"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{6792792116447529622,5229632739331308227}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{16076599036595820705,5374771186346460487}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x9C1250BE,0xC29929BF,0xA22E383F,0x2E1D3F3D}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x62C5443E,0xC8895A3E,0xD40F573F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Middle3.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x3EFCC432,0xB673253D,0x337C22B4,0x9699F6BD,0x8A6FCCBB,0x9F659A3C,0x2A167E3F,0xFEFF7F3F,0x0100803F,0xFEFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{9191019764546078336,5244818765211547279}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Swat_Legs"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{2129895462450666384,5245566446885980535}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{4172215304949501886,5465221963821752312}}
+		}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xFEFFFFBE,0x0100003F,0x0100003F,0xFEFFFFBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x4EFCEABD,0xAEF8F6BD,0xD861BA3C}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Foot.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xB4F8F63D,0xD861BA3C,0x2E843FBE,0x394A1D3F,0xCC32B23E,0xFE3AB1BE,0xD8201E3F,0x0100803F,0x0200803F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{12846220761595920061,5246457813115412861}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Box"}
+		f %Length{0x7B142E3E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0x9A99193E}
+		f %Width{0x52B89E3E}
+	}
+}
+o
+{
+	Uuid %id{u4{463094370092504766,5249866784172758149}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{9321848916854336640,5527832191706788842}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x7AF96CBE,0x8B6628BF,0x6C4A333F,0xE8101C3E}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3283233E,0xA4F95F3E,0xE169573F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Ring3.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xADBBD5B2,0x8C030B3D,0x052ABF33,0x1900F2BD,0x76C424BD,0x0CD5293D,0xA3C67D3F,0x0000803F,0xFDFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{7611325865203795118,5258681946136089853}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{10038048126366587012,4821470093025728124}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{14911702986931175320,4621236201900054055}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x77C112BE,0x8FF7553F,0x29AC07BF,0x9A3F80BB}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xB0FF3E3D,0x508F613E,0xC8CA9E3F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0xB6C24CBD,0xA83692BD,0xD34612BF,0xA9E750BF}}
+		s %Name{"LowerArm.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0xDB0FC93F}}
+		Transform %Transform{f{0xB1E91AB3,0x1D463A3E,0x519FF133,0x89B352BE,0xEF6F46BE,0xC6DDA53E,0xF821673F,0xFFFF7F3F,0xFEFF7F3F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{6118268964314804887,5261391564594437376}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{13971872136231229839,5118896610536921425}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xE0626B3E,0x633F353F,0x92F12ABF,0x798850BB}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3CAE153E,0x688E573E,0x0C407F3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Middle1.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x0000E031,0xE8AFE53C,0x00008232,0x77B8D23C,0x38FF9E3C,0x19888ABC,0x97D47F3F,0xFDFF7F3F,0xFEFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{5073326368985624507,5275648042494301140}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xB97502BF,0x8F1516BF,0x3368183F,0x5F4252BE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x4921793E,0x7890303E,0x127F733F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Thumb3.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x048975B3,0x5A66033D,0x26A9EF33,0x7F6DB5BD,0xC3BF633D,0x17D7F9BD,0x58AC7C3F,0x0000803F,0x0000803F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{4376571143897268374,5288324258239282138}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0xD7A3F03E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0x295C8F3D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{11500610437493751728,5340922504809852284}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0xD7A3F03E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0x295C8F3D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{5239608186200130988,5347510230046182553}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x592D4DBE,0x3A0B0DBF,0xB4EF4D3F,0xF83EC43D}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x087F0D3E,0x18BC593E,0xC006543F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Pinky4.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x863D9032,0x00F6E13C,0x6AC15634,0x5D83EFBD,0xEB69963C,0xBDFA3D3B,0xE1327E3F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{8094979054841470854,5364506213211728418}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{8978118630023782551,5432463790083253207}}
+		}
+		VarArray %Children
+		{
+			Uuid{u4{15410847513600782740,4753515779168085772}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x8B80BCBE,0x008C1A3F,0x018C1A3F,0x8B80BCBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x403644BC,0x28E8ECBD,0xE57D6D3F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0xFDFFFFBE,0x00004034,0xD8B35DBF,0x00006834}}
+		s %Name{"UpperLeg.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0xAA619C3F}}
+		Angle %SwingLimitZ{f{0xAA619C3F}}
+		Transform %Transform{f{0x0E0BF63D,0x203DCA3D,0x9A93963C,0xD21D09BF,0xAFDBAC3C,0xEEED553F,0xAF49F5BD,0xF8FF7F3F,0xF6FF7F3F,0x45FE7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{14068831302251678644,5371363735892503809}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{16936209953355593886,5394009888498349908}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xBC6234BF,0xFBA0013D,0x2B40713D,0xAFD7343F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x2021B03C,0x0CE08BBE,0x7AEE513F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Middle3.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xD80105B2,0xC873253D,0x1C05E133,0x9499F6BD,0x896FCC3B,0x9A659ABC,0x2A167E3F,0x0000803F,0x0100803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{16076599036595820705,5374771186346460487}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x9C255ABE,0xC21911BF,0xB5204B3F,0x694A7B3D}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xC8BA4A3E,0x34124C3E,0xD87E4D3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Middle4.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xEEEE85B1,0xB75C253D,0x7DA7F8B3,0x7D059CBC,0x024616BC,0xCF34363C,0x4DED7F3F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{16936209953355593886,5394009888498349908}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x1F521DBF,0x5E85AA3C,0x9F4F3B3D,0xBC8B493F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xA0DA8F3C,0x58E786BE,0x5CF3473F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Middle4.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x16FF13B2,0xB35C253D,0xA70FF3B3,0x6B059CBC,0x0446163C,0xC03436BC,0x4DED7F3F,0x0000803F,0xFFFF7F3F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{8978118630023782551,5432463790083253207}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x3333B33E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xEC51B83D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{9129558466487222154,5446741677796828834}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x3333B33E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xEC51B83D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{1486322948106630528,5457525549858488585}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x87346BBE,0x5DFE18BF,0x6F6B443F,0xCF5B183D}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x6BB8633E,0xCC96403E,0x4370543F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Index4.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x942803B2,0xDCEBF13C,0x60CD1834,0xC5B6F4BC,0x823F20BC,0xFA98A2BB,0xCFDE7F3F,0x0000803F,0xFDFF7F3F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{4172215304949501886,5465221963821752312}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Box"}
+		f %Length{0xCDCC4C3E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0x295C8F3D}
+		f %Width{0xCDCCCC3D}
+	}
+}
+o
+{
+	Uuid %id{u4{750891538614053548,5477998722701283061}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0xCDCCCC3D}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xCDCC4C3D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{7190848468935875477,5482258722514400457}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Capsule"}
+		f %Length{0x9A99193E}
+		Vec3 %Offset{f{0,0,0}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xCDCC4C3D}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{10123564125390332555,5486118085797400767}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{5073326368985624507,5275648042494301140}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x5677223F,0xEB38093F,0x697108BF,0x18A3243E}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x42785D3E,0x0410383E,0xAC82773F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Thumb2.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x47E8AE33,0x0592A83D,0x8FB7DBB3,0xABEA2A3D,0xD7E2F93D,0xA773AEBD,0x9EEC7C3F,0x0000803F,0x0000803F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{14118256927399889285,5486964771709597030}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{10537295198716254081,4930534536339701383}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xAEE93EBF,0x2CF9543E,0x5C6BE83D,0x3F671F3F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xC05CB3BC,0xAC9688BE,0x485B603F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Pinky2.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x28003131,0x3DB9F43D,0x8B2E1433,0x372004BE,0x41FC203E,0x4C5884BD,0x5B1A7A3F,0xFFFF7F3F,0xFDFF7F3F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{10947460889228155038,5499605950324634478}}
+	s %t{"ezEditableSkeleton"}
+	u3 %v{1}
+	p
+	{
+		s %BoneDirection{"ezBasisAxis::PositiveY"}
+		VarArray %Children
+		{
+			Uuid{u4{15846969129693414295,4654878644797982021}}
+		}
+		u1 %CollisionLayer{0}
+		s %File{"Assets/Quaternius/Swat.gltf"}
+		b %FlipForwardDir{0}
+		f %MaxImpulse{0x0000C842}
+		s %PreviewMesh{"{ 95d27ddc-19e0-4921-8f15-6db4850cbe8a }"}
+		s %RightDir{"ezBasisAxis::NegativeX"}
+		s %Surface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+		f %UniformScaling{0x0000803F}
+		s %UpDir{"ezBasisAxis::PositiveY"}
+	}
+}
+o
+{
+	Uuid %id{u4{9321848916854336640,5527832191706788842}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x5CA088BE,0xD4B90DBF,0xD6DD443F,0xB512343E}}
+		Vec3 %GizmoOffsetTranslationRO{f{0xA05C243E,0x90ED543E,0x72624F3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Ring4.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x02FADFB2,0x1CE5073D,0x74A561B2,0xD9F799BD,0x0B75F6BC,0xDF1CF53B,0xF1267F3F,0x0000803F,0x0100803F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{13911758401609731712,5570987286121717509}}
+	s %t{"ezEditableSkeletonBoneShape"}
+	u3 %v{1}
+	p
+	{
+		s %Geometry{"ezSkeletonJointGeometryType::Sphere"}
+		f %Length{0xCDCCCC3D}
+		Vec3 %Offset{f{0x295C0F3E,0,0x8FC2F5BC}}
+		Quat %Rotation{f{0,0,0,0x0000803F}}
+		f %Thickness{0xB81E053E}
+		f %Width{0xCDCC4C3D}
+	}
+}
+o
+{
+	Uuid %id{u4{14585727257789939082,5583031896538134635}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Swat_Body"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{9870732838738124451,5585347747475948412}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{6343807367385021852,4639034491098586064}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xA0A537BF,0x2CE09ABC,0x2971E4BB,0x4447323F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x60C7603D,0x683D87BE,0x70C4533F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Index3.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x14D67FB1,0xC128063D,0x610796B3,0x4EF1A1BD,0x6EF73E3C,0x373CCD3C,0xB0197F3F,0x0100803F,0x0100803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{12978581224455339675,5603152497647544314}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{5239608186200130988,5347510230046182553}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x657976BE,0x72B01EBF,0x4D6C3C3F,0xD2D6013E}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x509D0B3E,0x4050643E,0x888E5A3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Pinky3.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xCE3AD0B0,0x9E9CD93C,0x33D268B1,0x1AF4B9BD,0x56DF673D,0x91EDBC3C,0x3C767E3F,0xFFFF7F3F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{7516667322407009703,5635366411442975901}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes
+		{
+			Uuid{u4{4376571143897268374,5288324258239282138}}
+		}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x872834BF,0xBC0DE0BD,0x635B3FBE,0xF5382D3F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x6C998C3E,0xB0B7943D,0xC375083F}}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		Quat %LocalRotation{f{0x000000B3,0xF804353F,0x000040B4,0xF704353F}}
+		s %Name{"LowerLeg.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0x920A063F}}
+		Angle %SwingLimitZ{f{0x920A063F}}
+		Transform %Transform{f{0x307CA5B2,0x72AFDD3E,0x283F8BB2,0x51902B3E,0x5FDD2FBF,0x4D902B3E,0x53DD2F3F,0x0100803F,0x0000803F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0x920A063F}}
+	}
+}
+o
+{
+	Uuid %id{u4{13581559445010458757,5638815771912153668}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{9990395220448909450,5206135688360859653}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x41AB40BF,0x183C1EBC,0x96A79E3C,0xB879283F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x2052033D,0x722480BE,0x82527B3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Thumb1.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xAEB593B3,0xFCAFE53C,0x47D73133,0x59157E3B,0xCC5F4B3E,0xAF07B1BE,0x14C46A3F,0x0100803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{7768923640247404191,5648879117544879995}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{9870732838738124451,5585347747475948412}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xEB013EBF,0x5057B6BD,0xF46600BD,0xC6D9293F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x50D65B3D,0x74BF86BE,0x9A245C3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Index2.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xF1F18BB2,0x66B4FE3D,0xC68DCA31,0x327D27BD,0x24AB03BD,0x1A4E893D,0xA3137F3F,0xFEFF7F3F,0xFEFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{4092869496529873066,5650915245000162911}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{7768923640247404191,5648879117544879995}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x41AB40BF,0x183C1EBC,0x96A79E3C,0xB879283F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3052033D,0x6C2480BE,0x81527B3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Index1.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xC6724CB0,0xEDAFE53C,0x2AD5A8B2,0x4C2011BC,0xCDF3683C,0x721EBFBD,0xC7D87E3F,0xFFFF7F3F,0xFDFF7F3F,0xFFFF7F3F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{12607363042274710971,5651311679923275043}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{12978581224455339675,5603152497647544314}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x0C2D763C,0x2653403F,0xC4FC26BF,0xBB95CBBD}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x1493083E,0x64BC693E,0x5C2D613F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Pinky2.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x7FAD6C33,0x52B9F43D,0x7E520633,0x76A001BE,0xEAE437BE,0x0EDC253E,0x3247763F,0x0100803F,0xFFFF7F3F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{15286972430439122622,5703129039197453490}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Pistol"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{3389730080301935747,5722134378895305242}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children{}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xFEFFFFBE,0x0100003F,0x0100003F,0xFEFFFFBE}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x6446993E,0xD07611BF,0x1863203F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"PT.L"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0xD076113F,0x1863203F,0xC586683E,0x633A2FBB,0xDEFF0D38,0xC564C2B3,0xC4FF7F3F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{18380226671917519539,5736784464953632258}}
+	s %t{"ezEditableSkeletonJoint"}
+	u3 %v{2}
+	p
+	{
+		VarArray %BoneShapes{}
+		VarArray %Children
+		{
+			Uuid{u4{12607363042274710971,5651311679923275043}}
+		}
+		VarArray %Colliders{}
+		u1 %CollisionLayer{205}
+		Quat %GizmoOffsetRotationRO{f{0xE0626B3E,0x633F353F,0x92F12ABF,0x798850BB}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x3CAE153E,0x688E573E,0x0C407F3F}}
+		s %JointType{"ezSkeletonJointType::None"}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		s %Name{"Pinky1.R"}
+		b %OverrideCollisionLayer{0}
+		b %OverrideSurface{0}
+		f %Stiffness{0}
+		s %Surface{""}
+		Angle %SwingLimitY{f{0}}
+		Angle %SwingLimitZ{f{0}}
+		Transform %Transform{f{0x83170633,0x05B0E53C,0xB9A08432,0xD2878B3C,0xC64A933D,0x9BCA67BE,0xEAA2783F,0xFFFF7F3F,0x0000803F,0x0100803F}}
+		Angle %TwistLimitCenterAngle{f{0}}
+		Angle %TwistLimitHalfAngle{f{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{10947460889228155038,5499605950324634478}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{1546572509689650450,163761612659977183}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkeletonJointGeometryType"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7487808954123518552,1038212999886154059}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEditableSkeletonBoneShape"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17859901446394967209,7194868322181501778}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEditableSkeletonJoint"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13569856615221415969,9151104531254943604}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEditableSkeletonBoneCollider"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10395479654444300045,10796011810626369603}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEditableSkeleton"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8114326279546664217,12970061331727704798}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkeletonJointType"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

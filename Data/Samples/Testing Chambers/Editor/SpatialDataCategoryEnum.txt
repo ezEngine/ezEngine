@@ -1,3 +1,4 @@
+Checkpoint
 GrabObjectMarker
 NPC
 Player
