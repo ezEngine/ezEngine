@@ -81,6 +81,18 @@ abstract class WeaponBaseClass : ezAngelScriptClass
     {
         auto owner = GetOwner();
 
+        // tell the player that a shot was fired (for the AI noise marker)
+        {
+            ezGameObject@ root = owner;
+            while (@root.GetParent() != null)
+            {
+                @root = root.GetParent();
+            }
+
+            MsgShotFired msgShot;
+            root.SendMessage(msgShot);
+        }
+
         auto node = owner.FindChildByName("ShootSound", true);
         if (@node != null)
         {

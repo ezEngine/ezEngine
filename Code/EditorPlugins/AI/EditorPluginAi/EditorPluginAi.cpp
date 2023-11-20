@@ -8,6 +8,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
+#include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
@@ -21,6 +22,14 @@ void OnLoadPlugin()
 
   ezAiActions::RegisterActions();
   ezAiActions::MapMenuActions();
+
+  // AI Controller asset
+  {
+    ezActionMapManager::RegisterActionMap("AiControllerAssetMenuBar", "AssetMenuBar");
+    ezEditActions::MapActions("AiControllerAssetMenuBar", false, false);
+
+    ezActionMapManager::RegisterActionMap("AiControllerAssetToolBar", "AssetToolbar");
+  }
 }
 
 void OnUnloadPlugin()

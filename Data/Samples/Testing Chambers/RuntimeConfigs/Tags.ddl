@@ -23,3 +23,13 @@ Tag
 	string %Name{"VegetationMask"}
 	string %Category{"Default"}
 }
+Tag
+{
+	string %Name{"FactionA"}
+	string %Category{"Default"}
+}
+Tag
+{
+	string %Name{"FactionB"}
+	string %Category{"Default"}
+}

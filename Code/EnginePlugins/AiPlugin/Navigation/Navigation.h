@@ -108,9 +108,10 @@ public:
   // in what radius / up / down distance navigation mesh polygons should be searched around a given position
   // this should relate to the character size, ie at least the character radius
   // otherwise a character that barely left the navmesh area may not know where it is, anymore
+  // searching further down allows target positions at body height, e.g. the position of another character or the source of a sound
   float m_fPolySearchRadius = 0.5f;
   float m_fPolySearchUp = 1.5f;
-  float m_fPolySearchDown = 1.5f;
+  float m_fPolySearchDown = 2.5f;
 
   // when a path search is started, all tiles in a rectangle around the start and end point are loaded first
   // this is the amount to increase that rectangle size, to overestimate which sectors may be needed during the path search

@@ -53,7 +53,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{945923106428072884}
+		u4 %Hash{15112453105436016737}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -162,6 +162,9 @@ o
 		{
 			Uuid{u4{833559044517712777,2048742224257356627}}
 			Uuid{u4{10907560469416801451,5467378889121169136}}
+			Uuid{u4{11227961293010443395,5372609653884539800}}
+			Uuid{u4{12348899426203124669,5740324940976373894}}
+			Uuid{u4{5170897937036138568,10622928830233354158}}
 		}
 		VarArray %Components
 		{
@@ -345,6 +348,19 @@ o
 }
 o
 {
+	Uuid %id{u4{11839141621301831855,4880798640262694460}}
+	s %t{"ezAiMarkerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{0}
+		s %Marker{"Noise"}
+		f %Priority{0xCDCC4C3F}
+		f %Radius{0x0000F041}
+	}
+}
+o
+{
 	Uuid %id{u4{6633808148458154907,4911156960951340595}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -447,6 +463,19 @@ o
 		f %MaxGrabPointDistance{0x00000040}
 		f %SpringDamping{0x0000803F}
 		f %SpringStiffness{0x00002041}
+	}
+}
+o
+{
+	Uuid %id{u4{3777458966018413698,5102661595206163354}}
+	s %t{"ezAiMarkerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{0}
+		s %Marker{"Noise"}
+		f %Priority{0xCDCC4C3E}
+		f %Radius{0x00004040}
 	}
 }
 o
@@ -587,6 +616,32 @@ o
 		{
 			Uuid{u4{16874280006046882197,4687618890381556565}}
 			Uuid{u4{11301666624529129100,5223482926912455150}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11227961293010443395,5372609653884539800}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11839141621301831855,4880798640262694460}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0xCDCCCC3F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"ShotNoise"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
 		}
 	}
 }
@@ -810,6 +865,32 @@ o
 }
 o
 {
+	Uuid %id{u4{12348899426203124669,5740324940976373894}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3777458966018413698,5102661595206163354}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0xCDCC4C3E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"FootstepWalk"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{14533035257435161515,5758214449907519538}}
 	s %t{"ezJoltDynamicActorComponent"}
 	u3 %v{8}
@@ -852,6 +933,19 @@ o
 }
 o
 {
+	Uuid %id{u4{15046201550560979213,9985265484463143618}}
+	s %t{"ezAiMarkerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{0}
+		s %Marker{"Noise"}
+		f %Priority{0xCDCC4C3E}
+		f %Radius{0x00002041}
+	}
+}
+o
+{
 	Uuid %id{u4{768295375766672425,10257090464801144494}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -870,6 +964,32 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"PlasmaRifle"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5170897937036138568,10622928830233354158}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15046201550560979213,9985265484463143618}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0xCDCC4C3E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"FootstepRun"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -1266,6 +1386,23 @@ o
 }
 o
 {
+	Uuid %id{u4{7552767297932870408,4100925118654356776}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezMarkerComponent"}
+		s %PluginName{"ezEditorPluginAi"}
+		VarArray %Properties{}
+		s %TypeName{"ezAiMarkerComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{16426119971272182603,4137352701758845267}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -1618,6 +1755,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{1975187931105783413,9436176493045113306}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezGameObjectHandle"}
+		u3 %TypeVersion{1}
 	}
 }
 o

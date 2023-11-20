@@ -26,7 +26,7 @@ ezPlayer.exe -project <project-folder> -scene <path/to/Scene.ezBinScene> -profil
 
 Binaries are in `Workspace/<workspace>-output/Bin/WinVs2026Dev64/`.
 
-- **`-unattended` is required for the editor, and should be passed to games as well.** Otherwise a modal dialog during startup (e.g. "compile the C++ plugin?") hangs it before it serves anything. Tool calls suppress dialogs themselves; startup does not.
+- **`-unattended` is required for the editor, and should be passed to games as well.** Otherwise a modal dialog during startup (e.g. "compile the C++ plugin?") hangs it before it serves anything. Tool calls suppress dialogs themselves; startup does not. It also mutes the sound.
 - Launch detached (`start ""` / `Start-Process`); it runs until told to quit.
 - Startup takes seconds - **poll the port**, do not sleep a fixed time.
 - Pick a port other than the default 7391 so a user's own editor keeps working.

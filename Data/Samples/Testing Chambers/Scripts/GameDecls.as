@@ -84,6 +84,12 @@ class WeaponInfo
     int iClipSize = 1;
 }
 
+// sent by a weapon to the top-level object (the player), so that it can make a noise for the AI to hear
+class MsgShotFired : ezAngelScriptMessage
+{
+    float noiseRadius = 30;
+}
+
 class MsgWeaponInteraction : ezAngelScriptMessage
 {
     WeaponInteraction interaction;

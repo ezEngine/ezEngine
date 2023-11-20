@@ -24,6 +24,9 @@ class Player : ezAngelScriptClass
     private AmmoPouch ammoPouch;
     
     private ezVec4 smoothInput;
+
+    // the 'ShotNoise' marker is active until this time
+    private ezTime shotNoiseEnd;
     
     float ApplyInputGravity(float value, float input, float gravity)
     {
@@ -96,6 +99,8 @@ class Player : ezAngelScriptClass
 
     void Update(ezTime deltaTime)
     {
+        UpdateShotNoise();
+
         ezGameObject@ cameraObj;
         if (!GetWorld().TryGetObject(hCameraObj, @cameraObj))
             return;
@@ -107,6 +112,14 @@ class Player : ezAngelScriptClass
         ezInputComponent@ inputComp;
         if (!GetWorld().TryGetComponent(hInputComp, @inputComp))
             return;
+
+        {
+            ezVec3 vVelocity = GetOwner().GetLinearVelocity();
+            vVelocity.z = 0.0f;
+            const bool moving = iPlayerHealth > 0 && vVelocity.GetLength() > 0.5f;
+            const bool running = inputComp.GetCurrentInputState("Run", false) > 0.5 && inputComp.GetCurrentInputState("Crouch", false) <= 0.5;
+            UpdateFootstepNoise(moving, running);
+        }
 
         if (!weaponInfos[WeaponType::None].bUnlocked)
         {
@@ -355,6 +368,60 @@ class Player : ezAngelScriptClass
                     GetWorld().SendMessageRecursive(weaponInfo.hObject, msgInteract);
                 }
             }
+        }
+    }
+
+    void SetNoiseMarkerActive(ezStringView name, bool active)
+    {
+        ezGameObject@ noiseObj = GetOwner().FindChildByName(name);
+        if (@noiseObj == null)
+            return;
+
+        ezAiMarkerComponent@ markerComp;
+        if (noiseObj.TryGetComponentOfBaseType(@markerComp))
+        {
+            markerComp.Active = active;
+        }
+    }
+
+    // other NPCs can hear the 'FootstepWalk' / 'FootstepRun' markers, their radius defines how far
+    void UpdateFootstepNoise(bool moving, bool running)
+    {
+        SetNoiseMarkerActive("FootstepWalk", moving && !running);
+        SetNoiseMarkerActive("FootstepRun", moving && running);
+    }
+
+    void OnMsgShotFired(MsgShotFired@ msg)
+    {
+        ezGameObject@ noiseObj = GetOwner().FindChildByName("ShotNoise");
+        if (@noiseObj == null)
+            return;
+
+        ezAiMarkerComponent@ markerComp;
+        if (!noiseObj.TryGetComponentOfBaseType(@markerComp))
+            return;
+
+        // NPCs within the radius hear the shot
+        markerComp.Radius = msg.noiseRadius;
+        markerComp.Active = true;
+        shotNoiseEnd = GetWorld().GetClock().GetAccumulatedTime() + ezTime::Seconds(1.5);
+    }
+
+    void UpdateShotNoise()
+    {
+        if (shotNoiseEnd.IsZero() || GetWorld().GetClock().GetAccumulatedTime() < shotNoiseEnd)
+            return;
+
+        shotNoiseEnd = ezTime::MakeZero();
+
+        ezGameObject@ noiseObj = GetOwner().FindChildByName("ShotNoise");
+        if (@noiseObj == null)
+            return;
+
+        ezAiMarkerComponent@ markerComp;
+        if (noiseObj.TryGetComponentOfBaseType(@markerComp))
+        {
+            markerComp.Active = false;
         }
     }
 

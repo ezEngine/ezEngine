@@ -11,7 +11,7 @@ o
 		s %AssetType{"BlackboardTemplate"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5840789953856331920,5365145387547261496}}
-		u4 %Hash{14606032015362289039}
+		u4 %Hash{11481217591824963616}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -98,7 +98,20 @@ o
 			Uuid{u4{7475762451179207613,4775618196056776302}}
 			Uuid{u4{2132801469527621797,5323071979105551066}}
 			Uuid{u4{12764525636760276628,4839067624800210366}}
+			Uuid{u4{6208852595641910194,5635668098833651455}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{6208852595641910194,5635668098833651455}}
+	s %t{"ezBlackboardEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		d %InitialValue{0x0000000000004940}
+		HashedString %Name{s{"Health"}}
 	}
 }
 o
