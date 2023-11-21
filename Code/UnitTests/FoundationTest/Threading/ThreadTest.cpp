@@ -7,7 +7,7 @@
 
 namespace
 {
-  volatile ezInt32 g_iCrossThreadVariable = 0;
+  ezInt32 g_iCrossThreadVariable = 0;
   const ezUInt32 g_uiIncrementSteps = 160000;
 
   class TestThread3 : public ezThread

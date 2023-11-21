@@ -8,7 +8,7 @@ struct ezStringIterator
 {
   using iterator_category = std::bidirectional_iterator_tag;
   using value_type = ezUInt32;
-  using difference_type = ptrdiff_t;
+  using difference_type = std::ptrdiff_t;
   using pointer = const char*;
   using reference = ezUInt32;
 
@@ -163,7 +163,7 @@ struct ezStringReverseIterator
 {
   using iterator_category = std::bidirectional_iterator_tag;
   using value_type = ezUInt32;
-  using difference_type = ptrdiff_t;
+  using difference_type = std::ptrdiff_t;
   using pointer = const char*;
   using reference = ezUInt32;
 

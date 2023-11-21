@@ -8,8 +8,8 @@ ezProcessingStreamIterator<Type>::ezProcessingStreamIterator(const ezProcessingS
 
   m_uiElementStride = pStream->GetElementStride();
 
-  m_pCurrentPtr = ezMemoryUtils::AddByteOffset(pStream->GetWritableData(), static_cast<ptrdiff_t>(uiStartIndex * m_uiElementStride));
-  m_pEndPtr = ezMemoryUtils::AddByteOffset(pStream->GetWritableData(), static_cast<ptrdiff_t>((uiStartIndex + uiNumElements) * m_uiElementStride));
+  m_pCurrentPtr = ezMemoryUtils::AddByteOffset(pStream->GetWritableData(), static_cast<std::ptrdiff_t>(uiStartIndex * m_uiElementStride));
+  m_pEndPtr = ezMemoryUtils::AddByteOffset(pStream->GetWritableData(), static_cast<std::ptrdiff_t>((uiStartIndex + uiNumElements) * m_uiElementStride));
 }
 
 template <typename Type>
@@ -27,11 +27,11 @@ EZ_ALWAYS_INLINE bool ezProcessingStreamIterator<Type>::HasReachedEnd() const
 template <typename Type>
 EZ_ALWAYS_INLINE void ezProcessingStreamIterator<Type>::Advance()
 {
-  m_pCurrentPtr = ezMemoryUtils::AddByteOffset(m_pCurrentPtr, static_cast<ptrdiff_t>(m_uiElementStride));
+  m_pCurrentPtr = ezMemoryUtils::AddByteOffset(m_pCurrentPtr, static_cast<std::ptrdiff_t>(m_uiElementStride));
 }
 
 template <typename Type>
 EZ_ALWAYS_INLINE void ezProcessingStreamIterator<Type>::Advance(ezUInt32 uiNumElements)
 {
-  m_pCurrentPtr = ezMemoryUtils::AddByteOffset(m_pCurrentPtr, static_cast<ptrdiff_t>(m_uiElementStride * uiNumElements));
+  m_pCurrentPtr = ezMemoryUtils::AddByteOffset(m_pCurrentPtr, static_cast<std::ptrdiff_t>(m_uiElementStride * uiNumElements));
 }

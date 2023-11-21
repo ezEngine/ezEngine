@@ -183,7 +183,7 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
   // find super block
   bool bFound = false;
   ezUInt32 uiSuperBlockIndex = m_SuperBlocks.GetCount();
-  ptrdiff_t diff = 0;
+  std::ptrdiff_t diff = 0;
 
   for (; uiSuperBlockIndex-- > 0;)
   {

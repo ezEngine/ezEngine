@@ -189,13 +189,14 @@ endloop:
   if (!bSupported)
     return EZ_FAILURE;
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats stats;
   if (ezOSFile::GetFileStats(sArchivePath, stats).Failed())
     return EZ_FAILURE;
+  m_LastModificationTime = stats.m_LastModificationTime;
+#endif
 
   EZ_LOG_BLOCK("ezArchiveDataDir", sDirectory);
-
-  m_LastModificationTime = stats.m_LastModificationTime;
 
   EZ_SUCCEED_OR_RETURN(m_ArchiveReader.OpenArchive(sArchivePath));
 

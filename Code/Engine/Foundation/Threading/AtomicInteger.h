@@ -80,7 +80,7 @@ public:
   operator T() const; // [tested]
 
 private:
-  volatile UnderlyingType m_Value;
+  UnderlyingType m_Value;
 };
 
 /// \brief An atomic boolean variable. This is just a wrapper around an atomic int32 for convenience.

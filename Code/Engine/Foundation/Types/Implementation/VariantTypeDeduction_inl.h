@@ -6,13 +6,10 @@
 template <>
 struct ezVariantTypeDeduction<bool>
 {
-  enum
-  {
-    value = ezVariantType::Bool,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Bool;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = bool;
   using ReturnType = bool;
@@ -21,13 +18,10 @@ struct ezVariantTypeDeduction<bool>
 template <>
 struct ezVariantTypeDeduction<ezInt8>
 {
-  enum
-  {
-    value = ezVariantType::Int8,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Int8;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezInt8;
 };
@@ -35,13 +29,10 @@ struct ezVariantTypeDeduction<ezInt8>
 template <>
 struct ezVariantTypeDeduction<ezUInt8>
 {
-  enum
-  {
-    value = ezVariantType::UInt8,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::UInt8;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezUInt8;
 };
@@ -49,13 +40,10 @@ struct ezVariantTypeDeduction<ezUInt8>
 template <>
 struct ezVariantTypeDeduction<ezInt16>
 {
-  enum
-  {
-    value = ezVariantType::Int16,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Int16;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezInt16;
 };
@@ -63,13 +51,10 @@ struct ezVariantTypeDeduction<ezInt16>
 template <>
 struct ezVariantTypeDeduction<ezUInt16>
 {
-  enum
-  {
-    value = ezVariantType::UInt16,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::UInt16;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezUInt16;
 };
@@ -77,13 +62,10 @@ struct ezVariantTypeDeduction<ezUInt16>
 template <>
 struct ezVariantTypeDeduction<ezInt32>
 {
-  enum
-  {
-    value = ezVariantType::Int32,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Int32;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezInt32;
 };
@@ -91,13 +73,10 @@ struct ezVariantTypeDeduction<ezInt32>
 template <>
 struct ezVariantTypeDeduction<ezUInt32>
 {
-  enum
-  {
-    value = ezVariantType::UInt32,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::UInt32;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezUInt32;
 };
@@ -105,13 +84,10 @@ struct ezVariantTypeDeduction<ezUInt32>
 template <>
 struct ezVariantTypeDeduction<ezInt64>
 {
-  enum
-  {
-    value = ezVariantType::Int64,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Int64;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezInt64;
 };
@@ -119,13 +95,10 @@ struct ezVariantTypeDeduction<ezInt64>
 template <>
 struct ezVariantTypeDeduction<ezUInt64>
 {
-  enum
-  {
-    value = ezVariantType::UInt64,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::UInt64;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezUInt64;
 };
@@ -133,13 +106,10 @@ struct ezVariantTypeDeduction<ezUInt64>
 template <>
 struct ezVariantTypeDeduction<float>
 {
-  enum
-  {
-    value = ezVariantType::Float,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Float;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = float;
 };
@@ -147,13 +117,10 @@ struct ezVariantTypeDeduction<float>
 template <>
 struct ezVariantTypeDeduction<double>
 {
-  enum
-  {
-    value = ezVariantType::Double,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Double;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = double;
 };
@@ -161,13 +128,10 @@ struct ezVariantTypeDeduction<double>
 template <>
 struct ezVariantTypeDeduction<ezColor>
 {
-  enum
-  {
-    value = ezVariantType::Color,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Color;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezColor;
 };
@@ -175,13 +139,10 @@ struct ezVariantTypeDeduction<ezColor>
 template <>
 struct ezVariantTypeDeduction<ezColorGammaUB>
 {
-  enum
-  {
-    value = ezVariantType::ColorGamma,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::ColorGamma;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezColorGammaUB;
 };
@@ -189,13 +150,10 @@ struct ezVariantTypeDeduction<ezColorGammaUB>
 template <>
 struct ezVariantTypeDeduction<ezVec2>
 {
-  enum
-  {
-    value = ezVariantType::Vector2,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Vector2;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVec2;
 };
@@ -203,13 +161,10 @@ struct ezVariantTypeDeduction<ezVec2>
 template <>
 struct ezVariantTypeDeduction<ezVec3>
 {
-  enum
-  {
-    value = ezVariantType::Vector3,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Vector3;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVec3;
 };
@@ -217,13 +172,10 @@ struct ezVariantTypeDeduction<ezVec3>
 template <>
 struct ezVariantTypeDeduction<ezVec4>
 {
-  enum
-  {
-    value = ezVariantType::Vector4,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Vector4;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVec4;
 };
@@ -231,13 +183,10 @@ struct ezVariantTypeDeduction<ezVec4>
 template <>
 struct ezVariantTypeDeduction<ezVec2I32>
 {
-  enum
-  {
-    value = ezVariantType::Vector2I,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Vector2I;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVec2I32;
 };
@@ -245,13 +194,10 @@ struct ezVariantTypeDeduction<ezVec2I32>
 template <>
 struct ezVariantTypeDeduction<ezVec3I32>
 {
-  enum
-  {
-    value = ezVariantType::Vector3I,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Vector3I;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVec3I32;
 };
@@ -259,13 +205,10 @@ struct ezVariantTypeDeduction<ezVec3I32>
 template <>
 struct ezVariantTypeDeduction<ezVec4I32>
 {
-  enum
-  {
-    value = ezVariantType::Vector4I,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Vector4I;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVec4I32;
 };
@@ -273,13 +216,10 @@ struct ezVariantTypeDeduction<ezVec4I32>
 template <>
 struct ezVariantTypeDeduction<ezVec2U32>
 {
-  enum
-  {
-    value = ezVariantType::Vector2U,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Vector2U;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVec2U32;
 };
@@ -287,13 +227,10 @@ struct ezVariantTypeDeduction<ezVec2U32>
 template <>
 struct ezVariantTypeDeduction<ezVec3U32>
 {
-  enum
-  {
-    value = ezVariantType::Vector3U,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Vector3U;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVec3U32;
 };
@@ -301,13 +238,10 @@ struct ezVariantTypeDeduction<ezVec3U32>
 template <>
 struct ezVariantTypeDeduction<ezVec4U32>
 {
-  enum
-  {
-    value = ezVariantType::Vector4U,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Vector4U;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVec4U32;
 };
@@ -315,13 +249,10 @@ struct ezVariantTypeDeduction<ezVec4U32>
 template <>
 struct ezVariantTypeDeduction<ezQuat>
 {
-  enum
-  {
-    value = ezVariantType::Quaternion,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Quaternion;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezQuat;
 };
@@ -329,13 +260,10 @@ struct ezVariantTypeDeduction<ezQuat>
 template <>
 struct ezVariantTypeDeduction<ezMat3>
 {
-  enum
-  {
-    value = ezVariantType::Matrix3,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Matrix3;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezMat3;
 };
@@ -343,13 +271,10 @@ struct ezVariantTypeDeduction<ezMat3>
 template <>
 struct ezVariantTypeDeduction<ezMat4>
 {
-  enum
-  {
-    value = ezVariantType::Matrix4,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Matrix4;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezMat4;
 };
@@ -357,13 +282,10 @@ struct ezVariantTypeDeduction<ezMat4>
 template <>
 struct ezVariantTypeDeduction<ezTransform>
 {
-  enum
-  {
-    value = ezVariantType::Transform,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Transform;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezTransform;
 };
@@ -371,13 +293,10 @@ struct ezVariantTypeDeduction<ezTransform>
 template <>
 struct ezVariantTypeDeduction<ezString>
 {
-  enum
-  {
-    value = ezVariantType::String,
-    forceSharing = true,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::String;
+  static constexpr bool forceSharing = true;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezString;
 };
@@ -385,13 +304,10 @@ struct ezVariantTypeDeduction<ezString>
 template <>
 struct ezVariantTypeDeduction<ezUntrackedString>
 {
-  enum
-  {
-    value = ezVariantType::String,
-    forceSharing = true,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::String;
+  static constexpr bool forceSharing = true;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezString;
 };
@@ -399,13 +315,10 @@ struct ezVariantTypeDeduction<ezUntrackedString>
 template <>
 struct ezVariantTypeDeduction<ezStringView>
 {
-  enum
-  {
-    value = ezVariantType::StringView,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::StringView;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezStringView;
 };
@@ -413,13 +326,10 @@ struct ezVariantTypeDeduction<ezStringView>
 template <>
 struct ezVariantTypeDeduction<ezDataBuffer>
 {
-  enum
-  {
-    value = ezVariantType::DataBuffer,
-    forceSharing = true,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::DataBuffer;
+  static constexpr bool forceSharing = true;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezDataBuffer;
 };
@@ -427,13 +337,10 @@ struct ezVariantTypeDeduction<ezDataBuffer>
 template <>
 struct ezVariantTypeDeduction<char*>
 {
-  enum
-  {
-    value = ezVariantType::String,
-    forceSharing = true,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::String;
+  static constexpr bool forceSharing = true;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezString;
 };
@@ -441,13 +348,10 @@ struct ezVariantTypeDeduction<char*>
 template <>
 struct ezVariantTypeDeduction<const char*>
 {
-  enum
-  {
-    value = ezVariantType::String,
-    forceSharing = true,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::String;
+  static constexpr bool forceSharing = true;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezString;
 };
@@ -455,13 +359,10 @@ struct ezVariantTypeDeduction<const char*>
 template <size_t N>
 struct ezVariantTypeDeduction<char[N]>
 {
-  enum
-  {
-    value = ezVariantType::String,
-    forceSharing = true,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::String;
+  static constexpr bool forceSharing = true;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezString;
 };
@@ -469,13 +370,10 @@ struct ezVariantTypeDeduction<char[N]>
 template <size_t N>
 struct ezVariantTypeDeduction<const char[N]>
 {
-  enum
-  {
-    value = ezVariantType::String,
-    forceSharing = true,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::String;
+  static constexpr bool forceSharing = true;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezString;
 };
@@ -483,13 +381,10 @@ struct ezVariantTypeDeduction<const char[N]>
 template <>
 struct ezVariantTypeDeduction<ezTime>
 {
-  enum
-  {
-    value = ezVariantType::Time,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Time;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezTime;
 };
@@ -497,13 +392,10 @@ struct ezVariantTypeDeduction<ezTime>
 template <>
 struct ezVariantTypeDeduction<ezUuid>
 {
-  enum
-  {
-    value = ezVariantType::Uuid,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Uuid;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezUuid;
 };
@@ -511,13 +403,10 @@ struct ezVariantTypeDeduction<ezUuid>
 template <>
 struct ezVariantTypeDeduction<ezAngle>
 {
-  enum
-  {
-    value = ezVariantType::Angle,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Angle;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezAngle;
 };
@@ -525,13 +414,10 @@ struct ezVariantTypeDeduction<ezAngle>
 template <>
 struct ezVariantTypeDeduction<ezHashedString>
 {
-  enum
-  {
-    value = ezVariantType::HashedString,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::HashedString;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezHashedString;
 };
@@ -539,13 +425,10 @@ struct ezVariantTypeDeduction<ezHashedString>
 template <>
 struct ezVariantTypeDeduction<ezTempHashedString>
 {
-  enum
-  {
-    value = ezVariantType::TempHashedString,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::TempHashedString;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezTempHashedString;
 };
@@ -553,13 +436,10 @@ struct ezVariantTypeDeduction<ezTempHashedString>
 template <>
 struct ezVariantTypeDeduction<ezVariantArray>
 {
-  enum
-  {
-    value = ezVariantType::VariantArray,
-    forceSharing = true,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::VariantArray;
+  static constexpr bool forceSharing = true;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVariantArray;
 };
@@ -567,13 +447,10 @@ struct ezVariantTypeDeduction<ezVariantArray>
 template <>
 struct ezVariantTypeDeduction<ezArrayPtr<ezVariant>>
 {
-  enum
-  {
-    value = ezVariantType::VariantArray,
-    forceSharing = true,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::VariantArray;
+  static constexpr bool forceSharing = true;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVariantArray;
 };
@@ -582,13 +459,10 @@ struct ezVariantTypeDeduction<ezArrayPtr<ezVariant>>
 template <>
 struct ezVariantTypeDeduction<ezVariantDictionary>
 {
-  enum
-  {
-    value = ezVariantType::VariantDictionary,
-    forceSharing = true,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::VariantDictionary;
+  static constexpr bool forceSharing = true;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezVariantDictionary;
 };
@@ -616,13 +490,10 @@ namespace ezInternal
 template <>
 struct ezVariantTypeDeduction<ezTypedPointer>
 {
-  enum
-  {
-    value = ezVariantType::TypedPointer,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::DirectCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::TypedPointer;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::DirectCast;
 
   using StorageType = ezTypedPointer;
 };
@@ -630,13 +501,10 @@ struct ezVariantTypeDeduction<ezTypedPointer>
 template <typename T>
 struct ezVariantTypeDeduction<T*>
 {
-  enum
-  {
-    value = ezVariantType::TypedPointer,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::PointerCast
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::TypedPointer;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::PointerCast;
 
   using StorageType = ezTypedPointer;
 };
@@ -644,13 +512,10 @@ struct ezVariantTypeDeduction<T*>
 template <>
 struct ezVariantTypeDeduction<ezTypedObject>
 {
-  enum
-  {
-    value = ezVariantType::TypedObject,
-    forceSharing = false,
-    hasReflectedMembers = true,
-    classification = ezVariantClass::TypedObject
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::TypedObject;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = true;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::TypedObject;
 
   using StorageType = ezTypedObject;
 };

@@ -433,8 +433,8 @@ ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSou
     {
       szUtf8StartByte--;
     }
-    ptrdiff_t isLength = szLastCharacterPos - szUtf8StartByte;
-    ptrdiff_t expectedLength = ezUnicodeUtils::GetUtf8SequenceLength(*szUtf8StartByte);
+    std::ptrdiff_t isLength = szLastCharacterPos - szUtf8StartByte;
+    std::ptrdiff_t expectedLength = ezUnicodeUtils::GetUtf8SequenceLength(*szUtf8StartByte);
     EZ_ASSERT_DEBUG(isLength == expectedLength, "The destination buffer was too small, so a utf-8 byte sequence got cut off. This function "
                                                 "is not designed to copy into buffers that are too small.");
   }

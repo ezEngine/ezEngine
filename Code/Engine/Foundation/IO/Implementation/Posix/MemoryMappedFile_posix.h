@@ -28,6 +28,7 @@ struct ezMemoryMappedFileImpl
 
   ~ezMemoryMappedFileImpl()
   {
+#if EZ_ENABLED(EZ_SUPPORTS_MEMORY_MAPPED_FILE)
     if (m_pMappedFilePtr != nullptr)
     {
       munmap(m_pMappedFilePtr, m_uiFileSize);
@@ -38,18 +39,19 @@ struct ezMemoryMappedFileImpl
       close(m_hFile);
       m_hFile = -1;
     }
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
     // shm_open / shm_unlink deprecated.
     // There is an alternative in ASharedMemory_create but that is only
     // available in API 26 upwards.
-#else
+#  else
     if (!m_sSharedMemoryName.IsEmpty())
     {
       shm_unlink(m_sSharedMemoryName);
       m_sSharedMemoryName.Clear();
     }
-#endif
+#  endif
     m_uiFileSize = 0;
+#endif
   }
 };
 

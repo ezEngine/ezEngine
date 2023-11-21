@@ -42,6 +42,7 @@ void ezArchiveBuilder::AddFolder(ezStringView sAbsFolderPath, ezArchiveCompressi
             compression = ezArchiveCompressionMode::Uncompressed;
             break;
 
+#  ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
           case InclusionMode::Compress_zstd_fastest:
             compression = ezArchiveCompressionMode::Compressed_zstd;
             iCompressionLevel = static_cast<ezInt32>(ezCompressedStreamWriterZstd::Compression::Fastest);
@@ -62,6 +63,7 @@ void ezArchiveBuilder::AddFolder(ezStringView sAbsFolderPath, ezArchiveCompressi
             compression = ezArchiveCompressionMode::Compressed_zstd;
             iCompressionLevel = static_cast<ezInt32>(ezCompressedStreamWriterZstd::Compression::Highest);
             break;
+#  endif
         }
       }
 

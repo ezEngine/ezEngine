@@ -148,7 +148,7 @@ void ezDataTransfer::TelemetryMessage(void* pPassThrough)
 
   while (ezTelemetry::RetrieveMessage('DTRA', Msg) == EZ_SUCCESS)
   {
-    if (Msg.GetMessageID() == 'REQ')
+    if (Msg.GetMessageID() == ' REQ')
     {
       ezStringBuilder sName;
       Msg.GetReader() >> sName;

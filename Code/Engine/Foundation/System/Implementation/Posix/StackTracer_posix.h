@@ -8,21 +8,30 @@
 EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Math/Math.h>
-#include <execinfo.h>
 
-void ezStackTracer::OnPluginEvent(const ezPluginEvent& e) {}
+#if __has_include(<execinfo.h>)
+#  include <execinfo.h>
+#  define HAS_EXECINFO 1
+#endif
+
+void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
+{
+}
 
 // static
 ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
 {
-  int iSymbols = backtrace(trace.GetPtr(), trace.GetCount());
-
-  return iSymbols;
+#if HAS_EXECINFO
+  return backtrace(trace.GetPtr(), trace.GetCount());
+#else
+  return 0;
+#endif
 }
 
 // static
 void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc printFunc)
 {
+#if HAS_EXECINFO
   char szBuffer[512];
 
   char** ppSymbols = backtrace_symbols(trace.GetPtr(), trace.GetCount());
@@ -41,4 +50,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 
     free(ppSymbols);
   }
+#else
+  printFunc("Could not record stack trace on this Linux system, because execinfo.h is not available.");
+#endif
 }
