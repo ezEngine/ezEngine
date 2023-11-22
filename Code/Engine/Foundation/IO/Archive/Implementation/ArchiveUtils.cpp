@@ -244,7 +244,7 @@ ezUniquePtr<ezStreamReader> ezArchiveUtils::CreateEntryReader(const ezArchiveEnt
 
 void ezArchiveUtils::ConfigureRawMemoryStreamReader(const ezArchiveEntry& entry, const void* pStartOfArchiveData, ezRawMemoryStreamReader& ref_memReader)
 {
-  ref_memReader.Reset(ezMemoryUtils::AddByteOffset(pStartOfArchiveData, static_cast<ptrdiff_t>(entry.m_uiDataStartOffset)), entry.m_uiStoredDataSize);
+  ref_memReader.Reset(ezMemoryUtils::AddByteOffset(pStartOfArchiveData, static_cast<std::ptrdiff_t>(entry.m_uiDataStartOffset)), entry.m_uiStoredDataSize);
 }
 
 static const char* szEndMarker = "EZARCHIVE-END";

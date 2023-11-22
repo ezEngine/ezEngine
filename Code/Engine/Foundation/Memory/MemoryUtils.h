@@ -161,7 +161,7 @@ public:
   /// This is useful when working with raw memory, to safely modify a pointer without having to take care of the
   /// details of pointer arithmetic.
   template <typename T>
-  static T* AddByteOffset(T* pPtr, ptrdiff_t iOffset); // [tested]
+  static T* AddByteOffset(T* pPtr, std::ptrdiff_t iOffset); // [tested]
 
   /// \brief Aligns the pointer \a ptr by moving its address backwards to the previous multiple of \a uiAlignment.
   template <typename T>

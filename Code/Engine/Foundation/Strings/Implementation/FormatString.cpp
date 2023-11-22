@@ -420,8 +420,7 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& a
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg)
 {
-  static thread_local char FullMessage[256];
-  const char* szErrorMsg = strerror_r(arg.m_iErrno, FullMessage, 256);
+  const char* szErrorMsg = std::strerror(arg.m_iErrno);
   ezStringUtils::snprintf(szTmp, uiLength, "%i (\"%s\")", arg.m_iErrno, szErrorMsg);
   return ezStringView(szTmp);
 }

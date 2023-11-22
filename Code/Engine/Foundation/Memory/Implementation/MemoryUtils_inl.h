@@ -206,7 +206,7 @@ EZ_ALWAYS_INLINE ezInt32 ezMemoryUtils::RawByteCompare(const void* a, const void
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezMemoryUtils::AddByteOffset(T* pPtr, ptrdiff_t iOffset)
+EZ_ALWAYS_INLINE T* ezMemoryUtils::AddByteOffset(T* pPtr, std::ptrdiff_t iOffset)
 {
   return reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(pPtr) + iOffset);
 }

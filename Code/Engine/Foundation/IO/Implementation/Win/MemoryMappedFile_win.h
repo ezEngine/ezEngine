@@ -164,11 +164,11 @@ const void* ezMemoryMappedFile::GetReadPointer(ezUInt64 uiOffset /*= 0*/, Offset
 
   if (base == OffsetBase::Start)
   {
-    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, static_cast<ptrdiff_t>(uiOffset));
+    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, static_cast<std::ptrdiff_t>(uiOffset));
   }
   else
   {
-    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, static_cast<ptrdiff_t>(m_pImpl->m_uiFileSize - uiOffset));
+    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, static_cast<std::ptrdiff_t>(m_pImpl->m_uiFileSize - uiOffset));
   }
 }
 
@@ -179,11 +179,11 @@ void* ezMemoryMappedFile::GetWritePointer(ezUInt64 uiOffset /*= 0*/, OffsetBase 
 
   if (base == OffsetBase::Start)
   {
-    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, static_cast<ptrdiff_t>(uiOffset));
+    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, static_cast<std::ptrdiff_t>(uiOffset));
   }
   else
   {
-    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, static_cast<ptrdiff_t>(m_pImpl->m_uiFileSize - uiOffset));
+    return ezMemoryUtils::AddByteOffset(m_pImpl->m_pMappedFilePtr, static_cast<std::ptrdiff_t>(m_pImpl->m_uiFileSize - uiOffset));
   }
 }
 

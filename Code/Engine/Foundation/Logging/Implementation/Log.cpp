@@ -14,6 +14,8 @@
 #  include <android/log.h>
 #endif
 
+#include <stdarg.h>
+
 ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
 ezLog::PrintFunction ezLog::s_CustomPrintFunction = nullptr;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];

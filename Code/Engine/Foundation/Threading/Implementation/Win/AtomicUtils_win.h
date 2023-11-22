@@ -6,31 +6,31 @@
 
 #include <intrin.h>
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Read(volatile const ezInt32& iSrc)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Read(const ezInt32& iSrc)
 {
-  return _InterlockedOr((volatile long*)(&iSrc), 0);
+  return _InterlockedOr((long*)(&iSrc), 0);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Read(volatile const ezInt64& iSrc)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Read(const ezInt64& iSrc)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
   do
   {
     old = iSrc;
-  } while (_InterlockedCompareExchange64(const_cast<volatile ezInt64*>(&iSrc), old, old) != old);
+  } while (_InterlockedCompareExchange64(const_cast<ezInt64*>(&iSrc), old, old) != old);
   return old;
 #else
-  return _InterlockedOr64(const_cast<volatile ezInt64*>(&iSrc), 0);
+  return _InterlockedOr64(const_cast<ezInt64*>(&iSrc), 0);
 #endif
 }
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Increment(volatile ezInt32& ref_iDest)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Increment(ezInt32& ref_iDest)
 {
-  return _InterlockedIncrement(reinterpret_cast<volatile long*>(&ref_iDest));
+  return _InterlockedIncrement(reinterpret_cast<long*>(&ref_iDest));
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Increment(volatile ezInt64& ref_iDest)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Increment(ezInt64& ref_iDest)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
@@ -44,12 +44,12 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Increment(volatile ezInt64& ref_iDest)
 #endif
 }
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Decrement(volatile ezInt32& ref_iDest)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Decrement(ezInt32& ref_iDest)
 {
-  return _InterlockedDecrement(reinterpret_cast<volatile long*>(&ref_iDest));
+  return _InterlockedDecrement(reinterpret_cast<long*>(&ref_iDest));
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Decrement(volatile ezInt64& ref_iDest)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Decrement(ezInt64& ref_iDest)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
@@ -63,12 +63,12 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Decrement(volatile ezInt64& ref_iDest)
 #endif
 }
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostIncrement(volatile ezInt32& ref_iDest)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostIncrement(ezInt32& ref_iDest)
 {
-  return _InterlockedExchangeAdd(reinterpret_cast<volatile long*>(&ref_iDest), 1);
+  return _InterlockedExchangeAdd(reinterpret_cast<long*>(&ref_iDest), 1);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostIncrement(volatile ezInt64& ref_iDest)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostIncrement(ezInt64& ref_iDest)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
@@ -82,12 +82,12 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostIncrement(volatile ezInt64& ref_iDes
 #endif
 }
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostDecrement(volatile ezInt32& ref_iDest)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostDecrement(ezInt32& ref_iDest)
 {
-  return _InterlockedExchangeAdd(reinterpret_cast<volatile long*>(&ref_iDest), -1);
+  return _InterlockedExchangeAdd(reinterpret_cast<long*>(&ref_iDest), -1);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostDecrement(volatile ezInt64& ref_iDest)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostDecrement(ezInt64& ref_iDest)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
@@ -101,12 +101,12 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostDecrement(volatile ezInt64& ref_iDes
 #endif
 }
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Add(volatile ezInt32& ref_iDest, ezInt32 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Add(ezInt32& ref_iDest, ezInt32 value)
 {
-  _InterlockedExchangeAdd(reinterpret_cast<volatile long*>(&ref_iDest), value);
+  _InterlockedExchangeAdd(reinterpret_cast<long*>(&ref_iDest), value);
 }
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Add(volatile ezInt64& ref_iDest, ezInt64 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Add(ezInt64& ref_iDest, ezInt64 value)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
@@ -120,12 +120,12 @@ EZ_ALWAYS_INLINE void ezAtomicUtils::Add(volatile ezInt64& ref_iDest, ezInt64 va
 }
 
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::And(volatile ezInt32& ref_iDest, ezInt32 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::And(ezInt32& ref_iDest, ezInt32 value)
 {
-  _InterlockedAnd(reinterpret_cast<volatile long*>(&ref_iDest), value);
+  _InterlockedAnd(reinterpret_cast<long*>(&ref_iDest), value);
 }
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::And(volatile ezInt64& ref_iDest, ezInt64 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::And(ezInt64& ref_iDest, ezInt64 value)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
@@ -139,12 +139,12 @@ EZ_ALWAYS_INLINE void ezAtomicUtils::And(volatile ezInt64& ref_iDest, ezInt64 va
 }
 
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Or(volatile ezInt32& ref_iDest, ezInt32 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Or(ezInt32& ref_iDest, ezInt32 value)
 {
-  _InterlockedOr(reinterpret_cast<volatile long*>(&ref_iDest), value);
+  _InterlockedOr(reinterpret_cast<long*>(&ref_iDest), value);
 }
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Or(volatile ezInt64& ref_iDest, ezInt64 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Or(ezInt64& ref_iDest, ezInt64 value)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
@@ -158,12 +158,12 @@ EZ_ALWAYS_INLINE void ezAtomicUtils::Or(volatile ezInt64& ref_iDest, ezInt64 val
 }
 
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Xor(volatile ezInt32& ref_iDest, ezInt32 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Xor(ezInt32& ref_iDest, ezInt32 value)
 {
-  _InterlockedXor(reinterpret_cast<volatile long*>(&ref_iDest), value);
+  _InterlockedXor(reinterpret_cast<long*>(&ref_iDest), value);
 }
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Xor(volatile ezInt64& ref_iDest, ezInt64 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Xor(ezInt64& ref_iDest, ezInt64 value)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
@@ -177,7 +177,7 @@ EZ_ALWAYS_INLINE void ezAtomicUtils::Xor(volatile ezInt64& ref_iDest, ezInt64 va
 }
 
 
-inline void ezAtomicUtils::Min(volatile ezInt32& ref_iDest, ezInt32 value)
+inline void ezAtomicUtils::Min(ezInt32& ref_iDest, ezInt32 value)
 {
   // tries to exchange dest with the new value as long as the oldValue is not what we expected
   while (true)
@@ -185,12 +185,12 @@ inline void ezAtomicUtils::Min(volatile ezInt32& ref_iDest, ezInt32 value)
     ezInt32 iOldValue = ref_iDest;
     ezInt32 iNewValue = value < iOldValue ? value : iOldValue; // do Min manually here, to break #include cycles
 
-    if (_InterlockedCompareExchange(reinterpret_cast<volatile long*>(&ref_iDest), iNewValue, iOldValue) == iOldValue)
+    if (_InterlockedCompareExchange(reinterpret_cast<long*>(&ref_iDest), iNewValue, iOldValue) == iOldValue)
       break;
   }
 }
 
-inline void ezAtomicUtils::Min(volatile ezInt64& ref_iDest, ezInt64 value)
+inline void ezAtomicUtils::Min(ezInt64& ref_iDest, ezInt64 value)
 {
   // tries to exchange dest with the new value as long as the oldValue is not what we expected
   while (true)
@@ -203,7 +203,7 @@ inline void ezAtomicUtils::Min(volatile ezInt64& ref_iDest, ezInt64 value)
   }
 }
 
-inline void ezAtomicUtils::Max(volatile ezInt32& ref_iDest, ezInt32 value)
+inline void ezAtomicUtils::Max(ezInt32& ref_iDest, ezInt32 value)
 {
   // tries to exchange dest with the new value as long as the oldValue is not what we expected
   while (true)
@@ -211,12 +211,12 @@ inline void ezAtomicUtils::Max(volatile ezInt32& ref_iDest, ezInt32 value)
     ezInt32 iOldValue = ref_iDest;
     ezInt32 iNewValue = iOldValue < value ? value : iOldValue; // do Max manually here, to break #include cycles
 
-    if (_InterlockedCompareExchange(reinterpret_cast<volatile long*>(&ref_iDest), iNewValue, iOldValue) == iOldValue)
+    if (_InterlockedCompareExchange(reinterpret_cast<long*>(&ref_iDest), iNewValue, iOldValue) == iOldValue)
       break;
   }
 }
 
-inline void ezAtomicUtils::Max(volatile ezInt64& ref_iDest, ezInt64 value)
+inline void ezAtomicUtils::Max(ezInt64& ref_iDest, ezInt64 value)
 {
   // tries to exchange dest with the new value as long as the oldValue is not what we expected
   while (true)
@@ -230,12 +230,12 @@ inline void ezAtomicUtils::Max(volatile ezInt64& ref_iDest, ezInt64 value)
 }
 
 
-inline ezInt32 ezAtomicUtils::Set(volatile ezInt32& ref_iDest, ezInt32 value)
+inline ezInt32 ezAtomicUtils::Set(ezInt32& ref_iDest, ezInt32 value)
 {
-  return _InterlockedExchange(reinterpret_cast<volatile long*>(&ref_iDest), value);
+  return _InterlockedExchange(reinterpret_cast<long*>(&ref_iDest), value);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Set(volatile ezInt64& ref_iDest, ezInt64 value)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Set(ezInt64& ref_iDest, ezInt64 value)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezInt64 old;
@@ -250,27 +250,27 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Set(volatile ezInt64& ref_iDest, ezInt64
 }
 
 
-EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(volatile ezInt32& ref_iDest, ezInt32 iExpected, ezInt32 value)
+EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(ezInt32& ref_iDest, ezInt32 iExpected, ezInt32 value)
 {
-  return _InterlockedCompareExchange(reinterpret_cast<volatile long*>(&ref_iDest), value, iExpected) == iExpected;
+  return _InterlockedCompareExchange(reinterpret_cast<long*>(&ref_iDest), value, iExpected) == iExpected;
 }
 
-EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(volatile ezInt64& ref_iDest, ezInt64 iExpected, ezInt64 value)
+EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(ezInt64& ref_iDest, ezInt64 iExpected, ezInt64 value)
 {
   return _InterlockedCompareExchange64(&ref_iDest, value, iExpected) == iExpected;
 }
 
-EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(void** volatile pDest, void* pExpected, void* value)
+EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(void** pDest, void* pExpected, void* value)
 {
   return _InterlockedCompareExchangePointer(pDest, value, pExpected) == pExpected;
 }
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::CompareAndSwap(volatile ezInt32& ref_iDest, ezInt32 iExpected, ezInt32 value)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::CompareAndSwap(ezInt32& ref_iDest, ezInt32 iExpected, ezInt32 value)
 {
-  return _InterlockedCompareExchange(reinterpret_cast<volatile long*>(&ref_iDest), value, iExpected);
+  return _InterlockedCompareExchange(reinterpret_cast<long*>(&ref_iDest), value, iExpected);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::CompareAndSwap(volatile ezInt64& ref_iDest, ezInt64 iExpected, ezInt64 value)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::CompareAndSwap(ezInt64& ref_iDest, ezInt64 iExpected, ezInt64 value)
 {
   return _InterlockedCompareExchange64(&ref_iDest, value, iExpected);
 }

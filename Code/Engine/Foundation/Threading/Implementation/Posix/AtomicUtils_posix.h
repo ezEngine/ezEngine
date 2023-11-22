@@ -7,103 +7,103 @@
 
 #include <Foundation/Math/Math.h>
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Read(volatile const ezInt32& src)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Read(const ezInt32& src)
 {
-  return __sync_fetch_and_or(const_cast<volatile ezInt32*>(&src), 0);
+  return __sync_fetch_and_or(const_cast<ezInt32*>(&src), 0);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Read(volatile const ezInt64& src)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Read(const ezInt64& src)
 {
-  return __sync_fetch_and_or_8(const_cast<volatile ezInt64*>(&src), 0);
+  return __sync_fetch_and_or_8(const_cast<ezInt64*>(&src), 0);
 }
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Increment(volatile ezInt32& dest)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Increment(ezInt32& dest)
 {
   return __sync_add_and_fetch(&dest, 1);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Increment(volatile ezInt64& dest)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Increment(ezInt64& dest)
 {
   return __sync_add_and_fetch_8(&dest, 1);
 }
 
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Decrement(volatile ezInt32& dest)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Decrement(ezInt32& dest)
 {
   return __sync_sub_and_fetch(&dest, 1);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Decrement(volatile ezInt64& dest)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Decrement(ezInt64& dest)
 {
   return __sync_sub_and_fetch_8(&dest, 1);
 }
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostIncrement(volatile ezInt32& dest)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostIncrement(ezInt32& dest)
 {
   return __sync_fetch_and_add(&dest, 1);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostIncrement(volatile ezInt64& dest)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostIncrement(ezInt64& dest)
 {
   return __sync_fetch_and_add_8(&dest, 1);
 }
 
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostDecrement(volatile ezInt32& dest)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostDecrement(ezInt32& dest)
 {
   return __sync_fetch_and_sub(&dest, 1);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostDecrement(volatile ezInt64& dest)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostDecrement(ezInt64& dest)
 {
   return __sync_fetch_and_sub_8(&dest, 1);
 }
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Add(volatile ezInt32& dest, ezInt32 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Add(ezInt32& dest, ezInt32 value)
 {
   __sync_fetch_and_add(&dest, value);
 }
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Add(volatile ezInt64& dest, ezInt64 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Add(ezInt64& dest, ezInt64 value)
 {
   __sync_fetch_and_add_8(&dest, value);
 }
 
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::And(volatile ezInt32& dest, ezInt32 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::And(ezInt32& dest, ezInt32 value)
 {
   __sync_fetch_and_and(&dest, value);
 }
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::And(volatile ezInt64& dest, ezInt64 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::And(ezInt64& dest, ezInt64 value)
 {
   __sync_fetch_and_and_8(&dest, value);
 }
 
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Or(volatile ezInt32& dest, ezInt32 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Or(ezInt32& dest, ezInt32 value)
 {
   __sync_fetch_and_or(&dest, value);
 }
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Or(volatile ezInt64& dest, ezInt64 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Or(ezInt64& dest, ezInt64 value)
 {
   __sync_fetch_and_or_8(&dest, value);
 }
 
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Xor(volatile ezInt32& dest, ezInt32 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Xor(ezInt32& dest, ezInt32 value)
 {
   __sync_fetch_and_xor(&dest, value);
 }
 
-EZ_ALWAYS_INLINE void ezAtomicUtils::Xor(volatile ezInt64& dest, ezInt64 value)
+EZ_ALWAYS_INLINE void ezAtomicUtils::Xor(ezInt64& dest, ezInt64 value)
 {
   __sync_fetch_and_xor_8(&dest, value);
 }
 
 
-EZ_FORCE_INLINE void ezAtomicUtils::Min(volatile ezInt32& dest, ezInt32 value)
+EZ_FORCE_INLINE void ezAtomicUtils::Min(ezInt32& dest, ezInt32 value)
 {
   // tries to exchange dest with the new value as long as the oldValue is not what we expected
   while (true)
@@ -116,7 +116,7 @@ EZ_FORCE_INLINE void ezAtomicUtils::Min(volatile ezInt32& dest, ezInt32 value)
   }
 }
 
-EZ_FORCE_INLINE void ezAtomicUtils::Min(volatile ezInt64& dest, ezInt64 value)
+EZ_FORCE_INLINE void ezAtomicUtils::Min(ezInt64& dest, ezInt64 value)
 {
   // tries to exchange dest with the new value as long as the oldValue is not what we expected
   while (true)
@@ -130,7 +130,7 @@ EZ_FORCE_INLINE void ezAtomicUtils::Min(volatile ezInt64& dest, ezInt64 value)
 }
 
 
-EZ_FORCE_INLINE void ezAtomicUtils::Max(volatile ezInt32& dest, ezInt32 value)
+EZ_FORCE_INLINE void ezAtomicUtils::Max(ezInt32& dest, ezInt32 value)
 {
   // tries to exchange dest with the new value as long as the oldValue is not what we expected
   while (true)
@@ -143,7 +143,7 @@ EZ_FORCE_INLINE void ezAtomicUtils::Max(volatile ezInt32& dest, ezInt32 value)
   }
 }
 
-EZ_FORCE_INLINE void ezAtomicUtils::Max(volatile ezInt64& dest, ezInt64 value)
+EZ_FORCE_INLINE void ezAtomicUtils::Max(ezInt64& dest, ezInt64 value)
 {
   // tries to exchange dest with the new value as long as the oldValue is not what we expected
   while (true)
@@ -157,28 +157,28 @@ EZ_FORCE_INLINE void ezAtomicUtils::Max(volatile ezInt64& dest, ezInt64 value)
 }
 
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Set(volatile ezInt32& dest, ezInt32 value)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Set(ezInt32& dest, ezInt32 value)
 {
   return __sync_lock_test_and_set(&dest, value);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Set(volatile ezInt64& dest, ezInt64 value)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Set(ezInt64& dest, ezInt64 value)
 {
   return __sync_lock_test_and_set_8(&dest, value);
 }
 
 
-EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(volatile ezInt32& dest, ezInt32 expected, ezInt32 value)
+EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(ezInt32& dest, ezInt32 expected, ezInt32 value)
 {
   return __sync_bool_compare_and_swap(&dest, expected, value);
 }
 
-EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(volatile ezInt64& dest, ezInt64 expected, ezInt64 value)
+EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(ezInt64& dest, ezInt64 expected, ezInt64 value)
 {
   return __sync_bool_compare_and_swap_8(&dest, expected, value);
 }
 
-EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expected, void* value)
+EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(void** dest, void* expected, void* value)
 {
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
   ezUInt64* puiTemp = reinterpret_cast<ezUInt64*>(dest);
@@ -189,12 +189,12 @@ EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expe
 #endif
 }
 
-EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::CompareAndSwap(volatile ezInt32& dest, ezInt32 expected, ezInt32 value)
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::CompareAndSwap(ezInt32& dest, ezInt32 expected, ezInt32 value)
 {
   return __sync_val_compare_and_swap(&dest, expected, value);
 }
 
-EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::CompareAndSwap(volatile ezInt64& dest, ezInt64 expected, ezInt64 value)
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::CompareAndSwap(ezInt64& dest, ezInt64 expected, ezInt64 value)
 {
   return __sync_val_compare_and_swap_8(&dest, expected, value);
 }

@@ -210,7 +210,11 @@ namespace ezDataDirectory
     if (!ezPathUtils::IsAbsolutePath(sPath))
       return EZ_FAILURE;
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
     return ezOSFile::GetFileStats(sPath, out_Stats);
+#else
+    return EZ_FAILURE;
+#endif
   }
 
   ezResult FolderType::InternalInitializeDataDirectory(ezStringView sDirectory)

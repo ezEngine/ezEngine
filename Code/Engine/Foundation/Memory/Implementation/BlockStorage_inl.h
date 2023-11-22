@@ -256,7 +256,7 @@ EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObjec
   ezUInt32 uiIndex = ezInvalidIndex;
   for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < m_Blocks.GetCount(); ++uiBlockIndex)
   {
-    ptrdiff_t diff = pObject - m_Blocks[uiBlockIndex].m_pData;
+    std::ptrdiff_t diff = pObject - m_Blocks[uiBlockIndex].m_pData;
     if (diff >= 0 && diff < ezDataBlock<T, BlockSize>::CAPACITY)
     {
       uiIndex = uiBlockIndex * ezDataBlock<T, BlockSize>::CAPACITY + (ezInt32)diff;

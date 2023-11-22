@@ -10,7 +10,7 @@ struct const_iterator_base
 public:
   using iterator_category = std::random_access_iterator_tag;
   using value_type = T;
-  using difference_type = ptrdiff_t;
+  using difference_type = std::ptrdiff_t;
   using pointer = const T*;
   using reference = const T&;
 
@@ -50,13 +50,13 @@ public:
   EZ_ALWAYS_INLINE bool operator==(const const_iterator_base& rhs) const { return m_pArray == rhs.m_pArray && m_uiIndex == rhs.m_uiIndex; }
   EZ_ALWAYS_INLINE bool operator!=(const const_iterator_base& rhs) const { return !(*this == rhs); }
 
-  EZ_ALWAYS_INLINE ptrdiff_t operator-(const const_iterator_base& rhs) const { return m_uiIndex - rhs.m_uiIndex; }
+  EZ_ALWAYS_INLINE std::ptrdiff_t operator-(const const_iterator_base& rhs) const { return m_uiIndex - rhs.m_uiIndex; }
 
-  EZ_ALWAYS_INLINE const_iterator_base operator+(ptrdiff_t rhs) const { return const_iterator_base(*m_pArray, m_uiIndex + rhs); }
-  EZ_ALWAYS_INLINE const_iterator_base operator-(ptrdiff_t rhs) const { return const_iterator_base(*m_pArray, m_uiIndex - rhs); }
+  EZ_ALWAYS_INLINE const_iterator_base operator+(std::ptrdiff_t rhs) const { return const_iterator_base(*m_pArray, m_uiIndex + rhs); }
+  EZ_ALWAYS_INLINE const_iterator_base operator-(std::ptrdiff_t rhs) const { return const_iterator_base(*m_pArray, m_uiIndex - rhs); }
 
-  EZ_ALWAYS_INLINE void operator+=(ptrdiff_t rhs) { m_uiIndex += rhs; }
-  EZ_ALWAYS_INLINE void operator-=(ptrdiff_t rhs) { m_uiIndex -= rhs; }
+  EZ_ALWAYS_INLINE void operator+=(std::ptrdiff_t rhs) { m_uiIndex += rhs; }
+  EZ_ALWAYS_INLINE void operator-=(std::ptrdiff_t rhs) { m_uiIndex -= rhs; }
 
   inline const T& operator*() const
   {
@@ -124,8 +124,8 @@ public:
   using const_iterator_base<ARRAY, T, reverse>::operator+;
   using const_iterator_base<ARRAY, T, reverse>::operator-;
 
-  EZ_ALWAYS_INLINE iterator_base operator+(ptrdiff_t rhs) const { return iterator_base(*this->m_pArray, this->m_uiIndex + rhs); }
-  EZ_ALWAYS_INLINE iterator_base operator-(ptrdiff_t rhs) const { return iterator_base(*this->m_pArray, this->m_uiIndex - rhs); }
+  EZ_ALWAYS_INLINE iterator_base operator+(std::ptrdiff_t rhs) const { return iterator_base(*this->m_pArray, this->m_uiIndex + rhs); }
+  EZ_ALWAYS_INLINE iterator_base operator-(std::ptrdiff_t rhs) const { return iterator_base(*this->m_pArray, this->m_uiIndex - rhs); }
 
   inline T& operator*() const
   {
@@ -153,7 +153,7 @@ struct const_reverse_pointer_iterator
 public:
   using iterator_category = std::random_access_iterator_tag;
   using value_type = T;
-  using difference_type = ptrdiff_t;
+  using difference_type = std::ptrdiff_t;
   using pointer = T*;
   using reference = T&;
 
@@ -188,13 +188,13 @@ public:
   EZ_ALWAYS_INLINE bool operator==(const const_reverse_pointer_iterator& rhs) const { return m_pPtr == rhs.m_pPtr; }
   EZ_ALWAYS_INLINE bool operator!=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr != rhs.m_pPtr; }
 
-  EZ_ALWAYS_INLINE ptrdiff_t operator-(const const_reverse_pointer_iterator& rhs) const { return rhs.m_pPtr - m_pPtr; }
+  EZ_ALWAYS_INLINE std::ptrdiff_t operator-(const const_reverse_pointer_iterator& rhs) const { return rhs.m_pPtr - m_pPtr; }
 
-  EZ_ALWAYS_INLINE const_reverse_pointer_iterator operator+(ptrdiff_t rhs) const { return const_reverse_pointer_iterator(m_pPtr - rhs); }
-  EZ_ALWAYS_INLINE const_reverse_pointer_iterator operator-(ptrdiff_t rhs) const { return const_reverse_pointer_iterator(m_pPtr + rhs); }
+  EZ_ALWAYS_INLINE const_reverse_pointer_iterator operator+(std::ptrdiff_t rhs) const { return const_reverse_pointer_iterator(m_pPtr - rhs); }
+  EZ_ALWAYS_INLINE const_reverse_pointer_iterator operator-(std::ptrdiff_t rhs) const { return const_reverse_pointer_iterator(m_pPtr + rhs); }
 
-  EZ_ALWAYS_INLINE void operator+=(ptrdiff_t rhs) { m_pPtr -= rhs; }
-  EZ_ALWAYS_INLINE void operator-=(ptrdiff_t rhs) { m_pPtr += rhs; }
+  EZ_ALWAYS_INLINE void operator+=(std::ptrdiff_t rhs) { m_pPtr -= rhs; }
+  EZ_ALWAYS_INLINE void operator-=(std::ptrdiff_t rhs) { m_pPtr += rhs; }
 
   EZ_ALWAYS_INLINE const T& operator*() const { return *m_pPtr; }
   EZ_ALWAYS_INLINE const T* operator->() const { return m_pPtr; }
@@ -204,7 +204,7 @@ public:
   EZ_ALWAYS_INLINE bool operator<=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr >= rhs.m_pPtr; }
   EZ_ALWAYS_INLINE bool operator>=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr <= rhs.m_pPtr; }
 
-  EZ_ALWAYS_INLINE const T& operator[](ptrdiff_t iIndex) const { return *(m_pPtr - iIndex); }
+  EZ_ALWAYS_INLINE const T& operator[](std::ptrdiff_t iIndex) const { return *(m_pPtr - iIndex); }
 
 protected:
   T* m_pPtr;
@@ -249,10 +249,10 @@ public:
   using const_reverse_pointer_iterator<T>::operator+;
   using const_reverse_pointer_iterator<T>::operator-;
 
-  EZ_ALWAYS_INLINE reverse_pointer_iterator operator+(ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_pPtr - rhs); }
-  EZ_ALWAYS_INLINE reverse_pointer_iterator operator-(ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_pPtr + rhs); }
+  EZ_ALWAYS_INLINE reverse_pointer_iterator operator+(std::ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_pPtr - rhs); }
+  EZ_ALWAYS_INLINE reverse_pointer_iterator operator-(std::ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_pPtr + rhs); }
 
   EZ_ALWAYS_INLINE T& operator*() const { return *(this->m_pPtr); }
   EZ_ALWAYS_INLINE T* operator->() const { return this->m_pPtr; }
-  EZ_ALWAYS_INLINE T& operator[](ptrdiff_t iIndex) const { return *(this->m_pPtr - iIndex); }
+  EZ_ALWAYS_INLINE T& operator[](std::ptrdiff_t iIndex) const { return *(this->m_pPtr - iIndex); }
 };

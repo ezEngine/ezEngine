@@ -220,7 +220,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
   Node* pNode = m_pRoot;
 
-  while (pNode->m_pLink[0] != &m_NilNode)
+  while ((const void*)pNode->m_pLink[0] != (const void*)&m_NilNode)
     pNode = pNode->m_pLink[0];
 
   return pNode;
@@ -234,7 +234,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
   Node* pNode = m_pRoot;
 
-  while (pNode->m_pLink[1] != &m_NilNode)
+  while ((const void*)pNode->m_pLink[1] != (const void*)&m_NilNode)
     pNode = pNode->m_pLink[1];
 
   return pNode;
@@ -246,7 +246,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 {
   Node* pNode = m_pRoot;
 
-  while (pNode != &m_NilNode)
+  while ((const void*)pNode != (const void*)&m_NilNode)
   {
     const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
     const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
@@ -257,7 +257,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
     pNode = pNode->m_pLink[dir];
   }
 
-  if (pNode == &m_NilNode)
+  if ((const void*)pNode == (const void*)&m_NilNode)
     return nullptr;
 
   return pNode;
@@ -357,7 +357,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = nullptr;
 
-  while (pNode != &m_NilNode)
+  while ((const void*)pNode != (const void*)&m_NilNode)
   {
     const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
     const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
@@ -395,7 +395,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = nullptr;
 
-  while (pNode != &m_NilNode)
+  while ((const void*)pNode != (const void*)&m_NilNode)
   {
     const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
     const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);

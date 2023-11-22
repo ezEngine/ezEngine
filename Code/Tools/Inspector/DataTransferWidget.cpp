@@ -131,7 +131,7 @@ void ezQtDataWidget::on_ButtonRefresh_clicked()
   LabelImage->setText("Waiting for data transfer...");
 
   ezTelemetryMessage msg;
-  msg.SetMessageID('DTRA', 'REQ');
+  msg.SetMessageID('DTRA', ' REQ');
   msg.GetWriter() << it.Key();
   ezTelemetry::SendToServer(msg);
 }

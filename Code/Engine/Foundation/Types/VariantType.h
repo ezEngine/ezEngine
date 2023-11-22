@@ -95,13 +95,10 @@ struct ezVariantClass
 template <typename T>
 struct ezVariantTypeDeduction
 {
-  enum
-  {
-    value = ezVariantType::Invalid,
-    forceSharing = false,
-    hasReflectedMembers = false,
-    classification = ezVariantClass::Invalid
-  };
+  static constexpr ezVariantType::Enum value = ezVariantType::Invalid;
+  static constexpr bool forceSharing = false;
+  static constexpr bool hasReflectedMembers = false;
+  static constexpr ezVariantClass::Enum classification = ezVariantClass::Invalid;
 
   using StorageType = T;
 };
@@ -110,18 +107,16 @@ struct ezVariantTypeDeduction
 ///
 /// Needs to be called from the same header that defines the type.
 /// \sa EZ_DEFINE_CUSTOM_VARIANT_TYPE
-#define EZ_DECLARE_CUSTOM_VARIANT_TYPE(TYPE)          \
-  template <>                                         \
-  struct ezVariantTypeDeduction<TYPE>                 \
-  {                                                   \
-    enum                                              \
-    {                                                 \
-      value = ezVariantType::TypedObject,             \
-      forceSharing = false,                           \
-      hasReflectedMembers = true,                     \
-      classification = ezVariantClass::CustomTypeCast \
-    };                                                \
-    using StorageType = TYPE;                         \
+#define EZ_DECLARE_CUSTOM_VARIANT_TYPE(TYPE)                                               \
+  template <>                                                                              \
+  struct ezVariantTypeDeduction<TYPE>                                                      \
+  {                                                                                        \
+    static constexpr ezVariantType::Enum value = ezVariantType::TypedObject;               \
+    static constexpr bool forceSharing = false;                                            \
+    static constexpr bool hasReflectedMembers = true;                                      \
+    static constexpr ezVariantClass::Enum classification = ezVariantClass::CustomTypeCast; \
+                                                                                           \
+    using StorageType = TYPE;                                                              \
   };
 
 #include <Foundation/Types/Implementation/VariantTypeDeduction_inl.h>

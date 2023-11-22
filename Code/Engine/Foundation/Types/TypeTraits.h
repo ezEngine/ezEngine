@@ -8,10 +8,7 @@
 template <int v>
 struct ezTraitInt
 {
-  enum
-  {
-    value = v
-  };
+  static constexpr int value = v;
 };
 
 using ezTypeIsMemRelocatable = ezTraitInt<2>;

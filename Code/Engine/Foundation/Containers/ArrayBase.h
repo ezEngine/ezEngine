@@ -30,6 +30,15 @@ public:
   operator ezArrayPtr<T>(); // [tested]
 
   /// \brief Compares this array to another contiguous array type.
+  bool operator==(const ezArrayBase<T, Derived>& rhs) const; // [tested]
+
+  /// \brief Compares this array to another contiguous array type.
+  bool operator!=(const ezArrayBase<T, Derived>& rhs) const; // [tested]
+
+  /// \brief Compares this array to another contiguous array type.
+  bool operator<(const ezArrayBase<T, Derived>& rhs) const; // [tested]
+
+  /// \brief Compares this array to another contiguous array type.
   bool operator==(const ezArrayPtr<const T>& rhs) const; // [tested]
 
   /// \brief Compares this array to another contiguous array type.
