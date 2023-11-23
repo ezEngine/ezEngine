@@ -1057,7 +1057,7 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
   }
   else
   {
-    EZ_ASSERT_DEV(false, "The RTTI class '{0}' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    EZ_REPORT_FAILURE("The RTTI class '{0}' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
     return false;
   }
 }
@@ -1072,7 +1072,7 @@ ezInt64 ezReflectionUtils::DefaultEnumerationValue(const ezRTTI* pEnumerationRtt
   }
   else
   {
-    EZ_ASSERT_DEV(false, "The RTTI class '{0}' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    EZ_REPORT_FAILURE("The RTTI class '{0}' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
     return 0;
   }
 }
@@ -1114,7 +1114,7 @@ ezInt64 ezReflectionUtils::MakeEnumerationValid(const ezRTTI* pEnumerationRtti, 
   }
   else
   {
-    EZ_ASSERT_DEV(false, "The RTTI class '{0}' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    EZ_REPORT_FAILURE("The RTTI class '{0}' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
     return 0;
   }
 }
@@ -1522,7 +1522,6 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
       EZ_REPORT_FAILURE("Invalid case statement");
       return ezVariant();
   }
-  return ezVariant();
 }
 
 ezVariant ezReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty, ezVariant index)
@@ -1656,7 +1655,6 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(const ezRTTI* pRtti)
     default:
       return GetDefaultVariantFromType(type);
   }
-  return ezVariant();
 }
 
 void ezReflectionUtils::SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject)

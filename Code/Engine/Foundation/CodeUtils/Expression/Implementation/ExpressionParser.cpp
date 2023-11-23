@@ -380,8 +380,6 @@ ezExpressionAST::Node* ezExpressionParser::ParseFactor()
     auto pIdentifierToken = m_TokenStream[uiIdentifierToken];
     const ezStringView sIdentifier = pIdentifierToken->m_DataView;
 
-    ezExpressionAST::Node* pNode = nullptr;
-
     if (Accept(m_TokenStream, m_uiCurrentToken, "("))
     {
       return ParseSwizzle(ParseFunctionCall(sIdentifier));

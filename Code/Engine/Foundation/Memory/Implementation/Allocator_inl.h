@@ -44,7 +44,7 @@ EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(e
   : m_allocator(pParent)
   , m_ThreadID(ezThreadUtils::GetCurrentThreadID())
 {
-  if ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
+  if constexpr ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
   {
     EZ_CHECK_AT_COMPILETIME_MSG((TrackingFlags & ~ezMemoryTrackingFlags::All) == 0, "Invalid tracking flags");
     const ezUInt32 uiTrackingFlags = TrackingFlags;
@@ -58,7 +58,7 @@ ezInternal::ezAllocatorImpl<A, TrackingFlags>::~ezAllocatorImpl()
 {
   // EZ_ASSERT_RELEASE(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
 
-  if ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
+  if constexpr ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
   {
     ezMemoryTracker::DeregisterAllocator(this->m_Id);
   }
@@ -78,7 +78,7 @@ void* ezInternal::ezAllocatorImpl<A, TrackingFlags>::Allocate(size_t uiSize, siz
   void* ptr = m_allocator.Allocate(uiSize, uiAlign);
   EZ_ASSERT_DEV(ptr != nullptr, "Could not allocate {0} bytes. Out of memory?", uiSize);
 
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  if constexpr ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
     ezBitflags<ezMemoryTrackingFlags> flags;
     flags.SetValue(TrackingFlags);
@@ -92,7 +92,7 @@ void* ezInternal::ezAllocatorImpl<A, TrackingFlags>::Allocate(size_t uiSize, siz
 template <typename A, ezUInt32 TrackingFlags>
 void ezInternal::ezAllocatorImpl<A, TrackingFlags>::Deallocate(void* pPtr)
 {
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  if constexpr ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
     ezMemoryTracker::RemoveAllocation(this->m_Id, pPtr);
   }
@@ -103,12 +103,14 @@ void ezInternal::ezAllocatorImpl<A, TrackingFlags>::Deallocate(void* pPtr)
 template <typename A, ezUInt32 TrackingFlags>
 size_t ezInternal::ezAllocatorImpl<A, TrackingFlags>::AllocatedSize(const void* pPtr)
 {
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  if constexpr ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
     return ezMemoryTracker::GetAllocationInfo(this->m_Id, pPtr).m_uiSize;
   }
-
-  return 0;
+  else
+  {
+    return 0;
+  }
 }
 
 template <typename A, ezUInt32 TrackingFlags>
@@ -120,12 +122,14 @@ ezAllocatorId ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetId() const
 template <typename A, ezUInt32 TrackingFlags>
 ezAllocatorBase::Stats ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetStats() const
 {
-  if ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
+  if constexpr ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
   {
     return ezMemoryTracker::GetAllocatorStats(this->m_Id);
   }
-
-  return Stats();
+  else
+  {
+    return Stats();
+  }
 }
 
 template <typename A, ezUInt32 TrackingFlags>
@@ -149,7 +153,7 @@ ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::ezAllocatorMixin
 template <typename A, ezUInt32 TrackingFlags>
 void* ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
 {
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  if constexpr ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
     ezMemoryTracker::RemoveAllocation(this->m_Id, pPtr);
   }
@@ -158,7 +162,7 @@ void* ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::Reallocate
 
   void* pNewMem = this->m_allocator.Reallocate(pPtr, uiCurrentSize, uiNewSize, uiAlign);
 
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  if constexpr ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
     ezBitflags<ezMemoryTrackingFlags> flags;
     flags.SetValue(TrackingFlags);

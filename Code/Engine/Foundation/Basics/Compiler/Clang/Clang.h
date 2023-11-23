@@ -49,4 +49,12 @@
 #    define EZ_COMPILE_FOR_DEBUG EZ_ON
 #  endif
 
+#  define EZ_WARNING_PUSH() _Pragma("clang diagnostic push")
+#  define EZ_WARNING_POP() _Pragma("clang diagnostic pop")
+#  define EZ_WARNING_DISABLE_CLANG(_x) _Pragma(EZ_STRINGIZE(clang diagnostic ignored _x))
+
+#else
+
+#  define EZ_WARNING_DISABLE_CLANG(_x)
+
 #endif

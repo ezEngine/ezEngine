@@ -69,11 +69,11 @@ void ezStackAllocator<TrackingFlags>::Reset()
   m_PtrToDestructDataIndexTable.Clear();
 
   this->m_allocator.Reset();
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  if constexpr ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
     ezMemoryTracker::RemoveAllAllocations(this->m_Id);
   }
-  else if ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
+  else if constexpr ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
   {
     ezAllocatorBase::Stats stats;
     this->m_allocator.FillStats(stats);

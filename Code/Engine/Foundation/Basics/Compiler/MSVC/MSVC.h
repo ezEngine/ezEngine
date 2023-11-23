@@ -68,4 +68,13 @@
 #    define EZ_VA_NUM_ARGS(...) EZ_VA_NUM_ARGS_HELPER EZ_LEFT_PARENTHESIS __VA_ARGS__, EZ_VA_NUM_ARGS_REVERSE_SEQUENCE EZ_RIGHT_PARENTHESIS
 #  endif
 
+#  define EZ_WARNING_PUSH() __pragma(warning(push))
+#  define EZ_WARNING_POP() __pragma(warning(pop))
+#  define EZ_WARNING_DISABLE_MSVC(_x) __pragma(warning(disable \
+                                                       : _x))
+
+#else
+
+#  define EZ_WARNING_DISABLE_MSVC(_x)
+
 #endif

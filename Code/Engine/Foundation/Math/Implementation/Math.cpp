@@ -129,7 +129,6 @@ ezUInt32 ezMath::SafeMultiply32(ezUInt32 a, ezUInt32 b, ezUInt32 c, ezUInt32 d)
 
   EZ_REPORT_FAILURE("Safe multiplication failed: {0} * {1} * {2} * {3} exceeds UInt32 range.", a, b, c, d);
   std::terminate();
-  return 0;
 }
 
 ezResult ezMath::TryMultiply64(ezUInt64& out_uiResult, ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
@@ -198,7 +197,6 @@ ezUInt64 ezMath::SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
 
   EZ_REPORT_FAILURE("Safe multiplication failed: {0} * {1} * {2} * {3} exceeds ezUInt64 range.", a, b, c, d);
   std::terminate();
-  return 0;
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
@@ -212,7 +210,6 @@ size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
 
   EZ_REPORT_FAILURE("Given value ({}) can't be converted to size_t because it is too big.", uiValue);
   std::terminate();
-  return 0;
 }
 #endif
 

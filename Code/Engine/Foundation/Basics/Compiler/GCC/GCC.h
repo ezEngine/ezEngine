@@ -46,4 +46,12 @@
 #    define EZ_COMPILE_FOR_DEBUG EZ_ON
 #  endif
 
+#  define EZ_WARNING_PUSH() _Pragma("GCC diagnostic push")
+#  define EZ_WARNING_POP() _Pragma("GCC diagnostic pop")
+#  define EZ_WARNING_DISABLE_GCC(_x) _Pragma(EZ_STRINGIZE(GCC diagnostic ignored _x))
+
+#else
+
+#  define EZ_WARNING_DISABLE_GCC(_x)
+
 #endif

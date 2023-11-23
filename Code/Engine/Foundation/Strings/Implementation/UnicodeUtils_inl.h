@@ -76,7 +76,7 @@ ezUInt32 ezUnicodeUtils::DecodeUtf16ToUtf32(UInt16Iterator& ref_szUtf16Iterator)
 template <typename WCharIterator>
 ezUInt32 ezUnicodeUtils::DecodeWCharToUtf32(WCharIterator& ref_szWCharIterator)
 {
-  if (sizeof(wchar_t) == 2)
+  if constexpr (sizeof(wchar_t) == 2)
   {
     return DecodeUtf16ToUtf32(ref_szWCharIterator);
   }
@@ -110,7 +110,7 @@ void ezUnicodeUtils::EncodeUtf32ToUtf16(ezUInt32 uiUtf32, UInt16Iterator& ref_sz
 template <typename WCharIterator>
 void ezUnicodeUtils::EncodeUtf32ToWChar(ezUInt32 uiUtf32, WCharIterator& ref_szWCharOutput)
 {
-  if (sizeof(wchar_t) == 2)
+  if constexpr (sizeof(wchar_t) == 2)
   {
     EncodeUtf32ToUtf16(uiUtf32, ref_szWCharOutput);
   }

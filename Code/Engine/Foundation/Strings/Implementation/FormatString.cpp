@@ -231,8 +231,8 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezAngle& arg)
   ezStringUtils::OutputFormattedFloat(szTmp, uiLength - 2, writepos, arg.GetDegree(), 1, false, 1, false);
 
   // Utf-8 representation of the degree sign
-  szTmp[writepos + 0] = (char)0xC2;
-  szTmp[writepos + 1] = (char)0xB0;
+  szTmp[writepos + 0] = /*(char)0xC2;*/ -62;
+  szTmp[writepos + 1] = /*(char)0xB0;*/ -80;
   szTmp[writepos + 2] = '\0';
 
   return ezStringView(szTmp, szTmp + writepos + 2);
@@ -275,8 +275,8 @@ ezStringView BuildString(char* pTmp, ezUInt32 uiLength, const ezTime& arg)
 
     // szTmp[writepos++] = ' ';
     // Utf-8 representation of the microsecond (us) sign
-    pTmp[writepos++] = (char)0xC2;
-    pTmp[writepos++] = (char)0xB5;
+    pTmp[writepos++] = /*(char)0xC2;*/ -62;
+    pTmp[writepos++] = /*(char)0xB5;*/ -75;
     pTmp[writepos++] = 's';
   }
   else if (fAbsSec < 1.0)
