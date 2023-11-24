@@ -350,6 +350,9 @@ ezResult ezStateMachineInstance::SetState(ezStateMachineState* pState)
     return SetState(pState->GetNameHashed());
   }
 
+  if (m_pCurrentState == pState)
+    return EZ_SUCCESS;
+
   const auto pFromState = m_pCurrentState;
   const auto pToState = pState;
 
