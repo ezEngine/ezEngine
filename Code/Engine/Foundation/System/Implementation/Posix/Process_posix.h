@@ -443,7 +443,7 @@ struct ezProcessImpl
         if (chdir(opt.m_sWorkingDirectory.GetData()) < 0)
         {
           auto err = ProcessStartupError{ProcessStartupError::Type::FailedToChangeWorkingDirectory, 0};
-          write(startupErrorPipe[1].Borrow(), &err, sizeof(err));
+          EZ_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
           startupErrorPipe[1].Close();
           _exit(-1);
         }
@@ -452,7 +452,7 @@ struct ezProcessImpl
       if (execv(executablePath, args.GetData()) < 0)
       {
         auto err = ProcessStartupError{ProcessStartupError::Type::FailedToExecv, errno};
-        write(startupErrorPipe[1].Borrow(), &err, sizeof(err));
+        EZ_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
         startupErrorPipe[1].Close();
         _exit(-1);
       }
