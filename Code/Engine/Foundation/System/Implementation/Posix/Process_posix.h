@@ -74,13 +74,29 @@ public:
     if(m_fd < 0)
       return EZ_FAILURE;
 
-    int flags = fcntl(m_fd, F_GETFD);
-    flags |= addFlags;
-    if (fcntl(m_fd, F_SETFD, flags) != 0)
+    if(addFlags & O_CLOEXEC)
     {
-      ezLog::Error("Failed to set flags on {}: {}", m_fd, errno);
-      return EZ_FAILURE;
+      int flags = fcntl(m_fd, F_GETFD);
+      flags |= addFlags;
+      if (fcntl(m_fd, F_SETFD, FD_CLOEXEC) != 0)
+      {
+        ezLog::Error("Failed to set flags on {}: {}", m_fd, errno);
+        return EZ_FAILURE;
+      }
+      addFlags &= ~O_CLOEXEC;
     }
+
+    if(addFlags)
+    {
+      int flags = fcntl(m_fd, F_GETFL);
+      flags |= addFlags;
+      if (fcntl(m_fd, F_SETFL, addFlags) != 0)
+      {
+        ezLog::Error("Failed to set flags on {}: {}", m_fd, errno);
+        return EZ_FAILURE;
+      }
+    }
+
     return EZ_SUCCESS;
   }
 
