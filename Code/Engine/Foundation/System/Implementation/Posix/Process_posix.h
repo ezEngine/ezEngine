@@ -88,10 +88,23 @@ public:
   {
     fds[0].Close();
     fds[1].Close();
+#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
     if (pipe2((int*)fds, flags) != 0)
     {
       return EZ_FAILURE;
     }
+#else
+    if (pipe((int*)fds) != 0)
+    {
+      return EZ_FAILURE;
+    }
+    if(flags != 0 && (fds[0].AddFlags(flags).Failed() || fds[1].AddFlags(flags).Failed()))
+    {
+      fds[0].Close();
+      fds[1].Close();
+      return EZ_FAILURE;
+    }
+#endif
     return EZ_SUCCESS;
   }
 
