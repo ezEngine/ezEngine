@@ -187,7 +187,7 @@ if($DiffTo)
                 Write-Host "Warning: No dependency information for $absHeader" -foreground yellow
             }
         }
-        $files = $files | Sort-Object | Get-Unique | ? {!($_ -match $ExcludeRootFiles)})
+        $files = $files | Sort-Object | Get-Unique | ? {!($_ -match $ExcludeRootFiles)}
         $numFilesAdded = $files.Length - $originalNumFiles
         if($numFilesAdded -gt 0)
         {
