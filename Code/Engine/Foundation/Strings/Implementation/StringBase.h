@@ -98,6 +98,12 @@ public:
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
   reverse_iterator GetIteratorBack() const;
 
+  /// \brief Returns a std::string_view to this string.
+  std::string_view GetAsStdView() const;
+
+  /// \brief Returns a string view to this string's data.
+  operator std::string_view() const; // [tested]
+
   /// \brief Returns a string view to this string's data.
   operator ezStringView() const; // [tested]
 

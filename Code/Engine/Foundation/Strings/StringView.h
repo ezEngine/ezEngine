@@ -274,6 +274,12 @@ public:
   /// Returns an empty string, if the path is not rooted.
   ezStringView GetRootedPathRootName() const; // [tested]
 
+  /// \brief Returns a std::string_view to this string.
+  operator std::string_view() const;
+
+  /// \brief Returns a std::string_view to this string.
+  std::string_view GetAsStdView() const;
+
 private:
   const char* m_pStart = nullptr;
   const char* m_pEnd = nullptr;

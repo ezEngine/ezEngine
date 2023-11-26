@@ -224,37 +224,32 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     ez = stlView;
     EZ_TEST_STRING(ez, "Hello STL");
 
+    ez = std::string_view();
+    EZ_TEST_STRING(ez, "");
+
     ez = stlString;
     EZ_TEST_STRING(ez, "Hello STL");
+
+    ez = std::string();
+    EZ_TEST_STRING(ez, "");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "From STL")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "To STL")
   {
-    std::string stlString = "Hello STL";
-    std::string_view stlView = stlString;
+    ezString ezStr = "Hello EZ";
 
-    ezStringBuilder ez = stlString;
-    ezStringBuilder ez2 = stlView;
+    std::string stlString = (std::string)ezStr;
+    EZ_TEST_STRING(stlString, "Hello EZ");
 
-    ez = stlView;
-    EZ_TEST_STRING(ez, "Hello STL");
+    stlString = ezString();
+    EZ_TEST_BOOL(stlString.empty());
+    EZ_TEST_STRING(stlString, "");
 
-    ez = stlString;
-    EZ_TEST_STRING(ez, "Hello STL");
-  }
+    std::string_view stlView = ezStr;
+    EZ_TEST_STRING(stlView, "Hello EZ");
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "From STL")
-  {
-    std::string stlString = "Hello STL";
-    std::string_view stlView = stlString;
-
-    ezStringView ez = stlString;
-    ezStringView ez2 = stlView;
-
-    ez = stlView;
-    EZ_TEST_STRING(ez, "Hello STL");
-
-    ez = stlString;
-    EZ_TEST_STRING(ez, "Hello STL");
+    stlView = ezString();
+    EZ_TEST_BOOL(stlView.empty());
+    EZ_TEST_STRING(stlView, "");
   }
 }

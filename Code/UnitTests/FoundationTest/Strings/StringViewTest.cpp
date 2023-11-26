@@ -1,4 +1,4 @@
-﻿#include <FoundationTest/FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
@@ -771,5 +771,45 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 
     p = "/noroot/bla";
     EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "From STL")
+  {
+    std::string stlString = "Hello STL";
+    std::string_view stlView = stlString;
+
+    ezStringView ez = stlString;
+    ezStringView ez2 = stlView;
+
+    ez = stlView;
+    EZ_TEST_STRING(ez, "Hello STL");
+
+    ez = std::string_view();
+    EZ_TEST_STRING(ez, "");
+
+    ez = stlString;
+    EZ_TEST_STRING(ez, "Hello STL");
+
+    ez = std::string();
+    EZ_TEST_STRING(ez, "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "To STL")
+  {
+    ezStringView ezStr = "Hello EZ";
+
+    std::string stlString = (std::string)ezStr;
+    EZ_TEST_STRING(stlString, "Hello EZ");
+
+    stlString = ezStringView();
+    EZ_TEST_BOOL(stlString.empty());
+    EZ_TEST_STRING(stlString, "");
+
+    std::string_view stlView = ezStr;
+    EZ_TEST_STRING(stlView, "Hello EZ");
+
+    stlView = ezStringView();
+    EZ_TEST_BOOL(stlView.empty());
+    EZ_TEST_STRING(stlView, "");
   }
 }

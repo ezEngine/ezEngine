@@ -272,4 +272,14 @@ ezStringView ezStringView::GetRootedPathRootName() const
   return ezPathUtils::GetRootedPathRootName(*this);
 }
 
+std::string_view ezStringView::GetAsStdView() const
+{
+  return std::string_view(GetStartPointer(), static_cast<size_t>(GetElementCount()));
+}
+
+ezStringView::operator std::string_view() const
+{
+  return GetAsStdView();
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringView);

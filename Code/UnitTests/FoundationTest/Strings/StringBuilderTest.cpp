@@ -1,4 +1,4 @@
-﻿#include <FoundationTest/FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Memory/CommonAllocators.h>
@@ -1611,6 +1611,46 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
       EZ_TEST_STRING(sb, "");
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "From STL")
+  {
+    std::string stlString = "Hello STL";
+    std::string_view stlView = stlString;
+
+    ezStringBuilder ez = stlString;
+    ezStringBuilder ez2 = stlView;
+
+    ez = stlView;
+    EZ_TEST_STRING(ez, "Hello STL");
+
+    ez = std::string_view();
+    EZ_TEST_STRING(ez, "");
+
+    ez = stlString;
+    EZ_TEST_STRING(ez, "Hello STL");
+
+    ez = std::string();
+    EZ_TEST_STRING(ez, "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "To STL")
+  {
+    ezStringBuilder ezStr = "Hello EZ";
+
+    std::string stlString = (std::string)ezStr;
+    EZ_TEST_STRING(stlString, "Hello EZ");
+
+    stlString = ezStringBuilder();
+    EZ_TEST_BOOL(stlString.empty());
+    EZ_TEST_STRING(stlString, "");
+
+    std::string_view stlView = ezStr;
+    EZ_TEST_STRING(stlView, "Hello EZ");
+
+    stlView = ezStringBuilder();
+    EZ_TEST_BOOL(stlView.empty());
+    EZ_TEST_STRING(stlView, "");
   }
 }
 

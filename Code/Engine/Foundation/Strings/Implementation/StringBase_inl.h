@@ -307,6 +307,18 @@ EZ_ALWAYS_INLINE ezStringView ezStringBase<Derived>::GetView() const
   return ezStringView(InternalGetData(), InternalGetElementCount());
 }
 
+template <typename DerivedLhs>
+EZ_ALWAYS_INLINE ezStringBase<DerivedLhs>::operator std::string_view() const
+{
+  return std::string_view(InternalGetData(), static_cast<size_t>(InternalGetElementCount()));
+}
+
+template <typename Derived>
+EZ_ALWAYS_INLINE std::string_view ezStringBase<Derived>::GetAsStdView() const
+{
+  return std::string_view(InternalGetData(), static_cast<size_t>(InternalGetElementCount()));
+}
+
 template <typename Derived>
 template <typename Container>
 void ezStringBase<Derived>::Split(bool bReturnEmptyStrings, Container& ref_output, const char* szSeparator1, const char* szSeparator2 /*= nullptr*/, const char* szSeparator3 /*= nullptr*/, const char* szSeparator4 /*= nullptr*/, const char* szSeparator5 /*= nullptr*/, const char* szSeparator6 /*= nullptr*/) const
