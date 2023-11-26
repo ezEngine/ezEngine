@@ -4,6 +4,25 @@
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/StringView.h>
 
+
+ezStringView::ezStringView(const std::string_view& rhs)
+{
+  if (!rhs.empty())
+  {
+    m_pStart = rhs.data();
+    m_pEnd = rhs.data() + rhs.size();
+  }
+}
+
+ezStringView::ezStringView(const std::string& rhs)
+{
+  if (!rhs.empty())
+  {
+    m_pStart = rhs.data();
+    m_pEnd = rhs.data() + rhs.size();
+  }
+}
+
 ezUInt32 ezStringView::GetCharacter() const
 {
   if (!IsValid())

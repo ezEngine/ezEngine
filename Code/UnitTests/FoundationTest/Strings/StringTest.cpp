@@ -212,4 +212,49 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
 
     EZ_TEST_BOOL(s == szText);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "From STL")
+  {
+    std::string stlString = "Hello STL";
+    std::string_view stlView = stlString;
+
+    ezString ez = stlString;
+    ezString ez2 = stlView;
+
+    ez = stlView;
+    EZ_TEST_STRING(ez, "Hello STL");
+
+    ez = stlString;
+    EZ_TEST_STRING(ez, "Hello STL");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "From STL")
+  {
+    std::string stlString = "Hello STL";
+    std::string_view stlView = stlString;
+
+    ezStringBuilder ez = stlString;
+    ezStringBuilder ez2 = stlView;
+
+    ez = stlView;
+    EZ_TEST_STRING(ez, "Hello STL");
+
+    ez = stlString;
+    EZ_TEST_STRING(ez, "Hello STL");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "From STL")
+  {
+    std::string stlString = "Hello STL";
+    std::string_view stlView = stlString;
+
+    ezStringView ez = stlString;
+    ezStringView ez2 = stlView;
+
+    ez = stlView;
+    EZ_TEST_STRING(ez, "Hello STL");
+
+    ez = stlString;
+    EZ_TEST_STRING(ez, "Hello STL");
+  }
 }

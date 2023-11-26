@@ -626,6 +626,30 @@ void ezStringBuilder::operator=(ezStringView rhs)
   m_uiCharacterCount = uiCharacters;
 }
 
+void ezStringBuilder::operator=(const std::string_view& rhs)
+{
+  if (rhs.empty())
+  {
+    Clear();
+  }
+  else
+  {
+    *this = ezStringView(rhs.data(), rhs.data() + rhs.size());
+  }
+}
+
+void ezStringBuilder::operator=(const std::string& rhs)
+{
+  if (rhs.empty())
+  {
+    Clear();
+  }
+  else
+  {
+    *this = ezStringView(rhs.data(), rhs.data() + rhs.size());
+  }
+}
+
 enum PathUpState
 {
   NotStarted,

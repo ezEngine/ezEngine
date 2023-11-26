@@ -51,6 +51,12 @@ protected:
   /// \brief Moves the data from \a rhs.
   ezHybridStringBase(ezStringBuilder&& rhs, ezAllocatorBase* pAllocator); // [tested]
 
+  /// \brief Copies the data from \a rhs.
+  ezHybridStringBase(const std::string_view& rhs, ezAllocatorBase* pAllocator); // [tested]
+
+  /// \brief Copies the data from \a rhs.
+  ezHybridStringBase(const std::string& rhs, ezAllocatorBase* pAllocator); // [tested]
+
   /// \brief Destructor.
   ~ezHybridStringBase(); // [tested]
 
@@ -75,8 +81,13 @@ protected:
   /// \brief Moves the data from \a rhs.
   void operator=(ezStringBuilder&& rhs); // [tested]
 
-public:
+  /// \brief Copies the data from \a rhs.
+  void operator=(const std::string_view& rhs); // [tested]
 
+  /// \brief Copies the data from \a rhs.
+  void operator=(const std::string& rhs); // [tested]
+
+public:
   /// \brief Resets this string to an empty string.
   ///
   /// This will not deallocate any previously allocated data, but reuse that memory.
@@ -139,6 +150,8 @@ public:
   ezHybridString(const ezStringView& rhs);
   ezHybridString(const ezStringBuilder& rhs);
   ezHybridString(ezStringBuilder&& rhs);
+  ezHybridString(const std::string_view& rhs);
+  ezHybridString(const std::string& rhs);
 
   ezHybridString(ezHybridString<Size, AllocatorWrapper>&& other);
   ezHybridString(ezHybridStringBase<Size>&& other);
@@ -151,6 +164,8 @@ public:
   void operator=(const ezStringView& rhs);
   void operator=(const ezStringBuilder& rhs);
   void operator=(ezStringBuilder&& rhs);
+  void operator=(const std::string_view& rhs);
+  void operator=(const std::string& rhs);
 
   void operator=(ezHybridString<Size, AllocatorWrapper>&& rhs);
   void operator=(ezHybridStringBase<Size>&& rhs);

@@ -2,6 +2,7 @@
 
 #include <Foundation/Strings/Implementation/StringIterator.h>
 
+#include <string_view>
 #include <type_traits>
 
 /// Base class which marks a class as containing string data
@@ -57,6 +58,12 @@ public:
   /// \brief Construct a string view from a fixed size buffer
   template <size_t N>
   ezStringView(char (&str)[N]);
+
+  /// \brief Makes the ezStringView reference the same memory as the const std::string_view&.
+  ezStringView(const std::string_view& rhs);
+
+  /// \brief Makes the ezStringView reference the same memory as the const std::string_view&.
+  ezStringView(const std::string& rhs);
 
   /// \brief Advances the start to the next character, unless the end of the range was reached.
   void operator++(); // [tested]

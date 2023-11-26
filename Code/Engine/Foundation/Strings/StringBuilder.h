@@ -89,6 +89,12 @@ public:
   /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
   /* implicit */ ezStringBuilder(ezStringView rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
+  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+  /* implicit */ ezStringBuilder(const std::string_view& rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+
+  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+  /* implicit */ ezStringBuilder(const std::string& rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+
   /// \brief Copies the given string into this one.
   void operator=(const ezStringBuilder& rhs); // [tested]
 
@@ -103,6 +109,12 @@ public:
 
   /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
   void operator=(ezStringView rhs); // [tested]
+
+  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+  void operator=(const std::string_view& rhs); // [tested]
+
+  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+  void operator=(const std::string& rhs); // [tested]
 
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size>

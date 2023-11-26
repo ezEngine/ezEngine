@@ -54,6 +54,24 @@ inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocatorBase* pAllo
   *this = rhs;
 }
 
+inline ezStringBuilder::ezStringBuilder(const std::string_view& rhs, ezAllocatorBase* pAllocator)
+  : m_Data(pAllocator)
+{
+  m_uiCharacterCount = 0;
+  AppendTerminator();
+
+  *this = rhs;
+}
+
+inline ezStringBuilder::ezStringBuilder(const std::string& rhs, ezAllocatorBase* pAllocator)
+  : m_Data(pAllocator)
+{
+  m_uiCharacterCount = 0;
+  AppendTerminator();
+
+  *this = rhs;
+}
+
 EZ_ALWAYS_INLINE ezAllocatorBase* ezStringBuilder::GetAllocator() const
 {
   return m_Data.GetAllocator();
