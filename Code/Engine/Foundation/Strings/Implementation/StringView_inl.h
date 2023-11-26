@@ -16,6 +16,13 @@ constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(T pStart, typename std::en
 }
 
 template <typename T>
+constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(T pStart, typename std::enable_if<std::is_same<T, const char8_t*>::value, int>::type*)
+  : m_pStart((const char*)pStart)
+  , m_pEnd((const char*)pStart + ezStringUtils::GetStringElementCount((const char*)pStart))
+{
+}
+
+template <typename T>
 EZ_ALWAYS_INLINE ezStringView::ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type*)
 {
   m_pStart = str;

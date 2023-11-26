@@ -81,7 +81,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Path to DataDir Itself")
   {
-    ezString sDataDirView = u8"/Code/ezEngine/Data/Sämples/Testing Chämbers";
+    ezString sDataDirView = (const char*)u8"/Code/ezEngine/Data/Sämples/Testing Chämbers";
     ezHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack(sDataDirView);
 

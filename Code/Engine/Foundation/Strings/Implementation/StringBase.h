@@ -113,6 +113,9 @@ public:
   /// \brief Returns a pointer to the internal Utf8 string.
   EZ_ALWAYS_INLINE operator const char*() const { return InternalGetData(); }
 
+  /// \brief Returns a pointer to the internal Utf8 string.
+  EZ_ALWAYS_INLINE operator const char8_t*() const { return reinterpret_cast<const char8_t*>(InternalGetData()); }
+
   /// \brief Fills the given container with ezStringView's which represent each found substring.
   /// If bReturnEmptyStrings is true, even empty strings between separators are returned.
   /// Output must be a container that stores ezStringView's and provides the functions 'Clear' and 'Append'.

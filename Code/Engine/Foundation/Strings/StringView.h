@@ -41,6 +41,10 @@ public:
   template <typename T>                                                                                           // T is always const char*
   constexpr ezStringView(T pStart, typename std::enable_if<std::is_same<T, const char*>::value, int>::type* = 0); // [tested]
 
+  /// \brief Creates a string view starting at the given position, ending at the next '\0' terminator.
+  template <typename T>                                                                                           // T is always const char*
+  constexpr ezStringView(T pStart, typename std::enable_if<std::is_same<T, const char8_t*>::value, int>::type* = 0); // [tested]
+
   /// \brief Creates a string view from any class / struct which is implicitly convertible to const char *
   template <typename T>
   EZ_ALWAYS_INLINE ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type* = 0); // [tested]

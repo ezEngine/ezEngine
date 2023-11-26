@@ -10,6 +10,14 @@
 #include <Foundation/Types/ScopeExit.h>
 #include <stdarg.h>
 
+void TestFormat(const ezFormatString& str, const char8_t* szExpected)
+{
+  ezStringBuilder sb;
+  ezStringView szText = str.GetText(sb);
+
+  EZ_TEST_STRING(szText, reinterpret_cast<const char*>(szExpected));
+}
+
 void TestFormat(const ezFormatString& str, const char* szExpected)
 {
   ezStringBuilder sb;

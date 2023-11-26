@@ -134,6 +134,9 @@ public:
   /// \brief Returns a pointer to the internal Utf8 string.
   EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
+  /// \brief Returns a pointer to the internal Utf8 string.
+  EZ_ALWAYS_INLINE operator const char8_t*() const {return reinterpret_cast<const char8_t*>(GetData()); }
+
 private:
   static void InitHashedString();
   static HashedType AddHashedString(ezStringView sString, ezUInt64 uiHash);

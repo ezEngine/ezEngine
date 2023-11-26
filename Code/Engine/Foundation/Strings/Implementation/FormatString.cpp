@@ -147,6 +147,11 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const char* szArg)
   return szArg;
 }
 
+ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const char8_t* szArg)
+{
+  return ezStringView(szArg);
+}
+
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const wchar_t* pArg)
 {
   const char* start = szTmp;

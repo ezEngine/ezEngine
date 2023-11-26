@@ -1329,7 +1329,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder p;
 
-    p = u8"ä/b\\c/d\\\\e/f/g";
+    p = (const char*)u8"ä/b\\c/d\\\\e/f/g";
     EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c").Succeeded());
     EZ_TEST_BOOL(p == "d/e/f/g");
     EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c").Failed());

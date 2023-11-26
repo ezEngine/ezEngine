@@ -384,7 +384,8 @@ namespace ezMeshImportUtils
 
     ezHybridArray<ezDocument*, 32> pendingSaveTasks;
 
-    auto WaitForPendingTasks = [&pendingSaveTasks]() {
+    auto WaitForPendingTasks = [&pendingSaveTasks]()
+    {
       EZ_PROFILE_SCOPE("WaitForPendingTasks");
       for (ezDocument* pDoc : pendingSaveTasks)
       {
