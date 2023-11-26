@@ -1,11 +1,13 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/System/Process.h>
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
+#include <Foundation/System/SystemInformation.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -14,20 +16,133 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 EZ_DEFINE_AS_POD_TYPE(struct pollfd);
 
-namespace
+class ezFd
 {
-  ezResult AddFdFlags(int fd, int addFlags)
+public:
+  ezFd() = default;
+  ezFd(const ezFd&) = delete;
+  ezFd(ezFd&& other)
   {
-    int flags = fcntl(fd, F_GETFD);
-    flags |= addFlags;
-    if (fcntl(fd, F_SETFD, flags) != 0)
+    m_fd = other.m_fd;
+    other.m_fd = -1;
+  }
+
+  ~ezFd()
+  {
+    Close();
+  }
+
+  void Close()
+  {
+    if (m_fd != -1)
     {
-      ezLog::Error("Failed to set flags on {}: {}", fd, errno);
-      return EZ_FAILURE;
+      close(m_fd);
+      m_fd = -1;
     }
+  }
+
+  bool IsValid() const
+  {
+    return m_fd >= 0;
+  }
+
+  void operator=(const ezFd&) = delete;
+  void operator=(ezFd&& other)
+  {
+    Close();
+    m_fd = other.m_fd;
+    other.m_fd = -1;
+  }
+
+  void TakeOwnership(int fd)
+  {
+    Close();
+    m_fd = fd;
+  }
+
+  int Borrow() const { return m_fd; }
+
+  int Detach()
+  {
+    auto result = m_fd;
+    m_fd = -1;
+    return result;
+  }
+
+  ezResult AddFlags(int addFlags)
+  {
+    if(m_fd < 0)
+      return EZ_FAILURE;
+
+    if(addFlags & O_CLOEXEC)
+    {
+      int flags = fcntl(m_fd, F_GETFD);
+      flags |= addFlags;
+      if (fcntl(m_fd, F_SETFD, FD_CLOEXEC) != 0)
+      {
+        ezLog::Error("Failed to set flags on {}: {}", m_fd, errno);
+        return EZ_FAILURE;
+      }
+      addFlags &= ~O_CLOEXEC;
+    }
+
+    if(addFlags)
+    {
+      int flags = fcntl(m_fd, F_GETFL);
+      flags |= addFlags;
+      if (fcntl(m_fd, F_SETFL, addFlags) != 0)
+      {
+        ezLog::Error("Failed to set flags on {}: {}", m_fd, errno);
+        return EZ_FAILURE;
+      }
+    }
+
     return EZ_SUCCESS;
   }
+
+  static ezResult MakePipe(ezFd (&fds)[2], int flags = 0)
+  {
+    fds[0].Close();
+    fds[1].Close();
+#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
+    if (pipe2((int*)fds, flags) != 0)
+    {
+      return EZ_FAILURE;
+    }
+#else
+    if (pipe((int*)fds) != 0)
+    {
+      return EZ_FAILURE;
+    }
+    if(flags != 0 && (fds[0].AddFlags(flags).Failed() || fds[1].AddFlags(flags).Failed()))
+    {
+      fds[0].Close();
+      fds[1].Close();
+      return EZ_FAILURE;
+    }
+#endif
+    return EZ_SUCCESS;
+  }
+
+private:
+  int m_fd = -1;
+};
+
+namespace
+{
+  struct ProcessStartupError
+  {
+    enum class Type : ezUInt32
+    {
+      FailedToChangeWorkingDirectory = 0,
+      FailedToExecv = 1
+    };
+
+    Type type;
+    int errorCode;
+  };
 } // namespace
+
 
 struct ezProcessImpl
 {
@@ -42,14 +157,14 @@ struct ezProcessImpl
 
   struct StdStreamInfo
   {
-    int fd;
+    ezFd fd;
     ezDelegate<void(ezStringView)> callback;
   };
   ezHybridArray<StdStreamInfo, 2> m_streams;
   ezDynamicArray<ezStringBuilder> m_overflowBuffers;
   ezUniquePtr<ezOSThread> m_streamWatcherThread;
-  int m_wakeupPipeReadEnd = -1;
-  int m_wakeupPipeWriteEnd = -1;
+  ezFd m_wakeupPipeReadEnd;
+  ezFd m_wakeupPipeWriteEnd;
 
   static void* StreamWatcherThread(void* context)
   {
@@ -58,10 +173,10 @@ struct ezProcessImpl
 
     ezHybridArray<struct pollfd, 3> pollfds;
 
-    pollfds.PushBack({self->m_wakeupPipeReadEnd, POLLIN, 0});
+    pollfds.PushBack({self->m_wakeupPipeReadEnd.Borrow(), POLLIN, 0});
     for (StdStreamInfo& stream : self->m_streams)
     {
-      pollfds.PushBack({stream.fd, POLLIN, 0});
+      pollfds.PushBack({stream.fd.Borrow(), POLLIN, 0});
     }
 
     bool run = true;
@@ -78,26 +193,21 @@ struct ezProcessImpl
 
         for (ezUInt32 i = 1; i < pollfds.GetCount(); ++i)
         {
-          if (pollfds[i].revents != 0)
+          if (pollfds[i].revents & POLLIN)
           {
             ezStringBuilder& overflowBuffer = self->m_overflowBuffers[i - 1];
             StdStreamInfo& stream = self->m_streams[i - 1];
-            pollfds[i].revents = 0;
             while (true)
             {
-              ssize_t numBytes = read(stream.fd, buffer, EZ_ARRAY_SIZE(buffer));
+              ssize_t numBytes = read(stream.fd.Borrow(), buffer, EZ_ARRAY_SIZE(buffer));
               if (numBytes < 0)
               {
                 if (errno == EWOULDBLOCK)
                 {
                   break;
                 }
-                ezLog::Error("Process Posix read error on {}: {}", stream.fd, errno);
+                ezLog::Error("Process Posix read error on {}: {}", stream.fd.Borrow(), errno);
                 return nullptr;
-              }
-              if (numBytes == 0)
-              {
-                break;
               }
 
               const char* szCurrentPos = buffer;
@@ -128,8 +238,14 @@ struct ezProcessImpl
                   szCurrentPos = szEndPos;
                 }
               }
+
+              if (numBytes < EZ_ARRAY_SIZE(buffer))
+              {
+                break;
+              }
             }
           }
+          pollfds[i].revents = 0;
         }
       }
       else if (result < 0)
@@ -147,6 +263,8 @@ struct ezProcessImpl
         self->m_streams[i].callback(overflowBuffer);
         overflowBuffer.Clear();
       }
+
+      self->m_streams[i].fd.Close();
     }
 
     return nullptr;
@@ -154,25 +272,16 @@ struct ezProcessImpl
 
   ezResult StartStreamWatcher()
   {
-    int wakeupPipe[2] = {-1, -1};
-    if (pipe(wakeupPipe) < 0)
+    ezFd wakeupPipe[2];
+    if (ezFd::MakePipe(wakeupPipe, O_NONBLOCK | O_CLOEXEC).Failed())
     {
       ezLog::Error("Failed to setup wakeup pipe {}", errno);
       return EZ_FAILURE;
     }
     else
     {
-      m_wakeupPipeReadEnd = wakeupPipe[0];
-      m_wakeupPipeWriteEnd = wakeupPipe[1];
-      if (AddFdFlags(m_wakeupPipeReadEnd, O_NONBLOCK | O_CLOEXEC).Failed() ||
-          AddFdFlags(m_wakeupPipeWriteEnd, O_NONBLOCK | O_CLOEXEC).Failed())
-      {
-        close(m_wakeupPipeReadEnd);
-        m_wakeupPipeReadEnd = -1;
-        close(m_wakeupPipeWriteEnd);
-        m_wakeupPipeWriteEnd = -1;
-        return EZ_FAILURE;
-      }
+      m_wakeupPipeReadEnd = std::move(wakeupPipe[0]);
+      m_wakeupPipeWriteEnd = std::move(wakeupPipe[1]);
     }
 
     m_streamWatcherThread = EZ_DEFAULT_NEW(ezOSThread, &StreamWatcherThread, this, "StdStrmWtch");
@@ -186,30 +295,88 @@ struct ezProcessImpl
     if (m_streamWatcherThread)
     {
       char c = 0;
-      EZ_IGNORE_UNUSED(write(m_wakeupPipeWriteEnd, &c, 1));
+      EZ_IGNORE_UNUSED(write(m_wakeupPipeWriteEnd.Borrow(), &c, 1));
       m_streamWatcherThread->Join();
       m_streamWatcherThread = nullptr;
     }
-    close(m_wakeupPipeReadEnd);
-    close(m_wakeupPipeWriteEnd);
-    m_wakeupPipeReadEnd = -1;
-    m_wakeupPipeWriteEnd = -1;
+    m_wakeupPipeReadEnd.Close();
+    m_wakeupPipeWriteEnd.Close();
   }
 
-  void AddStream(int fd, const ezDelegate<void(ezStringView)>& callback)
+  void AddStream(ezFd fd, const ezDelegate<void(ezStringView)>& callback)
   {
-    m_streams.PushBack({fd, callback});
+    m_streams.PushBack({std::move(fd), callback});
     m_overflowBuffers.SetCount(m_streams.GetCount());
   }
 
-  static ezResult StartChildProcess(const ezProcessOptions& opt, pid_t& outPid, bool suspended, int& outStdOutFd, int& outStdErrFd)
+  ezUInt32 GetNumStreams() const { return m_streams.GetCount(); }
+
+  static ezResult StartChildProcess(const ezProcessOptions& opt, pid_t& outPid, bool suspended, ezFd& outStdOutFd, ezFd& outStdErrFd)
   {
-    int stdoutPipe[2] = {-1, -1};
-    int stderrPipe[2] = {-1, -1};
+    ezFd stdoutPipe[2];
+    ezFd stderrPipe[2];
+    ezFd startupErrorPipe[2];
+
+    ezStringBuilder executablePath = opt.m_sProcess;
+    ezFileStats stats;
+    if (!opt.m_sProcess.IsAbsolutePath())
+    {
+      executablePath = ezOSFile::GetCurrentWorkingDirectory();
+      executablePath.AppendPath(opt.m_sProcess);
+    }
+
+    if (ezOSFile::GetFileStats(executablePath, stats).Failed() || stats.m_bIsDirectory)
+    {
+	  ezHybridArray<char, 512> confPath;
+      auto envPATH = getenv("PATH");
+      if (envPATH == nullptr) // if no PATH environment variable is available, we need to fetch the system default;
+      {
+#if _POSIX_C_SOURCE >= 2 || _XOPEN_SOURCE
+        size_t confPathSize = confstr(_CS_PATH, nullptr, 0);
+        if (confPathSize > 0)
+        {
+          confPath.SetCountUninitialized(confPathSize);
+          if (confstr(_CS_PATH, confPath.GetData(), confPath.GetCount()) == 0)
+          {
+            confPath.SetCountUninitialized(0);
+          }
+        }
+#endif
+        if (confPath.GetCount() == 0)
+        {
+          confPath.PushBack('\0');
+        }
+        envPATH = confPath.GetData();
+      }
+
+      ezStringView path = envPATH;
+      ezHybridArray<ezStringView, 16> pathParts;
+      path.Split(false, pathParts, ":");
+
+      for (auto& pathPart : pathParts)
+      {
+        executablePath = pathPart;
+        executablePath.AppendPath(opt.m_sProcess);
+        if (ezOSFile::GetFileStats(executablePath, stats).Succeeded() && !stats.m_bIsDirectory)
+        {
+          break;
+        }
+        executablePath.Clear();
+      }
+    }
+
+    if (executablePath.IsEmpty())
+    {
+      return EZ_FAILURE;
+    }
 
     if (opt.m_onStdOut.IsValid())
     {
-      if (pipe(stdoutPipe) < 0)
+      if (ezFd::MakePipe(stdoutPipe).Failed())
+      {
+        return EZ_FAILURE;
+      }
+      if(stdoutPipe[0].AddFlags(O_NONBLOCK).Failed())
       {
         return EZ_FAILURE;
       }
@@ -217,10 +384,19 @@ struct ezProcessImpl
 
     if (opt.m_onStdError.IsValid())
     {
-      if (pipe(stderrPipe) < 0)
+      if (ezFd::MakePipe(stderrPipe).Failed())
       {
         return EZ_FAILURE;
       }
+      if(stderrPipe[0].AddFlags(O_NONBLOCK).Failed())
+      {
+        return EZ_FAILURE;
+      }
+    }
+
+    if (ezFd::MakePipe(startupErrorPipe, O_CLOEXEC).Failed())
+    {
+      return EZ_FAILURE;
     }
 
     pid_t childPid = fork();
@@ -268,20 +444,23 @@ struct ezProcessImpl
 
       if (opt.m_onStdOut.IsValid())
       {
-        close(stdoutPipe[0]);               // We don't need the read end of the pipe in the child process
-        dup2(stdoutPipe[1], STDOUT_FILENO); // redirect the write end to STDOUT
-        close(stdoutPipe[1]);
+        stdoutPipe[0].Close();                       // We don't need the read end of the pipe in the child process
+        dup2(stdoutPipe[1].Borrow(), STDOUT_FILENO); // redirect the write end to STDOUT
+        stdoutPipe[1].Close();
       }
 
       if (opt.m_onStdError.IsValid())
       {
-        close(stderrPipe[0]);               // We don't need the read end of the pipe in the child process
-        dup2(stderrPipe[1], STDERR_FILENO); // redirect the write end to STDERR
-        close(stderrPipe[1]);
+        stderrPipe[0].Close();                       // We don't need the read end of the pipe in the child process
+        dup2(stderrPipe[1].Borrow(), STDERR_FILENO); // redirect the write end to STDERR
+        stderrPipe[1].Close();
       }
+
+      startupErrorPipe[0].Close(); // we don't need the read end of the startup error pipe in the child process
 
       ezHybridArray<char*, 9> args;
 
+      args.PushBack(const_cast<char*>(executablePath.GetData()));
       for (const ezString& arg : opt.m_Arguments)
       {
         args.PushBack(const_cast<char*>(arg.GetData()));
@@ -292,29 +471,59 @@ struct ezProcessImpl
       {
         if (chdir(opt.m_sWorkingDirectory.GetData()) < 0)
         {
-          _exit(-1); // Failed to change working directory
+          auto err = ProcessStartupError{ProcessStartupError::Type::FailedToChangeWorkingDirectory, 0};
+          EZ_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
+          startupErrorPipe[1].Close();
+          _exit(-1);
         }
       }
 
-      if (execv(opt.m_sProcess.GetData(), args.GetData()) < 0)
+      if (execv(executablePath, args.GetData()) < 0)
       {
+        auto err = ProcessStartupError{ProcessStartupError::Type::FailedToExecv, errno};
+        EZ_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
+        startupErrorPipe[1].Close();
         _exit(-1);
       }
     }
     else
     {
+      startupErrorPipe[1].Close(); // We don't need the write end of the startup error pipe in the parent process
+      stdoutPipe[1].Close();       // Don't need the write end in the parent process
+      stderrPipe[1].Close();       // Don't need the write end in the parent process
+
+      ProcessStartupError err = {};
+      auto errSize = read(startupErrorPipe[0].Borrow(), &err, sizeof(err));
+      startupErrorPipe[0].Close(); // we no longer need the read end of the startup error pipe
+
+      // There are two possible cases here
+      // Case 1: errSize is equal to 0, which means no error happened on the startupErrorPipe was closed during the execv call
+      // Case 2: errSize > 0 in which case there was an error before the pipe was closed normally.
+      if (errSize > 0)
+      {
+        EZ_ASSERT_DEV(errSize == sizeof(err), "Child process should have written a full ProcessStartupError struct");
+        switch (err.type)
+        {
+          case ProcessStartupError::Type::FailedToChangeWorkingDirectory:
+            ezLog::Error("Failed to start process '{}' because the given working directory '{}' is invalid", opt.m_sProcess, opt.m_sWorkingDirectory);
+            break;
+          case ProcessStartupError::Type::FailedToExecv:
+            ezLog::Error("Failed to exec when starting process '{}' the error code is '{}'", opt.m_sProcess, err.errorCode);
+            break;
+        }
+        return EZ_FAILURE;
+      }
+
       outPid = childPid;
 
       if (opt.m_onStdOut.IsValid())
       {
-        close(stdoutPipe[1]); // Don't need the write end in the parent process
-        outStdOutFd = stdoutPipe[0];
+        outStdOutFd = std::move(stdoutPipe[0]);
       }
 
       if (opt.m_onStdError.IsValid())
       {
-        close(stderrPipe[1]); // Don't need the write end in the parent process
-        outStdErrFd = stderrPipe[0];
+        outStdErrFd = std::move(stderrPipe[0]);
       }
     }
 
@@ -344,30 +553,27 @@ ezProcess::~ezProcess()
 ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode /*= nullptr*/)
 {
   pid_t childPid = 0;
-  int stdoutFd = -1;
-  int stderrFd = -1;
+  ezFd stdoutFd;
+  ezFd stderrFd;
   if (ezProcessImpl::StartChildProcess(opt, childPid, false, stdoutFd, stderrFd).Failed())
   {
     return EZ_FAILURE;
   }
 
   ezProcessImpl impl;
-  if (stdoutFd >= 0)
+  if (stdoutFd.IsValid())
   {
-    impl.AddStream(stdoutFd, opt.m_onStdOut);
+    impl.AddStream(std::move(stdoutFd), opt.m_onStdOut);
   }
 
-  if (stderrFd >= 0)
+  if (stderrFd.IsValid())
   {
-    impl.AddStream(stderrFd, opt.m_onStdError);
+    impl.AddStream(std::move(stderrFd), opt.m_onStdError);
   }
 
-  if (stdoutFd >= 0 || stderrFd >= 0)
+  if (impl.GetNumStreams() > 0 && impl.StartStreamWatcher().Failed())
   {
-    if (impl.StartStreamWatcher().Failed())
-    {
-      return EZ_FAILURE;
-    }
+    return EZ_FAILURE;
   }
 
   int childStatus = -1;
@@ -394,8 +600,8 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
 {
   EZ_ASSERT_DEV(m_pImpl->m_childPid == -1, "Can not reuse an instance of ezProcess");
 
-  int stdoutFd = -1;
-  int stderrFd = -1;
+  ezFd stdoutFd;
+  ezFd stderrFd;
 
   if (ezProcessImpl::StartChildProcess(opt, m_pImpl->m_childPid, launchFlags.IsSet(ezProcessLaunchFlags::Suspended), stdoutFd, stderrFd).Failed())
   {
@@ -405,17 +611,17 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   m_pImpl->m_exitCodeAvailable = false;
   m_pImpl->m_processSuspended = launchFlags.IsSet(ezProcessLaunchFlags::Suspended);
 
-  if (stdoutFd >= 0)
+  if (stdoutFd.IsValid())
   {
-    m_pImpl->AddStream(stdoutFd, opt.m_onStdOut);
+    m_pImpl->AddStream(std::move(stdoutFd), opt.m_onStdOut);
   }
 
-  if (stderrFd >= 0)
+  if (stderrFd.IsValid())
   {
-    m_pImpl->AddStream(stderrFd, opt.m_onStdError);
+    m_pImpl->AddStream(std::move(stderrFd), opt.m_onStdError);
   }
 
-  if (stdoutFd >= 0 || stderrFd >= 0)
+  if (m_pImpl->GetNumStreams() > 0)
   {
     if (m_pImpl->StartStreamWatcher().Failed())
     {

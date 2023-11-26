@@ -54,6 +54,7 @@
 
 // Platform Features
 #define EZ_USE_POSIX_FILE_API EZ_OFF
+#define EZ_USE_LINUX_POSIX_EXTENSIONS EZ_OFF // linux specific posix extensions like pipe2, dup3, etc.
 #define EZ_SUPPORTS_FILE_ITERATORS EZ_OFF
 #define EZ_SUPPORTS_FILE_STATS EZ_OFF
 #define EZ_SUPPORTS_DIRECTORY_WATCHER EZ_OFF

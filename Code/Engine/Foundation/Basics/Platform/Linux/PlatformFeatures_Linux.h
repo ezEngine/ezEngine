@@ -4,6 +4,10 @@
 #undef EZ_USE_POSIX_FILE_API
 #define EZ_USE_POSIX_FILE_API EZ_ON
 
+/// If set to one linux posix extensions such as pipe2, dup3, etc are used.
+#undef EZ_USE_LINUX_POSIX_EXTENSIONS
+#define EZ_USE_LINUX_POSIX_EXTENSIONS EZ_ON
+
 /// Iterating through the file system is not supported
 #undef EZ_SUPPORTS_FILE_ITERATORS
 #define EZ_SUPPORTS_FILE_ITERATORS EZ_ON
