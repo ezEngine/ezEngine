@@ -439,6 +439,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       EZ_TEST_BOOL(!a.IsNaN<3>());
       EZ_TEST_BOOL(a.IsValid<2>());
       EZ_TEST_BOOL(!a.IsValid<3>());
+
+      a.Set(-1.0f, -2.0f, -3.0f, -4.0f);
+      EZ_TEST_BOOL(a.IsValid<1>());
+      EZ_TEST_BOOL(a.IsValid<2>());
+      EZ_TEST_BOOL(a.IsValid<3>());
+      EZ_TEST_BOOL(a.IsValid<4>());
     }
   }
 

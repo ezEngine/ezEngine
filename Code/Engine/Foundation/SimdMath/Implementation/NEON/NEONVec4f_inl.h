@@ -223,8 +223,16 @@ inline bool ezSimdVec4f::IsNaN() const
 template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4f::IsValid() const
 {
+  // Check the 8 exponent bits.
+  // NAN -> (exponent = all 1, mantissa = non-zero)
+  // INF -> (exponent = all 1, mantissa = zero)
+
+  uint32x4_t exponentMask = vmovq_n_u32(0x7f800000);
+
+  uint32x4_t exponentIs1 = vceqq_u32(vandq_u32(vreinterpretq_u32_f32(m_v), exponentMask), exponentMask);
+
   const int mask = EZ_BIT(N) - 1;
-  return (ezInternal::NeonMoveMask(vcgeq_u32(vreinterpretq_u32_f32(m_v), vmovq_n_u32(0x7f800000))) & mask) == 0;
+  return (ezInternal::NeonMoveMask(exponentIs1) & mask) == 0;
 }
 
 template <int N>
