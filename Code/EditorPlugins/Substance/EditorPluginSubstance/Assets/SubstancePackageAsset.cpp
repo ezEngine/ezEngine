@@ -302,13 +302,10 @@ namespace
     arguments << "--output-path";
     arguments << szOutputPath;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    auto logLevel = ezLogMsgType::InfoMsg;
-#else
-    auto logLevel = ezLogMsgType::WarningMsg;
-#endif
+    arguments << "--full";
+    arguments << "0";
 
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 180, ezLog::GetThreadLocalLogSystem(), logLevel));
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 180, ezLog::GetThreadLocalLogSystem(), ezLogMsgType::InfoMsg));
 
     return ezStatus(EZ_SUCCESS);
   }

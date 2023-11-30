@@ -33,7 +33,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINSUBSTANCE_DLL, ezSubstanceUsage);
 struct ezSubstanceGraphOutput
 {
   bool m_bEnabled = true;
-  ezEnum<ezTexConvCompressionMode> m_CompressionMode;
+  ezEnum<ezTexConvCompressionMode> m_CompressionMode = ezTexConvCompressionMode::High;
   ezEnum<ezSubstanceUsage> m_Usage;
   ezUInt8 m_uiNumChannels = 1;
   bool m_bPreserveAlphaCoverage = false;
