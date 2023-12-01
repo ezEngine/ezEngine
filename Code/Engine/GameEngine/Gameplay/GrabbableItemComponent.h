@@ -2,8 +2,10 @@
 
 #include <GameEngine/GameEngineDLL.h>
 
-#include <Core/World/Component.h>
 #include <Core/World/World.h>
+
+struct ezMsgUpdateLocalBounds;
+struct ezMsgExtractRenderData;
 
 struct EZ_GAMEENGINE_DLL ezGrabbableItemGrabPoint
 {
@@ -45,6 +47,9 @@ public:
   ezGrabbableItemComponent();
   ~ezGrabbableItemComponent();
 
+  void SetDebugShowPoints(bool bShow); // [ property ]
+  bool GetDebugShowPoints() const;     // [ property ]
+
   ezUInt32 GrabPoints_GetCount() const;                                       // [ property ]
   ezGrabbableItemGrabPoint GrabPoints_GetValue(ezUInt32 uiIndex) const;       // [ property ]
   void GrabPoints_SetValue(ezUInt32 uiIndex, ezGrabbableItemGrabPoint value); // [ property ]
@@ -52,4 +57,8 @@ public:
   void GrabPoints_Remove(ezUInt32 uiIndex);                                   // [ property ]
 
   ezDynamicArray<ezGrabbableItemGrabPoint> m_GrabPoints;
+
+protected:
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 };

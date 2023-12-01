@@ -1224,6 +1224,29 @@ void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float 
   DrawLines(context, lines, lineColor, transform);
 }
 
+void ezDebugRenderer::DrawArrow(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/)
+{
+  vForwardAxis.Normalize();
+  const ezVec3 right = vForwardAxis.GetOrthogonalVector();
+  const ezVec3 up = vForwardAxis.CrossRH(right);
+  const ezVec3 endPoint = vForwardAxis * fSize;
+  const ezVec3 endPoint2 = vForwardAxis * fSize * 0.9f;
+  const float tipSize = fSize * 0.1f;
+
+  Line lines[9];
+  lines[0] = Line(ezVec3::MakeZero(), endPoint);
+  lines[1] = Line(endPoint, endPoint2 + right * tipSize);
+  lines[2] = Line(endPoint, endPoint2 + up * tipSize);
+  lines[3] = Line(endPoint, endPoint2 - right * tipSize);  
+  lines[4] = Line(endPoint, endPoint2 - up * tipSize);
+  lines[5] = Line(lines[1].m_end, lines[2].m_end);
+  lines[6] = Line(lines[2].m_end, lines[3].m_end);
+  lines[7] = Line(lines[3].m_end, lines[4].m_end);
+  lines[8] = Line(lines[4].m_end, lines[1].m_end);
+
+  DrawLines(context, lines, color, transform);
+}
+
 // static
 void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
 {
