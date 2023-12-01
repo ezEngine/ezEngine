@@ -63,12 +63,17 @@ struct ezSubstanceGraph
 
   ezString m_sName;
 
+  ezUInt8 m_uiOutputWidth = 0; ///< In base 2, e.g. 8 = 2^8 = 256
+  ezUInt8 m_uiOutputHeight = 0; ///< In base 2
+
   ezHybridArray<ezSubstanceGraphOutput, 8> m_Outputs;
 
   bool operator==(const ezSubstanceGraph& other) const
   {
     return m_bEnabled == other.m_bEnabled &&
            m_sName == other.m_sName &&
+           m_uiOutputWidth == other.m_uiOutputWidth &&
+           m_uiOutputHeight == other.m_uiOutputHeight &&
            m_Outputs == other.m_Outputs;
   }
 };

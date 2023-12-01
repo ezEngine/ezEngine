@@ -151,6 +151,33 @@ namespace
     return EZ_SUCCESS;
   }
 
+  struct Option
+  {
+    ezString m_sName;
+    ezString m_sValue;
+  };
+
+  ezResult ParseOption(QXmlStreamReader& inout_reader, Option& out_option)
+  {
+    EZ_ASSERT_DEBUG(inout_reader.name() == QLatin1StringView("option"), "");
+
+    while (inout_reader.readNextStartElement())
+    {
+      if (inout_reader.name() == QLatin1StringView("name"))
+      {
+        out_option.m_sName = GetValueAttribute<ezString>(inout_reader);
+      }
+      else if (inout_reader.name() == QLatin1StringView("value"))
+      {
+        out_option.m_sValue = GetValueAttribute<ezString>(inout_reader);
+      }
+
+      inout_reader.skipCurrentElement();
+    }
+
+    return EZ_SUCCESS;
+  }
+
   ezResult ParseGraph(QXmlStreamReader& inout_reader, ezSubstanceGraph& out_graph)
   {
     EZ_ASSERT_DEBUG(inout_reader.name() == QLatin1StringView("graph"), "");
@@ -161,7 +188,6 @@ namespace
       if (inout_reader.name() == QLatin1StringView("identifier"))
       {
         out_graph.m_sName = GetValueAttribute<ezString>(inout_reader);
-        out_graph.m_bEnabled = out_graph.m_sName.StartsWith("_") == false;
         inout_reader.skipCurrentElement();
       }
       else if (inout_reader.name() == QLatin1StringView("uid"))
@@ -177,6 +203,49 @@ namespace
           {
             auto& graphOutput = out_graph.m_Outputs.ExpandAndGetRef();
             EZ_SUCCEED_OR_RETURN(ParseGraphOutput(inout_reader, uiGraphUid, graphOutput));
+          }
+        }
+      }
+      else if (inout_reader.name() == QLatin1StringView("options"))
+      {
+        Option option;
+        while (inout_reader.readNextStartElement())
+        {
+          if (inout_reader.name() == QLatin1StringView("option"))
+          {
+            EZ_SUCCEED_OR_RETURN(ParseOption(inout_reader, option));
+
+            if (option.m_sName == "defaultParentSize")
+            {
+              ezStringView sValue = option.m_sValue;
+              ezUInt32 tmp = 0;
+              const char* szLastPos = nullptr;
+              EZ_SUCCEED_OR_RETURN(ezConversionUtils::StringToUInt(sValue, tmp, &szLastPos));
+              out_graph.m_uiOutputWidth = static_cast<ezUInt8>(tmp);
+
+              if (*szLastPos != 'x')
+                return EZ_FAILURE;
+
+              sValue = ezStringView(szLastPos + 1);
+              EZ_SUCCEED_OR_RETURN(ezConversionUtils::StringToUInt(sValue, tmp));
+              out_graph.m_uiOutputHeight = static_cast<ezUInt8>(tmp);
+            }
+            else if (option.m_sName.StartsWith("export/fromGraph/outputs/"))
+            {
+              const char* szLastSlash = option.m_sName.FindLastSubString("/");
+              ezStringView sOutputIdentifier = ezStringView(szLastSlash + 1);
+
+              bool bEnabled = false;
+              EZ_SUCCEED_OR_RETURN(ezConversionUtils::StringToBool(option.m_sValue, bEnabled));
+
+              for (auto& output : out_graph.m_Outputs)
+              {
+                if (output.m_sName == sOutputIdentifier)
+                {
+                  output.m_bEnabled = bEnabled;
+                }
+              }
+            }
           }
         }
       }
@@ -253,7 +322,8 @@ namespace
       return EZ_SUCCESS;
     }
 
-    auto CheckPath = [&](ezStringView sPath) {
+    auto CheckPath = [&](ezStringView sPath)
+    {
       ezStringBuilder path = sPath;
       path.AppendPath("sbscooker.exe");
 
@@ -302,22 +372,26 @@ namespace
     arguments << "--output-path";
     arguments << szOutputPath;
 
-    arguments << "--full";
-    arguments << "0";
+    arguments << "--no-optimization";
 
     EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 180, ezLog::GetThreadLocalLogSystem(), ezLogMsgType::InfoMsg));
 
     return ezStatus(EZ_SUCCESS);
   }
 
-  ezStatus RunSbsRender(const char* szSbsarFile, const char* szGraph, const char* szGraphOutput, const char* szOutputName, const char* szOutputPath)
+  ezStatus RunSbsRender(const char* szSbsarFile, const char* szGraph, const char* szGraphOutput, const char* szOutputName, const char* szOutputPath, ezUInt8 uiOutputWidth, ezUInt8 uiOutputHeight)
   {
     ezStringBuilder sToolPath;
     EZ_SUCCEED_OR_RETURN(GetInstallationPath(sToolPath));
     sToolPath.AppendPath("sbsrender");
 
+    ezStringBuilder sTmp;
+
     QStringList arguments;
     arguments << "render";
+
+    arguments << "--engine";
+    arguments << "d3d11pc";
 
     arguments << "--input";
     arguments << szSbsarFile;
@@ -339,6 +413,10 @@ namespace
 
     arguments << "--output-path";
     arguments << szOutputPath;
+
+    sTmp.Format("$outputsize@{},{}", uiOutputWidth, uiOutputHeight);
+    arguments << "--set-value";
+    arguments << sTmp.GetData();
 
     EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
@@ -383,6 +461,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSubstanceGraph, ezNoBase, 1, ezRTTIDefaultAlloc
   {
     EZ_MEMBER_PROPERTY("Enabled", m_bEnabled)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("OutputWidth", m_uiOutputWidth)->AddAttributes(new ezClampValueAttribute(4, 12)),
+    EZ_MEMBER_PROPERTY("OutputHeight", m_uiOutputHeight)->AddAttributes(new ezClampValueAttribute(4, 12)),
     EZ_ARRAY_MEMBER_PROPERTY("Outputs", m_Outputs),
   }
   EZ_END_PROPERTIES;
@@ -504,7 +584,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
     if (graph.m_bEnabled == false)
       continue;
 
-    EZ_SUCCEED_OR_RETURN(RunSbsRender(sSbsarPath, graph.m_sName, nullptr, nullptr, sTempDir));
+    EZ_SUCCEED_OR_RETURN(RunSbsRender(sSbsarPath, graph.m_sName, nullptr, nullptr, sTempDir, graph.m_uiOutputWidth, graph.m_uiOutputHeight));
 
     for (auto& output : graph.m_Outputs)
     {
@@ -587,8 +667,13 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
 
     if (reader.isStartElement() && reader.name() == QLatin1StringView("graph"))
     {
-      auto& graph = graphs.ExpandAndGetRef();
+      ezSubstanceGraph graph;
       EZ_SUCCEED_OR_RETURN(ParseGraph(reader, graph));
+
+      if (graph.m_sName.StartsWith("_") == false)
+      {
+        graphs.PushBack(std::move(graph));
+      }
     }
   }
 

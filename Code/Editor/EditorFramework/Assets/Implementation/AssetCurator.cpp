@@ -298,12 +298,12 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
         // but then when it was only moved or renamed that means we have another document with the same GUID
         // so once the user would save the now modified document, we would end up with two documents with the same GUID
         // so, for now, since this is probably a rare case anyway, we just close the document without asking
-        ezDocumentManager::EnsureDocumentIsClosedInAllManagers(pInfo->m_pAssetInfo->m_Path);
-        e.m_Type = ezAssetCuratorEvent::Type::AssetRemoved;
-        m_Events.Broadcast(e);
-
         if (pInfo->m_bMainAsset)
         {
+          ezDocumentManager::EnsureDocumentIsClosedInAllManagers(pInfo->m_pAssetInfo->m_Path);
+          e.m_Type = ezAssetCuratorEvent::Type::AssetRemoved;
+          m_Events.Broadcast(e);
+
           deletedAssets.PushBack(pInfo->m_pAssetInfo);
         }
         m_KnownAssets.Remove(guid);
