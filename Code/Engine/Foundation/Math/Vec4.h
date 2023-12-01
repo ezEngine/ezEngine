@@ -25,6 +25,9 @@ public:
   /// \brief Initializes the vector with x,y,z,w
   ezVec4Template(Type x, Type y, Type z, Type w); // [tested]
 
+  /// \brief Initializes the vector from a vec3 and a float.
+  ezVec4Template(ezVec3Template<Type> xyz, Type w);
+
   /// \brief Initializes all 4 components with xyzw
   explicit ezVec4Template(Type v); // [tested]
   // no copy-constructor and operator= since the default-generated ones will be faster
@@ -154,8 +157,6 @@ public:
   /// brief Returns the component-wise absolute of *this.
   const ezVec4Template<Type> Abs() const; // [tested]
 };
-
-
 
 // *** Operators ***
 

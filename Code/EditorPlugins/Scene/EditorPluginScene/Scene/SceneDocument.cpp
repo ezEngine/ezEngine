@@ -596,7 +596,7 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, 
     if (auto pRotation = pGraphNode->FindProperty("LocalRotation"))
     {
       ezQuat rot = pRotation->m_Value.ConvertTo<ezQuat>();
-      rot = -tReference.m_qRotation * rot;
+      rot = tReference.m_qRotation.GetInverse() * rot;
 
       pGraphNode->ChangeProperty("LocalRotation", rot);
     }

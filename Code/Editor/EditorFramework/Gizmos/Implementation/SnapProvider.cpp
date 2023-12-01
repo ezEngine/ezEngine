@@ -143,7 +143,7 @@ void ezSnapProvider::SnapTranslationInLocalSpace(const ezQuat& qRotation, ezVec3
   if (s_fTranslationSnapValue <= 0.0f)
     return;
 
-  const ezQuat mInvRot = -qRotation;
+  const ezQuat mInvRot = qRotation.GetInverse();
 
   ezVec3 vLocalTranslation = mInvRot * ref_vTranslation;
   vLocalTranslation.x = ezMath::RoundToMultiple(vLocalTranslation.x, s_fTranslationSnapValue);

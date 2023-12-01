@@ -324,7 +324,7 @@ void ezJoltRopeComponent::CreateRope()
   if (m_Anchor2ConstraintMode != ezJoltRopeAnchorConstraintMode::None)
   {
     ezTransform end = nodes.PeekBack();
-    end.m_qRotation = -end.m_qRotation;
+    end.m_qRotation = end.m_qRotation.GetInverse();
     m_pConstraintAnchor2 = CreateConstraint(hAnchor2, end, m_pRagdoll->GetBodyIDs().back().GetIndexAndSequenceNumber(), m_Anchor2ConstraintMode, m_uiAnchor2BodyID);
   }
 }

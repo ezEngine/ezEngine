@@ -40,7 +40,7 @@ void ezHeadBoneComponent::Update()
   qOld = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), m_CurVerticalRotation);
   qNew = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), m_NewVerticalRotation);
 
-  const ezQuat qChange = qNew * -qOld;
+  const ezQuat qChange = qNew * qOld.GetInverse();
 
   const ezQuat qFinalNew = qChange * GetOwner()->GetLocalRotation();
 

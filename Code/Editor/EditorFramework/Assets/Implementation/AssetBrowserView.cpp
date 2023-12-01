@@ -373,7 +373,7 @@ QFont ezQtIconViewDelegate::GetFont() const
 
 ezUInt32 ezQtIconViewDelegate::ThumbnailSize() const
 {
-  return MaxSize * (float)m_iIconSizePercentage / 100.0f;
+  return static_cast<ezUInt32>((float)MaxSize * (float)m_iIconSizePercentage / 100.0f);
 }
 
 bool ezQtIconViewDelegate::IsInIconMode() const

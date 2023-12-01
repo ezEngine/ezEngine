@@ -421,6 +421,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
           tmpPath.AppendPath(event->name);
 
           const char* type = "file";
+          EZ_IGNORE_UNUSED(type);
           if (IsDirectory(event->mask))
           {
             type = "folder";

@@ -610,7 +610,7 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
 
   const ezVec3 vCenter = sphere.m_vCenter;
   const float fRadius = sphere.m_fRadius;
-  const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / NUM_SEGMENTS);
+  const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / (float)NUM_SEGMENTS);
 
   EZ_LOCK(s_Mutex);
 
@@ -648,7 +648,7 @@ void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, fl
     NUM_LINES = NUM_SEGMENTS + NUM_SEGMENTS + NUM_SEGMENTS + NUM_SEGMENTS + 4,
   };
 
-  const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / NUM_SEGMENTS);
+  const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / (float)NUM_SEGMENTS);
 
   Line lines[NUM_LINES];
 

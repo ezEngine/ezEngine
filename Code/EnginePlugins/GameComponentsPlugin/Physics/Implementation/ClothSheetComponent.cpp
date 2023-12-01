@@ -406,7 +406,7 @@ void ezClothSheetComponent::Update()
     }
 
     // rotate the acceleration vector into the local simulation space
-    acc = -GetOwner()->GetGlobalRotation() * acc;
+    acc = GetOwner()->GetGlobalRotation().GetInverse() * acc;
 
     if (m_Simulator.m_vAcceleration != acc)
     {

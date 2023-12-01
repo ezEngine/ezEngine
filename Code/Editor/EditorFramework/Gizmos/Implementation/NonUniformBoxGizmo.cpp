@@ -228,7 +228,7 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
     const ezVec3 vNewPos = vCurrentInteractionPoint - vOffset * fPerspectiveScale / m_fStartScale;
 
-    ezVec3 vTranslate = -GetTransformation().m_qRotation * (vNewPos - m_vStartPosition);
+    ezVec3 vTranslate = GetTransformation().m_qRotation.GetInverse() * (vNewPos - m_vStartPosition);
 
     // disable snapping when ALT is pressed
     if (!e->modifiers().testFlag(Qt::AltModifier))

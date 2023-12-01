@@ -43,7 +43,7 @@ void ezRotorComponent::Update()
 
       ezQuat qRotation = ezQuat::MakeFromAxisAndAngle(m_vRotationAxis, ezAngle::MakeFromDegree(fNewDistance));
 
-      GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * -m_qLastRotation * qRotation);
+      GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * m_qLastRotation.GetInverse() * qRotation);
 
       m_qLastRotation = qRotation;
 

@@ -301,8 +301,8 @@ void ezSceneContext::AnswerObjectStatePullRequest(const ezViewRedrawMsgToEngine*
     const ezQuat localRot = pChild->GetLocalRotation();
 
     // now adjust the position
-    state.m_vPosition -= state.m_qRotation * -localRot * localPos;
-    state.m_qRotation = state.m_qRotation * -localRot;
+    state.m_vPosition -= state.m_qRotation * localRot.GetInverse() * localPos;
+    state.m_qRotation = state.m_qRotation * localRot.GetInverse();
   }
 
   // send a return message with the result

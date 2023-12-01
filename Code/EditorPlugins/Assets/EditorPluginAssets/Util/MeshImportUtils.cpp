@@ -466,7 +466,7 @@ namespace ezMeshImportUtils
       // If we have a material now, fill the mapping.
       // It is important to do this even for "old"/known materials since a mesh might have gotten a new slot that points to the same
       // material as previous slots.
-      if (inout_materialSlots[subMeshIdx].m_sResource)
+      if (!inout_materialSlots[subMeshIdx].m_sResource.IsEmpty())
       {
         importMatToGuid.Insert(&impMaterial, inout_materialSlots[subMeshIdx].m_sResource);
       }
