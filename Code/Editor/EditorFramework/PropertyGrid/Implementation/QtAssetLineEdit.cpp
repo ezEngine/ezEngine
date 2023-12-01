@@ -100,10 +100,26 @@ void ezQtAssetLineEdit::paintEvent(QPaintEvent* e)
     p.setClipRect(r);
 
     // Render asset name
+    ezStringBuilder sText = qtToEzString(text());
+    if (sText.IsEmpty())
+    {
+      sText = qtToEzString(placeholderText());
+    }
+
+    ezStringView sFinalText = sText;
+
+    if (m_pOwner->IsValidAssetType(sText))
+    {
+      if (const char* szPipe = sFinalText.FindLastSubString("|"))
+      {
+        sFinalText = ezStringView(szPipe + 1);
+      }
+      sFinalText = sFinalText.GetFileName();
+    }
+
     r.adjust(2, 0, 2, 0);
     QTextOption opt(Qt::AlignLeft | Qt::AlignVCenter);
     opt.setWrapMode(QTextOption::NoWrap);
-    ezStringBuilder sAsset = qtToEzString(text());
-    p.drawText(r, ezMakeQString(sAsset.GetFileName()), opt);
+    p.drawText(r, ezMakeQString(sFinalText), opt);
   }
 }
