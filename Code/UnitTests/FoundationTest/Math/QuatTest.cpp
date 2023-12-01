@@ -194,13 +194,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST_BOOL(q.IsValid(0.001f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator-/Invert")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetInverse / Invert")
   {
     ezQuatT q, q1;
     q = ezQuat::MakeFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::MakeFromDegree(90));
     q1 = ezQuat::MakeFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::MakeFromDegree(-90));
 
-    ezQuatT q2 = -q;
+    ezQuatT q2 = q.GetInverse();
     EZ_TEST_BOOL(q1.IsEqualRotation(q2, 0.0001f));
 
     ezQuatT q3 = q;

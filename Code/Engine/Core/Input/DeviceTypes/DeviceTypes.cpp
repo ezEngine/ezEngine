@@ -117,7 +117,7 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
   static ezTime tElapsedTime;
   tElapsedTime += tTimeDifference;
 
-  const ezTime tTimePerSample = ezTime::MakeFromSeconds(1.0 / VibrationSamplesPerSecond);
+  const ezTime tTimePerSample = ezTime::MakeFromSeconds(1.0 / (double)VibrationSamplesPerSecond);
 
   // advance the vibration track sampling
   while (tElapsedTime >= tTimePerSample)

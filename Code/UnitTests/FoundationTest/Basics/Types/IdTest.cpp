@@ -33,9 +33,9 @@ struct TestId
 
 using LargeTestId = ezGenericId<32, 10>;
 
-#pragma warning(disable : 4068)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wbitfield-constant-conversion"
+EZ_WARNING_PUSH();
+EZ_WARNING_DISABLE_MSVC(4068);
+EZ_WARNING_DISABLE_GCC("-Wbitfield-constant-conversion");
 
 EZ_CREATE_SIMPLE_TEST(Basics, Id)
 {
@@ -71,4 +71,5 @@ EZ_CREATE_SIMPLE_TEST(Basics, Id)
   EZ_TEST_INT(id4.m_InstanceIndex, 1);
   EZ_TEST_INT(id4.m_Generation, 200);
 }
-#pragma GCC diagnostic pop
+
+EZ_WARNING_POP()

@@ -118,7 +118,7 @@ public:
       decltype((static_cast<const Class*>(pInstance)->*m_GetValues)()) c = (static_cast<const Class*>(pInstance)->*m_GetValues)();
       auto it = cbegin(c);
       const ezTag& value = *it;
-      Remove(pInstance, value.GetTagString());
+      Remove(pInstance, value.GetTagString().GetData());
     }
   }
 

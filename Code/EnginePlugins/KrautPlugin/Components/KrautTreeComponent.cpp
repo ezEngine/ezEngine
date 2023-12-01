@@ -210,7 +210,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   ComputeWind();
 
   // ignore scale, the shader expects the wind strength in the global 0-20 m/sec range
-  const ezVec3 vLocalWind = -GetOwner()->GetGlobalRotation() * m_vWindSpringPos;
+  const ezVec3 vLocalWind = GetOwner()->GetGlobalRotation().GetInverse() * m_vWindSpringPos;
 
   const ezUInt8 uiMaxLods = static_cast<ezUInt8>(pTree->GetTreeLODs().GetCount());
   for (ezUInt8 uiCurLod = 0; uiCurLod < uiMaxLods; ++uiCurLod)

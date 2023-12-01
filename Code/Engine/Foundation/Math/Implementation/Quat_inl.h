@@ -99,15 +99,23 @@ EZ_FORCE_INLINE void ezQuatTemplate<Type>::Invert()
 {
   EZ_NAN_ASSERT(this);
 
-  *this = -(*this);
+  *this = GetInverse();
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::operator-() const
+EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::GetInverse() const
 {
   EZ_NAN_ASSERT(this);
 
   return (ezQuatTemplate(-x, -y, -z, w));
+}
+
+template <typename Type>
+EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::GetNegated() const
+{
+  EZ_NAN_ASSERT(this);
+
+  return (ezQuatTemplate(-x, -y, -z, -w));
 }
 
 template <typename Type>

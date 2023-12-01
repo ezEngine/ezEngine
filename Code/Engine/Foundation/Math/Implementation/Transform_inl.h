@@ -47,7 +47,7 @@ ezTransformTemplate<Type> ezTransformTemplate<Type>::MakeFromMat4(const ezMat4Te
 template <typename Type>
 ezTransformTemplate<Type> ezTransformTemplate<Type>::MakeLocalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& globalTransformChild)
 {
-  const auto invRot = -globalTransformParent.m_qRotation;
+  const auto invRot = globalTransformParent.m_qRotation.GetInverse();
   const auto invScale = ezVec3Template<Type>(1).CompDiv(globalTransformParent.m_vScale);
 
   ezTransformTemplate<Type> res;
@@ -229,7 +229,7 @@ EZ_ALWAYS_INLINE void ezTransformTemplate<Type>::Invert()
 template <typename Type>
 inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::GetInverse() const
 {
-  const auto invRot = -m_qRotation;
+  const auto invRot = m_qRotation.GetInverse();
   const auto invScale = ezVec3Template<Type>(1).CompDiv(m_vScale);
   const auto invPos = invRot * (invScale.CompMul(-m_vPosition));
 

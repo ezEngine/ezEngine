@@ -313,7 +313,7 @@ void ezRcAgentComponent::ApplySteering(const ezVec3& vDirection, float fSpeed)
     if (GetWorld()->TryGetComponent(m_hCharacterController, pCharacter))
     {
       // the character controller already applies time scaling
-      const ezVec3 vRelativeSpeed = (-GetOwner()->GetGlobalRotation() * vDirection) * fSpeed;
+      const ezVec3 vRelativeSpeed = (GetOwner()->GetGlobalRotation().GetInverse() * vDirection) * fSpeed;
 
       ezMsgMoveCharacterController msg;
       msg.m_fMoveForwards = ezMath::Max(0.0f, vRelativeSpeed.x);

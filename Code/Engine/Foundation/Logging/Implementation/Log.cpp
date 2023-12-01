@@ -281,13 +281,13 @@ void ezLog::OsMessageBox(const ezFormatString& text)
   ezStringBuilder display = text.GetText(tmp);
   display.Trim(" \n\r\t");
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   const char* title = "";
   if (ezApplication::GetApplicationInstance())
   {
     title = ezApplication::GetApplicationInstance()->GetApplicationName();
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   MessageBoxW(nullptr, ezStringWChar(display).GetData(), ezStringWChar(title), MB_OK);
 #else
   ezLog::Print(display);

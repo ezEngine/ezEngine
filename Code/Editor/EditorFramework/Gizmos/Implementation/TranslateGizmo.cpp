@@ -335,7 +335,7 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   // set statusbar message
   {
-    const ezVec3 diff = -GetTransformation().m_qRotation * GetTranslationResult();
+    const ezVec3 diff = GetTransformation().m_qRotation.GetInverse() * GetTranslationResult();
     GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Translation: {}, {}, {}", ezArgF(diff.x, 2), ezArgF(diff.y, 2), ezArgF(diff.z, 2)));
   }
 

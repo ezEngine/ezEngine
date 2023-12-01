@@ -219,7 +219,7 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
   ezVec3 vBoxPosSS0 = t.m_qRotation * vPosOnNearPlane0;
   ezVec3 vBoxPosSS1 = t.m_qRotation * vPosOnNearPlane1;
 
-  t.m_qRotation = -t.m_qRotation;
+  t.m_qRotation = t.m_qRotation.GetInverse();
 
   t.m_vScale.x = ezMath::Abs(vBoxPosSS0.x - vBoxPosSS1.x);
   t.m_vScale.y = ezMath::Abs(vBoxPosSS0.y - vBoxPosSS1.y);

@@ -319,7 +319,7 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bo
 
       if (m_bIgnoreOwnerRotation)
       {
-        volume.Transform((-GetOwner()->GetGlobalRotation()).GetAsMat4());
+        volume.Transform((GetOwner()->GetGlobalRotation().GetInverse()).GetAsMat4());
       }
 
       ref_bounds = volume;

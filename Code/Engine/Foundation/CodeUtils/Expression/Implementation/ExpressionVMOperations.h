@@ -77,8 +77,10 @@ namespace
     DEFINE_TARGET_REGISTER();                                                                                       \
     DEFINE_OP_REGISTER(a);                                                                                          \
     ezUInt32 bRaw;                                                                                                  \
+    EZ_IGNORE_UNUSED(bRaw);                                                                                         \
     ezExpression::Register bConstant;                                                                               \
     const ezExpression::Register* b;                                                                                \
+    EZ_IGNORE_UNUSED(b);                                                                                            \
     if constexpr (RightIsConstant)                                                                                  \
     {                                                                                                               \
       bRaw = *pByteCode;                                                                                            \
