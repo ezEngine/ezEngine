@@ -1,10 +1,12 @@
 #include <GameEngine/GameEnginePCH.h>
 
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GrabbableItemComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/View.h>
 
 struct GICFlags
 {
