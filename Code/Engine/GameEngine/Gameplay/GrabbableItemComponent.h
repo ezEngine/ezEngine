@@ -50,13 +50,7 @@ public:
   void SetDebugShowPoints(bool bShow); // [ property ]
   bool GetDebugShowPoints() const;     // [ property ]
 
-  ezUInt32 GrabPoints_GetCount() const;                                       // [ property ]
-  ezGrabbableItemGrabPoint GrabPoints_GetValue(ezUInt32 uiIndex) const;       // [ property ]
-  void GrabPoints_SetValue(ezUInt32 uiIndex, ezGrabbableItemGrabPoint value); // [ property ]
-  void GrabPoints_Insert(ezUInt32 uiIndex, ezGrabbableItemGrabPoint value);   // [ property ]
-  void GrabPoints_Remove(ezUInt32 uiIndex);                                   // [ property ]
-
-  ezDynamicArray<ezGrabbableItemGrabPoint> m_GrabPoints;
+  ezDynamicArray<ezGrabbableItemGrabPoint> m_GrabPoints; // [ property ]
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;

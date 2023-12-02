@@ -345,13 +345,13 @@ ezStateMachineInstance::~ezStateMachineInstance()
 
 ezResult ezStateMachineInstance::SetState(ezStateMachineState* pState)
 {
+  if (m_pCurrentState == pState)
+    return EZ_SUCCESS;
+
   if (pState != nullptr && m_pDescription != nullptr)
   {
     return SetState(pState->GetNameHashed());
   }
-
-  if (m_pCurrentState == pState)
-    return EZ_SUCCESS;
 
   const auto pFromState = m_pCurrentState;
   const auto pToState = pState;

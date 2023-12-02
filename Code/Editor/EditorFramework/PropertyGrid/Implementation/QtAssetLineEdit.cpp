@@ -114,7 +114,10 @@ void ezQtAssetLineEdit::paintEvent(QPaintEvent* e)
       {
         sFinalText = ezStringView(szPipe + 1);
       }
-      sFinalText = sFinalText.GetFileName();
+      else
+      {
+        sFinalText = sFinalText.GetFileName();
+      }
     }
 
     r.adjust(2, 0, 2, 0);

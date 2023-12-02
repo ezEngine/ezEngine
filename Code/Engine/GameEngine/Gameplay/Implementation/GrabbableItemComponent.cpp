@@ -3,6 +3,8 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GrabbableItemComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 struct GICFlags
 {
@@ -36,7 +38,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGrabbableItemComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("DebugShowPoints", GetDebugShowPoints, SetDebugShowPoints),
-    EZ_ARRAY_ACCESSOR_PROPERTY("GrabPoints", GrabPoints_GetCount, GrabPoints_GetValue, GrabPoints_SetValue, GrabPoints_Insert, GrabPoints_Remove),
+    EZ_ARRAY_MEMBER_PROPERTY("GrabPoints", m_GrabPoints),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -100,31 +102,6 @@ void ezGrabbableItemComponent::SetDebugShowPoints(bool bShow)
 bool ezGrabbableItemComponent::GetDebugShowPoints() const
 {
   return GetUserFlag(GICFlags::DebugShowPoints);
-}
-
-ezUInt32 ezGrabbableItemComponent::GrabPoints_GetCount() const
-{
-  return m_GrabPoints.GetCount();
-}
-
-ezGrabbableItemGrabPoint ezGrabbableItemComponent::GrabPoints_GetValue(ezUInt32 uiIndex) const
-{
-  return m_GrabPoints[uiIndex];
-}
-
-void ezGrabbableItemComponent::GrabPoints_SetValue(ezUInt32 uiIndex, ezGrabbableItemGrabPoint value)
-{
-  m_GrabPoints[uiIndex] = value;
-}
-
-void ezGrabbableItemComponent::GrabPoints_Insert(ezUInt32 uiIndex, ezGrabbableItemGrabPoint value)
-{
-  m_GrabPoints.Insert(value, uiIndex);
-}
-
-void ezGrabbableItemComponent::GrabPoints_Remove(ezUInt32 uiIndex)
-{
-  m_GrabPoints.RemoveAtAndCopy(uiIndex);
 }
 
 void ezGrabbableItemComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
