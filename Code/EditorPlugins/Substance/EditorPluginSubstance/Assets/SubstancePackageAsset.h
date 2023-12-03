@@ -33,7 +33,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINSUBSTANCE_DLL, ezSubstanceUsage);
 struct ezSubstanceGraphOutput
 {
   bool m_bEnabled = true;
-  ezEnum<ezTexConvCompressionMode> m_CompressionMode;
+  ezEnum<ezTexConvCompressionMode> m_CompressionMode = ezTexConvCompressionMode::High;
   ezEnum<ezSubstanceUsage> m_Usage;
   ezUInt8 m_uiNumChannels = 1;
   bool m_bPreserveAlphaCoverage = false;
@@ -63,12 +63,17 @@ struct ezSubstanceGraph
 
   ezString m_sName;
 
+  ezUInt8 m_uiOutputWidth = 0; ///< In base 2, e.g. 8 = 2^8 = 256
+  ezUInt8 m_uiOutputHeight = 0; ///< In base 2
+
   ezHybridArray<ezSubstanceGraphOutput, 8> m_Outputs;
 
   bool operator==(const ezSubstanceGraph& other) const
   {
     return m_bEnabled == other.m_bEnabled &&
            m_sName == other.m_sName &&
+           m_uiOutputWidth == other.m_uiOutputWidth &&
+           m_uiOutputHeight == other.m_uiOutputHeight &&
            m_Outputs == other.m_Outputs;
   }
 };

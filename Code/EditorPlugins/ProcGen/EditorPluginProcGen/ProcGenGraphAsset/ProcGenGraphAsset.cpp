@@ -165,7 +165,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
   };
 
   {
-    chunk.BeginChunk("PlacementOutputs", 6);
+    chunk.BeginChunk("PlacementOutputs", 7);
 
     if (!bDebug)
     {
@@ -527,4 +527,5 @@ void ezProcGenGraphAssetDocument::CreateDebugNode()
   m_pDebugNode->m_sName = "Debug";
   m_pDebugNode->m_ObjectsToPlace.PushBack(s_szSphereAssetId);
   m_pDebugNode->m_sColorGradient = s_szBWGradientAssetId;
+  m_pDebugNode->m_PlacementPattern = ezProcPlacementPattern::RegularGrid;
 }

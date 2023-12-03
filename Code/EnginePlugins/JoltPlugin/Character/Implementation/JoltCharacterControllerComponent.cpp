@@ -560,9 +560,9 @@ void ezJoltCharacterControllerComponent::Update(ezTime deltaTime)
   m_fUpdateTimeDelta = deltaTime.AsFloatInSeconds();
   m_fInverseUpdateTimeDelta = static_cast<float>(1.0 / deltaTime.GetSeconds());
 
-  MovePresenceBody(deltaTime);
-
   UpdateCharacter();
+
+  MovePresenceBody(deltaTime);
 }
 
 void ezJoltCharacterControllerComponent::CreatePresenceBody()

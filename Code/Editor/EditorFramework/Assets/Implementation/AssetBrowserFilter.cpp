@@ -227,11 +227,17 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     }
   }
 
-  if (!m_bShowItemsInHiddenFolders && !(m_bUsesSearchActive && !m_SearchFilter.IsEmpty()))
+  if (!m_bShowItemsInHiddenFolders)
   {
-    if (ezStringUtils::FindSubString_NoCase(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount() + 1, "_data/", sDataDirParentRelativePath.GetEndPointer()) !=
-        nullptr)
+    // treat folders starting with a dot as hidden folders
+    if (sDataDirParentRelativePath.FindSubString("/."))
       return true;
+
+    if (!(m_bUsesSearchActive && !m_SearchFilter.IsEmpty()))
+    {
+      if (ezStringUtils::FindSubString_NoCase(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount() + 1, "_data/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
+        return true;
+    }
   }
 
   if (!m_SearchFilter.IsEmpty())

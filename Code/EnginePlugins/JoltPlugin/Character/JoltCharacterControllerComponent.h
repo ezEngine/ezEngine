@@ -108,6 +108,7 @@ protected:
 
   /// \brief Gives access to the internally used JPH::CharacterVirtual.
   JPH::CharacterVirtual* GetJoltCharacter() { return m_pCharacter; }
+  const JPH::CharacterVirtual* GetJoltCharacter() const { return m_pCharacter; }
 
   /// \brief Attempts to change the character shape to the new one. Fails if the new shape overlaps with surrounding geometry.
   ezResult TryChangeShape(JPH::Shape* pNewShape);

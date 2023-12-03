@@ -157,9 +157,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
       {
         m_uiThumbnailID = 0;
 
-        m_pWidget->setText(QString());
-        m_pWidget->setPlaceholderText(QStringLiteral("<Selected Invalid Asset Type>"));
-
+        m_pWidget->setText(ezMakeQString(sText));
+        
         m_pButton->setIcon(QIcon());
         m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
 
