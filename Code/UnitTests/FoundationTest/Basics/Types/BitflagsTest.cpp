@@ -1,5 +1,9 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
+EZ_WARNING_PUSH();
+EZ_WARNING_DISABLE_CLANG("-Wbitfield-constant-conversion");
+EZ_WARNING_DISABLE_CLANG("-Wdeprecated-enum-enum-conversion");
+
 namespace
 {
   // declare bitflags using macro magic
@@ -188,3 +192,5 @@ EZ_CREATE_SIMPLE_TEST(Basics, TypelessBitflags)
     EZ_TEST_BOOL(f.GetValue() == TypelessFlags2::Bit3);
   }
 }
+
+EZ_WARNING_POP();
