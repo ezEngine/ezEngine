@@ -51,6 +51,7 @@
 			"xxhash.h",
 			"cpp11.h",
 			"WinRTUtils.h"
+			"StringView.h",
 		]
 	}
 }
