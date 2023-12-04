@@ -93,16 +93,12 @@ public:
   /// \note Comparing between ezHashedString objects is always error-free, so even if two string had the same hash value, although they are
   /// different, this comparison function will not report they are the same.
   bool operator==(const ezHashedString& rhs) const; // [tested]
-
-  /// \brief \see operator==
-  bool operator!=(const ezHashedString& rhs) const; // [tested]
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL((const ezHashedString& rhs));
 
   /// \brief Compares this string object to an ezTempHashedString object. This should be used whenever some object needs to be found
   /// and the string to compare against is not yet an ezHashedString object.
   bool operator==(const ezTempHashedString& rhs) const; // [tested]
-
-  /// \brief \see operator==
-  bool operator!=(const ezTempHashedString& rhs) const; // [tested]
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezTempHashedString&);
 
   /// \brief This operator allows sorting objects by hash value, not by alphabetical order.
   bool operator<(const ezHashedString& rhs) const; // [tested]
@@ -135,7 +131,7 @@ public:
   EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
   /// \brief Returns a pointer to the internal Utf8 string.
-  EZ_ALWAYS_INLINE operator const char8_t*() const {return reinterpret_cast<const char8_t*>(GetData()); }
+  EZ_ALWAYS_INLINE operator const char8_t*() const { return reinterpret_cast<const char8_t*>(GetData()); }
 
 private:
   static void InitHashedString();
@@ -170,7 +166,7 @@ public:
 
   /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might
   /// be slow.
-  ezTempHashedString(ezStringView sString); // [tested]
+  explicit ezTempHashedString(ezStringView sString); // [tested]
 
   /// \brief Copies the hash from rhs.
   ezTempHashedString(const ezTempHashedString& rhs); // [tested]
@@ -198,9 +194,7 @@ public:
 
   /// \brief Compares the two objects by their hash value. Might report incorrect equality, if two strings have the same hash value.
   bool operator==(const ezTempHashedString& rhs) const; // [tested]
-
-  /// \brief \see operator==
-  bool operator!=(const ezTempHashedString& rhs) const; // [tested]
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezTempHashedString&);
 
   /// \brief This operator allows soring objects by hash value, not by alphabetical order.
   bool operator<(const ezTempHashedString& rhs) const; // [tested]

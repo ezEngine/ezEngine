@@ -189,11 +189,6 @@ EZ_ALWAYS_INLINE bool operator==(ezStringView lhs, ezStringView rhs)
   return lhs.IsEqual(rhs);
 }
 
-EZ_ALWAYS_INLINE bool operator!=(ezStringView lhs, ezStringView rhs)
-{
-  return !lhs.IsEqual(rhs);
-}
-
 EZ_ALWAYS_INLINE bool operator<(ezStringView lhs, ezStringView rhs)
 {
   return lhs.Compare(rhs) < 0;

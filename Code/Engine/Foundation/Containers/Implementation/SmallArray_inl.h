@@ -114,27 +114,6 @@ EZ_ALWAYS_INLINE bool ezSmallArrayBase<T, Size>::operator==(const ezSmallArrayBa
 }
 
 template <typename T, ezUInt16 Size>
-bool ezSmallArrayBase<T, Size>::operator==(const ezArrayPtr<const T>& rhs) const
-{
-  if (m_uiCount != rhs.GetCount())
-    return false;
-
-  return ezMemoryUtils::IsEqual(GetElementsPtr(), rhs.GetPtr(), m_uiCount);
-}
-
-template <typename T, ezUInt16 Size>
-EZ_ALWAYS_INLINE bool ezSmallArrayBase<T, Size>::operator!=(const ezSmallArrayBase<T, Size>& rhs) const
-{
-  return !(*this == rhs);
-}
-
-template <typename T, ezUInt16 Size>
-EZ_ALWAYS_INLINE bool ezSmallArrayBase<T, Size>::operator!=(const ezArrayPtr<const T>& rhs) const
-{
-  return !(*this == rhs);
-}
-
-template <typename T, ezUInt16 Size>
 EZ_ALWAYS_INLINE const T& ezSmallArrayBase<T, Size>::operator[](const ezUInt32 uiIndex) const
 {
   EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);

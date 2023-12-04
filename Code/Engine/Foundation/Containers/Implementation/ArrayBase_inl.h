@@ -66,30 +66,9 @@ bool ezArrayBase<T, Derived>::operator==(const ezArrayBase<T, Derived>& rhs) con
 }
 
 template <typename T, typename Derived>
-EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator!=(const ezArrayBase<T, Derived>& rhs) const
-{
-  return !(*this == rhs);
-}
-
-template <typename T, typename Derived>
 EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator<(const ezArrayBase<T, Derived>& rhs) const
 {
   return GetArrayPtr() < rhs.GetArrayPtr();
-}
-
-template <typename T, typename Derived>
-bool ezArrayBase<T, Derived>::operator==(const ezArrayPtr<const T>& rhs) const
-{
-  if (m_uiCount != rhs.GetCount())
-    return false;
-
-  return ezMemoryUtils::IsEqual(static_cast<const Derived*>(this)->GetElementsPtr(), rhs.GetPtr(), m_uiCount);
-}
-
-template <typename T, typename Derived>
-EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator!=(const ezArrayPtr<const T>& rhs) const
-{
-  return !(*this == rhs);
 }
 
 template <typename T, typename Derived>

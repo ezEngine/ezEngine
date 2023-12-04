@@ -47,12 +47,6 @@ EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator==(const t
 }
 
 template <typename K, typename V, typename H>
-EZ_ALWAYS_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator!=(const typename ezHashTableBase<K, V, H>::ConstIterator& rhs) const
-{
-  return !(*this == rhs);
-}
-
-template <typename K, typename V, typename H>
 EZ_ALWAYS_INLINE const K& ezHashTableBase<K, V, H>::ConstIterator::Key() const
 {
   return m_pHashTable->m_pEntries[m_uiCurrentIndex].key;
@@ -254,12 +248,6 @@ bool ezHashTableBase<K, V, H>::operator==(const ezHashTableBase<K, V, H>& rhs) c
   }
 
   return true;
-}
-
-template <typename K, typename V, typename H>
-EZ_ALWAYS_INLINE bool ezHashTableBase<K, V, H>::operator!=(const ezHashTableBase<K, V, H>& rhs) const
-{
-  return !(*this == rhs);
 }
 
 template <typename K, typename V, typename H>

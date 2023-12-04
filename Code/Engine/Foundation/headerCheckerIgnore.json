@@ -50,8 +50,8 @@
 			"ThreadingDeclarations_posix.h",
 			"xxhash.h",
 			"cpp11.h",
-			"WinRTUtils.h"
-			"StringView.h",
+			"WinRTUtils.h",
+			"StringView.h"
 		]
 	}
 }

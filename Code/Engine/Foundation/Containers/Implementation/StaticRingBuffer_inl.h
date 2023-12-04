@@ -49,12 +49,6 @@ bool ezStaticRingBuffer<T, C>::operator==(const ezStaticRingBuffer<T, C>& rhs) c
 }
 
 template <typename T, ezUInt32 C>
-EZ_ALWAYS_INLINE bool ezStaticRingBuffer<T, C>::operator!=(const ezStaticRingBuffer<T, C>& rhs) const
-{
-  return !(*this == rhs);
-}
-
-template <typename T, ezUInt32 C>
 void ezStaticRingBuffer<T, C>::PushBack(const T& element)
 {
   EZ_ASSERT_DEV(CanAppend(), "The ring-buffer is full, no elements can be appended before removing one.");

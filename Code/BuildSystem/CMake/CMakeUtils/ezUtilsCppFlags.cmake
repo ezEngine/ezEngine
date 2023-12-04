@@ -53,6 +53,9 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# force the compiler to interpret code as utf8.
 	target_compile_options(${TARGET_NAME} PRIVATE "/utf-8")
 
+	# set the __cplusplus preprocessor macro to something useful
+	target_compile_options(${TARGET_NAME} PRIVATE "/Zc:__cplusplus")
+
 	# set high warning level
 	# target_compile_options(${TARGET_NAME} PRIVATE "/W4") # too much work to fix all warnings in ez
 

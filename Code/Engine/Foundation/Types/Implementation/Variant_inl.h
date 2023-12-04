@@ -211,11 +211,6 @@ EZ_ALWAYS_INLINE void ezVariant::operator=(const T& value)
   *this = ezVariant(value);
 }
 
-EZ_ALWAYS_INLINE bool ezVariant::operator!=(const ezVariant& other) const
-{
-  return !(*this == other);
-}
-
 template <typename T>
 EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
 {
@@ -256,12 +251,6 @@ EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
   using StorageType = typename TypeDeduction<T>::StorageType;
   EZ_ASSERT_DEV(IsA<StorageType>(), "Stored type '{0}' does not match comparison type '{1}'", m_uiType, TypeDeduction<T>::value);
   return Cast<StorageType>() == other;
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE bool ezVariant::operator!=(const T& other) const
-{
-  return !(*this == other);
 }
 
 EZ_ALWAYS_INLINE bool ezVariant::IsValid() const

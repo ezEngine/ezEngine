@@ -299,12 +299,6 @@ bool ezArrayMapBase<KEY, VALUE>::operator==(const ezArrayMapBase<KEY, VALUE>& rh
   return m_Data == rhs.m_Data;
 }
 
-template <typename KEY, typename VALUE>
-EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::operator!=(const ezArrayMapBase<KEY, VALUE>& rhs) const
-{
-  return !(*this == rhs);
-}
-
 template <typename KEY, typename VALUE, typename A>
 ezArrayMap<KEY, VALUE, A>::ezArrayMap()
   : ezArrayMapBase<KEY, VALUE>(A::GetAllocator())

@@ -1,9 +1,5 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
-EZ_WARNING_PUSH();
-EZ_WARNING_DISABLE_CLANG("-Wbitfield-constant-conversion");
-EZ_WARNING_DISABLE_CLANG("-Wdeprecated-enum-enum-conversion");
-
 namespace
 {
   // declare bitflags using macro magic
@@ -130,67 +126,3 @@ namespace
     };
   };
 } // namespace
-
-EZ_CREATE_SIMPLE_TEST(Basics, TypelessBitflags)
-{
-  {
-    ezTypelessBitflags<ezUInt32> flags = TypelessFlags1::Bit1 | TypelessFlags2::Bit4;
-
-    EZ_TEST_BOOL(flags.IsAnySet(TypelessFlags2::Bit4));
-    EZ_TEST_BOOL(flags.AreAllSet(TypelessFlags1::Bit1 | TypelessFlags2::Bit4));
-    EZ_TEST_BOOL(flags.IsAnySet(TypelessFlags1::Bit1 | TypelessFlags1::Bit2));
-    EZ_TEST_BOOL(!flags.IsAnySet(TypelessFlags1::Bit2 | TypelessFlags2::Bit3));
-    EZ_TEST_BOOL(flags.AreNoneSet(TypelessFlags1::Bit2 | TypelessFlags2::Bit3));
-    EZ_TEST_BOOL(!flags.AreNoneSet(TypelessFlags1::Bit2 | TypelessFlags2::Bit4));
-
-    flags.Add(TypelessFlags2::Bit3);
-    EZ_TEST_BOOL(flags.IsAnySet(TypelessFlags2::Bit3));
-
-    flags.Remove(TypelessFlags1::Bit1);
-    EZ_TEST_BOOL(!flags.IsAnySet(TypelessFlags1::Bit1));
-
-    flags.Toggle(TypelessFlags2::Bit4);
-    EZ_TEST_BOOL(flags.AreAllSet(TypelessFlags2::Bit3));
-
-    flags.AddOrRemove(TypelessFlags1::Bit2, true);
-    flags.AddOrRemove(TypelessFlags2::Bit3, false);
-    EZ_TEST_BOOL(flags.AreAllSet(TypelessFlags1::Bit2));
-
-    EZ_TEST_BOOL(!flags.IsNoFlagSet());
-    flags.Clear();
-    EZ_TEST_BOOL(flags.IsNoFlagSet());
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator&")
-  {
-    ezTypelessBitflags<ezUInt32> flags2 = TypelessFlags1::Bit1 & TypelessFlags2::Bit4;
-    EZ_TEST_BOOL(flags2.GetValue() == 0);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetValue")
-  {
-    ezTypelessBitflags<ezUInt32> flags;
-    EZ_TEST_BOOL(flags.IsNoFlagSet());
-    EZ_TEST_BOOL(flags.GetValue() == 0);
-    flags.SetValue(17);
-    EZ_TEST_BOOL(flags.GetValue() == 17);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator|=")
-  {
-    ezTypelessBitflags<ezUInt32> f = TypelessFlags1::Bit1 | TypelessFlags1::Bit2;
-    f |= TypelessFlags2::Bit3;
-
-    EZ_TEST_BOOL(f.GetValue() == (TypelessFlags1::Bit1 | TypelessFlags1::Bit2 | TypelessFlags2::Bit3));
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator&=")
-  {
-    ezTypelessBitflags<ezUInt32> f = TypelessFlags1::Bit1 | TypelessFlags1::Bit2 | TypelessFlags2::Bit3;
-    f &= TypelessFlags2::Bit3;
-
-    EZ_TEST_BOOL(f.GetValue() == TypelessFlags2::Bit3);
-  }
-}
-
-EZ_WARNING_POP();

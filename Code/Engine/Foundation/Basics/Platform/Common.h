@@ -60,7 +60,7 @@
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 /// \brief Macro helper to check alignment
-#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment) - 1)) == 0, "Wrong alignment.")
+#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment)-1)) == 0, "Wrong alignment.")
 #else
 /// \brief Macro helper to check alignment
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)
@@ -177,4 +177,21 @@ void EZ_IGNORE_UNUSED(const T&)
 #  define EZ_DECL_IMPORT [[gnu::visibility("default")]]
 #  define EZ_DECL_EXPORT_FRIEND
 #  define EZ_DECL_IMPORT_FRIEND
+#endif
+
+#if ((!defined(_MSVC_LANG) && __cplusplus < 202002L) || (_MSVC_LANG < 202002L))
+#  define EZ_HAS_CPP20_OPERATORS 0
+#else
+#  define EZ_HAS_CPP20_OPERATORS 1
+#endif
+
+#if EZ_HAS_CPP20_OPERATORS
+// in C++ 20 we don't need to declare an operator!=, it is automatically generated from operator==
+#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(type) /*empty*/
+#else
+#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(type)     \
+    EZ_ALWAYS_INLINE bool operator!=(type rhs) const \
+    {                                                \
+      return !(*this == rhs);                        \
+    }
 #endif

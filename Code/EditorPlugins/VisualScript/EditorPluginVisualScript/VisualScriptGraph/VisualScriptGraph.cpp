@@ -340,7 +340,7 @@ bool ezVisualScriptNodeManager::InternalIsDynamicPinProperty(const ezDocumentObj
 
   if (pNodeDesc != nullptr && pNodeDesc->m_bHasDynamicPins)
   {
-    ezTempHashedString sPropNameHashed = ezStringView(pProp->GetPropertyName());
+    ezTempHashedString sPropNameHashed = ezTempHashedString(pProp->GetPropertyName());
     for (auto& pinDesc : pNodeDesc->m_InputPins)
     {
       if (pinDesc.m_sDynamicPinProperty == sPropNameHashed)
@@ -410,7 +410,8 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
     return;
 
   ezHybridArray<ezString, 16> dynamicPinNames;
-  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins, ezUInt32& inout_dataPinIndex) {
+  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins, ezUInt32& inout_dataPinIndex)
+  {
     if (pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
     {
       GetDynamicPinNames(pObject, pinDesc.m_sDynamicPinProperty, pinDesc.m_sName, dynamicPinNames);

@@ -30,10 +30,7 @@ struct ezTypedObject
   {
     return m_pObject == rhs.m_pObject;
   }
-  bool operator!=(const ezTypedObject& rhs) const
-  {
-    return m_pObject != rhs.m_pObject;
-  }
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezTypedObject&);
 };
 
 /// \brief ezVariant is a class that can store different types of variables, which is useful in situations where it is not clear up front,
@@ -154,16 +151,17 @@ public:
   /// that can either both be converted to double (\see CanConvertTo()) or whose types are equal.
   bool operator==(const ezVariant& other) const; // [tested]
 
-  /// \brief Same as operator== (with a twist!)
-  bool operator!=(const ezVariant& other) const; // [tested]
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezVariant&);
 
   /// \brief See non-templated operator==
   template <typename T>
   bool operator==(const T& other) const; // [tested]
 
+#if ((!defined(_MSVC_LANG) && __cplusplus < 202002L) || (_MSVC_LANG < 202002L))
   /// \brief See non-templated operator!=
   template <typename T>
   bool operator!=(const T& other) const; // [tested]
+#endif
 
   /// \brief Returns whether this variant stores any other type than 'Invalid'.
   bool IsValid() const; // [tested]

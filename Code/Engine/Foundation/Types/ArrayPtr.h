@@ -214,13 +214,6 @@ public:
     return ezMemoryUtils::IsEqual(static_cast<const ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
   }
 
-  /// \brief Compares the two arrays for inequality.
-  template <typename = typename std::enable_if<std::is_const<T>::value == false>>
-  EZ_ALWAYS_INLINE bool operator!=(const ezArrayPtr<const T>& other) const // [tested]
-  {
-    return !(*this == other);
-  }
-
   /// \brief Compares the two arrays for equality.
   inline bool operator==(const ezArrayPtr<T>& other) const // [tested]
   {
@@ -231,12 +224,6 @@ public:
       return true;
 
     return ezMemoryUtils::IsEqual(static_cast<const ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
-  }
-
-  /// \brief Compares the two arrays for inequality.
-  EZ_ALWAYS_INLINE bool operator!=(const ezArrayPtr<T>& other) const // [tested]
-  {
-    return !(*this == other);
   }
 
   /// \brief Compares the two arrays for less.

@@ -467,7 +467,7 @@ ezStateMachineTransition_TransitionEvent::~ezStateMachineTransition_TransitionEv
 
 bool ezStateMachineTransition_TransitionEvent::IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const
 {
-  return ref_instance.GetCurrentTransitionEvent() == m_sEventName;
+  return m_sEventName == ref_instance.GetCurrentTransitionEvent();
 }
 
 ezResult ezStateMachineTransition_TransitionEvent::Serialize(ezStreamWriter& inout_stream) const

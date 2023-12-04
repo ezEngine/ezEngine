@@ -56,8 +56,7 @@ struct ezConstructionCounter
   void operator=(const ezConstructionCounter&& cc) noexcept { m_iData = cc.m_iData; }
 
   bool operator==(const ezConstructionCounter& cc) const { return m_iData == cc.m_iData; }
-
-  bool operator!=(const ezConstructionCounter& cc) const { return m_iData != cc.m_iData; }
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezConstructionCounter&);
 
   bool operator<(const ezConstructionCounter& rhs) const { return m_iData < rhs.m_iData; }
 

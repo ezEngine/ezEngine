@@ -329,12 +329,6 @@ bool ezListBase<T>::operator==(const ezListBase<T>& rhs) const
   return true;
 }
 
-template <typename T>
-bool ezListBase<T>::operator!=(const ezListBase<T>& rhs) const
-{
-  return !operator==(rhs);
-}
-
 template <typename T, typename A>
 ezList<T, A>::ezList()
   : ezListBase<T>(A::GetAllocator())

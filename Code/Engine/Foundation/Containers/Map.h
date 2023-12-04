@@ -57,9 +57,7 @@ public:
 
     /// \brief Checks whether the two iterators point to the same element.
     EZ_ALWAYS_INLINE bool operator==(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement == it2.m_pElement); }
-
-    /// \brief Checks whether the two iterators point to the same element.
-    EZ_ALWAYS_INLINE bool operator!=(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement != it2.m_pElement); }
+    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL((const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator&));
 
     /// \brief Returns the 'key' of the element that this iterator points to.
     EZ_FORCE_INLINE const KeyType& Key() const
@@ -258,9 +256,7 @@ public:
 
   /// \brief Comparison operator
   bool operator==(const ezMapBase<KeyType, ValueType, Comparer>& rhs) const; // [tested]
-
-  /// \brief Comparison operator
-  bool operator!=(const ezMapBase<KeyType, ValueType, Comparer>& rhs) const; // [tested]
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL((const ezMapBase<KeyType, ValueType, Comparer>&));
 
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const { return m_Elements.GetHeapMemoryUsage(); } // [tested]
