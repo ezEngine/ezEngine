@@ -102,22 +102,25 @@ bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezT
   if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
     return false;
 
-  if (hit.m_fDistance > m_fMaxGrabPointDistance)
-    return false;
-
   const ezGameObject* pActorObj = nullptr;
   if (!GetWorld()->TryGetObject(hit.m_hActorObject, pActorObj))
     return false;
 
+  // If we hit a non-kinematic dynamic actor try to find a grab point.
+  // If we don't have an dynamic actor or it is kinematic still report the hit so it can be used for other interactions like buttons etc.
   const ezJoltDynamicActorComponent* pActorComp = nullptr;
-  if (!pActorObj->TryGetComponentOfBaseType(pActorComp))
-    return false;
+  if (pActorObj->TryGetComponentOfBaseType(pActorComp) && !pActorComp->GetKinematic())
+  {
+    if (DetermineGrabPoint(pActorComp, out_localGrabPoint).Failed())
+      return false;
+  }
+  else
+  {
+    if (hit.m_fDistance > m_fMaxGrabPointDistance)
+      return false;
 
-  if (pActorComp->GetKinematic())
-    return false;
-
-  if (DetermineGrabPoint(pActorComp, out_localGrabPoint).Failed())
-    return false;
+    out_localGrabPoint = ezTransform::MakeIdentity();
+  }
 
   out_pObject = const_cast<ezGameObject*>(pActorObj);
   return true;
