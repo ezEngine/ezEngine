@@ -218,9 +218,9 @@ void ezQtJoltProjectSettingsDlg::on_DefaultButtons_clicked(QAbstractButton* pBut
 
 void ezQtJoltProjectSettingsDlg::on_ButtonAddLayer_clicked()
 {
-  const ezInt32 iNewIdx = m_Config.FindUnnamedGroup();
+  const ezUInt32 uiNewIdx = m_Config.FindUnnamedGroup();
 
-  if (iNewIdx < 0)
+  if (uiNewIdx == ezInvalidIndex)
   {
     ezQtUiServices::GetSingleton()->MessageBoxInformation("The maximum number of collision layers has been reached.");
     return;
@@ -228,20 +228,19 @@ void ezQtJoltProjectSettingsDlg::on_ButtonAddLayer_clicked()
 
   while (true)
   {
-
     bool ok;
     QString result = QInputDialog::getText(this, QStringLiteral("Add Layer"), QStringLiteral("Name:"), QLineEdit::Normal, QString(), &ok);
 
     if (!ok)
       return;
 
-    if (m_Config.GetFilterGroupByName(result.toUtf8().data()) >= 0)
+    if (m_Config.GetFilterGroupByName(result.toUtf8().data()) != ezInvalidIndex)
     {
       ezQtUiServices::GetSingleton()->MessageBoxWarning("A Collision Layer with the given name already exists.");
       continue;
     }
 
-    m_Config.SetGroupName(iNewIdx, result.toUtf8().data());
+    m_Config.SetGroupName(uiNewIdx, result.toUtf8().data());
     break;
   }
 
@@ -290,7 +289,7 @@ void ezQtJoltProjectSettingsDlg::on_ButtonRenameLayer_clicked()
       return;
     }
 
-    if (m_Config.GetFilterGroupByName(result.toUtf8().data()) >= 0)
+    if (m_Config.GetFilterGroupByName(result.toUtf8().data()) != ezInvalidIndex)
     {
       ezQtUiServices::GetSingleton()->MessageBoxWarning("A Collision Layer with the given name already exists.");
       continue;
