@@ -109,7 +109,7 @@ public:
     return GetPtr() == rhs.GetPtr();
   }
 
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL((const ezPointerWithFlags<PtrType, NumFlagBits>&));
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezPointerWithFlags<PtrType, NumFlagBits>&);
 
   /// \brief Compares the pointer part for equality (flags are ignored)
   bool operator==(PtrType* pPtr) const { return GetPtr() == pPtr; }

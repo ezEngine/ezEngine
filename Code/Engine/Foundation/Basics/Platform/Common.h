@@ -179,19 +179,18 @@ void EZ_IGNORE_UNUSED(const T&)
 #  define EZ_DECL_IMPORT_FRIEND
 #endif
 
-#if ((!defined(_MSVC_LANG) && __cplusplus < 202002L) || (_MSVC_LANG < 202002L))
-#  define EZ_HAS_CPP20_OPERATORS 0
-#else
-#  define EZ_HAS_CPP20_OPERATORS 1
+#if (__cplusplus >= 202002L || _MSVC_LANG >= 202002L)
+#  undef EZ_USE_CPP20_OPERATORS
+#  define EZ_USE_CPP20_OPERATORS EZ_ON
 #endif
 
-#if EZ_HAS_CPP20_OPERATORS
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
 // in C++ 20 we don't need to declare an operator!=, it is automatically generated from operator==
-#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(type) /*empty*/
+#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...) /*empty*/
 #else
-#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(type)     \
-    EZ_ALWAYS_INLINE bool operator!=(type rhs) const \
-    {                                                \
-      return !(*this == rhs);                        \
+#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...)             \
+    EZ_ALWAYS_INLINE bool operator!=(__VA_ARGS__ rhs) const \
+    {                                                       \
+      return !(*this == rhs);                               \
     }
 #endif

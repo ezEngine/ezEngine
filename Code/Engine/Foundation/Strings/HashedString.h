@@ -93,7 +93,7 @@ public:
   /// \note Comparing between ezHashedString objects is always error-free, so even if two string had the same hash value, although they are
   /// different, this comparison function will not report they are the same.
   bool operator==(const ezHashedString& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL((const ezHashedString& rhs));
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezHashedString& rhs);
 
   /// \brief Compares this string object to an ezTempHashedString object. This should be used whenever some object needs to be found
   /// and the string to compare against is not yet an ezHashedString object.

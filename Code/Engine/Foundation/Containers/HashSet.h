@@ -28,7 +28,7 @@ public:
     /// \brief Checks whether the two iterators point to the same element.
     bool operator==(const typename ezHashSetBase<KeyType, Hasher>::ConstIterator& rhs) const;
 
-    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL((const typename ezHashSetBase<KeyType, Hasher>::ConstIterator&));
+    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const typename ezHashSetBase<KeyType, Hasher>::ConstIterator&);
 
     /// \brief Returns the 'key' of the element that this iterator points to.
     const KeyType& Key() const; // [tested]
@@ -76,7 +76,7 @@ protected:
 public:
   /// \brief Compares this table to another table.
   bool operator==(const ezHashSetBase<KeyType, Hasher>& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL((const ezHashSetBase<KeyType, Hasher>&));
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezHashSetBase<KeyType, Hasher>&);
 
   /// \brief Expands the hashset by over-allocating the internal storage so that the load factor is lower or equal to 60% when inserting the
   /// given number of entries.

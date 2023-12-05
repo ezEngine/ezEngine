@@ -31,7 +31,7 @@ public:
 
   /// \brief Compares this array to another contiguous array type.
   bool operator==(const ezArrayBase<T, Derived>& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL((const ezArrayBase<T, Derived>&));
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayBase<T, Derived>&);
 
   /// \brief Compares this array to another contiguous array type.
   bool operator<(const ezArrayBase<T, Derived>& rhs) const; // [tested]
