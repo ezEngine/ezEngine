@@ -81,7 +81,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Path to DataDir Itself")
   {
-    ezString sDataDirView = u8"/Code/ezEngine/Data/Sämples/Testing Chämbers";
+    ezString sDataDirView = (const char*)u8"/Code/ezEngine/Data/Sämples/Testing Chämbers";
     ezHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack(sDataDirView);
 
@@ -92,7 +92,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
     ezStringView sDD = path.GetDataDir();
     EZ_TEST_STRING(sDD, sDataDirView);
     ezStringView sPR = path.GetDataDirParentRelativePath();
-    EZ_TEST_STRING(sPR, u8"Testing Chämbers");
+    EZ_TEST_STRING(sPR, (const char*)u8"Testing Chämbers");
     ezStringView sR = path.GetDataDirRelativePath();
     EZ_TEST_STRING(sR, "");
     ezUInt32 uiIndex = path.GetDataDirIndex();
