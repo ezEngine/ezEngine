@@ -381,15 +381,10 @@ void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
-  EZ_WARNING_PUSH()
-  // EZ_WARNING_DISABLE_GCC("-Waggressive-loop-optimizations")
-
   for (size_t i = 0; i < uiCount; ++i)
   {
     pDestination[i].~T();
   }
-
-  EZ_WARNING_POP()
 }
 
 template <typename T>
