@@ -114,8 +114,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Complex Class")
   {
+    EZ_WARNING_PUSH()
+    EZ_WARNING_DISABLE_GCC("-Wfree-nonheap-object")
+
     ComplexClass* c = new ComplexClass();
     delete c;
+
+    EZ_WARNING_POP()
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Const Method")

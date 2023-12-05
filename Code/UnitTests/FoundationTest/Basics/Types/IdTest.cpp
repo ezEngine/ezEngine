@@ -6,6 +6,7 @@ EZ_WARNING_PUSH()
 EZ_WARNING_DISABLE_MSVC(4463)
 EZ_WARNING_DISABLE_MSVC(4068)
 EZ_WARNING_DISABLE_GCC("-Wbitfield-constant-conversion")
+EZ_WARNING_DISABLE_GCC("-Woverflow")
 EZ_WARNING_DISABLE_CLANG("-Wbitfield-constant-conversion")
 
 struct TestId

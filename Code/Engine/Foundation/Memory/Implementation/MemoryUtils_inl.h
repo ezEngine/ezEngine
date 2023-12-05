@@ -376,14 +376,16 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, e
   static_assert(std::is_trivially_destructible<T>::value != 0, "Class is declared as POD but has a non-trivial destructor. Remove the destructor or don't declare it as POD.");
 }
 
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_GCC("-Waggressive-loop-optimizations")
+
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsClass)
+void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
   EZ_WARNING_PUSH()
   EZ_WARNING_DISABLE_GCC("-Waggressive-loop-optimizations")
-  EZ_WARNING_DISABLE_CLANG("-Waggressive-loop-optimizations")
 
   for (size_t i = uiCount; i > 0; --i)
   {
@@ -392,6 +394,8 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, e
 
   EZ_WARNING_POP()
 }
+
+EZ_WARNING_POP()
 
 template <typename T>
 EZ_ALWAYS_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructorFunction(ezTypeIsPod)
