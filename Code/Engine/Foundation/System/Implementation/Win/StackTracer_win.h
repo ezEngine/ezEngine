@@ -7,12 +7,12 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-#define EZ_MSVC_WARNING_NUMBER 4091
-#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_MSVC(4091)
 
 #include <DbgHelp.h>
 
-#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
+EZ_WARNING_POP()
 
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>

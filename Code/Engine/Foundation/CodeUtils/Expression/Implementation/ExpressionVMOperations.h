@@ -215,7 +215,7 @@ namespace
   void VM_MovX_C_4(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
     EZ_WARNING_PUSH()
-    EZ_WARNING_DISABLE_MSVC(4189);
+    EZ_WARNING_DISABLE_MSVC(4189)
 
     DEFINE_TARGET_REGISTER();
     DEFINE_CONSTANT(a);
@@ -431,7 +431,7 @@ namespace
   void VM_Call(const ByteCodeType*& pByteCode, ExecutionContext& context)
   {
     EZ_WARNING_PUSH()
-    EZ_WARNING_DISABLE_MSVC(4189);
+    EZ_WARNING_DISABLE_MSVC(4189)
 
     ezUInt32 uiFunctionIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode);
     auto& function = *context.m_Functions[uiFunctionIndex];

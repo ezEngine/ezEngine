@@ -1,6 +1,6 @@
 
-#define EZ_MSVC_WARNING_NUMBER 4702 // Unreachable code for some reason
-#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_MSVC(4702) // Unreachable code for some reason
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant()
 {
@@ -8,7 +8,7 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant()
   m_bIsShared = false;
 }
 
-#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
+EZ_WARNING_POP()
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariant& other)
 {

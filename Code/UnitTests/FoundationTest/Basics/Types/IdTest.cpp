@@ -2,8 +2,11 @@
 
 #include <Foundation/Types/Id.h>
 
-#define EZ_MSVC_WARNING_NUMBER 4463
-#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_MSVC(4463)
+EZ_WARNING_DISABLE_MSVC(4068)
+EZ_WARNING_DISABLE_GCC("-Wbitfield-constant-conversion")
+EZ_WARNING_DISABLE_CLANG("-Wbitfield-constant-conversion")
 
 struct TestId
 {
@@ -32,11 +35,6 @@ struct TestId
 };
 
 using LargeTestId = ezGenericId<32, 10>;
-
-EZ_WARNING_PUSH();
-EZ_WARNING_DISABLE_MSVC(4068);
-EZ_WARNING_DISABLE_GCC("-Wbitfield-constant-conversion");
-EZ_WARNING_DISABLE_CLANG("-Wbitfield-constant-conversion");
 
 EZ_CREATE_SIMPLE_TEST(Basics, Id)
 {
