@@ -448,6 +448,7 @@ void ezJoltGrabObjectComponent::CreateJoint(ezJoltDynamicActorComponent* pParent
   }
 
   pModule->GetJoltSystem()->AddConstraint(m_pConstraint);
+  pModule->GetJoltSystem()->GetBodyInterfaceNoLock().ActivateBodies(bodies, 2);
 }
 
 void ezJoltGrabObjectComponent::DetectDistanceViolation(ezJoltDynamicActorComponent* pGrabbedActor)

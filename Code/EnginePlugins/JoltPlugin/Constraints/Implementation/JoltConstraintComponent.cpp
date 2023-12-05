@@ -93,7 +93,7 @@ void ezJoltConstraintComponent::BreakConstraint()
 
     if (iBodies > 0)
     {
-      ezLog::Info("Waking up {} bodies", iBodies);
+      ezLog::Dev("Waking up {} bodies", iBodies);
       pModule->GetJoltSystem()->GetBodyInterface().ActivateBodies(bodies, iBodies);
     }
   }
