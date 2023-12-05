@@ -87,19 +87,9 @@ inline bool ezHashedString::operator==(const ezHashedString& rhs) const
   return m_Data == rhs.m_Data;
 }
 
-inline bool ezHashedString::operator!=(const ezHashedString& rhs) const
-{
-  return !(*this == rhs);
-}
-
 inline bool ezHashedString::operator==(const ezTempHashedString& rhs) const
 {
   return m_Data.Key() == rhs.m_uiHash;
-}
-
-inline bool ezHashedString::operator!=(const ezTempHashedString& rhs) const
-{
-  return !(*this == rhs);
 }
 
 inline bool ezHashedString::operator<(const ezHashedString& rhs) const
@@ -193,11 +183,6 @@ EZ_ALWAYS_INLINE void ezTempHashedString::operator=(const ezHashedString& rhs)
 EZ_ALWAYS_INLINE bool ezTempHashedString::operator==(const ezTempHashedString& rhs) const
 {
   return m_uiHash == rhs.m_uiHash;
-}
-
-EZ_ALWAYS_INLINE bool ezTempHashedString::operator!=(const ezTempHashedString& rhs) const
-{
-  return !(m_uiHash == rhs.m_uiHash);
 }
 
 EZ_ALWAYS_INLINE bool ezTempHashedString::operator<(const ezTempHashedString& rhs) const

@@ -127,12 +127,6 @@ bool ezDequeBase<T, Construct>::operator==(const ezDequeBase<T, Construct>& rhs)
 }
 
 template <typename T, bool Construct>
-bool ezDequeBase<T, Construct>::operator!=(const ezDequeBase<T, Construct>& rhs) const
-{
-  return !operator==(rhs);
-}
-
-template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Clear()
 {
   if (Construct)

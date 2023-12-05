@@ -39,9 +39,7 @@ struct ezStringIterator
 
   /// \brief Checks whether the two iterators point to the same element.
   EZ_ALWAYS_INLINE bool operator==(const ezStringIterator& it2) const { return (m_pCurPtr == it2.m_pCurPtr); } // [tested]
-
-  /// \brief Checks whether the two iterators point to the same element.
-  EZ_ALWAYS_INLINE bool operator!=(const ezStringIterator& it2) const { return (m_pCurPtr != it2.m_pCurPtr); } // [tested]
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezStringIterator&);
 
   /// \brief Advances the iterated to the next character, same as operator++, but returns how many bytes were consumed in the source string.
   EZ_ALWAYS_INLINE ezUInt32 Advance()
@@ -203,9 +201,7 @@ struct ezStringReverseIterator
 
   /// \brief Checks whether the two iterators point to the same element.
   EZ_ALWAYS_INLINE bool operator==(const ezStringReverseIterator& it2) const { return (m_pCurPtr == it2.m_pCurPtr); } // [tested]
-
-  /// \brief Checks whether the two iterators point to the same element.
-  EZ_ALWAYS_INLINE bool operator!=(const ezStringReverseIterator& it2) const { return (m_pCurPtr != it2.m_pCurPtr); } // [tested]
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezStringReverseIterator&);
 
   /// \brief Move to the next Utf8 character
   EZ_FORCE_INLINE ezStringReverseIterator& operator++() // [tested]

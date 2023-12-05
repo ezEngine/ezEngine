@@ -105,7 +105,7 @@ namespace
     ezStringView sName = inout_astNode.m_Value.Get<ezString>().GetView();
 
     ezVariant defaultValue;
-    if (static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager())->GetVariableDefaultValue(sName, defaultValue).Failed())
+    if (static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager())->GetVariableDefaultValue(ezTempHashedString(sName), defaultValue).Failed())
     {
       ezLog::Error("Invalid variable named '{}'", sName);
       return EZ_FAILURE;

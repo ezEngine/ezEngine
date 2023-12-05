@@ -67,9 +67,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
     ezStaticArray<ezInt32, 64> a2 = a1;
     ezStaticArray<ezInt32, 32> a3(a1);
 
-    EZ_TEST_BOOL(a1 == a2);
+    EZ_TEST_BOOL(a1.GetArrayPtr() == a2);
     EZ_TEST_BOOL(a1 == a3);
-    EZ_TEST_BOOL(a2 == a3);
+    EZ_TEST_BOOL(a2 == a3.GetArrayPtr());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ArrayPtr")

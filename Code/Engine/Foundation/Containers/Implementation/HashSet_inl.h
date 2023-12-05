@@ -46,12 +46,6 @@ EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator==(const typen
 }
 
 template <typename K, typename H>
-EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator!=(const typename ezHashSetBase<K, H>::ConstIterator& rhs) const
-{
-  return !(*this == rhs);
-}
-
-template <typename K, typename H>
 EZ_FORCE_INLINE const K& ezHashSetBase<K, H>::ConstIterator::Key() const
 {
   return m_pHashSet->m_pEntries[m_uiCurrentIndex];
@@ -202,12 +196,6 @@ bool ezHashSetBase<K, H>::operator==(const ezHashSetBase<K, H>& rhs) const
   }
 
   return true;
-}
-
-template <typename K, typename H>
-EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::operator!=(const ezHashSetBase<K, H>& rhs) const
-{
-  return !(*this == rhs);
 }
 
 template <typename K, typename H>
