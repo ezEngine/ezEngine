@@ -91,7 +91,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 3, ezComponentMode::Dynamic
   {
       EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
       EZ_MEMBER_PROPERTY("StartAsleep", m_bStartAsleep),
-      EZ_MEMBER_PROPERTY("Mass", m_fMass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezClampValueAttribute(0.0f, ezVariant())),
+      EZ_MEMBER_PROPERTY("Mass", m_fInitialMass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
       EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
@@ -144,7 +144,7 @@ void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_fLinearDamping;
   s << m_fAngularDamping;
   s << m_fDensity;
-  s << m_fMass;
+  s << m_fInitialMass;
   s << m_fGravityFactor;
   s << m_hSurface;
   s << m_OnContact;
@@ -165,7 +165,7 @@ void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stre
   s >> m_fLinearDamping;
   s >> m_fAngularDamping;
   s >> m_fDensity;
-  s >> m_fMass;
+  s >> m_fInitialMass;
   s >> m_fGravityFactor;
   s >> m_hSurface;
   s >> m_OnContact;
@@ -285,8 +285,8 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   bodyCfg.mMotionQuality = m_bCCD ? JPH::EMotionQuality::LinearCast : JPH::EMotionQuality::Discrete;
   bodyCfg.mLinearDamping = m_fLinearDamping;
   bodyCfg.mAngularDamping = m_fAngularDamping;
-  bodyCfg.mMassPropertiesOverride.mMass = m_fMass;
-  bodyCfg.mOverrideMassProperties = m_fMass > 0.0f ? JPH::EOverrideMassProperties::CalculateInertia : JPH::EOverrideMassProperties::CalculateMassAndInertia;
+  bodyCfg.mMassPropertiesOverride.mMass = m_fInitialMass;
+  bodyCfg.mOverrideMassProperties = m_fInitialMass > 0.0f ? JPH::EOverrideMassProperties::CalculateInertia : JPH::EOverrideMassProperties::CalculateMassAndInertia;
   bodyCfg.mGravityFactor = m_fGravityFactor;
   bodyCfg.mRestitution = pMaterial->m_fRestitution;
   bodyCfg.mFriction = pMaterial->m_fFriction;
@@ -407,6 +407,18 @@ void ezJoltDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_ms
 
   auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
   pBodies->AddImpulse(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(ref_msg.m_vImpulse), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
+}
+
+float ezJoltDynamicActorComponent::GetMass() const
+{
+  if (m_bKinematic || m_uiJoltBodyID == ezInvalidIndex)
+    return 0.0f;
+
+  auto& bodyLockInterface = GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyLockInterface();
+  JPH::BodyLockRead bodyLock(bodyLockInterface, JPH::BodyID(m_uiJoltBodyID));
+
+  const float fInverseMass = bodyLock.GetBody().GetMotionProperties()->GetInverseMass();
+  return fInverseMass > 0.0f ? 1.0f / fInverseMass : 0.0f;
 }
 
 const ezJoltMaterial* ezJoltDynamicActorComponent::GetJoltMaterial() const

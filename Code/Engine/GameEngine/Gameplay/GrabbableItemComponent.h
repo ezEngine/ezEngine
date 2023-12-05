@@ -52,6 +52,8 @@ public:
 
   ezDynamicArray<ezGrabbableItemGrabPoint> m_GrabPoints; // [ property ]
 
+  static void DebugDrawGrabPoint(const ezWorld& world, const ezTransform& grabPointTransform);
+
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;

@@ -59,7 +59,7 @@ public:
 
   bool m_bCCD = false;                                    // [ property ]
   bool m_bStartAsleep = false;                            // [ property ]
-  float m_fMass = 0.0f;                                   // [ property ]
+  float m_fInitialMass = 0.0f;                            // [ property ]
   float m_fDensity = 1.0f;                                // [ property ]
   float m_fLinearDamping = 0.1f;                          // [ property ]
   float m_fAngularDamping = 0.05f;                        // [ property ]
@@ -82,6 +82,9 @@ public:
 
   /// \brief Should be called when a constraint is removed (though not strictly required) to prevent unnecessary message sending.
   void RemoveConstraint(ezComponentHandle hComponent);
+
+  /// \brief Returns the actual mass of this actor which is either user defined or calculated from density.
+  float GetMass() const;
 
 protected:
   const ezJoltMaterial* GetJoltMaterial() const;
