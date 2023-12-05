@@ -36,6 +36,12 @@ public:
   /// \brief Compares this array to another contiguous array type.
   bool operator<(const ezArrayBase<T, Derived>& rhs) const; // [tested]
 
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+  /// \brief Compares this array to another contiguous array type.
+  bool operator==(const ezArrayPtr<const T>& rhs) const; // [tested]
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayPtr<const T>&);
+#endif
+
   /// \brief Compares this array to another contiguous array type.
   bool operator<(const ezArrayPtr<const T>& rhs) const; // [tested]
 

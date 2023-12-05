@@ -113,6 +113,17 @@ EZ_ALWAYS_INLINE bool ezSmallArrayBase<T, Size>::operator==(const ezSmallArrayBa
   return *this == rhs.GetArrayPtr();
 }
 
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+template <typename T, ezUInt16 Size>
+bool ezSmallArrayBase<T, Size>::operator==(const ezArrayPtr<const T>& rhs) const
+{
+  if (m_uiCount != rhs.GetCount())
+    return false;
+
+  return ezMemoryUtils::IsEqual(GetElementsPtr(), rhs.GetPtr(), m_uiCount);
+}
+#endif
+
 template <typename T, ezUInt16 Size>
 EZ_ALWAYS_INLINE const T& ezSmallArrayBase<T, Size>::operator[](const ezUInt32 uiIndex) const
 {

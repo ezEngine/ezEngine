@@ -205,6 +205,28 @@ EZ_ALWAYS_INLINE bool operator==(const ezStringBase<DerivedLhs>& lhs, const char
   return lhs.IsEqual(rhs);
 }
 
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+
+template <typename DerivedLhs, typename DerivedRhs>
+EZ_ALWAYS_INLINE bool operator!=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+{
+  return !lhs.IsEqual(rhs);
+}
+
+template <typename DerivedRhs>
+EZ_ALWAYS_INLINE bool operator!=(const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+{
+  return !rhs.IsEqual(lhs);
+}
+
+template <typename DerivedLhs>
+EZ_ALWAYS_INLINE bool operator!=(const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
+{
+  return !lhs.IsEqual(rhs);
+}
+
+#endif
+
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_ALWAYS_INLINE bool operator<(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {

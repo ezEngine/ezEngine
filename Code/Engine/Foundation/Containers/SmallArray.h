@@ -44,11 +44,12 @@ public:
 
   /// \brief Compares this array to another contiguous array type.
   bool operator==(const ezSmallArrayBase<T, Size>& rhs) const; // [tested]
-  // bool operator==(const ezArrayPtr<const T>& rhs) const;       // [tested]
-
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezSmallArrayBase<T, Size>&);
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayPtr<const T>&);
 
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+  bool operator==(const ezArrayPtr<const T>& rhs) const; // [tested]
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayPtr<const T>&);
+#endif
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
 

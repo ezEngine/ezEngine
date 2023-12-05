@@ -189,7 +189,7 @@ void EZ_IGNORE_UNUSED(const T&)
 #  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...) /*empty*/
 #else
 #  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...)             \
-    EZ_ALWAYS_INLINE bool operator!=(__VA_ARGS__ rhs) const \
+    EZ_ALWAYS_INLINE bool operator!=(EZ_EXPAND_ARGS_COMMA(__VA_ARGS__) rhs) const \
     {                                                       \
       return !(*this == rhs);                               \
     }

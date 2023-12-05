@@ -71,6 +71,17 @@ EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator<(const ezArrayBase<T, De
   return GetArrayPtr() < rhs.GetArrayPtr();
 }
 
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+template <typename T, typename Derived>
+bool ezArrayBase<T, Derived>::operator==(const ezArrayPtr<const T>& rhs) const
+{
+  if (m_uiCount != rhs.GetCount())
+    return false;
+
+  return ezMemoryUtils::IsEqual(static_cast<const Derived*>(this)->GetElementsPtr(), rhs.GetPtr(), m_uiCount);
+}
+#endif
+
 template <typename T, typename Derived>
 EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator<(const ezArrayPtr<const T>& rhs) const
 {

@@ -95,7 +95,7 @@ public:
     return GetPtr() == pPtr;
   }
 
-#if ((!defined(_MSVC_LANG) && __cplusplus < 202002L) || (_MSVC_LANG < 202002L))
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
   /// \brief Compares the pointer part for inequality (flags are ignored)
   template <typename = typename std::enable_if<std::is_const<PtrType>::value == false>>
   bool operator!=(const PtrType* pPtr) const

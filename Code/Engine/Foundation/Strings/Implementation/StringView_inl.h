@@ -189,6 +189,15 @@ EZ_ALWAYS_INLINE bool operator==(ezStringView lhs, ezStringView rhs)
   return lhs.IsEqual(rhs);
 }
 
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+
+EZ_ALWAYS_INLINE bool operator!=(ezStringView lhs, ezStringView rhs)
+{
+  return !lhs.IsEqual(rhs);
+}
+
+#endif
+
 EZ_ALWAYS_INLINE bool operator<(ezStringView lhs, ezStringView rhs)
 {
   return lhs.Compare(rhs) < 0;

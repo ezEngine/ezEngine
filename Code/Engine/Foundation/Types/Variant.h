@@ -157,10 +157,13 @@ public:
   template <typename T>
   bool operator==(const T& other) const; // [tested]
 
-#if ((!defined(_MSVC_LANG) && __cplusplus < 202002L) || (_MSVC_LANG < 202002L))
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
   /// \brief See non-templated operator!=
   template <typename T>
-  bool operator!=(const T& other) const; // [tested]
+  bool operator!=(const T& other) const // [tested]
+  {
+    return !(*this == other);
+  }
 #endif
 
   /// \brief Returns whether this variant stores any other type than 'Invalid'.
