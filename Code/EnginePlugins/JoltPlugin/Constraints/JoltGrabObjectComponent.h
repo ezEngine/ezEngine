@@ -53,6 +53,12 @@ public:
   /// \brief Returns whether an object is currently being held.
   bool HasObjectGrabbed() const; // [ scriptable ]
 
+  /// \brief Returns the grabbed object's actor component.
+  ezComponentHandle GetGrabbedActor() const { return m_hGrabbedActor; }
+
+  /// \brief Returns the grabbed object's mass.
+  float GetGrabbedActorMass() const { return m_fGrabbedActorInverseMass > 0.0f ? 1.0f / m_fGrabbedActorInverseMass : 0.0f; }
+
   /// \brief The grabbed object is dropped in place.
   void DropGrabbedObject(); // [ scriptable ]
 
@@ -103,7 +109,7 @@ protected:
 
   ezComponentHandle m_hGrabbedActor;
   float m_fGrabbedActorGravity = 1.0f;
-  float m_fGrabbedActorMass = 0.0f;
+  float m_fGrabbedActorInverseMass = 0.0f;
 
   ezTime m_LastValidTime;
   ezTransform m_ChildAnchorLocal;

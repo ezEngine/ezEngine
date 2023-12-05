@@ -242,7 +242,7 @@ void ezJoltGrabObjectComponent::ReleaseGrabbedObject()
     JPH::BodyLockWrite bodyLock(pModule->GetJoltSystem()->GetBodyLockInterface(), JPH::BodyID(pGrabbedActor->GetJoltBodyID()));
     if (bodyLock.Succeeded())
     {
-      bodyLock.GetBody().GetMotionProperties()->SetInverseMass(m_fGrabbedActorMass);
+      bodyLock.GetBody().GetMotionProperties()->SetInverseMass(m_fGrabbedActorInverseMass);
       // TODO: this needs to be set as well : bodyLock.GetBody().GetMotionProperties()->SetInverseInertia(m_fGrabbedActorMass);
       bodyLock.GetBody().GetMotionProperties()->SetGravityFactor(m_fGrabbedActorGravity);
 
@@ -398,7 +398,7 @@ void ezJoltGrabObjectComponent::CreateJoint(ezJoltDynamicActorComponent* pParent
   auto pBody0 = bodyLock.GetBody(0);
   auto pBody1 = bodyLock.GetBody(1);
 
-  m_fGrabbedActorMass = pBody1->GetMotionProperties()->GetInverseMass();
+  m_fGrabbedActorInverseMass = pBody1->GetMotionProperties()->GetInverseMass();
   m_fGrabbedActorGravity = pBody1->GetMotionProperties()->GetGravityFactor();
 
   pBody1->GetMotionProperties()->SetInverseMass(10.0f);
