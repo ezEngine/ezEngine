@@ -169,10 +169,10 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
 
     if (ezConstructTest::s_dtorList.GetCount() == 4)
     {
-      EZ_TEST_BOOL(ezConstructTest::s_dtorList[0] == &pTest[3]);
-      EZ_TEST_BOOL(ezConstructTest::s_dtorList[1] == &pTest[2]);
-      EZ_TEST_BOOL(ezConstructTest::s_dtorList[2] == &pTest[1]);
-      EZ_TEST_BOOL(ezConstructTest::s_dtorList[3] == &pTest[0]);
+      EZ_TEST_BOOL(ezConstructTest::s_dtorList[0] == &pTest[0]);
+      EZ_TEST_BOOL(ezConstructTest::s_dtorList[1] == &pTest[1]);
+      EZ_TEST_BOOL(ezConstructTest::s_dtorList[2] == &pTest[2]);
+      EZ_TEST_BOOL(ezConstructTest::s_dtorList[3] == &pTest[3]);
       EZ_TEST_INT(pTest[4].m_iData, 0);
     }
   }
