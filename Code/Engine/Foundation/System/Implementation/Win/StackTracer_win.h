@@ -217,7 +217,7 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
         MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
       char errStr[1024];
-      sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_sPluginBinary.GetData(tmp), err, static_cast<char*>(lpMsgBuf));
+      ezStringUtils::snprintf(errStr, 1024, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_sPluginBinary.GetData(tmp), err, static_cast<char*>(lpMsgBuf));
       ezLog::Print(errStr);
 
       LocalFree(lpMsgBuf);

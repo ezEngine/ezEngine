@@ -382,7 +382,7 @@ ezStringView ezOSFile::GetApplicationDirectory()
       CFIndex length = CFStringGetLength(bundlePath);
       CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
 
-      ezArrayPtr<char> temp = EZ_DEFAULT_NEW_ARRAY(char, maxSize);
+      ezArrayPtr<char> temp = EZ_DEFAULT_NEW_ARRAY(char, static_cast<ezUInt32>(maxSize));
 
       if (CFStringGetCString(bundlePath, temp.GetPtr(), maxSize, kCFStringEncodingUTF8))
       {

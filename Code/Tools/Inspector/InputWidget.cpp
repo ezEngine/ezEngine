@@ -42,7 +42,7 @@ void ezQtInputWidget::ClearSlots()
     Headers.append(" Dead Zone ");
     Headers.append(" Flags (Binary) ");
 
-    TableInputSlots->setColumnCount(Headers.size());
+    TableInputSlots->setColumnCount(static_cast<int>(Headers.size()));
 
     TableInputSlots->setHorizontalHeaderLabels(Headers);
     TableInputSlots->horizontalHeader()->show();
@@ -64,7 +64,7 @@ void ezQtInputWidget::ClearActions()
     for (ezInt32 slot = 0; slot < ezInputActionConfig::MaxInputSlotAlternatives; ++slot)
       Headers.append(QString(" Slot %1 ").arg(slot + 1));
 
-    TableInputActions->setColumnCount(Headers.size());
+    TableInputActions->setColumnCount(static_cast<int>(Headers.size()));
 
     TableInputActions->setHorizontalHeaderLabels(Headers);
     TableInputActions->horizontalHeader()->show();
@@ -169,7 +169,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
     Headers.append(" Dead Zone ");
     Headers.append(" Flags (Binary) ");
 
-    TableInputSlots->setColumnCount(Headers.size());
+    TableInputSlots->setColumnCount(static_cast<int>(Headers.size()));
 
     TableInputSlots->setHorizontalHeaderLabels(Headers);
     TableInputSlots->horizontalHeader()->show();
@@ -310,7 +310,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
     for (ezInt32 slot = 0; slot < ezInputActionConfig::MaxInputSlotAlternatives; ++slot)
       Headers.append(QString(" Slot %1 ").arg(slot + 1));
 
-    TableInputActions->setColumnCount(Headers.size());
+    TableInputActions->setColumnCount(static_cast<int>(Headers.size()));
 
     TableInputActions->setHorizontalHeaderLabels(Headers);
     TableInputActions->horizontalHeader()->show();

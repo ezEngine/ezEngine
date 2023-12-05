@@ -235,7 +235,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
         sTemp.Format("Cannot convert clipboard and property content between arrays and members.");
         pPaste->setToolTip(sTemp.GetData());
       }
-      else if (bEnumerationMissmatch || !content.m_Value.CanConvertTo(m_pProp->GetSpecificType()->GetVariantType()) && content.m_Type != m_pProp->GetSpecificType()->GetTypeName())
+      else if (bEnumerationMissmatch || (!content.m_Value.CanConvertTo(m_pProp->GetSpecificType()->GetVariantType()) && content.m_Type != m_pProp->GetSpecificType()->GetTypeName()))
       {
         pPaste->setEnabled(false);
         ezStringBuilder sTemp;

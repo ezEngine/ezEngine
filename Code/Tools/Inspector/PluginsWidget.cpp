@@ -52,7 +52,7 @@ void ezQtPluginsWidget::UpdatePlugins()
   Headers.append(" Reloadable ");
   Headers.append(" Dependencies ");
 
-  TablePlugins->setColumnCount(Headers.size());
+  TablePlugins->setColumnCount(static_cast<int>(Headers.size()));
 
   TablePlugins->setHorizontalHeaderLabels(Headers);
 

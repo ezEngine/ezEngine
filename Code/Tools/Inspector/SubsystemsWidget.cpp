@@ -53,7 +53,7 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
   Headers.append(" Startup Done ");
   Headers.append(" Dependencies ");
 
-  TableSubsystems->setColumnCount(Headers.size());
+  TableSubsystems->setColumnCount(static_cast<int>(Headers.size()));
 
   TableSubsystems->setHorizontalHeaderLabels(Headers);
 

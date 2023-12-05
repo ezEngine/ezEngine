@@ -35,12 +35,12 @@ void SaveTestOrder(const char* szFile, const std::deque<ezTestEntry>& allTests)
   // Test order
   for (ezUInt32 t = 0; t < allTests.size(); ++t)
   {
-    sprintf(szTemp, "%s = %s\n", allTests[t].m_szTestName, allTests[t].m_bEnableTest ? "on" : "off");
+    ezStringUtils::snprintf(szTemp, 256, "%s = %s\n", allTests[t].m_szTestName, allTests[t].m_bEnableTest ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
 
     for (ezUInt32 st = 0; st < allTests[t].m_SubTests.size(); ++st)
     {
-      sprintf(szTemp, "  %s = %s\n", allTests[t].m_SubTests[st].m_szSubTestName, allTests[t].m_SubTests[st].m_bEnableTest ? "on" : "off");
+      ezStringUtils::snprintf(szTemp, 256, "  %s = %s\n", allTests[t].m_SubTests[st].m_szSubTestName, allTests[t].m_SubTests[st].m_bEnableTest ? "on" : "off");
       fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
     }
   }
@@ -205,18 +205,18 @@ void SaveTestSettings(const char* szFile, TestSettings& ref_testSettings)
   char szTemp[256] = "";
 
   // Settings
-  sprintf(szTemp, "Settings\n");
+  ezStringUtils::snprintf(szTemp, 256, "Settings\n");
   fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
   {
-    sprintf(szTemp, "  AssertOnTestFail = %s\n", ref_testSettings.m_AssertOnTestFail != AssertOnTestFail::DoNotAssert ? "on" : "off");
+    ezStringUtils::snprintf(szTemp, 256, "  AssertOnTestFail = %s\n", ref_testSettings.m_AssertOnTestFail != AssertOnTestFail::DoNotAssert ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  OpenHtmlOutputOnError = %s\n", ref_testSettings.m_bOpenHtmlOutputOnError ? "on" : "off");
+    ezStringUtils::snprintf(szTemp, 256, "  OpenHtmlOutputOnError = %s\n", ref_testSettings.m_bOpenHtmlOutputOnError ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  KeepConsoleOpen = %s\n", ref_testSettings.m_bKeepConsoleOpen ? "on" : "off");
+    ezStringUtils::snprintf(szTemp, 256, "  KeepConsoleOpen = %s\n", ref_testSettings.m_bKeepConsoleOpen ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  ShowMessageBox = %s\n", ref_testSettings.m_bShowMessageBox ? "on" : "off");
+    ezStringUtils::snprintf(szTemp, 256, "  ShowMessageBox = %s\n", ref_testSettings.m_bShowMessageBox ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  DisableSuccessfulTests = %s\n", ref_testSettings.m_bAutoDisableSuccessfulTests ? "on" : "off");
+    ezStringUtils::snprintf(szTemp, 256, "  DisableSuccessfulTests = %s\n", ref_testSettings.m_bAutoDisableSuccessfulTests ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
   }
 

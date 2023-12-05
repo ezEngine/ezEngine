@@ -40,10 +40,10 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
   {
     for (ezUInt32 i = 0; i < trace.GetCount(); i++)
     {
-      int iLen = ezMath::Min(strlen(ppSymbols[i]), (size_t)EZ_ARRAY_SIZE(szBuffer) - 2);
-      memcpy(szBuffer, ppSymbols[i], iLen);
-      szBuffer[iLen] = '\n';
-      szBuffer[iLen + 1] = '\0';
+      size_t uiLen = ezMath::Min(strlen(ppSymbols[i]), static_cast<size_t>(EZ_ARRAY_SIZE(szBuffer)) - 2);
+      memcpy(szBuffer, ppSymbols[i], uiLen);
+      szBuffer[uiLen] = '\n';
+      szBuffer[uiLen + 1] = '\0';
 
       printFunc(szBuffer);
     }

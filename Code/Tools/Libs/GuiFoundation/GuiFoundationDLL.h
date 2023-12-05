@@ -2,12 +2,12 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Strings/String.h>
 #include <Foundation/Types/Uuid.h>
 #include <QColor>
+#include <QDataStream>
 #include <QMetaType>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
-#include <Foundation/Strings/String.h>
-#include <QDataStream>
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
@@ -64,7 +64,7 @@ EZ_ALWAYS_INLINE ezColorGammaUB qtToEzColor(const QColor& c)
 EZ_ALWAYS_INLINE ezString qtToEzString(const QString& sString)
 {
   QByteArray data = sString.toUtf8();
-  return ezString(ezStringView(data.data(), data.size()));
+  return ezString(ezStringView(data.data(), static_cast<ezUInt32>(data.size())));
 }
 
 EZ_ALWAYS_INLINE QString ezMakeQString(ezStringView sString)
@@ -88,7 +88,7 @@ void operator<<(QDataStream& inout_stream, T* rhs)
   inout_stream.writeRawData((const char*)&rhs, sizeof(void*));
 }
 
-template<typename T>
+template <typename T>
 void operator>>(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
 {
   ezUInt32 uiIndices = 0;

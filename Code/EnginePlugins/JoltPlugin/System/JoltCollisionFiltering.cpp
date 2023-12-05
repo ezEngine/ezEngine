@@ -131,7 +131,7 @@ bool ezJoltObjectLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer) const
 
 bool ezJoltObjectVsBroadPhaseLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const
 {
-  const ezUInt32 uiMask1 = EZ_BIT(inLayer1 >> 8);
+  const ezUInt32 uiMask1 = static_cast<ezUInt32>(EZ_BIT(inLayer1 >> 8));
   const ezUInt32 uiMask2 = ezJoltCollisionFiltering::GetBroadphaseCollisionMask(static_cast<ezJoltBroadphaseLayer>((ezUInt8)inLayer2));
 
   return (uiMask1 & uiMask2) != 0;
