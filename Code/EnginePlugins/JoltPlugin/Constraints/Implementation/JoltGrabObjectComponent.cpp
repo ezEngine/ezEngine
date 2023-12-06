@@ -456,12 +456,12 @@ void ezJoltGrabObjectComponent::DetectDistanceViolation(ezJoltDynamicActorCompon
   if (m_fBreakDistance <= 0)
     return;
 
-  ezGameObject* pAnchor = nullptr;
-  if (!GetWorld()->TryGetObject(m_hAttachTo, pAnchor))
+  ezGameObject* pJointObject = nullptr;
+  if (!GetWorld()->TryGetObject(m_hAttachTo, pJointObject))
     return;
 
   const ezVec3 vAnchorPos = pGrabbedActor->GetOwner()->GetGlobalTransform().TransformPosition(m_ChildAnchorLocal.m_vPosition);
-  const ezVec3 vJointPos = pAnchor->GetGlobalPosition();
+  const ezVec3 vJointPos = pJointObject->GetGlobalPosition();
   const float fDistance = (vAnchorPos - vJointPos).GetLength();
 
   if (fDistance < m_fBreakDistance)

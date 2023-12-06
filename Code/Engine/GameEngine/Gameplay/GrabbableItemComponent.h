@@ -52,7 +52,7 @@ public:
 
   ezDynamicArray<ezGrabbableItemGrabPoint> m_GrabPoints; // [ property ]
 
-  static void DebugDrawGrabPoint(const ezWorld& world, const ezTransform& grabPointTransform);
+  static void DebugDrawGrabPoint(const ezWorld& world, const ezTransform& globalGrabPointTransform);
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
