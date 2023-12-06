@@ -86,7 +86,10 @@ public:
   ~ezTokenizer();
 
   /// \brief Clears any previous result and creates a new token stream for the given array.
-  void Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog);
+  /// \param data The string data to be tokenized.
+  /// \param pLog A log interface that will receive any tokenization errors.
+  /// \param bCopyData If set, 'data' will be copied into a member variable and tokenization is run on the copy, allowing for the original data storage to be deallocated after this call. If false, tokenization will reference 'data' directly and thus, 'data' must outlive this instance.
+  void Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog, bool bCopyData = true);
 
   /// \brief Gives read access to the token stream.
   const ezDeque<ezToken>& GetTokens() const { return m_Tokens; }
@@ -94,8 +97,11 @@ public:
   /// \brief Gives read and write access to the token stream.
   ezDeque<ezToken>& GetTokens() { return m_Tokens; }
 
+  /// \brief Returns an array with a copy of all tokens. Use this when using ezTokenParseUtils.
+  void GetAllTokens(ezDynamicArray<const ezToken*>& ref_tokens) const;
+
   /// \brief Returns an array of all tokens. New line tokens are ignored.
-  void GetAllLines(ezHybridArray<const ezToken*, 32>& ref_tokens) const;
+  void GetAllLines(ezDynamicArray<const ezToken*>& ref_tokens) const;
 
   /// \brief Returns an array of tokens that represent the next line in the file.
   ///
@@ -111,8 +117,8 @@ public:
 
   ezResult GetNextLine(ezUInt32& ref_uiFirstToken, ezHybridArray<ezToken*, 32>& ref_tokens);
 
-  /// \brief Returns the internal copy of the tokenized data
-  const ezDynamicArray<ezUInt8>& GetTokenizedData() const { return m_Data; }
+  /// \brief Returns the internal copy of the tokenized data. Will be empty if Tokenize was called with 'bCopyData' equals 'false'.
+  const ezArrayPtr<const ezUInt8> GetTokenizedData() const { return m_Data; }
 
   /// \brief Enables treating lines that start with # character as line comments
   ///

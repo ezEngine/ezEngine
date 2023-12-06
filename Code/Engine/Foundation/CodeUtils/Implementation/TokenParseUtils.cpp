@@ -128,6 +128,42 @@ namespace ezTokenParseUtils
     return false;
   }
 
+  bool Accept(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezArrayPtr<const TokenMatch> matches, ezDynamicArray<ezUInt32>* pAccepted)
+  {
+    if (pAccepted)
+      pAccepted->Clear();
+
+    ezUInt32 uiCurToken = ref_uiCurToken;
+    bool bAccepted = true;
+    for (ezUInt32 i = 0; i < matches.GetCount() && bAccepted; ++i)
+    {
+      ezUInt32 uiAcceptedToken = uiCurToken;
+      const TokenMatch& match = matches[i];
+      if (match.m_Type == ezTokenType::Unknown)
+      {
+        bAccepted = Accept(tokens, uiCurToken, match.m_sToken, &uiAcceptedToken);
+      }
+      else
+      {
+        bAccepted = Accept(tokens, uiCurToken, match.m_Type, &uiAcceptedToken);
+      }
+
+      if (pAccepted && bAccepted)
+        pAccepted->PushBack(uiAcceptedToken);
+    }
+
+    if (bAccepted)
+    {
+      ref_uiCurToken = uiCurToken;
+    }
+    else
+    {
+      if (pAccepted)
+        pAccepted->Clear();
+    }
+    return bAccepted;
+  }
+
   void CombineRelevantTokensToString(const TokenStream& tokens, ezUInt32 uiCurToken, ezStringBuilder& ref_sResult)
   {
     ref_sResult.Clear();
@@ -143,7 +179,7 @@ namespace ezTokenParseUtils
     }
   }
 
-  void CreateCleanTokenStream(const TokenStream& tokens, ezUInt32 uiCurToken, TokenStream& ref_destination, bool bKeepComments)
+  void CreateCleanTokenStream(const TokenStream& tokens, ezUInt32 uiCurToken, TokenStream& ref_destination)
   {
     SkipWhitespace(tokens, uiCurToken);
 
@@ -170,7 +206,7 @@ namespace ezTokenParseUtils
 
     if (bRemoveRedundantWhitespace)
     {
-      CreateCleanTokenStream(tokens0, uiCurToken, Tokens, bKeepComments);
+      CreateCleanTokenStream(tokens0, uiCurToken, Tokens);
       uiCurToken = 0;
     }
     else
