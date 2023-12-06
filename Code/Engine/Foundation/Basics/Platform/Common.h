@@ -1,8 +1,8 @@
 #pragma once
 
 // On MSVC 2008 in 64 Bit <cmath> generates a lot of warnings (actually it is math.h, which is included by cmath)
-#define EZ_MSVC_WARNING_NUMBER 4985
-#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_MSVC(4985)
 
 // include std header
 #include <cmath>
@@ -13,7 +13,7 @@
 #include <cwctype>
 #include <new>
 
-#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
+EZ_WARNING_POP()
 
 // redefine NULL to nullptr
 #undef NULL
@@ -60,7 +60,7 @@
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 /// \brief Macro helper to check alignment
-#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment) - 1)) == 0, "Wrong alignment.")
+#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment)-1)) == 0, "Wrong alignment.")
 #else
 /// \brief Macro helper to check alignment
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)
@@ -177,4 +177,20 @@ void EZ_IGNORE_UNUSED(const T&)
 #  define EZ_DECL_IMPORT [[gnu::visibility("default")]]
 #  define EZ_DECL_EXPORT_FRIEND
 #  define EZ_DECL_IMPORT_FRIEND
+#endif
+
+#if (__cplusplus >= 202002L || _MSVC_LANG >= 202002L)
+#  undef EZ_USE_CPP20_OPERATORS
+#  define EZ_USE_CPP20_OPERATORS EZ_ON
+#endif
+
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+// in C++ 20 we don't need to declare an operator!=, it is automatically generated from operator==
+#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...) /*empty*/
+#else
+#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...)             \
+    EZ_ALWAYS_INLINE bool operator!=(EZ_EXPAND_ARGS_COMMA(__VA_ARGS__) rhs) const \
+    {                                                       \
+      return !(*this == rhs);                               \
+    }
 #endif

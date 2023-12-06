@@ -1,4 +1,4 @@
-﻿#include <FoundationTest/FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Memory/CommonAllocators.h>
@@ -1329,64 +1329,64 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder p;
 
-    p = u8"ä/b\\c/d\\\\e/f/g";
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c").Succeeded());
+    p = (const char*)u8"ä/b\\c/d\\\\e/f/g";
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c").Succeeded());
     EZ_TEST_BOOL(p == "d/e/f/g");
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c").Failed());
-    EZ_TEST_BOOL(p == "d/e/f/g");
-
-    p = u8"ä/b\\c//d\\\\e/f/g";
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c").Succeeded());
-    EZ_TEST_BOOL(p == "d/e/f/g");
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c").Failed());
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c").Failed());
     EZ_TEST_BOOL(p == "d/e/f/g");
 
-    p = u8"ä/b\\c/d\\\\e/f/g";
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c/").Succeeded());
+    p = (const char*)u8"ä/b\\c//d\\\\e/f/g";
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c").Succeeded());
     EZ_TEST_BOOL(p == "d/e/f/g");
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c/").Failed());
-    EZ_TEST_BOOL(p == "d/e/f/g");
-
-    p = u8"ä/b\\c//d\\\\e/f/g";
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c/").Succeeded());
-    EZ_TEST_BOOL(p == "d/e/f/g");
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c/").Failed());
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c").Failed());
     EZ_TEST_BOOL(p == "d/e/f/g");
 
-    p = u8"ä/b\\c//d\\\\e/f/g";
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c\\/d/\\e\\f/g").Succeeded());
+    p = (const char*)u8"ä/b\\c/d\\\\e/f/g";
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c/").Succeeded());
+    EZ_TEST_BOOL(p == "d/e/f/g");
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c/").Failed());
+    EZ_TEST_BOOL(p == "d/e/f/g");
+
+    p = (const char*)u8"ä/b\\c//d\\\\e/f/g";
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c/").Succeeded());
+    EZ_TEST_BOOL(p == "d/e/f/g");
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c/").Failed());
+    EZ_TEST_BOOL(p == "d/e/f/g");
+
+    p = (const char*)u8"ä/b\\c//d\\\\e/f/g";
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c\\/d/\\e\\f/g").Succeeded());
     EZ_TEST_BOOL(p == "");
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c\\/d/\\e\\f/g").Failed());
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c\\/d/\\e\\f/g").Failed());
     EZ_TEST_BOOL(p == "");
 
-    p = u8"ä/b\\c//d\\\\e/f/g/";
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c\\/d//e\\f/g\\h/i").Succeeded());
+    p = (const char*)u8"ä/b\\c//d\\\\e/f/g/";
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c\\/d//e\\f/g\\h/i").Succeeded());
     EZ_TEST_BOOL(p == "../../");
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c\\/d//e\\f/g\\h/i").Failed());
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c\\/d//e\\f/g\\h/i").Failed());
     EZ_TEST_BOOL(p == "../../");
 
-    p = u8"ä/b\\c//d\\\\e/f/g/j/k";
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c\\/d//e\\f/g\\h/i").Succeeded());
+    p = (const char*)u8"ä/b\\c//d\\\\e/f/g/j/k";
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c\\/d//e\\f/g\\h/i").Succeeded());
     EZ_TEST_BOOL(p == "../../j/k");
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c\\/d//e\\f/g\\h/i").Failed());
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c\\/d//e\\f/g\\h/i").Failed());
     EZ_TEST_BOOL(p == "../../j/k");
 
-    p = u8"ä/b\\c//d\\\\e/f/ge";
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c//d/\\e\\f/g\\h/i").Succeeded());
+    p = (const char*)u8"ä/b\\c//d\\\\e/f/ge";
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c//d/\\e\\f/g\\h/i").Succeeded());
     EZ_TEST_BOOL(p == "../../../ge");
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c//d/\\e\\f/g\\h/i").Failed());
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c//d/\\e\\f/g\\h/i").Failed());
     EZ_TEST_BOOL(p == "../../../ge");
 
-    p = u8"ä/b\\c//d\\\\e/f/g.txt";
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c//d//e\\f/g\\h/i").Succeeded());
+    p = (const char*)u8"ä/b\\c//d\\\\e/f/g.txt";
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c//d//e\\f/g\\h/i").Succeeded());
     EZ_TEST_BOOL(p == "../../../g.txt");
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c//d//e\\f/g\\h/i").Failed());
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c//d//e\\f/g\\h/i").Failed());
     EZ_TEST_BOOL(p == "../../../g.txt");
 
-    p = u8"ä/b\\c//d\\\\e/f/g";
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c//d//e\\f/g\\h/i").Succeeded());
+    p = (const char*)u8"ä/b\\c//d\\\\e/f/g";
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c//d//e\\f/g\\h/i").Succeeded());
     EZ_TEST_BOOL(p == "../../");
-    EZ_TEST_BOOL(p.MakeRelativeTo(u8"ä\\b/c//d//e\\f/g\\h/i").Failed());
+    EZ_TEST_BOOL(p.MakeRelativeTo((const char*)u8"ä\\b/c//d//e\\f/g\\h/i").Failed());
     EZ_TEST_BOOL(p == "../../");
   }
 

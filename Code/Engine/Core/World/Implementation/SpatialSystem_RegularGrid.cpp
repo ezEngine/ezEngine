@@ -8,6 +8,19 @@
 
 ezCVarInt cvar_SpatialQueriesCachingThreshold("Spatial.Queries.CachingThreshold", 100, ezCVarFlags::Default, "Number of objects that are tested for a query before it is considered for caching");
 
+struct PlaneData
+{
+  ezSimdVec4f m_x0x1x2x3;
+  ezSimdVec4f m_y0y1y2y3;
+  ezSimdVec4f m_z0z1z2z3;
+  ezSimdVec4f m_w0w1w2w3;
+
+  ezSimdVec4f m_x4x5x4x5;
+  ezSimdVec4f m_y4y5y4y5;
+  ezSimdVec4f m_z4z5z4z5;
+  ezSimdVec4f m_w4w5w4w5;
+};
+
 namespace
 {
   enum
@@ -85,19 +98,6 @@ namespace
 
     out_sSb.Append(" }");
   }
-
-  struct PlaneData
-  {
-    ezSimdVec4f m_x0x1x2x3;
-    ezSimdVec4f m_y0y1y2y3;
-    ezSimdVec4f m_z0z1z2z3;
-    ezSimdVec4f m_w0w1w2w3;
-
-    ezSimdVec4f m_x4x5x4x5;
-    ezSimdVec4f m_y4y5y4y5;
-    ezSimdVec4f m_z4z5z4z5;
-    ezSimdVec4f m_w4w5w4w5;
-  };
 
   EZ_FORCE_INLINE bool SphereFrustumIntersect(const ezSimdBSphere& sphere, const PlaneData& planeData)
   {

@@ -34,7 +34,7 @@ void ezQtGlobalEventsWidget::ResetStats()
     Headers.append(" # Handlers ");
     Headers.append(" # Handlers Once ");
 
-    TableEvents->setColumnCount(Headers.size());
+    TableEvents->setColumnCount(static_cast<int>(Headers.size()));
 
     TableEvents->setHorizontalHeaderLabels(Headers);
     TableEvents->horizontalHeader()->show();
@@ -98,7 +98,7 @@ void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
     Headers.append(" # Handlers ");
     Headers.append(" # Handlers Once ");
 
-    TableEvents->setColumnCount(Headers.size());
+    TableEvents->setColumnCount(static_cast<int>(Headers.size()));
 
     TableEvents->setHorizontalHeaderLabels(Headers);
     TableEvents->horizontalHeader()->show();

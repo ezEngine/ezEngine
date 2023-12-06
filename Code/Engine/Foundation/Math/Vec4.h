@@ -26,7 +26,7 @@ public:
   ezVec4Template(Type x, Type y, Type z, Type w); // [tested]
 
   /// \brief Initializes the vector from a vec3 and a float.
-  ezVec4Template(ezVec3Template<Type> xyz, Type w);
+  ezVec4Template(ezVec3Template<Type> vXyz, Type w);
 
   /// \brief Initializes all 4 components with xyzw
   explicit ezVec4Template(Type v); // [tested]

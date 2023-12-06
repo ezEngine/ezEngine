@@ -297,11 +297,20 @@ namespace ezMath
   /// \brief Returns true, if there exists some x with 2^x == value
   [[nodiscard]] constexpr bool IsPowerOf2(ezUInt32 value); // [tested]
 
+  /// \brief Returns true, if there exists some x with 2^x == value
+  [[nodiscard]] constexpr bool IsPowerOf2(ezUInt64 value); // [tested]
+
   /// \brief Returns the next power-of-two that is <= value
   [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 PowerOfTwo_Floor(ezUInt32 value); // [tested]
 
+  /// \brief Returns the next power-of-two that is <= value
+  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt64 PowerOfTwo_Floor(ezUInt64 value); // [tested]
+
   /// \brief Returns the next power-of-two that is >= value
   [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 PowerOfTwo_Ceil(ezUInt32 value); // [tested]
+
+  /// \brief Returns the next power-of-two that is >= value
+  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt64 PowerOfTwo_Ceil(ezUInt64 value); // [tested]
 
   /// \brief Returns the greatest common divisor.
   [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 GreatestCommonDivisor(ezUInt32 a, ezUInt32 b); // [tested]

@@ -21,7 +21,7 @@ ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* pParent, const ezHyb
   Headers.append(" Document ");
   Headers.append("");
 
-  TableDocuments->setColumnCount(Headers.size());
+  TableDocuments->setColumnCount(static_cast<int>(Headers.size()));
 
   TableDocuments->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   TableDocuments->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);

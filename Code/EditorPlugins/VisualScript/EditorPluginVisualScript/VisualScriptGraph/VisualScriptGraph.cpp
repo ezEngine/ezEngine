@@ -340,7 +340,7 @@ bool ezVisualScriptNodeManager::InternalIsDynamicPinProperty(const ezDocumentObj
 
   if (pNodeDesc != nullptr && pNodeDesc->m_bHasDynamicPins)
   {
-    ezTempHashedString sPropNameHashed = ezStringView(pProp->GetPropertyName());
+    ezTempHashedString sPropNameHashed = ezTempHashedString(pProp->GetPropertyName());
     for (auto& pinDesc : pNodeDesc->m_InputPins)
     {
       if (pinDesc.m_sDynamicPinProperty == sPropNameHashed)

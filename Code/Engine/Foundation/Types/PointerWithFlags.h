@@ -95,24 +95,29 @@ public:
     return GetPtr() == pPtr;
   }
 
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
   /// \brief Compares the pointer part for inequality (flags are ignored)
   template <typename = typename std::enable_if<std::is_const<PtrType>::value == false>>
   bool operator!=(const PtrType* pPtr) const
   {
     return !(*this == pPtr);
   }
+#endif
+
+  bool operator==(const ezPointerWithFlags<PtrType, NumFlagBits>& rhs) const
+  {
+    return GetPtr() == rhs.GetPtr();
+  }
+
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezPointerWithFlags<PtrType, NumFlagBits>&);
 
   /// \brief Compares the pointer part for equality (flags are ignored)
   bool operator==(PtrType* pPtr) const { return GetPtr() == pPtr; }
-
-  /// \brief Compares the pointer part for inequality (flags are ignored)
-  bool operator!=(PtrType* pPtr) const { return !(*this == pPtr); }
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(PtrType*);
 
   /// \brief Compares the pointer part for equality (flags are ignored)
   bool operator==(std::nullptr_t) const { return GetPtr() == nullptr; }
-
-  /// \brief Compares the pointer part for inequality (flags are ignored)
-  bool operator!=(std::nullptr_t) const { return !(*this == nullptr); }
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(std::nullptr_t);
 
   /// \brief Checks whether the pointer part is not nullptr (flags are ignored)
   explicit operator bool() const { return GetPtr() != nullptr; }

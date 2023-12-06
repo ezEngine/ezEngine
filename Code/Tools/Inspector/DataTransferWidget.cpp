@@ -101,7 +101,7 @@ void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
         while (true)
         {
           ezUInt8 uiTemp[1024];
-          const ezUInt32 uiRead = msg.GetReader().ReadBytes(uiTemp, 1024);
+          const ezUInt64 uiRead = msg.GetReader().ReadBytes(uiTemp, 1024);
 
           if (uiRead == 0)
             break;

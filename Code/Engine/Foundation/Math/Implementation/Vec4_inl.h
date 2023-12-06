@@ -82,10 +82,10 @@ EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template(Type x, Type y, Type z, Ty
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template(ezVec3Template<Type> xyz, Type w)
-  : x(xyz.x)
-  , y(xyz.y)
-  , z(xyz.z)
+EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template(ezVec3Template<Type> vXyz, Type w)
+  : x(vXyz.x)
+  , y(vXyz.y)
+  , z(vXyz.z)
   , w(w)
 {
 }

@@ -519,14 +519,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_BOOL(ezStringUtils::StartsWith("abcdef", "Abc") == false);
 
     // substring test
-    const char* sz = u8"äbc def ghi";
+    const char* sz = (const char*)u8"äbc def ghi";
     const ezUInt32 uiByteCount = ezStringUtils::GetStringElementCount(u8"äbc");
 
-    EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, u8"äbc", sz + uiByteCount) == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, u8"äbc", sz + uiByteCount - 1) == false);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, u8"äbc", sz + 0) == false);
+    EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, (const char*)u8"äbc", sz + uiByteCount) == true);
+    EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, (const char*)u8"äbc", sz + uiByteCount - 1) == false);
+    EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, (const char*)u8"äbc", sz + 0) == false);
 
-    const char* sz2 = u8"äbc def";
+    const char* sz2 = (const char*)u8"äbc def";
     EZ_TEST_BOOL(ezStringUtils::StartsWith(sz, sz2, sz + uiByteCount, sz2 + uiByteCount) == true);
   }
 
@@ -552,13 +552,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sL.GetData(), sU.GetData()) == true);
 
     // substring test
-    const char* sz = u8"äbc def ghi";
+    const char* sz = (const char*)u8"äbc def ghi";
     const ezUInt32 uiByteCount = ezStringUtils::GetStringElementCount(u8"äbc");
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, u8"ÄBC", sz + uiByteCount) == true);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, u8"ÄBC", sz + uiByteCount - 1) == false);
-    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, u8"ÄBC", sz + 0) == false);
+    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, (const char*)u8"ÄBC", sz + uiByteCount) == true);
+    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, (const char*)u8"ÄBC", sz + uiByteCount - 1) == false);
+    EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, (const char*)u8"ÄBC", sz + 0) == false);
 
-    const char* sz2 = u8"Äbc def";
+    const char* sz2 = (const char*)u8"Äbc def";
     EZ_TEST_BOOL(ezStringUtils::StartsWith_NoCase(sz, sz2, sz + uiByteCount, sz2 + uiByteCount) == true);
   }
 

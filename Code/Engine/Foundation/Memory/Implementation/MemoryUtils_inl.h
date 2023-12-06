@@ -206,9 +206,9 @@ EZ_ALWAYS_INLINE ezInt32 ezMemoryUtils::RawByteCompare(const void* a, const void
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezMemoryUtils::AddByteOffset(T* pPtr, std::ptrdiff_t iOffset)
+EZ_ALWAYS_INLINE T* ezMemoryUtils::AddByteOffset(T* pPtr, std::ptrdiff_t offset)
 {
-  return reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(pPtr) + iOffset);
+  return reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(pPtr) + offset);
 }
 
 template <typename T>
@@ -254,15 +254,15 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, 
 {
   EZ_CHECK_CLASS(T);
 
-#define EZ_GCC_WARNING_NAME "-Wstringop-overflow"
-#include <Foundation/Basics/Compiler/GCC/DisableWarning_GCC.h>
+  EZ_WARNING_PUSH()
+  EZ_WARNING_DISABLE_GCC("-Wstringop-overflow")
 
   for (size_t i = 0; i < uiCount; i++)
   {
     ::new (pDestination + i) T();
   }
 
-#include <Foundation/Basics/Compiler/GCC/RestoreWarning_GCC.h>
+  EZ_WARNING_POP()
 }
 
 template <typename T>
@@ -377,19 +377,14 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, e
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsClass)
+void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
-#define EZ_GCC_WARNING_NAME "-Waggressive-loop-optimizations"
-#include <Foundation/Basics/Compiler/GCC/DisableWarning_GCC.h>
-
-  for (size_t i = uiCount; i > 0; --i)
+  for (size_t i = 0; i < uiCount; ++i)
   {
-    pDestination[i - 1].~T();
+    pDestination[i].~T();
   }
-
-#include <Foundation/Basics/Compiler/GCC/RestoreWarning_GCC.h>
 }
 
 template <typename T>

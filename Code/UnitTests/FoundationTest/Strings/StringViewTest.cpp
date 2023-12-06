@@ -1,4 +1,4 @@
-﻿#include <FoundationTest/FoundationTestPCH.h>
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
@@ -270,7 +270,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 
     EZ_TEST_BOOL(it.GetStartPointer() == &s.GetData()[5]);
     EZ_TEST_BOOL(it.GetEndPointer() == &s.GetData()[9]);
-    EZ_TEST_STRING(it.GetData(tmp), u8"öü");
+    EZ_TEST_STRING(it.GetData(tmp), (const char*)u8"öü");
     EZ_TEST_BOOL(it.IsValid());
 
     it.Shrink(1, 1);

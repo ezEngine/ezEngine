@@ -31,6 +31,11 @@ bool ezMath::IsPowerOf(ezInt32 value, ezInt32 iBase)
 
 ezUInt32 ezMath::PowerOfTwo_Floor(ezUInt32 uiNpot)
 {
+  return static_cast<ezUInt32>(PowerOfTwo_Floor(static_cast<ezUInt64>(uiNpot)));
+}
+
+ezUInt64 ezMath::PowerOfTwo_Floor(ezUInt64 uiNpot)
+{
   if (IsPowerOf2(uiNpot))
     return (uiNpot);
 
@@ -46,6 +51,11 @@ ezUInt32 ezMath::PowerOfTwo_Floor(ezUInt32 uiNpot)
 }
 
 ezUInt32 ezMath::PowerOfTwo_Ceil(ezUInt32 uiNpot)
+{
+  return static_cast<ezUInt32>(PowerOfTwo_Ceil(static_cast<ezUInt64>(uiNpot)));
+}
+
+ezUInt64 ezMath::PowerOfTwo_Ceil(ezUInt64 uiNpot)
 {
   if (IsPowerOf2(uiNpot))
     return (uiNpot);

@@ -43,7 +43,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
     tm* ptm = gmtime(&timeUTC);
 
     char szTimeStr[256] = {0};
-    sprintf(szTimeStr, "UTC: %s", asctime(ptm));
+    ezStringUtils::snprintf(szTimeStr, 256, "UTC: %s", asctime(ptm));
     fputs(szTimeStr, assertLogFP);
 
     fputs(szTemp, assertLogFP);

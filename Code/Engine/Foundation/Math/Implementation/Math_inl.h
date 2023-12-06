@@ -258,6 +258,11 @@ namespace ezMath
     return (value < 1) ? false : ((value & (value - 1)) == 0);
   }
 
+  constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezUInt64 value)
+  {
+    return (value < 1) ? false : ((value & (value - 1)) == 0);
+  }
+
   template <typename Type>
   constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon)
   {

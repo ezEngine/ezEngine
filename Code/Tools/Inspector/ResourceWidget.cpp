@@ -55,7 +55,7 @@ void ezQtResourceWidget::ResetStats()
     Headers.append(" Resource ID ");
     Headers.append(" Description ");
 
-    Table->setColumnCount(Headers.size());
+    Table->setColumnCount(static_cast<int>(Headers.size()));
     Table->setHorizontalHeaderLabels(Headers);
     Table->horizontalHeader()->show();
   }
@@ -306,14 +306,14 @@ void ezQtResourceWidget::UpdateTable()
       pByteItem->setToolTip(sTemp.GetData());
       FormatSize(sTemp, "", res.m_Memory.m_uiMemoryCPU);
       pByteItem->setText(sTemp.GetData());
-      pByteItem->m_uiBytes = res.m_Memory.m_uiMemoryCPU;
+      pByteItem->m_uiBytes = static_cast<ezUInt32>(res.m_Memory.m_uiMemoryCPU);
 
       pByteItem = (ByteSizeItem*)Table->item(iTableRow, 6);
       sTemp.Format("{0} Bytes", res.m_Memory.m_uiMemoryGPU);
       pByteItem->setToolTip(sTemp.GetData());
       FormatSize(sTemp, "", res.m_Memory.m_uiMemoryGPU);
       pByteItem->setText(sTemp.GetData());
-      pByteItem->m_uiBytes = res.m_Memory.m_uiMemoryGPU;
+      pByteItem->m_uiBytes = static_cast<ezUInt32>(res.m_Memory.m_uiMemoryGPU);
 
       if (res.m_LoadingState.m_State == ezResourceState::Invalid)
       {

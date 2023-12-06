@@ -420,8 +420,8 @@ void ezRTTI::AssignPlugin(ezStringView sPluginName)
 
 // warning C4505: 'IsValidIdentifierName': unreferenced function with internal linkage has been removed
 // happens in Release builds, because the function is only used in a debug assert
-#define EZ_MSVC_WARNING_NUMBER 4505
-#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_MSVC(4505)
 
 static bool IsValidIdentifierName(ezStringView sIdentifier)
 {
@@ -455,7 +455,7 @@ static bool IsValidIdentifierName(ezStringView sIdentifier)
   return true;
 }
 
-#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
+EZ_WARNING_POP()
 
 void ezRTTI::SanityCheckType(ezRTTI* pType)
 {

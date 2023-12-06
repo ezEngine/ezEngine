@@ -809,12 +809,6 @@ bool ezMapBase<KeyType, ValueType, Comparer>::operator==(const ezMapBase<KeyType
   return true;
 }
 
-template <typename KeyType, typename ValueType, typename Comparer>
-bool ezMapBase<KeyType, ValueType, Comparer>::operator!=(const ezMapBase<KeyType, ValueType, Comparer>& rhs) const
-{
-  return !operator==(rhs);
-}
-
 #undef STACK_SIZE
 
 

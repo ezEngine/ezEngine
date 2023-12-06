@@ -728,15 +728,7 @@ bool ezSetBase<KeyType, Comparer>::operator==(const ezSetBase<KeyType, Comparer>
   return true;
 }
 
-template <typename KeyType, typename Comparer>
-bool ezSetBase<KeyType, Comparer>::operator!=(const ezSetBase<KeyType, Comparer>& rhs) const
-{
-  return !operator==(rhs);
-}
-
 #undef STACK_SIZE
-
-
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
 ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet()

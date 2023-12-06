@@ -20,13 +20,13 @@ public:
   // *** Constructors ***
 public:
   /// \brief default-constructed vector is uninitialized (for speed)
-  ezVec3Template<Type>(); // [tested]
+  ezVec3Template(); // [tested]
 
   /// \brief Initializes the vector with x,y,z
-  ezVec3Template<Type>(Type x, Type y, Type z); // [tested]
+  ezVec3Template(Type x, Type y, Type z); // [tested]
 
   /// \brief Initializes all 3 components with xyz
-  explicit ezVec3Template<Type>(Type v); // [tested]
+  explicit ezVec3Template(Type v); // [tested]
 
   // no copy-constructor and operator= since the default-generated ones will be faster
 

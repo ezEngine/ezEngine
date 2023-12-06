@@ -540,14 +540,17 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   if (bIsCurveNonEmpty)
   {
     QMenu* cmSel = m.addMenu("Selection");
-    cmSel->addAction("Select All\tCtrl+A", this, [this]() { CurveEdit->SelectAll(); });
+    cmSel->addAction("Select All\tCtrl+A", this, [this]()
+      { CurveEdit->SelectAll(); });
 
     if (!selection.IsEmpty())
     {
-      cmSel->addAction("Clear Selection\tESC", this, [this]() { CurveEdit->ClearSelection(); });
+      cmSel->addAction("Clear Selection\tESC", this, [this]()
+        { CurveEdit->ClearSelection(); });
 
       cmSel->addAction(
-        "Frame Selection\tShift+F", this, [this]() { FrameSelection(); });
+        "Frame Selection\tShift+F", this, [this]()
+        { FrameSelection(); });
 
       cmSel->addSeparator();
 
@@ -592,15 +595,23 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     {
       QMenu* cm = m.addMenu("Curve");
       cm->addSeparator();
-      cm->addAction("Mirror Horizontally", this, [this]() { MirrorHorizontally(0); });
-      cm->addAction("Mirror Vertically", this, [this]() { MirrorVertically(0); });
-      cm->addAction("Normalize X", this, [this]() { NormalizeCurveX(0); });
-      cm->addAction("Normalize Y", this, [this]() { NormalizeCurveY(0); });
-      cm->addAction("Loop: Adjust Last Point", this, [this]() { MakeRepeatable(true); });
-      cm->addAction("Loop: Adjust First Point", this, [this]() { MakeRepeatable(false); });
-      cm->addAction("Clear Curve", this, [this]() { ClearAllPoints(); });
+      cm->addAction("Mirror Horizontally", this, [this]()
+        { MirrorHorizontally(0); });
+      cm->addAction("Mirror Vertically", this, [this]()
+        { MirrorVertically(0); });
+      cm->addAction("Normalize X", this, [this]()
+        { NormalizeCurveX(0); });
+      cm->addAction("Normalize Y", this, [this]()
+        { NormalizeCurveY(0); });
+      cm->addAction("Loop: Adjust Last Point", this, [this]()
+        { MakeRepeatable(true); });
+      cm->addAction("Loop: Adjust First Point", this, [this]()
+        { MakeRepeatable(false); });
+      cm->addAction("Clear Curve", this, [this]()
+        { ClearAllPoints(); });
 
-      cm->addAction("Frame Curve\tCtrl+F", this, [this]() { FrameCurve(); });
+      cm->addAction("Frame Curve\tCtrl+F", this, [this]()
+        { FrameCurve(); });
     }
   }
 
@@ -732,7 +743,8 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     ezMap<ezString, QMenu*> subMenus;
     subMenus[""] = presentsMenu;
 
-    auto GetSubMenu = [&](const ezStringBuilder& sPath, auto getSubMenu2) {
+    auto GetSubMenu = [&](const ezStringBuilder& sPath, auto getSubMenu2)
+    {
       auto it = subMenus.Find(sPath);
       if (it.IsValid())
         return it.Value();
@@ -756,7 +768,8 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
       sPresetPath.Trim("/");
 
-      GetSubMenu(sPresetPath, GetSubMenu)->addAction(sPresetName.GetData(), [this, preset]() { LoadCurvePreset(preset).IgnoreResult(); });
+      GetSubMenu(sPresetPath, GetSubMenu)->addAction(sPresetName.GetData(), [this, preset]()
+        { LoadCurvePreset(preset).IgnoreResult(); });
     }
   }
 
@@ -957,7 +970,8 @@ void ezQtCurve1DEditorWidget::onGenerateCurve(ezCurveFunction::Enum function, bo
     samples[i].m_fCorrectValue = ezCurveFunction::GetValue(function, x, inverse);
   }
 
-  auto AddPt = [&](ezUInt32 uiIdx) {
+  auto AddPt = [&](ezUInt32 uiIdx)
+  {
     samples[uiIdx].m_bInserted = true;
     const double x = samples[uiIdx].m_fPos;
     const double y = samples[uiIdx].m_fCorrectValue;
@@ -1261,7 +1275,7 @@ void ezQtCurve1DEditorWidget::on_LinePosition_editingFinished()
   {
     const auto& cp = m_Curves.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
 
-    ezInt32 iTick = m_Curves.TickFromTime(ezTime::MakeFromSeconds(value));
+    const ezInt64 iTick = m_Curves.TickFromTime(ezTime::MakeFromSeconds(value));
     if (cp.m_iTick != iTick)
       Q_EMIT CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, iTick, cp.m_fValue);
   }

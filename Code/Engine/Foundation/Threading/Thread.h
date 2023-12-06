@@ -10,8 +10,8 @@
 // Warning: 'this' used in member initialization list (is fine here since it is just stored and not
 // accessed in the constructor (so no operations on a not completely initialized object happen)
 
-#define EZ_MSVC_WARNING_NUMBER 4355
-#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_MSVC(4355)
 
 #ifndef EZ_THREAD_CLASS_ENTRY_POINT
 #  error "Definition for ezThreadClassEntryPoint is missing on this platform!"
@@ -80,4 +80,4 @@ private:
   friend ezUInt32 RunThread(ezThread* pThread);
 };
 
-#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
+EZ_WARNING_POP()

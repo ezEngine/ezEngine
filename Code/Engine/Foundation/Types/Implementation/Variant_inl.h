@@ -1,6 +1,6 @@
 
-#define EZ_MSVC_WARNING_NUMBER 4702 // Unreachable code for some reason
-#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_MSVC(4702) // Unreachable code for some reason
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant()
 {
@@ -8,7 +8,7 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant()
   m_bIsShared = false;
 }
 
-#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
+EZ_WARNING_POP()
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariant& other)
 {
@@ -211,11 +211,6 @@ EZ_ALWAYS_INLINE void ezVariant::operator=(const T& value)
   *this = ezVariant(value);
 }
 
-EZ_ALWAYS_INLINE bool ezVariant::operator!=(const ezVariant& other) const
-{
-  return !(*this == other);
-}
-
 template <typename T>
 EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
 {
@@ -256,12 +251,6 @@ EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
   using StorageType = typename TypeDeduction<T>::StorageType;
   EZ_ASSERT_DEV(IsA<StorageType>(), "Stored type '{0}' does not match comparison type '{1}'", m_uiType, TypeDeduction<T>::value);
   return Cast<StorageType>() == other;
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE bool ezVariant::operator!=(const T& other) const
-{
-  return !(*this == other);
 }
 
 EZ_ALWAYS_INLINE bool ezVariant::IsValid() const

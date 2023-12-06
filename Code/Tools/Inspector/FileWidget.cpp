@@ -44,7 +44,7 @@ void ezQtFileWidget::ResetStats()
     Headers.append(" Thread ");
     Headers.append(" File ");
 
-    Table->setColumnCount(Headers.size());
+    Table->setColumnCount(static_cast<int>(Headers.size()));
     Table->setHorizontalHeaderLabels(Headers);
     Table->horizontalHeader()->show();
   }
@@ -346,7 +346,7 @@ void ezQtFileWidget::UpdateTable()
     Headers.append(" Thread ");
     Headers.append(" File ");
 
-    Table->setColumnCount(Headers.size());
+    Table->setColumnCount(static_cast<int>(Headers.size()));
     Table->setHorizontalHeaderLabels(Headers);
     Table->horizontalHeader()->show();
   }

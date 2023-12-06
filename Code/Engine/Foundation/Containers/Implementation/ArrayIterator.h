@@ -204,7 +204,7 @@ public:
   EZ_ALWAYS_INLINE bool operator<=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr >= rhs.m_pPtr; }
   EZ_ALWAYS_INLINE bool operator>=(const const_reverse_pointer_iterator& rhs) const { return m_pPtr <= rhs.m_pPtr; }
 
-  EZ_ALWAYS_INLINE const T& operator[](std::ptrdiff_t iIndex) const { return *(m_pPtr - iIndex); }
+  EZ_ALWAYS_INLINE const T& operator[](std::ptrdiff_t index) const { return *(m_pPtr - index); }
 
 protected:
   T* m_pPtr;
@@ -254,5 +254,5 @@ public:
 
   EZ_ALWAYS_INLINE T& operator*() const { return *(this->m_pPtr); }
   EZ_ALWAYS_INLINE T* operator->() const { return this->m_pPtr; }
-  EZ_ALWAYS_INLINE T& operator[](std::ptrdiff_t iIndex) const { return *(this->m_pPtr - iIndex); }
+  EZ_ALWAYS_INLINE T& operator[](std::ptrdiff_t index) const { return *(this->m_pPtr - index); }
 };

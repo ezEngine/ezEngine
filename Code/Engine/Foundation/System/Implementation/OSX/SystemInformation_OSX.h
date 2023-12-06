@@ -46,11 +46,11 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_CpuFeatures.Detect();
 
   // Get system information via various APIs
-  s_SystemInformation.m_uiCPUCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
+  s_SystemInformation.m_uiCPUCoreCount = static_cast<ezUInt32>(sysconf(_SC_NPROCESSORS_ONLN));
 
   ezUInt64 uiPageSize = sysconf(_SC_PAGE_SIZE);
 
-  s_SystemInformation.m_uiMemoryPageSize = uiPageSize;
+  s_SystemInformation.m_uiMemoryPageSize = static_cast<ezUInt32>(uiPageSize);
 
   int mib[2];
   int64_t iPhysicalMemory = 0;

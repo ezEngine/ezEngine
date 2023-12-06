@@ -7,12 +7,12 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-#define EZ_MSVC_WARNING_NUMBER 4091
-#include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_MSVC(4091)
 
 #include <DbgHelp.h>
 
-#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
+EZ_WARNING_POP()
 
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
@@ -217,7 +217,7 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
         MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
       char errStr[1024];
-      sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_sPluginBinary.GetData(tmp), err, static_cast<char*>(lpMsgBuf));
+      ezStringUtils::snprintf(errStr, 1024, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_sPluginBinary.GetData(tmp), err, static_cast<char*>(lpMsgBuf));
       ezLog::Print(errStr);
 
       LocalFree(lpMsgBuf);
