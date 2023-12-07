@@ -1,6 +1,9 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/Threading/Implementation/OSThread.h>
+#include <Foundation/Threading/Thread.h>
+
 ezAtomicInteger32 ezOSThread::s_iThreadCount;
 
 // Posix specific implementation of the thread class

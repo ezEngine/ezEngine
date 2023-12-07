@@ -1,8 +1,12 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <Foundation/Strings/StringConversion.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#  include <Foundation/Threading/Implementation/OSThread.h>
+#  include <Foundation/Threading/Thread.h>
+
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Strings/StringConversion.h>
 
 ezAtomicInteger32 ezOSThread::s_iThreadCount;
 
@@ -14,7 +18,7 @@ ezAtomicInteger32 ezOSThread::s_iThreadCount;
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 // This structure describes a thread name set exception
-#pragma pack(push, 8)
+#  pragma pack(push, 8)
 using THREADNAME_INFO = struct tagTHREADNAME_INFO
 {
   DWORD dwType;     // Must be 0x1000.
@@ -22,12 +26,12 @@ using THREADNAME_INFO = struct tagTHREADNAME_INFO
   DWORD dwThreadID; // Thread ID (-1=caller thread).
   DWORD dwFlags;    // Reserved for future use, must be zero.
 };
-#pragma pack(pop)
+#  pragma pack(pop)
 
 EZ_WARNING_PUSH()
 EZ_WARNING_DISABLE_MSVC(6312)
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 // See https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreaddescription
 // this is the new way to set thread names which are also stored with crash dumps and work in more tools (like Pix etc.)
@@ -67,7 +71,7 @@ pfnSetThreadDescription GetSetThreadDescriptionProcAddr()
   return retVal;
 }
 
-#endif
+#  endif
 
 void SetThreadNameViaException(HANDLE hThread, LPCSTR pThreadName)
 {
@@ -89,7 +93,7 @@ void SetThreadNameViaException(HANDLE hThread, LPCSTR pThreadName)
 
 void SetThreadName(HANDLE hThread, LPCSTR pThreadName)
 {
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   static pfnSetThreadDescription s_pSetThreadDescriptionFnPtr = GetSetThreadDescriptionProcAddr();
 
   if (s_pSetThreadDescriptionFnPtr)
@@ -101,9 +105,9 @@ void SetThreadName(HANDLE hThread, LPCSTR pThreadName)
   {
     SetThreadNameViaException(hThread, pThreadName);
   }
-#else
+#  else
   SetThreadNameViaException(hThread, pThreadName);
-#endif
+#  endif
 }
 
 EZ_WARNING_POP()
@@ -156,3 +160,9 @@ void ezOSThread::Join()
 {
   WaitForSingleObject(m_hHandle, INFINITE);
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_OSThread_Win);
+
