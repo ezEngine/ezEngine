@@ -1,5 +1,8 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#  include <Foundation/Threading/ConditionVariable.h>
 
 static_assert(sizeof(CONDITION_VARIABLE) == sizeof(ezConditionVariableHandle), "not equal!");
 
@@ -51,3 +54,9 @@ ezConditionVariable::WaitResult ezConditionVariable::UnlockWaitForSignalAndLock(
   ++m_iLockCount;
   return WaitResult::Signaled;
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_ConditionVariable_Win);
+

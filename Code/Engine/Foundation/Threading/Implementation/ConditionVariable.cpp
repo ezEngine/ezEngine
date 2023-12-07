@@ -26,14 +26,4 @@ void ezConditionVariable::Unlock()
   m_Mutex.Unlock();
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Threading/Implementation/Win/ConditionVariable_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Threading/Implementation/Posix/ConditionVariable_posix.h>
-#else
-#  error "Unsupported Platform."
-#endif
-
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ConditionVariable);
