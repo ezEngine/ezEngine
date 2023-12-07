@@ -1,3 +1,6 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/System/MiniDumpUtils.h>
 
 ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID)

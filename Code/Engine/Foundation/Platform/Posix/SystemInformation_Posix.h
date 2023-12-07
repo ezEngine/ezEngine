@@ -1,6 +1,8 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/System/SystemInformation.h>
+
 #include <Foundation/IO/OSFile.h>
 #include <unistd.h>
 
@@ -95,3 +97,29 @@ float ezSystemInformation::GetCPUUtilization() const
   EZ_ASSERT_NOT_IMPLEMENTED;
   return 0.0f;
 }
+
+namespace cpu_x86
+{
+#include <cpuid.h>
+
+  void cpuid(int32_t out[4], int32_t eax, int32_t ecx)
+  {
+    __cpuid_count(eax, ecx, out[0], out[1], out[2], out[3]);
+  }
+
+  uint64_t xgetbv(unsigned int index)
+  {
+    uint32_t eax, edx;
+    __asm__ __volatile__("xgetbv"
+                         : "=a"(eax), "=d"(edx)
+                         : "c"(index));
+    return ((uint64_t)edx << 32) | eax;
+  }
+
+  bool detect_OS_x64()
+  {
+    //  We only support x64 on Linux.
+    return true;
+  }
+
+} // namespace cpu_x86

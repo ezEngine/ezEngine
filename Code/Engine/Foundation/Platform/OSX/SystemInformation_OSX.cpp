@@ -1,12 +1,15 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <assert.h>
-#include <stdbool.h>
-#include <sys/sysctl.h>
-#include <sys/types.h>
-#include <sys/vmmeter.h>
-#include <unistd.h>
+#if EZ_ENABLED(EZ_PLATFORM_OSX)
+
+#  include <Foundation/System/SystemInformation.h>
+
+#  include <assert.h>
+#  include <stdbool.h>
+#  include <sys/sysctl.h>
+#  include <sys/types.h>
+#  include <sys/vmmeter.h>
+#  include <unistd.h>
 
 // https://developer.apple.com/library/archive/qa/qa1361/_index.html
 // Returns true if the current process is being debugged (either
@@ -63,19 +66,19 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_uiInstalledMainMemory = iPhysicalMemory;
 
   // Not correct for 32 bit process on 64 bit system
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+#  if EZ_ENABLED(EZ_PLATFORM_64BIT)
   s_SystemInformation.m_bB64BitOS = true;
-#else
+#  else
   s_SystemInformation.m_bB64BitOS = false;
-#  error "32 Bit builds are not supported on OSX"
-#endif
+#    error "32 Bit builds are not supported on OSX"
+#  endif
 
   s_SystemInformation.m_szPlatformName = "OSX";
-#if defined BUILDSYSTEM_BUILDTYPE
+#  if defined BUILDSYSTEM_BUILDTYPE
   s_SystemInformation.m_szBuildConfiguration = BUILDSYSTEM_BUILDTYPE;
-#else
+#  else
   s_SystemInformation.m_szBuildConfiguration = "undefined";
-#endif
+#  endif
 
   //  Get host name
   if (gethostname(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName)) == -1)
@@ -106,3 +109,5 @@ float ezSystemInformation::GetCPUUtilization() const
   EZ_ASSERT_NOT_IMPLEMENTED;
   return 0.0f;
 }
+
+#endif
