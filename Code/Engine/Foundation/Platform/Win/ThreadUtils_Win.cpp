@@ -1,7 +1,8 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-// Windows implementation of thread helper functions
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#  include <Foundation/Threading/ThreadUtils.h>
 
 static DWORD g_uiMainThreadID = 0xFFFFFFFF;
 
@@ -34,3 +35,5 @@ bool ezThreadUtils::IsMainThread()
 {
   return GetCurrentThreadID() == g_uiMainThreadID;
 }
+
+#endif

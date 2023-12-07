@@ -1,6 +1,8 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/Threading/ThreadUtils.h>
+
 // Posix implementation of thread helper functions
 
 #include <pthread.h>
