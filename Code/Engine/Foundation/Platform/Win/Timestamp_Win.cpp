@@ -1,5 +1,8 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#include <Foundation/Time/Timestamp.h>
 
 // Helper function to shift windows file time into Unix epoch (in microseconds).
 ezInt64 FileTimeToEpoch(FILETIME fileTime)
@@ -74,3 +77,5 @@ ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
   m_uiMicroseconds = ezUInt32(st.wMilliseconds * 1000);
   return EZ_SUCCESS;
 }
+
+#endif

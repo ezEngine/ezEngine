@@ -1,12 +1,13 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+
+#  if EZ_ENABLED(EZ_PLATFORM_64BIT)
 // On 64-bit android platforms we can just use the posix implementation.
-#  include <Foundation/Time/Implementation/Posix/Timestamp_posix.h>
-#else
+#    include <Foundation/Time/Implementation/Posix/Timestamp_posix.h>
+#  else
 // On 32-bit android platforms time.h uses 32bit time stamps. So we have to use time64.h instead
-#  include <time64.h>
+#    include <time64.h>
 
 const ezTimestamp ezTimestamp::CurrentTimestamp()
 {
@@ -81,5 +82,7 @@ ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 
   return EZ_SUCCESS;
 }
+
+#  endif
 
 #endif

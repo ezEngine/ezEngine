@@ -1,5 +1,6 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_OSX)
 
 #include <CoreServices/CoreServices.h>
 #include <mach/mach.h>
@@ -19,3 +20,5 @@ ezTime ezTime::Now()
   // mach_absolute_time() returns nanoseconds after factoring in the mach_timebase_info_data_t
   return ezTime::MakeFromSeconds((double)mach_absolute_time() * g_TimeFactor);
 }
+
+#endif

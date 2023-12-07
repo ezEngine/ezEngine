@@ -1,8 +1,11 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <time.h>
 
-void ezTime::Initialize() {}
+void ezTime::Initialize()
+{
+}
 
 ezTime ezTime::Now()
 {

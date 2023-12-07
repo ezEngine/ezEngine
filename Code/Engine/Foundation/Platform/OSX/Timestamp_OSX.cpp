@@ -1,10 +1,11 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Basics/Platform/OSX/ScopedCFRef.h>
+#if EZ_ENABLED(EZ_PLATFORM_OSX)
 
-#include <CoreFoundation/CFCalendar.h>
-#include <CoreFoundation/CoreFoundation.h>
+#  include <Foundation/Basics/Platform/OSX/ScopedCFRef.h>
+
+#  include <CoreFoundation/CFCalendar.h>
+#  include <CoreFoundation/CoreFoundation.h>
 
 const ezTimestamp ezTimestamp::CurrentTimestamp()
 {
@@ -90,3 +91,5 @@ ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
   m_uiMicroseconds = (ezUInt32)microseconds;
   return EZ_SUCCESS;
 }
+
+#endif
