@@ -9,12 +9,12 @@ namespace ezTokenParseUtils
 
   /// \brief Moves ref_uiCurToken forward as long as it is a whitespace token (Whitespace, BlockComment, LineComment).
   /// \param tokens Token input.
-  /// \param ref_uiCurToken Current location inside 'tokens'. On return, will either stay the same of move forward.
+  /// \param ref_uiCurToken Current location inside 'tokens'. On return, will either stay the same or move forward.
   EZ_FOUNDATION_DLL void SkipWhitespace(const TokenStream& tokens, ezUInt32& ref_uiCurToken); // [tested]
 
   /// \brief Moves ref_uiCurToken forward as long as it is a whitespace token (Whitespace, BlockComment, LineComment) or Newline.
   /// \param tokens Token input.
-  /// \param ref_uiCurToken Current location inside 'tokens'. On return, will either stay the same of move forward.
+  /// \param ref_uiCurToken Current location inside 'tokens'. On return, will either stay the same or move forward.
   EZ_FOUNDATION_DLL void SkipWhitespaceAndNewline(const TokenStream& tokens, ezUInt32& ref_uiCurToken); // [tested]
 
   /// \brief Checks whether we are at the end of a line.
