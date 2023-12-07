@@ -2,6 +2,8 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
 
+#  include <Foundation/Time/Timestamp.h>
+
 #  include <Foundation/Basics/Platform/OSX/ScopedCFRef.h>
 
 #  include <CoreFoundation/CFCalendar.h>

@@ -2,6 +2,8 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
+#  include <Foundation/Time/Timestamp.h>
+
 #  if EZ_ENABLED(EZ_PLATFORM_64BIT)
 // On 64-bit android platforms we can just use the Posix implementation.
 #    include <Foundation/Platform/Posix/Timestamp_Posix.h>
