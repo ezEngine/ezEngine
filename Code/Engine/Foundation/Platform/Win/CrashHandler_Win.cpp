@@ -1,7 +1,16 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/System/StackTracer.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/System/CrashHandler.h>
+#  include <Foundation/System/MiniDumpUtils.h>
+#  include <Foundation/System/StackTracer.h>
+
+static void PrintHelper(const char* szString)
+{
+  ezLog::Printf("%s", szString);
+}
 
 static LONG WINAPI ezCrashHandlerFunc(struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
@@ -38,14 +47,14 @@ void ezCrashHandler::SetCrashHandler(ezCrashHandler* pHandler)
 
 bool ezCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStatus res = ezMiniDumpUtils::WriteOwnProcessMiniDump(m_sDumpFilePath, (_EXCEPTION_POINTERS*)pOsSpecificData);
   if (res.Failed())
     ezLog::Printf("WriteOwnProcessMiniDump failed: %s\n", res.m_sMessage.GetData());
   return res.Succeeded();
-#else
+#  else
   return false;
-#endif
+#  endif
 }
 
 void ezCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)
@@ -64,3 +73,8 @@ void ezCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)
     ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintHelper);
   }
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_CrashHandler_Win);

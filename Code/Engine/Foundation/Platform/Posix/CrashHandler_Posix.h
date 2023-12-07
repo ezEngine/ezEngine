@@ -3,11 +3,17 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/System/CrashHandler.h>
+#include <Foundation/System/MiniDumpUtils.h>
 #include <Foundation/System/StackTracer.h>
 
 #include <csignal>
 #include <cxxabi.h>
 #include <unistd.h>
+
+static void PrintHelper(const char* szString)
+{
+  ezLog::Printf("%s", szString);
+}
 
 static void ezCrashHandlerFunc() noexcept
 {
