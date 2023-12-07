@@ -1,9 +1,11 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <Foundation/Basics/Platform/Win/MinWindows.h>
-#include <Foundation/Strings/StringBuilder.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/MinWindows.h>
+#  include <Foundation/Strings/StringBuilder.h>
+#  include <Foundation/Threading/Semaphore.h>
 
 ezSemaphore::ezSemaphore()
 {
@@ -99,3 +101,9 @@ ezResult ezSemaphore::TryAcquireToken()
 
   return EZ_FAILURE;
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_Semaphore_Win);
+

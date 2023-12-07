@@ -1,13 +1,13 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-// THIS IMPLEMENTATION IS UNTESTED (and may not even compile)
+#include <Foundation/Threading/Semaphore.h>
 
 #include <Foundation/Strings/StringBuilder.h>
 
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <semaphore.h>
+#include <sys/stat.h>
 
 ezSemaphore::ezSemaphore() = default;
 
