@@ -135,3 +135,7 @@ void ezLerpPosesAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInst
     m_OutPose.SetPose(ref_graph, pPinData);
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_LerpPosesAnimNode);
+

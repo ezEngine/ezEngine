@@ -353,3 +353,7 @@ const ezAnimController::AnimClipInfo& ezAnimController::GetAnimationClipInfo(ezT
 
   return it.Value();
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimController);
+

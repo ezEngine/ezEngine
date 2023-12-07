@@ -56,3 +56,7 @@ void ezAnimGraphInstance::Update(ezAnimController& ref_controller, ezTime diff, 
     pNode->Step(ref_controller, *this, diff, pSekeltonResource, pTarget);
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphInstance);
+

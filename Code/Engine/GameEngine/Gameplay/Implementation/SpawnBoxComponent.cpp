@@ -270,3 +270,7 @@ void ezSpawnBoxComponent::Spawn(ezUInt32 uiCount)
     pResource->InstantiatePrefab(*GetWorld(), tGlobal, options);
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_SpawnBoxComponent);
+

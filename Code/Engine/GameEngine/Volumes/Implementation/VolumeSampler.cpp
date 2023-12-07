@@ -157,3 +157,7 @@ ezUInt32 ezVolumeSampler::ComputeSortingKey(float fSortOrder, float fMaxScale)
   uiSortingKey = (uiSortingKey << 16) | (0xFFFF - ((ezUInt32)(fMaxScale * 100.0f) & 0xFFFF));
   return uiSortingKey;
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Volumes_Implementation_VolumeSampler);
+

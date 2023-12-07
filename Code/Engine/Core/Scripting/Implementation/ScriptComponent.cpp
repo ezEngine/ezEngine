@@ -355,3 +355,7 @@ ezEventMessageSender<ezMessage>& ezScriptComponent::FindSender(ezMessage& inout_
   sender.m_pMsgType = pType;
   return sender.m_Sender;
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptComponent);
+

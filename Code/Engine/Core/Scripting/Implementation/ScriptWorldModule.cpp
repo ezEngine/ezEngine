@@ -197,3 +197,7 @@ void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext
   }
   m_DeadScriptCoroutines.Clear();
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptWorldModule);
+

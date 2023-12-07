@@ -40,6 +40,7 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_Startup);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_VirtualThumbStick);
   EZ_STATICLINK_REFERENCE(Core_Interfaces_PhysicsWorldModule);
+  EZ_STATICLINK_REFERENCE(Core_Interfaces_SoundInterface);
   EZ_STATICLINK_REFERENCE(Core_Interfaces_WindWorldModule);
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_ApplyOnlyToMessage);
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_EventMessage);
@@ -58,10 +59,20 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Scripting_Duktape_DuktapeContext);
   EZ_STATICLINK_REFERENCE(Core_Scripting_Duktape_DuktapeFunction);
   EZ_STATICLINK_REFERENCE(Core_Scripting_Duktape_DuktapeHelper);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptAttributes);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptClassResource);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptComponent);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptCoroutine);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptRTTI);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_Implementation_ScriptWorldModule);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_CFunctions);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Initialize);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Tables);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Variables);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_MoveTo);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_TweenProperty);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_Wait);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Log);
   EZ_STATICLINK_REFERENCE(Core_System_Implementation_ControllerInput);
   EZ_STATICLINK_REFERENCE(Core_System_Implementation_Window);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_Blackboard);

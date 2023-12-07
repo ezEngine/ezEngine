@@ -92,3 +92,7 @@ void ezResetTransformComponent::DeserializeComponent(ezWorldReader& inout_stream
   s >> m_bResetLocalScaling;
   s >> m_fLocalUniformScaling;
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_ResetTransformComponent);
+

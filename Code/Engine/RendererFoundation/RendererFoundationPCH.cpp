@@ -13,9 +13,10 @@ EZ_STATICLINK_LIBRARY(RendererFoundation)
   EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_Device);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_DeviceFactory);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_Pass);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_SwapChain);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_SharedTextureSwapChain);
+  EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_SwapChain);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Profiling_Implementation_Profiling);
+  EZ_STATICLINK_REFERENCE(RendererFoundation_RendererReflection);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_Buffer);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_ProxyTexture);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_Query);
@@ -29,5 +30,4 @@ EZ_STATICLINK_LIBRARY(RendererFoundation)
   EZ_STATICLINK_REFERENCE(RendererFoundation_Shader_Implementation_ShaderByteCode);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Shader_Implementation_VertexDeclaration);
   EZ_STATICLINK_REFERENCE(RendererFoundation_State_Implementation_State);
-  EZ_STATICLINK_REFERENCE(RendererFoundation_State_Implementation_RendererReflection);
 }

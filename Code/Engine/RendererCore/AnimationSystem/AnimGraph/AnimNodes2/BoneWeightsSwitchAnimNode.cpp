@@ -68,3 +68,7 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
 
   m_OutWeights.SetWeights(ref_graph, m_InWeights[iIndex].GetWeights(ref_controller, ref_graph));
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_BoneWeightsSwitchAnimNode);
+

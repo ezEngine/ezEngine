@@ -22,3 +22,7 @@ ezTime ezTime::Now()
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_OSX_Time_OSX);
+

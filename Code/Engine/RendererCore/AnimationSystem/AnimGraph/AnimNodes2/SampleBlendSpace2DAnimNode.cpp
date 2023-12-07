@@ -444,3 +444,7 @@ bool ezSampleBlendSpace2DAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_d
   out_desc.FillFromType<InstanceState>();
   return true;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SampleBlendSpace2DAnimNode);
+

@@ -165,3 +165,7 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile)
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_MiniDumpUtils_Win);
+

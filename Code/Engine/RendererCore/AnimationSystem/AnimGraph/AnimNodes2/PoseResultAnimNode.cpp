@@ -160,3 +160,7 @@ bool ezPoseResultAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) con
   out_desc.FillFromType<InstanceData>();
   return true;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_PoseResultAnimNode);
+

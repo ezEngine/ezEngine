@@ -196,3 +196,7 @@ void ezScriptCoroutineMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, 
     pModule->StartCoroutine(hCoroutine, arguments);
   }
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptCoroutine);
+

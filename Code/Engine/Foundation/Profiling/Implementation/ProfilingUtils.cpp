@@ -74,3 +74,7 @@ ezResult ezProfilingUtils::MergeProfilingCaptures(ezStringView sCapturePath1, ez
   ezLog::Info("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Profiling_Implementation_ProfilingUtils);
+

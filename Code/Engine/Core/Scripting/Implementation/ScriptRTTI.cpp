@@ -111,3 +111,7 @@ ezAllocatorBase* ezScriptAllocator::GetAllocator()
   static ezProxyAllocator s_ScriptAllocator("Script", ezFoundation::GetDefaultAllocator());
   return &s_ScriptAllocator;
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptRTTI);
+

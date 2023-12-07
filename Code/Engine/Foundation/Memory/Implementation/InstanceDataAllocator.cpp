@@ -71,3 +71,7 @@ void ezInstanceDataAllocator::Destruct(ezByteBlobPtr blobPtr) const
     uiOffset += desc.m_uiTypeSize;
   }
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_InstanceDataAllocator);
+

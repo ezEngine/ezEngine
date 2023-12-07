@@ -35,3 +35,7 @@ ezScriptCoroutine::Result ezScriptCoroutine_Wait::Update(ezTime deltaTimeSinceLa
 
   return Result::Completed();
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_Wait);
+

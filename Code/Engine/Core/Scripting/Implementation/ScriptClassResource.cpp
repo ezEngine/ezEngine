@@ -70,3 +70,7 @@ void ezScriptClassResource::DeleteAllScriptCoroutineTypes()
 {
   m_CoroutineTypes.Clear();
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptClassResource);
+

@@ -88,3 +88,7 @@ ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 #  endif
 
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Android_Timestamp_Android);
+
