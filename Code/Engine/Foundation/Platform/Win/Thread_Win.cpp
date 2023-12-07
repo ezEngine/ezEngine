@@ -1,8 +1,8 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-// Deactivate Doxygen document generation for the following block.
-/// \cond
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#  include <Foundation/Threading/Thread.h>
 
 // Thread entry point used to launch ezRunnable instances
 DWORD __stdcall ezThreadClassEntryPoint(LPVOID pThreadParameter)
@@ -14,5 +14,4 @@ DWORD __stdcall ezThreadClassEntryPoint(LPVOID pThreadParameter)
   return RunThread(pThread);
 }
 
-
-/// \endcond
+#endif

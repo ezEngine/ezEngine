@@ -25,9 +25,6 @@ ezThread::~ezThread()
   ezThread::s_ThreadEvents.Broadcast(e, 255);
 }
 
-// Deactivate Doxygen document generation for the following block.
-/// \cond
-
 ezUInt32 RunThread(ezThread* pThread)
 {
   if (pThread == nullptr)
@@ -60,17 +57,5 @@ ezUInt32 RunThread(ezThread* pThread)
 
   return uiReturnCode;
 }
-
-/// \endcond
-
-// Include inline file
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Threading/Implementation/Win/Thread_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Threading/Implementation/Posix/Thread_posix.h>
-#else
-#  error "Runnable thread entry functions are not implemented on current platform"
-#endif
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Thread);

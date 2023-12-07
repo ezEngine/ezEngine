@@ -1,6 +1,8 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/Threading/Thread.h>
+
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
