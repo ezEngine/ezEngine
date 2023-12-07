@@ -1,13 +1,12 @@
-#ifdef EZ_STACKTRACER_UWP_INL_H_INCLUDED
-#  error "This file must not be included twice."
-#endif
+#include <Foundation/FoundationPCH.h>
 
-#define EZ_STACKTRACER_UWP_INL_H_INCLUDED
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#  include <Foundation/System/StackTracer.h>
 
-void ezStackTracer::OnPluginEvent(const ezPluginEvent& e) {}
+void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
+{
+}
 
 // static
 ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
@@ -22,3 +21,5 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 
   printFunc(szBuffer);
 }
+
+#endif

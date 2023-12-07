@@ -1,14 +1,11 @@
-#ifdef EZ_STACKTRACER_ANDROID_INL_H_INCLUDED
-#  error "This file must not be included twice."
-#endif
+#include <Foundation/FoundationPCH.h>
 
-#define EZ_STACKTRACER_ANDROID_INL_H_INCLUDED
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#  include <Foundation/System/StackTracer.h>
 
-#include <dlfcn.h>
-#include <unwind.h>
+#  include <dlfcn.h>
+#  include <unwind.h>
 
 void ezStackTracer::OnPluginEvent(const ezPluginEvent& e) {}
 
@@ -63,3 +60,5 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
     }
   }
 }
+
+#endif

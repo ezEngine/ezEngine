@@ -1,24 +1,21 @@
-#ifdef EZ_STACKTRACER_WIN_INL_H_INCLUDED
-#  error "This file must not be included twice."
-#endif
+#include <Foundation/FoundationPCH.h>
 
-#define EZ_STACKTRACER_WIN_INL_H_INCLUDED
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#  include <Foundation/System/StackTracer.h>
 
 EZ_WARNING_PUSH()
 EZ_WARNING_DISABLE_MSVC(4091)
 
-#include <DbgHelp.h>
+#  include <DbgHelp.h>
 
 EZ_WARNING_POP()
 
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Math/Math.h>
+#  include <Foundation/IO/OSFile.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Math/Math.h>
 
-#include <memory>
+#  include <memory>
 
 // Deactivate Doxygen document generation for the following block.
 /// \cond
@@ -268,24 +265,24 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& ref_trace, void* pConte
     frame.AddrPC.Mode = AddrModeFlat;
     frame.AddrFrame.Mode = AddrModeFlat;
     frame.AddrStack.Mode = AddrModeFlat;
-#if defined(_M_X64)
+#  if defined(_M_X64)
     frame.AddrPC.Offset = context.Rip;
     frame.AddrFrame.Offset = context.Rbp;
     frame.AddrStack.Offset = context.Rsp;
     machine_type = IMAGE_FILE_MACHINE_AMD64;
-#elif defined(_ARM64_)
+#  elif defined(_ARM64_)
     frame.AddrPC.Offset = context.Pc;
     frame.AddrFrame.Offset = context.Fp;
     frame.AddrStack.Offset = context.Sp;
     machine_type = IMAGE_FILE_MACHINE_ARM64;
-#elif defined(_X86_)
+#  elif defined(_X86_)
     frame.AddrPC.Offset = context.Eip;
     frame.AddrFrame.Offset = context.Ebp;
     frame.AddrStack.Offset = context.Esp;
     machine_type = IMAGE_FILE_MACHINE_I386;
-#else
-#  error Unsupported platform
-#endif
+#  else
+#    error Unsupported platform
+#  endif
 
     for (ezInt32 i = 0; i < (ezInt32)ref_trace.GetCount(); i++)
     {
@@ -358,5 +355,6 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
   }
 }
 
-
 /// \endcond
+
+#endif

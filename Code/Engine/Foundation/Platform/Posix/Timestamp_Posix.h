@@ -1,5 +1,4 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/Time/Timestamp.h>
 
 #include <time.h>
 #include <sys/time.h>

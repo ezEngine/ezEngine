@@ -1,11 +1,4 @@
-#ifdef EZ_STACKTRACER_POSIX_INL_H_INCLUDED
-#  error "This file must not be included twice."
-#endif
-
-#define EZ_STACKTRACER_POSIX_INL_H_INCLUDED
-
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/System/StackTracer.h>
 
 #include <Foundation/Math/Math.h>
 
