@@ -1,8 +1,7 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-#include EZ_PLATFORM_INCLUDE(Platform)
-
+#include <Foundation/Basics/Platform/Win/Platform_win.h>
 #include <Foundation/Time/Time.h>
 
 // static

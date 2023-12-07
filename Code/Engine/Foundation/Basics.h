@@ -26,7 +26,15 @@
 #include <Foundation/FoundationInternal.h>
 
 // include the different headers for the supported platforms
-#include EZ_PLATFORM_INCLUDE(Platform)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <Foundation/Basics/Platform/Win/Platform_win.h>
+#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+#  include <Foundation/Basics/Platform/OSX/Platform_OSX.h>
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <Foundation/Basics/Platform/Linux/Platform_Linux.h>
+#else
+#  error "Undefined platform!"
+#endif
 
 // Here all the different features that each platform supports are declared.
 #include <Foundation/Basics/Platform/PlatformFeatures.h>

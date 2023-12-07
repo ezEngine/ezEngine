@@ -186,15 +186,12 @@ endfunction()
 function(ez_set_common_target_definitions TARGET_NAME)
 	ez_pull_all_vars()
 	ez_pull_config_vars()
-	ez_pull_platform_vars()
 
 	# set the BUILDSYSTEM_COMPILE_ENGINE_AS_DLL definition
 	if(EZ_COMPILE_ENGINE_AS_DLL)
 		target_compile_definitions(${TARGET_NAME} PUBLIC BUILDSYSTEM_COMPILE_ENGINE_AS_DLL)
 	endif()
 
-	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_PLATFORM_SHORTNAME=${EZ_CMAKE_PLATFORM_PREFIX})
-	
 	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_SDKVERSION_MAJOR=${EZ_CMAKE_SDKVERSION_MAJOR})
 	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_SDKVERSION_MINOR=${EZ_CMAKE_SDKVERSION_MINOR})
 	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_SDKVERSION_PATCH=${EZ_CMAKE_SDKVERSION_PATCH})

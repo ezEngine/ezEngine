@@ -1,9 +1,5 @@
 #pragma once
 
-// clang-format off
-#define EZ_PLATFORM_INCLUDE(name) EZ_PP_STRINGIFY(EZ_PP_IDENTITY(name)EZ_PP_IDENTITY(_)EZ_PP_IDENTITY(BUILDSYSTEM_PLATFORM_SHORTNAME)EZ_PP_IDENTITY(.h))
-// clang-format on
-
 #if defined(_WINDOWS) || defined(_WIN32)
 #  undef EZ_PLATFORM_WINDOWS
 #  define EZ_PLATFORM_WINDOWS EZ_ON

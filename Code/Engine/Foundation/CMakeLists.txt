@@ -65,6 +65,5 @@ if(EZ_3RDPARTY_GLFW_SUPPORT)
 endif()
 
 
-# unfortunately has to be public
-target_include_directories(${PROJECT_NAME} PUBLIC "Platform/Win")
+
 
