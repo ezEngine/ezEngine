@@ -5,3 +5,7 @@
 #  include <Foundation/Platform/Posix/SystemInformation_Posix.h>
 
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Linux_SystemInformation_Linux);
+

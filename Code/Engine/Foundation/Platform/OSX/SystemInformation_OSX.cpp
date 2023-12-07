@@ -111,3 +111,7 @@ float ezSystemInformation::GetCPUUtilization() const
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_OSX_SystemInformation_OSX);
+

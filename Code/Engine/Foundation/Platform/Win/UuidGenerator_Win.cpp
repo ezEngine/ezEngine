@@ -1,8 +1,11 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <combaseapi.h>
-#include <rpc.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#  include <Foundation/Types/Uuid.h>
+
+#  include <combaseapi.h>
+#  include <rpc.h>
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) * 2 == sizeof(UUID));
 
@@ -20,3 +23,9 @@ ezUuid ezUuid::MakeUuid()
 
   return ezUuid(uiUuidData[1], uiUuidData[0]);
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_UuidGenerator_Win);
+
