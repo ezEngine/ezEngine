@@ -1,0 +1,9 @@
+#include <Foundation/FoundationPCH.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_OSX)
+#  include <Foundation/Platform/NoImpl/ProcessGroup_NoImpl.h>
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_OSX_ProcessGroup_OSX);
+

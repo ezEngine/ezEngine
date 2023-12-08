@@ -1,8 +1,9 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Logging/Log.h>
-#include <Foundation/System/ProcessGroup.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/System/ProcessGroup.h>
 
 struct ezProcessGroupImpl
 {
@@ -210,3 +211,9 @@ ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
 
   return EZ_SUCCESS;
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_ProcessGroup_Win);
+

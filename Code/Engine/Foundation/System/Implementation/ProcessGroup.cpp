@@ -1,12 +1,8 @@
 #include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-// Include inline file
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#    include <Foundation/System/Implementation/Win/ProcessGroup_win.h>
-#  else
-#    include <Foundation/System/Implementation/other/ProcessGroup_other.h>
-#  endif
+
+#  include <Foundation/System/ProcessGroup.h>
 
 const ezHybridArray<ezProcess, 8>& ezProcessGroup::GetProcesses() const
 {
