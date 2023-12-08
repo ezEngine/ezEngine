@@ -8,7 +8,7 @@
 #include <Foundation/Time/Timestamp.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Logging/Implementation/Win/ETWProvider_win.h>
+#  include <Foundation/Platform/Win/ETWProvider_Win.h>
 #endif
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <android/log.h>

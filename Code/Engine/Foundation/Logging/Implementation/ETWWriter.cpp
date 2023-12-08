@@ -4,7 +4,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#  include <Foundation/Logging/Implementation/Win/ETWProvider_win.h>
+#  include <Foundation/Platform/Win/ETWProvider_Win.h>
 
 void ezLogWriter::ETW::LogMessageHandler(const ezLoggingEventData& eventData)
 {

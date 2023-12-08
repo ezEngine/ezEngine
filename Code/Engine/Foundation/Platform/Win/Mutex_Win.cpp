@@ -34,4 +34,4 @@ ezMutex::~ezMutex()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Win_Mutex_win);
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_Mutex_Win);

@@ -1,8 +1,8 @@
 #include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Logging/Implementation/Win/ETWProvider_win.h>
-
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#  include <Foundation/Platform/Win/ETWProvider_Win.h>
 
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #  include <TraceLoggingProvider.h>
@@ -51,4 +51,4 @@ ezETWProvider& ezETWProvider::GetInstance()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_Win_ETWProvider_win);
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_ETWProvider_Win);

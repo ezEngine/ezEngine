@@ -107,7 +107,6 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Log);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_LogEntry);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_VisualStudioWriter);
-  EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Win_ETWProvider_win);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Color);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_ColorScheme);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Float16);
@@ -191,10 +190,12 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_ConditionVariable_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_CrashHandler_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_DirectoryWatcher_Win);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_ETWProvider_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_EnvironmentVariableUtils_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_GuardedAllocation_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_MemoryMappedFile_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_MiniDumpUtils_Win);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_Mutex_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_OSFile_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_OSThread_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_PageAllocator_Win);
@@ -259,7 +260,6 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadSignal);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadWithDispatcher);
-  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Win_Mutex_win);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Clock);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_DefaultTimeStepSmoothing);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Stopwatch);

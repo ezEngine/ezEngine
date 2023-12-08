@@ -19,4 +19,5 @@ public:
 
   static ezETWProvider& GetInstance();
 };
+
 #endif
