@@ -1,4 +1,6 @@
-
+#include <Foundation/Memory/MemoryTracker.h>
+#include <Foundation/Memory/PageAllocator.h>
+#include <Foundation/System/SystemInformation.h>
 #include <Foundation/Time/Time.h>
 
 // static
@@ -16,7 +18,7 @@ void* ezPageAllocator::AllocatePage(size_t uiSize)
 
   if ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
-    ezMemoryTracker::AddAllocation(GetPageAllocatorId(), ezMemoryTrackingFlags::Default, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
+    ezMemoryTracker::AddAllocation(ezPageAllocator::GetId(), ezMemoryTrackingFlags::Default, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
   }
 
   return ptr;
@@ -27,7 +29,7 @@ void ezPageAllocator::DeallocatePage(void* ptr)
 {
   if ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
-    ezMemoryTracker::RemoveAllocation(GetPageAllocatorId(), ptr);
+    ezMemoryTracker::RemoveAllocation(ezPageAllocator::GetId(), ptr);
   }
 
   free(ptr);

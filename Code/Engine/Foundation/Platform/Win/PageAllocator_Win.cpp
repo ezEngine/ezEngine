@@ -1,8 +1,12 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Basics/Platform/Win/Platform_win.h>
-#include <Foundation/Time/Time.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#  include <Foundation/Basics/Platform/Win/Platform_win.h>
+#  include <Foundation/Memory/MemoryTracker.h>
+#  include <Foundation/Memory/PageAllocator.h>
+#  include <Foundation/System/SystemInformation.h>
+#  include <Foundation/Time/Time.h>
 
 // static
 void* ezPageAllocator::AllocatePage(size_t uiSize)
@@ -17,7 +21,7 @@ void* ezPageAllocator::AllocatePage(size_t uiSize)
 
   if constexpr ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
-    ezMemoryTracker::AddAllocation(GetPageAllocatorId(), ezMemoryTrackingFlags::Default, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
+    ezMemoryTracker::AddAllocation(ezPageAllocator::GetId(), ezMemoryTrackingFlags::Default, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
   }
 
   return ptr;
@@ -28,8 +32,13 @@ void ezPageAllocator::DeallocatePage(void* pPtr)
 {
   if constexpr ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
-    ezMemoryTracker::RemoveAllocation(GetPageAllocatorId(), pPtr);
+    ezMemoryTracker::RemoveAllocation(ezPageAllocator::GetId(), pPtr);
   }
 
   EZ_VERIFY(::VirtualFree(pPtr, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_PageAllocator_Win);
