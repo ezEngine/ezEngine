@@ -83,6 +83,10 @@ public:
   /// How far grab points are allowed to be away to pick them
   float m_fMaxGrabPointDistance = 2.0f; // [ property ]
 
+  /// The radius of the sphere cast that is used instead of a raycast if the radius is greater than zero.
+  /// This can make it easier to pick up very small objects.
+  float m_fCastRadius = 0.0f; // [ property ]
+
   /// The collision layer to use for the raycast.
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
 

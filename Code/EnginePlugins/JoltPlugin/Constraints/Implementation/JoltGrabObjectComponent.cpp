@@ -12,11 +12,12 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltGrabObjectComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltGrabObjectComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("MaxGrabPointDistance", m_fMaxGrabPointDistance)->AddAttributes(new ezDefaultValueAttribute(2.0f)),
+    EZ_MEMBER_PROPERTY("CastRadius", m_fCastRadius)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("SpringStiffness", m_fSpringStiffness)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(1.0f, 60.0f)),
     EZ_MEMBER_PROPERTY("SpringDamping", m_fSpringDamping)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
@@ -61,6 +62,7 @@ void ezJoltGrabObjectComponent::SerializeComponent(ezWorldWriter& inout_stream) 
   s << m_fSpringStiffness;
   s << m_fSpringDamping;
   s << m_fMaxGrabPointDistance;
+  s << m_fCastRadius;
   s << m_uiCollisionLayer;
   s << m_fAllowGrabAnyObjectWithSize;
 
@@ -70,7 +72,7 @@ void ezJoltGrabObjectComponent::SerializeComponent(ezWorldWriter& inout_stream) 
 void ezJoltGrabObjectComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -78,6 +80,10 @@ void ezJoltGrabObjectComponent::DeserializeComponent(ezWorldReader& inout_stream
   s >> m_fSpringStiffness;
   s >> m_fSpringDamping;
   s >> m_fMaxGrabPointDistance;
+  if (uiVersion >= 2)
+  {
+    s >> m_fCastRadius;
+  }
   s >> m_uiCollisionLayer;
   s >> m_fAllowGrabAnyObjectWithSize;
 
@@ -99,8 +105,16 @@ bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezT
   queryParam.m_uiCollisionLayer = m_uiCollisionLayer;
   queryParam.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
 
-  if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
-    return false;
+  if (m_fCastRadius > 0.0f)
+  {
+    if (!pPhysicsModule->SweepTestSphere(hit, m_fCastRadius, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
+      return false;
+  }
+  else
+  {
+    if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
+      return false;
+  }  
 
   const ezGameObject* pActorObj = nullptr;
   if (!GetWorld()->TryGetObject(hit.m_hActorObject, pActorObj))
