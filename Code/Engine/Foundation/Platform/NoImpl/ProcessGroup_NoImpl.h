@@ -8,6 +8,8 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/System/ProcessGroup.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+
 struct ezProcessGroupImpl
 {
   EZ_DECLARE_POD_TYPE();
@@ -54,3 +56,5 @@ ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
 
   return result;
 }
+
+#endif

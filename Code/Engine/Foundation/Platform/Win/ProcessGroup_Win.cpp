@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/System/ProcessGroup.h>
@@ -216,4 +216,3 @@ ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_ProcessGroup_Win);
-

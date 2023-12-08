@@ -1,6 +1,7 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/System/EnvironmentVariableUtils.h>
 #include <stdlib.h>
 
 ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezStringView sDefault)
