@@ -1,8 +1,15 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <intsafe.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Strings/StringBuilder.h>
+#  include <Foundation/System/EnvironmentVariableUtils.h>
+#  include <Foundation/Threading/Mutex.h>
+#  include <Foundation/Utilities/ConversionUtils.h>
+
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <intsafe.h>
 
 ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezStringView szDefault)
 {
@@ -93,3 +100,9 @@ ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(ezStringView sName)
   else
     return EZ_FAILURE;
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_EnvironmentVariableUtils_Win);
+

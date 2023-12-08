@@ -1,6 +1,8 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/System/EnvironmentVariableUtils.h>
+
 ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezStringView sDefault)
 {
   EZ_ASSERT_NOT_IMPLEMENTED
