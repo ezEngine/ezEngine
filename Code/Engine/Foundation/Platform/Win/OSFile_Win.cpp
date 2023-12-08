@@ -1,12 +1,12 @@
-#pragma once
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Strings/StringConversion.h>
-#include <Foundation/Threading/ThreadUtils.h>
+#  include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
+#  include <Foundation/IO/OSFile.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Strings/StringConversion.h>
+#  include <Foundation/Threading/ThreadUtils.h>
 
 // Defined in Timestamp_win.h
 ezInt64 FileTimeToEpoch(FILETIME fileTime);
@@ -19,9 +19,9 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
   return (uiHigh64 << 32) | uiLow64;
 }
 
-#if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
+#  if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
 
-#  include <Shlobj.h>
+#    include <Shlobj.h>
 
 ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
 {
@@ -287,7 +287,7 @@ ezResult ezOSFile::InternalMoveFileOrDirectory(ezStringView sDirectoryFrom, ezSt
   return EZ_SUCCESS;
 }
 
-#endif // not EZ_USE_POSIX_FILE_API
+#  endif // not EZ_USE_POSIX_FILE_API
 
 ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats)
 {
@@ -326,7 +326,7 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
   return EZ_SUCCESS;
 }
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#  if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
 ezFileSystemIterator::ezFileSystemIterator() = default;
 
@@ -517,7 +517,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
   return ReturnSuccess;
 }
 
-#endif
+#  endif
 
 ezStringView ezOSFile::GetApplicationDirectory()
 {
@@ -557,16 +557,16 @@ ezStringView ezOSFile::GetApplicationDirectory()
   return s_sApplicationPath;
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
-#  include <windows.storage.h>
-#endif
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#    include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#    include <windows.storage.h>
+#  endif
 
 ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
 {
   if (s_sUserDataPath.IsEmpty())
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
     if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Storage_ApplicationData).Get(), &appDataStatics)))
     {
@@ -586,7 +586,7 @@ ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
         }
       }
     }
-#else
+#  else
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
@@ -597,7 +597,7 @@ ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
     {
       CoTaskMemFree(pPath);
     }
-#endif
+#  endif
   }
 
   ezStringBuilder s = s_sUserDataPath;
@@ -612,7 +612,7 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder /*= nullptr*/)
 
   if (s_sTempDataPath.IsEmpty())
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
     if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Storage_ApplicationData).Get(), &appDataStatics)))
     {
@@ -632,7 +632,7 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder /*= nullptr*/)
         }
       }
     }
-#else
+#  else
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
@@ -645,7 +645,7 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder /*= nullptr*/)
     {
       CoTaskMemFree(pPath);
     }
-#endif
+#  endif
   }
 
   s = s_sTempDataPath;
@@ -658,9 +658,9 @@ ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder /*= {}*/)
 {
   if (s_sUserDocumentsPath.IsEmpty())
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     EZ_ASSERT_NOT_IMPLEMENTED;
-#else
+#  else
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_PublicDocuments, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
@@ -671,7 +671,7 @@ ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder /*= {}*/)
     {
       CoTaskMemFree(pPath);
     }
-#endif
+#  endif
   }
 
   ezStringBuilder s = s_sUserDocumentsPath;
@@ -700,3 +700,9 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
 
   return clean;
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_OSFile_Win);
+

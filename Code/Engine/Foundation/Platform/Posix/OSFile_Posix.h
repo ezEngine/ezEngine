@@ -1,8 +1,7 @@
-#pragma once
-
 #include <Foundation/FoundationPCH.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
