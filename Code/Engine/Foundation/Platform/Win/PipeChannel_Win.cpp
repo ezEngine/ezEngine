@@ -3,10 +3,10 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Communication/Implementation/MessageLoop.h>
-#  include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
-#  include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #  include <Foundation/Communication/RemoteMessage.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Win/MessageLoop_Win.h>
+#  include <Foundation/Platform/Win/PipeChannel_Win.h>
 #  include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel)
@@ -350,4 +350,4 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
 }
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Win_PipeChannel_win);
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_PipeChannel_Win);

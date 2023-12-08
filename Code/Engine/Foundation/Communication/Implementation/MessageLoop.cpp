@@ -8,9 +8,9 @@
 EZ_IMPLEMENT_SINGLETON(ezMessageLoop);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
+#  include <Foundation/Platform/Win/MessageLoop_Win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/Communication/Implementation/Linux/MessageLoop_linux.h>
+#  include <Foundation/Platform/Linux/MessageLoop_Linux.h>
 #else
 #  include <Foundation/Communication/Implementation/Mobile/MessageLoop_mobile.h>
 #endif
@@ -30,7 +30,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
     #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
       EZ_DEFAULT_NEW(ezMessageLoop_linux);
     #else
-      EZ_DEFAULT_NEW(ezMessageLoop_mobile);
+      EZ_DEFAULT_NEW(ezMessageLoop_Fallback);
     #endif
   }
 

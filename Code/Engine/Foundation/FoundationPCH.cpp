@@ -47,11 +47,9 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_IpcChannel);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_IpcChannelEnet);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_IpcProcessMessageProtocol);
-  EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_Linux_MessageLoop_linux);
-  EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_Linux_PipeChannel_linux);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_Message);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_MessageLoop);
-  EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_Mobile_MessageLoop_mobile);
+  EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_MessageLoop_Fallback);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_RemoteInterface);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_RemoteInterfaceEnet);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_RemoteMessage);
@@ -59,8 +57,6 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_TelemetryHelpers);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_TelemetryMessage);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_TelemetryThread);
-  EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_Win_MessageLoop_win);
-  EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_Win_PipeChannel_win);
   EZ_STATICLINK_REFERENCE(Foundation_Configuration_Implementation_CVar);
   EZ_STATICLINK_REFERENCE(Foundation_Configuration_Implementation_Plugin);
   EZ_STATICLINK_REFERENCE(Foundation_Configuration_Implementation_Singleton);
@@ -148,10 +144,12 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_EnvironmentVariableUtils_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_GuardedAllocation_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_MemoryMappedFile_Linux);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_MessageLoop_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_MiniDumpUtils_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_OSFile_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_OSThread_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_PageAllocator_Linux);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_PipeChannel_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_ProcessGroup_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_Screen_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_Semaphore_Linux);
@@ -194,11 +192,13 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_EnvironmentVariableUtils_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_GuardedAllocation_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_MemoryMappedFile_Win);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_MessageLoop_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_MiniDumpUtils_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_Mutex_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_OSFile_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_OSThread_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_PageAllocator_Win);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_PipeChannel_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_ProcessGroup_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_Screen_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_Semaphore_Win);

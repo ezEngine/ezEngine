@@ -2,11 +2,10 @@
 #include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
-
-#  include <Foundation/Communication/Implementation/Linux/MessageLoop_linux.h>
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Linux/MessageLoop_Linux.h>
+#  include <Foundation/Platform/Linux/PipeChannel_Linux.h>
 
 #  include <fcntl.h>
 #  include <sys/socket.h>
@@ -270,4 +269,4 @@ void ezPipeChannel_linux::ProcessIncomingPackages()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Linux_PipeChannel_linux);
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Linux_PipeChannel_Linux);

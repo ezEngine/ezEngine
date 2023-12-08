@@ -1,15 +1,13 @@
 #pragma once
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-
 #  include <Foundation/Basics.h>
 #  include <Foundation/Communication/Implementation/MessageLoop.h>
 
-class EZ_FOUNDATION_DLL ezMessageLoop_mobile : public ezMessageLoop
+class EZ_FOUNDATION_DLL ezMessageLoop_Fallback : public ezMessageLoop
 {
 public:
-  ezMessageLoop_mobile();
-  ~ezMessageLoop_mobile();
+  ezMessageLoop_Fallback();
+  ~ezMessageLoop_Fallback();
 
 protected:
   virtual void WakeUp() override;
@@ -18,4 +16,3 @@ protected:
 private:
 };
 
-#endif

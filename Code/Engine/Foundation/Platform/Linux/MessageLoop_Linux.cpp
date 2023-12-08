@@ -2,10 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
 
-#  include <Foundation/Communication/Implementation/Linux/MessageLoop_linux.h>
-
-#  include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Linux/MessageLoop_Linux.h>
+#  include <Foundation/Platform/Linux/PipeChannel_Linux.h>
 
 #  include <fcntl.h>
 #  include <poll.h>
@@ -168,4 +167,4 @@ void ezMessageLoop_linux::WakeUp()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Linux_MessageLoop_linux);
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Linux_MessageLoop_Linux);

@@ -2,9 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#  include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
-#  include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #  include <Foundation/Communication/IpcChannel.h>
+#  include <Foundation/Platform/Win/MessageLoop_Win.h>
+#  include <Foundation/Platform/Win/PipeChannel_Win.h>
 
 ezMessageLoop_win::ezMessageLoop_win()
 {
@@ -109,4 +109,4 @@ void ezMessageLoop_win::WakeUp()
 
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Win_MessageLoop_win);
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_MessageLoop_Win);
