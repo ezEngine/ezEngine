@@ -1,8 +1,10 @@
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Memory/Policies/GuardedAllocation.h>
+
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 namespace ezMemoryPolicies
 {
@@ -105,3 +107,9 @@ namespace ezMemoryPolicies
 
   EZ_MSVC_ANALYSIS_WARNING_POP
 } // namespace ezMemoryPolicies
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_GuardedAllocation_Win);
+
