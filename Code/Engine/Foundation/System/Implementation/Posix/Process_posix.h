@@ -15,7 +15,10 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <sys/wait.h>
 #include <unistd.h>
 
+#ifndef _EZ_DEFINED_POLLFD_POD
+#  define _EZ_DEFINED_POLLFD_POD
 EZ_DEFINE_AS_POD_TYPE(struct pollfd);
+#endif
 
 class ezFd
 {

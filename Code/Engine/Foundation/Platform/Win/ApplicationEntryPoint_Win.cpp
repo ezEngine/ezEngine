@@ -22,4 +22,4 @@ namespace ezApplicationDetails
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_Win_ApplicationEntryPoint_win);
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_ApplicationEntryPoint_Win);

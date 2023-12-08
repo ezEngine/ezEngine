@@ -23,4 +23,4 @@ namespace ezApplicationDetails
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_uwp_ApplicationEntryPoint_uwp);
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_UWP_ApplicationEntryPoint_UWP);

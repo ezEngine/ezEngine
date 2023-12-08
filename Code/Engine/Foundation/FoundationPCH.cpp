@@ -10,12 +10,8 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_HashingUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Config_Implementation_FileSystemConfig);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Config_Implementation_PluginConfig);
-  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Android_Application_android);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Application);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_MainLoop);
-  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Win_ApplicationEntryPoint_win);
-  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_uwp_ApplicationEntryPoint_uwp);
-  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_uwp_Application_uwp);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Assert);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Basics);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_IncludeAll);
@@ -118,6 +114,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_MemoryTracker);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_MemoryUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_PageAllocator);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_Application_Android);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_ConditionVariable_Android);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_CrashHandler_Android);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_DirectoryWatcher_Android);
@@ -180,11 +177,14 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_Time_OSX);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_Timestamp_OSX);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_UuidGenerator_OSX);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_UWP_ApplicationEntryPoint_UWP);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_UWP_Application_UWP);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_UWP_EnvironmentVariableUtils_UWP);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_UWP_MemoryMappedFile_UWP);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_UWP_OSFile_UWP);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_UWP_Screen_UWP);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_UWP_StackTracer_UWP);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_ApplicationEntryPoint_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_ConditionVariable_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_CrashHandler_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_DirectoryWatcher_Win);

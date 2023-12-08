@@ -64,7 +64,10 @@ namespace
   using ezFileSystemMirrorType = ezFileSystemMirror<bool>;
 } // namespace
 
+#  ifndef _EZ_DEFINED_POLLFD_POD
+#    define _EZ_DEFINED_POLLFD_POD
 EZ_DEFINE_AS_POD_TYPE(struct pollfd);
+#  endif
 
 struct ezDirectoryWatcherImpl
 {

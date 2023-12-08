@@ -12,7 +12,7 @@ EZ_IMPLEMENT_SINGLETON(ezMessageLoop);
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 #  include <Foundation/Platform/Linux/MessageLoop_Linux.h>
 #else
-#  include <Foundation/Communication/Implementation/Mobile/MessageLoop_mobile.h>
+#  include <Foundation/Communication/Implementation/MessageLoop_Fallback.h>
 #endif
 
 // clang-format off

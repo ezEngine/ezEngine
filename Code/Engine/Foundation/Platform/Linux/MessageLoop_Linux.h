@@ -15,7 +15,10 @@ EZ_FOUNDATION_INTERNAL_HEADER
 class ezIpcChannel;
 class ezPipeChannel_linux;
 
+#  ifndef _EZ_DEFINED_POLLFD_POD
+#    define _EZ_DEFINED_POLLFD_POD
 EZ_DEFINE_AS_POD_TYPE(struct pollfd);
+#  endif
 
 class EZ_FOUNDATION_DLL ezMessageLoop_linux : public ezMessageLoop
 {
