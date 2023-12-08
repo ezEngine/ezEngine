@@ -118,7 +118,7 @@ namespace cpu_x86
 
   bool detect_OS_x64()
   {
-    //  We only support x64 on Linux.
+    //  We only support x64 on Linux / Mac / etc.
     return true;
   }
 
