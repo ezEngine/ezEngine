@@ -2,9 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#  include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Win/DosDevicePath_Win.h>
 #  include <Foundation/Strings/StringConversion.h>
 #  include <Foundation/Threading/ThreadUtils.h>
 
@@ -705,4 +705,3 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_OSFile_Win);
-

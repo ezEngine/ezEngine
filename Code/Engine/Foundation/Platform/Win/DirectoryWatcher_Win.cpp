@@ -1,23 +1,22 @@
-#pragma once
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#if (EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) && EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER))
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/IO/DirectoryWatcher.h>
-#include <Foundation/IO/Implementation/Shared/FileSystemMirror.h>
-#include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
-#include <Foundation/Logging/Log.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Containers/DynamicArray.h>
+#  include <Foundation/IO/DirectoryWatcher.h>
+#  include <Foundation/IO/Implementation/FileSystemMirror.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Win/DosDevicePath_Win.h>
 
 // Comment in to get verbose output on the function of the directory watcher
 // #define DEBUG_FILE_WATCHER
 
-#ifdef DEBUG_FILE_WATCHER
-#  define DEBUG_LOG(...) ezLog::Warning(__VA_ARGS__)
-#else
-#  define DEBUG_LOG(...)
-#endif
+#  ifdef DEBUG_FILE_WATCHER
+#    define DEBUG_LOG(...) ezLog::Warning(__VA_ARGS__)
+#  else
+#    define DEBUG_LOG(...)
+#  endif
 
 namespace
 {
@@ -133,7 +132,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
   ezFileSystemMirrorType* mirror = m_pImpl->m_mirror.Borrow();
   // Renaming a file to the same filename with different casing triggers the events REMOVED (old casing) -> RENAMED_OLD_NAME -> _RENAMED_NEW_NAME.
   // Thus, we need to cache every remove event to make sure the very next event is not a rename of the exact same file.
-  auto FirePendingRemove = [&]() {
+  auto FirePendingRemove = [&]()
+  {
     if (!pendingRemoveOrRename.IsEmpty())
     {
       if (pendingRemoveOrRename.isDirectory)
@@ -142,7 +142,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
         {
           if (mirror && whatToWatch.IsSet(Watch::Subdirectories))
           {
-            mirror->Enumerate(pendingRemoveOrRename.path, [&](const ezStringBuilder& sPath, ezFileSystemMirrorType::Type type) { func(sPath, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory); })
+            mirror->Enumerate(pendingRemoveOrRename.path, [&](const ezStringBuilder& sPath, ezFileSystemMirrorType::Type type)
+                    { func(sPath, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory); })
               .AssertSuccess();
           }
           func(pendingRemoveOrRename.path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
@@ -407,3 +408,9 @@ void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watche
     watcher->EnumerateChanges(func);
   }
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_DirectoryWatcher_Win);
+

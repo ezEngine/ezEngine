@@ -3,8 +3,8 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
 #  include <Foundation/Basics/Platform/Win/MinWindows.h>
-#  include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
 #  include <Foundation/IO/OSFile.h>
+#  include <Foundation/Platform/Win/DosDevicePath_Win.h>
 #  include <Foundation/System/MiniDumpUtils.h>
 #  include <Foundation/System/ProcessGroup.h>
 #  include <Foundation/Types/ScopeExit.h>
@@ -168,4 +168,3 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_MiniDumpUtils_Win);
-

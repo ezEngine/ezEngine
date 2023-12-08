@@ -2,9 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#  include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
 #  include <Foundation/IO/MemoryMappedFile.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Win/DosDevicePath_Win.h>
 #  include <Foundation/Strings/PathUtils.h>
 #  include <Foundation/Strings/StringConversion.h>
 
@@ -200,4 +200,3 @@ ezUInt64 ezMemoryMappedFile::GetFileSize() const
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_MemoryMappedFile_Win);
-
