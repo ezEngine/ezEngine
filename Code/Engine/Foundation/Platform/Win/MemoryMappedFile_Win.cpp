@@ -1,8 +1,12 @@
-#include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
-#include <Foundation/IO/MemoryMappedFile.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Strings/PathUtils.h>
-#include <Foundation/Strings/StringConversion.h>
+#include <Foundation/FoundationPCH.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
+#  include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
+#  include <Foundation/IO/MemoryMappedFile.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Strings/PathUtils.h>
+#  include <Foundation/Strings/StringConversion.h>
 
 struct ezMemoryMappedFileImpl
 {
@@ -191,3 +195,9 @@ ezUInt64 ezMemoryMappedFile::GetFileSize() const
 {
   return m_pImpl->m_uiFileSize;
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_MemoryMappedFile_Win);
+

@@ -1,10 +1,9 @@
+#include <Foundation/FoundationPCH.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/PathUtils.h>
-
-///#TODO: Implement. Under some restrictions, UWP supports
-/// CreateFileMappingFromApp, OpenFileMappingFromApp, MapViewOfFileFromApp
-/// Needs adding codeGeneration capability to the app manifest.
 
 struct ezMemoryMappedFileImpl
 {
