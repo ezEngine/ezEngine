@@ -1,23 +1,31 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/System/PlatformFeatures.h>
+#include <Foundation/System/Screen.h>
 #include <GLFW/glfw3.h>
 
-namespace {
+namespace
+{
   ezResult ezGlfwError(const char* file, size_t line)
   {
     const char* desc;
     int errorCode = glfwGetError(&desc);
-    if(errorCode != GLFW_NO_ERROR)
+    if (errorCode != GLFW_NO_ERROR)
     {
       ezLog::Error("GLFW error {} ({}): {} - {}", file, line, errorCode, desc);
       return EZ_FAILURE;
     }
     return EZ_SUCCESS;
   }
-}
+} // namespace
 
-#define EZ_GLFW_RETURN_FAILURE_ON_ERROR() do { if(ezGlfwError(__FILE__, __LINE__).Failed()) return EZ_FAILURE; } while(false)
+#define EZ_GLFW_RETURN_FAILURE_ON_ERROR()         \
+  do                                              \
+  {                                               \
+    if (ezGlfwError(__FILE__, __LINE__).Failed()) \
+      return EZ_FAILURE;                          \
+  } while (false)
 
 ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
 {
@@ -26,19 +34,19 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
   int iMonitorCount = 0;
   GLFWmonitor** pMonitors = glfwGetMonitors(&iMonitorCount);
   EZ_GLFW_RETURN_FAILURE_ON_ERROR();
-  if(iMonitorCount == 0)
+  if (iMonitorCount == 0)
   {
     return EZ_FAILURE;
   }
 
   GLFWmonitor* pPrimaryMonitor = glfwGetPrimaryMonitor();
   EZ_GLFW_RETURN_FAILURE_ON_ERROR();
-  if(pPrimaryMonitor == nullptr)
+  if (pPrimaryMonitor == nullptr)
   {
     return EZ_FAILURE;
   }
 
-  for(int i=0; i < iMonitorCount; ++i)
+  for (int i = 0; i < iMonitorCount; ++i)
   {
     ezScreenInfo& screen = out_Screens.ExpandAndGetRef();
     screen.m_sDisplayName = glfwGetMonitorName(pMonitors[i]);
@@ -46,7 +54,7 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
 
     const GLFWvidmode* mode = glfwGetVideoMode(pMonitors[i]);
     EZ_GLFW_RETURN_FAILURE_ON_ERROR();
-    if(mode == nullptr)
+    if (mode == nullptr)
     {
       return EZ_FAILURE;
     }
@@ -55,9 +63,11 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
 
     glfwGetMonitorPos(pMonitors[i], &screen.m_iOffsetX, &screen.m_iOffsetY);
     EZ_GLFW_RETURN_FAILURE_ON_ERROR();
-    
+
     screen.m_bIsPrimary = pMonitors[i] == pPrimaryMonitor;
   }
 
   return EZ_SUCCESS;
 }
+
+#endif

@@ -1,8 +1,11 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
-#include <windows.graphics.display.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+
+#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <Foundation/System/PlatformFeatures.h>
+#  include <Foundation/System/Screen.h>
+#  include <windows.graphics.display.h>
 
 ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
 {
@@ -34,3 +37,9 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
 
   return EZ_SUCCESS;
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_UWP_Screen_UWP);
+

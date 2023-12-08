@@ -132,6 +132,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_MiniDumpUtils_Android);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_OSThread_Android);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_ProcessGroup_Android);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_Screen_Android);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_Semaphore_Android);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_StackTracer_Android);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Android_SystemInformation_Android);
@@ -146,6 +147,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_MiniDumpUtils_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_OSThread_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_ProcessGroup_Linux);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_Screen_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_Semaphore_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_StackTracer_Linux);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Linux_SystemInformation_Linux);
@@ -160,6 +162,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_MiniDumpUtils_OSX);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_OSThread_OSX);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_ProcessGroup_OSX);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_Screen_OSX);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_Semaphore_OSX);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_StackTracer_OSX);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_SystemInformation_OSX);
@@ -169,6 +172,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_Timestamp_OSX);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_OSX_UuidGenerator_OSX);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_UWP_EnvironmentVariableUtils_UWP);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_UWP_Screen_UWP);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_UWP_StackTracer_UWP);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_ConditionVariable_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_CrashHandler_Win);
@@ -176,6 +180,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_MiniDumpUtils_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_OSThread_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_ProcessGroup_Win);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_Screen_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_Semaphore_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_StackTracer_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_SystemInformation_Win);

@@ -1,7 +1,10 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
+#include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/System/PlatformFeatures.h>
+#  include <Foundation/System/Screen.h>
 
 BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
 {
@@ -46,3 +49,9 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_screens)
 
   return EZ_SUCCESS;
 }
+
+#endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_Screen_Win);
+
