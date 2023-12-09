@@ -1,16 +1,13 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/CodeUtils/Tokenizer.h>
+#include <Foundation/CodeUtils/TokenParseUtils.h>
 
 namespace
 {
-  struct ExpectedToken
-  {
-    ezTokenType::Enum type;
-    ezStringView value;
-  };
+  using TokenMatch = ezTokenParseUtils::TokenMatch;
 
-  void CompareResults(const ezDynamicArray<ExpectedToken>& expected, ezTokenizer& inout_tokenizer, bool bIgnoreWhitespace)
+  void CompareResults(const ezDynamicArray<TokenMatch>& expected, ezTokenizer& inout_tokenizer, bool bIgnoreWhitespace)
   {
     auto& tokens = inout_tokenizer.GetTokens();
 
@@ -29,12 +26,12 @@ namespace
 
       auto& e = expected[expectedIndex];
 
-      if (!EZ_TEST_BOOL_MSG(e.type == token.m_iType, "Token with index %u does not match in type, expected %d actual %d", expectedIndex, e.type, token.m_iType))
+      if (!EZ_TEST_BOOL_MSG(e.m_Type == token.m_iType, "Token with index %u does not match in type, expected %d actual %d", expectedIndex, e.m_Type, token.m_iType))
       {
         return;
       }
 
-      if (!EZ_TEST_BOOL_MSG(e.value == token.m_DataView, "Token with index %u does not match, expected '%.*s' actual '%.*s'", expectedIndex, e.value.GetElementCount(), e.value.GetStartPointer(), token.m_DataView.GetElementCount(), token.m_DataView.GetStartPointer()))
+      if (!EZ_TEST_BOOL_MSG(e.m_sToken == token.m_DataView, "Token with index %u does not match, expected '%.*s' actual '%.*s'", expectedIndex, e.m_sToken.GetElementCount(), e.m_sToken.GetStartPointer(), token.m_DataView.GetElementCount(), token.m_DataView.GetStartPointer()))
       {
         return;
       }
@@ -80,9 +77,11 @@ char c='f';
 const char* bla =  "blup";
 )";
     ezTokenizer tokenizer(ezFoundation::GetDefaultAllocator());
-    tokenizer.Tokenize(ezMakeArrayPtr(reinterpret_cast<const ezUInt8*>(stringLiteral), ezStringUtils::GetStringElementCount(stringLiteral)), ezLog::GetThreadLocalLogSystem());
+    tokenizer.Tokenize(ezMakeArrayPtr(reinterpret_cast<const ezUInt8*>(stringLiteral), ezStringUtils::GetStringElementCount(stringLiteral)), ezLog::GetThreadLocalLogSystem(), false);
 
-    ezDynamicArray<ExpectedToken> expectedResult;
+    EZ_TEST_BOOL(tokenizer.GetTokenizedData().IsEmpty());
+
+    ezDynamicArray<TokenMatch> expectedResult;
     expectedResult.PushBack({ezTokenType::Newline, "\n"});
 
     expectedResult.PushBack({ezTokenType::Identifier, "float"});
@@ -152,7 +151,7 @@ fuenf
     ezTokenizer tokenizer(ezFoundation::GetDefaultAllocator());
     tokenizer.Tokenize(ezMakeArrayPtr(reinterpret_cast<const ezUInt8*>(stringLiteral), ezStringUtils::GetStringElementCount(stringLiteral)), ezLog::GetThreadLocalLogSystem());
 
-    ezDynamicArray<ExpectedToken> expectedResult;
+    ezDynamicArray<TokenMatch> expectedResult;
     expectedResult.PushBack({ezTokenType::Identifier, "const"});
     expectedResult.PushBack({ezTokenType::Identifier, "char"});
     expectedResult.PushBack({ezTokenType::NonIdentifier, "*"});

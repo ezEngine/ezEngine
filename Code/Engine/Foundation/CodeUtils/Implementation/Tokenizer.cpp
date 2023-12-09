@@ -48,7 +48,7 @@ void ezTokenizer::NextChar()
     m_uiCurColumn = 0;
   }
 
-  if (!m_sIterator.IsValid())
+  if (!m_sIterator.IsValid() || m_sIterator.IsEmpty())
   {
     m_szNextCharStart = m_sIterator.GetEndPointer();
     m_uiNextChar = '\0';
@@ -81,8 +81,18 @@ void ezTokenizer::AddToken()
   m_CurMode = ezTokenType::Unknown;
 }
 
-void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog)
+void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog, bool bCopyData)
 {
+  if (bCopyData)
+  {
+    m_Data = data;
+    data = m_Data;
+  }
+  else
+  {
+    m_Data.Clear();
+  }
+
   if (data.GetCount() >= 3)
   {
     const char* dataStart = reinterpret_cast<const char*>(data.GetPtr());
@@ -96,13 +106,6 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog)
       data = ezArrayPtr<const ezUInt8>((const ezUInt8*)dataStart, data.GetCount() - 3);
     }
   }
-
-  m_Data.Clear();
-  m_Data.Reserve(m_Data.GetCount() + 1);
-  m_Data = data;
-
-  if (m_Data.IsEmpty() || m_Data[m_Data.GetCount() - 1] != 0)
-    m_Data.PushBack('\0'); // make sure the string is zero terminated
 
   m_Tokens.Clear();
   m_pLog = pLog;
@@ -121,9 +124,13 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog)
     m_szTokenStart = nullptr;
   }
 
-  m_sIterator = ezStringView((const char*)&m_Data[0], (const char*)&m_Data[0] + m_Data.GetCount() - 1);
+  m_sIterator = {};
+  if (!data.IsEmpty())
+  {
+    m_sIterator = ezStringView((const char*)&data[0], (const char*)&data[0] + data.GetCount());
+  }
 
-  if (!m_sIterator.IsValid())
+  if (!m_sIterator.IsValid() || m_sIterator.IsEmpty())
   {
     ezToken t;
     t.m_uiLine = 1;
@@ -137,7 +144,7 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog)
 
   m_szTokenStart = m_szCurCharStart;
 
-  while (m_szTokenStart != nullptr && *m_szTokenStart != '\0')
+  while (m_szTokenStart != nullptr && m_szTokenStart != m_sIterator.GetEndPointer())
   {
     switch (m_CurMode)
     {
@@ -579,7 +586,18 @@ void ezTokenizer::HandleNonIdentifier()
   AddToken();
 }
 
-void ezTokenizer::GetAllLines(ezHybridArray<const ezToken*, 32>& ref_tokens) const
+void ezTokenizer::GetAllTokens(ezDynamicArray<const ezToken*>& ref_tokens) const
+{
+  ref_tokens.Clear();
+  ref_tokens.Reserve(m_Tokens.GetCount());
+
+  for (const ezToken& curToken : m_Tokens)
+  {
+    ref_tokens.PushBack(&curToken);
+  }
+}
+
+void ezTokenizer::GetAllLines(ezDynamicArray<const ezToken*>& ref_tokens) const
 {
   ref_tokens.Clear();
   ref_tokens.Reserve(m_Tokens.GetCount());
