@@ -86,4 +86,4 @@ EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp)
 
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_UWP_Application_UWP);
+EZ_STATICLINK_FILE_DISABLE()

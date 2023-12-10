@@ -200,5 +200,5 @@ namespace cpu_x86
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_SystemInformation_Win);
+EZ_STATICLINK_FILE_DISABLE()
 

@@ -199,4 +199,4 @@ ezUInt64 ezMemoryMappedFile::GetFileSize() const
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_MemoryMappedFile_Win);
+EZ_STATICLINK_FILE_DISABLE()

@@ -167,4 +167,4 @@ void ezMessageLoop_linux::WakeUp()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Linux_MessageLoop_Linux);
+EZ_STATICLINK_FILE_DISABLE()

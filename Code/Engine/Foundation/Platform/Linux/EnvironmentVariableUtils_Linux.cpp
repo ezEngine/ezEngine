@@ -5,4 +5,4 @@
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Linux_EnvironmentVariableUtils_Linux);
+EZ_STATICLINK_FILE_DISABLE()

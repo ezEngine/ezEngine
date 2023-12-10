@@ -105,5 +105,5 @@ ezResult ezSemaphore::TryAcquireToken()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_Semaphore_Win);
+EZ_STATICLINK_FILE_DISABLE()
 

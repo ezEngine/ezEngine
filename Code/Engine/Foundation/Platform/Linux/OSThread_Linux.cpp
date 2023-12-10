@@ -5,5 +5,5 @@
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Linux_OSThread_Linux);
+EZ_STATICLINK_FILE_DISABLE()
 

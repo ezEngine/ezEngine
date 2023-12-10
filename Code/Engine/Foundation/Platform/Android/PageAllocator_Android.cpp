@@ -4,6 +4,4 @@
 #  include <Foundation/Platform/Posix/PageAllocator_Posix.h>
 #endif
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Android_PageAllocator_Android);
-
+EZ_STATICLINK_FILE_DISABLE();

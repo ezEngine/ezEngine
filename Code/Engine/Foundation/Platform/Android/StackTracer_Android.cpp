@@ -63,6 +63,4 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 
 #endif
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Android_StackTracer_Android);
-
+EZ_STATICLINK_FILE_DISABLE()

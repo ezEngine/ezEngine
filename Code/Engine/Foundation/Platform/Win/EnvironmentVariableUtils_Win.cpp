@@ -104,5 +104,5 @@ ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(ezStringView sName)
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_EnvironmentVariableUtils_Win);
+EZ_STATICLINK_FILE_DISABLE()
 

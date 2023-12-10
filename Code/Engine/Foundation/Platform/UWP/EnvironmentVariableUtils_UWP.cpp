@@ -5,5 +5,5 @@
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_UWP_EnvironmentVariableUtils_UWP);
+EZ_STATICLINK_FILE_DISABLE()
 

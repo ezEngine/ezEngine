@@ -269,4 +269,4 @@ void ezPipeChannel_linux::ProcessIncomingPackages()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Linux_PipeChannel_Linux);
+EZ_STATICLINK_FILE_DISABLE()

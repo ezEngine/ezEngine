@@ -97,5 +97,5 @@ ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_OSX_Timestamp_OSX);
+EZ_STATICLINK_FILE_DISABLE()
 

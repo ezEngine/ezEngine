@@ -138,4 +138,4 @@ namespace cpu_x86
 
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_OSX_SystemInformation_OSX);
+EZ_STATICLINK_FILE_DISABLE()

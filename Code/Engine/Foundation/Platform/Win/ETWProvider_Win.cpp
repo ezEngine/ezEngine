@@ -51,4 +51,4 @@ ezETWProvider& ezETWProvider::GetInstance()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_ETWProvider_Win);
+EZ_STATICLINK_FILE_DISABLE()

@@ -17,5 +17,5 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile)
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_OSX_MiniDumpUtils_OSX);
+EZ_STATICLINK_FILE_DISABLE()
 

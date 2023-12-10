@@ -215,4 +215,4 @@ ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_ProcessGroup_Win);
+EZ_STATICLINK_FILE_DISABLE()

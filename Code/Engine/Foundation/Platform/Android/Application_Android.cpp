@@ -95,4 +95,4 @@ EZ_FOUNDATION_DLL void ezAndroidRun(struct android_app* pApp, ezApplication* pEz
 
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Android_Application_Android);
+EZ_STATICLINK_FILE_DISABLE();

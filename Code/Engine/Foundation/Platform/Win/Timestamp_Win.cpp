@@ -81,5 +81,5 @@ ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_Timestamp_Win);
+EZ_STATICLINK_FILE_DISABLE()
 

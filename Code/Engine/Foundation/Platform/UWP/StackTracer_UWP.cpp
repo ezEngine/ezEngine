@@ -25,5 +25,5 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_UWP_StackTracer_UWP);
+EZ_STATICLINK_FILE_DISABLE()
 

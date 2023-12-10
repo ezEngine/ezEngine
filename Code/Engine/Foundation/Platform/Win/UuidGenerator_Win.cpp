@@ -27,5 +27,5 @@ ezUuid ezUuid::MakeUuid()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_UuidGenerator_Win);
+EZ_STATICLINK_FILE_DISABLE()
 

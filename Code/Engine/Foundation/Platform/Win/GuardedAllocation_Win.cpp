@@ -111,5 +111,5 @@ namespace ezMemoryPolicies
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_GuardedAllocation_Win);
+EZ_STATICLINK_FILE_DISABLE()
 

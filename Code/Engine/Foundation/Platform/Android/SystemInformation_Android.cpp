@@ -7,5 +7,5 @@
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Android_SystemInformation_Android);
+EZ_STATICLINK_FILE_DISABLE()
 

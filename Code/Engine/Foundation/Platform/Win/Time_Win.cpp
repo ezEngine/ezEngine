@@ -38,5 +38,5 @@ ezTime ezTime::Now()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_Time_Win);
+EZ_STATICLINK_FILE_DISABLE()
 

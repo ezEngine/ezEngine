@@ -4,6 +4,4 @@
 #  include <Foundation/Platform/NoImpl/ProcessGroup_NoImpl.h>
 #endif
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Android_ProcessGroup_Android);
-
+EZ_STATICLINK_FILE_DISABLE()

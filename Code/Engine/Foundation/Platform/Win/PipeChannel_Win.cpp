@@ -350,4 +350,4 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
 }
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_PipeChannel_Win);
+EZ_STATICLINK_FILE_DISABLE()

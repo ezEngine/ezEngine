@@ -8,4 +8,4 @@
 #  endif
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_OSX_DirectoryWatcher_OSX);
+EZ_STATICLINK_FILE_DISABLE()

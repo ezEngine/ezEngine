@@ -5,5 +5,5 @@
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Linux_ThreadUtils_Linux);
+EZ_STATICLINK_FILE_DISABLE()
 
