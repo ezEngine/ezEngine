@@ -106,6 +106,8 @@ EZ_WARNING_POP()
 /// they then end up in the final application, where they will do what they are meant for.
 #  define EZ_STATICLINK_FILE(LibraryName, UniqueName) EZ_CHECK_WINDOWS_INCLUDE(EZ_INCLUDED_WINDOWS_H, _WINDOWS_)
 
+/// \brief Insert this into a CPP file to disable static link file reference generation for it.
+#  define EZ_STATICLINK_FILE_DISABLE()
 
 /// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
 /// files inside a library. \see EZ_STATICLINK_FILE
@@ -131,6 +133,9 @@ struct ezStaticLinkHelper
     void ezReferenceFunction_##UniqueName(bool bReturn) {} \
     void ezReferenceFunction_##LibraryName(bool bReturn);  \
     static ezStaticLinkHelper StaticLinkHelper_##UniqueName(ezReferenceFunction_##LibraryName);
+
+/// \brief Insert this into a CPP file to disable static link file reference generation for it.
+#  define EZ_STATICLINK_FILE_DISABLE()
 
 /// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
 /// files inside a library. \see EZ_STATICLINK_FILE
@@ -188,9 +193,9 @@ void EZ_IGNORE_UNUSED(const T&)
 // in C++ 20 we don't need to declare an operator!=, it is automatically generated from operator==
 #  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...) /*empty*/
 #else
-#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...)             \
+#  define EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(...)                                   \
     EZ_ALWAYS_INLINE bool operator!=(EZ_EXPAND_ARGS_COMMA(__VA_ARGS__) rhs) const \
-    {                                                       \
-      return !(*this == rhs);                               \
+    {                                                                             \
+      return !(*this == rhs);                                                     \
     }
 #endif

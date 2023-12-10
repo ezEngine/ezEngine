@@ -71,6 +71,8 @@ private:
 
   ezMap<ezString, FileContent> m_ModifiedFiles;
 
+  ezSet<ezString> m_FilesToModify;
+
 
 public:
   using SUPER = ezApplication;
@@ -179,13 +181,14 @@ public:
 
   void SanitizeSourceCode(ezStringBuilder& ref_sInOut)
   {
-    ref_sInOut.ReplaceAll("\r\n", "\n");
+    // this is now handled by clang-format and .editorconfig files
 
-    if (!ref_sInOut.EndsWith("\n"))
-      ref_sInOut.Append("\n");
+    // ref_sInOut.ReplaceAll("\r\n", "\n");
+    // if (!ref_sInOut.EndsWith("\n"))
+    //  ref_sInOut.Append("\n");
 
-    while (ref_sInOut.EndsWith("\n\n\n\n"))
-      ref_sInOut.Shrink(0, 1);
+    // while (ref_sInOut.EndsWith("\n\n\n\n"))
+    //   ref_sInOut.Shrink(0, 1);
   }
 
   ezResult ReadEntireFile(ezStringView sFile, ezStringBuilder& ref_sOut)
@@ -609,50 +612,26 @@ public:
     if (m_bHadSeriousWarnings || m_bHadErrors)
       return;
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
-    const ezUInt32 uiSearchDirLength = m_sSearchDir.GetElementCount() + 1;
+    ezStringBuilder b, sExt;
 
-    // get a directory iterator for the search directory
-    ezFileSystemIterator it;
-    it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive);
-
-    if (it.IsValid())
+    for (const ezString& sFile : m_FilesToModify)
     {
-      ezStringBuilder b, sExt;
-
-      // while there are additional files / folders
-      for (; it.IsValid(); it.Next())
+      if (sFile.HasExtension("h") || sFile.HasExtension("inl"))
       {
-        // build the absolute path to the current file
-        b = it.GetCurrentPath();
-        b.AppendPath(it.GetStats().m_sName.GetData());
+        EZ_LOG_BLOCK("Header", sFile.GetFileNameAndExtension().GetStartPointer());
+        FixFileContents(sFile);
+        continue;
+      }
 
-        // file extensions are always converted to lower-case actually
-        sExt = b.GetFileExtension();
+      if (sFile.HasExtension("cpp"))
+      {
+        EZ_LOG_BLOCK("Source", sFile.GetFileNameAndExtension().GetStartPointer());
+        FixFileContents(sFile);
 
-        if (sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("inl"))
-        {
-          EZ_LOG_BLOCK("Header", &b.GetData()[uiSearchDirLength]);
-          FixFileContents(b.GetData());
-          continue;
-        }
-
-        if (sExt.IsEqual_NoCase("cpp"))
-        {
-          EZ_LOG_BLOCK("Source", &b.GetData()[uiSearchDirLength]);
-          FixFileContents(b.GetData());
-
-          InsertRefPoint(b.GetData());
-          continue;
-        }
+        InsertRefPoint(sFile);
+        continue;
       }
     }
-    else
-      ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
-
-#else
-    EZ_REPORT_FAILURE("No file system iterator support, StaticLinkUtil sample can't run.");
-#endif
   }
 
   void MakeSureStaticLinkLibraryMacroExists()
@@ -712,11 +691,21 @@ public:
         // file extensions are always converted to lower-case actually
         sExt = sFile.GetFileExtension();
 
+        if (sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("inl"))
+        {
+          m_FilesToModify.Insert(sFile);
+        }
+
         if (sExt.IsEqual_NoCase("cpp"))
         {
           ezStringBuilder sFileContent;
           if (ReadEntireFile(sFile.GetData(), sFileContent) == EZ_FAILURE)
             return;
+
+          if (sFileContent.FindSubString("EZ_STATICLINK_FILE_DISABLE"))
+            continue;
+
+          m_FilesToModify.Insert(sFile);
 
           // if we find this macro in here, we don't need to insert EZ_STATICLINK_FILE in this file
           // but once we are done with all files, we want to come back to this file and rewrite the EZ_STATICLINK_LIBRARY
