@@ -62,7 +62,7 @@ ezVec3 ezMeshInstanceData::GetLocalScaling() const
   return m_transform.m_vScale;
 }
 
-static const ezTypeVersion s_MeshInstanceDataVersion = 1;
+static constexpr ezTypeVersion s_MeshInstanceDataVersion = 1;
 ezResult ezMeshInstanceData::Serialize(ezStreamWriter& ref_writer) const
 {
   ref_writer.WriteVersion(s_MeshInstanceDataVersion);

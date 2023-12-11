@@ -184,7 +184,7 @@ private:
   ezStreamReader* m_pInput;
   ezDynamicArray<ezUInt8> m_Cache;
 
-  static const ezUInt32 s_uiMaxIdentifierLength = 64;
+  static constexpr ezUInt32 s_uiMaxIdentifierLength = 64;
 
   ezUInt8 m_uiCurByte;
   ezUInt8 m_uiNextByte;

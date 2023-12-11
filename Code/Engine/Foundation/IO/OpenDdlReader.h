@@ -170,7 +170,7 @@ protected:
   void ClearDataChunks();
   ezUInt8* AllocateBytes(ezUInt32 uiNumBytes);
 
-  static const ezUInt32 s_uiChunkSize = 1000 * 4; // 4 KiB
+  static constexpr ezUInt32 s_uiChunkSize = 1000 * 4; // 4 KiB
 
   ezHybridArray<ezUInt8*, 16> m_DataChunks;
   ezUInt8* m_pCurrentChunk;
