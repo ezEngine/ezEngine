@@ -222,6 +222,7 @@ bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject
 void ezQtExposedParameterPropertyWidget::InternalSetValue(const ezVariant& value)
 {
   ezVariantType::Enum commonType = ezVariantType::Invalid;
+  GetCommonVariantSubType(m_Items, m_pProp, commonType);
   const ezRTTI* pNewtSubType = commonType != ezVariantType::Invalid ? ezReflectionUtils::GetTypeFromVariant(commonType) : nullptr;
 
   ezExposedParameterCommandAccessor* proxy = static_cast<ezExposedParameterCommandAccessor*>(m_pObjectAccessor);
