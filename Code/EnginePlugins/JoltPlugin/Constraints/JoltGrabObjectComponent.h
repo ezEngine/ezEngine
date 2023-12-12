@@ -53,6 +53,12 @@ public:
   /// \brief Returns whether an object is currently being held.
   bool HasObjectGrabbed() const; // [ scriptable ]
 
+  /// \brief Returns the grabbed object's actor component.
+  ezComponentHandle GetGrabbedActor() const { return m_hGrabbedActor; }
+
+  /// \brief Returns the grabbed object's mass.
+  float GetGrabbedActorMass() const { return m_fGrabbedActorInverseMass > 0.0f ? 1.0f / m_fGrabbedActorInverseMass : 0.0f; }
+
   /// \brief The grabbed object is dropped in place.
   void DropGrabbedObject(); // [ scriptable ]
 
@@ -76,6 +82,10 @@ public:
 
   /// How far grab points are allowed to be away to pick them
   float m_fMaxGrabPointDistance = 2.0f; // [ property ]
+
+  /// The radius of the sphere cast that is used instead of a raycast if the radius is greater than zero.
+  /// This can make it easier to pick up very small objects.
+  float m_fCastRadius = 0.0f; // [ property ]
 
   /// The collision layer to use for the raycast.
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
@@ -103,7 +113,7 @@ protected:
 
   ezComponentHandle m_hGrabbedActor;
   float m_fGrabbedActorGravity = 1.0f;
-  float m_fGrabbedActorMass = 0.0f;
+  float m_fGrabbedActorInverseMass = 0.0f;
 
   ezTime m_LastValidTime;
   ezTransform m_ChildAnchorLocal;

@@ -66,7 +66,7 @@ namespace ezRmlUiConversionUtils
     switch (value.GetType())
     {
       case ezVariant::Type::Invalid:
-        return Rml::Variant("<Invalid>");
+        return Rml::Variant("&lt;Invalid&gt;");
 
       case ezVariant::Type::Bool:
         return Rml::Variant(value.Get<bool>());

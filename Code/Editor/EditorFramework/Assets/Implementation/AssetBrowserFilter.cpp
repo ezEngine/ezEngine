@@ -255,7 +255,10 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
       // if the string is not found in the path, ignore this asset
       if (m_SearchFilter.PassesFilters(sDataDirParentRelativePath) == false)
       {
-        if (pInfo && m_SearchFilter.PassesFilters(pInfo->GetName()) == false)
+        if (pInfo == nullptr)
+          return true;
+
+        if (m_SearchFilter.PassesFilters(pInfo->GetName()) == false)
         {
           ezConversionUtils::ToString(pInfo->m_Data.m_Guid, m_sTemp);
           if (m_SearchFilter.PassesFilters(m_sTemp) == false)
@@ -263,8 +266,6 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
 
           // we could actually (partially) match the GUID
         }
-        else
-          return true;
       }
     }
   }
