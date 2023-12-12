@@ -7,7 +7,7 @@
 #include <EditorFramework/Preferences/ScenePreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-static const float s_fMoveSpeed[25] = {
+static constexpr float s_fMoveSpeed[25] = {
   0.5f,
   0.75f,
   1.0f,

@@ -2,7 +2,7 @@
 
 #include <Foundation/IO/StringDeduplicationContext.h>
 
-static const ezTypeVersion s_uiStringDeduplicationVersion = 1;
+static constexpr ezTypeVersion s_uiStringDeduplicationVersion = 1;
 
 EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezStringDeduplicationWriteContext)
 

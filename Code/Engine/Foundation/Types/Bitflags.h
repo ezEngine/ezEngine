@@ -264,7 +264,7 @@ private:
 #define EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, DefaultValue, ...) \
   struct BitflagsTypeName                                                                       \
   {                                                                                             \
-    static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                  \
+    static constexpr ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                  \
     using StorageType = InternalStorageType;                                                    \
     enum Enum                                                                                   \
     {                                                                                           \

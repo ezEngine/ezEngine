@@ -4,7 +4,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
 
-static const ezTypeVersion s_uiTypeVersionContextVersion = 1;
+static constexpr ezTypeVersion s_uiTypeVersionContextVersion = 1;
 
 EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezTypeVersionWriteContext)
 

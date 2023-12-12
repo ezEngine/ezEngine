@@ -120,7 +120,7 @@ ezStatus ezVisualShaderNodeManager::InternalCanAdd(const ezRTTI* pRtti, const ez
     }
 
     /// \todo This is an arbitrary limit and it does not count how many nodes reference the same texture
-    static const ezUInt32 uiMaxTextures = 16;
+    static constexpr ezUInt32 uiMaxTextures = 16;
     if (pDesc->m_NodeType == ezVisualShaderNodeType::Texture && CountNodesOfType(ezVisualShaderNodeType::Texture) >= uiMaxTextures)
     {
       return ezStatus(ezFmt("The maximum number of texture nodes is {0}", uiMaxTextures));

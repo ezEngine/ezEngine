@@ -68,7 +68,7 @@ void ezResourceManager::SetupWorkerTasks()
     ezStringBuilder s;
 
     {
-      static const ezUInt32 InitialDataLoadTasks = 4;
+      static constexpr ezUInt32 InitialDataLoadTasks = 4;
 
       for (ezUInt32 i = 0; i < InitialDataLoadTasks; ++i)
       {
@@ -80,7 +80,7 @@ void ezResourceManager::SetupWorkerTasks()
     }
 
     {
-      static const ezUInt32 InitialUpdateContentTasks = 16;
+      static constexpr ezUInt32 InitialUpdateContentTasks = 16;
 
       for (ezUInt32 i = 0; i < InitialUpdateContentTasks; ++i)
       {

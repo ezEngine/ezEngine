@@ -13,9 +13,9 @@ class ezSkyLightComponent;
 class ezSphereReflectionProbeComponent;
 class ezBoxReflectionProbeComponent;
 
-static const ezUInt32 s_uiReflectionCubeMapSize = 128;
-static const ezUInt32 s_uiNumReflectionProbeCubeMaps = 32;
-static const float s_fDebugSphereRadius = 0.3f;
+static constexpr ezUInt32 s_uiReflectionCubeMapSize = 128;
+static constexpr ezUInt32 s_uiNumReflectionProbeCubeMaps = 32;
+static constexpr float s_fDebugSphereRadius = 0.3f;
 
 inline ezUInt32 GetMipLevels()
 {

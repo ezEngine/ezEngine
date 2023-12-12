@@ -65,8 +65,8 @@ public:
 protected:
   void CreateVertexBuffer();
 
-  static const ezUInt32 s_uiBufferSize = 1024 * 8;
-  static const ezUInt32 s_uiLineVerticesPerBatch = s_uiBufferSize / sizeof(GridVertex);
+  static constexpr ezUInt32 s_uiBufferSize = 1024 * 8;
+  static constexpr ezUInt32 s_uiLineVerticesPerBatch = s_uiBufferSize / sizeof(GridVertex);
 
   ezShaderResourceHandle m_hShader;
   ezGALBufferHandle m_hVertexBuffer;

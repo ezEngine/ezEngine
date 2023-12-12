@@ -280,7 +280,7 @@ private: // *** Macro Definition ***
 
   ezMap<ezString256, MacroDefinition> m_Macros;
 
-  static const ezInt32 s_iMacroParameter0 = ezTokenType::ENUM_COUNT + 2;
+  static constexpr ezInt32 s_iMacroParameter0 = ezTokenType::ENUM_COUNT + 2;
   static ezString s_ParamNames[32];
   ezToken m_ParameterTokens[32];
 
