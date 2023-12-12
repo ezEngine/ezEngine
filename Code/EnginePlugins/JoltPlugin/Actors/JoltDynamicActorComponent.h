@@ -83,7 +83,8 @@ public:
   /// \brief Should be called when a constraint is removed (though not strictly required) to prevent unnecessary message sending.
   void RemoveConstraint(ezComponentHandle hComponent);
 
-  /// \brief Returns the actual mass of this actor which is either user defined or calculated from density.
+  /// \brief Returns the actual mass of this actor which is either the user defined mass or has been calculated from density.
+  /// For kinematic actors this function will return 0.
   float GetMass() const;
 
 protected:
