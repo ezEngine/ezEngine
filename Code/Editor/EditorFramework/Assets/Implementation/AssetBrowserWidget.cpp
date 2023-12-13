@@ -423,7 +423,7 @@ void ezQtAssetBrowserWidget::OnTypeFilterChanged()
       }
     }
 
-    if (iNumChecked == 1)
+    if (iNumChecked == 3)
       TypeFilter->setCurrentIndex(iCheckedFilter);
     else
       TypeFilter->setCurrentIndex((m_Mode != Mode::Browser) ? 0 : 2); // "<All Assets>"
