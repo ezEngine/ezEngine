@@ -99,6 +99,24 @@ private:
   const ezDocumentObject* m_pParent = nullptr;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+struct ezNodePropertyValue
+{
+  ezHashedString m_sPropertyName;
+  ezVariant m_Value;
+};
+
+struct ezNodeCreationTemplate
+{
+  const ezRTTI* m_pType = nullptr;
+  ezStringView m_sTypeName;
+  ezHashedString m_sCategory;
+  ezArrayPtr<const ezNodePropertyValue> m_PropertyValues;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManager : public ezDocumentObjectManager
 {
 public:
@@ -106,6 +124,8 @@ public:
 
   ezDocumentNodeManager();
   virtual ~ezDocumentNodeManager();
+
+  virtual void GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const;
 
   virtual const ezRTTI* GetConnectionType() const;
 

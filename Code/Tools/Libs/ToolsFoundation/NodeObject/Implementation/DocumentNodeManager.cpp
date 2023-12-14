@@ -87,6 +87,18 @@ ezDocumentNodeManager::~ezDocumentNodeManager()
   m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezDocumentNodeManager::PropertyEventsHandler, this));
 }
 
+void ezDocumentNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const
+{
+  ezHybridArray<const ezRTTI*, 32> types;
+  GetCreateableTypes(types);
+
+  for (auto pType : types)
+  {
+    auto& nodeTemplate = out_templates.ExpandAndGetRef();
+    nodeTemplate.m_pType = pType;
+  }
+}
+
 const ezRTTI* ezDocumentNodeManager::GetConnectionType() const
 {
   return ezGetStaticRTTI<DocumentNodeManager_DefaultConnection>();

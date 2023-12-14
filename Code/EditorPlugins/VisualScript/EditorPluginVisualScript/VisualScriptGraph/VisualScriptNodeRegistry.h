@@ -3,7 +3,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
-struct ezScriptBaseClassAttribute_Function;
+struct ezNodePropertyValue;
 class ezVisualScriptPin;
 
 class ezVisualScriptNodeRegistry
@@ -61,7 +61,17 @@ public:
   const ezRTTI* GetNodeBaseType() const { return m_pBaseType; }
   const NodeDesc* GetNodeDescForType(const ezRTTI* pRtti) const { return m_TypeToNodeDescs.GetValue(pRtti); }
 
-  const ezMap<const ezRTTI*, NodeDesc>& GetAllNodeTypes() const { return m_TypeToNodeDescs; }
+  struct NodeCreationTemplate
+  {
+    const ezRTTI* m_pType = nullptr;
+    ezStringView m_sTypeName;
+    ezHashedString m_sCategory;
+    ezUInt32 m_uiPropertyValuesStart;
+    ezUInt32 m_uiPropertyValuesCount;
+  };
+
+  const ezArrayPtr<const NodeCreationTemplate> GetNodeCreationTemplates() const { return m_NodeCreationTemplates; }
+  const ezArrayPtr<const ezNodePropertyValue> GetPropertyValues() const { return m_PropertyValues; }
 
   static constexpr const char* s_szTypeNamePrefix = "VisualScriptNode_";
   static constexpr ezUInt32 s_uiTypeNamePrefixLength = ezStringUtils::GetStringElementCount(s_szTypeNamePrefix);
@@ -83,16 +93,24 @@ private:
 
   void CreateBuiltinTypes();
   void CreateGetOwnerNodeType(const ezRTTI* pRtti);
-  void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction, const ezScriptableFunctionAttribute* pScriptableFunctionAttribute, bool bIsEntryFunction);
+  void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezHashedString& sCategory, const ezAbstractFunctionProperty* pFunction, const ezScriptableFunctionAttribute* pScriptableFunctionAttribute, bool bIsEntryFunction);
   void CreateCoroutineNodeType(const ezRTTI* pRtti);
   void CreateMessageNodeTypes(const ezRTTI* pRtti);
   void CreateEnumNodeTypes(const ezRTTI* pRtti);
 
-  void FillDesc(ezReflectedTypeDescriptor& desc, const ezRTTI* pRtti, ezStringView sCategoryOverride = ezStringView(), const ezColorGammaUB* pColorOverride = nullptr);
-  void FillDesc(ezReflectedTypeDescriptor& desc, ezStringView sTypeName, ezStringView sCategory, const ezColorGammaUB& color);
+  void FillDesc(ezReflectedTypeDescriptor& desc, const ezRTTI* pRtti, const ezColorGammaUB* pColorOverride = nullptr);
+  void FillDesc(ezReflectedTypeDescriptor& desc, ezStringView sTypeName, const ezColorGammaUB& color);
+
+  const ezRTTI* RegisterNodeType(ezReflectedTypeDescriptor& typeDesc, NodeDesc&& nodeDesc, const ezHashedString& sCategory);
 
   const ezRTTI* m_pBaseType = nullptr;
+  const ezRTTI* m_pSetPropertyType = nullptr;
+  const ezRTTI* m_pGetPropertyType = nullptr;
   bool m_bBuiltinTypesCreated = false;
   ezMap<const ezRTTI*, NodeDesc> m_TypeToNodeDescs;
   ezHashSet<const ezRTTI*> m_EnumTypes;
+
+  ezDynamicArray<NodeCreationTemplate> m_NodeCreationTemplates;
+  ezDynamicArray<ezNodePropertyValue> m_PropertyValues;
+  ezDeque<ezString> m_PropertyNodeTypeNames;
 };

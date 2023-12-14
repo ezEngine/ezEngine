@@ -463,7 +463,7 @@ void ezQtNodeScene::RecreateQtPins(const ezDocumentObject* pObject)
   pNode->UpdateGeometry();
 }
 
-void ezQtNodeScene::CreateNodeObject(const ezRTTI* pRtti)
+void ezQtNodeScene::CreateNodeObject(const ezNodeCreationTemplate& nodeTemplate)
 {
   ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Node");
@@ -471,7 +471,7 @@ void ezQtNodeScene::CreateNodeObject(const ezRTTI* pRtti)
   ezStatus res;
   {
     ezAddObjectCommand cmd;
-    cmd.m_pType = pRtti;
+    cmd.m_pType = nodeTemplate.m_pType;
     cmd.m_NewObjectGuid = ezUuid::MakeUuid();
     cmd.m_Index = -1;
 
@@ -482,6 +482,18 @@ void ezQtNodeScene::CreateNodeObject(const ezRTTI* pRtti)
       move.m_Object = cmd.m_NewObjectGuid;
       move.m_NewPos = m_vMousePos;
       res = history->AddCommand(move);
+    }
+
+    for (auto& propValue : nodeTemplate.m_PropertyValues)
+    {
+      if (res.m_Result.Failed())
+        break;
+
+      ezSetObjectPropertyCommand setCmd;
+      setCmd.m_Object = cmd.m_NewObjectGuid;
+      setCmd.m_sProperty = propValue.m_sPropertyName.GetString();
+      setCmd.m_NewValue = propValue.m_Value;
+      res = history->AddCommand(setCmd);
     }
   }
 
@@ -706,12 +718,14 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
   ezStringBuilder tmp;
   ezStringBuilder sFullPath;
 
-  ezHybridArray<const ezRTTI*, 32> types;
-  m_pManager->GetCreateableTypes(types);
+  m_NodeCreationTemplates.Clear();
+  m_pManager->GetNodeCreationTemplates(m_NodeCreationTemplates);
 
-  for (const ezRTTI* pRtti : types)
+  for (ezUInt32 i = 0; i < m_NodeCreationTemplates.GetCount(); ++i)
   {
-    ezStringView sCleanName = pRtti->GetTypeName();
+    const ezNodeCreationTemplate& nodeTemplate = m_NodeCreationTemplates[i];
+    const ezRTTI* pRtti = nodeTemplate.m_pType;
+    ezStringView sCleanName = nodeTemplate.m_sTypeName.IsEmpty() ? pRtti->GetTypeName() : nodeTemplate.m_sTypeName;
 
     if (const char* szUnderscore = sCleanName.FindLastSubString("_"))
     {
@@ -723,8 +737,7 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
       sCleanName = ezStringView(sCleanName.GetStartPointer(), szBracket);
     }
 
-    sFullPath = m_pManager->GetTypeCategory(pRtti);
-
+    sFullPath = nodeTemplate.m_sCategory.GetString();
     if (sFullPath.IsEmpty())
     {
       if (auto pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
@@ -735,7 +748,7 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
 
     sFullPath.AppendPath(sCleanName);
 
-    pSearchMenu->AddItem(ezTranslate(sCleanName.GetData(tmp)), sFullPath, QVariant::fromValue((void*)pRtti));
+    pSearchMenu->AddItem(ezTranslate(sCleanName.GetData(tmp)), sFullPath, QVariant::fromValue(i));
   }
 
   pSearchMenu->Finalize(m_sContextMenuSearchText);
@@ -879,9 +892,11 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtPin* pPin)
 
 void ezQtNodeScene::OnMenuItemTriggered(const QString& sName, const QVariant& variant)
 {
-  const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
+  ezUInt32 uiTypeIndex = variant.value<ezUInt32>();
+  if (uiTypeIndex >= m_NodeCreationTemplates.GetCount())
+    return;
 
-  CreateNodeObject(pRtti);
+  CreateNodeObject(m_NodeCreationTemplates[uiTypeIndex]);
 }
 
 void ezQtNodeScene::OnSelectionChanged()

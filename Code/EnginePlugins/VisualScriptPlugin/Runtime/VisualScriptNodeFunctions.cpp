@@ -1098,6 +1098,15 @@ namespace
     return ExecResult::RunNext(0);
   }
 
+  static ExecResult NodeFunction_Builtin_Array_SetElement(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    ezUInt32 uiIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    a[uiIndex] = inout_context.GetData<ezVariant>(node.GetInputDataOffset(2));
+
+    return ExecResult::RunNext(0);
+  }
+
   static ExecResult NodeFunction_Builtin_Array_GetCount(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
@@ -1303,7 +1312,7 @@ namespace
 
     {&NodeFunction_Builtin_MakeArray},        // Builtin_MakeArray
     {&NodeFunction_Builtin_Array_GetElement}, // Builtin_Array_GetElement,
-    {},                                       // Builtin_Array_SetElement,
+    {&NodeFunction_Builtin_Array_SetElement}, // Builtin_Array_SetElement,
     {&NodeFunction_Builtin_Array_GetCount},   // Builtin_Array_GetCount,
     {},                                       // Builtin_Array_IsEmpty,
     {},                                       // Builtin_Array_Clear,
