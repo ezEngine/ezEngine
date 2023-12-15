@@ -549,3 +549,7 @@ void ezGameApplicationBase::UpdateFrameTime()
 }
 
 
+
+
+EZ_STATICLINK_FILE(Core, Core_GameApplication_Implementation_GameApplicationBase);
+

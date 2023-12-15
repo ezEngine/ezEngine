@@ -15,6 +15,7 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Configuration_Implementation_PlatformProfile);
   EZ_STATICLINK_REFERENCE(Core_Curves_Implementation_ColorGradientResource);
   EZ_STATICLINK_REFERENCE(Core_Curves_Implementation_Curve1DResource);
+  EZ_STATICLINK_REFERENCE(Core_GameApplication_Implementation_GameApplicationBase);
   EZ_STATICLINK_REFERENCE(Core_GameState_Implementation_ForwardEventsToGameStateComponent);
   EZ_STATICLINK_REFERENCE(Core_GameState_Implementation_GameStateBase);
   EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_Camera);

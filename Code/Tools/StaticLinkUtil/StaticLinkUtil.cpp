@@ -732,6 +732,7 @@ public:
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_BEGIN_") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_PLUGIN_") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_ON_GLOBAL_EVENT") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarBool ") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarFloat ") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarInt ") != nullptr);
