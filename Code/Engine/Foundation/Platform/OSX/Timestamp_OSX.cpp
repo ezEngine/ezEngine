@@ -97,5 +97,3 @@ ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()
-

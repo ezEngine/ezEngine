@@ -39,5 +39,3 @@ bool ezThreadUtils::IsMainThread()
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()
-

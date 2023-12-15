@@ -17,5 +17,3 @@ DWORD __stdcall ezThreadClassEntryPoint(LPVOID pThreadParameter)
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()
-

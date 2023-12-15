@@ -105,5 +105,3 @@ ezResult ezSemaphore::TryAcquireToken()
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()
-

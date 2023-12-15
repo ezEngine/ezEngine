@@ -704,4 +704,3 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()

@@ -77,4 +77,3 @@ void ezCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()

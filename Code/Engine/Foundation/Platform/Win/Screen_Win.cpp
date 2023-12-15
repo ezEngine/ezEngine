@@ -53,5 +53,3 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_screens)
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()
-

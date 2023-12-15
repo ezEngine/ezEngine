@@ -41,4 +41,3 @@ void ezPageAllocator::DeallocatePage(void* pPtr)
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()

@@ -4,4 +4,4 @@
 #  include <Foundation/Platform/Posix/CrashHandler_Posix.h>
 #endif
 
-EZ_STATICLINK_FILE_DISABLE();
+

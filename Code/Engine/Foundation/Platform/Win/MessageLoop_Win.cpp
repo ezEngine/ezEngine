@@ -109,4 +109,4 @@ void ezMessageLoop_win::WakeUp()
 
 #endif
 
-EZ_STATICLINK_FILE_DISABLE()
+

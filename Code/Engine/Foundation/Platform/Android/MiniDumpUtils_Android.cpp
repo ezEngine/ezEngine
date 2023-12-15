@@ -6,4 +6,4 @@
 
 #endif
 
-EZ_STATICLINK_FILE_DISABLE();
+

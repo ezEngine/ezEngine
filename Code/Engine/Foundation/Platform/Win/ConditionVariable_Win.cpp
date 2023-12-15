@@ -58,5 +58,3 @@ ezConditionVariable::WaitResult ezConditionVariable::UnlockWaitForSignalAndLock(
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()
-

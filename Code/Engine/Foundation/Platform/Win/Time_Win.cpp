@@ -38,5 +38,3 @@ ezTime ezTime::Now()
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()
-

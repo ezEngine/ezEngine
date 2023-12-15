@@ -4,4 +4,4 @@
 #  include <Foundation/Platform/NoImpl/ProcessGroup_NoImpl.h>
 #endif
 
-EZ_STATICLINK_FILE_DISABLE()
+

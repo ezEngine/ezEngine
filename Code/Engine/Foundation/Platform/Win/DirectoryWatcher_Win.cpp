@@ -412,4 +412,3 @@ void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watche
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()

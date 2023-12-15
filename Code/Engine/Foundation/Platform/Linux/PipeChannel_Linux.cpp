@@ -269,4 +269,3 @@ void ezPipeChannel_linux::ProcessIncomingPackages()
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()

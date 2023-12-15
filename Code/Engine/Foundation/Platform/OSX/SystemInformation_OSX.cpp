@@ -138,4 +138,4 @@ namespace cpu_x86
 
 #endif
 
-EZ_STATICLINK_FILE_DISABLE()
+

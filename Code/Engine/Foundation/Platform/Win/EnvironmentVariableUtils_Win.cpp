@@ -104,5 +104,3 @@ ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(ezStringView sName)
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()
-

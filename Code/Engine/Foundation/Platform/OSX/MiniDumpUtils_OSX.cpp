@@ -17,5 +17,3 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile)
 #endif
 
 
-EZ_STATICLINK_FILE_DISABLE()
-

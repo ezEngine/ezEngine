@@ -63,4 +63,4 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 
 #endif
 
-EZ_STATICLINK_FILE_DISABLE()
+
