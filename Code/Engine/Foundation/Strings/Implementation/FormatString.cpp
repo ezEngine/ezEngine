@@ -426,4 +426,4 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg)
 }
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_FormatString);
+

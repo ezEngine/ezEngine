@@ -349,5 +349,3 @@ void ezInputManager::GetAllInputActions(ezStringView sInputSetName, ezDynamicArr
 }
 
 
-
-EZ_STATICLINK_FILE(Core, Core_Input_Implementation_Action);

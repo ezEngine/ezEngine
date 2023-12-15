@@ -212,4 +212,4 @@ ezUInt64 ezHashingUtils::xxHash64(const void* pKey, size_t uiSizeInByte, ezUInt6
   return XXH64(pKey, uiSizeInByte, uiSeed);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Algorithm_Implementation_HashingUtils);
+

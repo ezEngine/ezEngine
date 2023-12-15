@@ -548,4 +548,4 @@ void ezGameApplicationBase::UpdateFrameTime()
   tLast = tNow;
 }
 
-EZ_STATICLINK_FILE(Core, Core_GameApplication_Implementation_GameApplicationBase);
+

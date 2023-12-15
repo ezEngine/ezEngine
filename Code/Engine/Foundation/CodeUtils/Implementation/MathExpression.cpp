@@ -74,4 +74,4 @@ float ezMathExpression::Evaluate(ezArrayPtr<Input> inputs)
   return fOutput;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_MathExpression);
+

@@ -1262,4 +1262,3 @@ bool ezExpressionAST::IsEqual(const Node* pNodeA, const Node* pNodeB)
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionAST);

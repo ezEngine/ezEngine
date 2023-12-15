@@ -5220,4 +5220,4 @@ DirectX::FORMAT_TYPE DirectX::FormatDataType(_In_ DXGI_FORMAT fmt) noexcept
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexConvert);
+

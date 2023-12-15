@@ -841,5 +841,4 @@ bool ScratchImage::IsAlphaAllOpaque() const noexcept
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexImage);
 

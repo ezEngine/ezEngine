@@ -113,5 +113,3 @@ ezAllocatorBase* ezScriptAllocator::GetAllocator()
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptRTTI);
-

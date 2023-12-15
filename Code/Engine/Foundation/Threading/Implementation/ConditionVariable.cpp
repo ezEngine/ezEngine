@@ -26,4 +26,4 @@ void ezConditionVariable::Unlock()
   m_Mutex.Unlock();
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ConditionVariable);
+

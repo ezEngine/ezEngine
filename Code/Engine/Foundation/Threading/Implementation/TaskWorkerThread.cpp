@@ -148,4 +148,3 @@ double ezTaskWorkerThread::GetThreadUtilization(ezUInt32* pNumTasksExecuted /*= 
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskWorkerThread);

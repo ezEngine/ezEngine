@@ -181,5 +181,3 @@ ezResult ezPreprocessor::AddCustomDefine(ezStringView sDefinition)
 }
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Defines);

@@ -429,4 +429,4 @@ ezResult ezTexConvProcessor::DilateColor2D(ezImage& img) const
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_TextureModifications);
+

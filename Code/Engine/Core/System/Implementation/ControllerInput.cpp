@@ -28,4 +28,3 @@ void ezControllerInput::SetDevice(ezInputDeviceController* pDevice)
 #endif
 
 
-EZ_STATICLINK_FILE(Core, Core_System_Implementation_ControllerInput);

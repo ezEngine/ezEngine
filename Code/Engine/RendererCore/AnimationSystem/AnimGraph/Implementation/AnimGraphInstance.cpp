@@ -58,5 +58,3 @@ void ezAnimGraphInstance::Update(ezAnimController& ref_controller, ezTime diff, 
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphInstance);
-

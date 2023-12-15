@@ -173,5 +173,3 @@
 #include <Foundation/Utilities/Stats.h>
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Basics_IncludeAll);

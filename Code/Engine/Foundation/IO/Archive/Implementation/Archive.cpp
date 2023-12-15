@@ -187,4 +187,3 @@ ezResult ezArchiveEntry::Deserialize(ezStreamReader& inout_stream)
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_Archive);

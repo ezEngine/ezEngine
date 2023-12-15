@@ -548,4 +548,4 @@ ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& inout_s
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshResourceDescriptor);
+

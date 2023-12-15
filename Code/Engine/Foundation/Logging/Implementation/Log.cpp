@@ -441,4 +441,4 @@ bool ezLog::Flush(ezUInt32 uiNumNewMsgThreshold, ezTime timeIntervalThreshold, e
   return true;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_Log);
+

@@ -201,4 +201,4 @@ void ezIpcChannel::FlushPendingOperations()
   m_pOwner->WaitForMessages(-1, this);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcChannel);
+

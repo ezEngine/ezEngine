@@ -556,4 +556,3 @@ ezResult ezArchiveUtils::ExtractZipTOC(ezMemoryMappedFile& ref_memFile, ezArchiv
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_ArchiveUtils);

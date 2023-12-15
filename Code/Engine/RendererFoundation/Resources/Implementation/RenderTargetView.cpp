@@ -13,5 +13,3 @@ ezGALRenderTargetView::ezGALRenderTargetView(ezGALTexture* pTexture, const ezGAL
 ezGALRenderTargetView::~ezGALRenderTargetView() = default;
 
 
-
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_RenderTargetView);

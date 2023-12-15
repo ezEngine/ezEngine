@@ -15,4 +15,4 @@ ezAllocatorId ezPageAllocator::GetId()
   return id;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_PageAllocator);
+

@@ -239,4 +239,3 @@ void ezTaskSystem::DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_Fir
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystemThreads);

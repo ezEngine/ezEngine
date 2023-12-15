@@ -571,5 +571,4 @@ void DirectX::D3DXEncodeBC5S(uint8_t *pBC, const XMVECTOR *pColor, uint32_t flag
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_BC4BC5);
 

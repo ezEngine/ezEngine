@@ -213,5 +213,3 @@ void ezEventTrack::Load(ezStreamReader& inout_stream)
 }
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_EventTrack);

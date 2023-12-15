@@ -41,4 +41,4 @@ void ezQtTestFramework::SetSubTestStatusImpl(ezUInt32 uiSubTestIndex, const char
 
 #endif
 
-EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtTestFramework);
+

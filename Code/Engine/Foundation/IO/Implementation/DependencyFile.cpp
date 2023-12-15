@@ -198,5 +198,3 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStringView sFile)
 }
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_DependencyFile);

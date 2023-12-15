@@ -109,4 +109,4 @@ const ezRenderData* ezExtractedRenderData::GetFrameData(const ezRTTI* pRtti) con
   return nullptr;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_ExtractedRenderData);
+

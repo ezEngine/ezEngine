@@ -10,5 +10,3 @@ ezGALVertexDeclaration::ezGALVertexDeclaration(const ezGALVertexDeclarationCreat
 ezGALVertexDeclaration::~ezGALVertexDeclaration() = default;
 
 
-
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Shader_Implementation_VertexDeclaration);

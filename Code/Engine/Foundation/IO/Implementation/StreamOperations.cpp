@@ -38,5 +38,3 @@ ezStreamReader& operator>>(ezStreamReader& inout_stream, ezStringBuilder& out_sV
 }
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperations);

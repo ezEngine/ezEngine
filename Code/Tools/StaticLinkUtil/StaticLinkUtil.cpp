@@ -72,6 +72,7 @@ private:
   ezMap<ezString, FileContent> m_ModifiedFiles;
 
   ezSet<ezString> m_FilesToModify;
+  ezSet<ezString> m_FilesToLink;
 
 
 public:
@@ -187,8 +188,10 @@ public:
     // if (!ref_sInOut.EndsWith("\n"))
     //  ref_sInOut.Append("\n");
 
-    // while (ref_sInOut.EndsWith("\n\n\n\n"))
-    //   ref_sInOut.Shrink(0, 1);
+    while (ref_sInOut.EndsWith("\n\n\n\n"))
+      ref_sInOut.Shrink(0, 1);
+    while (ref_sInOut.EndsWith("\r\n\r\n\r\n\r\n"))
+      ref_sInOut.Shrink(0, 2);
   }
 
   ezResult ReadEntireFile(ezStringView sFile, ezStringBuilder& ref_sOut)
@@ -488,14 +491,16 @@ public:
     if (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY"))
       return;
 
-
     ezString sLibraryMarker = GetLibraryMarkerName();
     ezString sFileMarker = GetFileMarkerName(sFile);
 
     ezStringBuilder sNewMarker;
-    sNewMarker.Format("EZ_STATICLINK_FILE({0}, {1});", sLibraryMarker, sFileMarker);
 
-    m_AllRefPoints.Insert(sFileMarker.GetData());
+    if (m_FilesToLink.Contains(sFile))
+    {
+      m_AllRefPoints.Insert(sFileMarker.GetData());
+      sNewMarker.Format("EZ_STATICLINK_FILE({0}, {1});", sLibraryMarker, sFileMarker);
+    }
 
     const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
 
@@ -702,16 +707,13 @@ public:
           if (ReadEntireFile(sFile.GetData(), sFileContent) == EZ_FAILURE)
             return;
 
-          if (sFileContent.FindSubString("EZ_STATICLINK_FILE_DISABLE"))
-            continue;
-
-          m_FilesToModify.Insert(sFile);
-
           // if we find this macro in here, we don't need to insert EZ_STATICLINK_FILE in this file
           // but once we are done with all files, we want to come back to this file and rewrite the EZ_STATICLINK_LIBRARY
           // part such that it will reference all the other files
           if (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY"))
           {
+            m_FilesToModify.Insert(sFile);
+
             ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '{0}'.", &sFile.GetData()[m_sSearchDir.GetElementCount() + 1]);
 
             if (!m_sRefPointGroupFile.IsEmpty())
@@ -719,6 +721,26 @@ public:
             else
               m_sRefPointGroupFile = sFile;
           }
+
+          if (sFileContent.FindSubString("EZ_STATICLINK_FILE_DISABLE"))
+            continue;
+
+          m_FilesToModify.Insert(sFile);
+
+          bool bContainsGlobals = false;
+
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_BEGIN_") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_PLUGIN_") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarBool ") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarFloat ") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarInt ") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarString ") != nullptr);
+
+          if (!bContainsGlobals)
+            continue;
+
+          m_FilesToLink.Insert(sFile);
         }
       }
     }

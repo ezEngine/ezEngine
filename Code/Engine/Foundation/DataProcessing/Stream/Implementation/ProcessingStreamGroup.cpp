@@ -295,4 +295,4 @@ void ezProcessingStreamGroup::SortProcessorsByPriority()
   m_Processors.Sort(cmp);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStreamGroup);
+

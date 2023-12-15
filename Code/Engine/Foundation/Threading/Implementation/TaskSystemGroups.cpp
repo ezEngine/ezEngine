@@ -357,4 +357,4 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
   }
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystemGroups);
+

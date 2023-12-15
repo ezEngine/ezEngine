@@ -718,4 +718,4 @@ void ezFileSystemIterator::SkipFolder()
 
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OSFile);
+

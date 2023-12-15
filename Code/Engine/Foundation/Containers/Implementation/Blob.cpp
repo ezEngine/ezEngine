@@ -67,4 +67,3 @@ void ezBlob::ZeroFill()
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Containers_Implementation_Blob);

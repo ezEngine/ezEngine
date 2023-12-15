@@ -3503,5 +3503,4 @@ HRESULT DirectX::ScaleMipMapsAlphaForCoverage(
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexMipmaps);
 

@@ -253,4 +253,4 @@ ezStringView ezStringView::GetRootedPathRootName() const
   return ezPathUtils::GetRootedPathRootName(*this);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringView);
+

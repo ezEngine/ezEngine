@@ -452,5 +452,3 @@ ezResult ezAbstractGraphDdlSerializer::ReadHeader(ezStreamReader& inout_stream, 
 }
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_DdlSerializer);

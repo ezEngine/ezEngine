@@ -246,4 +246,4 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
 
 #endif
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_Implementation_DearImgui);
+

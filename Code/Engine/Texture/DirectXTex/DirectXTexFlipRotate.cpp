@@ -415,5 +415,4 @@ HRESULT DirectX::FlipRotate(
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexFlipRotate);
 

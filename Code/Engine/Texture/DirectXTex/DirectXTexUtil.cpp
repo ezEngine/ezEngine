@@ -1517,5 +1517,4 @@ HRESULT Blob::Trim(size_t size) noexcept
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexUtil);
 

@@ -129,4 +129,4 @@ void ezProcess::BuildFullCommandLineString(const ezProcessOptions& opt, ezString
 }
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_Process);
+

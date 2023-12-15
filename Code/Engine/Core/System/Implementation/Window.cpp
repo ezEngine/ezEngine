@@ -227,4 +227,3 @@ ezUInt8 ezWindow::GetNextUnusedWindowNumber()
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_System_Implementation_Window);

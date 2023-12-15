@@ -78,4 +78,4 @@ void ezThreadSignal::ClearSignal()
   m_bSignalState = false;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ThreadSignal);
+

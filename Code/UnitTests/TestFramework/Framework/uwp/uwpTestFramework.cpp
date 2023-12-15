@@ -36,4 +36,4 @@ void ezUwpTestFramework::Run()
 
 #endif
 
-EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_uwp_uwpTestFramework);
+

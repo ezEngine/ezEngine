@@ -313,4 +313,4 @@ bool ezWicFileFormat::CanWriteFileType(ezStringView sExtension) const
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_WicFileFormat);
+

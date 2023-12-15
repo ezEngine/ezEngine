@@ -117,5 +117,3 @@ bool ezTexturePacker::TryPlaceAt(ezVec2U32 pos, ezVec2U32 size)
 }
 
 
-
-EZ_STATICLINK_FILE(Texture, Texture_Utils_Implementation_TexturePacker);

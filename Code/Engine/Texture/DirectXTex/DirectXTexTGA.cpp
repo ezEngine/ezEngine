@@ -2360,4 +2360,4 @@ HRESULT DirectX::SaveToTGAFile(
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexTGA);
+

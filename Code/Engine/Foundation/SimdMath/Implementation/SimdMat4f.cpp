@@ -19,5 +19,3 @@ ezResult ezSimdMat4f::Invert(const ezSimdFloat& fEpsilon)
 }
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_SimdMath_Implementation_SimdMat4f);

@@ -83,5 +83,3 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& ref_gr
 }
 
 
-
-EZ_STATICLINK_FILE(Utilities, Utilities_DGML_Implementation_DGMLCreator);

@@ -14,5 +14,3 @@ ezResult ezSoundInterface::PlaySound(ezStringView sResourceID, const ezTransform
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Interfaces_SoundInterface);
-

@@ -662,4 +662,4 @@ ezResult ezGraphicsUtils::ComputeBarycentricCoordinates(ezVec3& out_vCoordinates
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_GraphicsUtils);
+

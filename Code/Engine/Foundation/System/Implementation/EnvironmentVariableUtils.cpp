@@ -64,4 +64,4 @@ ezResult ezEnvironmentVariableUtils::UnsetVariable(ezStringView sName)
   return UnsetVariableImpl(sName);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_EnvironmentVariableUtils);
+

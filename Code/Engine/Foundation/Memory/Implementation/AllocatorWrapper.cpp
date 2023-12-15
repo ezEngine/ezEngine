@@ -19,4 +19,4 @@ ezAllocatorBase* ezLocalAllocatorWrapper::GetAllocator()
   return s_pAllocator;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_AllocatorWrapper);
+

@@ -114,4 +114,3 @@ ezInt32 ezDuktapeFunction::ReturnCustom()
 #endif
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_Duktape_DuktapeFunction);

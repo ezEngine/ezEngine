@@ -119,4 +119,3 @@ void ezLogWriter::Console::SetTimestampMode(ezLog::TimestampMode mode)
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_ConsoleWriter);

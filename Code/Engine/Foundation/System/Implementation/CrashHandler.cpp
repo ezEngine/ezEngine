@@ -105,4 +105,4 @@ void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
   }
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_CrashHandler);
+

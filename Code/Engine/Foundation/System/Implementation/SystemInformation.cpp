@@ -171,4 +171,4 @@ void ezCpuFeatures::Detect()
 
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_SystemInformation);
+

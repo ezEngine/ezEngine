@@ -452,4 +452,3 @@ void ezDefaultMemoryStreamStorage::AddChunk(ezUInt32 uiMinimumSize)
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_MemoryStream);

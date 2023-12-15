@@ -797,4 +797,4 @@ ezImageFormat::Enum ezImageConversion::FindClosestCompatibleFormat(
   return bestFormat;
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageConversion);
+

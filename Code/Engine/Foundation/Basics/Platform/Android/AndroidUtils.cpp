@@ -43,4 +43,3 @@ jobject ezAndroidUtils::GetAndroidNativeActivity()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Android_AndroidUtils);

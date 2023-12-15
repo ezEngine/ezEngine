@@ -62,4 +62,4 @@ ezResult ezImageFileFormat::ReadImageHeader(ezStringView sFileName, ezImageHeade
   return EZ_FAILURE;
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFileFormat);
+

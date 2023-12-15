@@ -140,4 +140,4 @@ void ezHashedString::Clear()
 #endif
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_HashedString);
+

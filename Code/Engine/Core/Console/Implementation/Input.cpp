@@ -237,5 +237,3 @@ void ezQuakeConsole::DoDefaultInputHandling(bool bConsoleOpen)
 }
 
 
-
-EZ_STATICLINK_FILE(Core, Core_Console_Implementation_Input);

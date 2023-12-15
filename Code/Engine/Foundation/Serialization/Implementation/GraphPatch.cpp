@@ -30,4 +30,4 @@ ezGraphPatch::PatchType ezGraphPatch::GetPatchType() const
   return m_PatchType;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_GraphPatch);
+

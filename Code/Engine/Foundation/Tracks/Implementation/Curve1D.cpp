@@ -565,4 +565,4 @@ void ezCurve1D::MakeAutoTangentRight(ezUInt32 uiCpIdx)
   tCP.m_RightTangent.Set((float)tangent.x, (float)tangent.y);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_Curve1D);
+

@@ -1148,5 +1148,4 @@ void DirectX::D3DXEncodeBC3(uint8_t *pBC, const XMVECTOR *pColor, uint32_t flags
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_BC);
 

@@ -91,4 +91,4 @@ ezResult ezAssetFileHeader::Read(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(Core, Core_Assets_Implementation_AssetFileHeader);
+

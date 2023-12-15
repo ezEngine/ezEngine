@@ -621,5 +621,4 @@ HRESULT GPUCompressBC::Compress(const Image& srcImage, const Image& destImage)
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_BCDirectCompute);
 

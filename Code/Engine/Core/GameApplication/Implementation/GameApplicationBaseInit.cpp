@@ -262,5 +262,3 @@ void ezGameApplicationBase::Deinit_ShutdownLogging()
 }
 
 
-
-EZ_STATICLINK_FILE(Core, Core_GameApplication_Implementation_GameApplicationBaseInit);

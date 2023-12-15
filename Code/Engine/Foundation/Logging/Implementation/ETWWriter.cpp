@@ -30,4 +30,4 @@ void ezLogWriter::ETW::LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndent
 
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_ETWWriter);
+

@@ -165,4 +165,4 @@ ezStringView ezProcessingStream::GetDataTypeName(DataType type)
   return s_TypeName[(ezUInt32)type];
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStream);
+

@@ -154,4 +154,4 @@ ezResult ezTextureAtlasRuntimeDesc::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_Utils_Implementation_TextureAtlasDesc);
+

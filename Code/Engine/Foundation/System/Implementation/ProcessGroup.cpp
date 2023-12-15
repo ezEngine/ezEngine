@@ -11,4 +11,4 @@ const ezHybridArray<ezProcess, 8>& ezProcessGroup::GetProcesses() const
 
 #endif
 
-EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_ProcessGroup);
+

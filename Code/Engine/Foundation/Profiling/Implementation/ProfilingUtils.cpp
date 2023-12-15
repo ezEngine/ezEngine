@@ -76,5 +76,3 @@ ezResult ezProfilingUtils::MergeProfilingCaptures(ezStringView sCapturePath1, ez
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Profiling_Implementation_ProfilingUtils);
-

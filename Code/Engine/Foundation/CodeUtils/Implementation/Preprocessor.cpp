@@ -544,5 +544,3 @@ ezResult ezPreprocessor::HandleWarningDirective(const TokenStream& Tokens, ezUIn
 }
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Preprocessor);

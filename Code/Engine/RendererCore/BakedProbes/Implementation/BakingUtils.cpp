@@ -47,4 +47,3 @@ void ezBakingUtils::DecompressSkyVisibility(ezCompressedSkyVisibility compressed
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakingUtils);

@@ -28,4 +28,4 @@ bool ezMessageLoop_Fallback::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFi
   return false;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_MessageLoop_Fallback);
+

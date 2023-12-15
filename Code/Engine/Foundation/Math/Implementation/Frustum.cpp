@@ -334,4 +334,4 @@ ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForward
   return res;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Frustum);
+

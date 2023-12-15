@@ -253,5 +253,3 @@ ezStringView ezInputManager::ConvertScanCodeToEngineName(ezUInt8 uiScanCode, boo
 }
 
 
-
-EZ_STATICLINK_FILE(Core, Core_Input_Implementation_ScancodeTable);

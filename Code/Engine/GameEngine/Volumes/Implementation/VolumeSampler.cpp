@@ -159,5 +159,3 @@ ezUInt32 ezVolumeSampler::ComputeSortingKey(float fSortOrder, float fMaxScale)
 }
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Volumes_Implementation_VolumeSampler);
-
