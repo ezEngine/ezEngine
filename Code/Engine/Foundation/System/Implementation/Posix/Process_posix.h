@@ -11,10 +11,14 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
+#ifndef _EZ_DEFINED_POLLFD_POD
+#  define _EZ_DEFINED_POLLFD_POD
 EZ_DEFINE_AS_POD_TYPE(struct pollfd);
+#endif
 
 class ezFd
 {
@@ -71,10 +75,10 @@ public:
 
   ezResult AddFlags(int addFlags)
   {
-    if(m_fd < 0)
+    if (m_fd < 0)
       return EZ_FAILURE;
 
-    if(addFlags & O_CLOEXEC)
+    if (addFlags & O_CLOEXEC)
     {
       int flags = fcntl(m_fd, F_GETFD);
       flags |= addFlags;
@@ -86,7 +90,7 @@ public:
       addFlags &= ~O_CLOEXEC;
     }
 
-    if(addFlags)
+    if (addFlags)
     {
       int flags = fcntl(m_fd, F_GETFL);
       flags |= addFlags;
@@ -114,7 +118,7 @@ public:
     {
       return EZ_FAILURE;
     }
-    if(flags != 0 && (fds[0].AddFlags(flags).Failed() || fds[1].AddFlags(flags).Failed()))
+    if (flags != 0 && (fds[0].AddFlags(flags).Failed() || fds[1].AddFlags(flags).Failed()))
     {
       fds[0].Close();
       fds[1].Close();
@@ -327,7 +331,7 @@ struct ezProcessImpl
 
     if (ezOSFile::GetFileStats(executablePath, stats).Failed() || stats.m_bIsDirectory)
     {
-	  ezHybridArray<char, 512> confPath;
+      ezHybridArray<char, 512> confPath;
       auto envPATH = getenv("PATH");
       if (envPATH == nullptr) // if no PATH environment variable is available, we need to fetch the system default;
       {
@@ -376,7 +380,7 @@ struct ezProcessImpl
       {
         return EZ_FAILURE;
       }
-      if(stdoutPipe[0].AddFlags(O_NONBLOCK).Failed())
+      if (stdoutPipe[0].AddFlags(O_NONBLOCK).Failed())
       {
         return EZ_FAILURE;
       }
@@ -388,7 +392,7 @@ struct ezProcessImpl
       {
         return EZ_FAILURE;
       }
-      if(stderrPipe[0].AddFlags(O_NONBLOCK).Failed())
+      if (stderrPipe[0].AddFlags(O_NONBLOCK).Failed())
       {
         return EZ_FAILURE;
       }

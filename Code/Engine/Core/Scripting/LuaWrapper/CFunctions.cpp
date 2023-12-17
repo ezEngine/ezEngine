@@ -132,5 +132,3 @@ const char* ezLuaWrapper::GetStringReturnValue(ezUInt32 uiReturnValue) const
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 
-
-EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_CFunctions);

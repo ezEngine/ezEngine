@@ -66,4 +66,3 @@ void ezLuaWrapper::CloseAllTables()
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 
-EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_Tables);

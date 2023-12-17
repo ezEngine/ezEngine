@@ -340,4 +340,4 @@ void ezGPUResourcePool::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   }
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_GPUResourcePool_Implementation_GPUResourcePool);
+

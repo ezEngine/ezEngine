@@ -368,4 +368,4 @@ void ezJSONWriter::SetWriteErrorState()
   m_bHadWriteError = true;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_JSONWriter);
+

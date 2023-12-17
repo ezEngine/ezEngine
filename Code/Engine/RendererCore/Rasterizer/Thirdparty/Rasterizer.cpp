@@ -1550,4 +1550,3 @@ template void Rasterizer::rasterize<false>(const Occluder& occluder);
 #endif
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Rasterizer_Thirdparty_Rasterizer);

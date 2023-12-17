@@ -45,4 +45,3 @@ void ezStats::SetStat(ezStringView sStatName, const ezVariant& value)
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_Stats);

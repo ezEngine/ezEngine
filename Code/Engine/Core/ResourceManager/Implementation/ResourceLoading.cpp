@@ -447,4 +447,3 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceLoading);

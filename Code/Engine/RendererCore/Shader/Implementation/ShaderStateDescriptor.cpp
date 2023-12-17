@@ -466,4 +466,4 @@ ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderStateDescriptor);
+

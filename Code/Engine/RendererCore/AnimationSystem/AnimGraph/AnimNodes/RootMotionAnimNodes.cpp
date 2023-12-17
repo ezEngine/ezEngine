@@ -80,4 +80,4 @@ void ezRootRotationAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphI
   ref_controller.SetRootMotion(vRootMotion, rootRotationX, rootRotationY, rootRotationZ);
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_ModelPoseOutputAnimNode);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_RootMotionAnimNodes);

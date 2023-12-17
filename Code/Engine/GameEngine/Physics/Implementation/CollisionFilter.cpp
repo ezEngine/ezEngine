@@ -149,5 +149,3 @@ void ezCollisionFilterConfig::Load(ezStreamReader& inout_stream)
 }
 
 
-
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_CollisionFilter);

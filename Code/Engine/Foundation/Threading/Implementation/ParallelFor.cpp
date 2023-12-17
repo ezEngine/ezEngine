@@ -139,4 +139,4 @@ void ezTaskSystem::ParallelForIndexed(ezUInt64 uiStartIndex, ezUInt64 uiNumItems
   ParallelForIndexedInternal<ezUInt64, ezParallelForIndexedFunction64>(uiStartIndex, uiNumItems, std::move(taskCallback), szTaskName, params);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ParallelFor);
+

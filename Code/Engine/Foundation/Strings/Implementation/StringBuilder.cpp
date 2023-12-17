@@ -1150,4 +1150,4 @@ void ezStringBuilder::Printf(const char* szUtf8Format, ...)
   va_end(args);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringBuilder);
+

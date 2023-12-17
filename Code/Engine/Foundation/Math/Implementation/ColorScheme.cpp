@@ -325,4 +325,4 @@ ezColor ezColorScheme::GetCategoryColor(ezStringView sCategory, CategoryColorUsa
   return ezColor::MakeZero();
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_ColorScheme);
+

@@ -45,4 +45,3 @@ void ezCheckWindowsTypeSizes()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Win_MinWindows);

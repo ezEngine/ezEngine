@@ -63,4 +63,3 @@ void ezGALDeviceFactory::UnregisterCreatorFunc(const char* szRendererName)
 }
 
 
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_DeviceFactory);

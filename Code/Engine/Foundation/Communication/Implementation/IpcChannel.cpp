@@ -7,9 +7,9 @@
 #include <Foundation/Logging/Log.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
+#  include <Foundation/Platform/Win/PipeChannel_Win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
+#  include <Foundation/Platform/Linux/PipeChannel_Linux.h>
 #endif
 
 EZ_CHECK_AT_COMPILETIME((ezInt32)ezIpcChannel::ConnectionState::Disconnected == (ezInt32)ezIpcChannelEvent::Disconnected);
@@ -201,4 +201,4 @@ void ezIpcChannel::FlushPendingOperations()
   m_pOwner->WaitForMessages(-1, this);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcChannel);
+

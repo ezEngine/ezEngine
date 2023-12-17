@@ -47,4 +47,3 @@ void ezTaskGroup::DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex)
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskGroup);

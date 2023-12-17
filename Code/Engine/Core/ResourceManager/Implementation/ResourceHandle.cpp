@@ -108,5 +108,3 @@ void ezResourceHandleStreamOperations::ReadHandle(ezStreamReader& Stream, ezType
 }
 
 
-
-EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceHandle);

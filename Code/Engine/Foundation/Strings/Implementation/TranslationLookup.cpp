@@ -348,4 +348,4 @@ ezStringView ezTranslatorMakeMoreReadable::Translate(ezStringView sString, ezUIn
   return ezTranslatorStorage::Translate(sString, uiStringHash, usage);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_TranslationLookup);
+

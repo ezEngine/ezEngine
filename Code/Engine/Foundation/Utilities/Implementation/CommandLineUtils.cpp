@@ -296,4 +296,4 @@ void ezCommandLineUtils::InjectCustomArgument(ezStringView sArgument)
   m_Commands.PushBack(sArgument);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_CommandLineUtils);
+

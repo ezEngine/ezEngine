@@ -737,4 +737,3 @@ bool ezJniClass::IsPrimitive()
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Android_AndroidJni);

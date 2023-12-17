@@ -63,4 +63,4 @@ void ezEndianHelper::SwitchStructs(void* pDataPointer, const char* szFormat, ezU
   }
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_EndianHelper);
+

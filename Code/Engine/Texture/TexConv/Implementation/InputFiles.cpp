@@ -106,4 +106,4 @@ ezResult ezTexConvProcessor::ConvertAndScaleInputImages(ezUInt32 uiResolutionX, 
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_InputFiles);
+

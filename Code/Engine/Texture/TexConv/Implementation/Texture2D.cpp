@@ -182,4 +182,4 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezE
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_Texture2D);
+

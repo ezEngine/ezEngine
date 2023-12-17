@@ -408,4 +408,4 @@ void ezRttiConverterReader::CallOnObjectCreated(const ezAbstractObjectNode* pNod
   }
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_RttiConverterReader);
+

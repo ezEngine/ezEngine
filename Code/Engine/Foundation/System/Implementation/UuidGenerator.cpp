@@ -2,20 +2,6 @@
 
 #include <Foundation/Types/Uuid.h>
 
-
-// Include inline file
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/System/Implementation/Win/UuidGenerator_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-#  include <Foundation/System/Implementation/Posix/UuidGenerator_posix.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/System/Implementation/Posix/UuidGenerator_posix.h>
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/System/Implementation/Android/UuidGenerator_android.h>
-#else
-#  error "Uuid generation functions are not implemented on current platform"
-#endif
-
 ezUuid ezUuid::MakeStableUuidFromString(ezStringView sString)
 {
   ezUuid NewUuid;
@@ -34,4 +20,4 @@ ezUuid ezUuid::MakeStableUuidFromInt(ezInt64 iInt)
   return NewUuid;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_UuidGenerator);
+

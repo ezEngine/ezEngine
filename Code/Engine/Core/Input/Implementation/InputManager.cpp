@@ -405,4 +405,4 @@ ezStringView ezInputManager::GetInputSlotTouchPointPositionY(ezUInt32 uiIndex)
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_Input_Implementation_InputManager);
+

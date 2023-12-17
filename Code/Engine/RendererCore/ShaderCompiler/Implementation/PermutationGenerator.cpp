@@ -57,4 +57,4 @@ void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezHybridArray<ezPer
   }
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_PermutationGenerator);
+

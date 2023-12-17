@@ -3,6 +3,10 @@
 
 /// \file
 
+/// \brief Used to pass a token through without modification
+/// Useful to separate tokens that have no whitespace in between and thus would otherwise form one string.
+#define EZ_PP_IDENTITY(x) x
+
 /// \brief Concatenates two strings, even when the strings are macros themselves
 #define EZ_CONCAT(x, y) EZ_CONCAT_HELPER(x, y)
 #define EZ_CONCAT_HELPER(x, y) EZ_CONCAT_HELPER2(x, y)

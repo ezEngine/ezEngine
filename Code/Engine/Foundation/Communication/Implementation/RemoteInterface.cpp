@@ -415,4 +415,4 @@ ezUInt32 ezRemoteThread::Run()
   return 0;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_RemoteInterface);
+

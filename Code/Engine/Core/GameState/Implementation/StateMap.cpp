@@ -95,5 +95,3 @@ void ezStateMap::RetrieveString(const ezTempHashedString& sName, ezString& out_s
 }
 
 
-
-EZ_STATICLINK_FILE(Core, Core_GameState_Implementation_StateMap);

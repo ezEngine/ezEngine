@@ -1251,4 +1251,3 @@ namespace ezConversionUtils
 } // namespace ezConversionUtils
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_ConversionUtils);

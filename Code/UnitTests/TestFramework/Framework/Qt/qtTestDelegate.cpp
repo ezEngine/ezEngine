@@ -49,4 +49,4 @@ void ezQtTestDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& opt
 
 #endif
 
-EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtTestDelegate);
+

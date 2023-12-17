@@ -338,4 +338,5 @@ void operator>>(ezStreamReader& inout_stream, ezVarianceTypeAngle& ref_value)
   inout_stream >> ref_value.m_fVariance;
   inout_stream >> ref_value.m_Value;
 }
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperationsOther);
+
+

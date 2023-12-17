@@ -276,3 +276,7 @@ bool ezStateMachineState_Script::GetParameter(const char* szKey, ezVariant& out_
   out_value = m_Parameters.GetValue(it);
   return true;
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineState_Script);
+

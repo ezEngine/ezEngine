@@ -76,4 +76,4 @@ float ezCoordinateSystemConversion::ConvertTargetLength(float fLength) const
   return fLength * m_fTargetToSourceScale;
 }
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_CoordinateSystem);
+

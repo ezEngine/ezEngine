@@ -2097,4 +2097,4 @@ bool ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestFramework);
+

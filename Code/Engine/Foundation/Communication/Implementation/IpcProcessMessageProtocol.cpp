@@ -92,4 +92,4 @@ void ezIpcProcessMessageProtocol::SwapWorkQueue(ezDeque<ezUniquePtr<ezProcessMes
   messages.Swap(m_IncomingQueue);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcProcessMessageProtocol);
+

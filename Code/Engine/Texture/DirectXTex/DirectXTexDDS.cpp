@@ -2430,5 +2430,4 @@ HRESULT DirectX::SaveToDDSFile(
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexDDS);
 

@@ -62,3 +62,7 @@ void ezScriptExtensionClass_Log::Error(ezStringView sText, const ezVariantArray&
   ezStringBuilder sStorage;
   ezLog::Error(BuildFormattedText(sText, params, sStorage));
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Log);
+

@@ -874,4 +874,4 @@ namespace ezMath
   }
 } // namespace ezMath
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Variant);
+

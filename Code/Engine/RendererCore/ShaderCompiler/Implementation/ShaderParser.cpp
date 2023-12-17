@@ -533,5 +533,3 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_de
 }
 
 
-
-EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_ShaderParser);

@@ -187,4 +187,3 @@ ezExpressionFunction ezDefaultExpressionFunctions::s_PerlinNoiseFunc = {
 };
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionDeclarations);

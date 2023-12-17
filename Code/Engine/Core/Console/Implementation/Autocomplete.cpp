@@ -194,4 +194,3 @@ void ezCommandInterpreter::AutoComplete(ezCommandInterpreterState& inout_state)
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_Console_Implementation_Autocomplete);

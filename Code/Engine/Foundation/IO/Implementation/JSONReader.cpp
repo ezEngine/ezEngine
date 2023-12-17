@@ -160,4 +160,4 @@ void ezJSONReader::OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 u
   m_bParsingError = true;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_JSONReader);
+

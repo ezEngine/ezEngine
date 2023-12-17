@@ -39,3 +39,7 @@ ezScriptBaseClassFunctionAttribute::ezScriptBaseClassFunctionAttribute(ezUInt16 
   : m_uiIndex(uiIndex)
 {
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptAttributes);
+

@@ -8,7 +8,7 @@
 #include <Foundation/Time/Timestamp.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Logging/Implementation/Win/ETWProvider_win.h>
+#  include <Foundation/Platform/Win/ETWProvider_Win.h>
 #endif
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <android/log.h>
@@ -441,4 +441,4 @@ bool ezLog::Flush(ezUInt32 uiNumNewMsgThreshold, ezTime timeIntervalThreshold, e
   return true;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_Log);
+

@@ -785,4 +785,4 @@ void ezWorldReader::InstantiationContext::SetSubProgressCompletion(double fCompl
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldReader);
+

@@ -861,3 +861,7 @@ void ezPathComponentManager::Update(const ezWorldModule::UpdateContext& context)
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_PathComponent);
+

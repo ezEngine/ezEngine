@@ -12,3 +12,5 @@ ezResult ezSoundInterface::PlaySound(ezStringView sResourceID, const ezTransform
 
   return EZ_FAILURE;
 }
+
+

@@ -682,4 +682,3 @@ void ezExpressionCompiler::DumpAST(const ezExpressionAST& ast, ezStringView sOut
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionCompiler);

@@ -682,5 +682,3 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& ref_uiFirstToken, ezHybridArray<cons
 }
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Tokenizer);

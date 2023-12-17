@@ -1747,4 +1747,4 @@ ezResult ezReflectionUtils::ClampValue(ezVariant& value, const ezClampValueAttri
   return ezVariant::DispatchTo(func, type, value, pAttrib);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_ReflectionUtils);
+

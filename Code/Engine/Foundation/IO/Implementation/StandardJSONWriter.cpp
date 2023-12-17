@@ -613,4 +613,4 @@ void ezStandardJSONWriter::WriteBinaryData(ezStringView sDataType, const void* p
     OutputString("\" }");
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StandardJSONWriter);
+

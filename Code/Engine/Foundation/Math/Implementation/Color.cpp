@@ -446,4 +446,4 @@ ezColor ezColor::MakeZero()
   return ezColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Color);
+

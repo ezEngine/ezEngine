@@ -63,5 +63,3 @@ void ezQuakeConsole::ExecuteBoundKey(ezStringView sKey)
 }
 
 
-
-EZ_STATICLINK_FILE(Core, Core_Console_Implementation_Commands);

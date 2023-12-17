@@ -270,3 +270,7 @@ void ezPostProcessingComponent::SampleAndSetViewProperties()
     pView->SetRenderPassProperty(mapping.m_sRenderPassName, mapping.m_sPropertyName, value);
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Effects_PostProcessing_Implementation_PostProcessingComponent);
+

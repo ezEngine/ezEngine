@@ -308,5 +308,3 @@ ezResult ezOBJLoader::LoadMTL(const char* szFile, const char* szMaterialBasePath
 }
 
 
-
-EZ_STATICLINK_FILE(Utilities, Utilities_FileFormats_Implementation_OBJLoader);

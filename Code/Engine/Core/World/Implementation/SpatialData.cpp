@@ -76,4 +76,3 @@ ezSpatialData::Category ezDefaultSpatialDataCategories::OcclusionStatic = ezSpat
 ezSpatialData::Category ezDefaultSpatialDataCategories::OcclusionDynamic = ezSpatialData::RegisterCategory("OcclusionDynamic", ezSpatialData::Flags::FrequentChanges);
 
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialData);

@@ -17,4 +17,4 @@ const char* ezGALShaderStage::Names[ENUM_COUNT] = {
   "ComputeShader",
 };
 
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Basics);
+

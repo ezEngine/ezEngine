@@ -765,5 +765,3 @@ void ezConvexHullGenerator::RetrieveVertices(ezDynamicArray<ezVec3>& out_vertice
 }
 
 
-
-EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_ConvexHull);

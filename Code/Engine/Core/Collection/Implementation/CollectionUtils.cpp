@@ -100,4 +100,4 @@ void ezCollectionUtils::AddResourceHandle(ezCollectionResourceDescriptor& ref_co
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_Collection_Implementation_CollectionUtils);
+

@@ -1634,4 +1634,4 @@ EZ_FOUNDATION_DLL void ezOpenDdlUtils::StoreInvalid(ezOpenDdlWriter& ref_writer,
   ref_writer.EndObject();
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlUtils);
+

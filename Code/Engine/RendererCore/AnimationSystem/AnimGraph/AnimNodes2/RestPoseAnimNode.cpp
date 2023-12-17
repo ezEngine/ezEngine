@@ -68,3 +68,7 @@ void ezRestPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInsta
     m_OutPose.SetPose(ref_graph, pLocalTransforms);
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_RestPoseAnimNode);
+

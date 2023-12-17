@@ -71,6 +71,9 @@ private:
 
   ezMap<ezString, FileContent> m_ModifiedFiles;
 
+  ezSet<ezString> m_FilesToModify;
+  ezSet<ezString> m_FilesToLink;
+
 
 public:
   using SUPER = ezApplication;
@@ -179,13 +182,16 @@ public:
 
   void SanitizeSourceCode(ezStringBuilder& ref_sInOut)
   {
-    ref_sInOut.ReplaceAll("\r\n", "\n");
+    // this is now handled by clang-format and .editorconfig files
 
-    if (!ref_sInOut.EndsWith("\n"))
-      ref_sInOut.Append("\n");
+    // ref_sInOut.ReplaceAll("\r\n", "\n");
+    // if (!ref_sInOut.EndsWith("\n"))
+    //  ref_sInOut.Append("\n");
 
     while (ref_sInOut.EndsWith("\n\n\n\n"))
       ref_sInOut.Shrink(0, 1);
+    while (ref_sInOut.EndsWith("\r\n\r\n\r\n\r\n"))
+      ref_sInOut.Shrink(0, 2);
   }
 
   ezResult ReadEntireFile(ezStringView sFile, ezStringBuilder& ref_sOut)
@@ -485,14 +491,16 @@ public:
     if (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY"))
       return;
 
-
     ezString sLibraryMarker = GetLibraryMarkerName();
     ezString sFileMarker = GetFileMarkerName(sFile);
 
     ezStringBuilder sNewMarker;
-    sNewMarker.Format("EZ_STATICLINK_FILE({0}, {1});", sLibraryMarker, sFileMarker);
 
-    m_AllRefPoints.Insert(sFileMarker.GetData());
+    if (m_FilesToLink.Contains(sFile))
+    {
+      m_AllRefPoints.Insert(sFileMarker.GetData());
+      sNewMarker.Format("EZ_STATICLINK_FILE({0}, {1});", sLibraryMarker, sFileMarker);
+    }
 
     const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
 
@@ -609,50 +617,26 @@ public:
     if (m_bHadSeriousWarnings || m_bHadErrors)
       return;
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
-    const ezUInt32 uiSearchDirLength = m_sSearchDir.GetElementCount() + 1;
+    ezStringBuilder b, sExt;
 
-    // get a directory iterator for the search directory
-    ezFileSystemIterator it;
-    it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive);
-
-    if (it.IsValid())
+    for (const ezString& sFile : m_FilesToModify)
     {
-      ezStringBuilder b, sExt;
-
-      // while there are additional files / folders
-      for (; it.IsValid(); it.Next())
+      if (sFile.HasExtension("h") || sFile.HasExtension("inl"))
       {
-        // build the absolute path to the current file
-        b = it.GetCurrentPath();
-        b.AppendPath(it.GetStats().m_sName.GetData());
+        EZ_LOG_BLOCK("Header", sFile.GetFileNameAndExtension().GetStartPointer());
+        FixFileContents(sFile);
+        continue;
+      }
 
-        // file extensions are always converted to lower-case actually
-        sExt = b.GetFileExtension();
+      if (sFile.HasExtension("cpp"))
+      {
+        EZ_LOG_BLOCK("Source", sFile.GetFileNameAndExtension().GetStartPointer());
+        FixFileContents(sFile);
 
-        if (sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("inl"))
-        {
-          EZ_LOG_BLOCK("Header", &b.GetData()[uiSearchDirLength]);
-          FixFileContents(b.GetData());
-          continue;
-        }
-
-        if (sExt.IsEqual_NoCase("cpp"))
-        {
-          EZ_LOG_BLOCK("Source", &b.GetData()[uiSearchDirLength]);
-          FixFileContents(b.GetData());
-
-          InsertRefPoint(b.GetData());
-          continue;
-        }
+        InsertRefPoint(sFile);
+        continue;
       }
     }
-    else
-      ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
-
-#else
-    EZ_REPORT_FAILURE("No file system iterator support, StaticLinkUtil sample can't run.");
-#endif
   }
 
   void MakeSureStaticLinkLibraryMacroExists()
@@ -712,6 +696,11 @@ public:
         // file extensions are always converted to lower-case actually
         sExt = sFile.GetFileExtension();
 
+        if (sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("inl"))
+        {
+          m_FilesToModify.Insert(sFile);
+        }
+
         if (sExt.IsEqual_NoCase("cpp"))
         {
           ezStringBuilder sFileContent;
@@ -723,6 +712,8 @@ public:
           // part such that it will reference all the other files
           if (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY"))
           {
+            m_FilesToModify.Insert(sFile);
+
             ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '{0}'.", &sFile.GetData()[m_sSearchDir.GetElementCount() + 1]);
 
             if (!m_sRefPointGroupFile.IsEmpty())
@@ -730,6 +721,27 @@ public:
             else
               m_sRefPointGroupFile = sFile;
           }
+
+          if (sFileContent.FindSubString("EZ_STATICLINK_FILE_DISABLE"))
+            continue;
+
+          m_FilesToModify.Insert(sFile);
+
+          bool bContainsGlobals = false;
+
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_BEGIN_") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_PLUGIN_") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_ON_GLOBAL_EVENT") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarBool ") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarFloat ") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarInt ") != nullptr);
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("ezCVarString ") != nullptr);
+
+          if (!bContainsGlobals)
+            continue;
+
+          m_FilesToLink.Insert(sFile);
         }
       }
     }

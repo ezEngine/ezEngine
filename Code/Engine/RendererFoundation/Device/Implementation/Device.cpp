@@ -1589,4 +1589,4 @@ const ezGALSwapChain* ezGALDevice::GetSwapChainInternal(ezGALSwapChainHandle hSw
   return pSwapChain;
 }
 
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_Device);
+

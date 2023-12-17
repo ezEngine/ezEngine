@@ -94,3 +94,7 @@ ezScriptCoroutine::Result ezScriptCoroutine_TweenProperty::Update(ezTime deltaTi
 
   return Result::Completed();
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_TweenProperty);
+

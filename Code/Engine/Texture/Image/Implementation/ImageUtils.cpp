@@ -1771,4 +1771,4 @@ ezResult ezImageUtils::CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx,
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageUtils);
+

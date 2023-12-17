@@ -455,4 +455,3 @@ void ezStringHString::operator=(const wchar_t* szWChar)
 #endif
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringConversion);

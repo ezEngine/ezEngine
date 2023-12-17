@@ -833,5 +833,4 @@ HRESULT DirectX::CaptureTexture(
 
 #endif
 
-EZ_STATICLINK_FILE(Texture, Texture_DirectXTex_DirectXTexD3D12);
 

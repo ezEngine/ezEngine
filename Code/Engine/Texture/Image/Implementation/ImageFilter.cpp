@@ -186,5 +186,3 @@ ezSimdFloat ezImageFilterWeights::GetWeight(ezUInt32 uiDstSampleIndex, ezUInt32 
 }
 
 
-
-EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFilter);

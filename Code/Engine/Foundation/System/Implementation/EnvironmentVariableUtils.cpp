@@ -64,13 +64,4 @@ ezResult ezEnvironmentVariableUtils::UnsetVariable(ezStringView sName)
   return UnsetVariableImpl(sName);
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <Foundation/System/Implementation/Win/EnvironmentVariableUtils_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <Foundation/System/Implementation/Win/EnvironmentVariableUtils_win_uwp.h>
-#else
-#  include <Foundation/System/Implementation/Posix/EnvironmentVariableUtils_posix.h>
-#endif
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_EnvironmentVariableUtils);

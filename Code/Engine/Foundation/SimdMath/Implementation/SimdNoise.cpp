@@ -122,4 +122,3 @@ ezSimdVec4f ezSimdPerlinNoise::Noise(const ezSimdVec4f& inX, const ezSimdVec4f& 
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_SimdMath_Implementation_SimdNoise);

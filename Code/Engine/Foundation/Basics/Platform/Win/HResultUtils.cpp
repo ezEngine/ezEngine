@@ -31,5 +31,3 @@ EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
 #endif
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Win_HResultUtils);

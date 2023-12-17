@@ -367,5 +367,3 @@ ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
 }
 
 
-
-EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageFormatMappings);

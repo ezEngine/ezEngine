@@ -61,4 +61,3 @@ void ezTestLogInterface::ExpectMessage(const char* szMsg, ezLogMsgType::Enum typ
 }
 
 
-EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestLogInterface);

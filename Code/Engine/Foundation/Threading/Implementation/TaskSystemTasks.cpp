@@ -414,4 +414,3 @@ void ezTaskSystem::FinishFrameTasks()
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystemTasks);

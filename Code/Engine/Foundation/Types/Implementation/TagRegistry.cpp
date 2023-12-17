@@ -121,4 +121,4 @@ ezResult ezTagRegistry::Load(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_TagRegistry);
+

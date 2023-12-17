@@ -116,4 +116,3 @@ void ezWorldModuleConfig::RemoveInterfaceImplementation(ezStringView sInterfaceN
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldModuleConfig);

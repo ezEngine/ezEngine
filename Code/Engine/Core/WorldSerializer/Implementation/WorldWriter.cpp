@@ -376,4 +376,4 @@ void ezWorldWriter::WriteComponentSerializationData(const ezDeque<const ezCompon
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldWriter);
+

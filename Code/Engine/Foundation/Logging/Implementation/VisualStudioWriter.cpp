@@ -89,5 +89,3 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
 #endif
 
 
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_VisualStudioWriter);

@@ -37,5 +37,3 @@ ezGALSamplerState::ezGALSamplerState(const ezGALSamplerStateCreationDescription&
 ezGALSamplerState::~ezGALSamplerState() = default;
 
 
-
-EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_State_Implementation_State);

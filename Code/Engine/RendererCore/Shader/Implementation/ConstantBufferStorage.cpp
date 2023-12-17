@@ -48,5 +48,3 @@ void ezConstantBufferStorageBase::UploadData(ezGALCommandEncoder* pCommandEncode
 }
 
 
-
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ConstantBufferStorage);

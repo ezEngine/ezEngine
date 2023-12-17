@@ -398,3 +398,7 @@ void ezVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) 
 {
   ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), m_SpatialCategory);
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Volumes_Implementation_VolumeComponent);
+

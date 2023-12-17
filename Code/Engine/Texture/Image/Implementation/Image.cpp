@@ -382,4 +382,4 @@ bool ezImage::UsesExternalStorage() const
   return m_InternalStorage.GetBlobPtr<ezUInt8>() != m_DataPtr;
 }
 
-EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_Image);
+

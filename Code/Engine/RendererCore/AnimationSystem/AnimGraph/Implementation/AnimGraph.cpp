@@ -351,4 +351,4 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraph);
+

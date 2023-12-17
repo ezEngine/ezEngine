@@ -161,4 +161,3 @@ void ezResourceManagerWorkerUpdateContent::Execute()
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_WorkerTasks);

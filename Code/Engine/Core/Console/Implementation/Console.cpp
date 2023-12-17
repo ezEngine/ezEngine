@@ -431,4 +431,4 @@ void ezConsole::LoadInputHistory(ezStringView sFile)
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_Console_Implementation_Console);
+

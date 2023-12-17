@@ -173,4 +173,3 @@ void ezLogWriter::HTML::WriteString(ezStringView sText, ezUInt32 uiColor)
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_HTMLWriter);

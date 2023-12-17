@@ -416,4 +416,4 @@ void ezReflectionPool::Data::CreateSkyIrradianceTexture()
   }
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ReflectionPoolData);
+

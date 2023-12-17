@@ -353,3 +353,5 @@ const ezAnimController::AnimClipInfo& ezAnimController::GetAnimationClipInfo(ezT
 
   return it.Value();
 }
+
+
