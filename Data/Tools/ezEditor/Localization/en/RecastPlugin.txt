@@ -7,7 +7,7 @@ NavMesh.Generate;Generate NavMesh
 # Component Types
 
 ezRcAgentComponent;Recast Agent
-ezRcNavMeshComponent;Recast Navmesh;;https://ezengine.net/pages/docs/ai/recast-navmesh-component.html
+ezRcNavMeshComponent;Recast Navmesh;;https://ezengine.net/pages/docs/ai/RecastPlugin/recast-navmesh-component.html
 ezRcMarkPoiVisibleComponent;Recast Mark POI Visible
 
 # Properties

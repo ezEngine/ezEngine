@@ -4,7 +4,7 @@ StateMachine;State Machine
 
 # Component Types
 
-ezStateMachineComponent;State Machine;;https://ezengine.net/pages/docs/ai/state-machine-component.html
+ezStateMachineComponent;State Machine;;https://ezengine.net/pages/docs/custom-code/game-logic/state-machine-component.html
 
 # Properties
 

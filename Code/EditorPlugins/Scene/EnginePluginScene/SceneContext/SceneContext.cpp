@@ -931,6 +931,20 @@ void ezSceneContext::UpdateDocumentContext()
 
 ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, ezStringView sProperty) const
 {
+  const char* szTargetGuid = reinterpret_cast<const char*>(pString);
+
+  if (hThis.IsInvalidated() && sProperty.IsEmpty())
+  {
+    // This code path is used by ezPrefabReferenceComponent::SerializeComponent() to check whether an arbitrary string may
+    // represent a game object reference. References will always be stringyfied GUIDs.
+
+    if (!ezConversionUtils::IsStringUuid(szTargetGuid))
+      return ezGameObjectHandle();
+
+    // convert string to GUID and check if references a known object
+    return m_Context.m_GameObjectMap.GetHandle(ezConversionUtils::ConvertStringToUuid(szTargetGuid));
+  }
+
   // Test if the component is a direct part of this scene or one of its layers.
   if (m_Context.m_ComponentMap.GetGuid(hThis).IsValid())
   {

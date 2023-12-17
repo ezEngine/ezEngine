@@ -249,6 +249,7 @@ void ezGameEngineTestBasics::SetupSubTests()
   AddSubTest("Debug Rendering", SubTests::DebugRendering);
   AddSubTest("Debug Rendering - No Lines", SubTests::DebugRendering2);
   AddSubTest("Load Scene", SubTests::LoadScene);
+  AddSubTest("GameObject References", SubTests::GameObjectReferences);
 }
 
 ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
@@ -281,6 +282,12 @@ ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
     return EZ_SUCCESS;
   }
 
+  if (iIdentifier == SubTests::GameObjectReferences)
+  {
+    m_pOwnApplication->SubTestGoReferenceSetup();
+    return EZ_SUCCESS;
+  }
+
   return EZ_FAILURE;
 }
 
@@ -302,6 +309,9 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier, ezUInt32 ui
 
   if (iIdentifier == SubTests::LoadScene)
     return m_pOwnApplication->SubTestLoadSceneExec(m_iFrame);
+
+  if (iIdentifier == SubTests::GameObjectReferences)
+    return m_pOwnApplication->SubTestGoReferenceExec(m_iFrame);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   return ezTestAppRun::Quit;
@@ -598,6 +608,29 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iC
 
     case 2:
       EZ_TEST_IMAGE(1, 150);
+      return ezTestAppRun::Quit;
+  }
+
+  return ezTestAppRun::Continue;
+}
+
+void ezGameEngineTestApplication_Basics::SubTestGoReferenceSetup()
+{
+  ezResourceManager::ForceNoFallbackAcquisition(3);
+  ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(false);
+
+  LoadScene("Basics/AssetCache/Common/GoReferences.ezObjectGraph").IgnoreResult();
+}
+
+ezTestAppRun ezGameEngineTestApplication_Basics::SubTestGoReferenceExec(ezInt32 iCurFrame)
+{
+  if (Run() == ezApplication::Execution::Quit)
+    return ezTestAppRun::Quit;
+
+  switch (iCurFrame)
+  {
+    case 5:
+      EZ_TEST_IMAGE(0, 100);
       return ezTestAppRun::Quit;
   }
 
