@@ -1459,14 +1459,22 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
       }
       ezVariant value;
 
+      const ezExposedParameter* pSourceParameter = nullptr;
       auto pLeafObject = GetObjectManager()->GetObject(key.m_Object);
       if (const ezExposedParametersAttribute* pAttrib = key.m_pProperty->GetAttributeByType<ezExposedParametersAttribute>())
       {
+        // If the target of the exposed parameter is yet another exposed parameter, we need to do the following:
+        // A: Get the default value from via an ezExposedParameterCommandAccessor. This ensures that in case the target does not actually exist (because it was not overwritten in this template instance) we get the default parameter of the exposed param instead.
+        // B: Replace the property type of the exposed parameter (which will always be an ezVariant inside the ezVariantDictionary) with the property type the exposed parameter actually points to.
         const ezAbstractProperty* pParameterSourceProp = pLeafObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
         EZ_ASSERT_DEBUG(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(), pLeafObject->GetType()->GetTypeName());
 
         ezExposedParameterCommandAccessor proxy(context.m_pAccessor, key.m_pProperty, pParameterSourceProp);
         res = proxy.GetValue(pLeafObject, key.m_pProperty, value, key.m_Index);
+        if (key.m_Index.IsA<ezString>())
+        {
+          pSourceParameter = proxy.GetExposedParam(pLeafObject, key.m_Index.Get<ezString>());
+        }
       }
       else
       {
@@ -1485,11 +1493,23 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
       ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
       pExposedParams->m_Parameters.PushBack(param);
       param->m_sName = prop.m_sName;
-      param->m_sType = key.m_pProperty->GetSpecificType()->GetTypeName();
       param->m_DefaultValue = value;
-      for (auto attrib : key.m_pProperty->GetAttributes())
+      if (pSourceParameter)
       {
-        param->m_Attributes.PushBack(ezReflectionSerializer::Clone(attrib));
+        // Copy properties of exposed parameter that we are exposing one level deeper.
+        param->m_sType = pSourceParameter->m_sType;
+        for (auto attrib : pSourceParameter->m_Attributes)
+        {
+          param->m_Attributes.PushBack(ezReflectionSerializer::Clone(attrib));
+        }
+      }
+      else
+      {
+        param->m_sType = key.m_pProperty->GetSpecificType()->GetTypeName();
+        for (auto attrib : key.m_pProperty->GetAttributes())
+        {
+          param->m_Attributes.PushBack(ezReflectionSerializer::Clone(attrib));
+        }
       }
     }
   }

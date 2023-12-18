@@ -22,6 +22,9 @@ public:
 
   void SubTestLoadSceneSetup();
   ezTestAppRun SubTestLoadSceneExec(ezInt32 iCurFrame);
+
+  void SubTestGoReferenceSetup();
+  ezTestAppRun SubTestGoReferenceExec(ezInt32 iCurFrame);
 };
 
 class ezGameEngineTestBasics : public ezGameEngineTest
@@ -40,6 +43,7 @@ private:
     DebugRendering,
     DebugRendering2,
     LoadScene,
+    GameObjectReferences,
   };
 
   virtual void SetupSubTests() override;
