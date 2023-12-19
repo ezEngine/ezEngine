@@ -34,7 +34,7 @@ macro(ez_pull_platform_vars)
 	get_property(EZ_CMAKE_PLATFORM_POSTFIX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSTFIX)
 	get_property(EZ_CMAKE_PLATFORM_POSIX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX)
 
-	ez_pull_platform_properties()
+	ez_platform_pull_properties()
 endmacro()
 
 # #####################################
@@ -71,88 +71,8 @@ function(ez_detect_generator)
 
 	message(STATUS "CMAKE_GENERATOR is '${CMAKE_GENERATOR}'")
 
-	if(EZ_CMAKE_PLATFORM_WINDOWS) # Supported windows generators
-		if(CMAKE_GENERATOR MATCHES "Visual Studio")
-			# Visual Studio (All VS generators define MSVC)
-			message(STATUS "Generator is MSVC (EZ_CMAKE_GENERATOR_MSVC)")
+	ez_platform_detect_generator()
 
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Vs")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
-		elseif(CMAKE_GENERATOR MATCHES "Ninja") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
-			message(STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
-
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
-		else()
-			message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend ez_detect_generator()")
-		endif()
-
-	elseif(EZ_CMAKE_PLATFORM_OSX) # Supported OSX generators
-		if(CMAKE_GENERATOR MATCHES "Xcode") # XCODE
-			message(STATUS "Buildsystem is Xcode (EZ_CMAKE_GENERATOR_XCODE)")
-
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Xcode")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
-
-		elseif(CMAKE_GENERATOR MATCHES "Unix Makefiles") # Unix Makefiles (for QtCreator etc.)
-			message(STATUS "Buildsystem is Make (EZ_CMAKE_GENERATOR_MAKE)")
-
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Make")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
-
-		else()
-			message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend ez_detect_generator()")
-		endif()
-
-	elseif(EZ_CMAKE_PLATFORM_LINUX)
-		if(CMAKE_GENERATOR MATCHES "Unix Makefiles") # Unix Makefiles (for QtCreator etc.)
-			message(STATUS "Buildsystem is Make (EZ_CMAKE_GENERATOR_MAKE)")
-
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Make")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
-
-		elseif(CMAKE_GENERATOR MATCHES "Ninja" OR CMAKE_GENERATOR MATCHES "Ninja Multi-Config")
-			message(STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
-
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
-		else()
-			message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Linux! Please extend ez_detect_generator()")
-		endif()
-
-	elseif(EZ_CMAKE_PLATFORM_ANDROID)
-		if(CMAKE_GENERATOR MATCHES "Ninja" OR CMAKE_GENERATOR MATCHES "Ninja Multi-Config")
-			message(STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
-
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
-
-		else()
-			message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Android! Please extend ez_detect_generator()")
-		endif()
-
-	elseif(EZ_CMAKE_PLATFORM_EMSCRIPTEN)
-		if(CMAKE_GENERATOR MATCHES "Ninja" OR CMAKE_GENERATOR MATCHES "Ninja Multi-Config")
-			message(STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
-
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
-
-		else()
-			message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Emscripten! Please extend ez_detect_generator()")
-		endif()
-
-	else()
-		message(FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' has not set up the supported generators. Please extend ez_detect_generator()")
-	endif()
 endfunction()
 
 # #####################################

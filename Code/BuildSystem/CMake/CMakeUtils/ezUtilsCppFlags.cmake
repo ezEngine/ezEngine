@@ -163,64 +163,13 @@ endfunction()
 # ## ez_set_build_flags_clang(<target>)
 # #####################################
 function(ez_set_build_flags_clang TARGET_NAME)
-	# Cmake complains that this is not defined on OSX make build.
-	# if(EZ_COMPILE_ENGINE_AS_DLL)
-	# set (CMAKE_CPP_CREATE_DYNAMIC_LIBRARY ON)
-	# else ()
-	# set (CMAKE_CPP_CREATE_STATIC_LIBRARY ON)
-	# endif ()
-	if(EZ_CMAKE_PLATFORM_OSX)
-		target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
-
-		target_link_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
-	endif()
 
 	if(EZ_CMAKE_ARCHITECTURE_X86)
 		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
 	endif()
 
-	if(EZ_CMAKE_PLATFORM_LINUX)
-		target_compile_options(${TARGET_NAME} PRIVATE -fPIC)
-
-		# Look for the super fast ld compatible linker called "mold". If present we want to use it.
-		find_program(MOLD_PATH "mold")
-
-		# We want to use the llvm linker lld by default
-		# Unless the user has specified a different linker
-		get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
-
-		if("${TARGET_TYPE}" STREQUAL "SHARED_LIBRARY")
-			if(NOT("${CMAKE_EXE_LINKER_FLAGS}" MATCHES "fuse-ld="))
-				if(MOLD_PATH)
-					target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=${MOLD_PATH}")
-				else()
-					target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
-				endif()
-			endif()
-
-			# Reporting missing symbols at linktime
-			target_link_options(${TARGET_NAME} PRIVATE "-Wl,-z,defs")
-		elseif("${TARGET_TYPE}" STREQUAL "EXECUTABLE")
-			if(NOT("${CMAKE_SHARED_LINKER_FLAGS}" MATCHES "fuse-ld="))
-				if(MOLD_PATH)
-					target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=${MOLD_PATH}")
-				else()
-					target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
-				endif()
-			endif()
-
-			# Reporting missing symbols at linktime
-			target_link_options(${TARGET_NAME} PRIVATE "-Wl,-z,defs")
-		endif()
-	endif()
-
 	# Disable warning: multi-character character constant
 	target_compile_options(${TARGET_NAME} PRIVATE -Wno-multichar)
-
-	if(EZ_CMAKE_PLATFORM_WINDOWS)
-		# Disable the warning that clang doesn't support pragma optimize.
-		target_compile_options(${TARGET_NAME} PRIVATE -Wno-ignored-pragma-optimize -Wno-pragma-pack)
-	endif()
 
 	if(NOT(CMAKE_CURRENT_SOURCE_DIR MATCHES "Code/ThirdParty"))
 		target_compile_options(${TARGET_NAME} PRIVATE -Werror=inconsistent-missing-override -Werror=switch -Werror=uninitialized -Werror=unused-result -Werror=return-type)
@@ -239,6 +188,11 @@ function(ez_set_build_flags_clang TARGET_NAME)
 		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${EZ_ROOT}/Code/ThirdParty\"")
 	else()
 		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${CMAKE_SOURCE_DIR}/Code/ThirdParty\"")
+	endif()
+
+	if (COMMAND ez_platformhook_set_build_flags_clang)
+		# call platform-specific hook
+		ez_platformhook_set_build_flags_clang()
 	endif()
 endfunction()
 

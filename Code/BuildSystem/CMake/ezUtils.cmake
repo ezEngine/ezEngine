@@ -265,38 +265,6 @@ function(ez_add_output_ez_prefix TARGET_NAME)
 endfunction()
 
 # #####################################
-# ## ez_set_library_properties(<target>)
-# #####################################
-function(ez_set_library_properties TARGET_NAME)
-	ez_pull_all_vars()
-
-	if(EZ_CMAKE_PLATFORM_LINUX)
-		# c = libc.so (the C standard library)
-		# m = libm.so (the C standard library math portion)
-		# pthread = libpthread.so (thread support)
-		# rt = librt.so (compiler runtime functions)
-		target_link_libraries(${TARGET_NAME} PRIVATE pthread rt c m)
-
-		if(EZ_CMAKE_COMPILER_GCC)
-			# Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
-			target_link_libraries(${TARGET_NAME} PRIVATE -lgcc_s -lgcc)
-		endif()
-	endif()
-endfunction()
-
-# #####################################
-# ## ez_set_application_properties(<target>)
-# #####################################
-function(ez_set_application_properties TARGET_NAME)
-	ez_pull_all_vars()
-
-	# We need to link against pthread and rt last or linker errors will occur.
-	if(EZ_CMAKE_PLATFORM_LINUX)
-		target_link_libraries(${TARGET_NAME} PRIVATE pthread rt)
-	endif()
-endfunction()
-
-# #####################################
 # ## ez_make_winmain_executable(<target>)
 # #####################################
 function(ez_make_winmain_executable TARGET_NAME)

@@ -43,7 +43,10 @@ macro(ez_create_target TYPE TARGET_NAME)
 			ez_add_output_ez_prefix(${TARGET_NAME})
 		endif()
 
-		ez_set_library_properties(${TARGET_NAME})
+		if (COMMAND ez_platformhook_set_library_properties)
+			ez_platformhook_set_library_properties(${TARGET_NAME})
+		endif()
+
 		ez_uwp_fix_library_properties(${TARGET_NAME} "${ALL_SOURCE_FILES}")
 
 	elseif(${TYPE} STREQUAL "APPLICATION")
@@ -65,7 +68,9 @@ macro(ez_create_target TYPE TARGET_NAME)
 
 		ez_uwp_add_default_content(${TARGET_NAME})
 
-		ez_set_application_properties(${TARGET_NAME})
+		if (COMMAND ez_platformhook_set_application_properties)
+			ez_platformhook_set_application_properties(${TARGET_NAME})
+		endif()
 
 	else()
 		message(FATAL_ERROR "ez_create_target: Missing argument to specify target type. Pass in 'APP' or 'LIB'.")
