@@ -49,26 +49,22 @@ function(ez_detect_platform)
 
 	message(STATUS "CMAKE_SYSTEM_NAME is '${CMAKE_SYSTEM_NAME}'")
 
+	message(STATUS "Including platform-files in '${EZ_ROOT}/${EZ_CMAKE_RELPATH}'")
+
+	file(GLOB UTILS_FILES "${EZ_ROOT}/${EZ_CMAKE_RELPATH}/Platforms/*.cmake")
+
+	# automatically include all files in the Platforms subfolder
+	foreach(UTILS_FILE ${UTILS_FILES})
+		message(STATUS "Including platform-file '${UTILS_FILE}'")
+		include("${UTILS_FILE}")
+	endforeach()
+
 	if(EMSCRIPTEN)
 		message(STATUS "Platform is Emscripten (EZ_CMAKE_PLATFORM_EMSCRIPTEN)")
 
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_EMSCRIPTEN ON)
 
 		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Web")
-
-	elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows") # Desktop Windows
-		message(STATUS "Platform is Windows (EZ_CMAKE_PLATFORM_WINDOWS, EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)")
-		message(STATUS "CMAKE_SYSTEM_VERSION is ${CMAKE_SYSTEM_VERSION}")
-		message(STATUS "CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION is ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
-
-		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS ON)
-		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP ON)
-
-		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Win")
-
-		if(${CMAKE_SYSTEM_VERSION} EQUAL 6.1)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS_7 ON)
-		endif()
 
 	elseif(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore") # Windows Universal
 		message(STATUS "Platform is Windows Universal (EZ_CMAKE_PLATFORM_WINDOWS, EZ_CMAKE_PLATFORM_WINDOWS_UWP)")
