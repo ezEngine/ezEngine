@@ -9,7 +9,7 @@ macro(ez_platform_pull_properties)
 
 endmacro()
 
-macro ez_platformhook_set_build_flags_clang()
+macro (ez_platformhook_set_build_flags_clang)
 
     target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
 	target_link_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
