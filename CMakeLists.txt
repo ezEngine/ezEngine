@@ -44,6 +44,8 @@ if(NOT EZ_SUBMODULE_MODE)
 		LANGUAGES ${EZ_LANGUAGES})
 endif()
 
+include("ezPlatform")
+
 ez_set_build_types()
 ez_check_build_type()
 ez_write_configuration_txt()
@@ -54,8 +56,6 @@ if(EZ_CUSTOM_TOOLCHAIN_FILE)
 endif()
 
 ez_pull_all_vars()
-
-include("ezPlatformVars")
 
 set(EZ_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Code")
 

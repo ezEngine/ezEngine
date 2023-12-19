@@ -415,20 +415,6 @@ macro(ez_requires_one_of)
 endmacro()
 
 # #####################################
-# ## ez_requires_windows()
-# #####################################
-macro(ez_requires_windows)
-	ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
-endmacro()
-
-# #####################################
-# ## ez_requires_windows_desktop()
-# #####################################
-macro(ez_requires_windows_desktop)
-	ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-endmacro()
-
-# #####################################
 # ## ez_requires_editor()
 # #####################################
 macro(ez_requires_editor)

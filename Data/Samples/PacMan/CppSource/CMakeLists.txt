@@ -22,7 +22,7 @@ if(PROJECT_IS_TOP_LEVEL)
 	set_property(GLOBAL PROPERTY EZ_ROOT ${EZ_ROOT})
 
 	include("ezUtils")
-	include("ezPlatformVars")
+	include("ezPlatform")
 
 	ez_include_ezExport()
 

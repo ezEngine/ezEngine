@@ -66,5 +66,5 @@ endfunction()
 # ## ez_requires_d3d()
 # #####################################
 macro(ez_requires_d3d)
-	ez_requires_windows()
+	ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
 endmacro()
