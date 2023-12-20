@@ -12,7 +12,7 @@ endmacro()
 
 # #####################################
 # ## ez_add_renderers(<target>)
-# ## Add all required libraries and dependencies to the given target so it has accedss to all available renderers.
+# ## Add all required libraries and dependencies to the given target so it has access to all available renderers.
 # #####################################
 function(ez_add_renderers TARGET_NAME)
 	if(EZ_BUILD_EXPERIMENTAL_VULKAN)

@@ -66,3 +66,77 @@ macro(ez_platform_detect_generator)
         message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend ez_platform_detect_generator()")
     endif()
 endmacro()
+
+macro(ez_platformhook_find_vulkan)
+    if(EZ_CMAKE_ARCHITECTURE_64BIT)
+        if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR(EZ_VULKAN_DIR STREQUAL ""))
+            # set(CMAKE_FIND_DEBUG_MODE TRUE)
+            unset(EZ_VULKAN_DIR CACHE)
+            unset(EzVulkan_DIR CACHE)
+            find_path(EZ_VULKAN_DIR Config/vk_layer_settings.txt
+                PATHS
+                ${EZ_VULKAN_DIR}
+                $ENV{VULKAN_SDK}
+                REQUIRED
+            )
+
+            # set(CMAKE_FIND_DEBUG_MODE FALSE)
+        endif()
+    else()
+        message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
+    endif()
+
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_VULKAN_DIR)
+
+    if(EZVULKAN_FOUND)
+        if(EZ_CMAKE_ARCHITECTURE_64BIT)
+            add_library(EzVulkan::Loader STATIC IMPORTED)
+            set_target_properties(EzVulkan::Loader PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/Lib/vulkan-1.lib")
+            set_target_properties(EzVulkan::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_DIR}/Include")
+
+            add_library(EzVulkan::DXC SHARED IMPORTED)
+            set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/Bin/dxcompiler.dll")
+            set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_IMPLIB "${EZ_VULKAN_DIR}/Lib/dxcompiler.lib")
+            set_target_properties(EzVulkan::DXC PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_DIR}/Include")
+        else()
+            message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
+        endif()
+    endif()    
+endmacro()
+
+macro(ez_platformhook_find_qt)
+	if(EZ_CMAKE_COMPILER_CLANG)
+		# The qt6 interface compile options contain msvc specific flags which don't exist for clang.
+		set_target_properties(Qt6::Platform PROPERTIES INTERFACE_COMPILE_OPTIONS "")
+		
+		# Qt6 link options include '-NXCOMPAT' which does not exist on clang.
+		get_target_property(QtLinkOptions Qt6::PlatformCommonInternal INTERFACE_LINK_OPTIONS)
+		string(REPLACE "-NXCOMPAT;" "" QtLinkOptions "${QtLinkOptions}")
+		set_target_properties(Qt6::PlatformCommonInternal PROPERTIES INTERFACE_LINK_OPTIONS ${QtLinkOptions})
+	endif()
+endmacro()
+
+
+macro(ez_platformhook_download_qt)
+
+	# Currently only implemented for x64
+	if(EZ_CMAKE_ARCHITECTURE_64BIT)
+		# Upgrade from Qt5 to Qt6 if the EZ_QT_DIR points to a previously automatically downloaded Qt5 package.
+		if("${EZ_QT_DIR}" MATCHES ".*Qt-5\\.13\\.0-vs141-x64")
+			set(EZ_QT_DIR "EZ_QT_DIR-NOTFOUND" CACHE PATH "Directory of the Qt installation" FORCE)
+		endif()
+	
+		if(EZ_CMAKE_ARCHITECTURE_64BIT)
+			set(EZ_SDK_VERSION "${EZ_CONFIG_QT_WINX64_VERSION}")
+			set(EZ_SDK_URL "${EZ_CONFIG_QT_WINX64_URL}")
+		endif()
+
+		if((EZ_QT_DIR STREQUAL "EZ_QT_DIR-NOTFOUND") OR(EZ_QT_DIR STREQUAL ""))
+			ez_download_and_extract("${EZ_SDK_URL}" "${CMAKE_BINARY_DIR}" "${EZ_SDK_VERSION}")
+
+			set(EZ_QT_DIR "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}" CACHE PATH "Directory of the Qt installation" FORCE)
+		endif()
+	endif()
+
+endmacro()

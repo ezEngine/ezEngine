@@ -56,16 +56,11 @@ macro(ez_find_qt)
 	mark_as_advanced(FORCE WINDEPLOYQT_EXECUTABLE)
 	mark_as_advanced(FORCE QT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH)
 	mark_as_advanced(FORCE QT_ADDITIONAL_PACKAGES_PREFIX_PATH)
-	
-	if(EZ_CMAKE_PLATFORM_WINDOWS AND EZ_CMAKE_COMPILER_CLANG)
-		# The qt6 interface compile options contain msvc specific flags which don't exist for clang.
-		set_target_properties(Qt6::Platform PROPERTIES INTERFACE_COMPILE_OPTIONS "")
-		
-		# Qt6 link options include '-NXCOMPAT' which does not exist on clang.
-		get_target_property(QtLinkOptions Qt6::PlatformCommonInternal INTERFACE_LINK_OPTIONS)
-		string(REPLACE "-NXCOMPAT;" "" QtLinkOptions "${QtLinkOptions}")
-		set_target_properties(Qt6::PlatformCommonInternal PROPERTIES INTERFACE_LINK_OPTIONS ${QtLinkOptions})
+
+	if (COMMAND ez_platformhook_find_qt)
+		ez_platformhook_find_qt()
 	endif()
+	
 endmacro()
 
 # #####################################
@@ -81,23 +76,8 @@ function(ez_prepare_find_qt)
 	ez_pull_platform_vars()
 	ez_pull_config_vars()
 
-	# Currently only implemented for x64
-	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
-		# Upgrade from Qt5 to Qt6 if the EZ_QT_DIR points to a previously automatically downloaded Qt5 package.
-		if("${EZ_QT_DIR}" MATCHES ".*Qt-5\\.13\\.0-vs141-x64")
-			set(EZ_QT_DIR "EZ_QT_DIR-NOTFOUND" CACHE PATH "Directory of the Qt installation" FORCE)
-		endif()
-	
-		if(EZ_CMAKE_ARCHITECTURE_64BIT)
-			set(EZ_SDK_VERSION "${EZ_CONFIG_QT_WINX64_VERSION}")
-			set(EZ_SDK_URL "${EZ_CONFIG_QT_WINX64_URL}")
-		endif()
-
-		if((EZ_QT_DIR STREQUAL "EZ_QT_DIR-NOTFOUND") OR(EZ_QT_DIR STREQUAL ""))
-			ez_download_and_extract("${EZ_SDK_URL}" "${CMAKE_BINARY_DIR}" "${EZ_SDK_VERSION}")
-
-			set(EZ_QT_DIR "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}" CACHE PATH "Directory of the Qt installation" FORCE)
-		endif()
+	if (COMMAND ez_platformhook_download_qt)
+		ez_platformhook_download_qt()
 	endif()
 
 	# # Download Qt package
