@@ -47,11 +47,13 @@ macro(ez_create_target TYPE TARGET_NAME)
 			ez_platformhook_set_library_properties(${TARGET_NAME})
 		endif()
 
+		# PLATFORM-TODO (use hook above?)
 		ez_uwp_fix_library_properties(${TARGET_NAME} "${ALL_SOURCE_FILES}")
 
 	elseif(${TYPE} STREQUAL "APPLICATION")
 		message(STATUS "Application: ${TARGET_NAME}")
 
+		# PLATFORM-TODO
 		# On Android we can't use executables. Instead we have to use shared libraries which are loaded from java code.
 		if(EZ_CMAKE_PLATFORM_ANDROID)
 			# All ez applications must include the native app glue implementation
@@ -66,6 +68,7 @@ macro(ez_create_target TYPE TARGET_NAME)
 			add_executable(${TARGET_NAME} ${ALL_SOURCE_FILES})
 		endif()
 
+		# PLATFORM-TODO (use hook from below?)
 		ez_uwp_add_default_content(${TARGET_NAME})
 
 		if (COMMAND ez_platformhook_set_application_properties)
@@ -86,8 +89,11 @@ macro(ez_create_target TYPE TARGET_NAME)
 	# When using the Open Folder workflow inside visual studio on android, visual studio gets confused due to our custom output directory
 	# Do not set the custom output directory in this case
 	if((NOT ANDROID) OR(NOT EZ_CMAKE_INSIDE_VS))
+		# PLATFORM-TODO
 		ez_set_default_target_output_dirs(${TARGET_NAME})
 	endif()
+
+	# PLATFORM-TODO: add general hook ?
 
 	# We need the target directory to add the apk packaging steps for android. Thus, this step needs to be done here.
 	if(${TYPE} STREQUAL "APPLICATION")
@@ -102,11 +108,13 @@ macro(ez_create_target TYPE TARGET_NAME)
 
 	# On linux we want all symbols to be hidden by default. We manually "export" them.
 	if(EZ_COMPILE_ENGINE_AS_DLL AND EZ_CMAKE_PLATFORM_LINUX AND NOT ARG_ALL_SYMBOLS_VISIBLE)
+		# PLATFORM-TODO (use general hook as above?)
 		target_compile_options(${TARGET_NAME} PRIVATE "-fvisibility=hidden")
 	endif()
 
 	ez_set_project_ide_folder(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
+	# PLATFORM-TODO (use general hook as above?)
 	# Pass the windows sdk include paths to the resource compiler when not generating a visual studio solution.
 	if(EZ_CMAKE_PLATFORM_WINDOWS AND NOT EZ_CMAKE_GENERATOR_MSVC)
 		set(RC_FILES ${ALL_SOURCE_FILES})
@@ -119,6 +127,7 @@ macro(ez_create_target TYPE TARGET_NAME)
 		endif()
 	endif()
 
+	# PLATFORM-TODO (use general hook as above?)
 	if(EZ_CMAKE_PLATFORM_ANDROID)
 		# Add the location for native_app_glue.h to the include directories.
 		target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")

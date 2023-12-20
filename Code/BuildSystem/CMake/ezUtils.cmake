@@ -44,6 +44,7 @@ macro(ez_pull_output_vars LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 	set(PLATFORM_POSTFIX "")
 	set(ARCH "x${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
 
+	# PLATFORM-TODO (build output path hook? add more variables?)
 	if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 		# UWP has deployment problems if all applications output to the same path.
 		set(SUB_DIR "/${TARGET_NAME}")

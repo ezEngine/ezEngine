@@ -17,5 +17,3 @@ if (COMMAND ez_platformhook_find_vulkan)
 else()
 	message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
 endif()
-
-endif()
