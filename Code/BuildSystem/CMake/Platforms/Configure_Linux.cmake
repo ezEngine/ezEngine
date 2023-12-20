@@ -1,3 +1,5 @@
+include("${CMAKE_CURRENT_LIST_DIR}/Configure_Default.cmake")
+
 message(STATUS "Configuring Platform: Linux")
 
 set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX ON)
@@ -15,10 +17,13 @@ mark_as_advanced(FORCE EZ_COMPILE_ENGINE_AS_DLL)
 # #####################################
 set (EZ_EXPERIMENTAL_EDITOR_ON_LINUX OFF CACHE BOOL "Wether or not to build the editor on linux")
 
+if (EZ_EXPERIMENTAL_EDITOR_ON_LINUX)
+    set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_SUPPORTS_EDITOR ON)
+endif()
+
 macro(ez_platform_pull_properties)
 
     get_property(EZ_CMAKE_PLATFORM_LINUX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX)
-    get_property(EZ_CMAKE_PLATFORM_SUPPORTS_VULKAN GLOBAL PROPERTY EZ_CMAKE_PLATFORM_SUPPORTS_VULKAN)
 
 endmacro()
 

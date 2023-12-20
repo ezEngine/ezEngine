@@ -1,3 +1,5 @@
+include("${CMAKE_CURRENT_LIST_DIR}/Configure_Default.cmake")
+
 message(STATUS "Configuring Platform: Emscripten")
 
 set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_EMSCRIPTEN ON)

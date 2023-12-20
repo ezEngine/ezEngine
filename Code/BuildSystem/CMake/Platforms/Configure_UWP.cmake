@@ -1,3 +1,5 @@
+include("${CMAKE_CURRENT_LIST_DIR}/Configure_Default.cmake")
+
 message(STATUS "Configuring Platform: UWP")
 
 set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_WINDOWS ON)

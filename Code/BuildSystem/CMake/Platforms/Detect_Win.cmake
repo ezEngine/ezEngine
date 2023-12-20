@@ -7,7 +7,3 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows") # Desktop Windows
 
 endif()
 
-macro (ez_platform_set_build_flags_clang)
-    # Disable the warning that clang doesn't support pragma optimize.
-    target_compile_options(${TARGET_NAME} PRIVATE -Wno-ignored-pragma-optimize -Wno-pragma-pack)
-endmacro()
