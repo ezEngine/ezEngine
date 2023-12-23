@@ -34,7 +34,7 @@ public:
   const char* GetMarkerType() const;      // [ property ]
 
   void SetRadius(float fRadius); // [ property ]
-  float GetRadius() const;      // [ property ]
+  float GetRadius() const;       // [ property ]
 
 protected:
   void OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const; // [ msg handler ]

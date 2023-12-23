@@ -13,8 +13,7 @@ class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderDat
 public:
 };
 
-/// \brief The standard directional light component.
-/// This component represents directional lights.
+/// \brief Represents a directional light source like the sun.
 class EZ_RENDERERCORE_DLL ezDirectionalLightComponent : public ezLightComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezDirectionalLightComponent, ezLightComponent, ezDirectionalLightComponentManager);
