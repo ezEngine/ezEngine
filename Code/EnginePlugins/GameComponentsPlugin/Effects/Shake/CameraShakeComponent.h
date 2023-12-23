@@ -14,6 +14,8 @@ using ezCameraShakeComponentManager = ezComponentManagerSimple<class ezCameraSha
 ///
 /// The shake values can be modified dynamically to force a shake, but it is more convenient to instead place shake volumes (see ezCameraShakeVolumeComponent and derived classes). The camera shake component samples these volumes using its own location and uses the
 /// determined strength to fade between its min and max shake amount.
+///
+/// \see ezCameraShakeVolumeComponent
 class EZ_GAMECOMPONENTS_DLL ezCameraShakeComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezCameraShakeComponent, ezComponent, ezCameraShakeComponentManager);
