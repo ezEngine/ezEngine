@@ -13,11 +13,13 @@ class EZ_RENDERERCORE_DLL ezPointLightRenderData : public ezLightRenderData
 
 public:
   float m_fRange;
-  ezTextureCubeResourceHandle m_hProjectedTexture;
+  // ezTextureCubeResourceHandle m_hProjectedTexture;
 };
 
-/// \brief The standard point light component.
-/// This component represents point lights with various properties (e.g. a projected cube map, range, etc.)
+/// \brief Adds a dynamic point light to the scene, optionally casting shadows.
+///
+/// For performance reasons, prefer to use ezSpotLightComponent where possible.
+/// Do not use shadows just to limit the light cone, when a spot light could achieve the same.
 class EZ_RENDERERCORE_DLL ezPointLightComponent : public ezLightComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPointLightComponent, ezLightComponent, ezPointLightComponentManager);
@@ -36,7 +38,6 @@ public:
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezPointLightComponent
 
@@ -44,16 +45,18 @@ public:
   ezPointLightComponent();
   ~ezPointLightComponent();
 
+  /// \brief Sets the radius of the lightsource. If zero, the radius is automatically determined from the intensity.
   void SetRange(float fRange); // [ property ]
   float GetRange() const;      // [ property ]
 
+  /// \brief Returns the final radius of the lightsource.
   float GetEffectiveRange() const;
 
-  void SetProjectedTextureFile(const char* szFile); // [ property ]
-  const char* GetProjectedTextureFile() const;      // [ property ]
+  // void SetProjectedTextureFile(const char* szFile); // [ property ]
+  // const char* GetProjectedTextureFile() const;      // [ property ]
 
-  void SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture);
-  const ezTextureCubeResourceHandle& GetProjectedTexture() const;
+  // void SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture);
+  // const ezTextureCubeResourceHandle& GetProjectedTexture() const;
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
@@ -61,7 +64,7 @@ protected:
   float m_fRange = 0.0f;
   float m_fEffectiveRange = 0.0f;
 
-  ezTextureCubeResourceHandle m_hProjectedTexture;
+  // ezTextureCubeResourceHandle m_hProjectedTexture;
 };
 
 /// \brief A special visualizer attribute for point lights

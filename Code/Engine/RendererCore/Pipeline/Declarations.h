@@ -83,14 +83,14 @@ struct EZ_RENDERERCORE_DLL ezCameraUsageHint
 
   enum Enum
   {
-    None,
-    MainView,
-    EditorView,
-    RenderTarget,
-    Culling,
-    Shadow,
-    Reflection,
-    Thumbnail,
+    None,         ///< No hint, camera may not be used, at all.
+    MainView,     ///< The main camera from which the scene gets rendered. There should only be one camera with this hint.
+    EditorView,   ///< The editor view shall be rendered from this camera.
+    RenderTarget, ///< The camera is used to render to a render target.
+    Culling,      ///< This camera should be used for culling only. Usually culling is done from the main view, but with a dedicated culling camera, one can debug the culling system.
+    Shadow,       ///< This camera is used for rendering shadow maps.
+    Reflection,   ///< This camera is used for rendering reflections.
+    Thumbnail,    ///< This camera should be used for rendering a scene thumbnail when exporting from the editor.
 
     ENUM_COUNT,
 

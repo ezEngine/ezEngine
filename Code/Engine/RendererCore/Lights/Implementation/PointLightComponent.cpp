@@ -65,37 +65,37 @@ float ezPointLightComponent::GetEffectiveRange() const
   return m_fEffectiveRange;
 }
 
-void ezPointLightComponent::SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture)
-{
-  m_hProjectedTexture = hProjectedTexture;
+// void ezPointLightComponent::SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture)
+//{
+//   m_hProjectedTexture = hProjectedTexture;
+//
+//   InvalidateCachedRenderData();
+// }
+//
+// const ezTextureCubeResourceHandle& ezPointLightComponent::GetProjectedTexture() const
+//{
+//   return m_hProjectedTexture;
+// }
 
-  InvalidateCachedRenderData();
-}
-
-const ezTextureCubeResourceHandle& ezPointLightComponent::GetProjectedTexture() const
-{
-  return m_hProjectedTexture;
-}
-
-void ezPointLightComponent::SetProjectedTextureFile(const char* szFile)
-{
-  ezTextureCubeResourceHandle hProjectedTexture;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hProjectedTexture = ezResourceManager::LoadResource<ezTextureCubeResource>(szFile);
-  }
-
-  SetProjectedTexture(hProjectedTexture);
-}
-
-const char* ezPointLightComponent::GetProjectedTextureFile() const
-{
-  if (!m_hProjectedTexture.IsValid())
-    return "";
-
-  return m_hProjectedTexture.GetResourceID();
-}
+// void ezPointLightComponent::SetProjectedTextureFile(const char* szFile)
+//{
+//   ezTextureCubeResourceHandle hProjectedTexture;
+//
+//   if (!ezStringUtils::IsNullOrEmpty(szFile))
+//   {
+//     hProjectedTexture = ezResourceManager::LoadResource<ezTextureCubeResource>(szFile);
+//   }
+//
+//   SetProjectedTexture(hProjectedTexture);
+// }
+//
+// const char* ezPointLightComponent::GetProjectedTextureFile() const
+//{
+//   if (!m_hProjectedTexture.IsValid())
+//     return "";
+//
+//   return m_hProjectedTexture.GetResourceID();
+// }
 
 void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
@@ -116,7 +116,7 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   pRenderData->m_LightColor = m_LightColor;
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fRange = m_fEffectiveRange;
-  pRenderData->m_hProjectedTexture = m_hProjectedTexture;
+  // pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddPointLight(this, fScreenSpaceSize, msg.m_pView) : ezInvalidIndex;
 
   pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
@@ -131,6 +131,8 @@ void ezPointLightComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 
   ezStreamWriter& s = inout_stream.GetStream();
 
+  ezTextureCubeResourceHandle m_hProjectedTexture;
+
   s << m_fRange;
   s << m_hProjectedTexture;
 }
@@ -140,6 +142,8 @@ void ezPointLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
   SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
+
+  ezTextureCubeResourceHandle m_hProjectedTexture;
 
   s >> m_fRange;
   s >> m_hProjectedTexture;
@@ -164,8 +168,8 @@ ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute(
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezPointLightComponentPatch_1_2 : public ezGraphPatch
 {
