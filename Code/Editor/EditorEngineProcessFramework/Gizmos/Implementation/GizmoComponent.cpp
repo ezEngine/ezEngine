@@ -44,6 +44,7 @@ ezMeshRenderData* ezGizmoComponent::CreateRenderData() const
 
 ezResult ezGizmoComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
+  const ezResult r = SUPER::GetLocalBounds(bounds, bAlwaysVisible, msg);
   // since there is always only a single gizmo on screen, there's no harm in making it always visible
   bAlwaysVisible = true;
   return r;
