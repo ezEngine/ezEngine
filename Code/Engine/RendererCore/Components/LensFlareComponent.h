@@ -56,6 +56,19 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezLensFlareElement);
 
 using ezLensFlareComponentManager = ezComponentManager<class ezLensFlareComponent, ezBlockStorageType::Compact>;
 
+/// \brief Adds a lensflare or corona effect to a lightsource.
+///
+/// This component can be used to add a lensflare effect to a lightsource, typically the sun.
+/// It can, however, also be used on smaller lightsources. For a full lensflare one would add multiple billboard textures
+/// that are positioned along a line that rotates around the screen center.
+/// If only a single billboard is added and it is always at distance 'zero' along that line, it acts like a 'corona' that is
+/// only at the location of the lightsource.
+///
+/// The lensflare renderer determines how much the lightsource is occluded and scales the transparency of the lensflare
+/// accordingly.
+///
+/// The component does not require a lightsource, it can be attached to any other object, as well, it is just mostly
+/// used in conjunction with a point or directional lightsource.
 class EZ_RENDERERCORE_DLL ezLensFlareComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezLensFlareComponent, ezRenderComponent, ezLensFlareComponentManager);
@@ -69,13 +82,11 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
-
 
   //////////////////////////////////////////////////////////////////////////
   // ezLensFlareComponent
