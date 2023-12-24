@@ -25,6 +25,14 @@ private:
   ezDeque<ezComponentHandle> m_ComponentsToUpdate;
 };
 
+/// \brief The central component to instantiate prefabs.
+///
+/// This component instantiates a prefab and attaches the instantiated objects as children to this object.
+/// The component is able to remove and recreate instantiated objects, which is needed at editing time.
+/// Whenever the prefab resource changes, this component re-creates the instance.
+///
+/// It also holds prefab parameters, which are passed through during instantiation.
+/// For that it also implements remapping of game object references, so that they can be passed into prefabs during instantiation.
 class EZ_CORE_DLL ezPrefabReferenceComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPrefabReferenceComponent, ezComponent, ezPrefabReferenceComponentManager);
