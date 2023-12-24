@@ -39,7 +39,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezBeamComponent::ezBeamComponent() = default;
-
 ezBeamComponent::~ezBeamComponent() = default;
 
 void ezBeamComponent::Update()
