@@ -145,6 +145,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonJointType);
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief What to do when an animated object is not visible.
+///
+/// It is often important to still update animated meshes, so that animation events get handled.
+/// Also even though a mesh may be invisible itself, its shadow or reflection may still be visible.
 struct EZ_RENDERERCORE_DLL ezAnimationInvisibleUpdateRate
 {
   using StorageType = ezUInt8;
