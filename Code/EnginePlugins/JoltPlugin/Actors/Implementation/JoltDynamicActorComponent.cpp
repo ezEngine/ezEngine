@@ -328,8 +328,9 @@ void ezJoltDynamicActorComponent::OnDeactivated()
     GetWorld()->GetOrCreateComponentManager<ezJoltDynamicActorComponentManager>()->m_KinematicActorComponents.RemoveAndSwap(this);
   }
 
-  ezDynamicArray<ezComponentHandle> allConstraints;
-  allConstraints.Swap(m_Constraints);
+  auto allConstraints = m_Constraints;
+  m_Constraints.Clear();
+  m_Constraints.Compact();
 
   ezJoltMsgDisconnectConstraints msg;
   msg.m_pActor = this;
