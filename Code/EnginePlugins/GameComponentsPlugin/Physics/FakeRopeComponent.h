@@ -51,7 +51,7 @@ public:
   ezFakeRopeComponent();
   ~ezFakeRopeComponent();
 
-  /// \brief Of how many pieces the rope is made up.
+  /// Of how many pieces the rope is made up.
   ezUInt16 m_uiPieces = 16; // [ property ]
 
   void SetAnchor1Reference(const char* szReference); // [ property ]
@@ -73,7 +73,7 @@ public:
   bool GetAttachToAnchor1() const;
   bool GetAttachToAnchor2() const;
 
-  /// \brief How quickly a swinging rope comes to a stop.
+  /// How quickly a swinging rope comes to a stop.
   float m_fDamping = 0.5f; // [ property ]
 
 private:
