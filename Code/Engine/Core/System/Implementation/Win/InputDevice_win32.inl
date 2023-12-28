@@ -344,9 +344,9 @@ void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMi
     POINT mp;
     if (GetCursorPos(&mp))
     {
-      // make sure the position is inside the window rect
-      mp.x = ezMath::Clamp(mp.x, r.left, r.right);
-      mp.y = ezMath::Clamp(mp.y, r.top, r.bottom);
+      // center the position inside the window rect
+      mp.x = r.left + (r.right - r.left) / 2;
+      mp.y = r.top + (r.bottom - r.top) / 2;
 
       r.top = mp.y;
       r.bottom = mp.y;
