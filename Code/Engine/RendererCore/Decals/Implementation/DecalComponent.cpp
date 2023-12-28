@@ -325,6 +325,7 @@ bool ezDecalComponent::GetMapNormalToGeometry() const
 
 void ezDecalComponent::SetDecal(ezUInt32 uiIndex, const ezDecalResourceHandle& hDecal)
 {
+  m_Decals.EnsureCount(uiIndex + 1);
   m_Decals[uiIndex] = hDecal;
 
   TriggerLocalBoundsUpdate();
