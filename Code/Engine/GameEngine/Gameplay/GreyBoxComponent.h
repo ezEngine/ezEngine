@@ -43,6 +43,9 @@ struct EZ_GAMEENGINE_DLL ezGreyBoxShape
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezGreyBoxShape)
 
+/// \brief Creates basic geometry for prototyping levels.
+///
+/// It automatically creates physics collision geometry and also sets up rendering occluders to improve performance.
 class EZ_GAMEENGINE_DLL ezGreyBoxComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezGreyBoxComponent, ezRenderComponent, ezGreyBoxComponentManager);
@@ -50,9 +53,11 @@ class EZ_GAMEENGINE_DLL ezGreyBoxComponent : public ezRenderComponent
   //////////////////////////////////////////////////////////////////////////
   // ezComponent
 
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+protected:
   virtual void OnActivated() override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -68,39 +73,69 @@ public:
   ezGreyBoxComponent();
   ~ezGreyBoxComponent();
 
+  /// \brief The geometry type to build.
   void SetShape(ezEnum<ezGreyBoxShape> shape);                // [ property ]
   ezEnum<ezGreyBoxShape> GetShape() const { return m_Shape; } // [ property ]
-  void SetMaterialFile(const char* szFile);                   // [ property ]
-  const char* GetMaterialFile() const;                        // [ property ]
-  void SetSizeNegX(float f);                                  // [ property ]
-  float GetSizeNegX() const { return m_fSizeNegX; }           // [ property ]
-  void SetSizePosX(float f);                                  // [ property ]
-  float GetSizePosX() const { return m_fSizePosX; }           // [ property ]
-  void SetSizeNegY(float f);                                  // [ property ]
-  float GetSizeNegY() const { return m_fSizeNegY; }           // [ property ]
-  void SetSizePosY(float f);                                  // [ property ]
-  float GetSizePosY() const { return m_fSizePosY; }           // [ property ]
-  void SetSizeNegZ(float f);                                  // [ property ]
-  float GetSizeNegZ() const { return m_fSizeNegZ; }           // [ property ]
-  void SetSizePosZ(float f);                                  // [ property ]
-  float GetSizePosZ() const { return m_fSizePosZ; }           // [ property ]
-  void SetDetail(ezUInt32 uiDetail);                          // [ property ]
-  ezUInt32 GetDetail() const { return m_uiDetail; }           // [ property ]
-  void SetCurvature(ezAngle curvature);                       // [ property ]
-  ezAngle GetCurvature() const { return m_Curvature; }        // [ property ]
-  void SetSlopedTop(bool b);                                  // [ property ]
-  bool GetSlopedTop() const { return m_bSlopedTop; }          // [ property ]
-  void SetSlopedBottom(bool b);                               // [ property ]
-  bool GetSlopedBottom() const { return m_bSlopedBottom; }    // [ property ]
-  void SetThickness(float f);                                 // [ property ]
-  float GetThickness() const { return m_fThickness; }         // [ property ]
 
+  /// \brief The ezMaterialResource file to use.
+  void SetMaterialFile(const char* szFile); // [ property ]
+  const char* GetMaterialFile() const;      // [ property ]
+
+  /// \brief Sets the extent along the negative X axis of the bounding box.
+  void SetSizeNegX(float f);                        // [ property ]
+  float GetSizeNegX() const { return m_fSizeNegX; } // [ property ]
+
+  /// \brief Sets the extent along the positive X axis of the bounding box.
+  void SetSizePosX(float f);                        // [ property ]
+  float GetSizePosX() const { return m_fSizePosX; } // [ property ]
+
+  /// \brief Sets the extent along the negative Y axis of the bounding box.
+  void SetSizeNegY(float f);                        // [ property ]
+  float GetSizeNegY() const { return m_fSizeNegY; } // [ property ]
+
+  /// \brief Sets the extent along the positive Y axis of the bounding box.
+  void SetSizePosY(float f);                        // [ property ]
+  float GetSizePosY() const { return m_fSizePosY; } // [ property ]
+
+  /// \brief Sets the extent along the negative Z axis of the bounding box.
+  void SetSizeNegZ(float f);                        // [ property ]
+  float GetSizeNegZ() const { return m_fSizeNegZ; } // [ property ]
+
+  /// \brief Sets the extent along the positive Z axis of the bounding box.
+  void SetSizePosZ(float f);                        // [ property ]
+  float GetSizePosZ() const { return m_fSizePosZ; } // [ property ]
+
+  /// \brief Sets the detail of the geometry. The meaning is geometry type specific, e.g. for cylinders this is the number of polygons around the perimeter.
+  void SetDetail(ezUInt32 uiDetail);                // [ property ]
+  ezUInt32 GetDetail() const { return m_uiDetail; } // [ property ]
+
+  /// \brief Geometry type specific: Sets an angle, used to curve stairs, etc.
+  void SetCurvature(ezAngle curvature);                // [ property ]
+  ezAngle GetCurvature() const { return m_Curvature; } // [ property ]
+
+  /// \brief For curved stairs to make the top smooth.
+  void SetSlopedTop(bool b);                         // [ property ]
+  bool GetSlopedTop() const { return m_bSlopedTop; } // [ property ]
+
+  /// \brief For curved stairs to make the bottom smooth.
+  void SetSlopedBottom(bool b);                            // [ property ]
+  bool GetSlopedBottom() const { return m_bSlopedBottom; } // [ property ]
+
+  /// \brief Geometry type specific: Sets a thickness, e.g. for curved stairs.
+  void SetThickness(float f);                         // [ property ]
+  float GetThickness() const { return m_fThickness; } // [ property ]
+
+  /// \brief Whether the mesh should be used as a collider.
   void SetGenerateCollision(bool b);                                 // [ property ]
   bool GetGenerateCollision() const { return m_bGenerateCollision; } // [ property ]
 
+  /// \brief Whether the mesh should be an obstacle in the navmesh.
+  /// \note This may or may not work, depending on how the navmesh generation works.
+  /// Dynamic navmesh generation at runtime usually uses the physics colliders and thus this flag would have no effect there.
   void SetIncludeInNavmesh(bool b);                                // [ property ]
   bool GetIncludeInNavmesh() const { return m_bIncludeInNavmesh; } // [ property ]
 
+  /// \brief Sets the ezMaterialResource to use for rendering.
   void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; }
   ezMaterialResourceHandle GetMaterial() const { return m_hMaterial; }
 
