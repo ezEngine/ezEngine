@@ -4,6 +4,7 @@
 #include <Core/World/World.h>
 #include <RendererCore/RendererCoreDLL.h>
 
+/// \brief Base class for objects that should be rendered.
 class EZ_RENDERERCORE_DLL ezRenderComponent : public ezComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, ezComponent);
@@ -13,7 +14,6 @@ class EZ_RENDERERCORE_DLL ezRenderComponent : public ezComponent
 
 protected:
   virtual void Deinitialize() override;
-
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
@@ -30,13 +30,16 @@ public:
   /// otherwise the out values are simply ignored.
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) = 0;
 
+  /// \brief Call this when some value was modified that affects the size of the local bounding box and it should be recomputed.
   void TriggerLocalBoundsUpdate();
 
-  static ezUInt32 GetUniqueIdForRendering(const ezComponent* pComponent, ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24);
+  /// \brief Computes a unique ID for the given component, that is usually given to the renderer to distinguish objects.
+  static ezUInt32 GetUniqueIdForRendering(const ezComponent& component, ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24);
 
+  /// \brief Computes a unique ID for the given component, that is usually given to the renderer to distinguish objects.
   EZ_ALWAYS_INLINE ezUInt32 GetUniqueIdForRendering(ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24) const
   {
-    return GetUniqueIdForRendering(this, uiInnerIndex, uiInnerIndexShift);
+    return GetUniqueIdForRendering(*this, uiInnerIndex, uiInnerIndexShift);
   }
 
 protected:
