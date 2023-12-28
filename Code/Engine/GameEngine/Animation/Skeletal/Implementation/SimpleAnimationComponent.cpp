@@ -227,28 +227,18 @@ void ezSimpleAnimationComponent::Update()
 
   // inform child nodes/components that a new pose is available
   {
-    ezMsgAnimationPoseProposal msg1;
-    msg1.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
-    msg1.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg1.m_ModelTransforms = pose;
+    ezMsgAnimationPoseUpdated msg2;
+    msg2.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+    msg2.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+    msg2.m_ModelTransforms = pose;
 
-    GetOwner()->SendMessage(msg1);
+    // recursive, so that objects below the mesh can also listen in on these changes
+    // for example bone attachments
+    GetOwner()->SendMessageRecursive(msg2);
 
-    if (msg1.m_bContinueAnimating)
+    if (msg2.m_bContinueAnimating == false)
     {
-      ezMsgAnimationPoseUpdated msg2;
-      msg2.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
-      msg2.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-      msg2.m_ModelTransforms = pose;
-
-      // recursive, so that objects below the mesh can also listen in on these changes
-      // for example bone attachments
-      GetOwner()->SendMessageRecursive(msg2);
-
-      if (msg2.m_bContinueAnimating == false)
-      {
-        SetActiveFlag(false);
-      }
+      SetActiveFlag(false);
     }
   }
 }
