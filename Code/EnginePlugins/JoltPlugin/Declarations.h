@@ -26,6 +26,14 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltSteppingMode);
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Flags for what should happen when two physical bodies touch.
+///
+/// The reactions need to be set up through ezSurface's.
+/// For most objects only some reactions make sense.
+/// For example a box may hit another object as well as slide, but it cannot roll.
+/// A barrel can impact and slide on some sides, but roll around its up axis (Z).
+/// A sphere can impact and roll around all its axis, but never slide.
+/// A soft object may not have any impact reactions.
 struct ezOnJoltContact
 {
   using StorageType = ezUInt32;
@@ -34,11 +42,11 @@ struct ezOnJoltContact
   {
     None = 0,
     // SendReportMsg = EZ_BIT(0),
-    ImpactReactions = EZ_BIT(1),
-    SlideReactions = EZ_BIT(2),
-    RollXReactions = EZ_BIT(3),
-    RollYReactions = EZ_BIT(4),
-    RollZReactions = EZ_BIT(5),
+    ImpactReactions = EZ_BIT(1), ///< Spawn prefabs for impacts (two objects hit each other with enough force).
+    SlideReactions = EZ_BIT(2),  ///< Spawn prefabs for sliding (one object slides along the surface of another).
+    RollXReactions = EZ_BIT(3),  ///< Spawn prefabs for rolling (one object rotates around its X axis while touching another).
+    RollYReactions = EZ_BIT(4),  ///< Spawn prefabs for rolling (one object rotates around its Y axis while touching another).
+    RollZReactions = EZ_BIT(5),  ///< Spawn prefabs for rolling (one object rotates around its Z axis while touching another).
 
     AllRollReactions = RollXReactions | RollYReactions | RollZReactions,
     SlideAndRollReactions = AllRollReactions | SlideReactions,
@@ -77,6 +85,7 @@ struct ezJoltSettings
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief This message can be sent to a constraint component to break the constraint.
 struct EZ_JOLTPLUGIN_DLL ezJoltMsgDisconnectConstraints : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezJoltMsgDisconnectConstraints, ezMessage);

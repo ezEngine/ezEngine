@@ -13,8 +13,11 @@ class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderDat
 public:
 };
 
-/// \brief The standard directional light component.
-/// This component represents directional lights.
+/// \brief A directional lightsource shines light into one fixed direction and has infinite size. It is usually used for sunlight.
+///
+/// It is very rare to use more than one directional lightsource at the same time.
+/// Directional lightsources are used to fake the large scale light of the sun (or moon).
+/// They use cascaded shadow maps to reduce the performance overhead for dynamic shadows of such large lights.
 class EZ_RENDERERCORE_DLL ezDirectionalLightComponent : public ezLightComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezDirectionalLightComponent, ezLightComponent, ezDirectionalLightComponentManager);
@@ -39,18 +42,23 @@ public:
   ezDirectionalLightComponent();
   ~ezDirectionalLightComponent();
 
+  /// \brief Sets how many shadow map cascades to use. Typically between 2 and 4.
   void SetNumCascades(ezUInt32 uiNumCascades); // [ property ]
   ezUInt32 GetNumCascades() const;             // [ property ]
 
+  /// \brief Sets the distance around the main camera in which to apply dynamic shadows.
   void SetMinShadowRange(float fMinShadowRange); // [ property ]
   float GetMinShadowRange() const;               // [ property ]
 
+  /// \brief The factor (0 to 1) at which relative distance to start fading out the shadow map. Typically 0.8 or 0.9.
   void SetFadeOutStart(float fFadeOutStart); // [ property ]
   float GetFadeOutStart() const;             // [ property ]
 
+  /// \brief Has something to do with shadow map cascades (TODO: figure out what).
   void SetSplitModeWeight(float fSplitModeWeight); // [ property ]
   float GetSplitModeWeight() const;                // [ property ]
 
+  /// \brief Has something to do with shadow map cascades (TODO: figure out what).
   void SetNearPlaneOffset(float fNearPlaneOffset); // [ property ]
   float GetNearPlaneOffset() const;                // [ property ]
 

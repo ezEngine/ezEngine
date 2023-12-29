@@ -19,6 +19,9 @@ using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>
 
 using ezSimpleAnimationComponentManager = ezComponentManagerSimple<class ezSimpleAnimationComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::FreeList>;
 
+/// \brief Plays a single animation clip on an animated mesh.
+///
+/// \see ezAnimatedMeshComponent
 class EZ_GAMEENGINE_DLL ezSimpleAnimationComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSimpleAnimationComponent, ezComponent, ezSimpleAnimationComponentManager);
@@ -46,12 +49,19 @@ public:
   void SetAnimationClipFile(const char* szFile); // [ property ]
   const char* GetAnimationClipFile() const;      // [ property ]
 
+  /// \brief How to play the animation.
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
-  float m_fSpeed = 1.0f;                      // [ property ]
 
+  /// \brief How quickly or slowly to play the animation.
+  float m_fSpeed = 1.0f; // [ property ]
+
+  /// \brief Sets the current sample position of the animation clip in 0 (start) to 1 (end) range.
   void SetNormalizedPlaybackPosition(float fPosition);
+
+  /// \brief Returns the normalized [0;1] sample position of the animation clip.
   float GetNormalizedPlaybackPosition() const { return m_fNormalizedPlaybackPosition; }
 
+  /// \brief How often to update the animation while the animated mesh is invisible.
   ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
 
 protected:

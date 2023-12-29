@@ -13,6 +13,13 @@ using ezAnimGraphResourceHandle = ezTypedResourceHandle<class ezAnimGraphResourc
 
 using ezAnimationControllerComponentManager = ezComponentManagerSimple<class ezAnimationControllerComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::FreeList>;
 
+/// \brief Evaluates an ezAnimGraphResource and provides the result through the ezMsgAnimationPoseUpdated.
+///
+/// ezAnimGraph's contain logic to generate an animation pose. This component decides when it is necessary
+/// to reevaluate the state, which mostly means it tracks when the object is visible.
+///
+/// The result is sent as a recursive message, which is usually consumed by an ezAnimatedMeshComponent.
+/// The mesh component may be on the same game object or a child object.
 class EZ_GAMEENGINE_DLL ezAnimationControllerComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezAnimationControllerComponent, ezComponent, ezAnimationControllerComponentManager);
@@ -34,9 +41,11 @@ public:
   ezAnimationControllerComponent();
   ~ezAnimationControllerComponent();
 
+  /// \brief Sets the ezAnimGraphResource file to use.
   void SetAnimGraphFile(const char* szFile); // [ property ]
   const char* GetAnimGraphFile() const;      // [ property ]
 
+  /// \brief How often to update the animation while the animated mesh is invisible.
   ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
 
 protected:

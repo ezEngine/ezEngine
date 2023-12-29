@@ -23,7 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 enum PrefabComponentFlags
 {
-  SelfDeletion = 1
+  SelfDeletion = 1, ///< the prefab component is currently deleting itself but does not want to remove the instantiated objects
 };
 
 ezPrefabReferenceComponent::ezPrefabReferenceComponent() = default;
@@ -254,7 +254,8 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
 
       pResource->InstantiatePrefab(*GetWorld(), id, options, &m_Parameters);
 
-      auto FixComponent = [](ezGameObject* pChild, ezUInt32 uiUniqueID) {
+      auto FixComponent = [](ezGameObject* pChild, ezUInt32 uiUniqueID)
+      {
         // while exporting a scene all game objects with this flag are ignored and not exported
         // set this flag on all game objects that were created by instantiating this prefab
         // instead it should be instantiated at runtime again

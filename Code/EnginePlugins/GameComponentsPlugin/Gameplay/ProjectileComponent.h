@@ -51,6 +51,10 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileSurfaceInteraction
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezProjectileSurfaceInteraction);
 
+/// \brief Shoots a game object in a straight line and uses physics raycasts to detect hits.
+///
+/// When a raycast detects a hit, the surface information is used to determine how the projectile should proceed
+/// and which prefab it should spawn as an effect.
 class EZ_GAMECOMPONENTS_DLL ezProjectileComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezProjectileComponent, ezComponent, ezProjectileComponentManager);
@@ -73,14 +77,28 @@ public:
   ezProjectileComponent();
   ~ezProjectileComponent();
 
-  float m_fMetersPerSecond;                                                ///< [ property ] The speed at which the projectile flies
-  float m_fGravityMultiplier;                                              ///< [ property ] If 0, the projectile is not affected by gravity.
-  ezUInt8 m_uiCollisionLayer;                                              ///< [ property ]
-  ezBitflags<ezPhysicsShapeType> m_ShapeTypesToHit;                        ///< [ property ]
-  ezTime m_MaxLifetime;                                                    ///< [ property ] After this time the projectile is killed, if it didn't die already
-  ezSurfaceResourceHandle m_hFallbackSurface;                              ///< [ property ]
-  ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; ///< [ property ]
+  /// The speed at which the projectile flies.
+  float m_fMetersPerSecond; // [ property ]
 
+  /// If 0, the projectile is not affected by gravity.
+  float m_fGravityMultiplier; // [ property ]
+
+  /// Defines which other physics objects the projectile will collide with.
+  ezUInt8 m_uiCollisionLayer; // [ property ]
+
+  /// A broad filter to ignore certain types of colliders.
+  ezBitflags<ezPhysicsShapeType> m_ShapeTypesToHit; // [ property ]
+
+  /// After this time the projectile is removed, if it didn't hit anything yet.
+  ezTime m_MaxLifetime; // [ property ]
+
+  /// If the projectile hits something that has no valid surface, this surface is used instead.
+  ezSurfaceResourceHandle m_hFallbackSurface; // [ property ]
+
+  /// Specifies how the projectile interacts with different surface types.
+  ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; // [ property ]
+
+  /// \brief If the projectile reaches its maximum lifetime it can spawn this prefab.
   void SetTimeoutPrefab(const char* szPrefab); // [ property ]
   const char* GetTimeoutPrefab() const;        // [ property ]
 

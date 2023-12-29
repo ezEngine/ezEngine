@@ -27,17 +27,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseUpdated, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseProposal);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseProposal, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseProposal>)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezExcludeFromScript()
-  }
-  EZ_END_ATTRIBUTES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgRopePoseUpdated);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgRopePoseUpdated, 1, ezRTTIDefaultAllocator<ezMsgRopePoseUpdated>)
 {

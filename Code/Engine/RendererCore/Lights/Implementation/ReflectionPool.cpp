@@ -143,7 +143,7 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
       pRenderData->m_hMaterial = s_pData->m_hDebugMaterial[iMappedIndex * uiMipLevels + i];
       pRenderData->m_Color = ezColor::White;
       pRenderData->m_uiSubMeshIndex = 0;
-      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(pComponent, 0);
+      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*pComponent, 0);
 
       pRenderData->FillBatchIdAndSortingKey();
       ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);

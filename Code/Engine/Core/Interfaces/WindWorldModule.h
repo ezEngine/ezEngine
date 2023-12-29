@@ -2,6 +2,9 @@
 
 #include <Core/World/WorldModule.h>
 
+/// \brief Defines the strength / speed of wind. Inspired by the Beaufort Scale.
+///
+/// See https://en.wikipedia.org/wiki/Beaufort_scale
 struct EZ_CORE_DLL ezWindStrength
 {
   using StorageType = ezUInt8;
@@ -22,6 +25,10 @@ struct EZ_CORE_DLL ezWindStrength
     Default = LightBreeze
   };
 
+  /// \brief Maps the wind strength name to a meters per second speed value as defined by the Beaufort Scale.
+  ///
+  /// The value only defines how fast wind moves, how much it affects an object, like bending it, depends
+  /// on additional factors like stiffness and is thus object specific.
   static float GetInMetersPerSecond(ezWindStrength::Enum strength);
 };
 

@@ -9,8 +9,6 @@
 ///
 /// Components of this type should be managed by an ezSettingsComponentManager, which makes it easy to query for the one instance
 /// in the world.
-///
-///
 class EZ_CORE_DLL ezSettingsComponent : public ezComponent
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSettingsComponent, ezComponent);

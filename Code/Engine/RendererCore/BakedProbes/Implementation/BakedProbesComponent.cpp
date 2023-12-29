@@ -314,7 +314,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
       pRenderData->m_hMaterial = pManager->m_hDebugMaterial;
       pRenderData->m_Color = encodedSkyVisibility;
       pRenderData->m_uiSubMeshIndex = 0;
-      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(this, 0);
+      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*this, 0);
 
       pRenderData->FillBatchIdAndSortingKey();
     }

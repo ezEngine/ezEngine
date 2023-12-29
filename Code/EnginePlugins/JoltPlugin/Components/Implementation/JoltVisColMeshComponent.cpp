@@ -266,4 +266,3 @@ void ezJoltVisColMeshComponentManager::ResourceEventHandler(const ezResourceEven
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltVisColMeshComponent);
-

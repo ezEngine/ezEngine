@@ -287,9 +287,9 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
 
   enum Enum : StorageType
   {
-    None,
-    DeleteComponent,
-    DeleteGameObject,
+    None,             ///< Nothing happens after the action is finished.
+    DeleteComponent,  ///< The component deletes only itself, but its game object stays.
+    DeleteGameObject, ///< When finished the component deletes its owner game object. If there are multiple objects with this mode, the component instead deletes itself, and only the last such component deletes the game object.
 
     Default = None
   };
@@ -320,10 +320,10 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction2
 
   enum Enum
   {
-    None,
-    DeleteComponent,
-    DeleteGameObject,
-    Restart,
+    None,             ///< Nothing happens after the action is finished.
+    DeleteComponent,  ///< The component deletes only itself, but its game object stays.
+    DeleteGameObject, ///< When finished the component deletes its owner game object. If there are multiple objects with this mode, the component instead deletes itself, and only the last such component deletes the game object.
+    Restart,          ///< When finished, restart from the beginning.
 
     Default = None
   };

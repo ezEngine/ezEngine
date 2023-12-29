@@ -18,7 +18,7 @@ public:
   ezUInt32 m_uiShadowDataOffset;
 };
 
-/// \brief Base class for all ez light components containing shared properties
+/// \brief Base class for dynamic light components.
 class EZ_RENDERERCORE_DLL ezLightComponent : public ezRenderComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezLightComponent, ezRenderComponent);
@@ -30,7 +30,6 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezLightComponent
 
@@ -41,24 +40,35 @@ public:
   void SetLightColor(ezColorGammaUB lightColor); // [ property ]
   ezColorGammaUB GetLightColor() const;          // [ property ]
 
+  /// \brief Sets the brightness of the lightsource.
   void SetIntensity(float fIntensity); // [ property ]
   float GetIntensity() const;          // [ property ]
 
+  /// \brief Sets whether the lightsource shall cast dynamic shadows.
   void SetCastShadows(bool bCastShadows); // [ property ]
   bool GetCastShadows() const;            // [ property ]
 
+  /// \brief Sets the fuzziness of the shadow edges.
   void SetPenumbraSize(float fPenumbraSize); // [ property ]
   float GetPenumbraSize() const;             // [ property ]
 
+  /// \brief Allows to tweak how dynamic shadows are applied to reduce artifacts.
   void SetSlopeBias(float fShadowBias); // [ property ]
   float GetSlopeBias() const;           // [ property ]
 
+  /// \brief Allows to tweak how dynamic shadows are applied to reduce artifacts.
   void SetConstantBias(float fShadowBias); // [ property ]
   float GetConstantBias() const;           // [ property ]
 
   void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ msg handler ]
 
+  /// \brief Calculates how far a lightsource would shine given the specified range and intensity.
+  ///
+  /// If fRange is zero, the range needed for the given intensity is returned.
+  /// Otherwise the smaller value of that and fRange is returned.
   static float CalculateEffectiveRange(float fRange, float fIntensity);
+
+  /// \brief Calculates how large on screen (in pixels) the lightsource would be.
   static float CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera);
 
 protected:

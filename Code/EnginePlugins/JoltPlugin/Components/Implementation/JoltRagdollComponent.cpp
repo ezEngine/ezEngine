@@ -62,7 +62,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 2, ezComponentMode::Dynamic)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseProposal, OnMsgAnimationPoseProposal),
     EZ_MESSAGE_HANDLER(ezMsgRetrieveBoneState, OnRetrieveBoneState),
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, OnMsgPhysicsAddImpulse),
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddForce, OnMsgPhysicsAddForce),
@@ -429,40 +428,6 @@ void ezJoltRagdollComponent::SetJointTypeOverride(ezStringView sJointName, ezEnu
   jo.m_sJointName = sJointNameHashed;
   jo.m_JointType = type;
   jo.m_bOverrideType = true;
-}
-
-void ezJoltRagdollComponent::OnMsgAnimationPoseProposal(ezMsgAnimationPoseProposal& ref_poseMsg)
-{
-  if (!IsActiveAndSimulating() || !HasCreatedLimbs())
-    return;
-
-  // ref_poseMsg.m_bContinueAnimating = false;
-
-  // JPH::SkeletonPose pose;
-  // pose.SetSkeleton(m_pRagdoll->GetRagdollSettings()->GetSkeleton());
-
-  // for (ezUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
-  //{
-  //   if (m_Limbs[uiLimbIdx].m_uiPartIndex == ezInvalidJointIndex)
-  //   {
-  //     // no need to do anything, just pass the original pose through
-  //     continue;
-  //   }
-
-  //  const ezMat4 srcMat = ref_poseMsg.m_ModelTransforms[uiLimbIdx];
-
-  //  // TODO: add global transform to every bone
-
-  //  JPH::Mat44& dstMat = pose.GetJointMatrix(m_Limbs[uiLimbIdx].m_uiPartIndex);
-
-  //  memcpy(&dstMat, &srcMat, sizeof(ezMat4));
-
-  //  // const ezTransform limbGlobalPose = ezJoltConversionUtils::ToTransform(bodyRead.GetBody().GetPosition(), bodyRead.GetBody().GetRotation());
-  //  // m_CurrentLimbTransforms[uiLimbIdx] = (mInv * limbGlobalPose.GetAsMat4()) * scale;
-  //}
-
-  // pose.CalculateJointStates();
-  // m_pRagdoll->DriveToPoseUsingKinematics(pose, 1.0f / 30.0f);
 }
 
 void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_poseMsg)
