@@ -1750,6 +1750,7 @@ ezQtVariantPropertyWidget::ezQtVariantPropertyWidget()
   setLayout(m_pLayout);
 
   m_pTypeList = new QComboBox(this);
+  m_pTypeList->installEventFilter(this);
   m_pTypeList->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pLayout->addWidget(m_pTypeList);
 }
