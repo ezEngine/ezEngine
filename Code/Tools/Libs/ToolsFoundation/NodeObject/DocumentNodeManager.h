@@ -111,6 +111,7 @@ public:
 
   ezVec2 GetNodePos(const ezDocumentObject* pObject) const;
   const ezConnection& GetConnection(const ezDocumentObject* pObject) const;
+  const ezConnection* GetConnectionIfExists(const ezDocumentObject* pObject) const;
 
   const ezPin* GetInputPinByName(const ezDocumentObject* pObject, ezStringView sName) const;
   const ezPin* GetOutputPinByName(const ezDocumentObject* pObject, ezStringView sName) const;
