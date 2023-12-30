@@ -1,5 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/System/PlatformFeatures.h>
+
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 #  if EZ_ENABLED(EZ_SUPPORTS_GLFW)
