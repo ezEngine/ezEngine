@@ -78,13 +78,20 @@ public:
 	/// Set the interface that tests collision between wheel and ground
 	void						SetVehicleCollisionTester(const VehicleCollisionTester *inTester) { mVehicleCollisionTester = inTester; }
 
+	/// Tire friction direction
+	enum class ETireFrictionDirection : uint8
+	{
+		Longitudinal,			///< Longitudinal friction direction
+		Lateral,				///< Lateral friction direction
+	};
+
 	/// Callback function to combine the friction of a tire with the friction of the body it is colliding with.
-	using CombineFunction = float (*)(float inTireFriction, const Body &inBody2, const SubShapeID &inSubShapeID2);
+	using CombineFunction = function<float(uint inWheelIndex, ETireFrictionDirection inTireFrictionDirection, float inTireFriction, const Body &inBody2, const SubShapeID &inSubShapeID2)>;
 
 	/// Set the function that combines the friction of two bodies and returns it
 	/// Default method is the geometric mean: sqrt(friction1 * friction2).
-	void						SetCombineFriction(CombineFunction inCombineFriction) { mCombineFriction = inCombineFriction; }
-	CombineFunction				GetCombineFriction() const					{ return mCombineFriction; }
+	void						SetCombineFriction(const CombineFunction &inCombineFriction) { mCombineFriction = inCombineFriction; }
+	const CombineFunction &		GetCombineFriction() const					{ return mCombineFriction; }
 
 	/// Callback function to notify of current stage in PhysicsStepListener::OnStep.
 	using StepCallback = function<void(VehicleConstraint &inVehicle, float inDeltaTime, PhysicsSystem &inPhysicsSystem)>;
@@ -154,6 +161,21 @@ public:
 	/// @param inWheelUp Unit vector that indicates up in model space of the wheel
 	RMat44						GetWheelWorldTransform(uint inWheelIndex, Vec3Arg inWheelRight, Vec3Arg inWheelUp) const;
 
+	/// Number of simulation steps between wheel collision tests when the vehicle is active. Default is 1. 0 = never, 1 = every step, 2 = every other step, etc.
+	/// Note that if a vehicle has multiple wheels and the number of steps > 1, the wheels will be tested in a round robin fashion.
+	/// If there are multiple vehicles, the tests will be spread out based on the BodyID of the vehicle.
+	/// If you set this to test less than every step, you may see simulation artifacts. This setting can be used to reduce the cost of simulating vehicles in the distance.
+	void						SetNumStepsBetweenCollisionTestActive(uint inSteps) { mNumStepsBetweenCollisionTestActive = inSteps; }
+	uint						GetNumStepsBetweenCollisionTestActive() const { return mNumStepsBetweenCollisionTestActive; }
+
+	/// Number of simulation steps between wheel collision tests when the vehicle is inactive. Default is 1. 0 = never, 1 = every step, 2 = every other step, etc.
+	/// Note that if a vehicle has multiple wheels and the number of steps > 1, the wheels will be tested in a round robin fashion.
+	/// If there are multiple vehicles, the tests will be spread out based on the BodyID of the vehicle.
+	/// This number can be lower than the number of steps when the vehicle is active as the only purpose of this test is
+	/// to allow the vehicle to wake up in response to bodies moving into the wheels but not touching the body of the vehicle.
+	void						SetNumStepsBetweenCollisionTestInactive(uint inSteps) { mNumStepsBetweenCollisionTestInactive = inSteps; }
+	uint						GetNumStepsBetweenCollisionTestInactive() const { return mNumStepsBetweenCollisionTestInactive; }
+
 	// Generic interface of a constraint
 	virtual bool				IsActive() const override					{ return mIsActive && Constraint::IsActive(); }
 	virtual void				NotifyShapeChanged(const BodyID &inBodyID, Vec3Arg inDeltaCOM) override { /* Do nothing */ }
@@ -190,6 +212,9 @@ private:
 	Array<VehicleAntiRollBar>	mAntiRollBars;								///< Anti rollbars of the vehicle
 	VehicleController *			mController;								///< Controls the acceleration / declerration of the vehicle
 	bool						mIsActive = false;							///< If this constraint is active
+	uint						mNumStepsBetweenCollisionTestActive = 1;	///< Number of simulation steps between wheel collision tests when the vehicle is active
+	uint						mNumStepsBetweenCollisionTestInactive = 1;	///< Number of simulation steps between wheel collision tests when the vehicle is inactive
+	uint						mCurrentStep = 0;							///< Current step number, used to determine when to test a wheel
 
 	// Prevent vehicle from toppling over
 	float						mCosMaxPitchRollAngle;						///< Cos of the max pitch/roll angle
@@ -199,7 +224,7 @@ private:
 
 	// Interfaces
 	RefConst<VehicleCollisionTester> mVehicleCollisionTester;				///< Class that performs testing of collision for the wheels
-	CombineFunction				mCombineFriction = [](float inTireFriction, const Body &inBody2, const SubShapeID &) { return sqrt(inTireFriction * inBody2.GetFriction()); };
+	CombineFunction				mCombineFriction = [](uint, ETireFrictionDirection, float inTireFriction, const Body &inBody2, const SubShapeID &) { return sqrt(inTireFriction * inBody2.GetFriction()); };
 
 	// Callbacks
 	StepCallback				mPreStepCallback;
