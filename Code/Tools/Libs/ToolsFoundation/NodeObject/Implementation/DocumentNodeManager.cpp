@@ -108,6 +108,13 @@ const ezConnection& ezDocumentNodeManager::GetConnection(const ezDocumentObject*
   return *it.Value();
 }
 
+const ezConnection* ezDocumentNodeManager::GetConnectionIfExists(const ezDocumentObject* pObject) const
+{
+  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  auto it = m_ObjectToConnection.Find(pObject->GetGuid());
+  return it.IsValid() ? it.Value().Borrow() : nullptr;
+}
+
 const ezPin* ezDocumentNodeManager::GetInputPinByName(const ezDocumentObject* pObject, ezStringView sName) const
 {
   EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
