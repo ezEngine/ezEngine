@@ -60,10 +60,10 @@ EZ_END_COMPONENT_TYPE;
 ezGreyBoxComponent::ezGreyBoxComponent() = default;
 ezGreyBoxComponent::~ezGreyBoxComponent() = default;
 
-void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& inout_Stream) const
+void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(inout_Stream);
-  ezStreamWriter& s = inout_Stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_Shape;
   s << m_hMaterial;
@@ -92,11 +92,11 @@ void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& inout_Stream) const
   s << m_bUseAsOccluder;
 }
 
-void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& inout_Stream)
+void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(inout_Stream);
-  const ezUInt32 uiVersion = inout_Stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_Stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_Shape;
   s >> m_hMaterial;

@@ -54,8 +54,8 @@ class EZ_GAMEENGINE_DLL ezGreyBoxComponent : public ezRenderComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& inout_Stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& inout_Stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
