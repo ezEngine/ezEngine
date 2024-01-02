@@ -60,7 +60,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 2, ezComponentMode::Dynamic)
     EZ_END_MESSAGEHANDLERS;
     EZ_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Physics/Jolt/Animation"),
+      new ezCategoryAttribute("Physics/Jolt/Effects"),
     }
     EZ_END_ATTRIBUTES;
   }

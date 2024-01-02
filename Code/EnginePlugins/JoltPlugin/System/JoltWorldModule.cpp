@@ -404,12 +404,14 @@ void ezJoltWorldModule::AddFixedJointComponent(ezGameObject* pOwner, const ezPhy
   pConstraint->SetActors(cfg.m_hActorA, cfg.m_LocalFrameA, cfg.m_hActorB, cfg.m_LocalFrameB);
 }
 
-void ezJoltWorldModule::QueueBodyToAdd(JPH::Body* pBody, bool bAwake)
+ezUInt32 ezJoltWorldModule::QueueBodyToAdd(JPH::Body* pBody, bool bAwake)
 {
   if (bAwake)
     m_BodiesToAddAndActivate.PushBack(pBody->GetID().GetIndexAndSequenceNumber());
   else
     m_BodiesToAdd.PushBack(pBody->GetID().GetIndexAndSequenceNumber());
+
+  return m_uiBodiesAddCounter;
 }
 
 void ezJoltWorldModule::EnableJoinedBodiesCollisions(ezUInt32 uiObjectFilterID1, ezUInt32 uiObjectFilterID2, bool bEnable)
@@ -512,6 +514,7 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
     }
 
     m_BodiesToAdd.Clear();
+    ++m_uiBodiesAddCounter;
   }
 
   if (!m_BodiesToAddAndActivate.IsEmpty())
@@ -535,6 +538,7 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
     }
 
     m_BodiesToAddAndActivate.Clear();
+    ++m_uiBodiesAddCounter;
   }
 
   if (m_uiBodiesAddedSinceOptimize > 128)

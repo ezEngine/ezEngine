@@ -304,8 +304,7 @@ void ezVolumeSphereComponent::SetRadius(float fRadius)
 
 void ezVolumeSphereComponent::SetFalloff(float fFalloff)
 {
-  EZ_ASSERT_DEV(fFalloff > 0.0f, "A zero or negative falloff is not allowed.");
-  m_fFalloff = fFalloff;
+  m_fFalloff = ezMath::Max(fFalloff, 0.0001f);
 }
 
 void ezVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -377,8 +376,7 @@ void ezVolumeBoxComponent::SetExtents(const ezVec3& vExtents)
 
 void ezVolumeBoxComponent::SetFalloff(const ezVec3& vFalloff)
 {
-  EZ_ASSERT_DEV(vFalloff.x > 0.0f && vFalloff.y > 0.0f && vFalloff.z > 0.0f, "A zero or negative falloff is not allowed.");
-  m_vFalloff = vFalloff;
+  m_vFalloff = vFalloff.CompMax(ezVec3(0.0001f));
 }
 
 void ezVolumeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
