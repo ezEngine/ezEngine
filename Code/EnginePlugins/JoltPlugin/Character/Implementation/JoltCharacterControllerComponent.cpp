@@ -428,7 +428,7 @@ void ezJoltCharacterControllerComponent::CreatePresenceBody()
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
   m_uiPresenceBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  pModule->QueueBodyToAdd(pBody, true);
+  m_uiPresenceBodyAddCounter = pModule->QueueBodyToAdd(pBody, true);
 }
 
 void ezJoltCharacterControllerComponent::RemovePresenceBody()
@@ -465,6 +465,10 @@ void ezJoltCharacterControllerComponent::MovePresenceBody(ezTime deltaTime)
     return;
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+
+  if (pModule->IsBodyStillQueuedToAdd(m_uiPresenceBodyAddCounter))
+    return;
+
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
 

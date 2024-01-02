@@ -182,6 +182,7 @@ private:
   void MovePresenceBody(ezTime deltaTime);
 
   ezUInt32 m_uiPresenceBodyID = ezInvalidIndex;
+  ezUInt32 m_uiPresenceBodyAddCounter = 0;
 
   ezJoltBodyFilter m_BodyFilter;
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
