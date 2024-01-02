@@ -94,5 +94,5 @@ struct EZ_JOLTPLUGIN_DLL ezJoltMsgDisconnectConstraints : public ezMessage
   ezJoltActorComponent* m_pActor = nullptr;
 
   /// The ID of the Jolt body that is being removed. If an actor were to have multiple bodies, this message may be sent multiple times.
-  ezUInt32 m_uiJoltBodyID = 0;
+  ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
 };

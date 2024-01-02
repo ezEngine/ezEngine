@@ -22,6 +22,7 @@ public:
 
     bool operator==(const Category& other) const;
     bool operator!=(const Category& other) const;
+    bool IsValid() const { return m_uiValue != 0xFFFF; }
 
     ezUInt16 m_uiValue = 0xFFFF;
   };

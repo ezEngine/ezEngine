@@ -117,6 +117,14 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
       rep.Format("#{}{}{}", ezArgI((int)color8.r, 2, true, 16), ezArgI((int)color8.g, 2, true, 16), ezArgI((int)color8.b, 2, true, 16));
 
       sContent.ReplaceAll_NoCase("#ffffff", rep);
+
+      rep.Append(";");
+      sContent.ReplaceAll_NoCase("#fff;", rep);
+      rep.Shrink(0, 1);
+
+      rep.Prepend("\"");
+      rep.Append("\"");
+      sContent.ReplaceAll_NoCase("\"#fff\"", rep);
     }
 
     // hash the content AFTER the color replacement, so it includes the custom color change
