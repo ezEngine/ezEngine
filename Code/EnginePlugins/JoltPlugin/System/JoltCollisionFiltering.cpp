@@ -60,13 +60,13 @@ namespace ezJoltCollisionFiltering
         return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Trigger) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Cloth);
 
       case ezJoltBroadphaseLayer::Ragdoll:
-        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope) /*| EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Cloth)*/; // Ragdolls currently crash Jolt, due to continuous collision detection
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Cloth);
 
       case ezJoltBroadphaseLayer::Rope:
         return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope);
 
       case ezJoltBroadphaseLayer::Cloth:
-        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) /*| EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll)*/; // Ragdolls currently crash Jolt, due to continuous collision detection
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll);
 
         EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
