@@ -136,6 +136,9 @@ public:
   /// \brief Renders an upright wireframe capsule for one frame.
   static void DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
 
+  /// \brief Renders an upright wireframe cylinder for one frame.
+  static void DrawLineCylinderZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
+
   /// \brief Renders a wireframe frustum for one frame.
   static void DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, bool bDrawPlaneNormals = false);
 

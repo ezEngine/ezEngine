@@ -27,6 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 1, ezComponentMode::Dynamic
     EZ_MEMBER_PROPERTY("MaxSpeed",m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(3.5f)),
     EZ_MEMBER_PROPERTY("MaxAcceleration",m_fMaxAcceleration)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_MEMBER_PROPERTY("StoppingDistance",m_fStoppingDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("ApplyRotation",m_bApplyRotation)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
 }
@@ -46,6 +47,7 @@ void ezDetourCrowdAgentComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_fMaxSpeed;
   s << m_fMaxAcceleration;
   s << m_fStoppingDistance;
+  s << m_bApplyRotation;
 }
 
 void ezDetourCrowdAgentComponent::DeserializeComponent(ezWorldReader& stream)
@@ -58,6 +60,7 @@ void ezDetourCrowdAgentComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fMaxSpeed;
   s >> m_fMaxAcceleration;
   s >> m_fStoppingDistance;
+  s >> m_bApplyRotation;
 }
 
 void ezDetourCrowdAgentComponent::FillAgentParams(ezDetourCrowdAgentParams& out_params) const
@@ -80,16 +83,6 @@ void ezDetourCrowdAgentComponent::ClearTargetPosition()
   m_PathToTargetState = ezAgentPathFindingState::HasNoTarget;
 }
 
-void ezDetourCrowdAgentComponent::OnActivated()
-{
-  SUPER::OnActivated();
-}
-
-void ezDetourCrowdAgentComponent::OnDeactivated()
-{
-  SUPER::OnDeactivated();
-}
-
 void ezDetourCrowdAgentComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
@@ -103,14 +96,21 @@ void ezDetourCrowdAgentComponent::OnSimulationStarted()
 
 void ezDetourCrowdAgentComponent::SyncTransform(const ezVec3& vPosition, const ezVec3& vVelocity)
 {
-  m_vVelocity = m_vVelocity;
+  m_vVelocity = vVelocity;
 
-  GetOwner()->SetGlobalPosition(vPosition);
-
-  //ezSimdTransform xform = GetOwner()->GetGlobalTransformSimd();
-  //xform.m_Position.Set(ezRcPos(pDtAgent->npos));
-  //xform.m_Rotation.
-  //GetOwner()->SetGlobalTransform(xform);
+  ezTransform xform = GetOwner()->GetGlobalTransform();
+  xform.m_vPosition = vPosition;
+  if (m_bApplyRotation)
+  {
+    ezVec3 vDirection = vVelocity;
+    vDirection.z = 0;
+    if (!vDirection.IsZero())
+    {
+      vDirection.Normalize();
+      xform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vDirection);
+    }
+  }
+  GetOwner()->SetGlobalTransform(xform);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -139,11 +139,6 @@ void ezDetourCrowdAgentComponentManager::Initialize()
 
     RegisterUpdateFunction(desc);
   }
-}
-
-void ezDetourCrowdAgentComponentManager::Deinitialize()
-{
-  SUPER::Deinitialize();
 }
 
 void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateContext& ctx)

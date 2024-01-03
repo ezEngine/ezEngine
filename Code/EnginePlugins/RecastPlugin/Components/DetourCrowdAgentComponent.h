@@ -20,7 +20,6 @@ public:
   ~ezDetourCrowdAgentComponentManager();
 
   virtual void Initialize() override;
-  virtual void Deinitialize() override;
 
   ezDetourCrowdWorldModule* GetDetourCrowdWorldModule() const { return m_pDetourCrowdModule; }
 
@@ -64,6 +63,7 @@ public:
   float m_fMaxSpeed = 3.5f; // [ property ]
   float m_fMaxAcceleration = 3.5f; // [property]
   float m_fStoppingDistance = 1.0f; // [property]
+  bool m_bApplyRotation = true; // [property]
 
   //////////////////////////////////////////////////////////////////////////
   // Other
@@ -71,8 +71,6 @@ public:
   void FillAgentParams(ezDetourCrowdAgentParams& out_params) const;
 
 protected:
-  virtual void OnActivated() override;
-  virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
   void SyncTransform(const ezVec3& vPosition, const ezVec3& vVelocity);

@@ -5,7 +5,13 @@
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <RecastPlugin/Utils/RcMath.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <Foundation/Configuration/CVar.h>
 #include <RecastPlugin/WorldModule/DetourCrowdWorldModule.h>
+
+ezCVarBool cvar_RecastVisDetourCrowd("Recast.VisDetourCrowd", false, ezCVarFlags::Default, "Draws DetourCrowd agents, if any");
+
+//////////////////////////////////////////////////////////////////////////
 
 // clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezDetourCrowdWorldModule);
@@ -40,6 +46,15 @@ void ezDetourCrowdWorldModule::Initialize()
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezDetourCrowdWorldModule::UpdateCrowd, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_fPriority = 0.0f;
+
+    RegisterUpdateFunction(desc);
+  }
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezDetourCrowdWorldModule::VisualizeCrowd, this);
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
     desc.m_fPriority = 0.0f;
 
@@ -154,4 +169,26 @@ void ezDetourCrowdWorldModule::UpdateCrowd(const ezWorldModule::UpdateContext& c
 
   const float deltaTime = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
   m_pDtCrowd->update(deltaTime, nullptr);
+}
+
+void ezDetourCrowdWorldModule::VisualizeCrowd(const UpdateContext& ctx)
+{
+  if (!IsInitializedAndReady() || !cvar_RecastVisDetourCrowd)
+    return;
+
+  const ezInt32 iNumAgents = m_pDtCrowd->getAgentCount();
+  for (int i = 0; i < iNumAgents; ++i)
+  {
+    const dtCrowdAgent* pAgent = m_pDtCrowd->getAgent(i);
+    if (pAgent->active)
+    {
+      float fHeight = pAgent->params.height;
+      float fRadius = pAgent->params.radius;
+
+      ezTransform xform(ezRcPos(pAgent->npos));
+      xform.m_vPosition.z += fHeight * 0.5f;
+
+      ezDebugRenderer::DrawLineCylinderZ(GetWorld(), fHeight, fRadius, ezColor::BlueViolet, xform);
+    }
+  }
 }

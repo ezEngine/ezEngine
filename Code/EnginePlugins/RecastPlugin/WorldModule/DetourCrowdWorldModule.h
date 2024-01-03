@@ -70,6 +70,7 @@ public:
 private:
   void UpdateNavMesh(const UpdateContext& ctx);
   void UpdateCrowd(const UpdateContext& ctx);
+  void VisualizeCrowd(const UpdateContext& ctx);
 
   void FillDtCrowdAgentParams(const ezDetourCrowdAgentParams& params, struct dtCrowdAgentParams& out_params) const;
 
