@@ -22,11 +22,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 1, ezComponentMode::Dynamic
 
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Radius",m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.3f)),
-    EZ_MEMBER_PROPERTY("Height",m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.8f)),
-    EZ_MEMBER_PROPERTY("MaxSpeed",m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(3.5f)),
-    EZ_MEMBER_PROPERTY("MaxAcceleration",m_fMaxAcceleration)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
-    EZ_MEMBER_PROPERTY("StoppingDistance",m_fStoppingDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("Radius",m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.3f),new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Height",m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.8f),new ezClampValueAttribute(0.01f, ezVariant())),
+    EZ_MEMBER_PROPERTY("MaxSpeed",m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(3.5f),new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("MaxAcceleration",m_fMaxAcceleration)->AddAttributes(new ezDefaultValueAttribute(10.0f),new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("StoppingDistance",m_fStoppingDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f),new ezClampValueAttribute(0.001f, ezVariant())),
     EZ_MEMBER_PROPERTY("ApplyRotation",m_bApplyRotation)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
@@ -39,6 +39,7 @@ ezDetourCrowdAgentComponent::ezDetourCrowdAgentComponent()
   m_uiTargetDirtyBit = 0;
   m_uiSteeringFailedBit = 0;
   m_uiErrorBit = 0;
+  m_uiParamsDirtyBit = 0;
 }
 
 ezDetourCrowdAgentComponent::~ezDetourCrowdAgentComponent() = default;
@@ -77,6 +78,62 @@ void ezDetourCrowdAgentComponent::FillAgentParams(ezDetourCrowdAgentParams& out_
   out_params.m_fMaxAcceleration = m_fMaxAcceleration;
 }
 
+void ezDetourCrowdAgentComponent::SetRadius(float fRadius)
+{
+  if (fRadius < 0)
+    fRadius = 0;
+
+  if (fRadius == m_fRadius)
+    return;
+
+  m_fRadius = fRadius;
+  m_uiParamsDirtyBit = 1;
+}
+
+void ezDetourCrowdAgentComponent::SetHeight(float fHeight)
+{
+  if (fHeight < 0.01f)
+    fHeight = 0.01f;
+
+  if (fHeight == m_fHeight)
+    return;
+
+  m_fHeight = fHeight;
+  m_uiParamsDirtyBit = 1;
+}
+
+void ezDetourCrowdAgentComponent::SetMaxSpeed(float fMaxSpeed)
+{
+  if (fMaxSpeed < 0.0f)
+    fMaxSpeed = 0.0f;
+
+  if (fMaxSpeed == m_fMaxSpeed)
+    return;
+
+  m_fMaxSpeed = fMaxSpeed;
+  m_uiParamsDirtyBit = 1;
+}
+
+void ezDetourCrowdAgentComponent::SetMaxAcceleration(float fMaxAcceleration)
+{
+  if (fMaxAcceleration < 0.0f)
+    fMaxAcceleration = 0.0f;
+
+  if (m_fMaxAcceleration == fMaxAcceleration)
+    return;
+
+  m_fMaxAcceleration = fMaxAcceleration;
+  m_uiParamsDirtyBit = 1;
+}
+
+void ezDetourCrowdAgentComponent::SetStoppingDistance(float fStoppingDistance)
+{
+  if (fStoppingDistance < 0.001f)
+    fStoppingDistance = 0.001f;
+
+  m_fStoppingDistance = fStoppingDistance;
+}
+
 void ezDetourCrowdAgentComponent::SetTargetPosition(const ezVec3& vPosition)
 {
   m_vTargetPosition = vPosition;
@@ -98,6 +155,13 @@ void ezDetourCrowdAgentComponent::OnSimulationStarted()
   {
     m_hCharacterController = pCC->GetHandle();
   }
+}
+
+void ezDetourCrowdAgentComponent::OnDeactivated()
+{
+  m_uiErrorBit = 0;
+
+  SUPER::OnDeactivated();
 }
 
 void ezDetourCrowdAgentComponent::SyncTransform(const ezVec3& vPosition, const ezVec3& vVelocity, bool bTeleport)
@@ -241,6 +305,7 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
         pAgent->m_iAgentId = iAgentId;
         pAgent->m_uiOwnerId = m_uiNextOwnerId;
         pAgent->m_uiErrorBit = 0;
+        pAgent->m_uiParamsDirtyBit = 0;
 
         m_uiNextOwnerId += 1;
 
@@ -250,6 +315,19 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
         bTeleport = true;
       }
 
+      // Update dtAgent's parameters if any of the ezAgent's properties (Height, Radius, etc) changed
+      if (pAgent->m_uiParamsDirtyBit)
+      {
+        pAgent->m_uiParamsDirtyBit = 0;
+
+        ezDetourCrowdAgentParams params = ezDetourCrowdAgentParams::Default();
+        pAgent->FillAgentParams(params);
+        params.m_pUserData = reinterpret_cast<void*>(static_cast<std::uintptr_t>(pAgent->m_uiOwnerId));
+
+        m_pDetourCrowdModule->UpdateAgentParams(pAgent->m_iAgentId, params);
+      }
+
+      // Sync ezAgent's position with dtAgent
       pAgent->SyncTransform(ezRcPos(pDtAgent->npos), ezRcPos(pDtAgent->vel), bTeleport);
 
       // Steering failed. Can only happen if ezAgent uses CharacterController for movement and it got out of sync with dtAgent
@@ -307,7 +385,11 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
           }
           break;
         case ezAgentPathFindingState::HasTargetPathFindingFailed:
-          // Pathfinding failed, do nothing
+          // If ezAgent thinks pathfinding failed, but dtAgent has a valid target, clear it
+          if (pDtAgent->targetState != DT_CROWDAGENT_TARGET_NONE && pDtAgent->targetState != DT_CROWDAGENT_TARGET_FAILED)
+          {
+            m_pDetourCrowdModule->ClearAgentTargetPosition(pAgent->m_iAgentId);
+          }
           break;
         case ezAgentPathFindingState::HasTargetAndValidPath:
           // If ezAgent thinks it has a path, but dtAgent has none (probably because it was deleted), repeat the process
@@ -315,13 +397,13 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
           {
             m_pDetourCrowdModule->SetAgentTargetPosition(pAgent->m_iAgentId, pAgent->m_vTargetPosition);
             pAgent->m_PathToTargetState = ezAgentPathFindingState::HasTargetWaitingForPath;
+            pAgent->m_uiTargetDirtyBit = 0;
           }
           // If ezAgent and dtAgent both agree they have a target and a valid path, check if target is reached
           else
           {
-            ezVec3 vTargetPos = ezRcPos(pDtAgent->targetPos);
-            ezVec3 vDiff = vTargetPos - pAgent->GetOwner()->GetGlobalPosition();
-            vDiff.z = 0;
+            const ezVec3 vTargetPos = ezRcPos(pDtAgent->targetPos);
+            const ezVec3 vDiff = vTargetPos - pAgent->GetOwner()->GetGlobalPosition();
 
             if (vDiff.GetLengthSquared() < pAgent->m_fStoppingDistance * pAgent->m_fStoppingDistance)
             {

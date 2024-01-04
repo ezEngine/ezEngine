@@ -96,7 +96,7 @@ const dtCrowdAgent* ezDetourCrowdWorldModule::GetAgentById(ezInt32 iAgentId) con
 
 void ezDetourCrowdWorldModule::FillDtCrowdAgentParams(const ezDetourCrowdAgentParams& params, struct dtCrowdAgentParams& out_params) const
 {
-  out_params.radius = params.m_fRadius;
+  out_params.radius = ezMath::Clamp(params.m_fRadius, 0.0f, m_fMaxAgentRadius);
   out_params.height = params.m_fHeight;
   out_params.maxAcceleration = params.m_fMaxAcceleration;
   out_params.maxSpeed = params.m_fMaxSpeed;
@@ -149,6 +149,17 @@ void ezDetourCrowdWorldModule::ClearAgentTargetPosition(ezInt32 iAgentId)
   m_pDtCrowd->resetMoveTarget(iAgentId);
 }
 
+void ezDetourCrowdWorldModule::UpdateAgentParams(ezInt32 iAgentId, const ezDetourCrowdAgentParams& params)
+{
+  if (!IsInitializedAndReady())
+    return;
+
+  dtCrowdAgentParams dtParams{};
+  FillDtCrowdAgentParams(params, dtParams);
+
+  m_pDtCrowd->updateAgentParameters(iAgentId, &dtParams);
+}
+
 void ezDetourCrowdWorldModule::UpdateNavMesh(const ezWorldModule::UpdateContext& ctx)
 {
   const dtNavMesh* pNavMesh = m_pRecastModule->GetDetourNavMesh();
@@ -157,7 +168,7 @@ void ezDetourCrowdWorldModule::UpdateNavMesh(const ezWorldModule::UpdateContext&
   {
     if (m_pDtCrowd == nullptr)
       m_pDtCrowd = dtAllocCrowd();
-    m_pDtCrowd->init(128, 2.0f, const_cast<dtNavMesh*>(pNavMesh));
+    m_pDtCrowd->init(m_iMaxAgents, m_fMaxAgentRadius, const_cast<dtNavMesh*>(pNavMesh));
     // \todo recreate agents when crowd is recreated?
   }
 }

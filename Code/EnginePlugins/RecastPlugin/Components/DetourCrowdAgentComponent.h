@@ -57,13 +57,26 @@ public:
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
-public:
+protected:
   float m_fRadius = 0.3f; // [ property ]
   float m_fHeight = 1.8f; // [ property ]
   float m_fMaxSpeed = 3.5f; // [ property ]
   float m_fMaxAcceleration = 3.5f; // [property]
   float m_fStoppingDistance = 1.0f; // [property]
   bool m_bApplyRotation = true; // [property]
+
+public:
+  float GetRadius() const { return m_fRadius; }
+  float GetHeight() const { return m_fHeight; }
+  float GetMaxSpeed() const { return m_fMaxSpeed; }
+  float GetMaxAcceleration() const { return m_fMaxAcceleration; }
+  float GetStoppingDistance() const { return m_fStoppingDistance; }
+
+  void SetRadius(float fRadius);
+  void SetHeight(float fHeight);
+  void SetMaxSpeed(float fMaxSpeed);
+  void SetMaxAcceleration(float fMaxAcceleration);
+  void SetStoppingDistance(float fStoppingDistance);
 
   //////////////////////////////////////////////////////////////////////////
   // Other
@@ -72,12 +85,14 @@ public:
 
 protected:
   virtual void OnSimulationStarted() override;
+  virtual void OnDeactivated() override;
 
   void SyncTransform(const ezVec3& vPosition, const ezVec3& vVelocity, bool bTeleport);
 
   ezUInt8 m_uiTargetDirtyBit : 1;
   ezUInt8 m_uiSteeringFailedBit : 1;
   ezUInt8 m_uiErrorBit : 1;
+  ezUInt8 m_uiParamsDirtyBit : 1;
 
   ezInt32 m_iAgentId = -1;
   ezUInt32 m_uiOwnerId = 0;

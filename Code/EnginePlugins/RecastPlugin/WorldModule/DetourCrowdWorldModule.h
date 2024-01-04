@@ -67,6 +67,8 @@ public:
   
   void ClearAgentTargetPosition(ezInt32 iAgentId);
 
+  void UpdateAgentParams(ezInt32 iAgentId, const ezDetourCrowdAgentParams& params);
+
 private:
   void UpdateNavMesh(const UpdateContext& ctx);
   void UpdateCrowd(const UpdateContext& ctx);
@@ -74,6 +76,8 @@ private:
 
   void FillDtCrowdAgentParams(const ezDetourCrowdAgentParams& params, struct dtCrowdAgentParams& out_params) const;
 
+  ezInt32 m_iMaxAgents = 128;
+  float m_fMaxAgentRadius = 2.0f;
   dtCrowd* m_pDtCrowd = nullptr;
   ezRecastWorldModule* m_pRecastModule = nullptr;
 };
