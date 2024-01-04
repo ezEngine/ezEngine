@@ -167,8 +167,8 @@ void ezDetourCrowdWorldModule::UpdateCrowd(const ezWorldModule::UpdateContext& c
   if (!IsInitializedAndReady())
     return;
 
-  const float deltaTime = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
-  m_pDtCrowd->update(deltaTime, nullptr);
+  const float fDeltaTime = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
+  m_pDtCrowd->update(fDeltaTime, nullptr);
 }
 
 void ezDetourCrowdWorldModule::VisualizeCrowd(const UpdateContext& ctx)

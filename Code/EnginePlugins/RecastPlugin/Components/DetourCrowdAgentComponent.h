@@ -73,9 +73,12 @@ public:
 protected:
   virtual void OnSimulationStarted() override;
 
-  void SyncTransform(const ezVec3& vPosition, const ezVec3& vVelocity);
+  void SyncTransform(const ezVec3& vPosition, const ezVec3& vVelocity, bool bTeleport);
 
-  bool m_bTargetDirty = false;
+  ezUInt8 m_uiTargetDirtyBit : 1;
+  ezUInt8 m_uiSteeringFailedBit : 1;
+  ezUInt8 m_uiErrorBit : 1;
+
   ezInt32 m_iAgentId = -1;
   ezUInt32 m_uiOwnerId = 0;
   ezVec3 m_vVelocity;
