@@ -13,7 +13,7 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDetourCrowdAgentRotationMode, 1)
-EZ_ENUM_CONSTANTS(ezDetourCrowdAgentRotationMode::LookAtNextPathCorner, ezDetourCrowdAgentRotationMode::MatchVelocityDirection)
+  EZ_ENUM_CONSTANTS(ezDetourCrowdAgentRotationMode::LookAtNextPathCorner, ezDetourCrowdAgentRotationMode::MatchVelocityDirection)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
@@ -165,17 +165,6 @@ void ezDetourCrowdAgentComponent::ClearTargetPosition()
   m_PathToTargetState = ezAgentPathFindingState::HasNoTarget;
 }
 
-void ezDetourCrowdAgentComponent::OnSimulationStarted()
-{
-  SUPER::OnSimulationStarted();
-
-  ezCharacterControllerComponent* pCC = nullptr;
-  if (GetOwner()->TryGetComponentOfBaseType<ezCharacterControllerComponent>(pCC))
-  {
-    m_hCharacterController = pCC->GetHandle();
-  }
-}
-
 void ezDetourCrowdAgentComponent::OnDeactivated()
 {
   m_uiErrorBit = 0;
@@ -263,7 +252,7 @@ void ezDetourCrowdAgentComponent::SyncTransform(const struct dtCrowdAgent* pDtAg
   const ezVec3 vPosition = ezRcPos(pDtAgent->npos);
   const ezVec3 vVelocity = ezRcPos(pDtAgent->vel);
 
-  if (m_hCharacterController.IsInvalidated())
+  //if (m_MovementMode == ezDetourCrowdAgentMovementMode::SetPositionDirectly)
   {
     m_vVelocity = vVelocity;
 
@@ -272,70 +261,73 @@ void ezDetourCrowdAgentComponent::SyncTransform(const struct dtCrowdAgent* pDtAg
     SyncRotation(vPosition, xform.m_qRotation, vVelocity, pDtAgent);
     GetOwner()->SetGlobalTransform(xform);
   }
-  else
-  {
-    ezCharacterControllerComponent* pCharacter = nullptr;
-    if (GetWorld()->TryGetComponent(m_hCharacterController, pCharacter))
-    {
-      if (!bTeleport)
-      {
-        const float fDeltaTime = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
-        ezTransform xform = GetOwner()->GetGlobalTransform();
 
-        ezVec3 vDiff = vPosition - xform.m_vPosition;
-        vDiff.z = 0;
+  // Below is the unfinished CC code that might be useful in future
 
-        if (SyncRotation(xform.m_vPosition, xform.m_qRotation, vDiff, pDtAgent))
-          GetOwner()->SetGlobalTransform(xform);
-
-        const float fDistance = vDiff.GetLength();
-        if (fDistance < 0.01f)
-        {
-          m_vVelocity = ezVec3::MakeZero();
-          return;
-        }
-        vDiff /= fDistance;
-        
-        // Speed is increased in case we're trying to chase the dtAgent
-        const float fSpeed = ezMath::Min(m_fMaxSpeed * 1.3f, fDistance / fDeltaTime);
-
-        m_vVelocity = vDiff * fSpeed;
-
-        if (fDistance > 0.25f)
-        {
-          ezAgentSteeringEvent e;
-          e.m_pComponent = this;
-          e.m_Type = ezAgentSteeringEvent::ErrorSteeringFailed;
-          m_SteeringEvents.Broadcast(e);
-
-          ClearTargetPosition();
-          m_uiSteeringFailedBit = 1;
-
-          return;
-        }
-
-        const ezVec3 vRelativeVelocity = GetOwner()->GetGlobalRotation().GetInverse() * m_vVelocity;
-
-        ezMsgMoveCharacterController msg;
-        msg.m_fMoveForwards = ezMath::Max(0.0f, vRelativeVelocity.x);
-        msg.m_fMoveBackwards = ezMath::Max(0.0f, -vRelativeVelocity.x);
-        msg.m_fStrafeLeft = ezMath::Max(0.0f, -vRelativeVelocity.y);
-        msg.m_fStrafeRight = ezMath::Max(0.0f, vRelativeVelocity.y);
-
-        pCharacter->MoveCharacter(msg);
-      }
-      else
-      {
-        m_vVelocity = vVelocity;
-        
-        ezQuat qRotation = GetOwner()->GetGlobalRotation();
-        if (SyncRotation(vPosition, qRotation, vVelocity, pDtAgent))
-          GetOwner()->SetGlobalRotation(qRotation);
-
-        pCharacter->TeleportCharacter(vPosition);
-      }
-    }
-  }
+  //else if (m_MovementMode == ezDetourCrowdAgentMovementMode::SendMsgToCharacterController)
+  //{
+  //  if (!bTeleport)
+  //  {
+  //    const float fDeltaTime = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
+  //    ezTransform xform = GetOwner()->GetGlobalTransform();
+//
+  //    ezVec3 vDiff = vPosition - xform.m_vPosition;
+  //    vDiff.z = 0;
+//
+  //    if (SyncRotation(xform.m_vPosition, xform.m_qRotation, vDiff, pDtAgent))
+  //      GetOwner()->SetGlobalTransform(xform);
+//
+  //    const float fDistance = vDiff.GetLength();
+  //    if (fDistance < 0.01f)
+  //    {
+  //      m_vVelocity = ezVec3::MakeZero();
+  //      return;
+  //    }
+  //    vDiff /= fDistance;
+  //    
+  //    // Speed is increased in case we're trying to chase the dtAgent
+  //    const float fSpeed = ezMath::Min(m_fMaxSpeed * 1.3f, fDistance / fDeltaTime);
+//
+  //    m_vVelocity = vDiff * fSpeed;
+//
+  //    if (fDistance > 0.25f)
+  //    {
+  //      ezAgentSteeringEvent e;
+  //      e.m_pComponent = this;
+  //      e.m_Type = ezAgentSteeringEvent::ErrorSteeringFailed;
+  //      m_SteeringEvents.Broadcast(e);
+//
+  //      ClearTargetPosition();
+  //      m_uiSteeringFailedBit = 1;
+//
+  //      return;
+  //    }
+//
+  //    const ezVec3 vRelativeVelocity = GetOwner()->GetGlobalRotation().GetInverse() * m_vVelocity;
+//
+  //    // Currently, the JoltDefaultCharacterComponent will scale those values by its own speed, which makes this API unusable for this purpose
+  //    ezMsgMoveCharacterController msg;
+  //    msg.m_fMoveForwards = ezMath::Max(0.0f, vRelativeVelocity.x);
+  //    msg.m_fMoveBackwards = ezMath::Max(0.0f, -vRelativeVelocity.x);
+  //    msg.m_fStrafeLeft = ezMath::Max(0.0f, -vRelativeVelocity.y);
+  //    msg.m_fStrafeRight = ezMath::Max(0.0f, vRelativeVelocity.y);
+//
+  //    GetOwner()->SendMessage(msg);
+  //  }
+  //  else
+  //  {
+  //    m_vVelocity = vVelocity;
+  //    
+  //    ezQuat qRotation = GetOwner()->GetGlobalRotation();
+  //    if (SyncRotation(vPosition, qRotation, vVelocity, pDtAgent))
+  //      GetOwner()->SetGlobalRotation(qRotation);
+//
+  //    ezMsgTeleportObject msg;
+  //    msg.m_vNewPosition = vPosition;
+//
+  //    GetOwner()->SendMessage(msg);
+  //  }
+  //}
 }
 
 //////////////////////////////////////////////////////////////////////////

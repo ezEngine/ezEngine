@@ -93,6 +93,7 @@ public:
   /// \brief While GetTargetPosition() returns the requested target position,
   /// this one will return the actual point on navmesh that the agent is trying to reach
   ezVec3 GetActualTargetPosition() const { return m_vActualTargetPosition; }
+  ezDetourCrowdAgentRotationMode::Enum GetRotationMode() const { return m_RotationMode; }
 
   void SetRadius(float fRadius);
   void SetHeight(float fHeight);
@@ -100,6 +101,7 @@ public:
   void SetMaxAcceleration(float fMaxAcceleration);
   void SetStoppingDistance(float fStoppingDistance);
   void SetMaxAngularSpeed(ezAngle maxAngularSpeed);
+  void SetRotationMode(ezDetourCrowdAgentRotationMode::Enum rotationMode) { m_RotationMode = rotationMode; }
 
   ezVec3 GetVelocity() const { return m_vVelocity; }
   ezAngle GetAngularSpeed() const { return m_AngularSpeed; }
@@ -110,7 +112,6 @@ public:
   void FillAgentParams(ezDetourCrowdAgentParams& out_params) const;
 
 protected:
-  virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
   ezQuat RotateTowardsDirection(const ezQuat& qCurrentRot, const ezVec3& vTargetDir, ezAngle& out_angularSpeed) const;
@@ -128,7 +129,6 @@ protected:
   ezUInt32 m_uiOwnerId = 0;
   ezVec3 m_vVelocity;
   ezAngle m_AngularSpeed;
-  ezComponentHandle m_hCharacterController;
   ezVec3 m_vTargetPosition;
   ezVec3 m_vActualTargetPosition;
   ezEnum<ezAgentPathFindingState> m_PathToTargetState;
