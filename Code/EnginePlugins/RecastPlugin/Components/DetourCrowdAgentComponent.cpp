@@ -17,6 +17,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 1, ezComponentMode::Dynamic
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("AI/Recast"),
+    new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveZ, "Height", "Radius", ezColor::BlueViolet),
   }
   EZ_END_ATTRIBUTES;
 
@@ -27,7 +28,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 1, ezComponentMode::Dynamic
     EZ_MEMBER_PROPERTY("MaxSpeed",m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(3.5f),new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("MaxAcceleration",m_fMaxAcceleration)->AddAttributes(new ezDefaultValueAttribute(10.0f),new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("StoppingDistance",m_fStoppingDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f),new ezClampValueAttribute(0.001f, ezVariant())),
-    EZ_MEMBER_PROPERTY("ApplyRotation",m_bApplyRotation)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("MaxAngularSpeed",m_MaxAngularSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(360.0f)),new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES;
 }
@@ -54,12 +55,13 @@ void ezDetourCrowdAgentComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_fMaxSpeed;
   s << m_fMaxAcceleration;
   s << m_fStoppingDistance;
-  s << m_bApplyRotation;
+  s << m_MaxAngularSpeed;
 }
 
 void ezDetourCrowdAgentComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fRadius;
@@ -67,7 +69,7 @@ void ezDetourCrowdAgentComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fMaxSpeed;
   s >> m_fMaxAcceleration;
   s >> m_fStoppingDistance;
-  s >> m_bApplyRotation;
+  s >> m_MaxAngularSpeed;
 }
 
 void ezDetourCrowdAgentComponent::FillAgentParams(ezDetourCrowdAgentParams& out_params) const
@@ -134,6 +136,14 @@ void ezDetourCrowdAgentComponent::SetStoppingDistance(float fStoppingDistance)
   m_fStoppingDistance = fStoppingDistance;
 }
 
+void ezDetourCrowdAgentComponent::SetMaxAngularSpeed(ezAngle maxAngularSpeed)
+{
+  if (maxAngularSpeed.GetRadian() < 0.0f)
+    maxAngularSpeed.SetRadian(0.0f);
+
+  m_MaxAngularSpeed = maxAngularSpeed;
+}
+
 void ezDetourCrowdAgentComponent::SetTargetPosition(const ezVec3& vPosition)
 {
   m_vTargetPosition = vPosition;
@@ -164,6 +174,29 @@ void ezDetourCrowdAgentComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
+void ezDetourCrowdAgentComponent::RotateTowardsDirection(ezQuat& inout_qCurrentRot, const ezVec3& vTargetDir, ezAngle& out_angularSpeed) const
+{
+  // This function makes use of the fact that the object is always upright
+  
+  ezAngle currentAngle = 2.0 * ezMath::ACos(inout_qCurrentRot.w);
+  if (inout_qCurrentRot.z < 0)
+    currentAngle = ezAngle::MakeFromRadian(2.0f * ezMath::Pi<float>() - currentAngle.GetRadian());
+  EZ_ASSERT_DEBUG(currentAngle.GetRadian() >= 0.0f && currentAngle.GetRadian() <= 2.0f * ezMath::Pi<float>(), "currentAngle out of range");
+
+  ezAngle targetAngle = ezMath::ATan2(vTargetDir.y, vTargetDir.x);
+  if (targetAngle.GetRadian() < 0)
+    targetAngle = ezAngle::MakeFromRadian(targetAngle.GetRadian() + 2.0f * ezMath::Pi<float>());
+  EZ_ASSERT_DEBUG(targetAngle.GetRadian() >= 0.0f && targetAngle.GetRadian() <= 2.0f * ezMath::Pi<float>(), "targetAngle out of range");
+
+  float fAngleDiff = targetAngle.GetRadian() - currentAngle.GetRadian();
+  if (fAngleDiff > ezMath::Pi<float>())
+    fAngleDiff -= 2.0f * ezMath::Pi<float>();
+  fAngleDiff = ezMath::Sign(fAngleDiff) * ezMath::Min(ezMath::Abs(fAngleDiff), m_MaxAngularSpeed.GetRadian() * GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds());
+
+  inout_qCurrentRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromRadian(currentAngle.GetRadian() + fAngleDiff));
+  out_angularSpeed = ezAngle::MakeFromRadian(fAngleDiff);
+}
+
 void ezDetourCrowdAgentComponent::SyncTransform(const ezVec3& vPosition, const ezVec3& vVelocity, bool bTeleport)
 {
   if (m_hCharacterController.IsInvalidated())
@@ -172,14 +205,15 @@ void ezDetourCrowdAgentComponent::SyncTransform(const ezVec3& vPosition, const e
 
     ezTransform xform = GetOwner()->GetGlobalTransform();
     xform.m_vPosition = vPosition;
-    if (m_bApplyRotation)
+    if (m_MaxAngularSpeed.GetRadian() > 0.0f)
     {
       ezVec3 vDirection = vVelocity;
       vDirection.z = 0;
       if (!vDirection.IsZero())
       {
         vDirection.Normalize();
-        xform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vDirection);
+
+        RotateTowardsDirection(xform.m_qRotation, vDirection, m_AngularSpeed);
       }
     }
     GetOwner()->SetGlobalTransform(xform);
@@ -195,18 +229,23 @@ void ezDetourCrowdAgentComponent::SyncTransform(const ezVec3& vPosition, const e
 
         ezVec3 vDiff = vPosition - GetOwner()->GetGlobalPosition();
         vDiff.z = 0;
-        const float fDistance = vDiff.GetLengthAndNormalize();
+        const float fDistance = vDiff.GetLength();
+
+        if (fDistance < 0.001f)
+          return;
+
+        vDiff /= fDistance;
+        
         const float fSpeed = ezMath::Min(m_fMaxSpeed, fDistance / fDeltaTime);
 
         m_vVelocity = vDiff * fSpeed;
 
-        if (m_bApplyRotation)
+        if (m_MaxAngularSpeed.GetRadian() > 0.0f)
         {
-          GetOwner()->SetGlobalRotation(ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vDiff));
+          ezQuat qRotation = GetOwner()->GetGlobalRotation();
+          RotateTowardsDirection(qRotation, vDiff, m_AngularSpeed);
+          GetOwner()->SetGlobalRotation(qRotation);
         }
-
-        if (fDistance < 0.01f)
-          return;
 
         if (fDistance > 0.25f)
         {

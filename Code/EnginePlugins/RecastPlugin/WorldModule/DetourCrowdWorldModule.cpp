@@ -193,13 +193,22 @@ void ezDetourCrowdWorldModule::VisualizeCrowd(const UpdateContext& ctx)
     const dtCrowdAgent* pAgent = m_pDtCrowd->getAgent(i);
     if (pAgent->active)
     {
-      float fHeight = pAgent->params.height;
-      float fRadius = pAgent->params.radius;
+      const float fHeight = pAgent->params.height;
+      const float fRadius = pAgent->params.radius;
 
       ezTransform xform(ezRcPos(pAgent->npos));
       xform.m_vPosition.z += fHeight * 0.5f;
 
       ezDebugRenderer::DrawLineCylinderZ(GetWorld(), fHeight, fRadius, ezColor::BlueViolet, xform);
+
+      ezVec3 vVelocity = ezRcPos(pAgent->vel);
+      vVelocity.z = 0;
+      if (!vVelocity.IsZero())
+      {
+        vVelocity.Normalize();
+        xform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vVelocity);
+        ezDebugRenderer::DrawArrow(GetWorld(), 1.0f, ezColor::OrangeRed, xform);
+      }
     }
   }
 }

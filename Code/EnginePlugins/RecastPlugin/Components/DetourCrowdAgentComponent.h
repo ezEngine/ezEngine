@@ -63,7 +63,7 @@ protected:
   float m_fMaxSpeed = 3.5f; // [ property ]
   float m_fMaxAcceleration = 3.5f; // [property]
   float m_fStoppingDistance = 1.0f; // [property]
-  bool m_bApplyRotation = true; // [property]
+  ezAngle m_MaxAngularSpeed = ezAngle::MakeFromDegree(360.0f); // [property]
 
 public:
   float GetRadius() const { return m_fRadius; }
@@ -71,12 +71,17 @@ public:
   float GetMaxSpeed() const { return m_fMaxSpeed; }
   float GetMaxAcceleration() const { return m_fMaxAcceleration; }
   float GetStoppingDistance() const { return m_fStoppingDistance; }
+  ezAngle GetMaxAngularSpeed() const { return m_MaxAngularSpeed; }
 
   void SetRadius(float fRadius);
   void SetHeight(float fHeight);
   void SetMaxSpeed(float fMaxSpeed);
   void SetMaxAcceleration(float fMaxAcceleration);
   void SetStoppingDistance(float fStoppingDistance);
+  void SetMaxAngularSpeed(ezAngle maxAngularSpeed);
+
+  ezVec3 GetVelocity() const { return m_vVelocity; }
+  ezAngle GetAngularSpeed() const { return m_AngularSpeed; }
 
   //////////////////////////////////////////////////////////////////////////
   // Other
@@ -86,6 +91,8 @@ public:
 protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
+
+  void RotateTowardsDirection(ezQuat& inout_qCurrentRot, const ezVec3& vTargetDir, ezAngle& out_angularSpeed) const;
 
   void SyncTransform(const ezVec3& vPosition, const ezVec3& vVelocity, bool bTeleport);
 
@@ -97,6 +104,7 @@ protected:
   ezInt32 m_iAgentId = -1;
   ezUInt32 m_uiOwnerId = 0;
   ezVec3 m_vVelocity;
+  ezAngle m_AngularSpeed;
   ezComponentHandle m_hCharacterController;
   ezVec3 m_vTargetPosition;
   ezEnum<ezAgentPathFindingState> m_PathToTargetState;
