@@ -18,7 +18,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 2, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -35,6 +35,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 2, ezComponentMode::Dynamic
     EZ_MEMBER_PROPERTY("StoppingDistance",m_fStoppingDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f),new ezClampValueAttribute(0.001f, ezVariant())),
     EZ_MEMBER_PROPERTY("MaxAngularSpeed",m_MaxAngularSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(360.0f)),new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_MEMBER_PROPERTY("RotationMode",ezDetourCrowdAgentRotationMode,m_RotationMode),
+    EZ_MEMBER_PROPERTY("Pushiness",m_fPushiness)->AddAttributes(new ezDefaultValueAttribute(2.0f),new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES;
 }
@@ -63,6 +64,7 @@ void ezDetourCrowdAgentComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_fStoppingDistance;
   s << m_MaxAngularSpeed;
   s << m_RotationMode;
+  s << m_fPushiness;
 }
 
 void ezDetourCrowdAgentComponent::DeserializeComponent(ezWorldReader& stream)
@@ -77,8 +79,8 @@ void ezDetourCrowdAgentComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fMaxAcceleration;
   s >> m_fStoppingDistance;
   s >> m_MaxAngularSpeed;
-  if (uiVersion >= 2)
-    s >> m_RotationMode;
+  s >> m_RotationMode;
+  s >> m_fPushiness;
 }
 
 void ezDetourCrowdAgentComponent::FillAgentParams(ezDetourCrowdAgentParams& out_params) const
@@ -87,6 +89,7 @@ void ezDetourCrowdAgentComponent::FillAgentParams(ezDetourCrowdAgentParams& out_
   out_params.m_fHeight = m_fHeight;
   out_params.m_fMaxSpeed = m_fMaxSpeed;
   out_params.m_fMaxAcceleration = m_fMaxAcceleration;
+  out_params.m_fSeparationWeight = m_fPushiness;
 }
 
 void ezDetourCrowdAgentComponent::SetRadius(float fRadius)
@@ -151,6 +154,18 @@ void ezDetourCrowdAgentComponent::SetMaxAngularSpeed(ezAngle maxAngularSpeed)
     maxAngularSpeed.SetRadian(0.0f);
 
   m_MaxAngularSpeed = maxAngularSpeed;
+}
+
+void ezDetourCrowdAgentComponent::SetPushiness(float fPushiness)
+{
+  if (fPushiness < 0.0f)
+    fPushiness = 0.0f;
+
+  if (fPushiness != m_fPushiness)
+    return;
+
+  m_fPushiness = fPushiness;
+  m_uiParamsDirtyBit = 1;
 }
 
 void ezDetourCrowdAgentComponent::SetTargetPosition(const ezVec3& vPosition)

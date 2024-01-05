@@ -82,6 +82,7 @@ protected:
   float m_fStoppingDistance = 1.0f; // [property]
   ezAngle m_MaxAngularSpeed = ezAngle::MakeFromDegree(360.0f); // [property]
   ezEnum<ezDetourCrowdAgentRotationMode> m_RotationMode; // [property]
+  float m_fPushiness = 2.0f; // [property]
 
 public:
   float GetRadius() const { return m_fRadius; }
@@ -94,6 +95,7 @@ public:
   /// this one will return the actual point on navmesh that the agent is trying to reach
   ezVec3 GetActualTargetPosition() const { return m_vActualTargetPosition; }
   ezDetourCrowdAgentRotationMode::Enum GetRotationMode() const { return m_RotationMode; }
+  float GetPushiness() const { return m_fPushiness; }
 
   void SetRadius(float fRadius);
   void SetHeight(float fHeight);
@@ -102,6 +104,7 @@ public:
   void SetStoppingDistance(float fStoppingDistance);
   void SetMaxAngularSpeed(ezAngle maxAngularSpeed);
   void SetRotationMode(ezDetourCrowdAgentRotationMode::Enum rotationMode) { m_RotationMode = rotationMode; }
+  void SetPushiness(float fPushiness);
 
   ezVec3 GetVelocity() const { return m_vVelocity; }
   ezAngle GetAngularSpeed() const { return m_AngularSpeed; }
