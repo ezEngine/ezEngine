@@ -207,7 +207,7 @@ void ezDetourCrowdWorldModule::VisualizeCrowd(const UpdateContext& ctx)
       {
         vVelocity.Normalize();
         xform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vVelocity);
-        ezDebugRenderer::DrawArrow(GetWorld(), 1.0f, ezColor::OrangeRed, xform);
+        ezDebugRenderer::DrawArrow(GetWorld(), 1.0f, ezColor::BlueViolet, xform);
       }
     }
   }

@@ -12,12 +12,17 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDetourCrowdAgentRotationMode, 1)
+EZ_ENUM_CONSTANTS(ezDetourCrowdAgentRotationMode::LookAtNextPathCorner, ezDetourCrowdAgentRotationMode::MatchVelocityDirection)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
+// clang-format off
+EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("AI/Recast"),
-    new ezCylinderVisualizerAttribute(ezBasisAxis::PositiveZ, "Height", "Radius", ezColor::BlueViolet),
   }
   EZ_END_ATTRIBUTES;
 
@@ -29,6 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 1, ezComponentMode::Dynamic
     EZ_MEMBER_PROPERTY("MaxAcceleration",m_fMaxAcceleration)->AddAttributes(new ezDefaultValueAttribute(10.0f),new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("StoppingDistance",m_fStoppingDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f),new ezClampValueAttribute(0.001f, ezVariant())),
     EZ_MEMBER_PROPERTY("MaxAngularSpeed",m_MaxAngularSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(360.0f)),new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ENUM_MEMBER_PROPERTY("RotationMode",ezDetourCrowdAgentRotationMode,m_RotationMode),
   }
   EZ_END_PROPERTIES;
 }
@@ -56,6 +62,7 @@ void ezDetourCrowdAgentComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_fMaxAcceleration;
   s << m_fStoppingDistance;
   s << m_MaxAngularSpeed;
+  s << m_RotationMode;
 }
 
 void ezDetourCrowdAgentComponent::DeserializeComponent(ezWorldReader& stream)
@@ -70,6 +77,8 @@ void ezDetourCrowdAgentComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fMaxAcceleration;
   s >> m_fStoppingDistance;
   s >> m_MaxAngularSpeed;
+  if (uiVersion >= 2)
+    s >> m_RotationMode;
 }
 
 void ezDetourCrowdAgentComponent::FillAgentParams(ezDetourCrowdAgentParams& out_params) const
@@ -174,48 +183,93 @@ void ezDetourCrowdAgentComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezDetourCrowdAgentComponent::RotateTowardsDirection(ezQuat& inout_qCurrentRot, const ezVec3& vTargetDir, ezAngle& out_angularSpeed) const
+ezQuat ezDetourCrowdAgentComponent::RotateTowardsDirection(const ezQuat& qCurrentRot, const ezVec3& vTargetDir, ezAngle& out_angularSpeed) const
 {
   // This function makes use of the fact that the object is always upright
   
-  ezAngle currentAngle = 2.0 * ezMath::ACos(inout_qCurrentRot.w);
-  if (inout_qCurrentRot.z < 0)
+  ezAngle currentAngle = 2.0 * ezMath::ACos(qCurrentRot.w);
+  if (qCurrentRot.z < 0)
     currentAngle = ezAngle::MakeFromRadian(2.0f * ezMath::Pi<float>() - currentAngle.GetRadian());
-  EZ_ASSERT_DEBUG(currentAngle.GetRadian() >= 0.0f && currentAngle.GetRadian() <= 2.0f * ezMath::Pi<float>(), "currentAngle out of range");
 
   ezAngle targetAngle = ezMath::ATan2(vTargetDir.y, vTargetDir.x);
   if (targetAngle.GetRadian() < 0)
     targetAngle = ezAngle::MakeFromRadian(targetAngle.GetRadian() + 2.0f * ezMath::Pi<float>());
-  EZ_ASSERT_DEBUG(targetAngle.GetRadian() >= 0.0f && targetAngle.GetRadian() <= 2.0f * ezMath::Pi<float>(), "targetAngle out of range");
 
   float fAngleDiff = targetAngle.GetRadian() - currentAngle.GetRadian();
   if (fAngleDiff > ezMath::Pi<float>())
     fAngleDiff -= 2.0f * ezMath::Pi<float>();
+  else if (fAngleDiff < -ezMath::Pi<float>())
+    fAngleDiff += 2.0f * ezMath::Pi<float>();
   fAngleDiff = ezMath::Sign(fAngleDiff) * ezMath::Min(ezMath::Abs(fAngleDiff), m_MaxAngularSpeed.GetRadian() * GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds());
 
-  inout_qCurrentRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromRadian(currentAngle.GetRadian() + fAngleDiff));
   out_angularSpeed = ezAngle::MakeFromRadian(fAngleDiff);
+  return ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromRadian(currentAngle.GetRadian() + fAngleDiff));
 }
 
-void ezDetourCrowdAgentComponent::SyncTransform(const ezVec3& vPosition, const ezVec3& vVelocity, bool bTeleport)
+ezVec3 ezDetourCrowdAgentComponent::GetDirectionToNextPathCorner(const ezVec3& vCurrentPos, const struct dtCrowdAgent* pDtAgent) const
 {
+  if (pDtAgent->ncorners > 0)
+  {
+    ezVec3 vNextCorner = ezRcPos(pDtAgent->cornerVerts);
+    ezVec3 vDiff = vNextCorner - vCurrentPos;
+
+    if (vDiff.GetLengthSquared() > 0.0001f)
+      return vDiff;
+
+    if (pDtAgent->ncorners > 1)
+    {
+      vNextCorner = ezRcPos(pDtAgent->cornerVerts + 3);
+      return vNextCorner - vCurrentPos;
+    }
+  }
+
+  return ezVec3::MakeZero();
+}
+
+bool ezDetourCrowdAgentComponent::SyncRotation(const ezVec3& vPosition, ezQuat& input_qRotation, const ezVec3& vVelocity, const struct dtCrowdAgent* pDtAgent)
+{
+  m_AngularSpeed.SetRadian(0);
+
+  if (m_MaxAngularSpeed.GetRadian() <= 0.0f)
+    return false;
+
+  ezVec3 vDirection;
+
+  switch (m_RotationMode)
+  {
+    case ezDetourCrowdAgentRotationMode::LookAtNextPathCorner:
+      vDirection = GetDirectionToNextPathCorner(vPosition, pDtAgent);
+      break;
+    case ezDetourCrowdAgentRotationMode::MatchVelocityDirection:
+      vDirection = vVelocity;
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  };
+
+  vDirection.z = 0;
+
+  if (vDirection.IsZero())
+    return false;
+
+  vDirection.Normalize();
+  input_qRotation = RotateTowardsDirection(input_qRotation, vDirection, m_AngularSpeed);
+
+  return true;
+}
+
+void ezDetourCrowdAgentComponent::SyncTransform(const struct dtCrowdAgent* pDtAgent, bool bTeleport)
+{
+  const ezVec3 vPosition = ezRcPos(pDtAgent->npos);
+  const ezVec3 vVelocity = ezRcPos(pDtAgent->vel);
+
   if (m_hCharacterController.IsInvalidated())
   {
     m_vVelocity = vVelocity;
 
     ezTransform xform = GetOwner()->GetGlobalTransform();
     xform.m_vPosition = vPosition;
-    if (m_MaxAngularSpeed.GetRadian() > 0.0f)
-    {
-      ezVec3 vDirection = vVelocity;
-      vDirection.z = 0;
-      if (!vDirection.IsZero())
-      {
-        vDirection.Normalize();
-
-        RotateTowardsDirection(xform.m_qRotation, vDirection, m_AngularSpeed);
-      }
-    }
+    SyncRotation(vPosition, xform.m_qRotation, vVelocity, pDtAgent);
     GetOwner()->SetGlobalTransform(xform);
   }
   else
@@ -226,26 +280,26 @@ void ezDetourCrowdAgentComponent::SyncTransform(const ezVec3& vPosition, const e
       if (!bTeleport)
       {
         const float fDeltaTime = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
+        ezTransform xform = GetOwner()->GetGlobalTransform();
 
-        ezVec3 vDiff = vPosition - GetOwner()->GetGlobalPosition();
+        ezVec3 vDiff = vPosition - xform.m_vPosition;
         vDiff.z = 0;
+
+        if (SyncRotation(xform.m_vPosition, xform.m_qRotation, vDiff, pDtAgent))
+          GetOwner()->SetGlobalTransform(xform);
+
         const float fDistance = vDiff.GetLength();
-
-        if (fDistance < 0.001f)
+        if (fDistance < 0.01f)
+        {
+          m_vVelocity = ezVec3::MakeZero();
           return;
-
+        }
         vDiff /= fDistance;
         
-        const float fSpeed = ezMath::Min(m_fMaxSpeed, fDistance / fDeltaTime);
+        // Speed is increased in case we're trying to chase the dtAgent
+        const float fSpeed = ezMath::Min(m_fMaxSpeed * 1.3f, fDistance / fDeltaTime);
 
         m_vVelocity = vDiff * fSpeed;
-
-        if (m_MaxAngularSpeed.GetRadian() > 0.0f)
-        {
-          ezQuat qRotation = GetOwner()->GetGlobalRotation();
-          RotateTowardsDirection(qRotation, vDiff, m_AngularSpeed);
-          GetOwner()->SetGlobalRotation(qRotation);
-        }
 
         if (fDistance > 0.25f)
         {
@@ -273,6 +327,10 @@ void ezDetourCrowdAgentComponent::SyncTransform(const ezVec3& vPosition, const e
       else
       {
         m_vVelocity = vVelocity;
+        
+        ezQuat qRotation = GetOwner()->GetGlobalRotation();
+        if (SyncRotation(vPosition, qRotation, vVelocity, pDtAgent))
+          GetOwner()->SetGlobalRotation(qRotation);
 
         pCharacter->TeleportCharacter(vPosition);
       }
@@ -367,7 +425,7 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
       }
 
       // Sync ezAgent's position with dtAgent
-      pAgent->SyncTransform(ezRcPos(pDtAgent->npos), ezRcPos(pDtAgent->vel), bTeleport);
+      pAgent->SyncTransform(pDtAgent, bTeleport);
 
       // Steering failed. Can only happen if ezAgent uses CharacterController for movement and it got out of sync with dtAgent
       // We can do nothing about it, so clear the target and delete the dtAgent (it will be recreated at correct postion next frame)
@@ -400,6 +458,7 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
           if (pAgent->m_uiTargetDirtyBit || pDtAgent->targetState == DT_CROWDAGENT_TARGET_NONE || pDtAgent->targetState == DT_CROWDAGENT_TARGET_FAILED)
           {
             m_pDetourCrowdModule->SetAgentTargetPosition(pAgent->m_iAgentId, pAgent->m_vTargetPosition);
+            pAgent->m_vActualTargetPosition = ezRcPos(pDtAgent->targetPos);
             pAgent->m_uiTargetDirtyBit = 0;
           }
           
@@ -436,6 +495,7 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
           {
             m_pDetourCrowdModule->SetAgentTargetPosition(pAgent->m_iAgentId, pAgent->m_vTargetPosition);
             pAgent->m_PathToTargetState = ezAgentPathFindingState::HasTargetWaitingForPath;
+            pAgent->m_vActualTargetPosition = ezRcPos(pDtAgent->targetPos);
             pAgent->m_uiTargetDirtyBit = 0;
           }
           // If ezAgent and dtAgent both agree they have a target and a valid path, check if target is reached

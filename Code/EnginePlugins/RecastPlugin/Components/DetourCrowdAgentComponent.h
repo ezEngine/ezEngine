@@ -11,6 +11,23 @@ struct ezDetourCrowdAgentParams;
 
 //////////////////////////////////////////////////////////////////////////
 
+struct ezDetourCrowdAgentRotationMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    LookAtNextPathCorner,
+    MatchVelocityDirection,
+    
+    Default = LookAtNextPathCorner
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezDetourCrowdAgentRotationMode);
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_RECASTPLUGIN_DLL ezDetourCrowdAgentComponentManager : public ezComponentManager<ezDetourCrowdAgentComponent, ezBlockStorageType::FreeList>
 {
   using SUPER = ezComponentManager<ezDetourCrowdAgentComponent, ezBlockStorageType::FreeList>;
@@ -64,6 +81,7 @@ protected:
   float m_fMaxAcceleration = 3.5f; // [property]
   float m_fStoppingDistance = 1.0f; // [property]
   ezAngle m_MaxAngularSpeed = ezAngle::MakeFromDegree(360.0f); // [property]
+  ezEnum<ezDetourCrowdAgentRotationMode> m_RotationMode; // [property]
 
 public:
   float GetRadius() const { return m_fRadius; }
@@ -72,6 +90,9 @@ public:
   float GetMaxAcceleration() const { return m_fMaxAcceleration; }
   float GetStoppingDistance() const { return m_fStoppingDistance; }
   ezAngle GetMaxAngularSpeed() const { return m_MaxAngularSpeed; }
+  /// \brief While GetTargetPosition() returns the requested target position,
+  /// this one will return the actual point on navmesh that the agent is trying to reach
+  ezVec3 GetActualTargetPosition() const { return m_vActualTargetPosition; }
 
   void SetRadius(float fRadius);
   void SetHeight(float fHeight);
@@ -92,9 +113,11 @@ protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
-  void RotateTowardsDirection(ezQuat& inout_qCurrentRot, const ezVec3& vTargetDir, ezAngle& out_angularSpeed) const;
+  ezQuat RotateTowardsDirection(const ezQuat& qCurrentRot, const ezVec3& vTargetDir, ezAngle& out_angularSpeed) const;
+  ezVec3 GetDirectionToNextPathCorner(const ezVec3& vCurrentPos, const struct dtCrowdAgent* pDtAgent) const;
+  bool SyncRotation(const ezVec3& vPosition, ezQuat& inout_qRotation, const ezVec3& vVelocity, const struct dtCrowdAgent* pDtAgent);
 
-  void SyncTransform(const ezVec3& vPosition, const ezVec3& vVelocity, bool bTeleport);
+  void SyncTransform(const struct dtCrowdAgent* pDtAgent, bool bTeleport);
 
   ezUInt8 m_uiTargetDirtyBit : 1;
   ezUInt8 m_uiSteeringFailedBit : 1;
@@ -107,5 +130,6 @@ protected:
   ezAngle m_AngularSpeed;
   ezComponentHandle m_hCharacterController;
   ezVec3 m_vTargetPosition;
+  ezVec3 m_vActualTargetPosition;
   ezEnum<ezAgentPathFindingState> m_PathToTargetState;
 };
