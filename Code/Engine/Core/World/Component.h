@@ -231,7 +231,7 @@ private:
 
   ezGameObject* Reflection_GetOwner() const;
   ezWorld* Reflection_GetWorld() const;
-  void Reflection_Update();
+  void Reflection_Update(ezTime deltaTime);
 
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;

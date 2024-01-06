@@ -348,8 +348,10 @@ ezTypedPointer ezVisualScriptDataStorage::GetPointerData(DataOffset dataOffset, 
     return *reinterpret_cast<const ezTypedPointer*>(pData);
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezTypedPointer();
+  ezTypedPointer t;
+  t.m_pObject = const_cast<ezUInt8*>(pData);
+  t.m_pType = ezVisualScriptDataType::GetRtti(static_cast<ezVisualScriptDataType::Enum>(dataOffset.m_uiType));
+  return t;
 }
 
 ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, const ezRTTI* pExpectedType, ezUInt32 uiExecutionCounter) const

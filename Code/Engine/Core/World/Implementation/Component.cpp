@@ -24,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(OnActivated)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnActivated)),
     EZ_SCRIPT_FUNCTION_PROPERTY(OnDeactivated)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnDeactivated)),
     EZ_SCRIPT_FUNCTION_PROPERTY(OnSimulationStarted)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted)),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_Update)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Update)),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_Update, In, "DeltaTime")->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Update)),
   }
   EZ_END_FUNCTIONS;
 }
@@ -196,7 +196,7 @@ ezWorld* ezComponent::Reflection_GetWorld() const
   return m_pManager->GetWorld();
 }
 
-void ezComponent::Reflection_Update()
+void ezComponent::Reflection_Update(ezTime deltaTime)
 {
   // This is just a dummy function for the scripting reflection
 }
