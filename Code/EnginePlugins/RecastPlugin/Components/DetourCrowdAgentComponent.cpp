@@ -161,7 +161,7 @@ void ezDetourCrowdAgentComponent::SetPushiness(float fPushiness)
   if (fPushiness < 0.0f)
     fPushiness = 0.0f;
 
-  if (fPushiness != m_fPushiness)
+  if (fPushiness == m_fPushiness)
     return;
 
   m_fPushiness = fPushiness;

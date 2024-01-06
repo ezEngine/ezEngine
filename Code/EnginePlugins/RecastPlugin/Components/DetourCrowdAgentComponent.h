@@ -24,7 +24,7 @@ struct ezDetourCrowdAgentRotationMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezDetourCrowdAgentRotationMode);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RECASTPLUGIN_DLL, ezDetourCrowdAgentRotationMode);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +49,13 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Implements navigation, path following and obstacle avoidance. Requires Recast navmesh.
+///
+/// This component provides the ability to intelligently navigate around the level (using Recast navmesh)
+/// while avoiding other agents.
+///
+/// Usage: call SetTargetPosition() to command the agent to go somewhere. Subscribe to m_SteeringEvents
+/// to receive feedback (target reached, pathfinding failed, etc).
 class EZ_RECASTPLUGIN_DLL ezDetourCrowdAgentComponent : public ezAgentSteeringComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezDetourCrowdAgentComponent, ezAgentSteeringComponent, ezDetourCrowdAgentComponentManager);
@@ -67,6 +74,10 @@ public:
   ezDetourCrowdAgentComponent();
   ~ezDetourCrowdAgentComponent();
 
+  /// \brief Sets the position to navigate to. 
+  ///
+  /// If the position is not on navmesh, the nearest point on navmesh (with some threshold)
+  /// will be the actual target. You can get it by calling GetActualTargetPosition().
   virtual void SetTargetPosition(const ezVec3& vPosition) override;
   virtual ezVec3 GetTargetPosition() const override { return m_vTargetPosition; }
   virtual void ClearTargetPosition() override;
@@ -101,9 +112,12 @@ public:
   void SetHeight(float fHeight);
   void SetMaxSpeed(float fMaxSpeed);
   void SetMaxAcceleration(float fMaxAcceleration);
+  /// \brief If distance to the target is less than the stopping distance, the target is reached.
   void SetStoppingDistance(float fStoppingDistance);
   void SetMaxAngularSpeed(ezAngle maxAngularSpeed);
   void SetRotationMode(ezDetourCrowdAgentRotationMode::Enum rotationMode) { m_RotationMode = rotationMode; }
+  /// \brief The agent will push other agents with lower pushiness and will get pushed by agents 
+  /// with higher pushiness. 
   void SetPushiness(float fPushiness);
 
   ezVec3 GetVelocity() const { return m_vVelocity; }
@@ -111,10 +125,9 @@ public:
 
   //////////////////////////////////////////////////////////////////////////
   // Other
-public:
+protected:
   void FillAgentParams(ezDetourCrowdAgentParams& out_params) const;
 
-protected:
   virtual void OnDeactivated() override;
 
   ezQuat RotateTowardsDirection(const ezQuat& qCurrentRot, const ezVec3& vTargetDir, ezAngle& out_angularSpeed) const;
