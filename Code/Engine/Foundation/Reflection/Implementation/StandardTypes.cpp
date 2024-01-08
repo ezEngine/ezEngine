@@ -335,6 +335,11 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTransform, ezNoBase, 1, ezRTTINoAllocator)
   {
     EZ_CONSTRUCTOR_PROPERTY(ezVec3, ezQuat),
     EZ_CONSTRUCTOR_PROPERTY(ezVec3, ezQuat, ezVec3),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Make, In, "Position", In, "Rotation", In, "Scale")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeLocalTransform, In, "Parent", In, "GlobalChild")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeGlobalTransform, In, "Parent", In, "LocalChild")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(TransformPosition, In, "Position"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(TransformDirection, In, "Direction"),
   }
   EZ_END_FUNCTIONS;
 }

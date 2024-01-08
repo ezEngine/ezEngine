@@ -879,6 +879,25 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     RegisterNodeType(typeDesc, std::move(nodeDesc), sLogicCategory);
   }
 
+  // Builtin_Select
+  {
+    FillDesc(typeDesc, "Builtin_Select", logicColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "{Condition} ? {A} : {B}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Select;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
+
+    AddInputDataPin<bool>(typeDesc, nodeDesc, "Condition");
+    AddInputDataPin_Any(typeDesc, nodeDesc, "A", false, true);
+    AddInputDataPin_Any(typeDesc, nodeDesc, "B", false, true);
+    nodeDesc.AddOutputDataPin("", nullptr, ezVisualScriptDataType::Any);
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sLogicCategory);
+  }
+
   // Builtin_Add, Builtin_Sub, Builtin_Mul, Builtin_Div
   {
     ezVisualScriptNodeDescription::Type::Enum mathNodeTypes[] = {

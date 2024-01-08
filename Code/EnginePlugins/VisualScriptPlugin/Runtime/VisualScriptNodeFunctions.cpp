@@ -658,6 +658,29 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_IsValid);
 
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_Select(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    bool bCondition = inout_context.GetData<bool>(node.GetInputDataOffset(0));
+
+    if constexpr (std::is_same_v<T, ezTypedPointer>)
+    {
+      ezTypedPointer a = inout_context.GetPointerData(node.GetInputDataOffset(1));
+      ezTypedPointer b = inout_context.GetPointerData(node.GetInputDataOffset(2));
+      ezTypedPointer res = bCondition ? a : b;
+      inout_context.SetPointerData(node.GetOutputDataOffset(0), res.m_pObject, res.m_pType);
+    }
+    else
+    {
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(1));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(2));
+      inout_context.SetData(node.GetOutputDataOffset(0), bCondition ? a : b);
+    }
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Select);
+
   //////////////////////////////////////////////////////////////////////////
 
   template <typename T>
@@ -1290,7 +1313,7 @@ namespace
     {nullptr, &NodeFunction_Builtin_Compare_Getter}, // Builtin_Compare,
     {},                                              // Builtin_CompareExec,
     {nullptr, &NodeFunction_Builtin_IsValid_Getter}, // Builtin_IsValid,
-    {},                                              // Builtin_Select,
+    {nullptr, &NodeFunction_Builtin_Select_Getter},  // Builtin_Select,
 
     {nullptr, &NodeFunction_Builtin_Add_Getter}, // Builtin_Add,
     {nullptr, &NodeFunction_Builtin_Sub_Getter}, // Builtin_Subtract,

@@ -51,7 +51,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_Compare,
       Builtin_CompareExec, // Editor only
       Builtin_IsValid,
-      Builtin_Select, // TODO
+      Builtin_Select,
 
       Builtin_Add,
       Builtin_Subtract,

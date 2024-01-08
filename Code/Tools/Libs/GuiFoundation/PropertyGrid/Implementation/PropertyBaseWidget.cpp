@@ -406,7 +406,7 @@ ezVariant ezQtPropertyWidget::GetCommonValue(const ezHybridArray<ezPropertySelec
     {
       if (!value.IsValid())
       {
-        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index).AssertSuccess();
+        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index).IgnoreResult();
       }
       else
       {
