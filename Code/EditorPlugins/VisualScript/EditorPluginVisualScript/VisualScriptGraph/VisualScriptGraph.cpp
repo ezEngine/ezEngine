@@ -471,6 +471,64 @@ void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCr
       temp.m_PropertyValues = propertyValues.GetSubArray(nodeTemplate.m_uiPropertyValuesStart, nodeTemplate.m_uiPropertyValuesCount);
     }
   }
+
+  // Getter and setter templates for variables
+  if (GetRootObject()->GetChildren().IsEmpty() == false)
+  {
+    static ezHashedString sVariables = ezMakeHashedString("Variables");
+    static ezHashedString sName = ezMakeHashedString("Name");
+
+    m_PropertyValues.Clear();
+    m_VariableNodeTypeNames.Clear();
+
+    ezStringBuilder sNodeTypeName;
+
+    auto& typeAccessor = GetRootObject()->GetChildren()[0]->GetTypeAccessor();
+    ezUInt32 uiNumVariables = typeAccessor.GetCount(sVariables.GetView());
+    for (ezUInt32 i = 0; i < uiNumVariables; ++i)
+    {
+      ezVariant variableUuid = typeAccessor.GetValue(sVariables.GetView(), i);
+      if (variableUuid.IsA<ezUuid>() == false)
+        continue;
+
+      auto pVariableObject = GetObject(variableUuid.Get<ezUuid>());
+      if (pVariableObject == nullptr)
+        continue;
+
+      ezVariant nameVar = pVariableObject->GetTypeAccessor().GetValue(sName.GetView());
+      if (nameVar.IsA<ezHashedString>() == false)
+        continue;
+
+      ezHashedString sVariableName = nameVar.Get<ezHashedString>();
+
+      ezUInt32 uiStart = m_PropertyValues.GetCount();
+      m_PropertyValues.PushBack({sName, nameVar});
+
+      // Setter
+      {
+        sNodeTypeName.Set("Set", sVariableName);
+        m_VariableNodeTypeNames.PushBack(sNodeTypeName);
+
+        auto& temp = out_templates.ExpandAndGetRef();
+        temp.m_pType = pRegistry->GetVariableSetterType();
+        temp.m_sTypeName = m_VariableNodeTypeNames.PeekBack();
+        temp.m_sCategory = sVariables;
+        temp.m_PropertyValues = m_PropertyValues.GetArrayPtr().GetSubArray(uiStart, 1);
+      }
+
+      // Getter
+      {
+        sNodeTypeName.Set("Get", sVariableName);
+        m_VariableNodeTypeNames.PushBack(sNodeTypeName);
+
+        auto& temp = out_templates.ExpandAndGetRef();
+        temp.m_pType = pRegistry->GetVariableGetterType();
+        temp.m_sTypeName = m_VariableNodeTypeNames.PeekBack();
+        temp.m_sCategory = sVariables;
+        temp.m_PropertyValues = m_PropertyValues.GetArrayPtr().GetSubArray(uiStart, 1);
+      }
+    }
+  }
 }
 
 void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)

@@ -566,7 +566,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromVariableNameProperty;
     nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
 
-    RegisterNodeType(typeDesc, std::move(nodeDesc), sVariablesCategory);
+    m_pGetVariableType = RegisterNodeType(typeDesc, std::move(nodeDesc), sVariablesCategory);
   }
 
   // Builtin_SetVariable
@@ -586,7 +586,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     AddInputDataPin_Any(typeDesc, nodeDesc, "Value", false, true);
     nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
 
-    RegisterNodeType(typeDesc, std::move(nodeDesc), sVariablesCategory);
+    m_pSetVariableType = RegisterNodeType(typeDesc, std::move(nodeDesc), sVariablesCategory);
   }
 
   // Builtin_IncVariable, Builtin_DecVariable

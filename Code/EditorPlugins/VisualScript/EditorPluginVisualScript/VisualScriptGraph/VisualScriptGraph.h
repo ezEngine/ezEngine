@@ -90,4 +90,7 @@ private:
   ezHashTable<const ezDocumentObject*, ezEnum<ezVisualScriptDataType>> m_ObjectToDeductedType;
   ezHashTable<const ezVisualScriptPin*, ezEnum<ezVisualScriptDataType>> m_PinToDeductedType;
   ezHashSet<const ezDocumentObject*> m_CoroutineObjects;
+
+  mutable ezDynamicArray<ezNodePropertyValue> m_PropertyValues;
+  mutable ezDeque<ezString> m_VariableNodeTypeNames;
 };

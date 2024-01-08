@@ -59,6 +59,8 @@ public:
   ~ezVisualScriptNodeRegistry();
 
   const ezRTTI* GetNodeBaseType() const { return m_pBaseType; }
+  const ezRTTI* GetVariableSetterType() const { return m_pSetVariableType; }
+  const ezRTTI* GetVariableGetterType() const { return m_pGetVariableType; }
   const NodeDesc* GetNodeDescForType(const ezRTTI* pRtti) const { return m_TypeToNodeDescs.GetValue(pRtti); }
 
   struct NodeCreationTemplate
@@ -106,6 +108,8 @@ private:
   const ezRTTI* m_pBaseType = nullptr;
   const ezRTTI* m_pSetPropertyType = nullptr;
   const ezRTTI* m_pGetPropertyType = nullptr;
+  const ezRTTI* m_pSetVariableType = nullptr;
+  const ezRTTI* m_pGetVariableType = nullptr;
   bool m_bBuiltinTypesCreated = false;
   ezMap<const ezRTTI*, NodeDesc> m_TypeToNodeDescs;
   ezHashSet<const ezRTTI*> m_EnumTypes;
