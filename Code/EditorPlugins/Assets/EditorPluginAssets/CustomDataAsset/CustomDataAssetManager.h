@@ -22,5 +22,5 @@ private:
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
 private:
-  mutable ezDynamicArray<ezAssetDocumentTypeDescriptor> m_DocTypeDescs;
+  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
 };

@@ -11,6 +11,17 @@ ezCustomDataAssetDocumentManager::ezCustomDataAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCustomDataAssetDocumentManager::OnDocumentManagerEvent, this));
 
+  m_DocTypeDesc.m_sDocumentTypeName = "CustomData";
+  m_DocTypeDesc.m_sFileExtension = "ezCustomData";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Surface.svg"; // \todo
+  m_DocTypeDesc.m_sAssetCategory = "CustomData";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCustomDataAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_CustomData"); // \todo should only be compatible with same type
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezCustomData";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::OnlyTransformManually;
+
   // \todo icon
   //ezQtImageCache::GetSingleton()->RegisterTypeImage("CustomData", QPixmap(":/AssetIcons/Surface.svg"));
 }
@@ -40,34 +51,10 @@ void ezCustomDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
 
 void ezCustomDataAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  const ezRTTI* pDataType = ezRTTI::FindTypeByName(sDocumentTypeName);
-  EZ_ASSERT_DEV(pDataType != nullptr, "Type '{0}' not found", sDocumentTypeName);
-  out_pDocument = new ezCustomDataAssetDocument(pDataType, sPath);
+  out_pDocument = new ezCustomDataAssetDocument(sPath);
 }
 
 void ezCustomDataAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  m_DocTypeDescs.Clear();
-  ezRTTI::ForEachDerivedType<ezCustomData>([&] (const ezRTTI* pDataType)
-    {
-      if (pDataType != ezGetStaticRTTI<ezCustomData>())
-      {
-        ezAssetDocumentTypeDescriptor& docTypeDesc = m_DocTypeDescs.ExpandAndGetRef();
-        docTypeDesc.m_sDocumentTypeName = pDataType->GetTypeName();
-        docTypeDesc.m_sFileExtension = "ezCustomData";
-        docTypeDesc.m_sIcon = ":/AssetIcons/Surface.svg"; // \todo
-        docTypeDesc.m_sAssetCategory = "CustomData";
-        docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCustomDataAssetDocument>();
-        docTypeDesc.m_pManager = const_cast<ezCustomDataAssetDocumentManager*>(this);
-        docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_CustomData"); // \todo should only be compatible with same type
-
-        docTypeDesc.m_sResourceFileExtension = "ezCustomData";
-        docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
-      }
-    },
-    ezRTTI::ForEachOptions::ExcludeAbstract | ezRTTI::ForEachOptions::ExcludeNonAllocatable
-  );
-
-  for (const auto& docTypeDesc : m_DocTypeDescs)
-    inout_DocumentTypes.PushBack(&docTypeDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
