@@ -1,5 +1,6 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <Foundation/Types/TagRegistry.h>
 #include <GameEngine/Physics/CollisionFilter.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 #include <JoltPlugin/Actors/JoltQueryShapeActorComponent.h>
@@ -15,6 +16,8 @@
 #include <JoltPlugin/System/JoltDebugRenderer.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <Physics/Collision/Shape/Shape.h>
+#include <RendererCore/Meshes/CustomMeshComponent.h>
+#include <RendererCore/Meshes/DynamicMeshBufferResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
@@ -32,6 +35,10 @@ ezCVarBool cvar_JoltDebugDrawConstraintLimits("Jolt.DebugDraw.ConstraintLimits",
 ezCVarBool cvar_JoltDebugDrawConstraintFrames("Jolt.DebugDraw.ConstraintFrames", false, ezCVarFlags::None, "Visualize physics constraint frames.");
 ezCVarBool cvar_JoltDebugDrawBodies("Jolt.DebugDraw.Bodies", false, ezCVarFlags::None, "Visualize physics bodies.");
 #endif
+
+ezCVarBool cvar_JoltVisualizeGeometry("Jolt.Visualize.Geometry", false, ezCVarFlags::None, "Renders collision geometry.");
+ezCVarBool cvar_JoltVisualizeGeometryExclusive("Jolt.Visualize.Exclusive", false, ezCVarFlags::Save, "Hides regularly rendered geometry.");
+ezCVarFloat cvar_JoltVisualizeDistance("Jolt.Visualize.Distance", 30.0f, ezCVarFlags::Save, "How far away objects to visualize.");
 
 ezJoltWorldModule::ezJoltWorldModule(ezWorld* pWorld)
   : ezPhysicsWorldModuleInterface(pWorld)
@@ -631,6 +638,8 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
   CheckBreakableConstraints();
 
   FreeUserDataAfterSimulationStep();
+
+  DebugDrawGeometry();
 }
 
 ezTime ezJoltWorldModule::CalculateUpdateSteps()
@@ -762,5 +771,292 @@ void ezJoltWorldModule::UpdateConstraints()
   m_RequireUpdate.Clear();
 }
 
+ezAtomicInteger32 s_iColMeshVisGeoCounter;
+
+ezView* ezJoltWorldModule::GetMainView() const
+{
+  for (ezViewHandle hView : ezRenderWorld::GetMainViews())
+  {
+    ezView* pView;
+    if (!ezRenderWorld::TryGetView(hView, pView))
+      continue;
+
+    if (pView->GetWorld() != GetWorld())
+      continue;
+
+    if (pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView ||
+        pView->GetCameraUsageHint() == ezCameraUsageHint::MainView)
+    {
+      return pView;
+    }
+  }
+
+  return nullptr;
+}
+
+struct DebugVis
+{
+  const char* m_szMaterial = nullptr;
+  ezColor m_Color;
+};
+
+// "{ e6367876-ddb5-4149-ba80-180af553d463 }" = Data/Base/Materials/Common/PhysicsColliders.ezMaterialAsset
+
+static const DebugVis s_Vis[ezPhysicsShapeType::Count][2] =
+  {
+    // Static
+    {
+      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::LightSkyBlue}, // non-kinematic
+      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::Red}           // kinematic
+    },
+
+    // Dynamic
+    {
+      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::Gold},      // non-kinematic
+      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::DodgerBlue} // kinematic
+    },
+
+    // Query
+    {
+      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::GreenYellow.WithAlpha(0.5f)}, // non-kinematic
+      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::GreenYellow.WithAlpha(0.5f)}  // kinematic
+    },
+
+    // Trigger
+    {
+      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::Purple.WithAlpha(0.3f)}, // non-kinematic
+      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::Purple.WithAlpha(0.3f)}  // kinematic
+    },
+
+    // Character
+    {
+      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::DarkTurquoise.WithAlpha(0.5f)}, // non-kinematic
+      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::DarkTurquoise.WithAlpha(0.5f)}  // kinematic
+    },
+
+    // Ragdoll
+    {
+      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::DeepPink}, // non-kinematic
+      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::DeepPink}  // kinematic
+    },
+
+    // Rope
+    {
+      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::MediumVioletRed}, // non-kinematic
+      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::MediumVioletRed}  // kinematic
+    },
+
+    // Cloth
+    {
+      {"{ b03df0e4-98b7-49ba-8413-d981014a77be }", ezColor::Crimson}, // non-kinematic
+      {"{ b03df0e4-98b7-49ba-8413-d981014a77be }", ezColor::Red}      // kinematic
+    },
+};
+
+void ezJoltWorldModule::DebugDrawGeometry()
+{
+  ezView* pView = GetMainView();
+
+  if (pView == nullptr)
+    return;
+
+  ++m_uiDebugGeoLastSeenCounter;
+
+  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("PhysicsCollider");
+
+  if (cvar_JoltVisualizeGeometry && cvar_JoltVisualizeGeometryExclusive)
+  {
+    // deactivate other geometry rendering
+    pView->m_IncludeTags.Set(tag);
+  }
+  else
+  {
+    pView->m_IncludeTags.Remove(tag);
+  }
+
+  if (cvar_JoltVisualizeGeometry)
+  {
+    const ezVec3 vCenterPos = pView->GetCamera()->GetCenterPosition();
+
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Static, tag);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Dynamic, tag);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Query, tag);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Ragdoll, tag);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Trigger, tag);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Rope, tag);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Cloth, tag);
+  }
+
+  for (auto it = m_DebugDrawComponents.GetIterator(); it.IsValid();)
+  {
+    if (it.Value().m_uiLastSeenCounter < m_uiDebugGeoLastSeenCounter)
+    {
+      GetWorld()->DeleteObjectDelayed(it.Value().m_hObject);
+      it = m_DebugDrawComponents.Remove(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
+
+  for (auto it = m_DebugDrawShapeGeo.GetIterator(); it.IsValid();)
+  {
+    if (it.Value().m_uiLastSeenCounter < m_uiDebugGeoLastSeenCounter)
+    {
+      it = m_DebugDrawShapeGeo.Remove(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
+}
+
+void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, ezPhysicsShapeType::Enum shapeType, const ezTag& tag)
+{
+  const ezVec3 vAabbMin = vCenter - ezVec3(fRadius);
+  const ezVec3 vAabbMax = vCenter + ezVec3(fRadius);
+
+  JPH::AABox aabb;
+  aabb.mMin = ezJoltConversionUtils::ToVec3(vAabbMin);
+  aabb.mMax = ezJoltConversionUtils::ToVec3(vAabbMax);
+
+  JPH::AllHitCollisionCollector<JPH::TransformedShapeCollector> collector;
+
+  ezJoltBroadPhaseLayerFilter broadphaseFilter(shapeType);
+  JPH::ObjectLayerFilter objectFilterAll;
+  JPH::BodyFilter bodyFilterAll;
+
+  m_pSystem->GetNarrowPhaseQuery().CollectTransformedShapes(aabb, collector, broadphaseFilter, objectFilterAll, bodyFilterAll);
+
+  auto* pBodies = &m_pSystem->GetBodyInterface();
+
+  const int cMaxTriangles = 128;
+
+
+  ezStaticArray<ezVec3, cMaxTriangles * 3> positionsTmp;
+  positionsTmp.SetCountUninitialized(cMaxTriangles * 3);
+
+  ezStaticArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp;
+  materialsTmp.SetCountUninitialized(cMaxTriangles);
+
+  ezHybridArray<ezVec3, cMaxTriangles * 3> positionsTmp2;
+  ezHybridArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp2;
+
+  for (const JPH::TransformedShape& ts : collector.mHits)
+  {
+    DebugBodyShapeKey key;
+    key.m_uiBodyID = ts.mBodyID.GetIndexAndSequenceNumber();
+    key.m_pShapePtr = ts.mShape.GetPtr();
+
+    bool bExisted = false;
+    auto& geo = m_DebugDrawComponents.FindOrAdd(key, &bExisted).Value();
+    geo.m_uiLastSeenCounter = m_uiDebugGeoLastSeenCounter;
+
+    DebugGeoShape& shapeGeo = m_DebugDrawShapeGeo[key.m_pShapePtr];
+    shapeGeo.m_uiLastSeenCounter = m_uiDebugGeoLastSeenCounter;
+
+    ezTransform objTrans;
+    objTrans.m_vPosition = ezJoltConversionUtils::ToVec3(ts.mShapePositionCOM);
+    objTrans.m_qRotation = ezJoltConversionUtils::ToQuat(ts.mShapeRotation);
+    objTrans.m_vScale = ezJoltConversionUtils::ToVec3(ts.mShapeScale);
+
+    if (bExisted)
+    {
+      ezGameObject* pObj;
+      if (GetWorld()->TryGetObject(geo.m_hObject, pObj))
+      {
+        pObj->SetGlobalTransform(objTrans);
+      }
+
+      if (!geo.m_bMutableGeometry)
+        continue;
+    }
+
+    JPH::BodyLockRead lock(m_pSystem->GetBodyLockInterface(), ts.mBodyID);
+    if (!lock.Succeeded())
+      continue;
+
+    positionsTmp2.Clear();
+    materialsTmp2.Clear();
+
+    if (!shapeGeo.m_hMesh.IsValid() || (geo.m_bMutableGeometry && lock.GetBody().IsActive()))
+    {
+      shapeGeo.m_Bounds = ezBoundingBox::MakeInvalid();
+
+      JPH::Shape::GetTrianglesContext ctx;
+      ts.mShape->GetTrianglesStart(ctx, JPH::AABox::sBiggest(), JPH::Vec3::sZero(), JPH::Quat::sIdentity(), JPH::Vec3::sReplicate(1.0f));
+
+      while (true)
+      {
+        const int triCount = ts.mShape->GetTrianglesNext(ctx, cMaxTriangles, reinterpret_cast<JPH::Float3*>(positionsTmp.GetData()), materialsTmp.GetData());
+
+        if (triCount == 0)
+          break;
+
+        positionsTmp2.PushBackRange(positionsTmp.GetArrayPtr().GetSubArray(0, triCount * 3));
+        materialsTmp2.PushBackRange(materialsTmp.GetArrayPtr().GetSubArray(0, triCount));
+      }
+
+      if (positionsTmp2.GetCount() >= 3)
+      {
+        ezDynamicMeshBufferResourceDescriptor desc;
+        desc.m_Topology = ezGALPrimitiveTopology::Triangles;
+        desc.m_uiMaxVertices = positionsTmp2.GetCount();
+        desc.m_uiMaxPrimitives = positionsTmp2.GetCount() / 3;
+        desc.m_IndexType = ezGALIndexType::None;
+        desc.m_bColorStream = false;
+
+        ezStringBuilder sGuid;
+        sGuid.Format("ColMeshVisGeo_{}", s_iColMeshVisGeoCounter.Increment());
+
+        if (!shapeGeo.m_hMesh.IsValid())
+        {
+          shapeGeo.m_hMesh = ezResourceManager::CreateResource<ezDynamicMeshBufferResource>(sGuid, std::move(desc));
+        }
+
+        ezResourceLock<ezDynamicMeshBufferResource> pMeshBuf(shapeGeo.m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
+
+        ezArrayPtr<ezDynamicMeshVertex> vertices = pMeshBuf->AccessVertexData();
+        for (ezUInt32 vtxIdx = 0; vtxIdx < vertices.GetCount(); ++vtxIdx)
+        {
+          auto& vtx = vertices[vtxIdx];
+          vtx.m_vPosition = positionsTmp2[vtxIdx];
+          vtx.m_vTexCoord.SetZero();
+          vtx.m_vEncodedNormal.SetZero();
+          vtx.m_vEncodedTangent.SetZero();
+
+          shapeGeo.m_Bounds.ExpandToInclude(vtx.m_vPosition);
+        }
+      }
+    }
+
+    if (bExisted)
+      continue;
+
+    ezGameObjectDesc gd;
+    gd.m_bDynamic = true;
+    gd.m_LocalPosition = objTrans.m_vPosition;
+    gd.m_LocalRotation = objTrans.m_qRotation;
+    gd.m_LocalScaling = objTrans.m_vScale;
+
+    gd.m_Tags.Set(tag);
+    ezGameObject* pObj;
+    geo.m_hObject = GetWorld()->CreateObject(gd, pObj);
+    geo.m_bMutableGeometry = lock.GetBody().IsSoftBody();
+
+    ezCustomMeshComponent* pMesh;
+    ezCustomMeshComponent::CreateComponent(pObj, pMesh);
+
+    const bool bKinematic = (lock.GetBody().GetMotionType() == JPH::EMotionType::Kinematic);
+    const auto& vis = s_Vis[ezMath::FirstBitLow((ezUInt32)shapeType)][bKinematic ? 1 : 0];
+
+    pMesh->SetMeshResource(shapeGeo.m_hMesh);
+    pMesh->SetBounds(shapeGeo.m_Bounds);
+    pMesh->SetMaterialFile(vis.m_szMaterial);
+    pMesh->SetColor(vis.m_Color);
+  }
+}
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltWorldModule);
