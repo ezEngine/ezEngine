@@ -13,11 +13,21 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <EditorPluginAssets/CustomDataAsset/CustomDataAsset.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomDataAssetDocument, 1, ezRTTINoAllocator)
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomDataAssetProperties, 1, ezRTTIDefaultAllocator<ezCustomDataAssetProperties>)
+EZ_BEGIN_PROPERTIES
+{
+  EZ_MEMBER_PROPERTY("Type", m_pType)->AddFlags(ezPropertyFlags::PointerOwner),
+}
+EZ_END_PROPERTIES;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomDataAssetDocument, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezCustomDataAssetDocument::ezCustomDataAssetDocument(ezStringView sDocumentPath)
-: ezSimpleAssetDocument<ezCustomDataAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument<ezCustomDataAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
@@ -26,8 +36,6 @@ ezTransformStatus ezCustomDataAssetDocument::InternalTransformAsset(ezStreamWrit
 {
   ezAbstractObjectGraph abstractObjectGraph;
   ezDocumentObjectConverterWriter objectWriter(&abstractObjectGraph, GetObjectManager());
-  ezRttiConverterContext converterContext;
-  ezRttiConverterReader converter(&abstractObjectGraph, &converterContext);
 
   ezDocumentObject* pObject = GetPropertyObject();
 
@@ -37,7 +45,6 @@ ezTransformStatus ezCustomDataAssetDocument::InternalTransformAsset(ezStreamWrit
   if (ezDocumentObject* pDataObject = pObject->GetChild(type.Get<ezUuid>()))
   {
     ezAbstractObjectNode* pAbstractNode = objectWriter.AddObjectToGraph(pDataObject, "root");
-    
     ezAbstractGraphBinarySerializer::Write(stream, &abstractObjectGraph);
     
     return ezStatus(EZ_SUCCESS);

@@ -1,7 +1,15 @@
 #pragma once
 
-#include <EditorPluginAssets/CustomDataAsset/CustomDataAssetProperties.h>
+#include <Core/Utils/CustomData.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+
+
+class ezCustomDataAssetProperties : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCustomDataAssetProperties, ezReflectedClass);
+public:
+  ezCustomData* m_pType = nullptr;
+};
 
 
 class ezCustomDataAssetDocument : public ezSimpleAssetDocument<ezCustomDataAssetProperties>
