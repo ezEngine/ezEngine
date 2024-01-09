@@ -56,4 +56,4 @@ private:
   EZ_RESOURCE_IMPLEMENT_COMMON_CODE(SELF##Resource);\
 
 
-#include <Core/Utils/Implementation/IntervalScheduler_inl.h>
+#include <Core/Utils/Implementation/CustomData_inl.h>
