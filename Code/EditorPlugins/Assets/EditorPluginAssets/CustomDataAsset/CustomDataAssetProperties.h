@@ -7,6 +7,6 @@ class ezCustomDataAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCustomDataAssetProperties, ezReflectedClass);
 public:
-  ezCustomData* m_pType;
+  ezCustomData* m_pType = nullptr;
 };
 

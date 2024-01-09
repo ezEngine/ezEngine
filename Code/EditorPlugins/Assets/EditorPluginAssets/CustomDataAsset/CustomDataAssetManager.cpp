@@ -20,7 +20,7 @@ ezCustomDataAssetDocumentManager::ezCustomDataAssetDocumentManager()
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_CustomData"); // \todo should only be compatible with same type
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezCustomData";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::OnlyTransformManually;
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   // \todo icon
   //ezQtImageCache::GetSingleton()->RegisterTypeImage("CustomData", QPixmap(":/AssetIcons/Surface.svg"));

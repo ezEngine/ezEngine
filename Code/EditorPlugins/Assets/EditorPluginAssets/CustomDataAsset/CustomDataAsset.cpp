@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/Serialization/ApplyNativePropertyChangesContext.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
@@ -23,9 +24,24 @@ ezCustomDataAssetDocument::ezCustomDataAssetDocument(ezStringView sDocumentPath)
 ezTransformStatus ezCustomDataAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
                                                                     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  const ezCustomDataAssetProperties* pProp = GetProperties();
+  ezAbstractObjectGraph abstractObjectGraph;
+  ezDocumentObjectConverterWriter objectWriter(&abstractObjectGraph, GetObjectManager());
+  ezRttiConverterContext converterContext;
+  ezRttiConverterReader converter(&abstractObjectGraph, &converterContext);
 
-  pProp->m_pType->Save(stream);
+  ezDocumentObject* pObject = GetPropertyObject();
 
-  return ezStatus(EZ_SUCCESS);
+  ezVariant type = pObject->GetTypeAccessor().GetValue("Type");
+  EZ_ASSERT_DEV(type.IsA<ezUuid>(), "Implementation error");
+
+  if (ezDocumentObject* pDataObject = pObject->GetChild(type.Get<ezUuid>()))
+  {
+    ezAbstractObjectNode* pAbstractNode = objectWriter.AddObjectToGraph(pDataObject, "root");
+    
+    ezAbstractGraphBinarySerializer::Write(stream, &abstractObjectGraph);
+    
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  return ezStatus(EZ_FAILURE);
 }
