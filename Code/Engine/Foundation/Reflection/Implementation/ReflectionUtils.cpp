@@ -92,16 +92,6 @@ namespace
   };
 
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<ezVariantArray>()
-  {
-    m_pType = nullptr;
-  }
-  template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<ezVariantDictionary>()
-  {
-    m_pType = nullptr;
-  }
-  template <>
   EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<ezTypedPointer>()
   {
     m_pType = nullptr;

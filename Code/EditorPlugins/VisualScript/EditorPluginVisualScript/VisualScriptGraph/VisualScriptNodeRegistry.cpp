@@ -1050,7 +1050,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
     AddInputDataPin<int>(typeDesc, nodeDesc, "Index");
-    nodeDesc.AddOutputDataPin("Element", ezGetStaticRTTI<ezVariant>(), ezVisualScriptDataType::Variant);
+    AddOutputDataPin<ezVariant>(nodeDesc, "Element");
 
     RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
   }
@@ -1074,15 +1074,147 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
   }
 
-  // Builtin_Array_GetCount,
-  // Builtin_Array_IsEmpty,
-  // Builtin_Array_Clear,
-  // Builtin_Array_Contains,
-  // Builtin_Array_IndexOf,
-  // Builtin_Array_Insert,
-  // Builtin_Array_PushBack,
-  // Builtin_Array_Remove,
-  // Builtin_Array_RemoveAt,
+  // Builtin_Array_GetCount
+  {
+    FillDesc(typeDesc, "Builtin_Array::GetCount", variantColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_GetCount;
+
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+    AddOutputDataPin<int>(nodeDesc, "");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
+
+  // Builtin_Array_IsEmpty
+  {
+    FillDesc(typeDesc, "Builtin_Array::IsEmpty", variantColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_IsEmpty;
+
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+    AddOutputDataPin<bool>(nodeDesc, "");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
+
+  // Builtin_Array_Clear
+  {
+    FillDesc(typeDesc, "Builtin_Array::Clear", variantColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_Clear;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
+
+  // Builtin_Array_Contains
+  {
+    FillDesc(typeDesc, "Builtin_Array_Contains", variantColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Array::Contains {Element}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_Contains;
+
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+    AddInputDataPin<ezVariant>(typeDesc, nodeDesc, "Element");
+    AddOutputDataPin<bool>(nodeDesc, "");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
+
+  // Builtin_Array_IndexOf
+  {
+    FillDesc(typeDesc, "Builtin_Array_IndexOf", variantColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Array::IndexOf {Element}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_IndexOf;
+
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+    AddInputDataPin<ezVariant>(typeDesc, nodeDesc, "Element");
+    AddInputDataPin<int>(typeDesc, nodeDesc, "StartIndex");
+    AddOutputDataPin<int>(nodeDesc, "");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
+  
+  // Builtin_Array_Insert
+  {
+    FillDesc(typeDesc, "Builtin_Array::Insert", variantColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_Insert;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+    AddInputDataPin<ezVariant>(typeDesc, nodeDesc, "Element");
+    AddInputDataPin<int>(typeDesc, nodeDesc, "Index");    
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
+
+  // Builtin_Array_PushBack
+  {
+    FillDesc(typeDesc, "Builtin_Array::PushBack", variantColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_PushBack;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+    AddInputDataPin<ezVariant>(typeDesc, nodeDesc, "Element");
+    
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
+
+  // Builtin_Array_Remove
+  {
+    FillDesc(typeDesc, "Builtin_Array_Remove", variantColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Array::Remove {Element}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_Remove;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+    AddInputDataPin<ezVariant>(typeDesc, nodeDesc, "Element");
+    
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
+
+  // Builtin_Array_RemoveAt
+  {
+    FillDesc(typeDesc, "Builtin_Array_RemoveAt", variantColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Array::RemoveAt {Index}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_RemoveAt;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+    AddInputDataPin<int>(typeDesc, nodeDesc, "Index");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
 
   // Builtin_TryGetComponentOfBaseType
   {

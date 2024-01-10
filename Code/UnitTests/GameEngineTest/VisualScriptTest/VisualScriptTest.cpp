@@ -27,6 +27,7 @@ void ezGameEngineTestVisualScript::SetupSubTests()
   AddSubTest("Loops", SubTests::Loops);
   AddSubTest("Loops2", SubTests::Loops2);
   AddSubTest("Properties", SubTests::Properties);
+  AddSubTest("Arrays", SubTests::Arrays);
 }
 
 ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
@@ -106,6 +107,13 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(1);
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Properties.ezObjectGraph"));
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::Arrays)
+  {
+    m_ImgCompFrames.PushBack(1);
+
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Arrays.ezObjectGraph"));
     return EZ_SUCCESS;
   }
 
