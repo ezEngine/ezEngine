@@ -48,7 +48,7 @@ public:
 
   void CollideSoftBodyVertices(JPH::Mat44Arg centerOfMassTransform, JPH::Vec3Arg scale, JPH::SoftBodyVertex* pVertices, JPH::uint numVertices, float fDeltaTime, JPH::Vec3Arg displacementDueToGravity, int iCollidingShapeIndex) const override;
 
-  virtual void CollectTransformedShapes(const JPH::AABox& box, JPH::Vec3Arg positionCOM, JPH::QuatArg rotation, JPH::Vec3Arg scale, const JPH::SubShapeIDCreator& subShapeIDCreator, JPH::TransformedShapeCollector& ioCollector, const JPH::ShapeFilter& shapeFilter) const override;
+  virtual void CollectTransformedShapes(const JPH::AABox& box, JPH::Vec3Arg positionCOM, JPH::QuatArg rotation, JPH::Vec3Arg scale, const JPH::SubShapeIDCreator& subShapeIDCreator, JPH::TransformedShapeCollector& ref_ioCollector, const JPH::ShapeFilter& shapeFilter) const override;
 
 private:
   // Helper functions called by CollisionDispatch
