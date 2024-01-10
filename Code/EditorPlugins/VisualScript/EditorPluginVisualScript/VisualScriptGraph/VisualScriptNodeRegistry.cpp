@@ -10,6 +10,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
 namespace
 {
@@ -1148,7 +1149,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
   }
-  
+
   // Builtin_Array_Insert
   {
     FillDesc(typeDesc, "Builtin_Array::Insert", variantColor);
@@ -1160,7 +1161,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.AddOutputExecutionPin("");
     nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
     AddInputDataPin<ezVariant>(typeDesc, nodeDesc, "Element");
-    AddInputDataPin<int>(typeDesc, nodeDesc, "Index");    
+    AddInputDataPin<int>(typeDesc, nodeDesc, "Index");
 
     RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
   }
@@ -1176,7 +1177,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.AddOutputExecutionPin("");
     nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
     AddInputDataPin<ezVariant>(typeDesc, nodeDesc, "Element");
-    
+
     RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
   }
 
@@ -1194,7 +1195,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.AddOutputExecutionPin("");
     nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
     AddInputDataPin<ezVariant>(typeDesc, nodeDesc, "Element");
-    
+
     RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
   }
 
