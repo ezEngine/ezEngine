@@ -43,8 +43,7 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
     sTool = folder;
     sTool.AppendPath(szToolName);
 
-    ezFileStats toolStats;
-    if (ezFileSystem::GetFileStats(sTool, toolStats).Succeeded() && !toolStats.m_bIsDirectory)
+    if (ezOSFile::ExistsFile(sTool))
       return sTool;
   }
 

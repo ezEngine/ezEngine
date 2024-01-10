@@ -259,21 +259,16 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum P
 #endif
 }
 
-bool ezOSFile::InternalExistsFile(ezStringView sFile)
-{
-  FILE* pFile = fopen(ezString(sFile), "r");
-
-  if (pFile == nullptr)
-    return false;
-
-  fclose(pFile);
-  return true;
-}
-
 // this might not be defined on Windows
 #ifndef S_ISDIR
 #  define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
 #endif
+
+bool ezOSFile::InternalExistsFile(ezStringView sFile)
+{
+  struct stat sb;
+  return (stat(ezString(sFile), &sb) == 0 && !S_ISDIR(sb.st_mode));
+}
 
 bool ezOSFile::InternalExistsDirectory(ezStringView sDirectory)
 {
