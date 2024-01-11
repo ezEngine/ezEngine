@@ -207,6 +207,8 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
 void ezCustomMeshComponent::OnActivated()
 {
+  SUPER::OnActivated();
+
   if (false)
   {
     ezGeometry geo;

@@ -8,11 +8,13 @@
 #include <JoltPlugin/JoltPluginDLL.h>
 #include <JoltPlugin/System/JoltCollisionFiltering.h>
 #include <JoltPlugin/Utilities/JoltUserData.h>
+#include <RendererCore/Meshes/DynamicMeshBufferResource.h>
 
 class ezJoltCharacterControllerComponent;
 class ezJoltContactListener;
 class ezJoltRagdollComponent;
 class ezJoltRopeComponent;
+class ezView;
 
 namespace JPH
 {
@@ -129,6 +131,46 @@ private:
   void UpdateConstraints();
 
   ezTime CalculateUpdateSteps();
+
+  void DebugDrawGeometry();
+  void DebugDrawGeometry(const ezVec3& vCenter, float fRadius, ezPhysicsShapeType::Enum shapeType, const ezTag& tag);
+
+  struct DebugGeo
+  {
+    ezGameObjectHandle m_hObject;
+    ezUInt32 m_uiLastSeenCounter = 0;
+    bool m_bMutableGeometry = false;
+  };
+
+  struct DebugGeoShape
+  {
+    ezDynamicMeshBufferResourceHandle m_hMesh;
+    ezBoundingBox m_Bounds;
+    ezUInt32 m_uiLastSeenCounter = 0;
+  };
+
+  struct DebugBodyShapeKey
+  {
+    ezUInt32 m_uiBodyID;
+    const void* m_pShapePtr;
+
+    bool operator<(const DebugBodyShapeKey& rhs) const
+    {
+      if (m_uiBodyID == rhs.m_uiBodyID)
+        return m_pShapePtr < rhs.m_pShapePtr;
+
+      return m_uiBodyID < rhs.m_uiBodyID;
+    }
+
+    bool operator==(const DebugBodyShapeKey& rhs) const
+    {
+      return (m_uiBodyID == rhs.m_uiBodyID) && (m_pShapePtr == rhs.m_pShapePtr);
+    }
+  };
+
+  ezUInt32 m_uiDebugGeoLastSeenCounter = 0;
+  ezMap<DebugBodyShapeKey, DebugGeo> m_DebugDrawComponents;
+  ezMap<const void*, DebugGeoShape> m_DebugDrawShapeGeo;
 
   ezUInt32 m_uiNextObjectFilterID = 1;
   ezDynamicArray<ezUInt32> m_FreeObjectFilterIDs;
