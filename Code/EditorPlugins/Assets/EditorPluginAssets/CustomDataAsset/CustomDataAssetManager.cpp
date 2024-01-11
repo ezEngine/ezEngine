@@ -13,8 +13,8 @@ ezCustomDataAssetDocumentManager::ezCustomDataAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "CustomData";
   m_DocTypeDesc.m_sFileExtension = "ezCustomData";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Surface.svg"; // \todo
-  m_DocTypeDesc.m_sAssetCategory = "CustomData";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/CustomData.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Gameplay";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCustomDataAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_CustomData"); // \todo should only be compatible with same type
@@ -22,8 +22,7 @@ ezCustomDataAssetDocumentManager::ezCustomDataAssetDocumentManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezCustomData";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  // \todo icon
-  //ezQtImageCache::GetSingleton()->RegisterTypeImage("CustomData", QPixmap(":/AssetIcons/Surface.svg"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("CustomData", QPixmap(":/AssetIcons/CustomData.svg"));
 }
 
 ezCustomDataAssetDocumentManager::~ezCustomDataAssetDocumentManager()

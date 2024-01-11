@@ -14,7 +14,7 @@ public:
 
 class ezCustomDataAssetDocument : public ezSimpleAssetDocument<ezCustomDataAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCustomDataAssetDocument, ezAssetDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCustomDataAssetDocument, ezSimpleAssetDocument<ezCustomDataAssetProperties>);
 
 public:
   ezCustomDataAssetDocument(ezStringView sDocumentPath);

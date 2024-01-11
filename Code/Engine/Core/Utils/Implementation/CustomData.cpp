@@ -14,7 +14,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezCustomData::Load(ezAbstractObjectGraph& graph, ezRttiConverterContext& context, const ezAbstractObjectNode* pRootNode)
 {
-  //ezReflectionSerializer::ReadObjectPropertiesFromBinary(inout_stream, *GetDynamicRTTI(), this);
   ezRttiConverterReader convRead(&graph, &context);
   convRead.ApplyPropertiesToObject(pRootNode, GetDynamicRTTI(), this);
 }
