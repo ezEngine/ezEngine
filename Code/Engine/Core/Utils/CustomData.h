@@ -8,6 +8,14 @@
 #include <Foundation/Reflection/Reflection.h>
 
 
+/// \brief A base class for user-defined data assets.
+///
+/// Allows users to define their own asset types that can be created, edited and referenced in the editor
+/// without writing an editor plugin. In order to do that, subclass ezCustomData, put 
+/// EZ_DECLARE_CUSTOM_DATA_RESOURCE(YourCustomData) macro in you header and 
+/// EZ_DEFINE_CUSTOM_DATA_RESOURCE(YourCustomData) macro in your implementation file.
+/// Those will also define resource and resource handle types such as YourCustomDataResource and
+/// YourCustomDataResourceHandle.
 class EZ_CORE_DLL ezCustomData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCustomData, ezReflectedClass);
