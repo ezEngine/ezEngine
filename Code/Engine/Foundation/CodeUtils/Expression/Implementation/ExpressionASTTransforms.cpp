@@ -990,6 +990,31 @@ ezExpressionAST::Node* ezExpressionAST::Validate(Node* pNode)
   return pNode;
 }
 
+ezResult ezExpressionAST::ScalarizeInputs()
+{
+  for (ezUInt32 uiInputIndex = 0; uiInputIndex < m_InputNodes.GetCount(); ++uiInputIndex)
+  {
+    const auto pInput = m_InputNodes[uiInputIndex];
+    if (pInput == nullptr)
+      return EZ_FAILURE;
+
+    const ezUInt32 uiNumElements = pInput->m_uiNumInputElements;
+    if (uiNumElements > 1)
+    {
+      m_InputNodes.RemoveAtAndCopy(uiInputIndex);
+
+      for (ezUInt32 i = 0; i < uiNumElements; ++i)
+      {
+        ezEnum<VectorComponent> component = static_cast<VectorComponent::Enum>(i);
+        auto pNewInput = CreateInput(CreateScalarizedStreamDesc(pInput->m_Desc, component));
+        m_InputNodes.Insert(pNewInput, uiInputIndex + i);
+      }
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezExpressionAST::ScalarizeOutputs()
 {
   for (ezUInt32 uiOutputIndex = 0; uiOutputIndex < m_OutputNodes.GetCount(); ++uiOutputIndex)

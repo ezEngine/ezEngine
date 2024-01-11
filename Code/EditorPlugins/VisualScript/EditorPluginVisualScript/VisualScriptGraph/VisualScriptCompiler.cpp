@@ -3,6 +3,9 @@
 #include <Core/World/World.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptCompiler.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptTypeDeduction.h>
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
+#include <Foundation/CodeUtils/Expression/ExpressionCompiler.h>
+#include <Foundation/CodeUtils/Expression/ExpressionParser.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/SimdMath/SimdRandom.h>
@@ -10,22 +13,6 @@
 
 namespace
 {
-  ezResult ExtractPropertyName(ezStringView sPinName, ezStringView& out_sPropertyName, ezUInt32* out_pArrayIndex = nullptr)
-  {
-    const char* szBracket = sPinName.FindSubString("[");
-    if (szBracket == nullptr)
-      return EZ_FAILURE;
-
-    out_sPropertyName = ezStringView(sPinName.GetStartPointer(), szBracket);
-
-    if (out_pArrayIndex != nullptr)
-    {
-      return ezConversionUtils::StringToUInt(szBracket + 1, *out_pArrayIndex);
-    }
-
-    return EZ_SUCCESS;
-  }
-
   void MakeSubfunctionName(const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject, ezStringBuilder& out_sName)
   {
     ezVariant sNameProperty = pObject->GetTypeAccessor().GetValue("Name");
@@ -159,6 +146,46 @@ namespace
     return EZ_SUCCESS;
   }
 
+  static ezResult FillUserData_Builtin_Expression(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
+  {
+    auto pManager = static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
+
+    ezHybridArray<const ezVisualScriptPin*, 16> pins;
+
+    ezHybridArray<ezExpression::StreamDesc, 8> inputs;
+    pManager->GetInputDataPins(pObject, pins);
+    for (auto pPin : pins)
+    {
+      auto& input = inputs.ExpandAndGetRef();
+      input.m_sName.Assign(pPin->GetName());
+      input.m_DataType = ezVisualScriptDataType::GetStreamDataType(pPin->GetResolvedScriptDataType());
+    }
+
+    ezHybridArray<ezExpression::StreamDesc, 8> outputs;
+    pManager->GetOutputDataPins(pObject, pins);
+    for (auto pPin : pins)
+    {
+      auto& output = outputs.ExpandAndGetRef();
+      output.m_sName.Assign(pPin->GetName());
+      output.m_DataType = ezVisualScriptDataType::GetStreamDataType(pPin->GetResolvedScriptDataType());
+    }
+
+    ezString sExpressionSource = pObject->GetTypeAccessor().GetValue("Expression").Get<ezString>();
+
+    ezExpressionParser parser;
+    ezExpressionParser::Options options = {};
+    ezExpressionAST ast;
+    EZ_SUCCEED_OR_RETURN(parser.Parse(sExpressionSource, inputs, outputs, options, ast));
+
+    ezExpressionCompiler compiler;
+    ezExpressionByteCode byteCode;
+    EZ_SUCCEED_OR_RETURN(compiler.Compile(ast, byteCode));
+
+    inout_astNode.m_Value = byteCode;
+
+    return EZ_SUCCESS;
+  }
+
   static ezResult FillUserData_Builtin_TryGetComponentOfBaseType(ezVisualScriptCompiler::AstNode& inout_astNode, ezVisualScriptCompiler* pCompiler, const ezDocumentObject* pObject, const ezDocumentObject* pEntryObject)
   {
     auto typeName = pObject->GetTypeAccessor().GetValue("TypeName");
@@ -237,11 +264,11 @@ namespace
     nullptr,                       // Builtin_IsValid,
     nullptr,                       // Builtin_Select,
 
-    nullptr, // Builtin_Add,
-    nullptr, // Builtin_Subtract,
-    nullptr, // Builtin_Multiply,
-    nullptr, // Builtin_Divide,
-    nullptr, // Builtin_Expression,
+    nullptr,                          // Builtin_Add,
+    nullptr,                          // Builtin_Subtract,
+    nullptr,                          // Builtin_Multiply,
+    nullptr,                          // Builtin_Divide,
+    &FillUserData_Builtin_Expression, // Builtin_Expression,
 
     nullptr, // Builtin_ToBool,
     nullptr, // Builtin_ToByte,
@@ -657,7 +684,7 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildAST(const ezDocume
 
       AstNode* pAstNodeToAddInput = pAstNode;
       bool bArrayInput = false;
-      if (pNodeDesc->m_Type != ezVisualScriptNodeDescription::Type::Builtin_MakeArray && pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
+      if (pinDesc.m_bReplaceWithArray && pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
       {
         const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(pinDesc.m_sDynamicPinProperty);
         if (pProp == nullptr)
@@ -679,11 +706,7 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildAST(const ezDocume
       {
         auto pPin = pins[uiNextInputPinIndex];
 
-        ezStringView sPropertyName = pPin->GetName();
-        ezUInt32 uiArrayIndex = 0;
-        ExtractPropertyName(sPropertyName, sPropertyName, &uiArrayIndex).IgnoreResult();
-
-        if (pinDesc.m_sName.GetView() != sPropertyName)
+        if (pPin->GetDynamicPinProperty() != pinDesc.m_sDynamicPinProperty)
           break;
 
         auto connections = m_pManager->GetConnections(*pPin);
@@ -717,14 +740,18 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildAST(const ezDocume
           }
           else
           {
-            ezStringBuilder sTmp;
-            const char* szPropertyName = sPropertyName.GetData(sTmp);
+            ezStringView sPropertyName = pPin->HasDynamicPinProperty() ? pPin->GetDynamicPinProperty() : pPin->GetName();
 
-            ezVariant value = pObject->GetTypeAccessor().GetValue(szPropertyName);
+            ezVariant value = pObject->GetTypeAccessor().GetValue(sPropertyName);
             if (value.IsValid() && pPin->HasDynamicPinProperty())
             {
               EZ_ASSERT_DEBUG(value.IsA<ezVariantArray>(), "Implementation error");
-              value = value.Get<ezVariantArray>()[uiArrayIndex];
+              value = value.Get<ezVariantArray>()[pPin->GetElementIndex()];
+            }
+
+            if (value.IsA<ezUuid>())
+            {
+              value = 0;
             }
 
             ezVisualScriptDataType::Enum valueDataType = ezVisualScriptDataType::FromVariantType(value.GetType());
@@ -1847,7 +1874,7 @@ void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutpu
           {
             sb.AppendFormat("\nValue: {}", pAstNode->m_Value);
           }
-          
+
           float colorX = ezSimdRandom::FloatZeroToOne(ezSimdVec4i(ezHashingUtils::StringHash(szTypeName))).x();
 
           ezDGMLGraph::NodeDesc nd;

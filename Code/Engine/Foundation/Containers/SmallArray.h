@@ -95,10 +95,10 @@ public:
   bool RemoveAndSwap(const T& value); // [tested]
 
   /// \brief Removes the element at index and fills the gap by shifting all following elements
-  void RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
+  void RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt16 uiNumElements = 1); // [tested]
 
   /// \brief Removes the element at index and fills the gap by swapping in the last element
-  void RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
+  void RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt16 uiNumElements = 1); // [tested]
 
   /// \brief Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
   ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const; // [tested]

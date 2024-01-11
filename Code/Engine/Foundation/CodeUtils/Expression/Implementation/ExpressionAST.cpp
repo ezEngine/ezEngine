@@ -564,6 +564,7 @@ ezExpressionAST::Input* ezExpressionAST::CreateInput(const ezExpression::StreamD
   auto pInput = EZ_NEW(&m_Allocator, Input);
   pInput->m_Type = NodeType::Input;
   pInput->m_ReturnType = DataType::FromStreamType(desc.m_DataType);
+  pInput->m_uiNumInputElements = static_cast<ezUInt8>(DataType::GetElementCount(pInput->m_ReturnType));
   pInput->m_Desc = desc;
 
   return pInput;

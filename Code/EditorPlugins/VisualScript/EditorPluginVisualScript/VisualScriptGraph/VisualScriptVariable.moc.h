@@ -32,3 +32,29 @@ public:
 protected:
   virtual ezResult GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const override;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+struct ezVisualScriptExpressionDataType
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Int = ezVisualScriptDataType::Int,
+    Float = ezVisualScriptDataType::Float,
+    Vector3 = ezVisualScriptDataType::Vector3,
+
+    Default = Float
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptExpressionDataType);
+
+struct ezVisualScriptExpressionVariable
+{
+  ezHashedString m_sName;
+  ezEnum<ezVisualScriptExpressionDataType> m_Type;
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptExpressionVariable);

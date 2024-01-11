@@ -856,6 +856,58 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Div);
 
+  static ExecResult NodeFunction_Builtin_Expression(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto pModule = GetScriptModule(inout_context);
+    if (pModule == nullptr)
+      return ExecResult::Error();
+
+    static ezHashedString sStream = ezMakeHashedString("VsStream");
+
+    int iDummy = 0;
+    ezHybridArray<ezProcessingStream, 8> inputStreams;
+    for (ezUInt32 i = 0; i < node.m_NumInputDataOffsets; ++i)
+    {
+      auto dataOffset = node.GetInputDataOffset(i);
+
+      ezTypedPointer ptr;
+      if (dataOffset.IsConstant())
+      {
+        ptr.m_pObject = &iDummy;
+      }
+      else
+      {
+        ptr = inout_context.GetPointerData(dataOffset);
+      }
+
+      const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
+      auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
+
+      inputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject),uiDataSize), streamDataType));
+    }
+
+    ezHybridArray<ezProcessingStream, 8> outputStreams;
+    for (ezUInt32 i = 0; i < node.m_NumOutputDataOffsets; ++i)
+    {
+      auto dataOffset = node.GetOutputDataOffset(i);
+      ezTypedPointer ptr = inout_context.GetPointerData(dataOffset);
+
+      const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
+      auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
+
+      outputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
+    }
+
+    auto& userData = node.GetUserData<NodeUserData_Expression>();
+    if (pModule->GetSharedExpressionVM().Execute(userData.m_ByteCode, inputStreams, outputStreams, 1, ezExpression::GlobalData(), ezExpressionVM::Flags::ScalarizeStreams).Failed())
+    {
+      ezLog::Error("Visual script expression execution failed");
+      return ExecResult::Error();
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
   //////////////////////////////////////////////////////////////////////////
 
   template <typename T>
@@ -978,13 +1030,12 @@ namespace
   static ExecResult NodeFunction_Builtin_String_Format(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
-    auto& params = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(1));
 
     ezHybridArray<ezString, 12> stringStorage;
-    stringStorage.Reserve(params.GetCount());
-    for (auto& param : params)
+    stringStorage.Reserve(node.m_NumInputDataOffsets - 1);
+    for (ezUInt32 i = 1; i < node.m_NumInputDataOffsets; ++i)
     {
-      stringStorage.PushBack(param.ConvertTo<ezString>());
+      stringStorage.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(i), nullptr).ConvertTo<ezString>());
     }
 
     ezHybridArray<ezStringView, 12> stringViews;
@@ -1415,7 +1466,7 @@ namespace
     {nullptr, &NodeFunction_Builtin_Sub_Getter}, // Builtin_Subtract,
     {nullptr, &NodeFunction_Builtin_Mul_Getter}, // Builtin_Multiply,
     {nullptr, &NodeFunction_Builtin_Div_Getter}, // Builtin_Divide,
-    {},                                          // Builtin_Expression,
+    {&NodeFunction_Builtin_Expression},          // Builtin_Expression,
 
     {nullptr, &NodeFunction_Builtin_ToBool_Getter},            // Builtin_ToBool,
     {nullptr, &NodeFunction_Builtin_ToByte_Getter},            // Builtin_ToByte,

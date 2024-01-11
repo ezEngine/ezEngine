@@ -214,7 +214,8 @@ namespace
       expectedResultAsU = expectedResult;
     }
 
-    auto TestRes = [](U res, U expectedRes, const char* szCode, const char* szAValue, const char* szBValue) {
+    auto TestRes = [](U res, U expectedRes, const char* szCode, const char* szAValue, const char* szBValue)
+    {
       if constexpr (std::is_same<T, float>::value)
       {
         EZ_TEST_FLOAT_MSG(res, expectedRes, ezMath::DefaultEpsilon<float>(), "%s (a=%s, b=%s)", szCode, szAValue, szBValue);
@@ -386,13 +387,15 @@ namespace
     ezProcessingStream inputs[] = {
       ezProcessingStream(s_sA, a.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type),
       ezProcessingStream(s_sB, b.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type),
+      ezProcessingStream(s_sC, a.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type), // Dummy stream, not actually used
+      ezProcessingStream(s_sD, a.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type), // Dummy stream, not actually used
     };
 
     ezProcessingStream outputs[] = {
       ezProcessingStream(s_sOutput, o.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type),
     };
 
-    EZ_TEST_BOOL(s_pVM->Execute(testByteCode, inputs, outputs, uiCount).Succeeded());
+    EZ_TEST_BOOL(s_pVM->Execute(testByteCode, inputs, outputs, uiCount, ezExpression::GlobalData(), ezExpressionVM::Flags::BestPerformance).Succeeded());
 
     for (ezUInt32 i = 0; i < uiCount; ++i)
     {

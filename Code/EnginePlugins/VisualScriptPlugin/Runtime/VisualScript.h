@@ -57,7 +57,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_Subtract,
       Builtin_Multiply,
       Builtin_Divide,
-      Builtin_Expression, // TODO
+      Builtin_Expression,
 
       Builtin_ToBool,
       Builtin_ToByte,

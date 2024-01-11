@@ -385,6 +385,21 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
 
+  // Ensure that all nodes have their pins created
+  for (auto it : graph.GetAllNodes())
+  {
+    auto pAbstractObject = it.Value();
+    ezDocumentObject* pObject = GetObject(pAbstractObject->GetGuid());
+    if (pObject != nullptr && IsNode(pObject))
+    {
+      auto& nodeInternal = m_ObjectToNode[pObject->GetGuid()];
+      if (nodeInternal.m_Inputs.IsEmpty() && nodeInternal.m_Outputs.IsEmpty())
+      {
+        InternalCreatePins(pObject, nodeInternal);
+      }
+    }
+  }
+
   for (auto it : graph.GetAllNodes())
   {
     auto pAbstractObject = it.Value();
@@ -691,6 +706,26 @@ void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, 
         out_Names.PushBack(a[i].ConvertTo<ezString>());
       }
     }
+    else if (pArrayProp->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::Class))
+    {
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        auto pInnerObject = GetObject(a[i].Get<ezUuid>());
+        if (pInnerObject == nullptr)
+          continue;
+
+        ezVariant nameVar = pInnerObject->GetTypeAccessor().GetValue("Name");
+        if (nameVar.IsString() || nameVar.IsHashedString())
+        {
+          out_Names.PushBack(nameVar.ConvertTo<ezString>());
+        }
+        else
+        {
+          sTemp.SetFormat("{}[{}]", sPinName, i);
+          out_Names.PushBack(sTemp);
+        }
+      }
+    }
     else
     {
       for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -712,13 +747,19 @@ bool ezDocumentNodeManager::TryRecreatePins(const ezDocumentObject* pObject)
   for (auto& pPin : nodeInternal.m_Inputs)
   {
     if (HasConnections(*pPin))
+    {
+      ezLog::Error("Can't re-create pins if they are still connected");
       return false;
+    }
   }
 
   for (auto& pPin : nodeInternal.m_Outputs)
   {
     if (HasConnections(*pPin))
+    {
+      ezLog::Error("Can't re-create pins if they are still connected");
       return false;
+    }
   }
 
   {
@@ -819,6 +860,10 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
         ezDocumentNodeManagerEvent e2(ezDocumentNodeManagerEvent::Type::AfterNodeAdded, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
       }
+      else
+      {
+        HandlePotentialDynamicPinPropertyChanged(e.m_pNewParent, e.m_sParentProperty);
+      }
     }
     break;
     case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
@@ -827,7 +872,7 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
       {
         ezDocumentNodeManagerEvent e2(ezDocumentNodeManagerEvent::Type::BeforeNodeRemoved, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
-      }
+      }      
     }
     break;
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
@@ -836,6 +881,10 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
       {
         ezDocumentNodeManagerEvent e2(ezDocumentNodeManagerEvent::Type::AfterNodeRemoved, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
+      }
+      else
+      {
+        HandlePotentialDynamicPinPropertyChanged(e.m_pPreviousParent, e.m_sParentProperty);
       }
     }
     break;
@@ -847,16 +896,27 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
 
 void ezDocumentNodeManager::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_pObject == nullptr)
+  HandlePotentialDynamicPinPropertyChanged(e.m_pObject, e.m_sProperty);
+
+  if (const ezDocumentObject* pParent = e.m_pObject->GetParent())
+  {
+    HandlePotentialDynamicPinPropertyChanged(pParent, e.m_pObject->GetParentProperty());
+  }
+}
+
+
+void ezDocumentNodeManager::HandlePotentialDynamicPinPropertyChanged(const ezDocumentObject* pObject, ezStringView sPropertyName)
+{
+  if (pObject == nullptr)
     return;
 
-  const ezAbstractProperty* pProp = e.m_pObject->GetType()->FindPropertyByName(e.m_sProperty);
+  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sPropertyName);
   if (pProp == nullptr)
     return;
 
-  if (IsDynamicPinProperty(e.m_pObject, pProp))
+  if (IsDynamicPinProperty(pObject, pProp))
   {
-    TryRecreatePins(e.m_pObject);
+    TryRecreatePins(pObject);
   }
 }
 

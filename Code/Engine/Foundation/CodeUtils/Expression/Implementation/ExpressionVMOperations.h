@@ -11,7 +11,7 @@ namespace
     ezExpression::Register* m_pRegisters = nullptr;
     ezUInt32 m_uiNumInstances = 0;
     ezUInt32 m_uiNumSimd4Instances = 0;
-    ezArrayPtr<ezProcessingStream*> m_Inputs;
+    ezArrayPtr<const ezProcessingStream*> m_Inputs;
     ezArrayPtr<ezProcessingStream*> m_Outputs;
     ezArrayPtr<const ezExpressionFunction*> m_Functions;
     const ezExpression::GlobalData* m_pGlobalData = nullptr;

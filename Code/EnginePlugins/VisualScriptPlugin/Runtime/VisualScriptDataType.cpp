@@ -200,6 +200,23 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromVariantType(ezVariantTy
   }
 }
 
+ezProcessingStream::DataType ezVisualScriptDataType::GetStreamDataType(Enum dataType)
+{
+  switch (dataType)
+  {
+    case Int:
+      return ezProcessingStream::DataType::Int;
+    case Float:
+      return ezProcessingStream::DataType::Float;
+    case Vector3:
+      return ezProcessingStream::DataType::Float3;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return ezProcessingStream::DataType::Float;
+}
+
 // static
 const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
 {

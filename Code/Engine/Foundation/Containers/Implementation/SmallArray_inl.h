@@ -278,7 +278,7 @@ bool ezSmallArrayBase<T, Size>::RemoveAndSwap(const T& value)
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumElements /*= 1*/)
+void ezSmallArrayBase<T, Size>::RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt16 uiNumElements /*= 1*/)
 {
   EZ_ASSERT_DEV(uiIndex + uiNumElements <= m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex + uiNumElements - 1);
 
@@ -289,7 +289,7 @@ void ezSmallArrayBase<T, Size>::RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNum
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt32 uiNumElements /*= 1*/)
+void ezSmallArrayBase<T, Size>::RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt16 uiNumElements /*= 1*/)
 {
   EZ_ASSERT_DEV(uiIndex + uiNumElements <= m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex + uiNumElements - 1);
 

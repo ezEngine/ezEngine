@@ -19,7 +19,7 @@ private:
   ezResult UpdateRegisterLifetime(const ezExpressionAST& ast);
   ezResult AssignRegisters();
   ezResult GenerateByteCode(const ezExpressionAST& ast, ezExpressionByteCode& out_byteCode);
-  ezResult GenerateConstantByteCode(const ezExpressionAST::Constant* pConstant, ezExpressionByteCode& out_byteCode);
+  ezResult GenerateConstantByteCode(const ezExpressionAST::Constant* pConstant);
 
   using TransformFunc = ezDelegate<ezExpressionAST::Node*(ezExpressionAST::Node*)>;
   ezResult TransformASTPreOrder(ezExpressionAST& ast, TransformFunc func);
@@ -37,6 +37,8 @@ private:
   ezHashTable<ezHashedString, ezUInt32> m_InputToIndex;
   ezHashTable<ezHashedString, ezUInt32> m_OutputToIndex;
   ezHashTable<ezHashedString, ezUInt32> m_FunctionToIndex;
+
+  ezDynamicArray<ezUInt32> m_ByteCode;
 
   struct LiveInterval
   {

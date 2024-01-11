@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
@@ -312,6 +313,47 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////
 
+  struct NodeUserData_Expression
+  {
+    ezExpressionByteCode m_ByteCode;
+
+    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    {
+      const ezExpressionByteCode& byteCode = nodeDesc.m_Value.Get<ezExpressionByteCode>();
+
+      ezUInt32 uiDataSize = static_cast<ezUInt32>(byteCode.GetDataBlob().GetCount());
+      inout_stream << uiDataSize;
+
+      EZ_SUCCEED_OR_RETURN(byteCode.Save(inout_stream));
+
+      out_uiSize = sizeof(NodeUserData_Expression) + uiDataSize;
+      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_Expression);
+      return EZ_SUCCESS;
+    }
+
+    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    {
+      auto& userData = ref_node.InitUserData<NodeUserData_Expression>(inout_pAdditionalData);
+
+      ezUInt32 uiDataSize = 0;
+      inout_stream >> uiDataSize;
+
+      auto externalMemory = ezMakeArrayPtr(inout_pAdditionalData, uiDataSize);
+      inout_pAdditionalData += uiDataSize;
+
+      EZ_SUCCEED_OR_RETURN(userData.m_ByteCode.Load(inout_stream, externalMemory));
+
+      return EZ_SUCCESS;
+    }
+
+    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    {
+      // Nothing to add here
+    }
+  };
+
+  //////////////////////////////////////////////////////////////////////////
+
   struct NodeUserData_StartCoroutine : public NodeUserData_Type
   {
     ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
@@ -420,7 +462,9 @@ namespace
     {}, // Builtin_Subtract,
     {}, // Builtin_Multiply,
     {}, // Builtin_Divide,
-    {}, // Builtin_Expression,
+    {&NodeUserData_Expression::Serialize,
+      &NodeUserData_Expression::Deserialize,
+      &NodeUserData_Expression::ToString}, // Builtin_Expression,
 
     {}, // Builtin_ToBool,
     {}, // Builtin_ToByte,

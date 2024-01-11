@@ -165,7 +165,7 @@ void PlacementTask::ExecuteVM()
     }
 
     // Execute expression bytecode
-    if (m_VM.Execute(*(pOutput->m_pByteCode), inputs, outputs, uiNumInstances, m_pData->m_GlobalData).Failed())
+    if (m_VM.Execute(*(pOutput->m_pByteCode), inputs, outputs, uiNumInstances, m_pData->m_GlobalData, ezExpressionVM::Flags::BestPerformance).Failed())
     {
       return;
     }

@@ -201,6 +201,7 @@ void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<ezExpression::StreamDesc> 
   for (auto& inputDesc : inputs)
   {
     auto pInput = m_pAST->CreateInput(inputDesc);
+    m_pAST->m_InputNodes.PushBack(pInput);
     m_KnownVariables.Insert(inputDesc.m_sName, pInput);
   }
 
