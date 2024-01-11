@@ -134,7 +134,6 @@ private:
 
   void DebugDrawGeometry();
   void DebugDrawGeometry(const ezVec3& vCenter, float fRadius, ezPhysicsShapeType::Enum shapeType, const ezTag& tag);
-  ezView* GetMainView() const;
 
   struct DebugGeo
   {

@@ -774,89 +774,70 @@ void ezJoltWorldModule::UpdateConstraints()
 
 ezAtomicInteger32 s_iColMeshVisGeoCounter;
 
-ezView* ezJoltWorldModule::GetMainView() const
-{
-  for (ezViewHandle hView : ezRenderWorld::GetMainViews())
-  {
-    ezView* pView;
-    if (!ezRenderWorld::TryGetView(hView, pView))
-      continue;
-
-    if (pView->GetWorld() != GetWorld())
-      continue;
-
-    if (pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView ||
-        pView->GetCameraUsageHint() == ezCameraUsageHint::MainView)
-    {
-      return pView;
-    }
-  }
-
-  return nullptr;
-}
-
 struct DebugVis
 {
   const char* m_szMaterial = nullptr;
   ezColor m_Color;
 };
 
-// "{ e6367876-ddb5-4149-ba80-180af553d463 }" = Data/Base/Materials/Common/PhysicsColliders.ezMaterialAsset
+const char* szMatSolid = "{ e6367876-ddb5-4149-ba80-180af553d463 }";       // Data/Base/Materials/Common/PhysicsColliders.ezMaterialAsset
+const char* szMatTransparent = "{ ca43dda3-a28c-41fe-ae20-419182e56f87 }"; // Data/Base/Materials/Common/PhysicsCollidersTransparent.ezMaterialAsset
+const char* szMatTwoSided = "{ b03df0e4-98b7-49ba-8413-d981014a77be }";    // Data/Base/Materials/Common/PhysicsCollidersSoft.ezMaterialAsset
 
 static const DebugVis s_Vis[ezPhysicsShapeType::Count][2] =
   {
     // Static
     {
-      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::LightSkyBlue}, // non-kinematic
-      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::Red}           // kinematic
+      {szMatSolid, ezColor::LightSkyBlue}, // non-kinematic
+      {szMatSolid, ezColor::Red}           // kinematic
     },
 
     // Dynamic
     {
-      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::Gold},      // non-kinematic
-      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::DodgerBlue} // kinematic
+      {szMatSolid, ezColor::Gold},      // non-kinematic
+      {szMatSolid, ezColor::DodgerBlue} // kinematic
     },
 
     // Query
     {
-      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::GreenYellow.WithAlpha(0.5f)}, // non-kinematic
-      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::GreenYellow.WithAlpha(0.5f)}  // kinematic
+      {szMatTransparent, ezColor::GreenYellow.WithAlpha(0.5f)}, // non-kinematic
+      {szMatTransparent, ezColor::GreenYellow.WithAlpha(0.5f)}  // kinematic
     },
 
     // Trigger
     {
-      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::Purple.WithAlpha(0.3f)}, // non-kinematic
-      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::Purple.WithAlpha(0.3f)}  // kinematic
+      {szMatTransparent, ezColor::Purple.WithAlpha(0.3f)}, // non-kinematic
+      {szMatTransparent, ezColor::Purple.WithAlpha(0.3f)}  // kinematic
     },
 
     // Character
     {
-      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::DarkTurquoise.WithAlpha(0.5f)}, // non-kinematic
-      {"{ ca43dda3-a28c-41fe-ae20-419182e56f87 }", ezColor::DarkTurquoise.WithAlpha(0.5f)}  // kinematic
+      {szMatTransparent, ezColor::DarkTurquoise.WithAlpha(0.5f)}, // non-kinematic
+      {szMatTransparent, ezColor::DarkTurquoise.WithAlpha(0.5f)}  // kinematic
     },
 
     // Ragdoll
     {
-      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::DeepPink}, // non-kinematic
-      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::DeepPink}  // kinematic
+      {szMatSolid, ezColor::DeepPink}, // non-kinematic
+      {szMatSolid, ezColor::DeepPink}  // kinematic
     },
 
     // Rope
     {
-      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::MediumVioletRed}, // non-kinematic
-      {"{ e6367876-ddb5-4149-ba80-180af553d463 }", ezColor::MediumVioletRed}  // kinematic
+      {szMatSolid, ezColor::MediumVioletRed}, // non-kinematic
+      {szMatSolid, ezColor::MediumVioletRed}  // kinematic
     },
 
     // Cloth
     {
-      {"{ b03df0e4-98b7-49ba-8413-d981014a77be }", ezColor::Crimson}, // non-kinematic
-      {"{ b03df0e4-98b7-49ba-8413-d981014a77be }", ezColor::Red}      // kinematic
+      {szMatTwoSided, ezColor::Crimson}, // non-kinematic
+      {szMatTwoSided, ezColor::Red}      // kinematic
     },
 };
 
 void ezJoltWorldModule::DebugDrawGeometry()
 {
-  ezView* pView = GetMainView();
+  ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld());
 
   if (pView == nullptr)
     return;
