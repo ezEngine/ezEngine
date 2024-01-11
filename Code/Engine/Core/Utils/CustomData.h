@@ -21,7 +21,7 @@ class EZ_CORE_DLL ezCustomData : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezCustomData, ezReflectedClass);
 
 public:
-  virtual void Load(class ezAbstractObjectGraph& graph, class ezRttiConverterContext& context, const class ezAbstractObjectNode* pRootNode);
+  virtual void Load(class ezAbstractObjectGraph& ref_graph, class ezRttiConverterContext& ref_context, const class ezAbstractObjectNode* pRootNode);
 };
 
 
@@ -34,7 +34,7 @@ public:
   ~ezCustomDataResourceBase();
 
 protected:
-  virtual void CreateAndLoadData(ezAbstractObjectGraph& graph, ezRttiConverterContext& context, const ezAbstractObjectNode* pRootNode) = 0;
+  virtual void CreateAndLoadData(ezAbstractObjectGraph& ref_graph, ezRttiConverterContext& ref_context, const ezAbstractObjectNode* pRootNode) = 0;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   ezResourceLoadDesc UpdateContent_Internal(ezStreamReader* Stream, const ezRTTI& rtti);
 };

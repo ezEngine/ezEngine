@@ -6,7 +6,7 @@ template<typename T>
 ezCustomDataResource<T>::~ezCustomDataResource() = default;
 
 template<typename T>
-void ezCustomDataResource<T>::CreateAndLoadData(ezAbstractObjectGraph& graph, ezRttiConverterContext& context, const ezAbstractObjectNode* pRootNode)
+void ezCustomDataResource<T>::CreateAndLoadData(ezAbstractObjectGraph& ref_graph, ezRttiConverterContext& ref_context, const ezAbstractObjectNode* pRootNode)
 {
   T* pData = reinterpret_cast<T*>(m_Data);
 
@@ -15,7 +15,7 @@ void ezCustomDataResource<T>::CreateAndLoadData(ezAbstractObjectGraph& graph, ez
 
   new (m_Data) T();
 
-  pData->Load(graph, context, pRootNode);
+  pData->Load(ref_graph, ref_context, pRootNode);
 }
 
 template<typename T>

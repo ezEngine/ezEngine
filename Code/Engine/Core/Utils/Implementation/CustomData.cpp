@@ -12,9 +12,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezCustomData::Load(ezAbstractObjectGraph& graph, ezRttiConverterContext& context, const ezAbstractObjectNode* pRootNode)
+void ezCustomData::Load(ezAbstractObjectGraph& ref_graph, ezRttiConverterContext& ref_context, const ezAbstractObjectNode* pRootNode)
 {
-  ezRttiConverterReader convRead(&graph, &context);
+  ezRttiConverterReader convRead(&ref_graph, &ref_context);
   convRead.ApplyPropertiesToObject(pRootNode, GetDynamicRTTI(), this);
 }
 
