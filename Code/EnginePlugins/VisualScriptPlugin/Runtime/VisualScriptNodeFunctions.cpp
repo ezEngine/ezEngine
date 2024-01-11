@@ -1115,8 +1115,15 @@ namespace
   static ExecResult NodeFunction_Builtin_Array_GetElement(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
-    ezUInt32 uiIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
-    inout_context.SetData(node.GetOutputDataOffset(0), a[uiIndex]);
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    if (iIndex >= 0 && iIndex < int(a.GetCount()))
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), a[iIndex]);
+    }
+    else
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), ezVariant());
+    }
 
     return ExecResult::RunNext(0);
   }
@@ -1124,10 +1131,15 @@ namespace
   static ExecResult NodeFunction_Builtin_Array_SetElement(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
-    ezUInt32 uiIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
-    a[uiIndex] = inout_context.GetDataAsVariant(node.GetInputDataOffset(2), nullptr);
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    if (iIndex >= 0 && iIndex < int(a.GetCount()))
+    {
+      a[iIndex] = inout_context.GetDataAsVariant(node.GetInputDataOffset(2), nullptr);
+      return ExecResult::RunNext(0);
+    }
 
-    return ExecResult::RunNext(0);
+    ezLog::Error("Visual script Array::SetElement: Index '{}' is out of bounds. Valid range is [0, {}).", iIndex, a.GetCount());
+    return ExecResult::Error();
   }
 
   static ExecResult NodeFunction_Builtin_Array_GetCount(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
@@ -1179,10 +1191,15 @@ namespace
   {
     ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
     const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
-    ezUInt32 uiIndex = inout_context.GetData<int>(node.GetInputDataOffset(2));
-    a.Insert(element, uiIndex);
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(2));
+    if (iIndex >= 0 && iIndex <= int(a.GetCount()))
+    {
+      a.Insert(element, iIndex);
+      return ExecResult::RunNext(0);
+    }
 
-    return ExecResult::RunNext(0);
+    ezLog::Error("Visual script Array::Insert: Index '{}' is out of bounds. Valid range is [0, {}].", iIndex, a.GetCount());
+    return ExecResult::Error();
   }
 
   static ExecResult NodeFunction_Builtin_Array_PushBack(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
@@ -1206,10 +1223,15 @@ namespace
   static ExecResult NodeFunction_Builtin_Array_RemoveAt(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
-    ezUInt32 uiIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
-    a.RemoveAtAndCopy(uiIndex);
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    if (iIndex >= 0 && iIndex < int(a.GetCount()))
+    {
+      a.RemoveAtAndCopy(iIndex);
+      return ExecResult::RunNext(0);
+    }
 
-    return ExecResult::RunNext(0);
+    ezLog::Error("Visual script Array::RemoveAt: Index '{}' is out of bounds. Valid range is [0, {}).", iIndex, a.GetCount());
+    return ExecResult::Error();
   }
 
   //////////////////////////////////////////////////////////////////////////

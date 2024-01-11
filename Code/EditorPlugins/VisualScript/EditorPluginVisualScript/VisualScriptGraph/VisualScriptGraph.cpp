@@ -484,7 +484,7 @@ void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCr
     ezStringBuilder sNodeTypeName;
 
     auto& typeAccessor = GetRootObject()->GetChildren()[0]->GetTypeAccessor();
-    ezUInt32 uiNumVariables = typeAccessor.GetCount(sVariables.GetView());
+    const ezUInt32 uiNumVariables = typeAccessor.GetCount(sVariables.GetView());
     for (ezUInt32 i = 0; i < uiNumVariables; ++i)
     {
       ezVariant variableUuid = typeAccessor.GetValue(sVariables.GetView(), i);
