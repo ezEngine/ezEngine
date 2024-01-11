@@ -85,7 +85,7 @@ private:
   void CreateQtConnection(const ezDocumentObject* pObject);
   void DeleteQtConnection(const ezDocumentObject* pObject);
   void RecreateQtPins(const ezDocumentObject* pObject);
-  void CreateNodeObject(const ezRTTI* pRtti);
+  void CreateNodeObject(const ezNodeCreationTemplate& nodeTemplate);
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
   void SelectionEventsHandler(const ezSelectionManagerEvent& e);
@@ -126,6 +126,8 @@ private:
   ezDynamicArray<const ezQtPin*> m_ConnectablePins;
   ezEnum<ConnectionStyle> m_ConnectionStyle;
   ezBitflags<ConnectionDecorationFlags> m_ConnectionDecorationFlags;
+
+  ezDynamicArray<ezNodeCreationTemplate> m_NodeCreationTemplates;
 
   static ezVec2 s_vLastMouseInteraction;
 };

@@ -539,7 +539,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
       }
       else if (pElement->GetName() == "Category")
       {
-        nd.m_sCategory = pElement->GetPrimitivesString()[0];
+        nd.m_sCategory.Assign(pElement->GetPrimitivesString()[0]);
       }
       else if (pElement->GetName() == "CheckPermutations")
       {

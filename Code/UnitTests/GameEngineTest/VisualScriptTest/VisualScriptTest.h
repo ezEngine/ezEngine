@@ -23,6 +23,7 @@ protected:
     Blackboard,
     Loops,
     Loops2,
+    Properties,
     Arrays,
     Maps,
     Expressions

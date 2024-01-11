@@ -658,6 +658,29 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_IsValid);
 
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_Select(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    bool bCondition = inout_context.GetData<bool>(node.GetInputDataOffset(0));
+
+    if constexpr (std::is_same_v<T, ezTypedPointer>)
+    {
+      ezTypedPointer a = inout_context.GetPointerData(node.GetInputDataOffset(1));
+      ezTypedPointer b = inout_context.GetPointerData(node.GetInputDataOffset(2));
+      ezTypedPointer res = bCondition ? a : b;
+      inout_context.SetPointerData(node.GetOutputDataOffset(0), res.m_pObject, res.m_pType);
+    }
+    else
+    {
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(1));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(2));
+      inout_context.SetData(node.GetOutputDataOffset(0), bCondition ? a : b);
+    }
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Select);
+
   //////////////////////////////////////////////////////////////////////////
 
   template <typename T>
@@ -1092,10 +1115,31 @@ namespace
   static ExecResult NodeFunction_Builtin_Array_GetElement(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
-    ezUInt32 uiIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
-    inout_context.SetData(node.GetOutputDataOffset(0), a[uiIndex]);
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    if (iIndex >= 0 && iIndex < int(a.GetCount()))
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), a[iIndex]);
+    }
+    else
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), ezVariant());
+    }
 
     return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_SetElement(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    if (iIndex >= 0 && iIndex < int(a.GetCount()))
+    {
+      a[iIndex] = inout_context.GetDataAsVariant(node.GetInputDataOffset(2), nullptr);
+      return ExecResult::RunNext(0);
+    }
+
+    ezLog::Error("Visual script Array::SetElement: Index '{}' is out of bounds. Valid range is [0, {}).", iIndex, a.GetCount());
+    return ExecResult::Error();
   }
 
   static ExecResult NodeFunction_Builtin_Array_GetCount(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
@@ -1104,6 +1148,90 @@ namespace
     inout_context.SetData<int>(node.GetOutputDataOffset(0), a.GetCount());
 
     return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_Clear(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    a.Clear();
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_IsEmpty(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    inout_context.SetData<bool>(node.GetOutputDataOffset(0), a.IsEmpty());
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_Contains(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    inout_context.SetData<bool>(node.GetOutputDataOffset(0), a.Contains(element));
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_IndexOf(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    ezUInt32 uiStartIndex = inout_context.GetData<int>(node.GetInputDataOffset(2));
+
+    ezUInt32 uiIndex = a.IndexOf(element, uiStartIndex);
+    inout_context.SetData<int>(node.GetOutputDataOffset(0), uiIndex == ezInvalidIndex ? -1 : int(uiIndex));
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_Insert(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(2));
+    if (iIndex >= 0 && iIndex <= int(a.GetCount()))
+    {
+      a.Insert(element, iIndex);
+      return ExecResult::RunNext(0);
+    }
+
+    ezLog::Error("Visual script Array::Insert: Index '{}' is out of bounds. Valid range is [0, {}].", iIndex, a.GetCount());
+    return ExecResult::Error();
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_PushBack(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    a.PushBack(element);
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_Remove(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    a.RemoveAndCopy(element);
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_RemoveAt(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    if (iIndex >= 0 && iIndex < int(a.GetCount()))
+    {
+      a.RemoveAtAndCopy(iIndex);
+      return ExecResult::RunNext(0);
+    }
+
+    ezLog::Error("Visual script Array::RemoveAt: Index '{}' is out of bounds. Valid range is [0, {}).", iIndex, a.GetCount());
+    return ExecResult::Error();
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -1281,7 +1409,7 @@ namespace
     {nullptr, &NodeFunction_Builtin_Compare_Getter}, // Builtin_Compare,
     {},                                              // Builtin_CompareExec,
     {nullptr, &NodeFunction_Builtin_IsValid_Getter}, // Builtin_IsValid,
-    {},                                              // Builtin_Select,
+    {nullptr, &NodeFunction_Builtin_Select_Getter},  // Builtin_Select,
 
     {nullptr, &NodeFunction_Builtin_Add_Getter}, // Builtin_Add,
     {nullptr, &NodeFunction_Builtin_Sub_Getter}, // Builtin_Subtract,
@@ -1303,16 +1431,16 @@ namespace
 
     {&NodeFunction_Builtin_MakeArray},        // Builtin_MakeArray
     {&NodeFunction_Builtin_Array_GetElement}, // Builtin_Array_GetElement,
-    {},                                       // Builtin_Array_SetElement,
+    {&NodeFunction_Builtin_Array_SetElement}, // Builtin_Array_SetElement,
     {&NodeFunction_Builtin_Array_GetCount},   // Builtin_Array_GetCount,
-    {},                                       // Builtin_Array_IsEmpty,
-    {},                                       // Builtin_Array_Clear,
-    {},                                       // Builtin_Array_Contains,
-    {},                                       // Builtin_Array_IndexOf,
-    {},                                       // Builtin_Array_Insert,
-    {},                                       // Builtin_Array_PushBack,
-    {},                                       // Builtin_Array_Remove,
-    {},                                       // Builtin_Array_RemoveAt,
+    {&NodeFunction_Builtin_Array_IsEmpty},    // Builtin_Array_IsEmpty,
+    {&NodeFunction_Builtin_Array_Clear},      // Builtin_Array_Clear,
+    {&NodeFunction_Builtin_Array_Contains},   // Builtin_Array_Contains,
+    {&NodeFunction_Builtin_Array_IndexOf},    // Builtin_Array_IndexOf,
+    {&NodeFunction_Builtin_Array_Insert},     // Builtin_Array_Insert,
+    {&NodeFunction_Builtin_Array_PushBack},   // Builtin_Array_PushBack,
+    {&NodeFunction_Builtin_Array_Remove},     // Builtin_Array_Remove,
+    {&NodeFunction_Builtin_Array_RemoveAt},   // Builtin_Array_RemoveAt,
 
     {&NodeFunction_Builtin_TryGetComponentOfBaseType}, // Builtin_TryGetComponentOfBaseType
 

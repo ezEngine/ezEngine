@@ -64,6 +64,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTime, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromMinutes, In, "Minutes")->AddFlags(ezPropertyFlags::Const),
     EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromHours, In, "Hours")->AddFlags(ezPropertyFlags::Const),
     EZ_SCRIPT_FUNCTION_PROPERTY(MakeZero)->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AsFloatInSeconds),
   }
   EZ_END_FUNCTIONS;
 }
@@ -308,6 +309,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezQuat, ezNoBase, 1, ezRTTINoAllocator)
   EZ_BEGIN_FUNCTIONS
   {
     EZ_CONSTRUCTOR_PROPERTY(float, float, float, float),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromAxisAndAngle, In, "Axis", In, "Angle")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeShortestRotation, In, "DirFrom", In, "DirTo")->AddFlags(ezPropertyFlags::Const),
   }
   EZ_END_FUNCTIONS;
 }
@@ -332,6 +335,11 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTransform, ezNoBase, 1, ezRTTINoAllocator)
   {
     EZ_CONSTRUCTOR_PROPERTY(ezVec3, ezQuat),
     EZ_CONSTRUCTOR_PROPERTY(ezVec3, ezQuat, ezVec3),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Make, In, "Position", In, "Rotation", In, "Scale")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeLocalTransform, In, "Parent", In, "GlobalChild")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeGlobalTransform, In, "Parent", In, "LocalChild")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(TransformPosition, In, "Position"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(TransformDirection, In, "Direction"),
   }
   EZ_END_FUNCTIONS;
 }
@@ -380,8 +388,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAngle, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(MakeFromDegree),
-    EZ_FUNCTION_PROPERTY(MakeFromRadian),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromDegree, In, "Degree")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromRadian, In, "Radian")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetNormalizedRange),
   }
   EZ_END_FUNCTIONS;
 }

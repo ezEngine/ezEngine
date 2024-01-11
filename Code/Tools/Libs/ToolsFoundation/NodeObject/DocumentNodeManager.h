@@ -99,6 +99,29 @@ private:
   const ezDocumentObject* m_pParent = nullptr;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+struct ezNodePropertyValue
+{
+  ezHashedString m_sPropertyName;
+  ezVariant m_Value;
+};
+
+/// \brief Describes a template that will be used to create new nodes. In most cases this only contains the type
+/// but it can also contain properties that are pre-filled when the node is created.
+///
+/// For example in visual script this allows us to have one generic node type for setting reflected properties
+/// but we can expose all relevant reflected properties in the node creation menu so the user does not need to fill out the property name manually.
+struct ezNodeCreationTemplate
+{
+  const ezRTTI* m_pType = nullptr;
+  ezStringView m_sTypeName;
+  ezHashedString m_sCategory;
+  ezArrayPtr<const ezNodePropertyValue> m_PropertyValues;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManager : public ezDocumentObjectManager
 {
 public:
@@ -106,6 +129,11 @@ public:
 
   ezDocumentNodeManager();
   virtual ~ezDocumentNodeManager();
+
+  /// \brief For node documents this function is called instead of GetCreateableTypes to get a list for the node creation menu.
+  ///
+  /// \see ezNodeCreationTemplate
+  virtual void GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const;
 
   virtual const ezRTTI* GetConnectionType() const;
 

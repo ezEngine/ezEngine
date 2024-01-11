@@ -410,7 +410,8 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
     return;
 
   ezHybridArray<ezString, 16> dynamicPinNames;
-  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins, ezUInt32& inout_dataPinIndex) {
+  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins, ezUInt32& inout_dataPinIndex)
+  {
     if (pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
     {
       GetDynamicPinNames(pObject, pinDesc.m_sDynamicPinProperty, pinDesc.m_sName, dynamicPinNames);
@@ -448,18 +449,84 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
   }
 }
 
-void ezVisualScriptNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
+void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const
 {
+  auto pRegistry = ezVisualScriptNodeRegistry::GetSingleton();
+  auto propertyValues = pRegistry->GetPropertyValues();
   ezHashedString sBaseClass = GetScriptBaseClass();
 
-  for (auto it : ezVisualScriptNodeRegistry::GetSingleton()->GetAllNodeTypes())
+  for (auto& nodeTemplate : pRegistry->GetNodeCreationTemplates())
   {
-    if (IsFilteredByBaseClass(it.Key(), it.Value(), sBaseClass))
+    const ezRTTI* pNodeType = nodeTemplate.m_pType;
+
+    if (IsFilteredByBaseClass(pNodeType, *pRegistry->GetNodeDescForType(pNodeType), sBaseClass))
       continue;
 
-    if (!it.Key()->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+    if (!pNodeType->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
     {
-      Types.PushBack(it.Key());
+      auto& temp = out_templates.ExpandAndGetRef();
+      temp.m_pType = pNodeType;
+      temp.m_sTypeName = nodeTemplate.m_sTypeName;
+      temp.m_sCategory = nodeTemplate.m_sCategory;
+      temp.m_PropertyValues = propertyValues.GetSubArray(nodeTemplate.m_uiPropertyValuesStart, nodeTemplate.m_uiPropertyValuesCount);
+    }
+  }
+
+  // Getter and setter templates for variables
+  if (GetRootObject()->GetChildren().IsEmpty() == false)
+  {
+    static ezHashedString sVariables = ezMakeHashedString("Variables");
+    static ezHashedString sName = ezMakeHashedString("Name");
+
+    m_PropertyValues.Clear();
+    m_VariableNodeTypeNames.Clear();
+
+    ezStringBuilder sNodeTypeName;
+
+    auto& typeAccessor = GetRootObject()->GetChildren()[0]->GetTypeAccessor();
+    const ezUInt32 uiNumVariables = typeAccessor.GetCount(sVariables.GetView());
+    for (ezUInt32 i = 0; i < uiNumVariables; ++i)
+    {
+      ezVariant variableUuid = typeAccessor.GetValue(sVariables.GetView(), i);
+      if (variableUuid.IsA<ezUuid>() == false)
+        continue;
+
+      auto pVariableObject = GetObject(variableUuid.Get<ezUuid>());
+      if (pVariableObject == nullptr)
+        continue;
+
+      ezVariant nameVar = pVariableObject->GetTypeAccessor().GetValue(sName.GetView());
+      if (nameVar.IsA<ezHashedString>() == false)
+        continue;
+
+      ezHashedString sVariableName = nameVar.Get<ezHashedString>();
+
+      ezUInt32 uiStart = m_PropertyValues.GetCount();
+      m_PropertyValues.PushBack({sName, nameVar});
+
+      // Setter
+      {
+        sNodeTypeName.Set("Set", sVariableName);
+        m_VariableNodeTypeNames.PushBack(sNodeTypeName);
+
+        auto& temp = out_templates.ExpandAndGetRef();
+        temp.m_pType = pRegistry->GetVariableSetterType();
+        temp.m_sTypeName = m_VariableNodeTypeNames.PeekBack();
+        temp.m_sCategory = sVariables;
+        temp.m_PropertyValues = m_PropertyValues.GetArrayPtr().GetSubArray(uiStart, 1);
+      }
+
+      // Getter
+      {
+        sNodeTypeName.Set("Get", sVariableName);
+        m_VariableNodeTypeNames.PushBack(sNodeTypeName);
+
+        auto& temp = out_templates.ExpandAndGetRef();
+        temp.m_pType = pRegistry->GetVariableGetterType();
+        temp.m_sTypeName = m_VariableNodeTypeNames.PeekBack();
+        temp.m_sCategory = sVariables;
+        temp.m_PropertyValues = m_PropertyValues.GetArrayPtr().GetSubArray(uiStart, 1);
+      }
     }
   }
 }

@@ -76,7 +76,7 @@ private:
 
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) override;
 
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
+  virtual void GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const override;
 
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
@@ -90,4 +90,7 @@ private:
   ezHashTable<const ezDocumentObject*, ezEnum<ezVisualScriptDataType>> m_ObjectToDeductedType;
   ezHashTable<const ezVisualScriptPin*, ezEnum<ezVisualScriptDataType>> m_PinToDeductedType;
   ezHashSet<const ezDocumentObject*> m_CoroutineObjects;
+
+  mutable ezDynamicArray<ezNodePropertyValue> m_PropertyValues;
+  mutable ezDeque<ezString> m_VariableNodeTypeNames;
 };
