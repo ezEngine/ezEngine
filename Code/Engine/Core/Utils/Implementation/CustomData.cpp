@@ -70,6 +70,7 @@ ezResourceLoadDesc ezCustomDataResourceBase::UpdateContent_Internal(ezStreamRead
   pRootNode = graph.GetNodeByName("root");
   if (pRootNode == nullptr || pRootNode->GetType() != rtti.GetTypeName())
   {
+    ezLog::Error("Expecting custom data of type '{0}' but given '{1}'", rtti.GetTypeName(), pRootNode->GetType());
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
   }
