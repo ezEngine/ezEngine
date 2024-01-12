@@ -48,11 +48,11 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezCompilerPreferences, ezNoBase, 1, ezRTTIDefault
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Compiler", ezCompiler, m_eCompiler)->AddAttributes(new ezHiddenAttribute()),
+    EZ_ENUM_MEMBER_PROPERTY("Compiler", ezCompiler, m_Compiler)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("CustomCompiler", m_bCustomCompiler)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("CppCompiler", m_CppCompiler)->AddAttributes(new ezDefaultValueAttribute(CPP_COMPILER_DEFAULT)),
-    EZ_MEMBER_PROPERTY("CCompiler", m_CCompiler)->AddAttributes(new ezDefaultValueAttribute(C_COMPILER_DEFAULT)),
-    EZ_MEMBER_PROPERTY("RcCompiler", m_RcCompiler),
+    EZ_MEMBER_PROPERTY("CppCompiler", m_sCppCompiler)->AddAttributes(new ezDefaultValueAttribute(CPP_COMPILER_DEFAULT)),
+    EZ_MEMBER_PROPERTY("CCompiler", m_sCCompiler)->AddAttributes(new ezDefaultValueAttribute(C_COMPILER_DEFAULT)),
+    EZ_MEMBER_PROPERTY("RcCompiler", m_sRcCompiler),
   }
   EZ_END_PROPERTIES;
 }
@@ -179,7 +179,7 @@ ezString ezCppProject::GetGeneratorFolderName(const ezCppSettings& cfg)
 {
   const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
 
-  switch (preferences->m_CompilerPreferences.m_eCompiler.GetValue())
+  switch (preferences->m_CompilerPreferences.m_Compiler.GetValue())
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     case ezCompiler::Vs2022:
@@ -334,11 +334,11 @@ ezString ezCppProject::GetSdkCompilerMajorVersion()
 ezStatus ezCppProject::TestCompiler()
 {
   const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
-  if (preferences->m_CompilerPreferences.m_eCompiler != GetSdkCompiler())
+  if (preferences->m_CompilerPreferences.m_Compiler != GetSdkCompiler())
   {
     return ezStatus(ezFmt("The currently configured compiler is incompatible with this SDK. The SDK was built with '{}' but the currently configured compiler is '{}'.",
       CompilerToString(GetSdkCompiler()),
-      CompilerToString(preferences->m_CompilerPreferences.m_eCompiler)));
+      CompilerToString(preferences->m_CompilerPreferences.m_Compiler)));
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -350,19 +350,19 @@ ezStatus ezCppProject::TestCompiler()
 
   if (GetSdkCompiler() == ezCompiler::Clang)
   {
-    if (!ezOSFile::ExistsFile(preferences->m_CompilerPreferences.m_RcCompiler))
+    if (!ezOSFile::ExistsFile(preferences->m_CompilerPreferences.m_sRcCompiler))
     {
-      return ezStatus(ezFmt("The selected RC compiler '{}' does not exist on disk.", preferences->m_CompilerPreferences.m_RcCompiler));
+      return ezStatus(ezFmt("The selected RC compiler '{}' does not exist on disk.", preferences->m_CompilerPreferences.m_sRcCompiler));
     }
   }
 #endif
 
   ezString cCompilerVersion, cppCompilerVersion;
-  if (TestCompilerExecutable(preferences->m_CompilerPreferences.m_CCompiler, &cCompilerVersion).Failed())
+  if (TestCompilerExecutable(preferences->m_CompilerPreferences.m_sCCompiler, &cCompilerVersion).Failed())
   {
     return ezStatus("The selected C Compiler doesn't work or doesn't exist.");
   }
-  if (TestCompilerExecutable(preferences->m_CompilerPreferences.m_CppCompiler, &cppCompilerVersion).Failed())
+  if (TestCompilerExecutable(preferences->m_CompilerPreferences.m_sCppCompiler, &cppCompilerVersion).Failed())
   {
     return ezStatus("The selected C++ Compiler doesn't work or doesn't exist.");
   }
@@ -966,10 +966,10 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
 
     if (needsCompilerPaths)
     {
-      Modify(*cacheVariables, "CMAKE_C_COMPILER", preferences->m_CompilerPreferences.m_CCompiler, result);
-      Modify(*cacheVariables, "CMAKE_CXX_COMPILER", preferences->m_CompilerPreferences.m_CppCompiler, result);
+      Modify(*cacheVariables, "CMAKE_C_COMPILER", preferences->m_CompilerPreferences.m_sCCompiler, result);
+      Modify(*cacheVariables, "CMAKE_CXX_COMPILER", preferences->m_CompilerPreferences.m_sCppCompiler, result);
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-      Modify(*cacheVariables, "CMAKE_RC_COMPILER", preferences->m_CompilerPreferences.m_RcCompiler, result);
+      Modify(*cacheVariables, "CMAKE_RC_COMPILER", preferences->m_CompilerPreferences.m_sRcCompiler, result);
       Modify(*cacheVariables, "CMAKE_RC_COMPILER_INIT", "rc", result);
 #endif
     }
@@ -1019,7 +1019,7 @@ void ezCppProject::LoadPreferences()
 
 #  if EZ_ENABLED(EZ_COMPILER_CLANG)
   // if the rcCompiler path is empty or points to a non existant file, try to autodetect it
-  if ((preferences->m_CompilerPreferences.m_RcCompiler.IsEmpty() || !ezOSFile::ExistsFile(preferences->m_CompilerPreferences.m_RcCompiler)))
+  if ((preferences->m_CompilerPreferences.m_sRcCompiler.IsEmpty() || !ezOSFile::ExistsFile(preferences->m_CompilerPreferences.m_sRcCompiler)))
   {
     ezStringBuilder rcPath;
     HKEY hInstalledRoots = nullptr;
@@ -1063,7 +1063,7 @@ void ezCppProject::LoadPreferences()
     }
     if (!rcPath.IsEmpty())
     {
-      preferences->m_CompilerPreferences.m_RcCompiler = rcPath;
+      preferences->m_CompilerPreferences.m_sRcCompiler = rcPath;
     }
   }
 
@@ -1106,13 +1106,15 @@ void ezCppProject::LoadPreferences()
   s_MachineSpecificCompilers.PushBack({"Gcc (Custom)", ezCompiler::Gcc, "", "", true});
 #endif
 
-  if (preferences->m_CompilerPreferences.m_eCompiler != sdkCompiler)
+  if (preferences->m_CompilerPreferences.m_Compiler != sdkCompiler)
   {
+    ezStringBuilder incompatibleCompilerName = u8"⚠ ";
+    incompatibleCompilerName.Format(u8"⚠ {} (incompatible)", ezCppProject::CompilerToString(preferences->m_CompilerPreferences.m_Compiler));
     s_MachineSpecificCompilers.PushBack(
-      {"SDK incompatible previously configured compiler",
-        preferences->m_CompilerPreferences.m_eCompiler,
-        preferences->m_CompilerPreferences.m_CCompiler,
-        preferences->m_CompilerPreferences.m_CppCompiler,
+      {incompatibleCompilerName,
+        preferences->m_CompilerPreferences.m_Compiler,
+        preferences->m_CompilerPreferences.m_sCCompiler,
+        preferences->m_CompilerPreferences.m_sCppCompiler,
         preferences->m_CompilerPreferences.m_bCustomCompiler});
   }
 }
@@ -1126,9 +1128,9 @@ ezResult ezCppProject::ForceSdkCompatibleCompiler()
   {
     if (!compiler.m_bIsCustom && compiler.m_Compiler == sdkCompiler)
     {
-      preferences->m_CompilerPreferences.m_eCompiler = sdkCompiler;
-      preferences->m_CompilerPreferences.m_CCompiler = compiler.m_sCCompiler;
-      preferences->m_CompilerPreferences.m_CppCompiler = compiler.m_sCppCompiler;
+      preferences->m_CompilerPreferences.m_Compiler = sdkCompiler;
+      preferences->m_CompilerPreferences.m_sCCompiler = compiler.m_sCCompiler;
+      preferences->m_CompilerPreferences.m_sCppCompiler = compiler.m_sCppCompiler;
       preferences->m_CompilerPreferences.m_bCustomCompiler = compiler.m_bIsCustom;
 
       return EZ_SUCCESS;

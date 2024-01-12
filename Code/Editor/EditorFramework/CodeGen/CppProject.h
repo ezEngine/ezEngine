@@ -55,11 +55,11 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezCompiler);
 
 struct EZ_EDITORFRAMEWORK_DLL ezCompilerPreferences
 {
-  ezEnum<ezCompiler> m_eCompiler;
+  ezEnum<ezCompiler> m_Compiler;
   bool m_bCustomCompiler;
-  ezString m_CppCompiler;
-  ezString m_CCompiler;
-  ezString m_RcCompiler;
+  ezString m_sCppCompiler;
+  ezString m_sCCompiler;
+  ezString m_sRcCompiler;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezCompilerPreferences);

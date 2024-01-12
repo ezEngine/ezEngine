@@ -40,9 +40,8 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
   {
     const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
 
-    ezAssetDocument* pDocument = m_DocumentByGuid[pMsg->m_DocumentGuid];
-
-    if (pDocument)
+    ezAssetDocument* pDocument = nullptr;
+    if(m_DocumentByGuid.TryGetValue(pMsg->m_DocumentGuid, pDocument))
     {
       pDocument->HandleEngineMessage(pMsg);
     }

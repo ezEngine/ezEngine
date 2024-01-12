@@ -873,7 +873,7 @@ void ezQtEmbeddedClassPropertyWidget::FlushQueuedChanges()
 ezQtPropertyTypeWidget::ezQtPropertyTypeWidget(bool bAddCollapsibleGroup)
   : ezQtPropertyWidget()
 {
-  m_pLayout = new QHBoxLayout(this);
+  m_pLayout = new QVBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
   m_pGroup = nullptr;
@@ -882,7 +882,7 @@ ezQtPropertyTypeWidget::ezQtPropertyTypeWidget(bool bAddCollapsibleGroup)
   if (bAddCollapsibleGroup)
   {
     m_pGroup = new ezQtCollapsibleGroupBox(this);
-    m_pGroupLayout = new QHBoxLayout(nullptr);
+    m_pGroupLayout = new QVBoxLayout(nullptr);
     m_pGroupLayout->setSpacing(1);
     m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
     m_pGroup->GetContent()->setLayout(m_pGroupLayout);
@@ -910,7 +910,7 @@ void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<ezPropertySelectio
 
   ezQtPropertyWidget::SetSelection(items);
 
-  QHBoxLayout* pLayout = m_pGroup != nullptr ? m_pGroupLayout : m_pLayout;
+  QVBoxLayout* pLayout = m_pGroup != nullptr ? m_pGroupLayout : m_pLayout;
   QWidget* pOwner = m_pGroup != nullptr ? m_pGroup->GetContent() : this;
   if (m_pTypeWidget)
   {
