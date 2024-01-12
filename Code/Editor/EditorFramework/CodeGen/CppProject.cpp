@@ -202,7 +202,7 @@ ezString ezCppProject::GetCMakeGeneratorName(const ezCppSettings& cfg)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
 
-  switch (preferences->m_CompilerPreferences.m_eCompiler.GetValue())
+  switch (preferences->m_CompilerPreferences.m_Compiler.GetValue())
   {
     case ezCompiler::Vs2022:
       return "Visual Studio 17 2022";
@@ -240,7 +240,7 @@ ezString ezCppProject::GetSolutionPath(const ezCppSettings& cfg)
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
-  if (preferences->m_CompilerPreferences.m_eCompiler == ezCompiler::Vs2022)
+  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
   {
     sSolutionFile.AppendPath(cfg.m_sPluginName);
     sSolutionFile.Append(".sln");
@@ -725,7 +725,7 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
 
-  if (preferences->m_CompilerPreferences.m_eCompiler == ezCompiler::Vs2022)
+  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
   {
     po.AddArgument("--config");
     po.AddArgument(BUILDSYSTEM_BUILDTYPE);
@@ -958,7 +958,7 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
 
     bool needsCompilerPaths = true;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    if (preferences->m_CompilerPreferences.m_eCompiler == ezCompiler::Vs2022)
+    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
     {
       needsCompilerPaths = false;
     }
@@ -986,7 +986,7 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
     Modify(presetDict, "generator", GetCMakeGeneratorName(cfg), result);
     Modify(presetDict, "binaryDir", GetBuildDir(cfg), result);
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    if (preferences->m_CompilerPreferences.m_eCompiler == ezCompiler::Vs2022)
+    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
     {
       Modify(presetDict, "architecture", "x64", result);
     }
