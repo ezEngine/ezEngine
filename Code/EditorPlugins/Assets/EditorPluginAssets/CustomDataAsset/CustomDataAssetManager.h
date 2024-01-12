@@ -11,7 +11,11 @@ public:
   ezCustomDataAssetDocumentManager();
   ~ezCustomDataAssetDocumentManager();
 
-  virtual OutputReliability GetAssetTypeOutputReliability() const override { return ezAssetDocumentManager::OutputReliability::Perfect; }
+  virtual OutputReliability GetAssetTypeOutputReliability() const override
+  {
+    // CustomData structs are typically defined in plugins, which may have changed, so they are a candidate for clearing them from the asset cache
+    return ezAssetDocumentManager::OutputReliability::Unknown;
+  }
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);

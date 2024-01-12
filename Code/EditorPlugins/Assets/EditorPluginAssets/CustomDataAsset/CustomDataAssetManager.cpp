@@ -12,9 +12,9 @@ ezCustomDataAssetDocumentManager::ezCustomDataAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCustomDataAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_DocTypeDesc.m_sDocumentTypeName = "CustomData";
-  m_DocTypeDesc.m_sFileExtension = "ezCustomData";
+  m_DocTypeDesc.m_sFileExtension = "ezCustomDataAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/CustomData.svg";
-  m_DocTypeDesc.m_sAssetCategory = "Gameplay";
+  m_DocTypeDesc.m_sAssetCategory = "Logic";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCustomDataAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_CustomData"); // \todo should only be compatible with same type

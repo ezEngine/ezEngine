@@ -7,7 +7,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 
 ezQtCustomDataAssetDocumentWindow::ezQtCustomDataAssetDocumentWindow(ezDocument* pDocument)
-: ezQtDocumentWindow(pDocument)
+  : ezQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {

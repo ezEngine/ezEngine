@@ -1,11 +1,11 @@
 #include <Core/CorePCH.h>
 
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Utils/CustomData.h>
-#include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/BinarySerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Foundation/Serialization/RttiConverter.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomData, 1, ezRTTINoAllocator)
@@ -25,7 +25,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomDataResourceBase, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCustomDataResourceBase::ezCustomDataResourceBase() : ezResource(DoUpdate::OnAnyThread, 1)
+ezCustomDataResourceBase::ezCustomDataResourceBase()
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -63,16 +64,17 @@ ezResourceLoadDesc ezCustomDataResourceBase::UpdateContent_Internal(ezStreamRead
 
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
-  const ezAbstractObjectNode* pRootNode;
 
   ezAbstractGraphBinarySerializer::Read(*Stream, &graph);
 
-  pRootNode = graph.GetNodeByName("root");
-  if (pRootNode == nullptr || pRootNode->GetType() != rtti.GetTypeName())
+  const ezAbstractObjectNode* pRootNode = graph.GetNodeByName("root");
+
+  if (pRootNode != nullptr && pRootNode->GetType() != rtti.GetTypeName())
   {
-    ezLog::Error("Expecting custom data of type '{0}' but given '{1}'", rtti.GetTypeName(), pRootNode->GetType());
-    res.m_State = ezResourceState::LoadedResourceMissing;
-    return res;
+    ezLog::Error("Expected ezCustomData type '{}' but resource is of type '{}' ('{}')", rtti.GetTypeName(), pRootNode->GetType(), GetResourceIdOrDescription());
+
+    // make sure we create a default-initialized object and don't deserialize data that happens to match
+    pRootNode = nullptr;
   }
 
   CreateAndLoadData(graph, context, pRootNode);

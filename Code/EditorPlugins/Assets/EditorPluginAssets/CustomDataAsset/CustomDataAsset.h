@@ -3,10 +3,10 @@
 #include <Core/Utils/CustomData.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
-
 class ezCustomDataAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCustomDataAssetProperties, ezReflectedClass);
+
 public:
   ezCustomData* m_pType = nullptr;
 };
@@ -21,6 +21,5 @@ public:
 
 protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                   const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 };
-
