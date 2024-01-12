@@ -39,7 +39,7 @@ ezResourceLoadDesc ezColorGradientResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezColorGradientResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezColorGradientResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezColorGradientResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

@@ -57,7 +57,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezProcGenGraphResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezProcGenGraphResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

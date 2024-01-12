@@ -166,7 +166,7 @@ ezResourceLoadDesc ezRecastNavMeshResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezRecastNavMeshResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezRecastNavMeshResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezRecastNavMeshResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

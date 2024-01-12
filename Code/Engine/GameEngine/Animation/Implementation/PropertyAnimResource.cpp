@@ -53,7 +53,7 @@ ezResourceLoadDesc ezPropertyAnimResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezPropertyAnimResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezPropertyAnimResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezPropertyAnimResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

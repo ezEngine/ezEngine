@@ -29,7 +29,7 @@ ezResourceLoadDesc ezBlackboardTemplateResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezBlackboardTemplateResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezBlackboardTemplateResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezBlackboardTemplateResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

@@ -39,7 +39,7 @@ ezResourceLoadDesc ezCurve1DResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezCurve1DResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezCurve1DResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezCurve1DResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

@@ -50,7 +50,7 @@ ezResourceLoadDesc ezAnimationClipResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezAnimationClipResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezAnimationClipResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezAnimationClipResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

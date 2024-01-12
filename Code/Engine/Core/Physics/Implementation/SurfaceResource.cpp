@@ -43,7 +43,7 @@ ezResourceLoadDesc ezSurfaceResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezSurfaceResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezSurfaceResource::UpdateContent", GetResourceIdOrDescription());
 
   m_Interactions.Clear();
 
