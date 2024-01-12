@@ -268,6 +268,10 @@ Only concrete and clocks.\n\
 
     EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == false);
     EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile2.GetData()) == false);
+
+    ezStringBuilder sOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    // We should not report folders as files
+    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFolder) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExistsDirectory")

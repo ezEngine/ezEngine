@@ -18,24 +18,34 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 
   ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  bool bFolders[2] = {false, true};
+  ezHybridArray<ezString, 3> sFolders;
+  sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
+  sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
 
   if (pPref->m_bUsePrecompiledTools)
   {
-    ezMath::Swap(bFolders[0], bFolders[1]);
+    if(!pPref->m_sCustomPrecompiledToolsFolder.IsEmpty() && ezOSFile::ExistsDirectory(pPref->m_sCustomPrecompiledToolsFolder))
+    {
+      ezStringBuilder customToolsFolder = pPref->m_sCustomPrecompiledToolsFolder;
+      customToolsFolder.MakeCleanPath();
+      sFolders.PushBack(customToolsFolder);
+      ezMath::Swap(sFolders[0], sFolders[2]);
+    }
+    else
+    {
+      ezMath::Swap(sFolders[0], sFolders[1]);
+    }
   }
 
-  ezStringBuilder sTool = ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bFolders[0]);
-  sTool.AppendPath(szToolName);
+  ezStringBuilder sTool;
+  for(auto& folder : sFolders)
+  {
+    sTool = folder;
+    sTool.AppendPath(szToolName);
 
-  if (ezFileSystem::ExistsFile(sTool))
-    return sTool;
-
-  sTool = ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bFolders[1]);
-  sTool.AppendPath(szToolName);
-
-  if (ezFileSystem::ExistsFile(sTool))
-    return sTool;
+    if (ezOSFile::ExistsFile(sTool))
+      return sTool;
+  }
 
   // just try the one in the same folder as the editor
   return szToolName;

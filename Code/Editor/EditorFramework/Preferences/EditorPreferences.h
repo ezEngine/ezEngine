@@ -22,6 +22,7 @@ public:
   float m_fScaleSnapValue = 0.125f;
   float m_fTranslationSnapValue = 0.25f;
   bool m_bUsePrecompiledTools = true;
+  ezString m_sCustomPrecompiledToolsFolder;
   bool m_bLoadLastProjectAtStartup = true;
   bool m_bShowSplashscreen = true;
   bool m_bExpandSceneTreeOnSelection = true;
