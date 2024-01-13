@@ -1,6 +1,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
 // clang-format off

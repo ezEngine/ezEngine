@@ -1,6 +1,6 @@
 #include <EnginePluginJolt/EnginePluginJoltPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <EnginePluginJolt/SceneExport/JoltStaticMeshConversion.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>

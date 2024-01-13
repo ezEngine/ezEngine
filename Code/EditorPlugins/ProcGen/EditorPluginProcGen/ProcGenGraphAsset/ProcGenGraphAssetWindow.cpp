@@ -1,6 +1,6 @@
 #include <EditorPluginProcGen/EditorPluginProcGenPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAssetWindow.moc.h>

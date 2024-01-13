@@ -1,6 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>

@@ -1,6 +1,6 @@
 #include <EditorPluginTypeScript/EditorPluginTypeScriptPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAsset.h>

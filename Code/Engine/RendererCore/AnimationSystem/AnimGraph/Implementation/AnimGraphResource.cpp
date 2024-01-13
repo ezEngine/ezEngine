@@ -1,6 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/Stream.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>

@@ -1,6 +1,6 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Collection/CollectionResource.h>
 #include <Foundation/Profiling/Profiling.h>
 

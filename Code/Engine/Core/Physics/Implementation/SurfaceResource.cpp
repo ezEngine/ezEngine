@@ -1,6 +1,6 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Messages/ApplyOnlyToMessage.h>
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Physics/SurfaceResource.h>

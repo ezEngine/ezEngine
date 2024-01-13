@@ -1,6 +1,6 @@
 #include <TexConv/TexConvPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <TexConv/TexConv.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>

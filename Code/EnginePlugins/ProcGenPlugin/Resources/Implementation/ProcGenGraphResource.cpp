@@ -1,6 +1,6 @@
 #include <ProcGenPlugin/ProcGenPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Curves/ColorGradientResource.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>

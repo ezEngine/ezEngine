@@ -3,7 +3,7 @@
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Interfaces/SoundInterface.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/EventMessageHandlerComponent.h>

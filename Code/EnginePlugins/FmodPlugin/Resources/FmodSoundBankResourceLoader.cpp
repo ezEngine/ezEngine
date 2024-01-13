@@ -1,6 +1,6 @@
 #include <FmodPlugin/FmodPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <FmodPlugin/FmodIncludes.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>

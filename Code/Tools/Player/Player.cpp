@@ -1,6 +1,6 @@
 #include <Player/Player.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Input/InputManager.h>
 #include <Core/World/World.h>
 #include <Core/WorldSerializer/WorldReader.h>

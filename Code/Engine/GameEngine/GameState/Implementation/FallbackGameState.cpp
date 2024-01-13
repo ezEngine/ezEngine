@@ -1,6 +1,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Collection/CollectionResource.h>
 #include <Core/Input/InputManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
