@@ -1,5 +1,6 @@
 #include <Texture/TexturePCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexComparer.h>
 
@@ -7,6 +8,8 @@ ezTexComparer::ezTexComparer() = default;
 
 ezResult ezTexComparer::Compare()
 {
+  EZ_PROFILE_SCOPE("Compare");
+
   EZ_SUCCEED_OR_RETURN(LoadInputImages());
 
   if ((m_Descriptor.m_ActualImage.GetWidth() != m_Descriptor.m_ExpectedImage.GetWidth()) ||
@@ -91,6 +94,8 @@ ezResult ezTexComparer::LoadInputImages()
 
 ezResult ezTexComparer::ComputeMSE()
 {
+  EZ_PROFILE_SCOPE("ComputeMSE");
+
   if (m_Descriptor.m_bRelaxedComparison)
     ezImageUtils::ComputeImageDifferenceABSRelaxed(m_Descriptor.m_ActualImage, m_Descriptor.m_ExpectedImage, m_OutputImageDiff);
   else
@@ -103,6 +108,8 @@ ezResult ezTexComparer::ComputeMSE()
 
 ezResult ezTexComparer::ExtractImages()
 {
+  EZ_PROFILE_SCOPE("ExtractImages");
+
   ezImageUtils::Normalize(m_OutputImageDiff, m_uiOutputMinDiffRgb, m_uiOutputMaxDiffRgb, m_uiOutputMinDiffAlpha, m_uiOutputMaxDiffAlpha);
 
   EZ_SUCCEED_OR_RETURN(ezImageConversion::Convert(m_OutputImageDiff, m_OutputImageDiffRgb, ezImageFormat::R8G8B8_UNORM));
@@ -117,5 +124,3 @@ ezResult ezTexComparer::ExtractImages()
 
   return EZ_SUCCESS;
 }
-
-
