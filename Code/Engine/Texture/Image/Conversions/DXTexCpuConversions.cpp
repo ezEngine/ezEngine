@@ -130,8 +130,13 @@ public:
   }
 };
 
+// EZ_STATICLINK_FORCE
 static ezImageConversion_CompressDxTexCpu s_conversion_compressDxTexCpu;
 
 #endif
 
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTexCpuConversions);
 

@@ -6,6 +6,7 @@
 #include <Texture/Image/Formats/BmpFileFormat.h>
 #include <Texture/Image/ImageConversion.h>
 
+// EZ_STATICLINK_FORCE
 ezBmpFileFormat g_bmpFormat;
 
 enum ezBmpCompression
@@ -773,4 +774,8 @@ bool ezBmpFileFormat::CanWriteFileType(ezStringView sExtension) const
   return CanReadFileType(sExtension);
 }
 
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_BmpFileFormat);
 

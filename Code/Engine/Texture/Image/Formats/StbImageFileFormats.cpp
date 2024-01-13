@@ -10,7 +10,7 @@
 #include <stb_image/stb_image.h>
 #include <stb_image/stb_image_write.h>
 
-
+// EZ_STATICLINK_FORCE
 ezStbImageFileFormats g_StbImageFormats;
 
 // stb_image callbacks would be better than loading the entire file into memory.
@@ -230,4 +230,8 @@ bool ezStbImageFileFormats::CanWriteFileType(ezStringView sExtension) const
   return false;
 }
 
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_StbImageFileFormats);
 

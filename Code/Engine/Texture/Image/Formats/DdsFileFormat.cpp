@@ -6,6 +6,7 @@
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 #include <Texture/Image/Image.h>
 
+// EZ_STATICLINK_FORCE
 ezDdsFileFormat g_ddsFormat;
 
 struct ezDdsPixelFormat
@@ -522,4 +523,8 @@ bool ezDdsFileFormat::CanWriteFileType(ezStringView sExtension) const
   return CanReadFileType(sExtension);
 }
 
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_DdsFileFormat);
 

@@ -3057,6 +3057,7 @@ static ezImageConversion_CompressBC5 s_conversion_compressBC5;
 
 #endif
 
+// EZ_STATICLINK_FORCE
 static ezImageConversion_BC1_RGBA s_conversion_BC1_RGBA;
 static ezImageConversion_BC2_RGBA s_conversion_BC2_RGBA;
 static ezImageConversion_BC3_RGBA s_conversion_BC3_RGBA;
@@ -3065,4 +3066,8 @@ static ezImageConversion_BC5_RG s_conversion_BC5_RG;
 static ezImageConversion_BC6_RGB s_conversion_BC6_RGB;
 static ezImageConversion_BC7_RGBA s_conversion_BC7_RGBA;
 
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTConversions);
 

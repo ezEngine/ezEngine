@@ -1561,6 +1561,7 @@ ADD_16BPP_CONVERSION(B5G5R5A1);
 ADD_16BPP_CONVERSION(X1B5G5R5);
 ADD_16BPP_CONVERSION(A1B5G5R5);
 
+// EZ_STATICLINK_FORCE
 static ezImageSwizzleConversion32_2103 s_conversion_swizzle2103;
 static ezImageConversion_BGRX_BGRA s_conversion_BGRX_BGRA;
 static ezImageConversion_F32_U8 s_conversion_F32_U8;
@@ -1589,4 +1590,8 @@ static ezImageConversion_R11G11B10_to_FLOAT s_conversion_R11G11B10_to_FLOAT;
 static ezImageConversion_R11G11B10_to_HALF s_conversion_R11G11B10_to_HALF;
 static ezImageConversion_FLOAT_to_R11G11B10 s_conversion_FLOAT_to_R11G11B10;
 
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_PixelConversions);
 
