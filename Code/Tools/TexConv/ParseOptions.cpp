@@ -112,6 +112,8 @@ ezCommandLineOptionPath opt_CompareExpected("_TexConv", "-cmpRef", "Path to a re
 ezCommandLineOptionInt opt_CompareThreshold("_TexConv", "-cmpMSE", "The error threshold for the comparison to be considered as failed.\n\
   No output files are written, if the image difference is below this value.",
   100, 0);
+ezCommandLineOptionBool opt_CompareRelaxed("_TexConv", "-cmpRelaxed", "Use a more lenient comparison method.\nUseful for images with single-pixel wide rasterized lines.", false);
+
 
 ezResult ezTexConv::ParseCommandLine()
 {
@@ -182,6 +184,7 @@ ezResult ezTexConv::ParseCompareMode()
   m_Comparer.m_Descriptor.m_sActualFile = opt_CompareActual.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
   m_Comparer.m_Descriptor.m_sExpectedFile = opt_CompareExpected.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
   m_Comparer.m_Descriptor.m_MeanSquareErrorThreshold = opt_CompareThreshold.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
+  m_Comparer.m_Descriptor.m_bRelaxedComparison = opt_CompareRelaxed.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
 
   if (m_Comparer.m_Descriptor.m_sActualFile.IsEmpty())
   {
