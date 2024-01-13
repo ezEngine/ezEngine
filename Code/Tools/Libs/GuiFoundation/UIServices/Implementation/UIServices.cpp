@@ -390,7 +390,9 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
 
 ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
 {
-  QString sVsCodeExe =
+  QString sVsCodeExe;
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  sVsCodeExe =
     QStandardPaths::locate(QStandardPaths::GenericDataLocation, "Programs/Microsoft VS Code/Code.exe", QStandardPaths::LocateOption::LocateFile);
 
   if (!QFile().exists(sVsCodeExe))
@@ -404,11 +406,20 @@ ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
       sVsCodeExe = sVsCodeExeKey.left(sVsCodeExeKey.length() - 5).replace("\\", "/").replace("\"", "");
     }
   }
+#endif
 
-  if (!QFile().exists(sVsCodeExe))
+  if(sVsCodeExe.isEmpty() || !QFile().exists(sVsCodeExe))
   {
-    return ezStatus("Installation of Visual Studio Code could not be located.\n"
-                    "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
+    // Try code executable in PATH
+    if(QProcess::execute("code", {"--version"}) == 0)
+    {
+      sVsCodeExe = "code";
+    }
+    else
+    {
+      return ezStatus("Installation of Visual Studio Code could not be located.\n"
+                      "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
+    }
   }
 
   QProcess proc;

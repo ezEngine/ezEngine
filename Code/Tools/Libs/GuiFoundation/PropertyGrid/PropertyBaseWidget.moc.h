@@ -185,9 +185,9 @@ protected:
   virtual void DoPrepareToDie() override;
 
 protected:
-  QHBoxLayout* m_pLayout;
+  QVBoxLayout* m_pLayout;
   ezQtGroupBoxBase* m_pGroup;
-  QHBoxLayout* m_pGroupLayout;
+  QVBoxLayout* m_pGroupLayout;
   ezQtTypeWidget* m_pTypeWidget;
 };
 

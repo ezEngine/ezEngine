@@ -34,7 +34,12 @@ macro(ez_create_target TYPE TARGET_NAME)
 			add_library(${TARGET_NAME} STATIC "${ALL_SOURCE_FILES}")
 		endif()
 
-		if(NOT ARG_NO_EZ_PREFIX)
+		if(ARG_NO_EZ_PREFIX)
+			# on some platforms like linux there is a default prefix like "lib".
+            # We don't want that as it confuses our plugin system.
+			set_target_properties(${TARGET_NAME} PROPERTIES IMPORT_PREFIX "")
+			set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "")
+		else()
 			ez_add_output_ez_prefix(${TARGET_NAME})
 		endif()
 
