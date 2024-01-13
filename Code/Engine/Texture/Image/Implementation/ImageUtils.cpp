@@ -5,6 +5,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/Time/Timestamp.h>
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageEnums.h>
 #include <Texture/Image/ImageFilter.h>
@@ -2001,5 +2002,3 @@ void ezImageUtils::CreateImageDiffHtml(ezStringBuilder& out_sHtml, ezStringView 
                 "</div>\n"
                 "</BODY> </HTML>");
 }
-
-
