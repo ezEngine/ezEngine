@@ -155,4 +155,10 @@ public:
   /// Currently only supports images of format R32G32B32A32_FLOAT and with identical resolution.
   /// Returns failure if any of those requirements are not met.
   static ezResult CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx);
+
+  /// \brief Embeds the image as Base64 encoded text into an HTML file.
+  static void EmbedImageData(ezStringBuilder& out_sHtml, const ezImage& image);
+
+  /// \brief Generates an HTML file containing the given images with mouse-over functionality to compare them.
+  static void CreateImageDiffHtml(ezStringBuilder& out_sHtml, ezStringView sTitle, const ezImage& referenceImgRgb, const ezImage& referenceImgAlpha, const ezImage& capturedImgRgb, const ezImage& capturedImgAlpha, const ezImage& diffImgRgb, const ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb, ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha);
 };
