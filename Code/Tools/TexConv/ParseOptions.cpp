@@ -172,8 +172,7 @@ ezResult ezTexConv::ParseCompareMode()
 
   if (m_sOutputFile.IsEmpty())
   {
-    ezLog::Error("Output folder is not specified. Use option '-out \"path/to/folder\"' to specify a target directory.");
-    return EZ_FAILURE;
+    ezLog::Warning("Output path is not specified. Use option '-out \"path\"' to set the prefix path for the output files.");
   }
 
   m_sHtmlTitle = opt_CompareHtmlTitle.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);

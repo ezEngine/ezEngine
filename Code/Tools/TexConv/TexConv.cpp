@@ -1,7 +1,7 @@
 #include <TexConv/TexConvPCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <TexConv/TexConv.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/Formats/StbImageFileFormats.h>
@@ -227,26 +227,29 @@ ezApplication::Execution ezTexConv::Run()
     {
       SetReturnCode(m_Comparer.m_OutputMSE);
 
-      ezStringBuilder tmp;
-
-      tmp.Set(m_sOutputFile, "-rgb.png");
-      m_Comparer.m_OutputImageDiffRgb.SaveTo(tmp).IgnoreResult();
-
-      tmp.Set(m_sOutputFile, "-alpha.png");
-      m_Comparer.m_OutputImageDiffAlpha.SaveTo(tmp).IgnoreResult();
-
-      if (!m_sHtmlTitle.IsEmpty())
+      if (!m_sOutputFile.IsEmpty())
       {
-        tmp.Set(m_sOutputFile, ".htm");
+        ezStringBuilder tmp;
 
-        ezFileWriter file;
-        if (file.Open(tmp).Succeeded())
+        tmp.Set(m_sOutputFile, "-rgb.png");
+        m_Comparer.m_OutputImageDiffRgb.SaveTo(tmp).IgnoreResult();
+
+        tmp.Set(m_sOutputFile, "-alpha.png");
+        m_Comparer.m_OutputImageDiffAlpha.SaveTo(tmp).IgnoreResult();
+
+        if (!m_sHtmlTitle.IsEmpty())
         {
-          ezStringBuilder html;
+          tmp.Set(m_sOutputFile, ".htm");
 
-          ezImageUtils::CreateImageDiffHtml(html, m_sHtmlTitle, m_Comparer.m_ExtractedExpectedRgb, m_Comparer.m_ExtractedExpectedAlpha, m_Comparer.m_ExtractedActualRgb, m_Comparer.m_ExtractedActualAlpha, m_Comparer.m_OutputImageDiffRgb, m_Comparer.m_OutputImageDiffAlpha, m_Comparer.m_OutputMSE, m_Comparer.m_Descriptor.m_MeanSquareErrorThreshold, m_Comparer.m_uiOutputMinDiffRgb, m_Comparer.m_uiOutputMaxDiffRgb, m_Comparer.m_uiOutputMinDiffAlpha, m_Comparer.m_uiOutputMaxDiffAlpha);
+          ezFileWriter file;
+          if (file.Open(tmp).Succeeded())
+          {
+            ezStringBuilder html;
 
-          file.WriteBytes(html.GetData(), html.GetElementCount()).AssertSuccess();
+            ezImageUtils::CreateImageDiffHtml(html, m_sHtmlTitle, m_Comparer.m_ExtractedExpectedRgb, m_Comparer.m_ExtractedExpectedAlpha, m_Comparer.m_ExtractedActualRgb, m_Comparer.m_ExtractedActualAlpha, m_Comparer.m_OutputImageDiffRgb, m_Comparer.m_OutputImageDiffAlpha, m_Comparer.m_OutputMSE, m_Comparer.m_Descriptor.m_MeanSquareErrorThreshold, m_Comparer.m_uiOutputMinDiffRgb, m_Comparer.m_uiOutputMaxDiffRgb, m_Comparer.m_uiOutputMinDiffAlpha, m_Comparer.m_uiOutputMaxDiffAlpha);
+
+            file.WriteBytes(html.GetData(), html.GetElementCount()).AssertSuccess();
+          }
         }
       }
     }
