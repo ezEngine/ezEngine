@@ -15,7 +15,7 @@ public:
   ezETWProvider();
   ~ezETWProvider();
 
-  void LogMessge(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, ezStringView sText);
+  void LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, ezStringView sText);
 
   static ezETWProvider& GetInstance();
 };
