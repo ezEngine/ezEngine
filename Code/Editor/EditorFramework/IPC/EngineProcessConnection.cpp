@@ -151,6 +151,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   if (m_IPC.StartClientProcess(EditorEngineProcessExecutableName, args, false, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
+    ezLog::Error("EngineProcess crashed on startup");
   }
   else
   {

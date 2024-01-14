@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/System/SystemInformation.h>
+#include <Foundation/Logging/ETWWriter.h>
 
 #include <Core/Console/QuakeConsole.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
@@ -208,6 +209,8 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
     _set_abort_behavior(0, _WRITE_ABORT_MSG);
     TerminateProcess(GetCurrentProcess(), 0);
 #endif
+
+    ezLog::SeriousWarning("Host process no longer alive, exiting engine process.");
 
     // The OS will still call destructors for our objects (even though we called abort ... what a pointless design).
     // Our code might assert on destruction, so make sure our assert handler doesn't show anything.
@@ -637,6 +640,7 @@ void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+  ezGlobalLog::AddLogWriter(ezLogWriter::ETW::LogMessageHandler);
 
   ezLog::SetCustomPrintFunction(&EditorPrintFunction);
 

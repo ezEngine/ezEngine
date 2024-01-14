@@ -168,6 +168,7 @@ static ezResult UnloadPluginInternal(ezStringView sPluginFile)
   }
 
   // delete the plugin copy that we had loaded
+  if(ezPlugin::PlatformNeedsPluginCopy())
   {
     ezStringBuilder sOriginalFile, sCopiedFile;
     ezPlugin::GetPluginPaths(sPluginFile, sOriginalFile, sCopiedFile, g_LoadedModules[sPluginFile].m_uiFileNumber);
@@ -202,7 +203,7 @@ static ezResult LoadPluginInternal(ezStringView sPluginFile, ezBitflags<ezPlugin
     return EZ_FAILURE;
   }
 
-  if (flags.IsSet(ezPluginLoadFlags::LoadCopy))
+  if (ezPlugin::PlatformNeedsPluginCopy() && flags.IsSet(ezPluginLoadFlags::LoadCopy))
   {
     // create a copy of the original plugin file
     const ezUInt8 uiMaxParallelInstances = static_cast<ezUInt8>(s_uiMaxParallelInstances);

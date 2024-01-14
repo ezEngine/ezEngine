@@ -57,11 +57,11 @@ bool ezMessageLoop_linux::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilte
       ezUInt8 wakeupByte;
       auto readResult = read(m_wakeupPipeReadEndFd, &wakeupByte, sizeof(wakeupByte));
       m_pollInfos[0].revents = 0;
+      //ezLog::Debug("[IPC]MessageLoop_Linux::WakupProcessed");
       return true;
     }
 
-    ezUInt32 numEvents = m_pollInfos.GetCount();
-    for (ezUInt32 i = 1; i < numEvents;)
+    for (ezUInt32 i = 1; i < m_waitInfos.GetCount();)
     {
       WaitInfo& waitInfo = m_waitInfos[i];
       struct pollfd& pollInfo = m_pollInfos[i];
@@ -73,13 +73,11 @@ bool ezMessageLoop_linux::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilte
             waitInfo.m_pChannel->AcceptIncomingConnection();
             m_pollInfos.RemoveAtAndSwap(i);
             m_waitInfos.RemoveAtAndSwap(i);
-            numEvents--;
             continue;
           case WaitType::Connect:
             waitInfo.m_pChannel->ProcessConnectSuccessfull();
             m_pollInfos.RemoveAtAndSwap(i);
             m_waitInfos.RemoveAtAndSwap(i);
-            numEvents--;
             continue;
           case WaitType::IncomingMessage:
             waitInfo.m_pChannel->ProcessIncomingPackages();
@@ -88,7 +86,6 @@ bool ezMessageLoop_linux::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilte
             waitInfo.m_pChannel->InternalSend();
             m_pollInfos.RemoveAtAndSwap(i);
             m_waitInfos.RemoveAtAndSwap(i);
-            numEvents--;
             continue;
         }
         pollInfo.revents = 0;
@@ -106,7 +103,6 @@ bool ezMessageLoop_linux::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilte
 
 void ezMessageLoop_linux::RegisterWait(ezPipeChannel_linux* pChannel, WaitType type, int fd)
 {
-  ezLog::Debug("[IPC]ezMessageLoop_linux::RegisterWait({}}", (int)type);
   short int waitFlags = 0;
   switch (type)
   {
@@ -141,14 +137,12 @@ void ezMessageLoop_linux::RemovePendingWaits(ezPipeChannel_linux* pChannel)
   WakeUp();
   {
     ezLock lock{m_pollMutex};
-    ezUInt32 waitCount = m_pollInfos.GetCount();
-    for (ezUInt32 i = 0; i < waitCount;)
+    for (ezUInt32 i = 0; i < m_pollInfos.GetCount();)
     {
       if (m_waitInfos[i].m_pChannel == pChannel)
       {
         m_waitInfos.RemoveAtAndSwap(i);
         m_pollInfos.RemoveAtAndSwap(i);
-        waitCount--;
       }
       else
       {

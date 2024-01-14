@@ -1,0 +1,4 @@
+ez_requires(EZ_CMAKE_PLATFORM_LINUX)
+
+set (BUILDSYSTEM_ENABLE_TRACELOGGING_LTTNG_SUPPORT ON CACHE BOOL "Whether to add support for tracelogging via lttng.")
+mark_as_advanced(FORCE BUILDSYSTEM_ENABLE_TRACELOGGING_LTTNG_SUPPORT)

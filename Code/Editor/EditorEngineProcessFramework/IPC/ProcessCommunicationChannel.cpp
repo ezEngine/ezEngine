@@ -20,7 +20,10 @@ bool ezProcessCommunicationChannel::SendMessage(ezProcessMessage* pMessage)
     // this is necessary to make sure that during an engine restart we don't accidentally send stray messages while
     // the engine is not yet correctly set up
     if (!pMessage->GetDynamicRTTI()->IsDerivedFrom(m_pFirstAllowedMessageType))
+    {
+      ezLog::Warning("[IPC]Ignored send message of type {} because it is not a {}", pMessage->GetDynamicRTTI()->GetTypeName(), m_pFirstAllowedMessageType->GetTypeName());
       return false;
+    }
 
     m_pFirstAllowedMessageType = nullptr;
   }
@@ -29,8 +32,7 @@ bool ezProcessCommunicationChannel::SendMessage(ezProcessMessage* pMessage)
     if (m_pProtocol == nullptr)
       return false;
 
-    m_pProtocol->Send(pMessage);
-    return true;
+    return m_pProtocol->Send(pMessage);
   }
 }
 
@@ -171,4 +173,9 @@ ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime timeout)
   }
 
   return m_pChannel->IsConnected() ? EZ_SUCCESS : EZ_FAILURE;
+}
+
+bool ezProcessCommunicationChannel::IsConnected()
+{
+  return m_pChannel->IsConnected();
 }
