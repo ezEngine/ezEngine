@@ -6,7 +6,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageConversion.h>
 
-
+// EZ_STATICLINK_FORCE
 ezTgaFileFormat g_TgaFormat;
 
 struct TgaImageDescriptor
@@ -510,4 +510,8 @@ bool ezTgaFileFormat::CanWriteFileType(ezStringView sExtension) const
   return CanReadFileType(sExtension);
 }
 
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_TgaFileFormat);
 

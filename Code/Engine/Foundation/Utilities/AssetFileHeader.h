@@ -1,11 +1,10 @@
 #pragma once
 
-#include <Core/CoreDLL.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Strings/HashedString.h>
 
 /// \brief Simple class to handle asset file headers (the very first bytes in all transformed asset files)
-class EZ_CORE_DLL ezAssetFileHeader
+class EZ_FOUNDATION_DLL ezAssetFileHeader
 {
 public:
   ezAssetFileHeader();
@@ -39,7 +38,9 @@ public:
   void SetGenerator(ezStringView sGenerator) { m_sGenerator.Assign(sGenerator); }
 
 private:
-  ezUInt64 m_uiHash;
-  ezUInt16 m_uiVersion;
+  // initialize to a 'valid' hash
+  // this may get stored, unless someone sets the hash
+  ezUInt64 m_uiHash = 0;
+  ezUInt16 m_uiVersion = 0;
   ezHashedString m_sGenerator;
 };

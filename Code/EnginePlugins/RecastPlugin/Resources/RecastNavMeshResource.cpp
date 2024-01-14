@@ -1,6 +1,6 @@
 #include <RecastPlugin/RecastPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <DetourNavMesh.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Recast.h>

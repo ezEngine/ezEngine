@@ -1,6 +1,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <GameEngine/Utils/ImageDataResource.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>

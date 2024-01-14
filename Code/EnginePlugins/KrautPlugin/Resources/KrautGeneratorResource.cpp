@@ -3,7 +3,7 @@
 #include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Containers/StaticRingBuffer.h>
 #include <Foundation/Math/BoundingSphere.h>

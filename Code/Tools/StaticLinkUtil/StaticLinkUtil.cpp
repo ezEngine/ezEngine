@@ -729,6 +729,7 @@ public:
 
           bool bContainsGlobals = false;
 
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_STATICLINK_FORCE") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_BEGIN_") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_PLUGIN_") != nullptr);

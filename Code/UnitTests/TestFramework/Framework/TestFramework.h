@@ -111,8 +111,7 @@ public:
   void SetImageReferenceOverrideFolderName(const char* szFolderName);
 
   /// \brief Writes an Html file that contains test information and an image diff view for failed image comparisons.
-  void WriteImageDiffHtml(const char* szFileName, ezImage& ref_referenceImgRgb, ezImage& ref_referenceImgAlpha, ezImage& ref_capturedImgRgb,
-    ezImage& ref_capturedImgAlpha, ezImage& ref_diffImgRgb, ezImage& ref_diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb,
+  void WriteImageDiffHtml(const char* szFileName, const ezImage& referenceImgRgb, const ezImage& referenceImgAlpha, const ezImage& capturedImgRgb, const ezImage& capturedImgAlpha, const ezImage& diffImgRgb, const ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb,
     ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha);
 
   bool PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, bool bIsLineImage, char* szErrorMsg);

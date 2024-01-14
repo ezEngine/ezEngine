@@ -1,6 +1,6 @@
 #include <RmlUiPlugin/RmlUiPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 

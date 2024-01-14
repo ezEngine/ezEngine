@@ -1,6 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 

@@ -1,17 +1,11 @@
-#include <Core/CorePCH.h>
+#include <Foundation/FoundationPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 
 static const char* g_szAssetTag = "ezAsset";
 
-ezAssetFileHeader::ezAssetFileHeader()
-{
-  // initialize to a 'valid' hash
-  // this may get stored, unless someone sets the hash
-  m_uiHash = 0;
-  m_uiVersion = 0;
-}
+ezAssetFileHeader::ezAssetFileHeader() = default;
 
 enum ezAssetFileHeaderVersion : ezUInt8
 {
@@ -90,5 +84,3 @@ ezResult ezAssetFileHeader::Read(ezStreamReader& inout_stream)
 
   return EZ_SUCCESS;
 }
-
-

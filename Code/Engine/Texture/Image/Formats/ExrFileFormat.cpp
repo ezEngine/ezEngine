@@ -11,6 +11,7 @@
 
 #  include <tinyexr/tinyexr.h>
 
+// EZ_STATICLINK_FORCE
 ezExrFileFormat g_ExrFileFormat;
 
 ezResult ReadImageData(ezStreamReader& ref_stream, ezDynamicArray<ezUInt8>& ref_fileBuffer, ezImageHeader& ref_header, EXRHeader& ref_exrHeader, EXRImage& ref_exrImage)
@@ -320,4 +321,8 @@ bool ezExrFileFormat::CanWriteFileType(ezStringView sExtension) const
 
 #endif
 
+
+
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_ExrFileFormat);
 

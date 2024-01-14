@@ -1,6 +1,6 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/Reflection/PropertyPath.h>
 #include <Foundation/Reflection/ReflectionUtils.h>

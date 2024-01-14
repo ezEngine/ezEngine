@@ -1,6 +1,6 @@
 #include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Scripting/DuktapeContext.h>
 #include <Foundation/Configuration/Startup.h>
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>

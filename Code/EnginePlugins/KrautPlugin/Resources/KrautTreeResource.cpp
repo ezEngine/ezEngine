@@ -1,6 +1,6 @@
 #include <KrautPlugin/KrautPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>

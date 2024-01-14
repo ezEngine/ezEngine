@@ -1,6 +1,6 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Curves/ColorGradientResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientResource, 1, ezRTTIDefaultAllocator<ezColorGradientResource>)

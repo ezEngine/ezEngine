@@ -1,6 +1,6 @@
 #include <EditorPluginSubstance/EditorPluginSubstancePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
 #include <EditorPluginSubstance/Assets/SubstancePackageAsset.h>
