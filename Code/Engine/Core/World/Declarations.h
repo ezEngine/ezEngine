@@ -143,6 +143,25 @@ struct ezComponentHandle
   friend class ezComponent;
 };
 
+template <typename TYPE>
+struct ezTypedComponentHandle : public ezComponentHandle
+{
+  ezTypedComponentHandle() = default;
+  explicit ezTypedComponentHandle(const ezComponentHandle& untyped)
+  {
+    m_InternalId = untyped.GetInternalID();
+  }
+
+  template <typename T, std::enable_if_t<std::is_convertible_v<T*, TYPE*>,bool> = true>
+  explicit ezTypedComponentHandle(const ezTypedComponentHandle<T>& other) : ezTypedComponentHandle(static_cast<const ezComponentHandle&>(other)) {}
+
+  template <typename T, std::enable_if_t<std::is_convertible_v<T*, TYPE*>,bool> = true>
+  EZ_ALWAYS_INLINE void operator=(const ezTypedComponentHandle<T>& other)
+  {
+    ezComponentHandle::operator=(other);
+  }
+};
+
 /// \brief HashHelper implementation so component handles can be used as key in a hashtable.
 template <>
 struct ezHashHelper<ezComponentHandle>

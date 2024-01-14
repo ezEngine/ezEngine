@@ -177,6 +177,18 @@ public:
   template <typename ComponentType>
   [[nodiscard]] bool TryGetComponent(const ezComponentHandle& hComponent, const ComponentType*& out_pComponent) const;
 
+  template <typename ComponentType>
+  [[nodiscard]] bool TryGetComponent(const ezTypedComponentHandle<ComponentType>& hComponent, ComponentType*& out_pComponent)
+  {
+    return TryGetComponent<ComponentType>(static_cast<const ezComponentHandle&>(hComponent), out_pComponent);
+  }
+
+  template <typename ComponentType>
+  [[nodiscard]] bool TryGetComponent(const ezTypedComponentHandle<ComponentType>& hComponent, const ComponentType*& out_pComponent) const
+  {
+    return TryGetComponent<ComponentType>(static_cast<const ezComponentHandle&>(hComponent), out_pComponent);
+  }
+
   /// \brief Creates a new component init batch.
   /// It is ensured that the Initialize function is called for all components in a batch before the OnSimulationStarted is called.
   /// If bMustFinishWithinOneFrame is set to false the processing of an init batch can be distributed over multiple frames if
