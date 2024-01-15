@@ -245,7 +245,7 @@ namespace ezUwpTestHarness
       {
  
         session.EnableProvider(new Guid("BFD4350A-BA77-463D-B4BE-E30374E42494")); //ezLogProvider
-        session.Source.Dynamic.AddCallbackForProviderEvent("ezLogProvider", "LogMessge", delegate (TraceEvent data)
+        session.Source.Dynamic.AddCallbackForProviderEvent("ezLogProvider", "LogMessage", delegate (TraceEvent data)
         {
           int Type = (int)data.PayloadByName("Type");
           byte Indentation = (byte)data.PayloadByName("Indentation");

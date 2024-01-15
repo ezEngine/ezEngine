@@ -5,6 +5,12 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 using ezPluginModule = void*;
 
+bool ezPlugin::PlatformNeedsPluginCopy()
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return false;
+}
+
 void ezPlugin::GetPluginPaths(ezStringView sPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;

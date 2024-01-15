@@ -936,7 +936,10 @@ void ezAssetDocument::SendDocumentOpenMessage(bool bOpen)
   m.m_sDocumentType = GetDocumentTypeDescriptor()->m_sDocumentTypeName;
   m.m_DocumentMetaData = GetCreateEngineMetaData();
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&m);
+  if(!ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&m))
+  {
+    ezLog::Error("Failed to send DocumentOpenMessage");
+  }
 }
 
 namespace

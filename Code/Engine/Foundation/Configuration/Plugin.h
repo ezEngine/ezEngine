@@ -127,6 +127,9 @@ public:
   /// \internal Determines the plugin paths.
   static void GetPluginPaths(ezStringView sPluginName, ezStringBuilder& ref_sOriginalFile, ezStringBuilder& ref_sCopiedFile, ezUInt8 uiFileCopyNumber);
 
+  /// \internal determines if a plugin copy is required for hot reloading for plugin code
+  static bool PlatformNeedsPluginCopy();
+
 private:
   ezPlugin() = delete;
 };

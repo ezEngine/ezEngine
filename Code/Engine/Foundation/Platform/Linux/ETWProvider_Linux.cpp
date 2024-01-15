@@ -1,21 +1,10 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_LINUX) && defined(BUILDSYSTEM_ENABLE_TRACELOGGING_LTTNG_SUPPORT)
 
-#  include <Foundation/Platform/Win/ETWProvider_Win.h>
+#  include <Foundation/Platform/Linux/ETWProvider_Linux.h>
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#  include <TraceLoggingProvider.h>
-
-// Workaround to support TraceLoggingProvider.h and /utf-8 compiler switch.
-#  undef _TlgPragmaUtf8Begin
-#  undef _TlgPragmaUtf8End
-#  define _TlgPragmaUtf8Begin
-#  define _TlgPragmaUtf8End
-#  undef _tlgPragmaUtf8Begin
-#  undef _tlgPragmaUtf8End
-#  define _tlgPragmaUtf8Begin
-#  define _tlgPragmaUtf8End
+#  include <tracelogging/TraceLoggingProvider.h>
 
 TRACELOGGING_DECLARE_PROVIDER(g_ezETWLogProvider);
 
