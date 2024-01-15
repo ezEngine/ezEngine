@@ -51,6 +51,8 @@ export class DebugRenderComponent extends Component
   set Texture(value: string) { __CPP_ComponentProperty_set(this, 3130406697, value); }
   get Render(): Flags.DebugRenderComponentMask { return __CPP_ComponentProperty_get(this, 1810477408); }
   set Render(value: Flags.DebugRenderComponentMask) { __CPP_ComponentProperty_set(this, 1810477408, value); }
+  get CustomData(): string { return __CPP_ComponentProperty_get(this, 3191784852); }
+  set CustomData(value: string) { __CPP_ComponentProperty_set(this, 3191784852, value); }
 }
 
 export class DemoComponent extends Component
@@ -512,6 +514,8 @@ export class GlobalBlackboardComponent extends BlackboardComponent
 export class GrabbableItemComponent extends Component
 {
   public static GetTypeNameHash(): number { return 3683886134; }
+  get DebugShowPoints(): boolean { return __CPP_ComponentProperty_get(this, 1730674546); }
+  set DebugShowPoints(value: boolean) { __CPP_ComponentProperty_set(this, 1730674546, value); }
 }
 
 export class GreyBoxComponent extends RenderComponent

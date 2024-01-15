@@ -25,6 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
     EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
     EZ_BITFLAGS_MEMBER_PROPERTY("Render", DebugRenderComponentMask, m_RenderTypes)->AddAttributes(new ezDefaultValueAttribute(DebugRenderComponentMask::Box)),
+    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomDataSampleResource, SetCustomDataSampleResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_CustomData")),
   }
   EZ_END_PROPERTIES;
 
@@ -122,6 +123,26 @@ void DebugRenderComponent::SetRandomColor()
   m_Color.b = static_cast<float>(rng.DoubleMinMax(0.2f, 1.0f));
 }
 
+void DebugRenderComponent::SetCustomDataSampleResource(const char* szFile)
+{
+  CustomDataSampleResourceHandle hCustomData;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hCustomData = ezResourceManager::LoadResource<CustomDataSampleResource>(szFile);
+  }
+
+  m_hCustomData = hCustomData;
+}
+
+const char* DebugRenderComponent::GetCustomDataSampleResource() const
+{
+  if (m_hCustomData.IsValid())
+    return m_hCustomData.GetResourceID();
+
+  return "";
+}
+
 void DebugRenderComponent::Update()
 {
   const ezTransform ownerTransform = GetOwner()->GetGlobalTransform();
@@ -183,5 +204,15 @@ void DebugRenderComponent::Update()
     }
 
     ezDebugRenderer::DrawTexturedTriangles(GetWorld(), triangles, m_Color, m_hTexture);
+  }
+
+  // accessing custom data resources
+  if (m_hCustomData.IsValid())
+  {
+    ezResourceLock<CustomDataSampleResource> pCustomDataResource(m_hCustomData, ezResourceAcquireMode::BlockTillLoaded);
+
+    const CustomDataSample* pCustomData = pCustomDataResource->GetData();
+
+    ezDebugRenderer::Draw3DText(GetWorld(), ezFmt(pCustomData->m_sText), GetOwner()->GetGlobalPosition(), pCustomData->m_Color, pCustomData->m_iSize);
   }
 }

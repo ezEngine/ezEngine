@@ -3,6 +3,7 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 #include <Core/World/World.h>
+#include <SampleGamePlugin/CustomData/CustomDataSample.h>
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
 struct ezMsgSetColor;
@@ -77,8 +78,12 @@ public:
 
   void SetRandomColor(); // [ scriptable ]
 
+  void SetCustomDataSampleResource(const char* szFile);
+  const char* GetCustomDataSampleResource() const;
+
 private:
   void Update();
 
+  CustomDataSampleResourceHandle m_hCustomData;
   ezTexture2DResourceHandle m_hTexture;
 };
