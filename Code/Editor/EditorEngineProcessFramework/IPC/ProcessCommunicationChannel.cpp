@@ -175,7 +175,7 @@ ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime timeout)
   return m_pChannel->IsConnected() ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-bool ezProcessCommunicationChannel::IsConnected()
+bool ezProcessCommunicationChannel::IsConnected() const
 {
   return m_pChannel->IsConnected();
 }
