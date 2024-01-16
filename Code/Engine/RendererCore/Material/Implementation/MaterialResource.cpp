@@ -662,7 +662,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
         m_mDesc.m_RenderDataCategory = ezRenderData::FindCategory(sCategoryNameHashed);
         if (m_mDesc.m_RenderDataCategory == ezInvalidRenderDataCategory)
         {
-          ezLog::Error("Material '{}' uses an invalid render data category '{}'", GetResourceDescription(), sRenderDataCategoryName);
+          ezLog::Error("Material '{}' uses an invalid render data category '{}'", GetResourceIdOrDescription(), sRenderDataCategoryName);
         }
       }
     }

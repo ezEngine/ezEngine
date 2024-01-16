@@ -35,7 +35,7 @@ ezResourceLoadDesc ezImageDataResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezImageDataResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezImageDataResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

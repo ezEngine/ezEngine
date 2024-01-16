@@ -41,12 +41,6 @@ export class MsgAnimationPosePreparing extends Message
   constructor() { super(); this.TypeNameHash = 2419062254; }
 }
 
-export class MsgAnimationPoseProposal extends Message
-{
-  public static GetTypeNameHash(): number { return 3713362936; }
-  constructor() { super(); this.TypeNameHash = 3713362936; }
-}
-
 export class MsgAnimationPoseUpdated extends Message
 {
   public static GetTypeNameHash(): number { return 1062497747; }

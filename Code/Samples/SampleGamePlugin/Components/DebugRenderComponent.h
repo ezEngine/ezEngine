@@ -3,6 +3,7 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 #include <Core/World/World.h>
+#include <SampleGamePlugin/CustomData/SampleCustomData.h>
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
 struct ezMsgSetColor;
@@ -76,6 +77,30 @@ public:
   void OnSetColor(ezMsgSetColor& ref_msg); // [ msg handler ]
 
   void SetRandomColor(); // [ scriptable ]
+
+  // BEGIN-DOCS-CODE-SNIPPET: customdata-interface
+  SampleCustomDataResourceHandle m_hCustomData;
+
+  void SetSampleCustomDataResource(const char* szFile)
+  {
+    SampleCustomDataResourceHandle hCustomData;
+
+    if (!ezStringUtils::IsNullOrEmpty(szFile))
+    {
+      hCustomData = ezResourceManager::LoadResource<SampleCustomDataResource>(szFile);
+    }
+
+    m_hCustomData = hCustomData;
+  }
+
+  const char* GetSampleCustomDataResource() const
+  {
+    if (m_hCustomData.IsValid())
+      return m_hCustomData.GetResourceID();
+
+    return "";
+  }
+  // END-DOCS-CODE-SNIPPET
 
 private:
   void Update();

@@ -27,14 +27,14 @@ ezResult ezFmodSoundEventResource::PlayOnce(const ezTransform& globalPosition, f
 
   if (!bIsOneShot)
   {
-    ezLog::Warning("ezFmodSoundEventResource::PlayOnce: '{}' is not a one-shot event.", GetResourceDescription());
+    ezLog::Warning("ezFmodSoundEventResource::PlayOnce: '{}' is not a one-shot event.", GetResourceIdOrDescription());
     return EZ_FAILURE;
   }
 
   auto pInstance = CreateInstance();
   if (pInstance == nullptr)
   {
-    ezLog::Warning("ezFmodSoundEventResource::PlayOnce: Instance of '{}' could not be created.", GetResourceDescription());
+    ezLog::Warning("ezFmodSoundEventResource::PlayOnce: Instance of '{}' could not be created.", GetResourceIdOrDescription());
     return EZ_FAILURE;
   }
   const auto fwd = globalPosition.m_qRotation * ezVec3(1, 0, 0);
@@ -102,7 +102,7 @@ ezResourceLoadDesc ezFmodSoundEventResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezFmodSoundEventResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezFmodSoundEventResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezFmodSoundEventResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

@@ -129,7 +129,7 @@ ezResourceLoadDesc ezPrefabResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezPrefabResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezPrefabResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

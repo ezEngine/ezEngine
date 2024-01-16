@@ -562,7 +562,7 @@ void ezFmodEventComponent::StartOneShot()
   // do not start sounds that will not terminate
   if (!bIsOneShot)
   {
-    ezLog::Warning("ezFmodEventComponent::StartOneShot: Request ignored, because sound event '{0}' ('{0}') is not a one-shot event.", pEvent->GetResourceID(), pEvent->GetResourceDescription());
+    ezLog::Warning("ezFmodEventComponent::StartOneShot: Request ignored, because sound event '{}' is not a one-shot event.", pEvent->GetResourceIdOrDescription());
     return;
   }
 

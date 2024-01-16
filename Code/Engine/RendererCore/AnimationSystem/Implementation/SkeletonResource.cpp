@@ -47,7 +47,7 @@ ezResourceLoadDesc ezSkeletonResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezSkeletonResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezSkeletonResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezSkeletonResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

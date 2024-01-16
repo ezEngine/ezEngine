@@ -72,7 +72,7 @@ void ezJoltShapeConvexHullComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>
 
   if (pMesh->GetNumConvexParts() == 0)
   {
-    ezLog::Warning("ezJoltShapeConvexHullComponent '{0}' has a collision mesh set that does not contain a convex mesh: '{1}' ('{2}')", GetOwner()->GetName(), pMesh->GetResourceID(), pMesh->GetResourceDescription());
+    ezLog::Warning("ezJoltShapeConvexHullComponent '{0}' has a collision mesh set that does not contain a convex mesh: '{1}'", GetOwner()->GetName(), pMesh->GetResourceIdOrDescription());
     return;
   }
 
@@ -101,4 +101,3 @@ void ezJoltShapeConvexHullComponent::ExtractGeometry(ezMsgExtractGeometry& ref_m
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeConvexHullComponent);
-

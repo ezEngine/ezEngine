@@ -43,7 +43,7 @@ ezResourceLoadDesc ezFmodSoundBankResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezFmodSoundBankResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezFmodSoundBankResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezFmodSoundBankResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

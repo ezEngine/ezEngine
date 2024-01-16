@@ -550,6 +550,28 @@ static void ConfigureBlackboardTemplateAsset()
   }
 }
 
+static void ConfigureCustomDataAsset()
+{
+  // Menu Bar
+  {
+    ezActionMapManager::RegisterActionMap("CustomDataAssetMenuBar").AssertSuccess();
+    ezStandardMenus::MapActions("CustomDataAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
+    ezProjectActions::MapActions("CustomDataAssetMenuBar");
+    ezDocumentActions::MapMenuActions("CustomDataAssetMenuBar");
+    ezAssetActions::MapMenuActions("CustomDataAssetMenuBar");
+    ezDocumentActions::MapToolsActions("CustomDataAssetMenuBar");
+    ezCommandHistoryActions::MapActions("CustomDataAssetMenuBar");
+  }
+
+  // Tool Bar
+  {
+    ezActionMapManager::RegisterActionMap("CustomDataAssetToolBar").AssertSuccess();
+    ezDocumentActions::MapToolbarActions("CustomDataAssetToolBar");
+    ezCommandHistoryActions::MapActions("CustomDataAssetToolBar", "");
+    ezAssetActions::MapToolBarActions("CustomDataAssetToolBar", true);
+  }
+}
+
 ezVariant CustomAction_CreateShaderFromTemplate(const ezDocument* pDoc)
 {
   ezQtShaderTemplateDlg dlg(nullptr, pDoc);
@@ -592,6 +614,7 @@ void OnLoadPlugin()
   ConfigureImageDataAsset();
   ConfigureStateMachineAsset();
   ConfigureBlackboardTemplateAsset();
+  ConfigureCustomDataAsset();
 
   ezDocumentManager::s_CustomActions["CustomAction_CreateShaderFromTemplate"] = CustomAction_CreateShaderFromTemplate;
 }

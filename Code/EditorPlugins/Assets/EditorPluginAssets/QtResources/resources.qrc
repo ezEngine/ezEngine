@@ -27,6 +27,7 @@
     <file>ImageData.svg</file>
     <file>StateMachine.svg</file>
     <file>BlackboardTemplate.svg</file>
+    <file>CustomData.svg</file>
   </qresource>
   <qresource prefix="EditorPluginAssets">
     <file>Cleanup.svg</file>

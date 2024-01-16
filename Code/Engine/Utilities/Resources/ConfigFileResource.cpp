@@ -62,7 +62,7 @@ ezInt32 ezConfigFileResource::GetInt(ezTempHashedString sName) const
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'int' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
+  ezLog::Error("{}: 'int' config variable (name hash = {}) doesn't exist.", this->GetResourceIdOrDescription(), sName.GetHash());
   return 0;
 }
 
@@ -81,7 +81,7 @@ float ezConfigFileResource::GetFloat(ezTempHashedString sName) const
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'float' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
+  ezLog::Error("{}: 'float' config variable (name hash = {}) doesn't exist.", this->GetResourceIdOrDescription(), sName.GetHash());
   return 0;
 }
 
@@ -100,7 +100,7 @@ bool ezConfigFileResource::GetBool(ezTempHashedString sName) const
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'float' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
+  ezLog::Error("{}: 'float' config variable (name hash = {}) doesn't exist.", this->GetResourceIdOrDescription(), sName.GetHash());
   return false;
 }
 
@@ -119,7 +119,7 @@ ezStringView ezConfigFileResource::GetString(ezTempHashedString sName) const
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'string' config variable '(name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
+  ezLog::Error("{}: 'string' config variable '(name hash = {}) doesn't exist.", this->GetResourceIdOrDescription(), sName.GetHash());
   return "";
 }
 

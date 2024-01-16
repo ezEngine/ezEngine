@@ -82,7 +82,7 @@ ezResourceLoadDesc ezDecalAtlasResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezDecalAtlasResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezDecalAtlasResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

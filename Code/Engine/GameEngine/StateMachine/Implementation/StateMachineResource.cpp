@@ -41,7 +41,7 @@ ezResourceLoadDesc ezStateMachineResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezStateMachineResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezStateMachineResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezStateMachineResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
