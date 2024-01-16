@@ -512,7 +512,7 @@ bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, c
   if (IsNullOrEmpty(szString, pStringEnd))
     return false;
 
-  while ((*szString != '\0') && (szString < pStringEnd))
+  while ((szString < pStringEnd) && (*szString != '\0'))
   {
     // if we have reached the end of the StartsWith string, the other string DOES start with it
     if (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd)
