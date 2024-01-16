@@ -205,7 +205,7 @@ ezUInt32 ezStringUtils::ToUpperString(char* pString, const char* pStringEnd)
   char* pWriteStart = pString;
   const char* pReadStart = pString;
 
-  while (pReadStart < pStringEnd && *pReadStart != '\0')
+  while ((pReadStart < pStringEnd) && (*pReadStart != '\0'))
   {
     const ezUInt32 uiChar = ezUnicodeUtils::DecodeUtf8ToUtf32(pReadStart);
     const ezUInt32 uiCharUpper = ezStringUtils::ToUpperChar(uiChar);
@@ -223,7 +223,7 @@ ezUInt32 ezStringUtils::ToLowerString(char* pString, const char* pStringEnd)
   char* pWriteStart = pString;
   const char* pReadStart = pString;
 
-  while (pReadStart < pStringEnd && *pReadStart != '\0')
+  while ((pReadStart < pStringEnd) && (*pReadStart != '\0'))
   {
     const ezUInt32 uiChar = ezUnicodeUtils::DecodeUtf8ToUtf32(pReadStart);
     const ezUInt32 uiCharUpper = ezStringUtils::ToLowerChar(uiChar);
@@ -265,7 +265,7 @@ ezInt32 ezStringUtils::Compare(const char* pString1, const char* pString2, const
 {
   EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
 
-  while ((*pString1 != '\0') && (*pString2 != '\0') && (pString1 < pString1End) && (pString2 < pString2End))
+  while ((pString1 < pString1End) && (pString2 < pString2End) && (*pString1 != '\0') && (*pString2 != '\0'))
   {
     if (*pString1 != *pString2)
       return ToSignedInt(*pString1) - ToSignedInt(*pString2);
@@ -298,7 +298,7 @@ ezInt32 ezStringUtils::CompareN(
 
   EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
 
-  while ((*pString1 != '\0') && (*pString2 != '\0') && (uiCharsToCompare > 0) && (pString1 < pString1End) && (pString2 < pString2End))
+  while ((uiCharsToCompare > 0) && (pString1 < pString1End) && (pString2 < pString2End) && (*pString1 != '\0') && (*pString2 != '\0'))
   {
     if (*pString1 != *pString2)
       return ToSignedInt(*pString1) - ToSignedInt(*pString2);
@@ -333,7 +333,7 @@ ezInt32 ezStringUtils::Compare_NoCase(const char* pString1, const char* pString2
 {
   EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
 
-  while ((*pString1 != '\0') && (*pString2 != '\0') && (pString1 < pString1End) && (pString2 < pString2End))
+  while ((pString1 < pString1End) && (pString2 < pString2End) && (*pString1 != '\0') && (*pString2 != '\0'))
   {
     // utf8::next will already advance the iterators
     const ezUInt32 uiChar1 = ezUnicodeUtils::DecodeUtf8ToUtf32(pString1);
@@ -371,7 +371,7 @@ ezInt32 ezStringUtils::CompareN_NoCase(
 
   EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
 
-  while ((*pString1 != '\0') && (*pString2 != '\0') && (uiCharsToCompare > 0) && (pString1 < pString1End) && (pString2 < pString2End))
+  while ((uiCharsToCompare > 0) && (pString1 < pString1End) && (pString2 < pString2End) && (*pString1 != '\0') && (*pString2 != '\0'))
   {
     // utf8::next will already advance the iterators
     const ezUInt32 uiChar1 = ezUnicodeUtils::DecodeUtf8ToUtf32(pString1);
@@ -536,7 +536,7 @@ bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStarts
   if (IsNullOrEmpty(szString, pStringEnd))
     return false;
 
-  while ((*szString != '\0') && (szString < pStringEnd))
+  while ((szString < pStringEnd) && (*szString != '\0'))
   {
     // if we have reached the end of the StartsWith string, the other string DOES start with it
     if (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd)
@@ -629,7 +629,7 @@ const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char
 
   const char* pCurPos = &szSource[0];
 
-  while ((*pCurPos != '\0') && (pCurPos < pSourceEnd))
+  while ((pCurPos < pSourceEnd) && (*pCurPos != '\0'))
   {
     if (ezStringUtils::StartsWith_NoCase(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
       return pCurPos;
@@ -695,7 +695,7 @@ const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSea
   const char* pPrevPos = nullptr;
   const char* pCurPos = szString;
 
-  while ((*pCurPos != '\0') && (pCurPos < pStringEnd))
+  while ((pCurPos < pStringEnd) && (*pCurPos != '\0'))
   {
     if (StartsWith(pCurPos, szSearchFor, pStringEnd)) // yay, we found a substring, now make sure it is a 'whole word'
     {
@@ -726,7 +726,7 @@ const char* ezStringUtils::FindWholeWord_NoCase(
   const char* pPrevPos = nullptr;
   const char* pCurPos = szString;
 
-  while ((*pCurPos != '\0') && (pCurPos < pStringEnd))
+  while ((pCurPos < pStringEnd) && (*pCurPos != '\0'))
   {
     if (StartsWith_NoCase(pCurPos, szSearchFor, pStringEnd)) // yay, we found a substring, now make sure it is a 'whole word'
     {
@@ -922,7 +922,7 @@ bool ezStringUtils::IsValidIdentifierName(const char* pString, const char* pStri
   if ((cur >= '0') && (cur <= '9'))
     return false;
 
-  while (*pString != '\0' && pString < pStringEnd)
+  while ((pString < pStringEnd) && (*pString != '\0'))
   {
     cur = ezUnicodeUtils::DecodeUtf8ToUtf32(pString);
 
@@ -932,5 +932,3 @@ bool ezStringUtils::IsValidIdentifierName(const char* pString, const char* pStri
 
   return true;
 }
-
-
