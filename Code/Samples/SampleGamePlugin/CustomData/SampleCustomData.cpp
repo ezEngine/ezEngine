@@ -1,9 +1,10 @@
 #include <SampleGamePlugin/SampleGamePluginPCH.h>
 
-#include <SampleGamePlugin/CustomData/CustomDataSample.h>
+#include <SampleGamePlugin/CustomData/SampleCustomData.h>
 
+// BEGIN-DOCS-CODE-SNIPPET: customdata-impl
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(CustomDataSample, 1, ezRTTIDefaultAllocator<CustomDataSample>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SampleCustomData, 1, ezRTTIDefaultAllocator<SampleCustomData>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -16,4 +17,5 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(CustomDataSample, 1, ezRTTIDefaultAllocator<Cust
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-EZ_DEFINE_CUSTOM_DATA_RESOURCE(CustomDataSample);
+EZ_DEFINE_CUSTOM_DATA_RESOURCE(SampleCustomData);
+// END-DOCS-CODE-SNIPPET
