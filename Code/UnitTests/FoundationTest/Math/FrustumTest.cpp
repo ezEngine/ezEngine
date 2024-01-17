@@ -11,12 +11,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     ezFrustum f;
 
     ezPlane p[6];
-    p[0] = ezPlane::MakeFromNormalAndPoint(ezVec3(1, 0, 0), ezVec3(1, 2, 3));
-    p[1] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[2] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[3] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[4] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[5] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[ezFrustum::PlaneType::LeftPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(-1, 0, 0), ezVec3(-2, 0, 0));
+    p[ezFrustum::PlaneType::RightPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(+1, 0, 0), ezVec3(+2, 0, 0));
+    p[ezFrustum::PlaneType::BottomPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, -1, 0), ezVec3(0, -2, 0));
+    p[ezFrustum::PlaneType::TopPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, +1, 0), ezVec3(0, +2, 0));
+    p[ezFrustum::PlaneType::NearPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, -1), ezVec3(0, 0, 0));
+    p[ezFrustum::PlaneType::FarPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0, 0, 100));
 
     f = ezFrustum::MakeFromPlanes(p);
 
@@ -29,12 +29,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     ezFrustum f;
 
     ezPlane p[6];
-    p[0] = ezPlane::MakeFromNormalAndPoint(ezVec3(1, 0, 0), ezVec3(1, 2, 3));
-    p[1] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[2] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[3] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[4] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[5] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[ezFrustum::PlaneType::LeftPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(-1, 0, 0), ezVec3(-2, 0, 0));
+    p[ezFrustum::PlaneType::RightPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(+1, 0, 0), ezVec3(+2, 0, 0));
+    p[ezFrustum::PlaneType::BottomPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, -1, 0), ezVec3(0, -2, 0));
+    p[ezFrustum::PlaneType::TopPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, +1, 0), ezVec3(0, +2, 0));
+    p[ezFrustum::PlaneType::NearPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, -1), ezVec3(0, 0, 0));
+    p[ezFrustum::PlaneType::FarPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0, 0, 100));
 
     f = ezFrustum::MakeFromPlanes(p);
 
@@ -56,12 +56,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     ezFrustum f;
 
     ezPlane p[6];
-    p[0] = ezPlane::MakeFromNormalAndPoint(ezVec3(1, 0, 0), ezVec3(1, 2, 3));
-    p[1] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[2] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[3] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[4] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[5] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[ezFrustum::PlaneType::LeftPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(-1, 0, 0), ezVec3(-2, 0, 0));
+    p[ezFrustum::PlaneType::RightPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(+1, 0, 0), ezVec3(+2, 0, 0));
+    p[ezFrustum::PlaneType::BottomPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, -1, 0), ezVec3(0, -2, 0));
+    p[ezFrustum::PlaneType::TopPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, +1, 0), ezVec3(0, +2, 0));
+    p[ezFrustum::PlaneType::NearPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, -1), ezVec3(0, 0, 0));
+    p[ezFrustum::PlaneType::FarPlane] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0, 0, 100));
 
     f = ezFrustum::MakeFromPlanes(p);
 

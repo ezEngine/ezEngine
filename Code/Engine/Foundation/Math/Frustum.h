@@ -104,7 +104,7 @@ public:
   ///
   /// Note: If the frustum contains an infinite far plane, the far plane corners (out_points[4..7])
   /// will be at infinity.
-  void ComputeCornerPoints(ezVec3 out_pPoints[FrustumCorner::CORNER_COUNT]) const; // [tested]
+  ezResult ComputeCornerPoints(ezVec3 out_pPoints[FrustumCorner::CORNER_COUNT]) const; // [tested]
 
   /// \brief Checks whether the given object is inside or outside the frustum.
   ///
