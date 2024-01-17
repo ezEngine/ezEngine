@@ -10,6 +10,9 @@
 #  define EZ_NAN_ASSERT(obj)
 #endif
 
+#define EZ_DECLARE_IF_FLOAT_TYPE template <typename = typename std::enable_if<std::is_floating_point_v<Type> == true>>
+#define EZ_IMPLEMENT_IF_FLOAT_TYPE template <typename ENABLE_IF_FLOAT>
+
 /// \brief Simple helper union to store ints and floats to modify their bit patterns.
 union ezIntFloatUnion
 {
@@ -209,6 +212,18 @@ class ezColorLinearUB;
 class ezColorGammaUB;
 
 class ezRandom;
+
+template <typename Type>
+class ezRectTemplate;
+
+using ezRectU32 = ezRectTemplate<ezUInt32>;
+using ezRectU16 = ezRectTemplate<ezUInt16>;
+using ezRectI32 = ezRectTemplate<ezInt32>;
+using ezRectI16 = ezRectTemplate<ezInt16>;
+using ezRectFloat = ezRectTemplate<float>;
+using ezRectDouble = ezRectTemplate<double>;
+
+class ezFrustum;
 
 
 /// \brief An enum that allows to select on of the six main axis (positive / negative)

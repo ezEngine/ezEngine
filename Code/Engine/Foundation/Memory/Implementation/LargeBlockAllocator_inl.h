@@ -195,6 +195,7 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
     }
   }
 
+  EZ_IGNORE_UNUSED(bFound);
   EZ_ASSERT_DEV(bFound, "'{0}' was not allocated with this allocator", ezArgP(ptr));
 
   SuperBlock& superBlock = m_SuperBlocks[uiSuperBlockIndex];

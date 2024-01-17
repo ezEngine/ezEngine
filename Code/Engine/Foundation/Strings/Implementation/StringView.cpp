@@ -137,6 +137,27 @@ ezStringView ezStringView::GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShr
   return tmp;
 }
 
+ezStringView ezStringView::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const
+{
+  if (!IsValid())
+  {
+    return {};
+  }
+
+  const char* pStart = m_pStart;
+  ezUnicodeUtils::MoveToNextUtf8(pStart, m_pEnd, uiFirstCharacter);
+
+  if (pStart == m_pEnd)
+  {
+    return {};
+  }
+
+  const char* pEnd = pStart;
+  ezUnicodeUtils::MoveToNextUtf8(pEnd, m_pEnd, uiNumCharacters);
+
+  return ezStringView(pStart, pEnd);
+}
+
 void ezStringView::ChopAwayFirstCharacterUtf8()
 {
   if (IsValid())

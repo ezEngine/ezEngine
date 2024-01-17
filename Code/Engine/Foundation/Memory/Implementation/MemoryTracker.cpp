@@ -326,7 +326,6 @@ const ezMemoryTracker::AllocationInfo& ezMemoryTracker::GetAllocationInfo(ezAllo
   return invalidInfo;
 }
 
-
 struct LeakInfo
 {
   EZ_DECLARE_POD_TYPE();
@@ -339,10 +338,11 @@ struct LeakInfo
 };
 
 // static
-void ezMemoryTracker::DumpMemoryLeaks()
+ezUInt32 ezMemoryTracker::PrintMemoryLeaks(PrintFunc printfunc)
 {
   if (s_pTrackerData == nullptr) // if both tracking and tracing is disabled there is no tracker data
-    return;
+    return 0;
+
   EZ_LOCK(*s_pTrackerData);
 
   static ezHashTable<const void*, LeakInfo, ezHashHelper<const void*>, TrackerDataAllocatorWrapper> leakTable;
@@ -387,7 +387,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
   }
 
   // dump leaks
-  ezUInt64 uiNumLeaks = 0;
+  ezUInt32 uiNumLeaks = 0;
 
   for (auto it = leakTable.GetIterator(); it.IsValid(); ++it)
   {
@@ -398,9 +398,9 @@ void ezMemoryTracker::DumpMemoryLeaks()
     {
       if (uiNumLeaks == 0)
       {
-        ezLog::Print("\n\n--------------------------------------------------------------------\n"
-                     "Memory Leak Report:"
-                     "\n--------------------------------------------------------------------\n\n");
+        printfunc("\n\n--------------------------------------------------------------------\n"
+                  "Memory Leak Report:"
+                  "\n--------------------------------------------------------------------\n\n");
       }
 
       const AllocatorData& data = s_pTrackerData->m_AllocatorData[leak.m_AllocatorId];
@@ -415,12 +415,26 @@ void ezMemoryTracker::DumpMemoryLeaks()
 
   if (uiNumLeaks > 0)
   {
-    ezLog::Printf("\n--------------------------------------------------------------------\n"
-                  "Found %llu root memory leak(s)."
-                  "\n--------------------------------------------------------------------\n\n",
+    char tmp[1024];
+    ezStringUtils::snprintf(tmp, 1024, "\n--------------------------------------------------------------------\n"
+                                       "Found %u root memory leak(s)."
+                                       "\n--------------------------------------------------------------------\n\n",
       uiNumLeaks);
 
-    EZ_REPORT_FAILURE("Found {0} root memory leak(s).", uiNumLeaks);
+    printfunc(tmp);
+  }
+
+  return uiNumLeaks;
+}
+
+// static
+void ezMemoryTracker::DumpMemoryLeaks()
+{
+  const ezUInt32 uiNumLeaks = PrintMemoryLeaks(ezLog::Print);
+
+  if (uiNumLeaks > 0)
+  {
+    EZ_REPORT_FAILURE("Found {0} root memory leak(s). See console output for details.", uiNumLeaks);
   }
 }
 
@@ -430,5 +444,3 @@ ezMemoryTracker::Iterator ezMemoryTracker::GetIterator()
   auto pInnerIt = EZ_NEW(s_pTrackerDataAllocator, TrackerData::AllocatorTable::Iterator, s_pTrackerData->m_AllocatorData.GetIterator());
   return Iterator(pInnerIt);
 }
-
-

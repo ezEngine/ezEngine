@@ -110,7 +110,18 @@ public:
   static ezAllocatorId GetAllocatorParentId(ezAllocatorId allocatorId);
   static const AllocationInfo& GetAllocationInfo(ezAllocatorId allocatorId, const void* pPtr);
 
-  static void DumpMemoryLeaks();
-
   static Iterator GetIterator();
+
+  /// \brief Callback for printing strings.
+  using PrintFunc = void (*)(const char* szLine);
+
+  /// \brief Reports back information about all currently known root memory leaks.
+  ///
+  /// Returns the number of found memory leaks.
+  static ezUInt32 PrintMemoryLeaks(PrintFunc printfunc);
+
+  /// \brief Prints the known memory leaks to ezLog and triggers an assert if there are any.
+  ///
+  /// This is useful to call at the end of an application, to get a debug breakpoint in case of memory leaks.
+  static void DumpMemoryLeaks();
 };

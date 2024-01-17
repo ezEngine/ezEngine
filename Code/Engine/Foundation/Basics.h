@@ -95,14 +95,13 @@ public:
     return s_pAlignedAllocator;
   }
 
+  /// \brief Returns the allocator that is used by global data and static members before the default allocator is created.
+  static ezAllocatorBase* GetStaticAllocator();
+
 private:
   friend class ezStartup;
   friend struct ezStaticAllocatorWrapper;
 
   static void Initialize();
-
-  /// \brief Returns the allocator that is used by global data and static members before the default allocator is created.
-  static ezAllocatorBase* GetStaticAllocator();
-
   static bool s_bIsInitialized;
 };

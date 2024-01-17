@@ -22,6 +22,15 @@ EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type width, Type height)
 }
 
 template <typename Type>
+EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(const ezVec2Template<Type>& vTopLeftPosition, const ezVec2Template<Type>& vSize)
+{
+  x = vTopLeftPosition.x;
+  y = vTopLeftPosition.y;
+  width = vSize.x;
+  height = vSize.y;
+}
+
+template <typename Type>
 ezRectTemplate<Type> ezRectTemplate<Type>::MakeInvalid()
 {
   /// \test This is new
@@ -105,6 +114,12 @@ EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Contains(const ezVec2Template<Type>&
   }
 
   return false;
+}
+
+template <typename Type>
+EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Contains(const ezRectTemplate<Type>& r) const
+{
+  return r.x >= x && r.y >= y && r.Right() <= Right() && r.Bottom() <= Bottom();
 }
 
 template <typename Type>
