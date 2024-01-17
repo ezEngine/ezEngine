@@ -38,6 +38,7 @@ EZ_CHECK_AT_COMPILETIME(sizeof(long long int) == 8);
 #endif
 
 EZ_CHECK_AT_COMPILETIME(sizeof(void*) == EZ_ALIGNMENT_MINIMUM);
+EZ_CHECK_AT_COMPILETIME(alignof(void*) == EZ_ALIGNMENT_MINIMUM);
 
 /// \brief Enum values for success and failure. To be used by functions as return values mostly, instead of bool.
 enum ezResultEnum

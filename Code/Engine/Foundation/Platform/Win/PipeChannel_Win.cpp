@@ -72,6 +72,7 @@ bool ezPipeChannel_win::CreatePipe(ezStringView sAddress)
 
     ULONG_PTR key = reinterpret_cast<ULONG_PTR>(this);
     HANDLE port = CreateIoCompletionPort(m_hPipeHandle, pMsgLoopWin->GetPort(), key, 1);
+    EZ_IGNORE_UNUSED(port);
     EZ_ASSERT_DEBUG(pMsgLoopWin->GetPort() == port, "Failed to CreateIoCompletionPort: {0}", ezArgErrorCode(GetLastError()));
   }
   return true;
