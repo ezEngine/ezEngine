@@ -792,7 +792,8 @@ void ezDebugRenderer::DrawLineCylinderZ(const ezDebugRendererContext& context, f
 void ezDebugRenderer::DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, bool bDrawPlaneNormals /*= false*/)
 {
   ezVec3 cornerPoints[8];
-  frustum.ComputeCornerPoints(cornerPoints);
+  if (frustum.ComputeCornerPoints(cornerPoints).Failed())
+    return;
 
   Line lines[12] = {
     Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft]),

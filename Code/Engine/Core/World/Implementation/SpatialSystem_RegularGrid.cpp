@@ -837,7 +837,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, c
 #endif
 
   ezVec3 cornerPoints[8];
-  frustum.ComputeCornerPoints(cornerPoints);
+  frustum.ComputeCornerPoints(cornerPoints).AssertSuccess();
 
   ezSimdVec4f simdCornerPoints[8];
   for (ezUInt32 i = 0; i < 8; ++i)
