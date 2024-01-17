@@ -167,7 +167,6 @@ export import WindVolumeSphereComponent = __AllComponents.WindVolumeSphereCompon
 import __AllMessages = require("./ez/AllMessages")
 export import EventMsgSetPowerInput = __AllMessages.EventMsgSetPowerInput;
 export import MsgAnimationPosePreparing = __AllMessages.MsgAnimationPosePreparing;
-export import MsgAnimationPoseProposal = __AllMessages.MsgAnimationPoseProposal;
 export import MsgAnimationPoseUpdated = __AllMessages.MsgAnimationPoseUpdated;
 export import MsgAnimationReachedEnd = __AllMessages.MsgAnimationReachedEnd;
 export import MsgApplyRootMotion = __AllMessages.MsgApplyRootMotion;

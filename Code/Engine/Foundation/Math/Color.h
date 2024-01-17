@@ -373,6 +373,12 @@ public:
 
   /// \brief Returns the current color but with changes the alpha value to the given value.
   ezColor WithAlpha(float fAlpha) const;
+
+  /// @brief Packs the 4 color values as uint8 into a single uint32 with A in the least significant bits and R in the most significant ones.
+  [[nodiscard]] ezUInt32 ToRGBA8() const;
+
+  /// @brief Packs the 4 color values as uint8 into a single uint32 with R in the least significant bits and A in the most significant ones.
+  [[nodiscard]] ezUInt32 ToABGR8() const;
 };
 
 // *** Operators ***

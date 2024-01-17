@@ -25,6 +25,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
 
   ON_CORESYSTEMS_STARTUP
   {
+    if (ezStartup::HasApplicationTag("NoMessageLoop"))
+      return;
+
     #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
       EZ_DEFAULT_NEW(ezMessageLoop_win);
     #elif EZ_ENABLED(EZ_PLATFORM_LINUX)

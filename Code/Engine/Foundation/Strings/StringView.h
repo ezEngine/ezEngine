@@ -176,7 +176,14 @@ public:
   void Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack); // [tested]
 
   /// \brief Returns a sub-string that is shrunk at the start and front by the given amount of characters (not bytes!).
-  ezStringView GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack = 0) const;
+  ezStringView GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack = 0) const; // [tested]
+
+  /// \brief Returns a sub-string starting at a given character (not byte offset!) and including a number of characters (not bytes).
+  ///
+  /// If this is a Utf-8 string, the correct number of bytes are skipped to reach the given character.
+  /// If you instead want to construct a sub-string from byte offsets, use the ezStringView constructor that takes a start pointer like so:
+  ///   ezStringView subString(this->GetStartPointer() + byteOffset, byteCount);
+  ezStringView GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const; // [tested]
 
   /// \brief Identical to 'Shrink(1, 0)' in functionality, but slightly more efficient.
   void ChopAwayFirstCharacterUtf8(); // [tested]

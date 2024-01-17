@@ -29,6 +29,26 @@ public:
 
   /// \brief Conversion to ezUInt8*
   ezUInt8* GetData() { return &r; }
+
+  /// @brief Packs the 4 color values into a single uint32 with A in the least significant bits and R in the most significant ones.
+  [[nodiscard]] ezUInt32 ToRGBA8() const
+  {
+    // RGBA (A at lowest address, R at highest)
+    return (static_cast<ezUInt32>(r) << 24) +
+           (static_cast<ezUInt32>(g) << 16) +
+           (static_cast<ezUInt32>(b) << 8) +
+           (static_cast<ezUInt32>(a) << 0);
+  }
+
+  /// @brief Packs the 4 color values into a single uint32 with R in the least significant bits and A in the most significant ones.
+  [[nodiscard]] ezUInt32 ToABGR8() const
+  {
+    // RGBA (A at highest address, R at lowest)
+    return (static_cast<ezUInt32>(a) << 24) +
+           (static_cast<ezUInt32>(b) << 16) +
+           (static_cast<ezUInt32>(g) << 8) +
+           (static_cast<ezUInt32>(r) << 0);
+  }
 };
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezColorBaseUB) == 4);

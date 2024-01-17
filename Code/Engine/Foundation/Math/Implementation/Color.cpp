@@ -446,4 +446,12 @@ ezColor ezColor::MakeZero()
   return ezColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
+ezUInt32 ezColor::ToRGBA8() const
+{
+  return ezColorLinearUB(*this).ToRGBA8();
+}
 
+ezUInt32 ezColor::ToABGR8() const
+{
+  return ezColorLinearUB(*this).ToABGR8();
+}

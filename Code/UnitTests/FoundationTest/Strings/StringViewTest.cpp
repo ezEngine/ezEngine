@@ -772,4 +772,26 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     p = "/noroot/bla";
     EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetSubString")
+  {
+    ezStringView s = u8"Пожалуйста, дай мне очень длинные Unicode-стринги!";
+
+    EZ_TEST_BOOL(s.GetElementCount() > ezStringUtils::GetCharacterCount(s.GetStartPointer(), s.GetEndPointer()));
+
+    ezStringView w1 = s.GetSubString(0, 10);
+    ezStringView w2 = s.GetSubString(12, 3);
+    ezStringView w3 = s.GetSubString(20, 5);
+    ezStringView w4 = s.GetSubString(34, 15);
+    ezStringView w5 = s.GetSubString(34, 20);
+    ezStringView w6 = s.GetSubString(100, 10);
+
+    EZ_TEST_BOOL(w1 == ezStringView(u8"Пожалуйста"));
+    EZ_TEST_BOOL(w2 == ezStringView(u8"дай"));
+    EZ_TEST_BOOL(w3 == ezStringView(u8"очень"));
+    EZ_TEST_BOOL(w4 == ezStringView(u8"Unicode-стринги"));
+    EZ_TEST_BOOL(w5 == ezStringView(u8"Unicode-стринги!"));
+    EZ_TEST_BOOL(!w6.IsValid());
+    EZ_TEST_BOOL(w6 == ezStringView(""));
+  }
 }

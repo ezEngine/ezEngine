@@ -31,6 +31,9 @@ public:
   /// \brief Initializes x and y with zero, width and height with the given values.
   ezRectTemplate(Type width, Type height);
 
+  /// \brief Initializes x and y from pos, width and height from vSize.
+  ezRectTemplate<Type>(const ezVec2Template<Type>& vTopLeftPosition, const ezVec2Template<Type>& vSize);
+
   /// \brief Creates an 'invalid' rect.
   ///
   /// IsValid() will return false.
@@ -72,6 +75,21 @@ public:
   /// The larger value along y. Same as Bottom().
   Type GetY2() const { return y + height; }
 
+  /// \brief Returns the x,y position as an ezVec2.
+  ezVec2Template<Type> GetPosition() const { return ezVec2Template<Type>(x, y); }
+
+  /// \brief Returns the top left corner. Same as GetPosition().
+  ezVec2Template<Type> GetTopLeft() const { return ezVec2Template<Type>(x, y); }
+
+  /// \brief Returns the top right corner.
+  ezVec2Template<Type> GetTopRight() const { return ezVec2Template<Type>(x + width, y); }
+
+  /// \brief Returns the bottom left corner.
+  ezVec2Template<Type> GetBottomLeft() const { return ezVec2Template<Type>(x, y + height); }
+
+  /// \brief Returns the bottom right corner. Same as GetPosition() + GetExtents().
+  ezVec2Template<Type> GetBottomRight() const { return ezVec2Template<Type>(x + width, y + height); }
+
   /// \brief Returns the center point of the rectangle.
   ezVec2Template<Type> GetCenter() const { return ezVec2Template<Type>(x + width / 2, y + height / 2); }
 
@@ -86,22 +104,23 @@ public:
 
   // *** Common Functions ***
 public:
-  bool operator==(const ezRectTemplate<Type>& rhs) const;
-
-  bool operator!=(const ezRectTemplate<Type>& rhs) const;
+  [[nodiscard]] bool operator==(const ezRectTemplate<Type>& rhs) const;
+  [[nodiscard]] bool operator!=(const ezRectTemplate<Type>& rhs) const;
 
   /// \brief Checks whether the position and size contain valid values.
-  bool IsValid() const;
+  [[nodiscard]] bool IsValid() const;
 
   /// \brief Returns true if the area of the rectangle is non zero
-  bool HasNonZeroArea() const;
+  [[nodiscard]] bool HasNonZeroArea() const;
 
   /// \brief Returns true if the rectangle contains the provided point
-  bool Contains(const ezVec2Template<Type>& vPoint) const;
+  [[nodiscard]] bool Contains(const ezVec2Template<Type>& vPoint) const;
+
+  [[nodiscard]] bool Contains(const ezRectTemplate<Type>& r) const;
 
   /// \brief Returns true if the rectangle overlaps the provided rectangle.
   /// Also returns true if the rectangles are contained within each other completely(no intersecting edges).
-  bool Overlaps(const ezRectTemplate<Type>& other) const;
+  [[nodiscard]] bool Overlaps(const ezRectTemplate<Type>& other) const;
 
   /// \brief Extends this rectangle so that the provided rectangle is completely contained within it.
   void ExpandToInclude(const ezRectTemplate<Type>& other);
@@ -115,6 +134,16 @@ public:
   /// \brief The given point is clamped to the area of the rect, i.e. it will be either inside the rect or on its edge and it will have the closest
   /// possible distance to the original point.
   [[nodiscard]] const ezVec2Template<Type> GetClampedPoint(const ezVec2Template<Type>& vPoint) const;
+
+  /// \brief Clamps the given rect to the area of this rect and returns it.
+  ///
+  /// If the input rect is entirely outside this rect, the result will be reduced to a point or a line closest to the input rect.
+  [[nodiscard]] const ezRectTemplate<Type> GetClampedRect(const ezRectTemplate<Type>& r) const
+  {
+    const ezVec2Template<Type> vNewTL = GetClampedPoint(r.GetTopLeft());
+    const ezVec2Template<Type> vNewSize = GetClampedPoint(r.GetBottomRight()) - vNewTL;
+    return ezRectTemplate<Type>(vNewTL, vNewSize);
+  }
 
   /// \brief Moves the rectangle
   void Translate(Type tX, Type tY);

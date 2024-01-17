@@ -524,6 +524,8 @@ export class GlobalBlackboardComponent extends BlackboardComponent
 export class GrabbableItemComponent extends Component
 {
   public static GetTypeNameHash(): number { return 3683886134; }
+  get DebugShowPoints(): boolean { return __CPP_ComponentProperty_get(this, 1730674546); }
+  set DebugShowPoints(value: boolean) { __CPP_ComponentProperty_set(this, 1730674546, value); }
 }
 
 export class GreyBoxComponent extends RenderComponent
