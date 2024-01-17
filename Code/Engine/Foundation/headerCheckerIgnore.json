@@ -49,9 +49,7 @@
 			"UWPUtils.h",
 			"ThreadingDeclarations_posix.h",
 			"xxhash.h",
-			"cpp11.h",
-			"cpp17.h",
-			"cpp20.h",
+			"core.h",
 			"WinRTUtils.h"
 		]
 	}
