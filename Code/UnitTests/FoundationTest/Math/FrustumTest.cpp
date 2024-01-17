@@ -242,7 +242,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     for (int f = 0; f < 2; ++f)
     {
       ezVec3 corner[8];
-      frustum[f].ComputeCornerPoints(corner);
+      frustum[f].ComputeCornerPoints(corner).AssertSuccess();
 
       ezPositionOnPlane::Enum results[8][6];
 
