@@ -94,6 +94,8 @@ void ezJoltCharacterControllerComponent::OnDeactivated()
     m_pCharacter = nullptr;
   }
 
+  RemovePresenceBody();
+
   SUPER::OnDeactivated();
 }
 
