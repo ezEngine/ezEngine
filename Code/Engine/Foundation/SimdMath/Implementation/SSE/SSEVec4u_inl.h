@@ -4,7 +4,7 @@ EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u()
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   m_v = _mm_set1_epi32(0xCDCDCDCD);
 #endif
 }

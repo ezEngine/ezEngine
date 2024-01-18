@@ -5,7 +5,7 @@
 
 ezRcPos::ezRcPos()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   m_Pos[0] = ezMath::NaN<float>();
   m_Pos[1] = ezMath::NaN<float>();
   m_Pos[2] = ezMath::NaN<float>();

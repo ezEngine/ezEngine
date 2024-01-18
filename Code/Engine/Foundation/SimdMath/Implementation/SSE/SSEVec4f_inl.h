@@ -4,7 +4,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f()
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   m_v = _mm_set1_ps(ezMath::NaN<float>());
 #endif
