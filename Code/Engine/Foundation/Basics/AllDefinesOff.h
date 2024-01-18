@@ -95,3 +95,6 @@
 
 // Whether 'RuntimeConfigs' files should be searched in the old location
 #define EZ_MIGRATE_RUNTIMECONFIGS EZ_OFF
+
+// Interoperability with other libraries
+#define EZ_INTEROP_STL_STRINGS EZ_OFF

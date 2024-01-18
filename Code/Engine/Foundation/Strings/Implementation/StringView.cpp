@@ -274,4 +274,32 @@ ezStringView ezStringView::GetRootedPathRootName() const
   return ezPathUtils::GetRootedPathRootName(*this);
 }
 
+#if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
+ezStringView::ezStringView(const std::string_view& rhs)
+{
+  if (!rhs.empty())
+  {
+    m_pStart = rhs.data();
+    m_pEnd = rhs.data() + rhs.size();
+  }
+}
 
+ezStringView::ezStringView(const std::string& rhs)
+{
+  if (!rhs.empty())
+  {
+    m_pStart = rhs.data();
+    m_pEnd = rhs.data() + rhs.size();
+  }
+}
+
+std::string_view ezStringView::GetAsStdView() const
+{
+  return std::string_view(GetStartPointer(), static_cast<size_t>(GetElementCount()));
+}
+
+ezStringView::operator std::string_view() const
+{
+  return GetAsStdView();
+}
+#endif

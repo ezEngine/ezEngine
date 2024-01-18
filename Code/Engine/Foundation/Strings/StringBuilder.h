@@ -390,6 +390,20 @@ public:
   /// \brief If the string ends with the given word (case insensitive), it is removed and the function returns true.
   bool TrimWordEnd(ezStringView sWord); // [tested]
 
+#if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
+  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+  /* implicit */ ezStringBuilder(const std::string_view& rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+
+  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+  /* implicit */ ezStringBuilder(const std::string& rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+
+  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+  void operator=(const std::string_view& rhs);
+
+  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+  void operator=(const std::string& rhs);
+#endif
+
 private:
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes,
   /// those are kept, as they might indicate a UNC path.
