@@ -130,10 +130,14 @@ void ezBlackboard::ImplSetEntryValue(const ezHashedString& sName, Entry& entry, 
       e.m_OldValue = entry.m_Value;
       e.m_pEntry = &entry;
 
+      entry.m_Value = value;
+
       m_EntryEvents.Broadcast(e, 1); // limited recursion is allowed
     }
-
-    entry.m_Value = value;
+    else
+    {
+      entry.m_Value = value;
+    }
   }
 }
 
