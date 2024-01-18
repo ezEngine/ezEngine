@@ -75,10 +75,13 @@ public:
   /// The larger value along y. Same as Bottom().
   Type GetY2() const { return y + height; }
 
-  /// \brief Returns the x,y position as an ezVec2.
-  ezVec2Template<Type> GetPosition() const { return ezVec2Template<Type>(x, y); }
+  /// \brief Returns the minimum corner position. Same as GetTopLeft().
+  ezVec2Template<Type> GetMinCorner() const { return ezVec2Template<Type>(x, y); }
 
-  /// \brief Returns the top left corner. Same as GetPosition().
+  /// \brief Returns the maximum corner position. Same as GetBottomRight().
+  ezVec2Template<Type> GetMaxCorner() const { return ezVec2Template<Type>(x + width, y + height); }
+
+  /// \brief Returns the top left corner. Same as GetMinCorner().
   ezVec2Template<Type> GetTopLeft() const { return ezVec2Template<Type>(x, y); }
 
   /// \brief Returns the top right corner.
@@ -87,7 +90,7 @@ public:
   /// \brief Returns the bottom left corner.
   ezVec2Template<Type> GetBottomLeft() const { return ezVec2Template<Type>(x, y + height); }
 
-  /// \brief Returns the bottom right corner. Same as GetPosition() + GetExtents().
+  /// \brief Returns the bottom right corner. Same as GetMaxCorner().
   ezVec2Template<Type> GetBottomRight() const { return ezVec2Template<Type>(x + width, y + height); }
 
   /// \brief Returns the center point of the rectangle.
@@ -140,9 +143,9 @@ public:
   /// If the input rect is entirely outside this rect, the result will be reduced to a point or a line closest to the input rect.
   [[nodiscard]] const ezRectTemplate<Type> GetClampedRect(const ezRectTemplate<Type>& r) const
   {
-    const ezVec2Template<Type> vNewTL = GetClampedPoint(r.GetTopLeft());
-    const ezVec2Template<Type> vNewSize = GetClampedPoint(r.GetBottomRight()) - vNewTL;
-    return ezRectTemplate<Type>(vNewTL, vNewSize);
+    const ezVec2Template<Type> vNewMin = GetClampedPoint(r.GetMinCorner());
+    const ezVec2Template<Type> vNewMax = GetClampedPoint(r.GetMaxCorner());
+    return ezRectTemplate<Type>(vNewMin, vNewMax - vNewMin);
   }
 
   /// \brief Moves the rectangle
