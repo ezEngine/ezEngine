@@ -354,21 +354,21 @@ ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForward
   return res;
 }
 
-ezFrustum ezFrustum::MakeFromCorners(const ezVec3 corners[FrustumCorner::CORNER_COUNT])
+ezFrustum ezFrustum::MakeFromCorners(const ezVec3 pCorners[FrustumCorner::CORNER_COUNT])
 {
   ezFrustum res;
 
-  res.m_Planes[PlaneType::LeftPlane] = ezPlane::MakeFromPoints(corners[FrustumCorner::FarTopLeft], corners[FrustumCorner::NearBottomLeft], corners[FrustumCorner::NearTopLeft]);
+  res.m_Planes[PlaneType::LeftPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::FarTopLeft], pCorners[FrustumCorner::NearBottomLeft], pCorners[FrustumCorner::NearTopLeft]);
 
-  res.m_Planes[PlaneType::RightPlane] = ezPlane::MakeFromPoints(corners[FrustumCorner::NearTopRight], corners[FrustumCorner::FarBottomRight], corners[FrustumCorner::FarTopRight]);
+  res.m_Planes[PlaneType::RightPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::NearTopRight], pCorners[FrustumCorner::FarBottomRight], pCorners[FrustumCorner::FarTopRight]);
 
-  res.m_Planes[PlaneType::BottomPlane] = ezPlane::MakeFromPoints(corners[FrustumCorner::NearBottomLeft], corners[FrustumCorner::FarBottomRight], corners[FrustumCorner::NearBottomRight]);
+  res.m_Planes[PlaneType::BottomPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::NearBottomLeft], pCorners[FrustumCorner::FarBottomRight], pCorners[FrustumCorner::NearBottomRight]);
 
-  res.m_Planes[PlaneType::TopPlane] = ezPlane::MakeFromPoints(corners[FrustumCorner::FarTopLeft], corners[FrustumCorner::NearTopRight], corners[FrustumCorner::FarTopRight]);
+  res.m_Planes[PlaneType::TopPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::FarTopLeft], pCorners[FrustumCorner::NearTopRight], pCorners[FrustumCorner::FarTopRight]);
 
-  res.m_Planes[PlaneType::FarPlane] = ezPlane::MakeFromPoints(corners[FrustumCorner::FarTopLeft], corners[FrustumCorner::FarBottomRight], corners[FrustumCorner::FarBottomLeft]);
+  res.m_Planes[PlaneType::FarPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::FarTopLeft], pCorners[FrustumCorner::FarBottomRight], pCorners[FrustumCorner::FarBottomLeft]);
 
-  res.m_Planes[PlaneType::NearPlane] = ezPlane::MakeFromPoints(corners[FrustumCorner::NearTopLeft], corners[FrustumCorner::NearBottomRight], corners[FrustumCorner::NearTopRight]);
+  res.m_Planes[PlaneType::NearPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::NearTopLeft], pCorners[FrustumCorner::NearBottomRight], pCorners[FrustumCorner::NearTopRight]);
 
   if (true)
   {

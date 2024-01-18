@@ -82,7 +82,7 @@ public:
   /// \brief Creates a frustum from 8 corner points.
   ///
   /// Asserts that the frustum is valid after construction. Thus the given points must form a proper frustum.
-  [[nodiscard]] static ezFrustum MakeFromCorners(const ezVec3 corners[FrustumCorner::CORNER_COUNT]);
+  [[nodiscard]] static ezFrustum MakeFromCorners(const ezVec3 pCorners[FrustumCorner::CORNER_COUNT]);
 
   /// \brief Returns the n-th plane of the frustum.
   const ezPlane& GetPlane(ezUInt8 uiPlane) const; // [tested]
