@@ -187,12 +187,6 @@ public:
   static void ReserveLower4GBAddressSpace();
 
 private:
-  template <typename T>
-  static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
-
-
   using NotRValueReference = std::false_type;
   using IsRValueReference = std::true_type;
 

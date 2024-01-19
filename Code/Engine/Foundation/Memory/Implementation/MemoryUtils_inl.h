@@ -77,7 +77,20 @@ template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount)
 {
   EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using CopyConstruct.");
-  CopyConstructArray<T>(pDestination, pSource, uiCount, ezIsPodType<T>());
+
+  if constexpr (ezIsPodType<T>::value)
+  {
+    memcpy(pDestination, pSource, uiCount * sizeof(T));
+  }
+  else
+  {
+    EZ_CHECK_CLASS(T);
+
+    for (size_t i = 0; i < uiCount; i++)
+    {
+      ::new (pDestination + i) T(pSource[i]);
+    }
+  }
 }
 
 template <typename T>
@@ -280,23 +293,6 @@ EZ_ALWAYS_INLINE bool ezMemoryUtils::IsSizeAligned(T uiSize, T uiAlignment)
 }
 
 // private methods
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
-{
-  memcpy(pDestination, pSource, uiCount * sizeof(T));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(T);
-
-  for (size_t i = 0; i < uiCount; i++)
-  {
-    ::new (pDestination + i) T(pSource[i]);
-  }
-}
 
 template <typename Destination, typename Source>
 EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, const Source& source, NotRValueReference)
@@ -558,14 +554,14 @@ template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsPod)
 {
   memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
-  CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsPod());
+  CopyConstructArray(pDestination, pSource, uiSourceCount);
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsMemRelocatable)
 {
   memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
-  CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsClass());
+  CopyConstructArray(pDestination, pSource, uiSourceCount);
 }
 
 template <typename T>
@@ -576,11 +572,11 @@ inline void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiS
   if (uiCount > 0)
   {
     MoveConstruct(pDestination + uiSourceCount, pDestination, uiCount);
-    CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsClass());
+    CopyConstructArray(pDestination, pSource, uiSourceCount);
   }
   else
   {
-    CopyConstructArray(pDestination, pSource, uiSourceCount, ezTypeIsClass());
+    CopyConstructArray(pDestination, pSource, uiSourceCount);
   }
 }
 
