@@ -975,7 +975,18 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
   TestSerialization<ezTestArrays>(containers);
 }
 
+/// \brief Determines whether a type is a pointer.
+template <typename T>
+struct ezIsPointer
+{
+  static constexpr bool value = false;
+};
 
+template <typename T>
+struct ezIsPointer<T*>
+{
+  static constexpr bool value = true;
+};
 
 template <typename T>
 void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, T& ref_value1, T& ref_value2)
