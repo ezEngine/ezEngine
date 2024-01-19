@@ -81,18 +81,6 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[2], 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeDefaultConstructorFunction")
-  {
-    ezMemoryUtils::ConstructorFunction func = ezMemoryUtils::MakeDefaultConstructorFunction<ezInt32>();
-    EZ_TEST_BOOL(func != nullptr);
-
-    ezInt32 iTest = 2;
-
-    (*func)(&iTest);
-
-    EZ_TEST_INT(iTest, 0);
-  }
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construct Copy(Array)")
   {
     ezUInt8 uiRawData[s_uiSize * 5] = {0};

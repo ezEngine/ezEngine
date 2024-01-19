@@ -38,11 +38,6 @@ public:
   template <typename T>
   static void DefaultConstruct(T* pDestination, size_t uiCount = 1); // [tested]
 
-  /// \brief Returns a function pointer to construct an instance of T. Always returns a constructor function regardless of T being a class,
-  /// POD or trivial.
-  template <typename T>
-  static ConstructorFunction MakeDefaultConstructorFunction(); // [tested]
-
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination, by creating \a uiCount copies of \a copy.
   template <typename Destination, typename Source>
   static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount = 1); // [tested]
@@ -192,11 +187,6 @@ public:
   static void ReserveLower4GBAddressSpace();
 
 private:
-  template <typename T>
-  static ConstructorFunction MakeConstructorFunction(ezTypeIsPod);
-  template <typename T>
-  static ConstructorFunction MakeConstructorFunction(ezTypeIsClass);
-
   template <typename Destination, typename Source>
   static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsPod);
   template <typename Destination, typename Source>

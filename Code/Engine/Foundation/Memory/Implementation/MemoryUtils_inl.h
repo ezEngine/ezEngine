@@ -31,18 +31,19 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::DefaultConstructNonTrivial(T* pDestination,
 template <typename T>
 EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructorFunction()
 {
-  return MakeConstructorFunction<T>(ezTraitInt < ezIsPodType<T>::value && std::is_trivial<T>::value > ());
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeDefaultConstructorFunction()
-{
-  struct Helper
+  if constexpr (std::is_trivial<T>::value)
   {
-    static void DefaultConstruct(void* pDestination) { ezMemoryUtils::DefaultConstruct(static_cast<T*>(pDestination), 1); }
-  };
+    return nullptr;
+  }
+  else
+  {
+    struct Helper
+    {
+      static void Construct(void* pDestination) { ezMemoryUtils::DefaultConstructNonTrivial(static_cast<T*>(pDestination), 1); }
+    };
 
-  return &Helper::DefaultConstruct;
+    return &Helper::Construct;
+  }
 }
 
 template <typename Destination, typename Source>
@@ -258,26 +259,6 @@ EZ_ALWAYS_INLINE bool ezMemoryUtils::IsSizeAligned(T uiSize, T uiAlignment)
 }
 
 // private methods
-
-template <typename T>
-EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructorFunction(ezTypeIsPod)
-{
-  EZ_CHECK_AT_COMPILETIME_MSG(std::is_trivial<T>::value, "This method should only be called for 'real' pod aka trivial types");
-  return nullptr;
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructorFunction(ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(T);
-
-  struct Helper
-  {
-    static void Construct(void* pDestination) { ezMemoryUtils::DefaultConstructNonTrivial(static_cast<T*>(pDestination), 1); }
-  };
-
-  return &Helper::Construct;
-}
 
 template <typename Destination, typename Source>
 EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsPod)
