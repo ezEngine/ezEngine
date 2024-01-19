@@ -203,9 +203,21 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::RawByteCopy(void* pDestination, const void*
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(
-    pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
-  Copy(pDestination, pSource, uiCount, ezIsPodType<T>());
+  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
+
+  if constexpr (ezIsPodType<T>::value)
+  {
+    memcpy(pDestination, pSource, uiCount * sizeof(T));
+  }
+  else
+  {
+    EZ_CHECK_CLASS(T);
+
+    for (size_t i = 0; i < uiCount; i++)
+    {
+      pDestination[i] = pSource[i];
+    }
+  }
 }
 
 template <typename T>
@@ -336,23 +348,6 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
   static_assert(std::is_rvalue_reference<decltype(source)>::value,
     "Implementation Error: This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
   ::new (pDestination) Destination(std::move(source));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
-{
-  memcpy(pDestination, pSource, uiCount * sizeof(T));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(T);
-
-  for (size_t i = 0; i < uiCount; i++)
-  {
-    pDestination[i] = pSource[i];
-  }
 }
 
 template <typename T>
