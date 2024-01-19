@@ -11,7 +11,9 @@ class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptInstance : public ezScriptInstance
 public:
   ezTypeScriptInstance(ezComponent& inout_owner, ezWorld* pWorld, ezTypeScriptBinding& inout_binding);
 
-  virtual void ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters) override;
+  virtual void SetInstanceVariables(const ezArrayMap<ezHashedString, ezVariant>& parameters) override;
+  virtual void SetInstanceVariable(const ezHashedString& sName, const ezVariant& value) override;
+  virtual ezVariant GetInstanceVariable(const ezHashedString& sName) override;
 
   ezTypeScriptBinding& GetBinding() { return m_Binding; }
 

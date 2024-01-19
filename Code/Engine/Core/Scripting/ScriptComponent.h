@@ -28,8 +28,8 @@ public:
   ezScriptComponent();
   ~ezScriptComponent();
 
-  bool SendEventMessage(ezMessage& inout_msg);
-  void PostEventMessage(ezMessage& inout_msg, ezTime delay);
+  void SetScriptVariable(const ezHashedString& sName, const ezVariant& value); // [ scriptable ]
+  ezVariant GetScriptVariable(const ezHashedString& sName) const;              // [ scriptable ]
 
   void SetScriptClass(const ezScriptClassResourceHandle& hScript);
   const ezScriptClassResourceHandle& GetScriptClass() const { return m_hScriptClass; }
@@ -59,16 +59,6 @@ private:
   void CallScriptFunction(ezUInt32 uiFunctionIndex);
 
   void ReloadScript();
-
-  ezEventMessageSender<ezMessage>& FindSender(ezMessage& inout_msg);
-
-  struct EventSender
-  {
-    const ezRTTI* m_pMsgType = nullptr;
-    ezEventMessageSender<ezMessage> m_Sender;
-  };
-
-  ezHybridArray<EventSender, 2> m_EventSenders;
 
   ezArrayMap<ezHashedString, ezVariant> m_Parameters;
 

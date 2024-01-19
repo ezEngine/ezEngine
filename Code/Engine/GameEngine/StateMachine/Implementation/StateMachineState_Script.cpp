@@ -45,7 +45,7 @@ namespace
       m_pInstance = pScript->Instantiate(*m_pOwner, m_pStateMachineInstance->GetOwnerWorld());
       if (m_pInstance != nullptr)
       {
-        m_pInstance->ApplyParameters(*m_pParameters);
+        m_pInstance->SetInstanceVariables(*m_pParameters);
       }
 
       if (ezWorld* pWorld = m_pStateMachineInstance->GetOwnerWorld())
