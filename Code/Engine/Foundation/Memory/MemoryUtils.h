@@ -187,11 +187,6 @@ public:
   static void ReserveLower4GBAddressSpace();
 
 private:
-  template <typename Destination, typename Source>
-  static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsPod);
-  template <typename Destination, typename Source>
-  static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsClass);
-
   template <typename T>
   static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
   template <typename T>

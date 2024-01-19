@@ -49,7 +49,28 @@ EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstruct
 template <typename Destination, typename Source>
 EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount)
 {
-  CopyConstruct<Destination, Source>(pDestination, copy, uiCount, ezIsPodType<Destination>());
+  if constexpr (ezIsPodType<Destination>::value)
+  {
+    static_assert(std::is_same<Destination, Source>::value ||
+                    (std::is_base_of<Destination, Source>::value == false && std::is_base_of<Source, Destination>::value == false),
+      "Can't copy POD types that are derived from each other. Are you certain any of these types should be POD?");
+
+    const Destination& copyConverted = copy;
+    for (size_t i = 0; i < uiCount; i++)
+    {
+      memcpy(pDestination + i, &copyConverted, sizeof(Destination));
+    }
+  }
+  else
+  {
+    EZ_CHECK_CLASS(Destination);
+
+    for (size_t i = 0; i < uiCount; i++)
+    {
+      ::new (pDestination + i) Destination(copy); // Note that until now copy has not been converted to Destination. This allows for calling
+                                                  // specialized constructors if available.
+    }
+  }
 }
 
 template <typename T>
@@ -260,32 +281,6 @@ EZ_ALWAYS_INLINE bool ezMemoryUtils::IsSizeAligned(T uiSize, T uiAlignment)
 
 // private methods
 
-template <typename Destination, typename Source>
-EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsPod)
-{
-  static_assert(std::is_same<Destination, Source>::value ||
-                  (std::is_base_of<Destination, Source>::value == false && std::is_base_of<Source, Destination>::value == false),
-    "Can't copy POD types that are derived from each other. Are you certain any of these types should be POD?");
-
-  const Destination& copyConverted = copy;
-  for (size_t i = 0; i < uiCount; i++)
-  {
-    memcpy(pDestination + i, &copyConverted, sizeof(Destination));
-  }
-}
-
-template <typename Destination, typename Source>
-EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(Destination);
-
-  for (size_t i = 0; i < uiCount; i++)
-  {
-    ::new (pDestination + i) Destination(copy); // Note that until now copy has not been converted to Destination. This allows for calling
-                                                // specialized constructors if available.
-  }
-}
-
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
 {
@@ -491,14 +486,14 @@ template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsPod)
 {
   memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
-  CopyConstruct(pDestination, source, 1, ezTypeIsPod());
+  CopyConstruct(pDestination, source, 1);
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsMemRelocatable)
 {
   memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
-  CopyConstruct(pDestination, source, 1, ezTypeIsClass());
+  CopyConstruct(pDestination, source, 1);
 }
 
 template <typename T>
@@ -519,7 +514,7 @@ inline void ezMemoryUtils::Prepend(T* pDestination, const T& source, size_t uiCo
   }
   else
   {
-    CopyConstruct(pDestination, source, 1, ezTypeIsClass());
+    CopyConstruct(pDestination, source, 1);
   }
 }
 
