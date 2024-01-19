@@ -84,7 +84,7 @@ public:
   /// If 0, the projectile is not affected by gravity.
   float m_fGravityMultiplier; // [ property ]
 
-  // Should a prefab be spawned when projectile is static
+  // If true the death prefab will be spawned when the velocity gones under the threshold to be considered static 
   bool m_bSpawnPrefabOnStatic; // [ property ]
 
   /// Defines which other physics objects the projectile will collide with.
