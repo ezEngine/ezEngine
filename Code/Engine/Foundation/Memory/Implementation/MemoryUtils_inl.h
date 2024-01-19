@@ -140,7 +140,23 @@ template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
 {
   EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
-  RelocateConstruct(pDestination, pSource, uiCount, ezGetTypeClass<T>());
+
+  if constexpr (ezGetTypeClass<T>::value != 0) // POD or mem-relocatable
+  {
+    memcpy(pDestination, pSource, uiCount * sizeof(T));
+  }
+  else // class
+  {
+    EZ_CHECK_CLASS(T);
+
+    for (size_t i = 0; i < uiCount; i++)
+    {
+      // Note that this calls the move constructor only if available and will copy otherwise.
+      ::new (pDestination + i) T(std::move(pSource[i]));
+    }
+
+    Destruct(pSource, uiCount);
+  }
 }
 
 template <typename T>
@@ -306,32 +322,6 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
   static_assert(std::is_rvalue_reference<decltype(source)>::value,
     "Implementation Error: This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
   ::new (pDestination) Destination(std::move(source));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod)
-{
-  memcpy(pDestination, pSource, uiCount * sizeof(T));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable)
-{
-  memcpy(pDestination, pSource, uiCount * sizeof(T));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(T);
-
-  for (size_t i = 0; i < uiCount; i++)
-  {
-    // Note that this calls the move constructor only if available and will copy otherwise.
-    ::new (pDestination + i) T(std::move(pSource[i]));
-  }
-
-  Destruct(pSource, uiCount);
 }
 
 template <typename T>
