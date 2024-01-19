@@ -261,7 +261,52 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount)
 {
-  RelocateOverlapped(pDestination, pSource, uiCount, ezGetTypeClass<T>());
+  if constexpr (ezGetTypeClass<T>::value == 2) // mem-relocatable
+  {
+    if (pDestination < pSource)
+    {
+      size_t uiDestructCount = pSource - pDestination;
+      Destruct(pDestination, uiDestructCount);
+    }
+    else
+    {
+      size_t uiDestructCount = pDestination - pSource;
+      Destruct(pSource + uiCount, uiDestructCount);
+    }
+    memmove(pDestination, pSource, uiCount * sizeof(T));
+  }
+  else if constexpr (ezGetTypeClass<T>::value == 1) // POD
+  {
+    memmove(pDestination, pSource, uiCount * sizeof(T));
+  }
+  else
+  {
+    EZ_CHECK_CLASS(T);
+
+    if (pDestination == pSource)
+      return;
+
+    if (pDestination < pSource)
+    {
+      for (size_t i = 0; i < uiCount; i++)
+      {
+        pDestination[i] = std::move(pSource[i]);
+      }
+
+      size_t uiDestructCount = pSource - pDestination;
+      Destruct(pSource + uiCount - uiDestructCount, uiDestructCount);
+    }
+    else
+    {
+      for (size_t i = uiCount; i > 0; --i)
+      {
+        pDestination[i - 1] = std::move(pSource[i - 1]);
+      }
+
+      size_t uiDestructCount = pDestination - pSource;
+      Destruct(pSource, uiDestructCount);
+    }
+  }
 }
 
 template <typename T>
@@ -399,58 +444,6 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_
   }
 
   Destruct(pSource, uiCount);
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod)
-{
-  memmove(pDestination, pSource, uiCount * sizeof(T));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable)
-{
-  if (pDestination < pSource)
-  {
-    size_t uiDestructCount = pSource - pDestination;
-    Destruct(pDestination, uiDestructCount);
-  }
-  else
-  {
-    size_t uiDestructCount = pDestination - pSource;
-    Destruct(pSource + uiCount, uiDestructCount);
-  }
-  memmove(pDestination, pSource, uiCount * sizeof(T));
-}
-
-template <typename T>
-inline void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(T);
-
-  if (pDestination == pSource)
-    return;
-
-  if (pDestination < pSource)
-  {
-    for (size_t i = 0; i < uiCount; i++)
-    {
-      pDestination[i] = std::move(pSource[i]);
-    }
-
-    size_t uiDestructCount = pSource - pDestination;
-    Destruct(pSource + uiCount - uiDestructCount, uiDestructCount);
-  }
-  else
-  {
-    for (size_t i = uiCount; i > 0; --i)
-    {
-      pDestination[i - 1] = std::move(pSource[i - 1]);
-    }
-
-    size_t uiDestructCount = pDestination - pSource;
-    Destruct(pSource, uiDestructCount);
-  }
 }
 
 template <typename T>
