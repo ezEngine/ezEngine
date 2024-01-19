@@ -110,6 +110,8 @@ float ezSystemInformation::GetCPUUtilization() const
   return 0.0f;
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+
 namespace cpu_x86
 {
 #  include <cpuid.h>
@@ -135,6 +137,8 @@ namespace cpu_x86
   }
 
 } // namespace cpu_x86
+
+#endif
 
 #endif
 
