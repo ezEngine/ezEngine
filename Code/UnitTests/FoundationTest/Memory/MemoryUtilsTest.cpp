@@ -43,7 +43,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     ezUInt8 uiRawData[s_uiSize * 5] = {0};
     ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
 
-    ezMemoryUtils::Construct<ezConstructTest>(pTest + 1, 2);
+    ezMemoryUtils::DefaultConstructNonTrivial<ezConstructTest>(pTest + 1, 2);
 
     EZ_TEST_INT(pTest[0].m_iData, 0);
     EZ_TEST_INT(pTest[1].m_iData, 42);
@@ -155,7 +155,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     ezUInt8 uiRawData[s_uiSize * 5] = {0};
     ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
 
-    ezMemoryUtils::Construct<ezConstructTest>(pTest + 1, 2);
+    ezMemoryUtils::DefaultConstructNonTrivial<ezConstructTest>(pTest + 1, 2);
 
     EZ_TEST_INT(pTest[0].m_iData, 0);
     EZ_TEST_INT(pTest[1].m_iData, 42);
@@ -185,7 +185,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     ezUInt8 uiRawData[s_uiSize] = {0};
     ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
 
-    ezMemoryUtils::Construct(pTest, 1);
+    ezMemoryUtils::DefaultConstructNonTrivial(pTest, 1);
     EZ_TEST_INT(pTest->m_iData, 42);
 
     ezConstructTest::s_dtorList.Clear();
@@ -489,7 +489,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
       EZ_TEST_INT(iCallPodConstructor, 0);
       EZ_TEST_INT(iCallPodDestructor, 0);
 
-      ezMemoryUtils::Construct<POD>((POD*)mem, 1);
+      ezMemoryUtils::DefaultConstructNonTrivial<POD>((POD*)mem, 1);
 
       EZ_TEST_INT(iCallPodConstructor, 1);
       EZ_TEST_INT(iCallPodDestructor, 0);
@@ -517,7 +517,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
       // make sure ezMemoryUtils::Construct and ezMemoryUtils::Destruct don't touch built-in types
 
       ezInt32 a = 42;
-      ezMemoryUtils::Construct<ezInt32>(&a, 1);
+      ezMemoryUtils::DefaultConstructNonTrivial<ezInt32>(&a, 1);
       EZ_TEST_INT(a, 42);
       ezMemoryUtils::Destruct<ezInt32>(&a, 1);
       EZ_TEST_INT(a, 42);

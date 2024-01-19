@@ -568,7 +568,9 @@ inline void ezDequeBase<T, Construct>::PushFront()
   T* pElement = &ElementAt(0);
 
   if (Construct)
-    ezMemoryUtils::Construct(pElement, 1);
+  {
+    ezMemoryUtils::DefaultConstructNonTrivial(pElement, 1);
+  }
 }
 
 template <typename T, bool Construct>
@@ -579,7 +581,9 @@ inline void ezDequeBase<T, Construct>::PopFront(ezUInt32 uiElements)
   for (ezUInt32 i = 0; i < uiElements; ++i)
   {
     if (Construct)
+    {
       ezMemoryUtils::Destruct(&operator[](0), 1);
+    }
 
     --m_uiCount;
     ++m_uiFirstElement;

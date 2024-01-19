@@ -313,7 +313,7 @@ T& ezArrayBase<T, Derived>::ExpandAndGetRef()
 
   T* pElements = static_cast<Derived*>(this)->GetElementsPtr();
 
-  ezMemoryUtils::Construct(pElements + m_uiCount, 1);
+  ezMemoryUtils::DefaultConstructNonTrivial(pElements + m_uiCount, 1);
 
   T& ReturnRef = *(pElements + m_uiCount);
 

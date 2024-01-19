@@ -554,7 +554,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
     m_pFreeElementStack = m_pFreeElementStack->m_pParent;
   }
 
-  ezMemoryUtils::Construct(pNode, 1);
+  ezMemoryUtils::DefaultConstructNonTrivial(pNode, 1);
 
   pNode->m_pParent = pParent;
   pNode->m_Key = std::forward<CompatibleKeyType>(key);

@@ -196,7 +196,7 @@ void ezSmallArrayBase<T, Size>::SetCountUninitialized(ezUInt16 uiCount, ezAlloca
   if (uiNewCount > uiOldCount)
   {
     Reserve(uiNewCount, pAllocator);
-    ezMemoryUtils::Construct(GetElementsPtr() + uiOldCount, uiNewCount - uiOldCount);
+    ezMemoryUtils::DefaultConstructNonTrivial(GetElementsPtr() + uiOldCount, uiNewCount - uiOldCount);
   }
   else if (uiNewCount < uiOldCount)
   {
@@ -341,7 +341,7 @@ T& ezSmallArrayBase<T, Size>::ExpandAndGetRef(ezAllocatorBase* pAllocator)
 
   T* pElements = GetElementsPtr();
 
-  ezMemoryUtils::Construct(pElements + m_uiCount, 1);
+  ezMemoryUtils::DefaultConstructNonTrivial(pElements + m_uiCount, 1);
 
   T& ReturnRef = *(pElements + m_uiCount);
 

@@ -15,7 +15,7 @@ void ezCustomDataResource<T>::CreateAndLoadData(ezAbstractObjectGraph& ref_graph
     ezMemoryUtils::Destruct(pData);
   }
 
-  ezMemoryUtils::Construct(pData);
+  ezMemoryUtils::DefaultConstructNonTrivial(pData);
 
   if (pRootNode)
   {

@@ -27,7 +27,7 @@ public:
   ///
   /// You should use 'DefaultConstruct' instead if default construction is needed for trivial types as well.
   template <typename T>
-  static void Construct(T* pDestination, size_t uiCount = 1); // [tested]
+  static void DefaultConstructNonTrivial(T* pDestination, size_t uiCount = 1); // [tested]
 
   /// \brief Returns a function pointer to construct an instance of T. Returns nullptr for trivial types.
   template <typename T>
@@ -193,11 +193,6 @@ public:
 
 private:
   template <typename T>
-  static void Construct(T* pDestination, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void Construct(T* pDestination, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
   static ConstructorFunction MakeConstructorFunction(ezTypeIsPod);
   template <typename T>
   static ConstructorFunction MakeConstructorFunction(ezTypeIsClass);
@@ -227,11 +222,6 @@ private:
   static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable);
   template <typename T>
   static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static void Destruct(T* pDestination, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void Destruct(T* pDestination, size_t uiCount, ezTypeIsClass);
 
   template <typename T>
   static DestructorFunction MakeDestructorFunction(ezTypeIsPod);

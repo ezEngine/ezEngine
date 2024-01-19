@@ -181,7 +181,7 @@ T* ezBlockStorage<T, BlockSize, StorageType>::Create()
     ++m_uiCount;
   }
 
-  ezMemoryUtils::Construct(pNewObject, 1);
+  ezMemoryUtils::DefaultConstructNonTrivial(pNewObject, 1);
 
   if (StorageType == ezBlockStorageType::FreeList)
   {
