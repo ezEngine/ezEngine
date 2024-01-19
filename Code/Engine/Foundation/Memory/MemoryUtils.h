@@ -196,11 +196,6 @@ private:
   static void CopyOrMoveConstruct(Destination* pDestination, Source&& source, IsRValueReference);
 
   template <typename T>
-  static DestructorFunction MakeDestructorFunction(ezTypeIsPod);
-  template <typename T>
-  static DestructorFunction MakeDestructorFunction(ezTypeIsClass);
-
-  template <typename T>
   static void Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
   template <typename T>
   static void Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);

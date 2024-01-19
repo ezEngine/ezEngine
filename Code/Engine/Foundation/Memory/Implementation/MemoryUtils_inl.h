@@ -178,7 +178,21 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount)
 template <typename T>
 EZ_ALWAYS_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructorFunction()
 {
-  return MakeDestructorFunction<T>(ezIsPodType<T>());
+  if constexpr (ezIsPodType<T>::value)
+  {
+    return nullptr;
+  }
+  else
+  {
+    EZ_CHECK_CLASS(T);
+
+    struct Helper
+    {
+      static void Destruct(void* pDestination) { ezMemoryUtils::Destruct(static_cast<T*>(pDestination), 1); }
+    };
+
+    return &Helper::Destruct;
+  }
 }
 
 EZ_ALWAYS_INLINE void ezMemoryUtils::RawByteCopy(void* pDestination, const void* pSource, size_t uiNumBytesToCopy)
@@ -322,25 +336,6 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
   static_assert(std::is_rvalue_reference<decltype(source)>::value,
     "Implementation Error: This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
   ::new (pDestination) Destination(std::move(source));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructorFunction(ezTypeIsPod)
-{
-  return nullptr;
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructorFunction(ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(T);
-
-  struct Helper
-  {
-    static void Destruct(void* pDestination) { ezMemoryUtils::Destruct(static_cast<T*>(pDestination), 1); }
-  };
-
-  return &Helper::Destruct;
 }
 
 template <typename T>
