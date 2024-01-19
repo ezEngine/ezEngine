@@ -4,6 +4,10 @@
 
 #include <type_traits>
 
+#if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
+#  include <string_view>
+#endif
+
 /// Base class which marks a class as containing string data
 struct ezThisIsAString
 {
@@ -273,6 +277,20 @@ public:
   /// ":/MyRoot\folder" -> "MyRoot"
   /// Returns an empty string, if the path is not rooted.
   ezStringView GetRootedPathRootName() const; // [tested]
+
+#if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
+  /// \brief Makes the ezStringView reference the same memory as the const std::string_view&.
+  ezStringView(const std::string_view& rhs);
+
+  /// \brief Makes the ezStringView reference the same memory as the const std::string_view&.
+  ezStringView(const std::string& rhs);
+
+  /// \brief Returns a std::string_view to this string.
+  operator std::string_view() const;
+
+  /// \brief Returns a std::string_view to this string.
+  std::string_view GetAsStdView() const;
+#endif
 
 private:
   const char* m_pStart = nullptr;

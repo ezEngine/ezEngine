@@ -1150,4 +1150,46 @@ void ezStringBuilder::Printf(const char* szUtf8Format, ...)
   va_end(args);
 }
 
+#if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
+ezStringBuilder::ezStringBuilder(const std::string_view& rhs, ezAllocatorBase* pAllocator)
+  : m_Data(pAllocator)
+{
+  m_uiCharacterCount = 0;
+  AppendTerminator();
 
+  *this = rhs;
+}
+
+ezStringBuilder::ezStringBuilder(const std::string& rhs, ezAllocatorBase* pAllocator)
+  : m_Data(pAllocator)
+{
+  m_uiCharacterCount = 0;
+  AppendTerminator();
+
+  *this = rhs;
+}
+
+void ezStringBuilder::operator=(const std::string_view& rhs)
+{
+  if (rhs.empty())
+  {
+    Clear();
+  }
+  else
+  {
+    *this = ezStringView(rhs.data(), rhs.data() + rhs.size());
+  }
+}
+
+void ezStringBuilder::operator=(const std::string& rhs)
+{
+  if (rhs.empty())
+  {
+    Clear();
+  }
+  else
+  {
+    *this = ezStringView(rhs.data(), rhs.data() + rhs.size());
+  }
+}
+#endif

@@ -6,7 +6,7 @@
 template <typename Type>
 EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
   x = TypeNaN;

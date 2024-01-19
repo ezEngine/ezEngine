@@ -52,6 +52,12 @@
 
 #endif
 
+#if defined(BUILDSYSTEM_BUILDTYPE_Debug)
+#  undef EZ_MATH_CHECK_FOR_NAN
+#  define EZ_MATH_CHECK_FOR_NAN EZ_ON
+#endif
+
+
 /// Whether game objects compute and store their velocity since the last frame (increases object size)
 #define EZ_GAMEOBJECT_VELOCITY EZ_ON
 

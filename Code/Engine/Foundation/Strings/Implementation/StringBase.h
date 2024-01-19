@@ -162,6 +162,20 @@ public:
   /// Returns an empty string, if the path is not rooted.
   ezStringView GetRootedPathRootName() const; // [tested]
 
+#if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
+  /// \brief Returns a std::string_view to this string.
+  EZ_ALWAYS_INLINE std::string_view GetAsStdView() const
+  {
+    return std::string_view(InternalGetData(), static_cast<size_t>(InternalGetElementCount()));
+  }
+
+  /// \brief Returns a std::string_view to this string.
+  EZ_ALWAYS_INLINE operator std::string_view() const
+  {
+    return GetAsStdView();
+  }
+#endif
+
 private:
   const char* InternalGetData() const;
   const char* InternalGetDataEnd() const;

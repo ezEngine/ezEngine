@@ -62,7 +62,7 @@ EZ_FORCE_INLINE const ezVec4Template<Type> ezVec3Template<Type>::GetAsDirectionV
 template <typename Type>
 EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
   x = TypeNaN;

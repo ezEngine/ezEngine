@@ -39,7 +39,8 @@
 			"jni.h",
 			"float.h",
 			"arm_neon.h",
-            "signal.h"
+			"signal.h",
+			"string_view"
 		]
 	},
 	"includeSource" : 
