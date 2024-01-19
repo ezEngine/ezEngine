@@ -132,8 +132,16 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, 
 template <typename Destination, typename Source>
 EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, Source&& source)
 {
-  using IsRValueRef = typename std::is_rvalue_reference<decltype(source)>::type;
-  CopyOrMoveConstruct<Destination, Source>(pDestination, std::forward<Source>(source), IsRValueRef());
+  if constexpr (std::is_rvalue_reference<decltype(source)>::value)
+  {
+    static_assert(std::is_rvalue_reference<decltype(source)>::value, "This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
+
+    ::new (pDestination) Destination(std::move(source));
+  }
+  else
+  {
+    CopyConstruct<Destination, Source>(pDestination, source, 1);
+  }
 }
 
 template <typename T>
@@ -498,22 +506,6 @@ template <typename T>
 EZ_ALWAYS_INLINE bool ezMemoryUtils::IsSizeAligned(T uiSize, T uiAlignment)
 {
   return (uiSize & (uiAlignment - 1)) == 0;
-}
-
-// private methods
-
-template <typename Destination, typename Source>
-EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, const Source& source, NotRValueReference)
-{
-  CopyConstruct<Destination, Source>(pDestination, source, 1);
-}
-
-template <typename Destination, typename Source>
-EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, Source&& source, IsRValueReference)
-{
-  static_assert(std::is_rvalue_reference<decltype(source)>::value,
-    "Implementation Error: This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
-  ::new (pDestination) Destination(std::move(source));
 }
 
 #undef EZ_CHECK_CLASS

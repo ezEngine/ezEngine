@@ -67,7 +67,7 @@ public:
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by
   /// using move construction if availble, otherwise by copy construction. Calls destructor of source elements in any case (if it is a non
-  /// primitive or memrelocatable type).
+  /// primitive or mem-relocatable type).
   template <typename T>
   static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount = 1);
 
@@ -185,15 +185,6 @@ public:
   ///
   /// Currently only implemented on Windows.
   static void ReserveLower4GBAddressSpace();
-
-private:
-  using NotRValueReference = std::false_type;
-  using IsRValueReference = std::true_type;
-
-  template <typename Destination, typename Source>
-  static void CopyOrMoveConstruct(Destination* pDestination, const Source& source, NotRValueReference);
-  template <typename Destination, typename Source>
-  static void CopyOrMoveConstruct(Destination* pDestination, Source&& source, IsRValueReference);
 };
 
 #include <Foundation/Memory/Implementation/MemoryUtils_inl.h>
