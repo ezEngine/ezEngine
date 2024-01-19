@@ -157,15 +157,6 @@ void EZ_IGNORE_UNUSED(const T&)
 {
 }
 
-
-// Math Debug checks
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-
-#  undef EZ_MATH_CHECK_FOR_NAN
-#  define EZ_MATH_CHECK_FOR_NAN EZ_ON
-
-#endif
-
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  define EZ_DECL_EXPORT __declspec(dllexport)
 #  define EZ_DECL_IMPORT __declspec(dllimport)
