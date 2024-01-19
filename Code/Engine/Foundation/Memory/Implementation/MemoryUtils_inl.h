@@ -358,7 +358,31 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T& source, s
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount)
 {
-  Prepend(pDestination, std::move(source), uiCount, ezGetTypeClass<T>());
+  if constexpr (ezGetTypeClass<T>::value != 0) // POD or mem-relocatable
+  {
+    memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
+    MoveConstruct(pDestination, std::move(source));
+  }
+  else // class
+  {
+    EZ_CHECK_CLASS(T);
+
+    if (uiCount > 0)
+    {
+      MoveConstruct(pDestination + uiCount, std::move(pDestination[uiCount - 1]));
+
+      for (size_t i = uiCount - 1; i > 0; --i)
+      {
+        pDestination[i] = std::move(pDestination[i - 1]);
+      }
+
+      *pDestination = std::move(source);
+    }
+    else
+    {
+      MoveConstruct(pDestination, std::move(source));
+    }
+  }
 }
 
 template <typename T>
@@ -458,42 +482,6 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
   static_assert(std::is_rvalue_reference<decltype(source)>::value,
     "Implementation Error: This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
   ::new (pDestination) Destination(std::move(source));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsPod)
-{
-  memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
-  MoveConstruct(pDestination, std::move(source));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsMemRelocatable)
-{
-  memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
-  MoveConstruct(pDestination, std::move(source));
-}
-
-template <typename T>
-inline void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(T);
-
-  if (uiCount > 0)
-  {
-    MoveConstruct(pDestination + uiCount, std::move(pDestination[uiCount - 1]));
-
-    for (size_t i = uiCount - 1; i > 0; --i)
-    {
-      pDestination[i] = std::move(pDestination[i - 1]);
-    }
-
-    *pDestination = std::move(source);
-  }
-  else
-  {
-    MoveConstruct(pDestination, std::move(source));
-  }
 }
 
 template <typename T>

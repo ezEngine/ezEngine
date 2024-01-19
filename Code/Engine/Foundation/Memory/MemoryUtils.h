@@ -195,20 +195,6 @@ private:
   template <typename Destination, typename Source>
   static void CopyOrMoveConstruct(Destination* pDestination, Source&& source, IsRValueReference);
 
-  //template <typename T>
-  //static void Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsPod);
-  //template <typename T>
-  //static void Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsMemRelocatable);
-  //template <typename T>
-  //static void Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsMemRelocatable);
-  template <typename T>
-  static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsClass);
-
   template <typename T>
   static void Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsPod);
   template <typename T>
