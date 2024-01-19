@@ -412,7 +412,21 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, 
 template <typename T>
 EZ_ALWAYS_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount /*= 1*/)
 {
-  return IsEqual(a, b, uiCount, ezIsPodType<T>());
+  if constexpr (ezIsPodType<T>::value)
+  {
+    return memcmp(a, b, uiCount * sizeof(T)) == 0;
+  }
+  else
+  {
+    EZ_CHECK_CLASS(T);
+
+    for (size_t i = 0; i < uiCount; i++)
+    {
+      if (!(a[i] == b[i]))
+        return false;
+    }
+    return true;
+  }
 }
 
 template <typename T>
@@ -501,25 +515,5 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
     "Implementation Error: This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
   ::new (pDestination) Destination(std::move(source));
 }
-
-template <typename T>
-EZ_ALWAYS_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsPod)
-{
-  return memcmp(a, b, uiCount * sizeof(T)) == 0;
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(T);
-
-  for (size_t i = 0; i < uiCount; i++)
-  {
-    if (!(a[i] == b[i]))
-      return false;
-  }
-  return true;
-}
-
 
 #undef EZ_CHECK_CLASS

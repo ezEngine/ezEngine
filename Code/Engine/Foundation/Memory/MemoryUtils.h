@@ -194,11 +194,6 @@ private:
   static void CopyOrMoveConstruct(Destination* pDestination, const Source& source, NotRValueReference);
   template <typename Destination, typename Source>
   static void CopyOrMoveConstruct(Destination* pDestination, Source&& source, IsRValueReference);
-
-  template <typename T>
-  static bool IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static bool IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsClass);
 };
 
 #include <Foundation/Memory/Implementation/MemoryUtils_inl.h>
