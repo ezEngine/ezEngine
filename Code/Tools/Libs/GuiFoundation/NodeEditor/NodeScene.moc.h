@@ -43,8 +43,9 @@ public:
     {
       BezierCurve,
       StraightLine,
+      SubwayLines,
 
-      Default = BezierCurve
+      Default = SubwayLines
     };
   };
 
@@ -58,6 +59,7 @@ public:
     enum Enum
     {
       DirectionArrows = EZ_BIT(0), ///< Draw an arrow to indicate the connection's direction. Only works with straight lines atm.
+      DrawDebugging = EZ_BIT(1), ///< Draw animated effect to denote debugging.
 
       Default = 0
     };
@@ -65,6 +67,7 @@ public:
     struct Bits
     {
       StorageType DirectionArrows : 1;
+      StorageType DrawDebugging : 1;
     };
   };
 

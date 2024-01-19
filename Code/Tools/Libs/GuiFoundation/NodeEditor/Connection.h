@@ -34,6 +34,7 @@ public:
 
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+  void DrawSubwayPath(QPainterPath& path, const QPointF& startPoint, const QPointF& endPoint);
 
   const ezDocumentObject* m_pObject = nullptr;
   const ezConnection* m_pConnection = nullptr;
