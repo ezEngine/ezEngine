@@ -388,7 +388,25 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount)
 {
-  Prepend(pDestination, pSource, uiSourceCount, uiCount, ezGetTypeClass<T>());
+  if constexpr (ezGetTypeClass<T>::value != 0) // POD or mem-relocatable
+  {
+    memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
+    CopyConstructArray(pDestination, pSource, uiSourceCount);
+  }
+  else // class
+  {
+    EZ_CHECK_CLASS(T);
+
+    if (uiCount > 0)
+    {
+      MoveConstruct(pDestination + uiSourceCount, pDestination, uiCount);
+      CopyConstructArray(pDestination, pSource, uiSourceCount);
+    }
+    else
+    {
+      CopyConstructArray(pDestination, pSource, uiSourceCount);
+    }
+  }
 }
 
 template <typename T>
@@ -482,36 +500,6 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
   static_assert(std::is_rvalue_reference<decltype(source)>::value,
     "Implementation Error: This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
   ::new (pDestination) Destination(std::move(source));
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsPod)
-{
-  memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
-  CopyConstructArray(pDestination, pSource, uiSourceCount);
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsMemRelocatable)
-{
-  memmove(pDestination + uiSourceCount, pDestination, uiCount * sizeof(T));
-  CopyConstructArray(pDestination, pSource, uiSourceCount);
-}
-
-template <typename T>
-inline void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(T);
-
-  if (uiCount > 0)
-  {
-    MoveConstruct(pDestination + uiSourceCount, pDestination, uiCount);
-    CopyConstructArray(pDestination, pSource, uiSourceCount);
-  }
-  else
-  {
-    CopyConstructArray(pDestination, pSource, uiSourceCount);
-  }
 }
 
 template <typename T>
