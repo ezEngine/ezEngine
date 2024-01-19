@@ -93,6 +93,7 @@ void ezQtConnection::UpdateGeometry()
   }
   else if (pScene->GetConnectionStyle() == ezQtNodeScene::ConnectionStyle::SubwayLines)
   {
+    // Used to enforce a small padding connection from the node itself to help readability.
     const float fPaddingFromNode = 20.0f;
 
     QPointF startPoint = m_OutPoint;
