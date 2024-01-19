@@ -17,7 +17,8 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileReaction
   enum Enum : StorageType
   {
     Absorb,      ///< The projectile simply stops and is deleted
-    Reflect,     ///< Bounces away along the reflected direction
+    Reflect,     ///< Bounces away along the reflected direction. Maintains momentum.
+    Bounce,      ///< Bounces away along the reflected direction. Loses momentum.
     Attach,      ///< Stops at the hit point, does not continue further and attaches itself as a child to the hit object
     PassThrough, ///< Continues flying through the geometry (but may spawn prefabs at the intersection points)
 
@@ -83,6 +84,9 @@ public:
   /// If 0, the projectile is not affected by gravity.
   float m_fGravityMultiplier; // [ property ]
 
+  // If true the death prefab will be spawned when the velocity gones under the threshold to be considered static 
+  bool m_bSpawnPrefabOnStatic; // [ property ]
+
   /// Defines which other physics objects the projectile will collide with.
   ezUInt8 m_uiCollisionLayer; // [ property ]
 
@@ -99,8 +103,8 @@ public:
   ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; // [ property ]
 
   /// \brief If the projectile reaches its maximum lifetime it can spawn this prefab.
-  void SetTimeoutPrefab(const char* szPrefab); // [ property ]
-  const char* GetTimeoutPrefab() const;        // [ property ]
+  void SetDeathPrefab(const char* szPrefab); // [ property ]
+  const char* GetDeathPrefab() const;             // [ property ]
 
   void SetFallbackSurfaceFile(const char* szFile); // [ property ]
   const char* GetFallbackSurfaceFile() const;      // [ property ]
@@ -109,7 +113,9 @@ private:
   void Update();
   void OnTriggered(ezMsgComponentInternalTrigger& msg); // [ msg handler ]
 
-  ezPrefabResourceHandle m_hTimeoutPrefab; ///< Spawned when the projectile is killed due to m_MaxLifetime coming to an end
+  void SpawnDeathPrefab();
+
+  ezPrefabResourceHandle m_hDeathPrefab; ///< Spawned when the projectile is killed due to m_MaxLifetime coming to an end
 
   /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction
   ezInt32 FindSurfaceInteraction(const ezSurfaceResourceHandle& hSurface) const;
