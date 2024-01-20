@@ -1,6 +1,7 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
+#include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/ImmutableSamplers.h>
 
 // clang-format off
