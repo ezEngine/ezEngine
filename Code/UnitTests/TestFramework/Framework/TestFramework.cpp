@@ -1424,7 +1424,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
 
   if (uiMeanError > uiMaxError)
   {
-    imgRgba.SaveTo(sImgPathResult).IgnoreResult();
+    SaveResultImage();
 
     ezUInt8 uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha;
     ezImageUtils::Normalize(imgDiffRgba, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);

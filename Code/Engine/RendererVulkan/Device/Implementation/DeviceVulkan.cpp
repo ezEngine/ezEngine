@@ -548,7 +548,6 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   ezFencePoolVulkan::Initialize(m_device);
   ezResourceCacheVulkan::Initialize(this, m_device);
   ezDescriptorSetPoolVulkan::Initialize(m_device);
-  ezFallbackResourcesVulkan::Initialize(this);
   ezImageCopyVulkan::Initialize(*this);
 
   m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassVulkan, *this);
@@ -663,8 +662,6 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
 {
   ezImageCopyVulkan::DeInitialize(*this);
   DestroyDeadObjects(); // ezImageCopyVulkan might add dead objects, so make sure the list is cleared again
-
-  ezFallbackResourcesVulkan::DeInitialize();
 
   ezGALWindowSwapChain::SetFactoryMethod({});
   if (m_lastCommandBufferFinished)
@@ -1373,6 +1370,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_b32BitIndices = true;
   m_Capabilities.m_bIndirectDraw = true;
   m_Capabilities.m_uiMaxConstantBuffers = ezMath::Min(m_properties.limits.maxDescriptorSetUniformBuffers, (ezUInt32)ezMath::MaxValue<ezUInt16>());
+  m_Capabilities.m_uiMaxPushConstantsSize = ezMath::Min(m_properties.limits.maxPushConstantsSize, (ezUInt32)ezMath::MaxValue<ezUInt16>());;
   m_Capabilities.m_bTextureArrays = true;
   m_Capabilities.m_bCubemapArrays = true;
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
@@ -1401,8 +1399,20 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
     const vk::FormatProperties formatProps = GetVulkanPhysicalDevice().getFormatProperties(entry.m_format);
 
     if (formatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImage)
+    {
       m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Sample);
-
+      vk::ImageFormatProperties props;
+      vk::Result res = GetVulkanPhysicalDevice().getImageFormatProperties(entry.m_format, vk::ImageType::e2D, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eSampled, {}, &props);
+      if (res == vk::Result::eSuccess)
+      {
+        if (props.sampleCounts & vk::SampleCountFlagBits::e2)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA2x);
+        if (props.sampleCounts & vk::SampleCountFlagBits::e4)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA4x);
+        if (props.sampleCounts & vk::SampleCountFlagBits::e8)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA8x);
+      }
+    }
     if (formatProps.bufferFeatures & vk::FormatFeatureFlagBits::eVertexBuffer)
       m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::VertexAttribute);
     if (ezGALResourceFormat::IsDepthFormat(format))

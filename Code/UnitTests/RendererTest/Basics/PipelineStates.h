@@ -20,6 +20,8 @@ private:
     ST_Texture2D,
     ST_Texture2DArray,
     ST_GenerateMipMaps,
+    ST_PushConstants,
+    ST_SetsSlots,
     ST_Timestamps,
   };
 
@@ -44,7 +46,9 @@ private:
     AddSubTest("07 - Texture2D", SubTests::ST_Texture2D);
     AddSubTest("08 - Texture2DArray", SubTests::ST_Texture2DArray);
     AddSubTest("09 - GenerateMipMaps", SubTests::ST_GenerateMipMaps);
-    //AddSubTest("10 - Timestamps", SubTests::ST_Timestamps);
+    AddSubTest("10 - PushConstants", SubTests::ST_PushConstants);
+    AddSubTest("11 - SetsSlots", SubTests::ST_SetsSlots);
+    //AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
   }
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
@@ -62,6 +66,8 @@ private:
   void Texture2D();
   void Texture2DArray();
   void GenerateMipMaps();
+  void PushConstantsTest();
+  void SetsSlotsTest();
   void Timestamps();
 
 private:
@@ -69,11 +75,13 @@ private:
   ezShaderResourceHandle m_hMostBasicTriangleShader;
   ezShaderResourceHandle m_hNDCPositionOnlyShader;
   ezShaderResourceHandle m_hConstantBufferShader;
+  ezShaderResourceHandle m_hPushConstantsShader;
   ezShaderResourceHandle m_hInstancingShader;
 
   ezMeshBufferResourceHandle m_hTriangleMesh;
   ezMeshBufferResourceHandle m_hSphereMesh;
 
+  ezConstantBufferStorageHandle m_hTestPerFrameConstantBuffer;
   ezConstantBufferStorageHandle m_hTestColorsConstantBuffer;
   ezConstantBufferStorageHandle m_hTestPositionsConstantBuffer;
 

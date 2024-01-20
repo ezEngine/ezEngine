@@ -99,6 +99,16 @@ ezResult ezGALSharedTextureSwapChain::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALSharedTextureSwapChain::DeInitPlatform(ezGALDevice* pDevice)
 {
+  for (ezUInt32 i = 0; i < m_SharedTextureHandles.GetCount(); ++i)
+  {
+    pDevice->DestroySharedTexture(m_SharedTextureHandles[i]);
+  }
+  m_uiCurrentTexture = ezMath::MaxValue<ezUInt32>();
+  m_uiCurrentSemaphoreValue = 0;
+  m_SharedTextureHandles.Clear();
+  m_SharedTextureInterfaces.Clear();
+  m_CurrentSemaphoreValue.Clear();
+
   return EZ_SUCCESS;
 }
 

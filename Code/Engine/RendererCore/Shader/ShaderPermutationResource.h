@@ -24,7 +24,7 @@ public:
   ezShaderPermutationResource();
 
   ezGALShaderHandle GetGALShader() const { return m_hShader; }
-  const ezShaderStageBinary* GetShaderStageBinary(ezGALShaderStage::Enum stage) const { return m_pShaderStageBinaries[stage]; }
+  const ezGALShaderByteCode* GetShaderByteCode(ezGALShaderStage::Enum stage) const { return m_ByteCodes[stage]; }
 
   ezGALBlendStateHandle GetBlendState() const { return m_hBlendState; }
   ezGALDepthStencilStateHandle GetDepthStencilState() const { return m_hDepthStencilState; }
@@ -43,7 +43,7 @@ private:
 private:
   friend class ezShaderManager;
 
-  ezShaderStageBinary* m_pShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
+  ezSharedPtr<const ezGALShaderByteCode> m_ByteCodes[ezGALShaderStage::ENUM_COUNT];
 
   bool m_bShaderPermutationValid;
   ezGALShaderHandle m_hShader;

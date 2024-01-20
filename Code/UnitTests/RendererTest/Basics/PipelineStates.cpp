@@ -8,6 +8,7 @@
 
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestConstants.h>
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestInstancing.h>
+#include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestPushConstants.h>
 
 EZ_DEFINE_AS_POD_TYPE(ezTestShaderData);
 
@@ -107,6 +108,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
   m_hMostBasicTriangleShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/MostBasicTriangle.ezShader");
   m_hNDCPositionOnlyShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/NDCPositionOnly.ezShader");
   m_hConstantBufferShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ConstantBuffer.ezShader");
+  m_hPushConstantsShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/PushConstants.ezShader");
   m_hInstancingShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Instancing.ezShader");
 
   {
@@ -139,6 +141,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 
     m_hSphereMesh = ezResourceManager::CreateResource<ezMeshBufferResource>("UnitTest-SphereMesh", std::move(desc), "SphereMesh");
   }
+  m_hTestPerFrameConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestPerFrame>();
   m_hTestColorsConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestColors>();
   m_hTestPositionsConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestPositions>();
 
@@ -303,6 +306,13 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DArray.ezShader");
     }
     break;
+    case SubTests::ST_PushConstants:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      break;
+    case SubTests::ST_SetsSlots:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/SetsSlots.ezShader");
+      break;
     case SubTests::ST_Timestamps:
       m_ImgCompFrames.PushBack(ImageCaptureFrames::Timestamps_MaxWaitTime);
       break;
@@ -322,8 +332,10 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hMostBasicTriangleShader.Invalidate();
   m_hNDCPositionOnlyShader.Invalidate();
   m_hConstantBufferShader.Invalidate();
+  m_hPushConstantsShader.Invalidate();
   m_hInstancingShader.Invalidate();
 
+  m_hTestPerFrameConstantBuffer.Invalidate();
   m_hTestColorsConstantBuffer.Invalidate();
   m_hTestPositionsConstantBuffer.Invalidate();
 
@@ -390,6 +402,12 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
       break;
     case SubTests::ST_GenerateMipMaps:
       GenerateMipMaps();
+      break;
+    case SubTests::ST_PushConstants:
+      PushConstantsTest();
+      break;
+    case SubTests::ST_SetsSlots:
+      SetsSlotsTest();
       break;
     case SubTests::ST_Timestamps:
       Timestamps();
@@ -482,6 +500,75 @@ void ezRendererTestPipelineStates::IndexBufferTest()
 {
   m_bCaptureImage = true;
   RenderBlock(m_hSphereMesh, ezColor::Orange);
+}
+
+void ezRendererTestPipelineStates::PushConstantsTest()
+{
+  const ezUInt32 uiColumns = 4;
+  const ezUInt32 uiRows = 2;
+
+  BeginPass("PushConstantsTest");
+  {
+    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+    ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+    {
+      pContext->BindShader(m_hPushConstantsShader);
+      pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+
+      for (ezUInt32 x = 0; x < uiColumns; ++x)
+      {
+        for (ezUInt32 y = 0; y < uiRows; ++y)
+        {
+          ezTestData constants;
+          ezTransform t = CreateTransform(uiColumns, uiRows, x, y);
+          constants.Vertex0 = (t * ezVec3(1.f, -1.f, 0.0f)).GetAsVec4(1.0f);
+          constants.Vertex1 = (t * ezVec3(-1.f, -1.f, 0.0f)).GetAsVec4(1.0f);
+          constants.Vertex2 = (t * ezVec3(-0.f, 1.f, 0.0f)).GetAsVec4(1.0f);
+          constants.VertexColor = ezColorScheme::LightUI(float(x * uiRows + y) / (uiColumns * uiRows)).GetAsVec4();
+
+          pContext->SetPushConstants("ezTestData", constants);
+          pContext->DrawMeshBuffer(1).AssertSuccess();
+        }
+      }
+    }
+    if (m_ImgCompFrames.Contains(m_iFrame))
+    {
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
+    EndRendering();
+  }
+  EndPass();
+}
+
+void ezRendererTestPipelineStates::SetsSlotsTest()
+{
+  const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+  const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+  const ezUInt32 uiColumns = 2;
+  const ezUInt32 uiRows = 2;
+  const float fElementWidth = fWidth / uiColumns;
+  const float fElementHeight = fHeight / uiRows;
+
+  const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+
+  auto constants = ezRenderContext::GetConstantBufferData<ezTestPerFrame>(m_hTestPerFrameConstantBuffer);
+  constants->Time = 1.0f;
+  ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+  pContext->BindConstantBuffer("ezTestPerFrame", m_hTestPerFrameConstantBuffer);
+
+  BeginPass("SetsSlots");
+  {
+    ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D_Mip0);
+    viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip1);
+    viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip2);
+    m_bCaptureImage = true;
+    viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
+  }
+  EndPass();
 }
 
 void ezRendererTestPipelineStates::ConstantBufferTest()

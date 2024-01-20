@@ -5,57 +5,16 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Math/Color.h>
-#include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
+#include <RendererFoundation/Descriptors/Enumerations.h>
 #include <Texture/Image/ImageEnums.h>
 
 class ezWindowBase;
 
-struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceType
-{
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
-  {
-    Unknown = 0,
 
-    Texture1D = 1,
-    Texture1DArray = 2,
-    Texture2D = 3,
-    Texture2DArray = 4,
-    Texture2DMS = 5,
-    Texture2DMSArray = 6,
-    Texture3D = 7,
-    TextureCube = 8,
-    TextureCubeArray = 9,
-
-    UAV = 10,            ///< RW textures and buffers
-    ConstantBuffer = 20, ///< Constant buffers
-    GenericBuffer = 21,  ///< Read only (structured) buffers
-    Sampler = 22,        ///< Separate sampler states
-
-    Default = Unknown,
-  };
-
-  static bool IsArray(ezShaderResourceType::Enum format);
-};
-
-
-/// \brief Defines a swap chain's present mode.
-/// \sa ezGALWindowSwapChainCreationDescription
-struct EZ_RENDERERFOUNDATION_DLL ezGALPresentMode
-{
-  using StorageType = ezUInt8;
-
-  enum Enum
-  {
-    Immediate,
-    VSync,
-    ENUM_COUNT,
-    Default = VSync
-  };
-};
 
 struct ezGALWindowSwapChainCreationDescription : public ezHashableStruct<ezGALWindowSwapChainCreationDescription>
 {
@@ -88,18 +47,18 @@ struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreat
 
   bool HasByteCodeForStage(ezGALShaderStage::Enum stage) const;
 
-  ezScopedRefPointer<ezGALShaderByteCode> m_ByteCodes[ezGALShaderStage::ENUM_COUNT];
+  ezSharedPtr<ezGALShaderByteCode> m_ByteCodes[ezGALShaderStage::ENUM_COUNT];
 };
 
 struct ezGALRenderTargetBlendDescription : public ezHashableStruct<ezGALRenderTargetBlendDescription>
 {
-  ezGALBlend::Enum m_SourceBlend = ezGALBlend::One;
-  ezGALBlend::Enum m_DestBlend = ezGALBlend::One;
-  ezGALBlendOp::Enum m_BlendOp = ezGALBlendOp::Add;
+  ezEnum<ezGALBlend> m_SourceBlend = ezGALBlend::One;
+  ezEnum<ezGALBlend> m_DestBlend = ezGALBlend::One;
+  ezEnum<ezGALBlendOp> m_BlendOp = ezGALBlendOp::Add;
 
-  ezGALBlend::Enum m_SourceBlendAlpha = ezGALBlend::One;
-  ezGALBlend::Enum m_DestBlendAlpha = ezGALBlend::One;
-  ezGALBlendOp::Enum m_BlendOpAlpha = ezGALBlendOp::Add;
+  ezEnum<ezGALBlend> m_SourceBlendAlpha = ezGALBlend::One;
+  ezEnum<ezGALBlend> m_DestBlendAlpha = ezGALBlend::One;
+  ezEnum<ezGALBlendOp> m_BlendOpAlpha = ezGALBlendOp::Add;
 
   ezUInt8 m_uiWriteMask = 0xFF;    ///< Enables writes to color channels. Bit1 = Red Channel, Bit2 = Green Channel, Bit3 = Blue Channel, Bit4 = Alpha
                                    ///< Channel, Bit 5-8 are unused
@@ -176,43 +135,7 @@ struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSampl
   ezUInt32 m_uiMaxAnisotropy = 4;
 };
 
-struct ezGALVertexAttributeSemantic
-{
-  enum Enum : ezUInt8
-  {
-    Position,
-    Normal,
-    Tangent,
-    Color0,
-    Color1,
-    Color2,
-    Color3,
-    Color4,
-    Color5,
-    Color6,
-    Color7,
-    TexCoord0,
-    TexCoord1,
-    TexCoord2,
-    TexCoord3,
-    TexCoord4,
-    TexCoord5,
-    TexCoord6,
-    TexCoord7,
-    TexCoord8,
-    TexCoord9,
-
-    BiTangent,
-    BoneIndices0,
-    BoneIndices1,
-    BoneWeights0,
-    BoneWeights1,
-
-    ENUM_COUNT
-  };
-};
-
-struct ezGALVertexAttribute
+struct EZ_RENDERERFOUNDATION_DLL ezGALVertexAttribute
 {
   ezGALVertexAttribute() = default;
 
@@ -232,29 +155,14 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : pub
   ezStaticArray<ezGALVertexAttribute, 16> m_VertexAttributes;
 };
 
+// Need to add: immutable (GPU only), default(GPU only, but allows CopyToTempStorage updates), transient (allows ezGALUpdateMode::Discard), staging: read(back), staging: write (constantly mapped), unified memory (mobile, onboard GPU, allows all ops)
+// Or use VmaMemoryUsage  + read write flags?
 struct ezGALResourceAccess
 {
   EZ_ALWAYS_INLINE bool IsImmutable() const { return m_bImmutable; }
 
   bool m_bReadBack = false;
   bool m_bImmutable = true;
-};
-
-struct ezGALBufferType
-{
-  using StorageType = ezUInt8;
-
-  enum Enum
-  {
-    Generic = 0,
-    VertexBuffer,
-    IndexBuffer,
-    ConstantBuffer,
-
-    ENUM_COUNT,
-
-    Default = Generic
-  };
 };
 
 struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
@@ -275,21 +183,16 @@ struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreat
 
 struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCreationDescription>
 {
-  void SetAsRenderTarget(
-    ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
+  void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
 
   ezUInt32 m_uiWidth = 0;
   ezUInt32 m_uiHeight = 0;
   ezUInt32 m_uiDepth = 1;
-
   ezUInt32 m_uiMipLevelCount = 1;
-
   ezUInt32 m_uiArraySize = 1;
 
   ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid;
-
   ezEnum<ezGALMSAASampleCount> m_SampleCount = ezGALMSAASampleCount::None;
-
   ezEnum<ezGALTextureType> m_Type = ezGALTextureType::Texture2D;
 
   bool m_bAllowShaderResourceView = true;
@@ -357,24 +260,6 @@ struct ezGALUnorderedAccessViewCreationDescription : public ezHashableStruct<ezG
   bool m_bAppend = false; // Allows appending data to the end of the buffer.
 };
 
-struct ezGALQueryType
-{
-  using StorageType = ezUInt8;
-
-  enum Enum
-  {
-    /// Number of samples that passed the depth and stencil test between begin and end (on a context).
-    NumSamplesPassed,
-    /// Boolean version of NumSamplesPassed.
-    AnySamplesPassed,
-
-    Default = NumSamplesPassed
-
-    // Note:
-    // GALFence provides an implementation of "event queries".
-  };
-};
-
 struct ezGALQueryCreationDescription : public ezHashableStruct<ezGALQueryCreationDescription>
 {
   ezEnum<ezGALQueryType> m_type = ezGALQueryType::NumSamplesPassed;
@@ -400,20 +285,6 @@ struct ezGALDeviceEvent
 
   Type m_Type;
   class ezGALDevice* m_pDevice;
-};
-
-// Type of the shared texture
-struct ezGALSharedTextureType
-{
-  using StorageType = ezUInt8;
-
-  enum Enum : ezUInt8
-  {
-    None,     ///< Not shared
-    Exported, ///< Allocation owned by this process
-    Imported, ///< Allocation owned by a different process
-    Default = None
-  };
 };
 
 // Opaque platform specific handle

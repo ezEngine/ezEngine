@@ -13,6 +13,8 @@ using namespace ezTokenParseUtils;
 namespace
 {
   static ezHashTable<ezStringView, const ezRTTI*> s_NameToTypeTable;
+  static ezHashTable<ezStringView, ezEnum<ezGALShaderResourceType>> s_NameToDescriptorTable;
+  static ezHashTable<ezStringView, ezEnum<ezGALShaderTextureType>> s_NameToTextureTable;
 
   void InitializeTables()
   {
@@ -37,6 +39,48 @@ namespace
     s_NameToTypeTable.Insert("Texture2D", ezGetStaticRTTI<ezString>());
     s_NameToTypeTable.Insert("Texture3D", ezGetStaticRTTI<ezString>());
     s_NameToTypeTable.Insert("TextureCube", ezGetStaticRTTI<ezString>());
+
+    s_NameToDescriptorTable.Insert("cbuffer"_ezsv, ezGALShaderResourceType::ConstantBuffer);
+    s_NameToDescriptorTable.Insert("ConstantBuffer"_ezsv, ezGALShaderResourceType::ConstantBuffer);
+    s_NameToDescriptorTable.Insert("SamplerState"_ezsv, ezGALShaderResourceType::Sampler);
+    s_NameToDescriptorTable.Insert("SamplerComparisonState"_ezsv, ezGALShaderResourceType::Sampler);
+    s_NameToDescriptorTable.Insert("Texture1D"_ezsv, ezGALShaderResourceType::Texture);
+    s_NameToDescriptorTable.Insert("Texture1DArray"_ezsv, ezGALShaderResourceType::Texture);
+    s_NameToDescriptorTable.Insert("Texture2D"_ezsv, ezGALShaderResourceType::Texture);
+    s_NameToDescriptorTable.Insert("Texture2DArray"_ezsv, ezGALShaderResourceType::Texture);
+    s_NameToDescriptorTable.Insert("Texture2DMS"_ezsv, ezGALShaderResourceType::Texture);
+    s_NameToDescriptorTable.Insert("Texture2DMSArray"_ezsv, ezGALShaderResourceType::Texture);
+    s_NameToDescriptorTable.Insert("Texture3D"_ezsv, ezGALShaderResourceType::Texture);
+    s_NameToDescriptorTable.Insert("TextureCube"_ezsv, ezGALShaderResourceType::Texture);
+    s_NameToDescriptorTable.Insert("TextureCubeArray"_ezsv, ezGALShaderResourceType::Texture);
+    s_NameToDescriptorTable.Insert("Buffer"_ezsv, ezGALShaderResourceType::TexelBuffer);
+    s_NameToDescriptorTable.Insert("StructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
+    s_NameToDescriptorTable.Insert("ByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
+    s_NameToDescriptorTable.Insert("RWTexture1D"_ezsv, ezGALShaderResourceType::TextureRW);
+    s_NameToDescriptorTable.Insert("RWTexture1DArray"_ezsv, ezGALShaderResourceType::TextureRW);
+    s_NameToDescriptorTable.Insert("RWTexture2D"_ezsv, ezGALShaderResourceType::TextureRW);
+    s_NameToDescriptorTable.Insert("RWTexture2DArray"_ezsv, ezGALShaderResourceType::TextureRW);
+    s_NameToDescriptorTable.Insert("RWTexture3D"_ezsv, ezGALShaderResourceType::TextureRW);
+    s_NameToDescriptorTable.Insert("RWBuffer"_ezsv, ezGALShaderResourceType::TexelBufferRW);
+    s_NameToDescriptorTable.Insert("RWStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
+    s_NameToDescriptorTable.Insert("RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
+    s_NameToDescriptorTable.Insert("AppendStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
+    s_NameToDescriptorTable.Insert("ConsumeStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
+    
+    s_NameToTextureTable.Insert("Texture1D"_ezsv, ezGALShaderTextureType::Texture1D);
+    s_NameToTextureTable.Insert("Texture1DArray"_ezsv, ezGALShaderTextureType::Texture1DArray);
+    s_NameToTextureTable.Insert("Texture2D"_ezsv, ezGALShaderTextureType::Texture2D);
+    s_NameToTextureTable.Insert("Texture2DArray"_ezsv, ezGALShaderTextureType::Texture2DArray);
+    s_NameToTextureTable.Insert("Texture2DMS"_ezsv, ezGALShaderTextureType::Texture2DMS);
+    s_NameToTextureTable.Insert("Texture2DMSArray"_ezsv, ezGALShaderTextureType::Texture2DMSArray);
+    s_NameToTextureTable.Insert("Texture3D"_ezsv, ezGALShaderTextureType::Texture3D);
+    s_NameToTextureTable.Insert("TextureCube"_ezsv, ezGALShaderTextureType::TextureCube);
+    s_NameToTextureTable.Insert("TextureCubeArray"_ezsv, ezGALShaderTextureType::TextureCubeArray);
+    s_NameToTextureTable.Insert("RWTexture1D"_ezsv, ezGALShaderTextureType::Texture1D);
+    s_NameToTextureTable.Insert("RWTexture1DArray"_ezsv, ezGALShaderTextureType::Texture1DArray);
+    s_NameToTextureTable.Insert("RWTexture2D"_ezsv, ezGALShaderTextureType::Texture2D);
+    s_NameToTextureTable.Insert("RWTexture2DArray"_ezsv, ezGALShaderTextureType::Texture2DArray);
+    s_NameToTextureTable.Insert("RWTexture3D"_ezsv, ezGALShaderTextureType::Texture3D);
   }
 
   const ezRTTI* GetType(const char* szType)
@@ -532,4 +576,219 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_de
   }
 }
 
+ezResult ParseResource(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezShaderResourceDefinition& out_resourceDefinition)
+{
+  // Match type
+  ezUInt32 uiTypeToken = ref_uiCurToken;
+  if (!Accept(tokens, ref_uiCurToken, ezTokenType::Identifier, &uiTypeToken))
+  {
+    return EZ_FAILURE;
+  }
+  if (!s_NameToDescriptorTable.TryGetValue(tokens[uiTypeToken]->m_DataView, out_resourceDefinition.m_Binding.m_ResourceType))
+    return EZ_FAILURE;
+  s_NameToTextureTable.TryGetValue(tokens[uiTypeToken]->m_DataView, out_resourceDefinition.m_Binding.m_TextureType);
 
+  // Skip optional template
+  TokenMatch templatePattern[] = {"<"_ezsv,ezTokenType::Identifier, ">"_ezsv};
+  ezHybridArray<ezUInt32, 8> acceptedTokens;
+  Accept(tokens, ref_uiCurToken, templatePattern, &acceptedTokens);
+  
+  // Match name
+  ezUInt32 uiNameToken = ref_uiCurToken;
+  if (!Accept(tokens, ref_uiCurToken, ezTokenType::Identifier, &uiNameToken))
+  {
+    return EZ_FAILURE;
+  }
+  out_resourceDefinition.m_Binding.m_sName.Assign(tokens[uiNameToken]->m_DataView);
+  ezUInt32 uiEndToken = uiNameToken;
+
+  // Match optional array
+  TokenMatch arrayPattern[] = {"["_ezsv,ezTokenType::Integer, "]"_ezsv};
+  TokenMatch bindlessPattern[] = {"["_ezsv, "]"_ezsv};
+  if (Accept(tokens, ref_uiCurToken, arrayPattern, &acceptedTokens))
+  {
+    ezConversionUtils::StringToUInt(tokens[acceptedTokens[1]]->m_DataView, out_resourceDefinition.m_Binding.m_uiArraySize).AssertSuccess("Tokenizer error");
+    uiEndToken = acceptedTokens.PeekBack();
+  }
+  else if (Accept(tokens, ref_uiCurToken, bindlessPattern, &acceptedTokens))
+  {
+    out_resourceDefinition.m_Binding.m_uiArraySize = 0;
+    uiEndToken = acceptedTokens.PeekBack();
+  }
+  out_resourceDefinition.m_sDeclaration = ezStringView(tokens[uiTypeToken]->m_DataView.GetStartPointer(), tokens[uiEndToken]->m_DataView.GetEndPointer());
+
+  // Match optional register
+  TokenMatch slotPattern[] = {":"_ezsv,"register"_ezsv, "("_ezsv,ezTokenType::Identifier, ")"_ezsv};
+  TokenMatch slotAndSetPattern[] = {":"_ezsv,"register"_ezsv, "("_ezsv,ezTokenType::Identifier, ","_ezsv, ezTokenType::Identifier, ")"_ezsv};
+  if (Accept(tokens, ref_uiCurToken, slotPattern, &acceptedTokens))
+  {
+    ezStringView sSlot = tokens[acceptedTokens[3]]->m_DataView;
+    sSlot.Trim("tsubx");
+    if (sSlot.IsEqual_NoCase("AUTO")) // See shader macros in StandardMacros.h
+    {
+      out_resourceDefinition.m_Binding.m_iSlot = -1;
+    }
+    else
+    {
+      ezInt32 iSlot;
+      ezConversionUtils::StringToInt(sSlot, iSlot).AssertSuccess("Failed to parse slot index of shader resource");
+      out_resourceDefinition.m_Binding.m_iSlot = static_cast<ezInt16>(iSlot);
+    }
+    uiEndToken = acceptedTokens.PeekBack();
+  }
+  else if (Accept(tokens, ref_uiCurToken, slotAndSetPattern, &acceptedTokens))
+  {
+    ezStringView sSlot = tokens[acceptedTokens[3]]->m_DataView;
+    sSlot.Trim("tsubx");
+    if (sSlot.IsEqual_NoCase("AUTO")) // See shader macros in StandardMacros.h
+    {
+      out_resourceDefinition.m_Binding.m_iSlot = -1;
+    }
+    else
+    {
+      ezInt32 iSlot;
+      ezConversionUtils::StringToInt(sSlot, iSlot).AssertSuccess("Failed to parse slot index of shader resource");
+      out_resourceDefinition.m_Binding.m_iSlot = static_cast<ezInt16>(iSlot);
+    }
+    ezStringView sSet = tokens[acceptedTokens[5]]->m_DataView;
+    sSet.TrimWordStart("space"_ezsv);
+    ezInt32 iSet;
+    ezConversionUtils::StringToInt(sSet, iSet).AssertSuccess("Failed to parse set index of shader resource");
+    out_resourceDefinition.m_Binding.m_iSet = static_cast<ezInt16>(iSet);
+    uiEndToken = acceptedTokens.PeekBack();
+  }
+
+  out_resourceDefinition.m_sDeclarationAndRegister = ezStringView(tokens[uiTypeToken]->m_DataView.GetStartPointer(), tokens[uiEndToken]->m_DataView.GetEndPointer());
+  // Match ; (resource declaration done) or { (constant buffer member declaration starts)
+  if (!Accept(tokens, ref_uiCurToken, ";"_ezsv) && !Accept(tokens, ref_uiCurToken, "{"_ezsv))
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+void ezShaderParser::ParseShaderResources(ezStringView sShaderStageSource, ezDynamicArray<ezShaderResourceDefinition>& out_Resources)
+{
+  if (sShaderStageSource.IsEmpty())
+  {
+    out_Resources.Clear();
+    return;
+  }
+
+  InitializeTables();
+
+  ezTokenizer tokenizer;
+  tokenizer.SetTreatHashSignAsLineComment(true);
+  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)sShaderStageSource.GetStartPointer(), sShaderStageSource.GetElementCount()), ezLog::GetThreadLocalLogSystem(), false);
+
+  TokenStream tokens;
+  tokenizer.GetAllLines(tokens);
+
+  ezUInt32 uiCurToken = 0;
+
+  while (!Accept(tokens, uiCurToken, ezTokenType::EndOfFile))
+  {
+    ezShaderResourceDefinition resourceDef;
+    if (ParseResource(tokens, uiCurToken, resourceDef).Succeeded())
+    {
+      out_Resources.PushBack(std::move(resourceDef));
+      continue;
+    }
+    ++uiCurToken;
+  }
+}
+
+ezResult ezShaderParser::MergeShaderResourceBindings(const ezShaderProgramData& spd, ezHashTable<ezHashedString, ezShaderResourceBinding>& out_bindings, ezLogInterface* pLog)
+{
+  ezUInt32 uiSize = 0;
+  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    uiSize += spd.m_Resources[stage].GetCount();
+  }
+
+  out_bindings.Clear();
+  out_bindings.Reserve(uiSize);
+
+  ezMap<ezHashedString, const ezShaderResourceDefinition*> resourceFirstOccurence;
+
+  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    for (const ezShaderResourceDefinition& res : spd.m_Resources[stage])
+    {
+      ezHashedString sName = res.m_Binding.m_sName;
+      auto it = out_bindings.Find(sName);
+      if (it.IsValid())
+      {
+        ezShaderResourceBinding& current = it.Value();
+        if (current.m_ResourceType != res.m_Binding.m_ResourceType || current.m_TextureType != res.m_Binding.m_TextureType || current.m_uiArraySize != res.m_Binding.m_uiArraySize)
+        {
+          ezLog::Error(pLog, "A shared shader resource '{}' has a mismatching signatures between stages: '{}' vs '{}'", sName, resourceFirstOccurence.Find(sName).Value()->m_sDeclarationAndRegister, res.m_sDeclarationAndRegister);
+          return EZ_FAILURE;
+        }
+
+        current.m_Stages |= ezGALShaderStageFlags::MakeFromShaderStage((ezGALShaderStage::Enum)stage);
+      }
+      else
+      {
+        out_bindings.Insert(sName, res.m_Binding);
+        resourceFirstOccurence.Insert(sName, &res);
+        out_bindings.Find(sName).Value().m_Stages |= ezGALShaderStageFlags::MakeFromShaderStage((ezGALShaderStage::Enum)stage);
+      }
+    }
+  }
+  return EZ_SUCCESS;
+}
+
+ezResult ezShaderParser::SanityCheckShaderResourceBindings(const ezHashTable<ezHashedString, ezShaderResourceBinding>& bindings, ezLogInterface* pLog)
+{
+  for (auto it : bindings)
+  {
+    if (it.Value().m_iSet < 0)
+    {
+      ezLog::Error(pLog, "Shader resource '{}' does not have a set defined.", it.Key());
+      return EZ_FAILURE;
+    }
+    if (it.Value().m_iSlot < 0)
+    {
+      ezLog::Error(pLog, "Shader resource '{}' does not have a slot defined.", it.Key());
+      return EZ_FAILURE;
+    }
+  }
+  return EZ_SUCCESS;
+}
+
+void ezShaderParser::ApplyShaderResourceBindings(ezStringView sPlatform, ezStringView sShaderStageSource, const ezDynamicArray<ezShaderResourceDefinition>& resources, const ezHashTable<ezHashedString, ezShaderResourceBinding>& bindings, const CreateResourceDeclaration& createDeclaration, ezStringBuilder& out_shaderStageSource)
+{
+  ezDeque<ezString> partStorage;
+  ezHybridArray<ezStringView, 16> parts;
+
+  ezStringBuilder sDeclaration;
+  const char* szStart = sShaderStageSource.GetStartPointer();
+  for (int i = 0; i < resources.GetCount(); ++i)
+  {
+    parts.PushBack(ezStringView(szStart, resources[i].m_sDeclarationAndRegister.GetStartPointer()));
+
+    ezShaderResourceBinding* pBinding = nullptr;
+    EZ_ASSERT_DEV(bindings.TryGetValue(resources[i].m_Binding.m_sName, pBinding), "Every resource should be present in the map.");
+    EZ_ASSERT_DEV(pBinding->m_iSlot >= 0 && pBinding->m_iSet >= 0, "Unbound shader resource binding found: '{}', slot: {}, set: {}", pBinding->m_sName, pBinding->m_iSlot, pBinding->m_iSet);
+    createDeclaration(sPlatform, resources[i].m_sDeclaration, *pBinding, sDeclaration);
+    ezString& sStorage = partStorage.ExpandAndGetRef();
+    sStorage = sDeclaration;
+    parts.PushBack(sStorage);
+    szStart = resources[i].m_sDeclarationAndRegister.GetEndPointer();
+  }
+  parts.PushBack(ezStringView(szStart, sShaderStageSource.GetEndPointer()));
+
+  ezUInt32 uiSize = 0;
+  for (const ezStringView& sPart : parts)
+    uiSize += sPart.GetElementCount();
+
+  out_shaderStageSource.Clear();
+  out_shaderStageSource.Reserve(uiSize);
+
+  for (const ezStringView& sPart : parts)
+  {
+    out_shaderStageSource.Append(sPart);
+  }
+}
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_ShaderParser);

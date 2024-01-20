@@ -16,9 +16,11 @@
 #  define EZ_RENDERERFOUNDATION_DLL
 #endif
 
-// Necessary array sizes
+// #TODO_SHADER obsolete, DX11 only
 #define EZ_GAL_MAX_CONSTANT_BUFFER_COUNT 16
 #define EZ_GAL_MAX_SAMPLER_COUNT 16
+
+// Necessary array sizes
 #define EZ_GAL_MAX_VERTEX_BUFFER_COUNT 16
 #define EZ_GAL_MAX_RENDERTARGET_COUNT 8
 
@@ -98,9 +100,12 @@ private:
   static const ezUInt8 s_Size[ezGALIndexType::ENUM_COUNT];
 };
 
-
+/// \brief The stage of a shader. A complete shader can consist of multiple stages.
+/// \sa ezGALShaderStageFlags, ezGALShaderCreationDescription
 struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
 {
+  using StorageType = ezUInt8;
+
   enum Enum : ezUInt8
   {
     VertexShader,
@@ -108,14 +113,68 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
     DomainShader,
     GeometryShader,
     PixelShader,
-
     ComputeShader,
-
-    ENUM_COUNT
+    /*
+    // #TODO_SHADER: Future work:
+    TaskShader,
+    MeshShader,
+    RayGenShader,
+    RayAnyHitShader,
+    RayClosestHitShader,
+    RayMissShader,
+    RayIntersectionShader,
+    */
+    ENUM_COUNT,
+    Default = VertexShader
   };
 
   static const char* Names[ENUM_COUNT];
 };
+
+/// \brief A set of shader stages.
+/// \sa ezGALShaderStage, ezShaderResourceBinding
+struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStageFlags
+{
+  using StorageType = ezUInt16;
+
+  enum Enum : ezUInt16
+  {
+    VertexShader = EZ_BIT(0),
+    HullShader = EZ_BIT(1),
+    DomainShader = EZ_BIT(2),
+    GeometryShader = EZ_BIT(3),
+    PixelShader = EZ_BIT(4),
+    ComputeShader = EZ_BIT(5),
+    /*
+    // #TODO_SHADER: Future work:
+    TaskShader = EZ_BIT(6),
+    MeshShader = EZ_BIT(7),
+    RayGenShader = EZ_BIT(8),
+    RayAnyHitShader = EZ_BIT(9),
+    RayClosestHitShader = EZ_BIT(10),
+    RayMissShader = EZ_BIT(11),
+    RayIntersectionShader = EZ_BIT(12),
+    */
+    Default = 0
+  };
+
+  struct Bits
+  {
+    StorageType VertexShader : 1;
+    StorageType HullShader : 1;
+    StorageType DomainShader : 1;
+    StorageType GeometryShader : 1;
+    StorageType PixelShader : 1;
+    StorageType ComputeShader : 1;
+  };
+
+  inline static ezGALShaderStageFlags::Enum MakeFromShaderStage(ezGALShaderStage::Enum stage)
+  {
+    return static_cast<ezGALShaderStageFlags::Enum>(EZ_BIT(stage));
+  }
+};
+EZ_DECLARE_FLAGS_OPERATORS(ezGALShaderStageFlags);
+
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALMSAASampleCount
 {
@@ -155,6 +214,8 @@ struct ezGALTextureType
 
 struct ezGALBlend
 {
+  using StorageType = ezUInt8;
+
   enum Enum
   {
     Zero = 0,
@@ -171,12 +232,16 @@ struct ezGALBlend
     BlendFactor,
     InvBlendFactor,
 
-    ENUM_COUNT
+    ENUM_COUNT,
+
+    Default = One
   };
 };
 
 struct ezGALBlendOp
 {
+  using StorageType = ezUInt8;
+
   enum Enum
   {
     Add = 0,
@@ -185,7 +250,8 @@ struct ezGALBlendOp
     Min,
     Max,
 
-    ENUM_COUNT
+    ENUM_COUNT,
+    Default = Add
   };
 };
 
@@ -269,9 +335,9 @@ struct ezGALUpdateMode
 {
   enum Enum
   {
-    Discard,
-    NoOverwrite,
-    CopyToTempStorage
+    Discard,          ///< Buffer must be completely overwritten. No old data will be read. Data will not persist across frames.
+    NoOverwrite,      ///< User is responsible for synchronizing access between GPU and CPU.
+    CopyToTempStorage ///< Upload to temp buffer, then buffer to buffer transfer at the current time in the command buffer.
   };
 };
 

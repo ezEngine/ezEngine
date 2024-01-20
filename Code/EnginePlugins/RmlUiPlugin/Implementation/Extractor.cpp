@@ -12,12 +12,12 @@ namespace ezRmlUiInternal
   {
     m_hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
 
-    ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&Extractor::EndFrame, this));
+    ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&Extractor::EndFrame, this));
   }
 
   Extractor::~Extractor()
   {
-    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(ezMakeDelegate(&Extractor::EndFrame, this));
+    ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&Extractor::EndFrame, this));
 
     for (auto it = m_CompiledGeometry.GetIterator(); it.IsValid(); ++it)
     {

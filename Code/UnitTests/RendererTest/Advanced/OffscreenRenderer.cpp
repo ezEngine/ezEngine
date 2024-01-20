@@ -233,6 +233,19 @@ void ezOffscreenRendererTest::BeforeHighLevelSystemsShutdown()
   SUPER::BeforeHighLevelSystemsShutdown();
 }
 
+void ezOffscreenRendererTest::BeforeCoreSystemsShutdown()
+{
+  ezResourceManager::FreeAllUnusedResources();
+
+  if (m_pDevice)
+  {
+    m_pDevice->Shutdown().IgnoreResult();
+    EZ_DEFAULT_DELETE(m_pDevice);
+  }
+
+  SUPER::BeforeCoreSystemsShutdown();
+}
+
 void ezOffscreenRendererTest::MessageFunc(const ezProcessMessage* pMsg)
 {
   if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_OpenMsg*>(pMsg))

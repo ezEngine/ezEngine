@@ -14,15 +14,11 @@ public:
 
   void SetShader(ezGALShaderHandle hShader);
 
-  void SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer);
-  void SetSamplerState(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, ezGALSamplerStateHandle hSamplerState);
-  void SetResourceView(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView);
-  void SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessViewHandle hUnorderedAccessView);
-
-  // Returns whether a resource view has been unset for the given resource
-  bool UnsetResourceViews(const ezGALResourceBase* pResource);
-  // Returns whether a unordered access view has been unset for the given resource
-  bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);
+  void SetConstantBuffer(const ezShaderResourceBinding& binding, ezGALBufferHandle hBuffer);
+  void SetSamplerState(const ezShaderResourceBinding& binding, ezGALSamplerStateHandle hSamplerState);
+  void SetResourceView(const ezShaderResourceBinding& binding, ezGALResourceViewHandle hResourceView);
+  void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALUnorderedAccessViewHandle hUnorderedAccessView);
+  void SetPushConstants(ezArrayPtr<const ezUInt8> data);
 
   // Query functions
 
@@ -88,20 +84,11 @@ protected:
     EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function can only be executed on the main thread.");
   }
 
-  void CountStateChange() { m_uiStateChanges++; }
-  void CountRedundantStateChange() { m_uiRedundantStateChanges++; }
-
 private:
   friend class ezMemoryUtils;
 
   // Parent Device
   ezGALDevice& m_Device;
-
-  // Statistic variables
-  ezUInt32 m_uiStateChanges = 0;
-  ezUInt32 m_uiRedundantStateChanges = 0;
-
   ezGALCommandEncoderState& m_State;
-
   ezGALCommandEncoderCommonPlatformInterface& m_CommonImpl;
 };

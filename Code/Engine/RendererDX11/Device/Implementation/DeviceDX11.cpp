@@ -985,6 +985,23 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
         if (uiRenderSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_RENDER_TARGET)
           m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Render);
       }
+
+      UINT uiMSAALevels;
+      if (SUCCEEDED(m_pDevice3->CheckMultisampleQualityLevels(entry.m_eRenderTarget, 2, &uiMSAALevels)))
+      {
+        if (uiMSAALevels > 0)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA2x);
+      }
+      if (SUCCEEDED(m_pDevice3->CheckMultisampleQualityLevels(entry.m_eRenderTarget, 4, &uiMSAALevels)))
+      {
+        if (uiMSAALevels > 0)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA4x);
+      }
+      if (SUCCEEDED(m_pDevice3->CheckMultisampleQualityLevels(entry.m_eRenderTarget, 8, &uiMSAALevels)))
+      {
+        if (uiMSAALevels > 0)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::MSAA8x);
+      }
     }
   }
 }

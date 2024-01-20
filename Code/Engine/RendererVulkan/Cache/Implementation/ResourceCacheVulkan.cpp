@@ -371,8 +371,13 @@ vk::PipelineLayout ezResourceCacheVulkan::RequestPipelineLayout(const PipelineLa
 #endif // EZ_LOG_VULKAN_RESOURCES
 
   vk::PipelineLayoutCreateInfo layoutInfo;
-  layoutInfo.setLayoutCount = 1;
-  layoutInfo.pSetLayouts = &desc.m_layout;
+  layoutInfo.setLayoutCount = desc.m_layout.GetCount();
+  layoutInfo.pSetLayouts = desc.m_layout.GetData();
+  if (desc.m_pushConstants.size != 0)
+  {
+    layoutInfo.pushConstantRangeCount = 1;
+    layoutInfo.pPushConstantRanges = &desc.m_pushConstants;
+  }
 
   vk::PipelineLayout layout;
   VK_ASSERT_DEBUG(s_device.createPipelineLayout(&layoutInfo, nullptr, &layout));
@@ -413,7 +418,7 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
   // Specify rasterization state.
   const vk::PipelineRasterizationStateCreateInfo* raster = desc.m_pCurrentRasterizerState->GetRasterizerState();
 
-  // Our attachment will write to all color channels, but no blending is enabled.
+  // Our attachment will write to all color channels
   vk::PipelineColorBlendStateCreateInfo blend = *desc.m_pCurrentBlendState->GetBlendState();
   blend.attachmentCount = desc.m_uiAttachmentCount;
 
@@ -422,10 +427,10 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
   viewport.viewportCount = 1;
   viewport.scissorCount = 1;
 
-  // Disable all depth testing.
+  // Depth Testing
   const vk::PipelineDepthStencilStateCreateInfo* depth_stencil = desc.m_pCurrentDepthStencilState->GetDepthStencilState();
 
-  // No multisampling.
+  // Multisampling.
   vk::PipelineMultisampleStateCreateInfo multisample;
   multisample.rasterizationSamples = ezConversionUtilsVulkan::GetSamples(desc.m_msaa);
   if (multisample.rasterizationSamples != vk::SampleCountFlagBits::e1 && desc.m_pCurrentBlendState->GetDescription().m_bAlphaToCoverage)
@@ -714,13 +719,30 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const FramebufferKey& a, co
 ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const PipelineLayoutDesc& desc)
 {
   ezHashStreamWriter32 writer;
-  writer << desc.m_layout;
+  const ezUInt32 uiCount = desc.m_layout.GetCount();
+  writer << uiCount;
+  for (ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    writer << desc.m_layout[i];
+  }
+  writer << desc.m_pushConstants.offset;
+  writer << desc.m_pushConstants.size;
+  writer << ezConversionUtilsVulkan::GetUnderlyingFlagsValue(desc.m_pushConstants.stageFlags);
   return writer.GetHashValue();
 }
 
 bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const PipelineLayoutDesc& a, const PipelineLayoutDesc& b)
 {
-  return a.m_layout == b.m_layout;
+  if (a.m_layout.GetCount() != b.m_layout.GetCount())
+    return false;
+
+  const ezUInt32 uiCount = a.m_layout.GetCount();
+  for (ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    if (a.m_layout[i] != b.m_layout[i])
+      return false;
+  }
+  return a.m_pushConstants == b.m_pushConstants;
 }
 
 ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const GraphicsPipelineDesc& desc)

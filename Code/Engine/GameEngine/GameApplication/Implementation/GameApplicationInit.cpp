@@ -254,7 +254,7 @@ void ezGameApplication::Init_SetupGraphicsDevice()
     {
       ezStringView sRendererName = GetRendererNameFromCommandLine();
       pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-      EZ_ASSERT_DEV(pDevice != nullptr, "Device implemention for '{}' not found", sRendererName);
+      EZ_ASSERT_DEV(pDevice != nullptr, "Device implementation for '{}' not found", sRendererName);
     }
 
     EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");

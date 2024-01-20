@@ -34,4 +34,17 @@
 /// \brief Checks whether x AND y are both defined as EZ_ON or EZ_OFF. Usually used to check whether configurations overlap, to issue an error.
 #define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 EZ_CONCAT(x,=) 1) == (1 EZ_CONCAT(y,=) 1))
 
+/// \brief #TODO_SHADER Right now these are only used in the ST_SetsSlots unit test. We will need to decide what the best separation and naming for these sets is once the renderer can make actual use of these to improve performance.
+# define SET_FRAME 0
+# define SET_RENDER_PASS 1
+# define SET_MATERIAL 2
+# define SET_DRAW_CALL 3
+# define SLOT_AUTO AUTO
+
+/// \brief Binds the resource to the given set and slot. Note that this does not produce valid HLSL code, the code will instead be patched by the shader compiler.
+#define BIND_RESOURCE(Slot, Set) : register(EZ_CONCAT(x, Slot), EZ_CONCAT(space, Set))
+
+/// \brief Binds the resource to the given set. Note that this does not produce valid HLSL code, the code will instead be patched by the shader compiler.
+#define BIND_SET(Set) BIND_RESOURCE(SLOT_AUTO, Set)
+
 #endif

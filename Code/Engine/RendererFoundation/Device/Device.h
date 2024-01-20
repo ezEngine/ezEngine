@@ -18,7 +18,7 @@ class ezColor;
 class EZ_RENDERERFOUNDATION_DLL ezGALDevice
 {
 public:
-  ezEvent<const ezGALDeviceEvent&> m_Events;
+  static ezEvent<const ezGALDeviceEvent&> s_Events;
 
   // Init & shutdown functions
 

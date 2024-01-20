@@ -29,7 +29,6 @@ public:
 
   EZ_ALWAYS_INLINE ID3D11ComputeShader* GetDXComputeShader() const;
 
-
 protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
