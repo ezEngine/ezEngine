@@ -58,7 +58,7 @@ void ezTypeScriptBinding::GenerateEnumsFile(const char* szFile, const ezSet<cons
   {
     const ezRTTI* pRtti = sortedItems.GetValue(i);
 
-    sType.Format("export enum {0} { ", sortedItems.GetKey(i));
+    sType.SetFormat("export enum {0} { ", sortedItems.GetKey(i));
 
     for (auto pProp : pRtti->GetProperties().GetSubArray(1))
     {
@@ -93,7 +93,7 @@ void ezTypeScriptBinding::InjectEnumImportExport(ezStringBuilder& content, const
 {
   ezStringBuilder sImportExport, sTypeName;
 
-  sImportExport.Format("import __AllEnums = require(\"{}\")\n", szEnumFile);
+  sImportExport.SetFormat("import __AllEnums = require(\"{}\")\n", szEnumFile);
 
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(s_RequiredEnums.GetCount());
@@ -116,7 +116,7 @@ void ezTypeScriptBinding::InjectFlagsImportExport(ezStringBuilder& content, cons
 {
   ezStringBuilder sImportExport, sTypeName;
 
-  sImportExport.Format("import __AllFlags = require(\"{}\")\n", szFlagsFile);
+  sImportExport.SetFormat("import __AllFlags = require(\"{}\")\n", szFlagsFile);
 
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(s_RequiredFlags.GetCount());

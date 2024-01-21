@@ -1175,7 +1175,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     ezTime t = sw.GetRunningTotal();
     ezStringBuilder s;
-    s.Format("ez-sort (random keys): {}", t);
+    s.SetFormat("ez-sort (random keys): {}", t);
     ezTestFramework::Output(ezTestOutput::Details, s);
 
     for (ezUInt32 i = 1; i < list.GetCount(); i++)
@@ -1201,7 +1201,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     ezTime t = sw.GetRunningTotal();
     ezStringBuilder s;
-    s.Format("std::sort (random keys): {}", t);
+    s.SetFormat("std::sort (random keys): {}", t);
     ezTestFramework::Output(ezTestOutput::Details, s);
 
     for (ezUInt32 i = 1; i < list.GetCount(); i++)
@@ -1227,7 +1227,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     ezTime t = sw.GetRunningTotal();
     ezStringBuilder s;
-    s.Format("ez-sort (equal keys): {}", t);
+    s.SetFormat("ez-sort (equal keys): {}", t);
     ezTestFramework::Output(ezTestOutput::Details, s);
 
     for (ezUInt32 i = 1; i < list.GetCount(); i++)
@@ -1253,7 +1253,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     ezTime t = sw.GetRunningTotal();
     ezStringBuilder s;
-    s.Format("std::sort (equal keys): {}", t);
+    s.SetFormat("std::sort (equal keys): {}", t);
     ezTestFramework::Output(ezTestOutput::Details, s);
 
     for (ezUInt32 i = 1; i < list.GetCount(); i++)

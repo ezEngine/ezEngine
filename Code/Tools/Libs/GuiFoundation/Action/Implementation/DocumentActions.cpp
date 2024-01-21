@@ -217,7 +217,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
           if (res.Failed())
           {
             ezStringBuilder s;
-            s.Format("Failed to save document: \n'{0}'", sFile);
+            s.SetFormat("Failed to save document: \n'{0}'", sFile);
             ezQtUiServices::MessageBoxStatus(res, s);
           }
           else

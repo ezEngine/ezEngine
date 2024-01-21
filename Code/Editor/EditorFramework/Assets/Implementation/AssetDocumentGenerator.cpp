@@ -35,7 +35,7 @@ bool ezAssetDocumentGenerator::SupportsFileType(ezStringView sFile) const
 void ezAssetDocumentGenerator::BuildFileDialogFilterString(ezStringBuilder& out_sFilter) const
 {
   bool semicolon = false;
-  out_sFilter.Format("{0} (", GetDocumentExtension());
+  out_sFilter.SetFormat("{0} (", GetDocumentExtension());
   AppendFileFilterStrings(out_sFilter, semicolon);
   out_sFilter.Append(")");
 }

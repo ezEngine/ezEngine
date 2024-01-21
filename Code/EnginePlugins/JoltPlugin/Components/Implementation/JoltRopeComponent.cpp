@@ -254,7 +254,7 @@ void ezJoltRopeComponent::CreateRope()
       // set previous name as parent name
       joint.mParentName = name;
 
-      name.Format("Link{}", idx);
+      name.SetFormat("Link{}", idx);
       joint.mName = name;
       joint.mParentJointIndex = static_cast<ezInt32>(idx) - 1;
     }

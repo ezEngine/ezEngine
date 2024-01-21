@@ -510,7 +510,7 @@ void ezQtFileserveWidget::UpdateClientList()
   {
     QTreeWidgetItem* pClient = new QTreeWidgetItem();
 
-    sName.Format("Client: {0}", it.Key());
+    sName.SetFormat("Client: {0}", it.Key());
     pClient->setText(0, sName.GetData());
     pClient->setText(1, it.Value().m_bConnected ? "connected" : "disconnected");
 

@@ -1433,14 +1433,14 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     ezImageConversion::Convert(imgDiffRgba, imgDiffRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
 
     ezStringBuilder sImgDiffName;
-    sImgDiffName.Format(":imgout/Images_Diff/{0}.png", sImgName);
+    sImgDiffName.SetFormat(":imgout/Images_Diff/{0}.png", sImgName);
     imgDiffRgb.SaveTo(sImgDiffName).IgnoreResult();
 
     ezImage imgDiffAlpha;
     ezImageUtils::ExtractAlphaChannel(imgDiffRgba, imgDiffAlpha);
 
     ezStringBuilder sImgDiffAlphaName;
-    sImgDiffAlphaName.Format(":imgout/Images_Diff/{0}_alpha.png", sImgName);
+    sImgDiffAlphaName.SetFormat(":imgout/Images_Diff/{0}_alpha.png", sImgName);
     imgDiffAlpha.SaveTo(sImgDiffAlphaName).IgnoreResult();
 
     ezImage imgExpRgb;
@@ -1454,7 +1454,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     ezImageUtils::ExtractAlphaChannel(imgRgba, imgAlpha);
 
     ezStringBuilder sDiffHtmlPath;
-    sDiffHtmlPath.Format(":imgout/Html_Diff/{0}.html", sImgName);
+    sDiffHtmlPath.SetFormat(":imgout/Html_Diff/{0}.html", sImgName);
     WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
 
     safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.", uiMeanError, uiMaxError, sImgName.GetData());
@@ -1536,18 +1536,18 @@ ezResult ezTestFramework::CaptureRegressionStat(ezStringView sTestName, ezString
   ezStringBuilder perTestName;
   if (iTestId < 0)
   {
-    perTestName.Format("{}_{}", strippedTestName, sName);
+    perTestName.SetFormat("{}_{}", strippedTestName, sName);
   }
   else
   {
-    perTestName.Format("{}_{}_{}", strippedTestName, sName, iTestId);
+    perTestName.SetFormat("{}_{}_{}", strippedTestName, sName, iTestId);
   }
 
   {
     ezStringBuilder regression;
     // The 6 floating point digits are forced as per a requirement of the CI
     // feature that parses these values.
-    regression.Format("[test][REGRESSION:{}:{}:{}]", perTestName, sUnit, ezArgF(value, 6));
+    regression.SetFormat("[test][REGRESSION:{}:{}:{}]", perTestName, sUnit, ezArgF(value, 6));
     ezLog::Info(regression);
   }
 

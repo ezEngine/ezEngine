@@ -22,7 +22,7 @@ static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
       }
 
       ezStringBuilder sName;
-      sName.Format("IO/DataDirs/Dir{0}", ezArgI(it.Value(), 2, true));
+      sName.SetFormat("IO/DataDirs/Dir{0}", ezArgI(it.Value(), 2, true));
 
       ezStats::SetStat(sName.GetData(), e.m_sFileOrDirectory);
     }
@@ -36,7 +36,7 @@ static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
         break;
 
       ezStringBuilder sName;
-      sName.Format("IO/DataDirs/Dir{0}", ezArgI(it.Value(), 2, true));
+      sName.SetFormat("IO/DataDirs/Dir{0}", ezArgI(it.Value(), 2, true));
 
       ezStats::RemoveStat(sName.GetData());
     }

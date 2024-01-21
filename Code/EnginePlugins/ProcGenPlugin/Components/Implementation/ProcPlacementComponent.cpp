@@ -215,7 +215,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   if (cvar_ProcGenVisTiles)
   {
     ezStringBuilder sb;
-    sb.Format("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
+    sb.SetFormat("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
 
     ezColor textColor = ezColorScheme::LightUI(ezColorScheme::Grape);
     ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "ProcPlaceStats", sb, textColor);
@@ -376,7 +376,7 @@ void ezProcPlacementComponentManager::DebugDrawTile(const ezProcGenInternal::Pla
   ezStringBuilder sb;
   if (uiQueueIndex != ezInvalidIndex)
   {
-    sb.Format("Queue Index: {}\n", uiQueueIndex);
+    sb.SetFormat("Queue Index: {}\n", uiQueueIndex);
   }
   sb.AppendFormat("Age: {}\nDistance: {}", uiAge, desc.m_fDistanceToCamera);
   ezDebugRenderer::Draw3DText(GetWorld(), sb, bbox.GetCenter(), color);
@@ -444,10 +444,10 @@ ezUInt32 ezProcPlacementComponentManager::AllocateProcessingTask(ezUInt32 uiTile
     newTask.m_pData = EZ_DEFAULT_NEW(PlacementData);
 
     ezStringBuilder sName;
-    sName.Format("Prepare Task {}", uiNewTaskIndex);
+    sName.SetFormat("Prepare Task {}", uiNewTaskIndex);
     newTask.m_pPrepareTask = EZ_DEFAULT_NEW(PreparePlacementTask, newTask.m_pData.Borrow(), sName);
 
-    sName.Format("Placement Task {}", uiNewTaskIndex);
+    sName.SetFormat("Placement Task {}", uiNewTaskIndex);
     newTask.m_pPlacementTask = EZ_DEFAULT_NEW(PlacementTask, newTask.m_pData.Borrow(), sName);
   }
 

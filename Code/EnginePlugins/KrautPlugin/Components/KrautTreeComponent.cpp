@@ -445,7 +445,7 @@ void ezKrautTreeComponent::ComputeWind() const
     ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White);
 
     ezStringBuilder tmp;
-    tmp.Format("Wind: {}m/s", m_vWindSpringPos.GetLength());
+    tmp.SetFormat("Wind: {}m/s", m_vWindSpringPos.GetLength());
 
     ezDebugRenderer::Draw3DText(GetWorld(), tmp, GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1), ezColor::DeepSkyBlue);
   }
@@ -454,7 +454,7 @@ void ezKrautTreeComponent::ComputeWind() const
 void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 {
   ezStringBuilder sResourceName;
-  sResourceName.Format("KrautTreeCpu:{}", m_hKrautGenerator.GetResourceID());
+  sResourceName.SetFormat("KrautTreeCpu:{}", m_hKrautGenerator.GetResourceID());
 
   ezCpuMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(sResourceName);
   if (!hMesh.IsValid())

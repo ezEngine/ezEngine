@@ -183,7 +183,7 @@ void ezDecalAtlasResource::CreateLayerTexture(const ezImage& img, bool bSRGB, ez
   ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::HighQuality, td.m_SamplerDesc);
 
   ezStringBuilder sTexId;
-  sTexId.Format("{0}_Tex{1}", GetResourceID(), s_uiDecalAtlasResources);
+  sTexId.SetFormat("{0}_Tex{1}", GetResourceID(), s_uiDecalAtlasResources);
   ++s_uiDecalAtlasResources;
 
   out_hTexture = ezResourceManager::CreateResource<ezTexture2DResource>(sTexId, std::move(td));

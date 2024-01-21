@@ -170,7 +170,7 @@ bool ezQtEditorApp::IsProgressBarProcessingEvents() const
 void ezQtEditorApp::OnDemandDynamicStringEnumLoad(ezStringView sEnumName, ezDynamicStringEnum& e)
 {
   ezStringBuilder sFile;
-  sFile.Format(":project/Editor/{}.txt", sEnumName);
+  sFile.SetFormat(":project/Editor/{}.txt", sEnumName);
 
   // enums loaded this way are user editable
   e.SetStorageFile(sFile);
@@ -383,7 +383,7 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
     ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
 
-    inout_sFilePath.Format("{}/{}/{}", sTargetDir, sName, sProjectFile);
+    inout_sFilePath.SetFormat("{}/{}/{}", sTargetDir, sName, sProjectFile);
 
     // write redirection file
     {

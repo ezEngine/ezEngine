@@ -123,7 +123,7 @@ void ezReflectionPool::Data::UpdateProbeData(ProbeData& ref_probeData, const ezR
     ezConversionUtils::ToString(ref_probeData.m_desc.m_uniqueID, sComponentGuid);
 
     // this is where the editor will put the file for this probe
-    sCubeMapFile.Format(":project/AssetCache/Generated/{0}.ezTexture", sComponentGuid);
+    sCubeMapFile.SetFormat(":project/AssetCache/Generated/{0}.ezTexture", sComponentGuid);
 
     ref_probeData.m_hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(sCubeMapFile);
   }
@@ -161,7 +161,7 @@ bool ezReflectionPool::Data::UpdateSkyLightData(ProbeData& ref_probeData, const 
         ezConversionUtils::ToString(ref_probeData.m_desc.m_uniqueID, sComponentGuid);
 
         // this is where the editor will put the file for this probe
-        sCubeMapFile.Format(":project/AssetCache/Generated/{0}.ezTexture", sComponentGuid);
+        sCubeMapFile.SetFormat(":project/AssetCache/Generated/{0}.ezTexture", sComponentGuid);
 
         ref_probeData.m_hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(sCubeMapFile);
       }
@@ -387,7 +387,7 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
         desc.m_Parameters[uiMipLevel].m_Value = iMipLevel;
         desc.m_Parameters[uiReflectionProbeIndex].m_Value = iReflectionProbeIndex;
         ezStringBuilder sMaterialName;
-        sMaterialName.Format("ReflectionProbeVisualization - MipLevel {}, Index {}", iMipLevel, iReflectionProbeIndex);
+        sMaterialName.SetFormat("ReflectionProbeVisualization - MipLevel {}, Index {}", iMipLevel, iReflectionProbeIndex);
 
         ezMaterialResourceDescriptor desc2 = desc;
         m_hDebugMaterial[iReflectionProbeIndex * uiMipLevelCount + iMipLevel] = ezResourceManager::GetOrCreateResource<ezMaterialResource>(sMaterialName, std::move(desc2));

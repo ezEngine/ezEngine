@@ -192,7 +192,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
   if (res.m_Result.Failed())
   {
     ezStringBuilder s;
-    s.Format("Failed to open project:\n'{0}'", sProjectFile);
+    s.SetFormat("Failed to open project:\n'{0}'", sProjectFile);
 
     ezQtUiServices::MessageBoxStatus(res, s);
     return EZ_FAILURE;

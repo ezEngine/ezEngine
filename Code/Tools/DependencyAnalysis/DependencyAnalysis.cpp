@@ -111,7 +111,7 @@ namespace
       if (!needed && sVarName != "directory" && sVarName != "output")
       {
         ezStringBuilder fmt;
-        fmt.Format("Unknown variable '{0}'", sVarName);
+        fmt.SetFormat("Unknown variable '{0}'", sVarName);
         ParsingError(fmt.GetView(), false);
       }
       return needed;

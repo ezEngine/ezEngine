@@ -18,7 +18,7 @@ ezString ToBinary(const ezUuid& guid)
 
   for (ezUInt32 i = 0; i < sizeof(ezUuid); ++i)
   {
-    s.Format("{0}", ezArgU((ezUInt32)*pBytes, 2, true, 16, true));
+    s.SetFormat("{0}", ezArgU((ezUInt32)*pBytes, 2, true, 16, true));
     ++pBytes;
 
     sResult.Append(s.GetData());

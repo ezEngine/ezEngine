@@ -22,7 +22,7 @@ void ezLongOpProxy_BuildNavMesh::GetReplicationInfo(ezStringBuilder& out_sReplic
     ezStringBuilder sComponentGuid, sOutputFile;
     ezConversionUtils::ToString(m_ComponentGuid, sComponentGuid);
 
-    sOutputFile.Format(":project/AssetCache/Generated/{0}.ezRecastNavMesh", sComponentGuid);
+    sOutputFile.SetFormat(":project/AssetCache/Generated/{0}.ezRecastNavMesh", sComponentGuid);
 
     ref_description << sOutputFile;
   }

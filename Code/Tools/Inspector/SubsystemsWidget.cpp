@@ -71,10 +71,10 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableSubsystems->setCellWidget(iRow, 0, pIcon);
 
-      sTemp.Format("  {0}  ", it.Key());
+      sTemp.SetFormat("  {0}  ", it.Key());
       TableSubsystems->setCellWidget(iRow, 1, new QLabel(sTemp.GetData()));
 
-      sTemp.Format("  {0}  ", ssd.m_sPlugin);
+      sTemp.SetFormat("  {0}  ", ssd.m_sPlugin);
       TableSubsystems->setCellWidget(iRow, 2, new QLabel(sTemp.GetData()));
 
       if (ssd.m_bStartupDone[ezStartupStage::HighLevelSystems])
@@ -88,7 +88,7 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
 
       ((QLabel*)TableSubsystems->cellWidget(iRow, 3))->setAlignment(Qt::AlignHCenter);
 
-      sTemp.Format("  {0}  ", ssd.m_sDependencies);
+      sTemp.SetFormat("  {0}  ", ssd.m_sDependencies);
       TableSubsystems->setCellWidget(iRow, 4, new QLabel(sTemp.GetData()));
 
       ++iRow;

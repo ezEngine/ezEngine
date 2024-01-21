@@ -498,10 +498,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
       map1[tmp] = i;
 
-      tmp.Format("{0}{0}{0}", i);
+      tmp.SetFormat("{0}{0}{0}", i);
       map2[tmp] = i;
     }
 
@@ -509,11 +509,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
       EZ_TEST_BOOL(map2.Contains(tmp));
       EZ_TEST_INT(map2[tmp], i);
 
-      tmp.Format("{0}{0}{0}", i);
+      tmp.SetFormat("{0}{0}{0}", i);
       EZ_TEST_BOOL(map1.Contains(tmp));
       EZ_TEST_INT(map1[tmp], i);
     }
@@ -527,7 +527,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
       map[tmp] = i;
     }
 
@@ -575,13 +575,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
       map[tmp] = i;
     }
 
     for (ezInt32 i = map.GetCount() - 1; i > 0; --i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
 
       auto it = map.Find(tmp);
       auto cit = static_cast<const ezHashTable<ezString, ezInt32>&>(map).Find(tmp);

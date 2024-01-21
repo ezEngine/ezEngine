@@ -366,7 +366,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
       ezTime t = sw.GetRunningTotal();
       ezStringBuilder s;
-      s.Format("Write {} byte array: {}", ezArgFileSize(uiCount), t);
+      s.SetFormat("Write {} byte array: {}", ezArgFileSize(uiCount), t);
       ezTestFramework::Output(ezTestOutput::Details, s);
     }
 
@@ -377,7 +377,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
       ezTime t = sw.GetRunningTotal();
       ezStringBuilder s;
-      s.Format("Read {} byte array: {}", ezArgFileSize(uiCount), t);
+      s.SetFormat("Read {} byte array: {}", ezArgFileSize(uiCount), t);
       ezTestFramework::Output(ezTestOutput::Details, s);
     }
 
@@ -411,7 +411,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
       ezTime t = sw.GetRunningTotal();
       ezStringBuilder s;
-      s.Format("Write {} vec3 array: {}", ezArgFileSize(uiCount * sizeof(ezVec3)), t);
+      s.SetFormat("Write {} vec3 array: {}", ezArgFileSize(uiCount * sizeof(ezVec3)), t);
       ezTestFramework::Output(ezTestOutput::Details, s);
     }
 
@@ -422,7 +422,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
       ezTime t = sw.GetRunningTotal();
       ezStringBuilder s;
-      s.Format("Read {} vec3 array: {}", ezArgFileSize(uiCount * sizeof(ezVec3)), t);
+      s.SetFormat("Read {} vec3 array: {}", ezArgFileSize(uiCount * sizeof(ezVec3)), t);
       ezTestFramework::Output(ezTestOutput::Details, s);
     }
 

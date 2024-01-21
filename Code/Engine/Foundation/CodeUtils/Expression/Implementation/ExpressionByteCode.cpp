@@ -330,7 +330,7 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
       ezStringBuilder sName;
       if (ezStringUtils::IsNullOrEmpty(szName))
       {
-        sName.Format("Unknown_{0}", uiIndex);
+        sName.SetFormat("Unknown_{0}", uiIndex);
       }
       else
       {

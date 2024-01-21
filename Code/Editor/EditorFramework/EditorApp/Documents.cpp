@@ -22,7 +22,7 @@ ezDocument* ezQtEditorApp::OpenDocument(ezStringView sDocument, ezBitflags<ezDoc
   if (ezDocumentManager::FindDocumentTypeFromPath(sDocument, false, pTypeDesc).Failed())
   {
     ezStringBuilder sTemp;
-    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'", ezPathUtils::GetFileExtension(sDocument), sDocument);
+    sTemp.SetFormat("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'", ezPathUtils::GetFileExtension(sDocument), sDocument);
     ezQtUiServices::MessageBoxWarning(sTemp);
     return nullptr;
   }
@@ -40,7 +40,7 @@ ezDocument* ezQtEditorApp::OpenDocument(ezStringView sDocument, ezBitflags<ezDoc
     if (res.m_Result.Failed())
     {
       ezStringBuilder s;
-      s.Format("Failed to open document: \n'{0}'", sDocument);
+      s.SetFormat("Failed to open document: \n'{0}'", sDocument);
       ezQtUiServices::MessageBoxStatus(res, s);
       return nullptr;
     }
@@ -50,7 +50,7 @@ ezDocument* ezQtEditorApp::OpenDocument(ezStringView sDocument, ezBitflags<ezDoc
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {
       ezStringBuilder s;
-      s.Format("The document contained {0} objects of an unknown type. Necessary plugins may be missing.\n\n\
+      s.SetFormat("The document contained {0} objects of an unknown type. Necessary plugins may be missing.\n\n\
 If you save this document, all data for these objects is lost permanently!\n\n\
 The following types are missing:\n",
         pDocument->GetUnknownObjectTypeInstances());
@@ -85,7 +85,7 @@ ezDocument* ezQtEditorApp::CreateDocument(ezStringView sDocument, ezBitflags<ezD
     if (res.Failed())
     {
       ezStringBuilder s;
-      s.Format("Failed to create document: \n'{0}'", sDocument);
+      s.SetFormat("Failed to create document: \n'{0}'", sDocument);
       ezQtUiServices::MessageBoxStatus(res, s);
       return nullptr;
     }
@@ -97,7 +97,7 @@ ezDocument* ezQtEditorApp::CreateDocument(ezStringView sDocument, ezBitflags<ezD
     if (result.m_Result.Failed())
     {
       ezStringBuilder s;
-      s.Format("Failed to create document: \n'{0}'", sDocument);
+      s.SetFormat("Failed to create document: \n'{0}'", sDocument);
       ezQtUiServices::MessageBoxStatus(result, s);
       return nullptr;
     }

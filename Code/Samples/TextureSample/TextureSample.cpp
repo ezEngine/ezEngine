@@ -243,7 +243,7 @@ public:
       {
         for (ezInt32 x = -g_iMaxHalfExtent; x < g_iMaxHalfExtent; ++x)
         {
-          sResourceName.Printf("Loaded_%+03i_%+03i_D", x, y);
+          sResourceName.SetPrintf("Loaded_%+03i_%+03i_D", x, y);
 
           ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
@@ -333,7 +333,7 @@ public:
             cb.ViewProjectionMatrix = Proj;
           }
 
-          sResourceName.Printf("Loaded_%+03i_%+03i_D", x, y);
+          sResourceName.SetPrintf("Loaded_%+03i_%+03i_D", x, y);
 
           ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 

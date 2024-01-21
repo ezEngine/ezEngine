@@ -18,7 +18,7 @@ namespace
     ast.PrintGraph(dgmlGraph);
 
     ezStringBuilder sFileName;
-    sFileName.Format(":appdata/{0}_{1}_AST.dgml", sAssetName, sOutputName);
+    sFileName.SetFormat(":appdata/{0}_{1}_AST.dgml", sAssetName, sOutputName);
 
     ezDGMLGraphWriter dgmlGraphWriter;
     EZ_IGNORE_UNUSED(dgmlGraphWriter);
@@ -502,7 +502,7 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
     byteCode.Disassemble(sDisassembly);
 
     ezStringBuilder sFileName;
-    sFileName.Format(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sOutputName);
+    sFileName.SetFormat(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sOutputName);
 
     ezFileWriter fileWriter;
     if (fileWriter.Open(sFileName).Succeeded())

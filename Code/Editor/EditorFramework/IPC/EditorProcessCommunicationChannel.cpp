@@ -22,7 +22,7 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(
   ezTime time = ezTime::Now();
   uiUniqueHash = ezHashingUtils::xxHash64(&time, sizeof(time), uiUniqueHash);
   ezStringBuilder sMemName;
-  sMemName.Format("{0}", ezArgU(uiUniqueHash, 16, false, 16, true));
+  sMemName.SetFormat("{0}", ezArgU(uiUniqueHash, 16, false, 16, true));
   ++uiUniqueHash;
 
   if (bRemote)

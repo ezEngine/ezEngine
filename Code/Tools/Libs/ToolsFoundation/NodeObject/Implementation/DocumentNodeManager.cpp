@@ -663,7 +663,7 @@ void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, 
       ezUInt32 uiCount = value.ConvertTo<ezUInt32>();
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        sTemp.Format("{}[{}]", sPinName, i);
+        sTemp.SetFormat("{}[{}]", sPinName, i);
         out_Names.PushBack(sTemp);
       }
     }
@@ -680,7 +680,7 @@ void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, 
     {
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        sTemp.Format("{}", a[i]);
+        sTemp.SetFormat("{}", a[i]);
         out_Names.PushBack(sTemp);
       }
     }
@@ -695,7 +695,7 @@ void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, 
     {
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        sTemp.Format("{}[{}]", sPinName, i);
+        sTemp.SetFormat("{}[{}]", sPinName, i);
         out_Names.PushBack(sTemp);
       }
     }

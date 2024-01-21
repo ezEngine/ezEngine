@@ -18,28 +18,28 @@ static ezString ToShaderString(const ezVariant& value)
     case ezVariantType::ColorGamma:
     {
       ezColor v = value.ConvertTo<ezColor>();
-      temp.Format("float4({0}, {1}, {2}, {3})", v.r, v.g, v.b, v.a);
+      temp.SetFormat("float4({0}, {1}, {2}, {3})", v.r, v.g, v.b, v.a);
     }
     break;
 
     case ezVariantType::Vector4:
     {
       ezVec4 v = value.Get<ezVec4>();
-      temp.Format("float4({0}, {1}, {2}, {3})", v.x, v.y, v.z, v.w);
+      temp.SetFormat("float4({0}, {1}, {2}, {3})", v.x, v.y, v.z, v.w);
     }
     break;
 
     case ezVariantType::Vector3:
     {
       ezVec3 v = value.Get<ezVec3>();
-      temp.Format("float3({0}, {1}, {2})", v.x, v.y, v.z);
+      temp.SetFormat("float3({0}, {1}, {2})", v.x, v.y, v.z);
     }
     break;
 
     case ezVariantType::Vector2:
     {
       ezVec2 v = value.Get<ezVec2>();
-      temp.Format("float2({0}, {1})", v.x, v.y);
+      temp.SetFormat("float2({0}, {1})", v.x, v.y);
     }
     break;
 
@@ -47,21 +47,21 @@ static ezString ToShaderString(const ezVariant& value)
     case ezVariantType::Int32:
     case ezVariantType::Bool:
     {
-      temp.Format("{0}", value);
+      temp.SetFormat("{0}", value);
     }
     break;
 
     case ezVariantType::Time:
     {
       float v = value.Get<ezTime>().GetSeconds();
-      temp.Format("{0}", v);
+      temp.SetFormat("{0}", v);
     }
     break;
 
     case ezVariantType::Angle:
     {
       float v = value.Get<ezAngle>().GetRadian();
-      temp.Format("{0}", v);
+      temp.SetFormat("{0}", v);
     }
     break;
 
@@ -330,7 +330,7 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
   {
     const ezUInt32 i = i0 - 1;
 
-    sPinName.Format("$in{0}", i);
+    sPinName.SetFormat("$in{0}", i);
 
     auto connections = m_pNodeManager->GetConnections(*inputPins[i]);
     if (connections.IsEmpty())
@@ -385,7 +385,7 @@ void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNo
 
     for (ezUInt32 i = 0; i < pins.GetCount(); ++i)
     {
-      sDefineName.Format("INPUT_PIN_{0}_CONNECTED", i);
+      sDefineName.SetFormat("INPUT_PIN_{0}_CONNECTED", i);
 
       if (m_pNodeManager->HasConnections(*pins[i]) == false)
       {
@@ -403,7 +403,7 @@ void ezVisualShaderCodeGenerator::SetPinDefines(const ezDocumentObject* pOwnerNo
 
     for (ezUInt32 i = 0; i < pins.GetCount(); ++i)
     {
-      sDefineName.Format("OUTPUT_PIN_{0}_CONNECTED", i);
+      sDefineName.SetFormat("OUTPUT_PIN_{0}_CONNECTED", i);
 
       if (m_pNodeManager->HasConnections(*pins[i]) == false)
       {
@@ -479,7 +479,7 @@ ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(
   {
     const ezUInt32 p = p0 - 1;
 
-    sPropName.Format("$prop{0}", p);
+    sPropName.SetFormat("$prop{0}", p);
 
     const ezVariant value = TypeAccess.GetValue(props[p].m_sName);
     sPropValue = ToShaderString(value);

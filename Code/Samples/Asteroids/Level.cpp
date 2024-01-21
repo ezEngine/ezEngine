@@ -81,7 +81,7 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
   ezStringBuilder sControls[MaxPlayerActions];
 
   for (ezInt32 iAction = 0; iAction < MaxPlayerActions; ++iAction)
-    sControls[iAction].Format("Player{0}_{1}", iPlayer, szPlayerActions[iAction]);
+    sControls[iAction].SetFormat("Player{0}_{1}", iPlayer, szPlayerActions[iAction]);
 
 
   if (ezInputManager::GetInputActionState("Game", sControls[0].GetData(), &fVal) != ezKeyState::Up)
@@ -158,7 +158,7 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
     // this only works because the materials are part of the Asset Collection and get a name like this from there
     // otherwise we would need to have the GUIDs of the 4 different material assets available
     ezStringBuilder sMaterialName;
-    sMaterialName.Format("MaterialPlayer{0}", iPlayer + 1);
+    sMaterialName.SetFormat("MaterialPlayer{0}", iPlayer + 1);
     pMeshComponent->SetMaterial(0, ezResourceManager::LoadResource<ezMaterialResource>(sMaterialName));
   }
   {

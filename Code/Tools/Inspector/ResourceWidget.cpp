@@ -290,26 +290,26 @@ void ezQtResourceWidget::UpdateTable()
       }
 
       pItem = Table->item(iTableRow, 3);
-      sTemp.Format("{0}", res.m_LoadingState.m_uiQualityLevelsDiscardable);
+      sTemp.SetFormat("{0}", res.m_LoadingState.m_uiQualityLevelsDiscardable);
       pItem->setText(sTemp.GetData());
       pItem->setToolTip("The number of quality levels that could be discarded to free up memory.");
 
       pItem = Table->item(iTableRow, 4);
-      sTemp.Format("{0}", res.m_LoadingState.m_uiQualityLevelsLoadable);
+      sTemp.SetFormat("{0}", res.m_LoadingState.m_uiQualityLevelsLoadable);
       pItem->setText(sTemp.GetData());
       pItem->setToolTip("The number of quality levels that could be additionally loaded for higher quality.");
 
       ByteSizeItem* pByteItem;
 
       pByteItem = (ByteSizeItem*)Table->item(iTableRow, 5);
-      sTemp.Format("{0} Bytes", res.m_Memory.m_uiMemoryCPU);
+      sTemp.SetFormat("{0} Bytes", res.m_Memory.m_uiMemoryCPU);
       pByteItem->setToolTip(sTemp.GetData());
       FormatSize(sTemp, "", res.m_Memory.m_uiMemoryCPU);
       pByteItem->setText(sTemp.GetData());
       pByteItem->m_uiBytes = static_cast<ezUInt32>(res.m_Memory.m_uiMemoryCPU);
 
       pByteItem = (ByteSizeItem*)Table->item(iTableRow, 6);
-      sTemp.Format("{0} Bytes", res.m_Memory.m_uiMemoryGPU);
+      sTemp.SetFormat("{0} Bytes", res.m_Memory.m_uiMemoryGPU);
       pByteItem->setToolTip(sTemp.GetData());
       FormatSize(sTemp, "", res.m_Memory.m_uiMemoryGPU);
       pByteItem->setText(sTemp.GetData());
@@ -445,7 +445,7 @@ void ezQtResourceWidget::on_ButtonSave_clicked()
         res.m_sResourceDescription.FindSubString_NoCase(m_sNameFilter) == nullptr)
       continue;
 
-    sLine.Format("{}, {}, {}, {}, {}, {}, {}\n", res.m_sResourceType, PriorityToString(res.m_Priority), StateToString(res.m_LoadingState.m_State),
+    sLine.SetFormat("{}, {}, {}, {}, {}, {}, {}\n", res.m_sResourceType, PriorityToString(res.m_Priority), StateToString(res.m_LoadingState.m_State),
       res.m_Memory.m_uiMemoryCPU, res.m_Memory.m_uiMemoryGPU, res.m_sResourceID, res.m_sResourceDescription);
     file.write(sLine);
   }

@@ -293,7 +293,7 @@ void ezOSFile::FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuff
 
   for (ezUInt32 i = 1; i < 100000; ++i)
   {
-    newName.Format("{}{}{}", orgName, sSuffix, i);
+    newName.SetFormat("{}{}{}", orgName, sSuffix, i);
 
     inout_sPath.ChangeFileName(newName);
     if (!ezOSFile::ExistsFile(inout_sPath))

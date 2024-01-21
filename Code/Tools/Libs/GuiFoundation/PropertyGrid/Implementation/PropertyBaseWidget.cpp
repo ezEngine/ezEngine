@@ -232,21 +232,21 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
       {
         pPaste->setEnabled(false);
         ezStringBuilder sTemp;
-        sTemp.Format("Cannot convert clipboard and property content between arrays and members.");
+        sTemp.SetFormat("Cannot convert clipboard and property content between arrays and members.");
         pPaste->setToolTip(sTemp.GetData());
       }
       else if (bEnumerationMissmatch || (!content.m_Value.CanConvertTo(m_pProp->GetSpecificType()->GetVariantType()) && content.m_Type != m_pProp->GetSpecificType()->GetTypeName()))
       {
         pPaste->setEnabled(false);
         ezStringBuilder sTemp;
-        sTemp.Format("Cannot convert clipboard of type '{}' to property of type '{}'", content.m_Type, m_pProp->GetSpecificType()->GetTypeName());
+        sTemp.SetFormat("Cannot convert clipboard of type '{}' to property of type '{}'", content.m_Type, m_pProp->GetSpecificType()->GetTypeName());
         pPaste->setToolTip(sTemp.GetData());
       }
       else if (clamped.Failed())
       {
         pPaste->setEnabled(false);
         ezStringBuilder sTemp;
-        sTemp.Format("The member property '{}' has an ezClampValueAttribute but ezReflectionUtils::ClampValue failed.", m_pProp->GetPropertyName());
+        sTemp.SetFormat("The member property '{}' has an ezClampValueAttribute but ezReflectionUtils::ClampValue failed.", m_pProp->GetPropertyName());
       }
 
       connect(pPaste, &QAction::triggered, this, [this, content]()
@@ -463,7 +463,7 @@ void ezQtPropertyWidget::PropertyChangedHandler(const ezPropertyEvent& ed)
     case ezPropertyEvent::Type::SingleValueChanged:
     {
       ezStringBuilder sTemp;
-      sTemp.Format("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
+      sTemp.SetFormat("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
       m_pObjectAccessor->StartTransaction(sTemp);
 
       ezStatus res;
@@ -486,7 +486,7 @@ void ezQtPropertyWidget::PropertyChangedHandler(const ezPropertyEvent& ed)
     case ezPropertyEvent::Type::BeginTemporary:
     {
       ezStringBuilder sTemp;
-      sTemp.Format("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
+      sTemp.SetFormat("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
       m_pObjectAccessor->BeginTemporaryCommands(sTemp);
     }
     break;
@@ -1566,9 +1566,9 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
 
   ezStringBuilder sTitle;
   if (m_pProp->GetCategory() == ezPropertyCategory::Map)
-    sTitle.Format("{0}", m_Keys[index].ConvertTo<ezString>());
+    sTitle.SetFormat("{0}", m_Keys[index].ConvertTo<ezString>());
   else
-    sTitle.Format("[{0}]", m_Keys[index].ConvertTo<ezString>());
+    sTitle.SetFormat("[{0}]", m_Keys[index].ConvertTo<ezString>());
 
   elem.m_pSubGroup->SetTitle(sTitle);
   m_pGrid->SetCollapseState(elem.m_pSubGroup);
@@ -1630,7 +1630,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
     // Label
     {
       ezStringBuilder sTitle, tmp;
-      sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName().GetData(tmp)));
+      sTitle.SetFormat("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName().GetData(tmp)));
 
       if (auto pInDev = pCommonType->GetAttributeByType<ezInDevelopmentAttribute>())
       {

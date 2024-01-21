@@ -45,7 +45,7 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::ProbeUpdateInfo()
   {
     m_hCubemapProxies[i] = ezGALDevice::GetDefaultDevice()->CreateProxyTexture(m_hCubemap, i);
 
-    sName.Format("Reflection Cubemap Proxy {}", i);
+    sName.SetFormat("Reflection Cubemap Proxy {}", i);
     pDevice->GetTexture(m_hCubemapProxies[i])->SetDebugName(sName);
   }
 }
@@ -297,7 +297,7 @@ void ezReflectionProbeUpdater::CreateViews(
     {
       auto& renderView = views.ExpandAndGetRef();
 
-      sName.Format("Reflection Probe {} {}", szNameSuffix, i);
+      sName.SetFormat("Reflection Probe {} {}", szNameSuffix, i);
 
       ezView* pView = nullptr;
       renderView.m_hView = ezRenderWorld::CreateView(sName, pView);

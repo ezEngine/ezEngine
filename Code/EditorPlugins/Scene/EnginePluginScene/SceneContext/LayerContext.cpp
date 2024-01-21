@@ -80,7 +80,7 @@ void ezLayerContext::OnInitialize()
 
   ezUInt32 uiLayerID = m_pParentSceneContext->RegisterLayer(this);
   ezStringBuilder sVisibilityTag;
-  sVisibilityTag.Format("Layer_{}", uiLayerID);
+  sVisibilityTag.SetFormat("Layer_{}", uiLayerID);
   m_LayerTag = ezTagRegistry::GetGlobalRegistry().RegisterTag(sVisibilityTag);
 
   ezShadowPool::AddExcludeTagToWhiteList(m_LayerTag);

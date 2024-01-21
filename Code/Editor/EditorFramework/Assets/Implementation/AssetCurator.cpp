@@ -368,7 +368,7 @@ void ezAssetCurator::StoreFullTransformDate()
     ezDateTime date;
     date.SetFromTimestamp(ezTimestamp::CurrentTimestamp()).AssertSuccess();
 
-    path.Format("{}", date);
+    path.SetFormat("{}", date);
     file.Write(path.GetData(), path.GetElementCount()).AssertSuccess();
   }
 }
@@ -1327,12 +1327,12 @@ void ezAssetCurator::WriteDependencyDGML(const ezUuid& guid, ezStringView sOutpu
       if (subAsset.m_bMainAsset)
       {
         nd.m_Color = ezColor::Blue;
-        sTemp.Format("{}", pAssetInfo->m_Path.GetDataDirParentRelativePath());
+        sTemp.SetFormat("{}", pAssetInfo->m_Path.GetDataDirParentRelativePath());
       }
       else
       {
         nd.m_Color = ezColor::AliceBlue;
-        sTemp.Format("{} | {}", pAssetInfo->m_Path.GetDataDirParentRelativePath(), subAsset.GetName());
+        sTemp.SetFormat("{} | {}", pAssetInfo->m_Path.GetDataDirParentRelativePath(), subAsset.GetName());
       }
       nd.m_Shape = ezDGMLGraph::NodeShape::Rectangle;
     }

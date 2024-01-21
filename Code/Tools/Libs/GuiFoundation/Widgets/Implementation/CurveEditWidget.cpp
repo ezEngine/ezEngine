@@ -1287,7 +1287,7 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
       const QPoint pos = MapFromScene(QPointF(0, y));
 
       textRect.setRect(0, pos.y() - 15, areaRect.width(), 15);
-      tmp.Format("{0}", ezArgF(y));
+      tmp.SetFormat("{0}", ezArgF(y));
 
       painter->drawText(textRect, tmp.GetData(), textOpt);
     }

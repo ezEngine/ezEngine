@@ -73,7 +73,7 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   }
 
   ezStringBuilder s;
-  s.Format("[Un: {0}, Imp: {4}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown],
+  s.SetFormat("[Un: {0}, Imp: {4}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown],
     sections[ezAssetInfo::TransformState::NeedsTransform], sections[ezAssetInfo::TransformState::NeedsThumbnail],
     sections[ezAssetInfo::TransformState::MissingTransformDependency] + sections[ezAssetInfo::TransformState::MissingThumbnailDependency] +
       sections[ezAssetInfo::TransformState::TransformError] + sections[ezAssetInfo::TransformState::CircularDependency],
@@ -136,7 +136,7 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
 
   if (uiNumAssets > 0)
   {
-    s.Format("Unknown: {0}\nImport Needed: {1}\nTransform Needed: {2}\nThumbnail Needed: {3}\nMissing Dependency: {4}\nMissing Reference: {5}\nCircular Dependency: {6}\nFailed Transform: {7}",
+    s.SetFormat("Unknown: {0}\nImport Needed: {1}\nTransform Needed: {2}\nThumbnail Needed: {3}\nMissing Dependency: {4}\nMissing Reference: {5}\nCircular Dependency: {6}\nFailed Transform: {7}",
       sections[ezAssetInfo::TransformState::Unknown],
       sections[ezAssetInfo::TransformState::NeedsImport],
       sections[ezAssetInfo::TransformState::NeedsTransform],

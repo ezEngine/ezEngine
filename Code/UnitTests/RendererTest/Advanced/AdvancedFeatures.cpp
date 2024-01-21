@@ -367,7 +367,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
   m_SharedTextureQueue.PopFront();
 
   ezStringBuilder sTemp;
-  sTemp.Format("Render {}:{}|{}", m_uiReceivedTextures, texture.m_uiCurrentTextureIndex, texture.m_uiCurrentSemaphoreValue);
+  sTemp.SetFormat("Render {}:{}|{}", m_uiReceivedTextures, texture.m_uiCurrentTextureIndex, texture.m_uiCurrentSemaphoreValue);
   EZ_PROFILE_SCOPE(sTemp);
   BeginFrame(sTemp);
   {
@@ -435,7 +435,7 @@ void ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc(const ezProcess
   {
     m_uiReceivedTextures++;
     ezStringBuilder sTemp;
-    sTemp.Format("Receive {}|{}", pAction->m_Texture.m_uiCurrentTextureIndex, pAction->m_Texture.m_uiCurrentSemaphoreValue);
+    sTemp.SetFormat("Receive {}|{}", pAction->m_Texture.m_uiCurrentTextureIndex, pAction->m_Texture.m_uiCurrentSemaphoreValue);
     EZ_PROFILE_SCOPE(sTemp);
     m_SharedTextureQueue.PushBack(pAction->m_Texture);
   }

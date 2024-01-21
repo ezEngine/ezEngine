@@ -94,7 +94,7 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
   ezStringBuilder sDocGuid, sOutputFile;
   ezConversionUtils::ToString(documentGuid, sDocGuid);
 
-  sOutputFile.Format(":project/AssetCache/Generated/{0}.ezJoltMesh", sDocGuid);
+  sOutputFile.SetFormat(":project/AssetCache/Generated/{0}.ezJoltMesh", sDocGuid);
 
   ezDeferredFileWriter file;
   file.SetOutput(sOutputFile);

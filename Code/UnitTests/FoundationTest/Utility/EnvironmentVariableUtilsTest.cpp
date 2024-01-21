@@ -35,7 +35,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, EnvironmentVariableUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsVariableSet/SetValue")
   {
     ezStringBuilder szVarName;
-    szVarName.Format("EZ_THIS_SHOULDNT_EXIST_NOW_OR_THIS_TEST_WILL_FAIL_{0}", uiVersionForVariableSetting++);
+    szVarName.SetFormat("EZ_THIS_SHOULDNT_EXIST_NOW_OR_THIS_TEST_WILL_FAIL_{0}", uiVersionForVariableSetting++);
 
     EZ_TEST_BOOL(!ezEnvironmentVariableUtils::IsVariableSet(szVarName));
 
@@ -57,7 +57,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, EnvironmentVariableUtils)
       "SOME REALLY LONG VALUE, LETS TEST SOME LIMITS WE MIGHT HIT - 012456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz";
 
     ezStringBuilder szVarName;
-    szVarName.Format("EZ_LONG_VARIABLE_TEST_{0}", uiVersionForVariableSetting++);
+    szVarName.SetFormat("EZ_LONG_VARIABLE_TEST_{0}", uiVersionForVariableSetting++);
 
     EZ_TEST_BOOL(!ezEnvironmentVariableUtils::IsVariableSet(szVarName));
 

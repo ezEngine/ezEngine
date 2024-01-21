@@ -18,7 +18,7 @@ ezVirtualThumbStick::ezVirtualThumbStick()
   SetInputArea(ezVec2(0.0f), ezVec2(0.0f), 0.0f, 0.0f);
 
   ezStringBuilder s;
-  s.Format("Thumbstick_{0}", s_iThumbsticks);
+  s.SetFormat("Thumbstick_{0}", s_iThumbsticks);
   m_sName = s;
 
   ++s_iThumbsticks;

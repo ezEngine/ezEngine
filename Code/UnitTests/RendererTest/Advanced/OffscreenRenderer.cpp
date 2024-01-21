@@ -90,7 +90,7 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
     pSwapChain->Arm(action.m_Texture.m_uiCurrentTextureIndex, action.m_Texture.m_uiCurrentSemaphoreValue);
 
     ezStringBuilder sTemp;
-    sTemp.Format("Render {}|{}", action.m_Texture.m_uiCurrentTextureIndex, action.m_Texture.m_uiCurrentSemaphoreValue);
+    sTemp.SetFormat("Render {}|{}", action.m_Texture.m_uiCurrentTextureIndex, action.m_Texture.m_uiCurrentSemaphoreValue);
     EZ_PROFILE_SCOPE(sTemp);
 
     // Before starting to render in a frame call this function
@@ -144,7 +144,7 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
 void ezOffscreenRendererTest::OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue)
 {
   ezStringBuilder sTemp;
-  sTemp.Format("Response {}|{}", uiCurrentTexture, uiCurrentSemaphoreValue);
+  sTemp.SetFormat("Response {}|{}", uiCurrentTexture, uiCurrentSemaphoreValue);
   EZ_PROFILE_SCOPE(sTemp);
 
   ezOffscreenTest_RenderResponseMsg msg = {};
@@ -161,7 +161,7 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
 
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
   ezStringBuilder sLogFile;
-  sLogFile.Format(":imgout/OffscreenLog.htm");
+  sLogFile.SetFormat(":imgout/OffscreenLog.htm");
   m_LogHTML.BeginLog(sLogFile, "OffscreenRenderer"_ezsv);
 
   // Setup Shaders and Materials

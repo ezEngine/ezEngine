@@ -149,7 +149,7 @@ ezResult ezTypeScriptAssetDocument::CreateTsConfigFile(const char* szDirectory)
     sTmp.AppendWithSeparator(", ", "\"", path, "\"");
   }
 
-  sTsConfig.Format(
+  sTsConfig.SetFormat(
     R"({
   "compilerOptions": {
     "target": "es5",

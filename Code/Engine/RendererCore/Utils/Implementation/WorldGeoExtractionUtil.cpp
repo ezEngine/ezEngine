@@ -109,7 +109,7 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
     {
       const ezVec3 pos = finalTransform.TransformPosition(*pPositions);
 
-      line.Format("v {0} {1} {2}\n", ezArgF(pos.x, 8), ezArgF(pos.y, 8), ezArgF(pos.z, 8));
+      line.SetFormat("v {0} {1} {2}\n", ezArgF(pos.x, 8), ezArgF(pos.y, 8), ezArgF(pos.z, 8));
       file.WriteBytes(line.GetData(), line.GetElementCount()).IgnoreResult();
 
       pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
@@ -160,7 +160,7 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
   for (ezUInt32 i = 0; i < indices.GetCount(); i += 3)
   {
     // indices are 1 based in obj
-    line.Format("f {0} {1} {2}\n", indices[i + 0] + 1, indices[i + 1] + 1, indices[i + 2] + 1);
+    line.SetFormat("f {0} {1} {2}\n", indices[i + 0] + 1, indices[i + 1] + 1, indices[i + 2] + 1);
     file.WriteBytes(line.GetData(), line.GetElementCount()).IgnoreResult();
   }
 

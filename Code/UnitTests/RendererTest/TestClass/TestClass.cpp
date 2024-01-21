@@ -422,7 +422,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs, float 
   geom.AddGeodesicSphere(fRadius, static_cast<ezUInt8>(iSubDivs));
 
   ezStringBuilder sName;
-  sName.Format("Sphere_{0}", iSubDivs);
+  sName.SetFormat("Sphere_{0}", iSubDivs);
 
   return CreateMesh(geom, sName);
 }
@@ -433,7 +433,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateTorus(ezInt32 iSubDivs, float f
   geom.AddTorus(fInnerRadius, fOuterRadius, static_cast<ezUInt16>(iSubDivs), static_cast<ezUInt16>(iSubDivs), true);
 
   ezStringBuilder sName;
-  sName.Format("Torus_{0}", iSubDivs);
+  sName.SetFormat("Torus_{0}", iSubDivs);
 
   return CreateMesh(geom, sName);
 }
@@ -444,7 +444,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight
   geom.AddBox(ezVec3(fWidth, fHeight, fDepth), false);
 
   ezStringBuilder sName;
-  sName.Format("Box_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
+  sName.SetFormat("Box_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
 
   return CreateMesh(geom, sName);
 }
@@ -455,7 +455,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateLineBox(float fWidth, float fHe
   geom.AddLineBox(ezVec3(fWidth, fHeight, fDepth));
 
   ezStringBuilder sName;
-  sName.Format("LineBox_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
+  sName.SetFormat("LineBox_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
 
   return CreateMesh(geom, sName);
 }

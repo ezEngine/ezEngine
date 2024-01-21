@@ -109,7 +109,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Int8:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("int8 {0}", var.Get<ezInt8>());
+        sTemp.SetFormat("int8 {0}", var.Get<ezInt8>());
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -119,7 +119,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::UInt8:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("uint8 {0}", var.Get<ezUInt8>());
+        sTemp.SetFormat("uint8 {0}", var.Get<ezUInt8>());
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -129,7 +129,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Int16:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("int16 {0}", var.Get<ezInt16>());
+        sTemp.SetFormat("int16 {0}", var.Get<ezInt16>());
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -139,7 +139,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::UInt16:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("uint16 {0}", var.Get<ezUInt16>());
+        sTemp.SetFormat("uint16 {0}", var.Get<ezUInt16>());
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -149,7 +149,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Int32:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("int32 {0}", var.Get<ezInt32>());
+        sTemp.SetFormat("int32 {0}", var.Get<ezInt32>());
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -159,7 +159,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::UInt32:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("uint32 {0}", var.Get<ezUInt32>());
+        sTemp.SetFormat("uint32 {0}", var.Get<ezUInt32>());
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -169,7 +169,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Int64:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("int64 {0}", var.Get<ezInt64>());
+        sTemp.SetFormat("int64 {0}", var.Get<ezInt64>());
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -179,7 +179,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::UInt64:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("uint64 {0}", var.Get<ezUInt64>());
+        sTemp.SetFormat("uint64 {0}", var.Get<ezUInt64>());
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -189,7 +189,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Float:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("float {0}", ezArgF(var.Get<float>(), 4));
+        sTemp.SetFormat("float {0}", ezArgF(var.Get<float>(), 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -199,7 +199,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Double:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("double {0}", ezArgF(var.Get<double>(), 4));
+        sTemp.SetFormat("double {0}", ezArgF(var.Get<double>(), 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -209,7 +209,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Time:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("time {0}", ezArgF(var.Get<ezTime>().GetSeconds(), 4));
+        sTemp.SetFormat("time {0}", ezArgF(var.Get<ezTime>().GetSeconds(), 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -219,7 +219,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Angle:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("angle {0}", ezArgF(var.Get<ezAngle>().GetDegree(), 4));
+        sTemp.SetFormat("angle {0}", ezArgF(var.Get<ezAngle>().GetDegree(), 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -241,7 +241,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Vector2:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("vec2 ({0}, {1})", ezArgF(var.Get<ezVec2>().x, 4), ezArgF(var.Get<ezVec2>().y, 4));
+        sTemp.SetFormat("vec2 ({0}, {1})", ezArgF(var.Get<ezVec2>().x, 4), ezArgF(var.Get<ezVec2>().y, 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -251,7 +251,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Vector3:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("vec3 ({0}, {1}, {2})", ezArgF(var.Get<ezVec3>().x, 4), ezArgF(var.Get<ezVec3>().y, 4), ezArgF(var.Get<ezVec3>().z, 4));
+        sTemp.SetFormat("vec3 ({0}, {1}, {2})", ezArgF(var.Get<ezVec3>().x, 4), ezArgF(var.Get<ezVec3>().y, 4), ezArgF(var.Get<ezVec3>().z, 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -261,7 +261,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Vector4:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("vec4 ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezVec4>().x, 4), ezArgF(var.Get<ezVec4>().y, 4), ezArgF(var.Get<ezVec4>().z, 4), ezArgF(var.Get<ezVec4>().w, 4));
+        sTemp.SetFormat("vec4 ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezVec4>().x, 4), ezArgF(var.Get<ezVec4>().y, 4), ezArgF(var.Get<ezVec4>().z, 4), ezArgF(var.Get<ezVec4>().w, 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -271,7 +271,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Vector2I:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("vec2i ({0}, {1})", var.Get<ezVec2I32>().x, var.Get<ezVec2I32>().y);
+        sTemp.SetFormat("vec2i ({0}, {1})", var.Get<ezVec2I32>().x, var.Get<ezVec2I32>().y);
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -281,7 +281,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Vector3I:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("vec3i ({0}, {1}, {2})", var.Get<ezVec3I32>().x, var.Get<ezVec3I32>().y, var.Get<ezVec3I32>().z);
+        sTemp.SetFormat("vec3i ({0}, {1}, {2})", var.Get<ezVec3I32>().x, var.Get<ezVec3I32>().y, var.Get<ezVec3I32>().z);
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -291,7 +291,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Vector4I:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("vec4i ({0}, {1}, {2}, {3})", var.Get<ezVec4I32>().x, var.Get<ezVec4I32>().y, var.Get<ezVec4I32>().z, var.Get<ezVec4I32>().w);
+        sTemp.SetFormat("vec4i ({0}, {1}, {2}, {3})", var.Get<ezVec4I32>().x, var.Get<ezVec4I32>().y, var.Get<ezVec4I32>().z, var.Get<ezVec4I32>().w);
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -301,7 +301,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Color:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("color ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezColor>().r, 4), ezArgF(var.Get<ezColor>().g, 4), ezArgF(var.Get<ezColor>().b, 4), ezArgF(var.Get<ezColor>().a, 4));
+        sTemp.SetFormat("color ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezColor>().r, 4), ezArgF(var.Get<ezColor>().g, 4), ezArgF(var.Get<ezColor>().b, 4), ezArgF(var.Get<ezColor>().a, 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -313,7 +313,7 @@ namespace JSONReaderTestDetail
         ezStringBuilder sTemp;
         const ezColorGammaUB c = var.ConvertTo<ezColorGammaUB>();
 
-        sTemp.Format("gamma ({0}, {1}, {2}, {3})", c.r, c.g, c.b, c.a);
+        sTemp.SetFormat("gamma ({0}, {1}, {2}, {3})", c.r, c.g, c.b, c.a);
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -323,7 +323,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Quaternion:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("quat ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezQuat>().x, 4), ezArgF(var.Get<ezQuat>().y, 4), ezArgF(var.Get<ezQuat>().z, 4), ezArgF(var.Get<ezQuat>().w, 4));
+        sTemp.SetFormat("quat ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezQuat>().x, 4), ezArgF(var.Get<ezQuat>().y, 4), ezArgF(var.Get<ezQuat>().z, 4), ezArgF(var.Get<ezQuat>().w, 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -335,7 +335,7 @@ namespace JSONReaderTestDetail
         ezMat3 m = var.Get<ezMat3>();
 
         ezStringBuilder sTemp;
-        sTemp.Format("mat3 ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8})", ezArgF(m.m_fElementsCM[0], 4), ezArgF(m.m_fElementsCM[1], 4), ezArgF(m.m_fElementsCM[2], 4), ezArgF(m.m_fElementsCM[3], 4), ezArgF(m.m_fElementsCM[4], 4), ezArgF(m.m_fElementsCM[5], 4), ezArgF(m.m_fElementsCM[6], 4), ezArgF(m.m_fElementsCM[7], 4), ezArgF(m.m_fElementsCM[8], 4));
+        sTemp.SetFormat("mat3 ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8})", ezArgF(m.m_fElementsCM[0], 4), ezArgF(m.m_fElementsCM[1], 4), ezArgF(m.m_fElementsCM[2], 4), ezArgF(m.m_fElementsCM[3], 4), ezArgF(m.m_fElementsCM[4], 4), ezArgF(m.m_fElementsCM[5], 4), ezArgF(m.m_fElementsCM[6], 4), ezArgF(m.m_fElementsCM[7], 4), ezArgF(m.m_fElementsCM[8], 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();
@@ -347,7 +347,7 @@ namespace JSONReaderTestDetail
         ezMat4 m = var.Get<ezMat4>();
 
         ezStringBuilder sTemp;
-        sTemp.Printf("mat4 (%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)", m.m_fElementsCM[0], m.m_fElementsCM[1], m.m_fElementsCM[2], m.m_fElementsCM[3], m.m_fElementsCM[4], m.m_fElementsCM[5], m.m_fElementsCM[6], m.m_fElementsCM[7], m.m_fElementsCM[8], m.m_fElementsCM[9], m.m_fElementsCM[10], m.m_fElementsCM[11], m.m_fElementsCM[12], m.m_fElementsCM[13], m.m_fElementsCM[14], m.m_fElementsCM[15]);
+        sTemp.SetPrintf("mat4 (%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)", m.m_fElementsCM[0], m.m_fElementsCM[1], m.m_fElementsCM[2], m.m_fElementsCM[3], m.m_fElementsCM[4], m.m_fElementsCM[5], m.m_fElementsCM[6], m.m_fElementsCM[7], m.m_fElementsCM[8], m.m_fElementsCM[9], m.m_fElementsCM[10], m.m_fElementsCM[11], m.m_fElementsCM[12], m.m_fElementsCM[13], m.m_fElementsCM[14], m.m_fElementsCM[15]);
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();

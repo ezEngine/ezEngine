@@ -33,7 +33,7 @@ ezResult ezQtFmodProjectSettingsDlg::Save()
   if (m_Configs.Save().Failed())
   {
     ezStringBuilder sError;
-    sError.Format("Failed to save the Fmod configuration file\n'{0}'", ezFmodAssetProfiles::s_sConfigFile);
+    sError.SetFormat("Failed to save the Fmod configuration file\n'{0}'", ezFmodAssetProfiles::s_sConfigFile);
 
     ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 

@@ -113,7 +113,7 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, ezStringView sConte
   pWriteTask->ConfigureTask("Write Screenshot", ezTaskNesting::Never);
   pWriteTask->m_Image.ResetAndMove(std::move(image));
 
-  pWriteTask->m_sPath.Format(":appdata/Screenshots/{0}", ezApplication::GetApplicationInstance()->GetApplicationName());
+  pWriteTask->m_sPath.SetFormat(":appdata/Screenshots/{0}", ezApplication::GetApplicationInstance()->GetApplicationName());
   AppendCurrentTimestamp(pWriteTask->m_sPath);
   pWriteTask->m_sPath.Append(sContext);
   pWriteTask->m_sPath.Append(".png");

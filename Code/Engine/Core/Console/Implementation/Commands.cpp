@@ -37,7 +37,7 @@ void ezQuakeConsole::ExecuteCommand(ezStringView sInput)
 void ezQuakeConsole::BindKey(ezStringView sKey, ezStringView sCommand)
 {
   ezStringBuilder s;
-  s.Format("Binding key '{0}' to command '{1}'", sKey, sCommand);
+  s.SetFormat("Binding key '{0}' to command '{1}'", sKey, sCommand);
   AddConsoleString(s, ezConsoleString::Type::Success);
 
   m_BoundKeys[sKey] = sCommand;
@@ -46,7 +46,7 @@ void ezQuakeConsole::BindKey(ezStringView sKey, ezStringView sCommand)
 void ezQuakeConsole::UnbindKey(ezStringView sKey)
 {
   ezStringBuilder s;
-  s.Format("Unbinding key '{0}'", sKey);
+  s.SetFormat("Unbinding key '{0}'", sKey);
   AddConsoleString(s, ezConsoleString::Type::Success);
 
   m_BoundKeys.Remove(sKey);

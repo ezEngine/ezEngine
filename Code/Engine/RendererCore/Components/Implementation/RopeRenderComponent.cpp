@@ -299,7 +299,7 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
 void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 {
   ezStringBuilder sResourceName;
-  sResourceName.Format("Rope-Mesh:{}{}-d{}-u{}", uiNumRopePieces, m_bSubdivide ? "Sub" : "", m_uiDetail, m_fUScale);
+  sResourceName.SetFormat("Rope-Mesh:{}{}-d{}-u{}", uiNumRopePieces, m_bSubdivide ? "Sub" : "", m_uiDetail, m_fUScale);
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResourceName);
   if (m_hMesh.IsValid())

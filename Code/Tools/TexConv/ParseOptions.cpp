@@ -268,7 +268,7 @@ ezResult ezTexConv::ParseInputFiles()
 
   for (ezUInt32 i = 0; i < 64; ++i)
   {
-    tmp.Format("-in{0}", i);
+    tmp.SetFormat("-in{0}", i);
 
     res = pCmd->GetAbsolutePathOption(tmp);
 

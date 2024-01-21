@@ -190,7 +190,7 @@ void ezCVar::SaveCVars()
   while (it.IsValid())
   {
     // create the plugin specific file
-    sTemp.Format("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
+    sTemp.SetFormat("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
     SaveCVarsToFileInternal(sTemp, it.Value());
 
@@ -215,25 +215,25 @@ void ezCVar::SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezC
         case ezCVarType::Int:
         {
           ezCVarInt* pInt = (ezCVarInt*)pCVar;
-          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
+          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
         }
         break;
         case ezCVarType::Bool:
         {
           ezCVarBool* pBool = (ezCVarBool*)pCVar;
-          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
+          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
         }
         break;
         case ezCVarType::Float:
         {
           ezCVarFloat* pFloat = (ezCVarFloat*)pCVar;
-          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
+          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
         }
         break;
         case ezCVarType::String:
         {
           ezCVarString* pString = (ezCVarString*)pCVar;
-          sTemp.Format("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart));
+          sTemp.SetFormat("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart));
         }
         break;
         default:
@@ -336,7 +336,7 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
     while (it.IsValid())
     {
       // create the plugin specific file
-      sTemp.Format("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
+      sTemp.SetFormat("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
       LoadCVarsFromFileInternal(sTemp.GetView(), it.Value(), bOnlyNewOnes, bSetAsCurrentValue, pOutCVars);
 

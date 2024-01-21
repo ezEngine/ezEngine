@@ -639,7 +639,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   }
 
   ezStringBuilder sName;
-  sName.Format("Gizmo{0}", m_iHandleType);
+  sName.SetFormat("Gizmo{0}", m_iHandleType);
 
   ezGameObjectDesc god;
   god.m_LocalPosition = m_Transformation.m_vPosition;

@@ -146,11 +146,11 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
 
     if (!sDefault.IsEmpty())
     {
-      sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
+      sProp.SetFormat("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
     }
     else
     {
-      sProp.Format("  {0}: {1};\n", pMember->GetPropertyName(), szTypeName);
+      sProp.SetFormat("  {0}: {1};\n", pMember->GetPropertyName(), szTypeName);
     }
 
     out_Code.Append(sProp.GetView());
@@ -164,7 +164,7 @@ void ezTypeScriptBinding::InjectMessageImportExport(ezStringBuilder& content, co
 
   ezStringBuilder sImportExport, sTypeName;
 
-  sImportExport.Format(R"(import __AllMessages = require("{}")
+  sImportExport.SetFormat(R"(import __AllMessages = require("{}")
 )",
     szMessageFile);
 
@@ -376,7 +376,7 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
 
         if (bSynchronizeAfterwards)
         {
-          sStashMsgName.Format("ezMsg-{}", m_iMsgDeliveryRecursion);
+          sStashMsgName.SetFormat("ezMsg-{}", m_iMsgDeliveryRecursion);
 
           duk.PushGlobalStash();                       // [ ... stash ]
           duk_dup(duk, -2);                            // [ ... stash msg ]

@@ -245,10 +245,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
 
     ezStringBuilder fmt;
 
-    fmt.Format("Password: {}", ezArgSensitive("hunter2", "pwd"));
+    fmt.SetFormat("Password: {}", ezArgSensitive("hunter2", "pwd"));
     EZ_TEST_STRING(fmt, "Password: sud:pwd#96d66ce6($7)");
 
-    fmt.Format("Password: {}", ezArgSensitive("hunter2"));
+    fmt.SetFormat("Password: {}", ezArgSensitive("hunter2"));
     EZ_TEST_STRING(fmt, "Password: sud:#96d66ce6($7)");
   }
 }

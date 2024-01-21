@@ -132,7 +132,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   }
 
   ezStringBuilder sPath;
-  sPath.Format("{0}/{1}.ezPermVar", s_sPermVarSubDir, szName);
+  sPath.SetFormat("{0}/{1}.ezPermVar", s_sPermVarSubDir, szName);
 
   ezStringBuilder sTemp = s_sPlatform;
   sTemp.Append(" 1");
