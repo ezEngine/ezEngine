@@ -3,35 +3,26 @@
   EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value, \
     "Trivial POD type is treated as class. Use EZ_DECLARE_POD_TYPE(YourClass) or EZ_DEFINE_AS_POD_TYPE(ExternalClass) to mark it as POD.")
 
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::DefaultConstruct(T* pDestination, size_t uiCount)
+template <ezConstructionMode mode, typename T>
+EZ_ALWAYS_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount)
 {
-  for (size_t i = 0; i < uiCount; i++)
-  {
-    ::new (pDestination + i) T();
-  }
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::DefaultConstructNonTrivial(T* pDestination, size_t uiCount)
-{
-  if constexpr (std::is_trivial<T>::value)
+  if constexpr (mode == SkipTrivialTypes && std::is_trivial<T>::value)
   {
     // do nothing
   }
   else
   {
-    // Default constructor is always called, so that debug helper initializations (e.g. ezVec3 initializes to NaN) take place.
-    // Note that destructor is ONLY called for class types.
-    DefaultConstruct(pDestination, uiCount);
+    for (size_t i = 0; i < uiCount; i++)
+    {
+      ::new (pDestination + i) T();
+    }
   }
 }
 
-template <typename T>
+template <ezConstructionMode mode, typename T>
 EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructorFunction()
 {
-  if constexpr (std::is_trivial<T>::value)
+  if constexpr (mode == SkipTrivialTypes && std::is_trivial<T>::value)
   {
     return nullptr;
   }
@@ -39,7 +30,7 @@ EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstruct
   {
     struct Helper
     {
-      static void Construct(void* pDestination) { ezMemoryUtils::DefaultConstructNonTrivial(static_cast<T*>(pDestination), 1); }
+      static void Construct(void* pDestination) { ezMemoryUtils::Construct<mode>(static_cast<T*>(pDestination), 1); }
     };
 
     return &Helper::Construct;

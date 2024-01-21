@@ -114,27 +114,27 @@ void ezVisualScriptDataStorage::AllocateStorage()
     if (scriptDataType == ezVisualScriptDataType::String)
     {
       auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::DefaultConstructNonTrivial(pStrings, typeInfo.m_uiCount);
+      ezMemoryUtils::Construct<SkipTrivialTypes>(pStrings, typeInfo.m_uiCount);
     }
     if (scriptDataType == ezVisualScriptDataType::HashedString)
     {
       auto pStrings = reinterpret_cast<ezHashedString*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::DefaultConstructNonTrivial(pStrings, typeInfo.m_uiCount);
+      ezMemoryUtils::Construct<SkipTrivialTypes>(pStrings, typeInfo.m_uiCount);
     }
     else if (scriptDataType == ezVisualScriptDataType::Variant)
     {
       auto pVariants = reinterpret_cast<ezVariant*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::DefaultConstructNonTrivial(pVariants, typeInfo.m_uiCount);
+      ezMemoryUtils::Construct<SkipTrivialTypes>(pVariants, typeInfo.m_uiCount);
     }
     else if (scriptDataType == ezVisualScriptDataType::Array)
     {
       auto pVariantArrays = reinterpret_cast<ezVariantArray*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::DefaultConstructNonTrivial(pVariantArrays, typeInfo.m_uiCount);
+      ezMemoryUtils::Construct<SkipTrivialTypes>(pVariantArrays, typeInfo.m_uiCount);
     }
     else if (scriptDataType == ezVisualScriptDataType::Map)
     {
       auto pVariantMaps = reinterpret_cast<ezVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::DefaultConstructNonTrivial(pVariantMaps, typeInfo.m_uiCount);
+      ezMemoryUtils::Construct<SkipTrivialTypes>(pVariantMaps, typeInfo.m_uiCount);
     }
   }
 }

@@ -359,7 +359,7 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
     {
       // default construct the new elements
       for (ezUInt32 i = uiOldCount; i < uiNewCount; ++i)
-        ezMemoryUtils::DefaultConstruct(&ElementAt(i), 1);
+        ezMemoryUtils::Construct<ConstructAll>(&ElementAt(i), 1);
     }
     else
     {
@@ -478,7 +478,9 @@ inline T& ezDequeBase<T, Construct>::ExpandAndGetRef()
   T* pElement = &ElementAt(m_uiCount - 1);
 
   if (Construct)
-    ezMemoryUtils::DefaultConstruct(pElement, 1);
+  {
+    ezMemoryUtils::Construct<ConstructAll>(pElement, 1);
+  }
 
   return *pElement;
 }
@@ -492,7 +494,9 @@ inline void ezDequeBase<T, Construct>::PushBack()
   T* pElement = &ElementAt(m_uiCount - 1);
 
   if (Construct)
-    ezMemoryUtils::DefaultConstruct(pElement, 1);
+  {
+    ezMemoryUtils::Construct<ConstructAll>(pElement, 1);
+  }
 }
 
 template <typename T, bool Construct>
@@ -569,7 +573,7 @@ inline void ezDequeBase<T, Construct>::PushFront()
 
   if (Construct)
   {
-    ezMemoryUtils::DefaultConstructNonTrivial(pElement, 1);
+    ezMemoryUtils::Construct<SkipTrivialTypes>(pElement, 1);
   }
 }
 

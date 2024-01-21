@@ -89,7 +89,7 @@ namespace ezInternal
   inline ezArrayPtr<T> CreateArray(ezAllocatorBase* pAllocator, ezUInt32 uiCount)
   {
     T* buffer = CreateRawBuffer<T>(pAllocator, uiCount);
-    ezMemoryUtils::DefaultConstructNonTrivial(buffer, uiCount);
+    ezMemoryUtils::Construct<SkipTrivialTypes>(buffer, uiCount);
 
     return ezArrayPtr<T>(buffer, uiCount);
   }

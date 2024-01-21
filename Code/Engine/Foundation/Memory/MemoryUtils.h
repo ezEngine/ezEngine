@@ -3,6 +3,12 @@
 #include <Foundation/Basics.h>
 #include <cstdint> // for uintptr_t
 
+enum ezConstructionMode
+{
+  ConstructAll = 0,     /// < default initialize all types, including std::is_trivial types
+  SkipTrivialTypes = 1, ///< If the given type to construct is trivial, nothing will be done
+};
+
 /// \brief This class provides functions to work on raw memory.
 ///
 /// \details
@@ -25,18 +31,13 @@ public:
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination.
   ///
-  /// You should use 'DefaultConstruct' instead if default construction is needed for trivial types as well.
-  template <typename T>
-  static void DefaultConstructNonTrivial(T* pDestination, size_t uiCount = 1); // [tested]
+  /// The ezConstructionMode template argument determines whether trivial types will be skipped.
+  template <ezConstructionMode mode, typename T>
+  static void Construct(T* pDestination, size_t uiCount = 1); // [tested]
 
   /// \brief Returns a function pointer to construct an instance of T. Returns nullptr for trivial types.
-  template <typename T>
+  template <ezConstructionMode mode, typename T>
   static ConstructorFunction MakeConstructorFunction(); // [tested]
-
-  /// \brief Default constructs \a uiCount objects of type T in a raw buffer at \a pDestination regardless of T being a class, POD or
-  /// trivial.
-  template <typename T>
-  static void DefaultConstruct(T* pDestination, size_t uiCount = 1); // [tested]
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination, by creating \a uiCount copies of \a copy.
   template <typename Destination, typename Source>
