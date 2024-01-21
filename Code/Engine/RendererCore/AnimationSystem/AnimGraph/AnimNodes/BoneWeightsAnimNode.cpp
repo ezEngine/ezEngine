@@ -111,7 +111,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
     const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
 
     ezStringBuilder name;
-    name.Format("{}", pSkeleton->GetResourceIDHash());
+    name.SetFormat("{}", pSkeleton->GetResourceIDHash());
 
     for (const auto& rootBone : m_RootBones)
     {

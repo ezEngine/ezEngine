@@ -316,7 +316,7 @@ void ezFileserveClient::ComputeDataDirMountPoint(ezStringView sDataDir, ezString
   EZ_ASSERT_DEV(sDataDir.IsEmpty() || sDataDir.EndsWith("/"), "Invalid path");
 
   const ezUInt32 uiMountPoint = ezHashingUtils::xxHash32String(sDataDir);
-  out_sMountPoint.Format("{0}", ezArgU(uiMountPoint, 8, true, 16));
+  out_sMountPoint.SetFormat("{0}", ezArgU(uiMountPoint, 8, true, 16));
 }
 
 void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const
@@ -854,7 +854,7 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::MakeFro
     ezStringBuilder sAddress;
     for (auto& ip : sServerIPs)
     {
-      sAddress.Format("{0}:{1}", ip, uiPort);
+      sAddress.SetFormat("{0}:{1}", ip, uiPort);
 
       ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(500));
 

@@ -107,7 +107,7 @@ ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailI
   {
     ezQtEditorApp* pEditorApp = ezQtEditorApp::GetSingleton();
 
-    temp.Format("-in0");
+    temp.SetFormat("-in0");
 
     ezStringBuilder sAbsPath = pProp->m_sBaseColor;
     if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))

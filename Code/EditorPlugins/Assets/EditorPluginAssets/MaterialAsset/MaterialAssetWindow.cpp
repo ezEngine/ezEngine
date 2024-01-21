@@ -274,7 +274,7 @@ void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
   else
   {
     ezStringBuilder msg;
-    msg.Format("The auto generated file does not exist (yet).\nThe supposed location is '{0}'", sAutoGenShader);
+    msg.SetFormat("The auto generated file does not exist (yet).\nThe supposed location is '{0}'", sAutoGenShader);
 
     ezQtUiServices::GetSingleton()->MessageBoxInformation(msg);
   }

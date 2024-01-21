@@ -146,7 +146,7 @@ namespace ezRmlUiInternal
     ezUInt64 uiHash = ezHashingUtils::xxHash64(pSource, uiSizeInBytes);
 
     ezStringBuilder sTextureName;
-    sTextureName.Format("RmlUiGeneratedTexture_{}x{}_{}", uiWidth, uiHeight, uiHash);
+    sTextureName.SetFormat("RmlUiGeneratedTexture_{}x{}_{}", uiWidth, uiHeight, uiHash);
 
     ezTexture2DResourceHandle hTexture = ezResourceManager::GetExistingResource<ezTexture2DResource>(sTextureName);
 

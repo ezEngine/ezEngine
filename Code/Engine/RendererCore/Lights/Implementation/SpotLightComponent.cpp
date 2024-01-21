@@ -149,7 +149,7 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   if (cvar_RenderingLightingVisScreenSpaceSize)
   {
     ezStringBuilder sb;
-    sb.Format("{0}", fScreenSpaceSize);
+    sb.SetFormat("{0}", fScreenSpaceSize);
     ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, t.m_vPosition, ezColor::Olive);
     ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, ezColor::Olive);
   }

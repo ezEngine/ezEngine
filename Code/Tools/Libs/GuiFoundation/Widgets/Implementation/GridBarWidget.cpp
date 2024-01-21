@@ -106,7 +106,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
       const QPointF pos = m_MapFromSceneFunc(QPointF(x, 0));
 
       textRect.setRect(pos.x() - 50, areaRect.top(), 99, areaRect.height());
-      tmp.Format("{0}", ezArgF(x));
+      tmp.SetFormat("{0}", ezArgF(x));
 
       painter->drawText(textRect, tmp.GetData(), textOpt);
     }

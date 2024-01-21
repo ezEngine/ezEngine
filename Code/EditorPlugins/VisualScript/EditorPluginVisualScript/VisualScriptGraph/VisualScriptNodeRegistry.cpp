@@ -1493,7 +1493,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     {
       sArgName = pScriptableFunctionAttribute->GetArgumentName(argIdx);
       if (sArgName.IsEmpty())
-        sArgName.Format("Arg{}", argIdx);
+        sArgName.SetFormat("Arg{}", argIdx);
 
       auto pArgRtti = pFunction->GetArgumentType(argIdx);
       auto argType = pScriptableFunctionAttribute->GetArgumentType(argIdx);
@@ -1639,7 +1639,7 @@ void ezVisualScriptNodeRegistry::CreateCoroutineNodeType(const ezRTTI* pRtti)
   {
     sArgName = pScriptableFuncAttribute->GetArgumentName(argIdx);
     if (sArgName.IsEmpty())
-      sArgName.Format("Arg{}", argIdx);
+      sArgName.SetFormat("Arg{}", argIdx);
 
     auto pArgRtti = pStartFunc->GetArgumentType(argIdx);
     auto argType = pScriptableFuncAttribute->GetArgumentType(argIdx);

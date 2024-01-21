@@ -181,7 +181,7 @@ void ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation(ezStringBuild
       uiTypeNameHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sClassName.GetData()));
     }
 
-    sAutoGen.Format("public static GetTypeNameHash(): number { return {0}; }\nconstructor() { super(); this.TypeNameHash = {0}; }\n", uiTypeNameHash);
+    sAutoGen.SetFormat("public static GetTypeNameHash(): number { return {0}; }\nconstructor() { super(); this.TypeNameHash = {0}; }\n", uiTypeNameHash);
 
     uiContinueAfterOffset = szBeginAG - content.GetData();
 

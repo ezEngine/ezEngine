@@ -48,7 +48,7 @@ static void JoltTraceFunc(const char* szText, ...)
 
   va_list args;
   va_start(args, szText);
-  tmp.PrintfArgs(szText, args);
+  tmp.SetPrintfArgs(szText, args);
   va_end(args);
 
   ezLog::Dev("Jolt: {}", tmp);

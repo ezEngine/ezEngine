@@ -905,7 +905,7 @@ void ezQtAssetBrowserWidget::OnListFindAllReferences(bool transitive)
   ezConversionUtils::ToString(guid, sAssetGuid);
 
   ezStringBuilder sFilter;
-  sFilter.Format("{}:{}", transitive ? "ref-all" : "ref", sAssetGuid);
+  sFilter.SetFormat("{}:{}", transitive ? "ref-all" : "ref", sAssetGuid);
   m_pFilter->SetTextFilter(sFilter);
   m_pFilter->SetPathFilter("");
 }

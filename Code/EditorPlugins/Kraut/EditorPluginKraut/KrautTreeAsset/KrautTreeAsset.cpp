@@ -37,25 +37,25 @@ static void GetMaterialLabel(ezStringBuilder& ref_sOut, ezKrautBranchType branch
     case ezKrautBranchType::Trunk1:
     case ezKrautBranchType::Trunk2:
     case ezKrautBranchType::Trunk3:
-      ref_sOut.Format("Trunk {}", (int)branchType - (int)ezKrautBranchType::Trunk1 + 1);
+      ref_sOut.SetFormat("Trunk {}", (int)branchType - (int)ezKrautBranchType::Trunk1 + 1);
       break;
 
     case ezKrautBranchType::MainBranches1:
     case ezKrautBranchType::MainBranches2:
     case ezKrautBranchType::MainBranches3:
-      ref_sOut.Format("Branch {}", (int)branchType - (int)ezKrautBranchType::MainBranches1 + 1);
+      ref_sOut.SetFormat("Branch {}", (int)branchType - (int)ezKrautBranchType::MainBranches1 + 1);
       break;
 
     case ezKrautBranchType::SubBranches1:
     case ezKrautBranchType::SubBranches2:
     case ezKrautBranchType::SubBranches3:
-      ref_sOut.Format("Twig {}", (int)branchType - (int)ezKrautBranchType::SubBranches1 + 1);
+      ref_sOut.SetFormat("Twig {}", (int)branchType - (int)ezKrautBranchType::SubBranches1 + 1);
       break;
 
     case ezKrautBranchType::Twigs1:
     case ezKrautBranchType::Twigs2:
     case ezKrautBranchType::Twigs3:
-      ref_sOut.Format("Twigy {}", (int)branchType - (int)ezKrautBranchType::Twigs1 + 1);
+      ref_sOut.SetFormat("Twigy {}", (int)branchType - (int)ezKrautBranchType::Twigs1 + 1);
       break;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;

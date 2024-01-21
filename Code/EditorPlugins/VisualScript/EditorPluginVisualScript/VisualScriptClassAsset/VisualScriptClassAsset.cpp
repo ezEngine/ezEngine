@@ -82,7 +82,7 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
   ezStringBuilder sDumpPath;
   if (GetProperties()->m_bDumpAST)
   {
-    sDumpPath.Format(":appdata/{}_AST.dgml", sScriptClassName);
+    sDumpPath.SetFormat(":appdata/{}_AST.dgml", sScriptClassName);
   }
   EZ_SUCCEED_OR_RETURN(compiler.Compile(sDumpPath));
 

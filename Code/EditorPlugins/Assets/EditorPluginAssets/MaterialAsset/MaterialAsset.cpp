@@ -37,7 +37,7 @@ namespace
       ezReflectionUtils::GetEnumKeysAndValues(pProp->GetSpecificType(), enumValues, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
       for (auto& enumValue : enumValues)
       {
-        sDefine.Format("{} {}", enumValue.m_sKey, enumValue.m_iValue);
+        sDefine.SetFormat("{} {}", enumValue.m_sKey, enumValue.m_iValue);
         EZ_SUCCEED_OR_RETURN(inout_pp.AddCustomDefine(sDefine));
 
         if (enumValue.m_iValue == iValue)

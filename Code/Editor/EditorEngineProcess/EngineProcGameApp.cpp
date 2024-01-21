@@ -606,7 +606,7 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
     // We need the file system before we can start the html logger.
     ezOsProcessID uiProcessID = ezProcess::GetCurrentProcessID();
     ezStringBuilder sLogFile;
-    sLogFile.Format(":appdata/Log_{0}.htm", uiProcessID);
+    sLogFile.SetFormat(":appdata/Log_{0}.htm", uiProcessID);
     m_LogHTML.BeginLog(sLogFile, "EditorEngineProcess");
   }
 }

@@ -329,7 +329,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Printf")
   {
     ezStringBuilder s("abc");
-    s.Printf("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
+    s.SetPrintf("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
 
     EZ_TEST_BOOL(s == ezStringUtf8(L"Test42foobär").GetData());
   }
@@ -337,7 +337,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Format")
   {
     ezStringBuilder s("abc");
-    s.Format("Test{0}{1}{2}", 42, "foo", ezStringUtf8(L"bär").GetData());
+    s.SetFormat("Test{0}{1}{2}", 42, "foo", ezStringUtf8(L"bär").GetData());
 
     EZ_TEST_BOOL(s == ezStringUtf8(L"Test42foobär").GetData());
   }

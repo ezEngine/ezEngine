@@ -9,7 +9,7 @@ ezStatus ezDocumentUtils::IsValidSaveLocationForDocument(ezStringView sDocument,
   if (ezDocumentManager::FindDocumentTypeFromPath(sDocument, true, pTypeDesc).Failed())
   {
     ezStringBuilder sTemp;
-    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot create file '{1}'",
+    sTemp.SetFormat("The selected file extension '{0}' is not registered with any known type.\nCannot create file '{1}'",
       ezPathUtils::GetFileExtension(sDocument), sDocument);
     return ezStatus(sTemp.GetData());
   }

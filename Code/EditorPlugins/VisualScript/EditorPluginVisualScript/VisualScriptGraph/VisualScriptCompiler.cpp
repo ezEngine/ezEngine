@@ -31,7 +31,7 @@ namespace
     ezVariant sNameProperty = pObject->GetTypeAccessor().GetValue("Name");
     ezUInt32 uiHash = ezHashHelper<ezUuid>::Hash(pObject->GetGuid());
 
-    out_sName.Format("{}_{}_{}", pEntryObject != nullptr ? ezVisualScriptNodeManager::GetNiceFunctionName(pEntryObject) : "", sNameProperty, ezArgU(uiHash, 8, true, 16));
+    out_sName.SetFormat("{}_{}_{}", pEntryObject != nullptr ? ezVisualScriptNodeManager::GetNiceFunctionName(pEntryObject) : "", sNameProperty, ezArgU(uiHash, 8, true, 16));
   }
 
   ezVisualScriptDataType::Enum FinalizeDataType(ezVisualScriptDataType::Enum dataType)

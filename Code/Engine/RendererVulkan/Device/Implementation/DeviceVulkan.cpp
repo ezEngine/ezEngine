@@ -1295,7 +1295,7 @@ void ezGALDeviceVulkan::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezStringBuilder sb;
-  sb.Format("Frame {}", uiRenderFrame);
+  sb.SetFormat("Frame {}", uiRenderFrame);
   m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), sb);
 #endif
 }

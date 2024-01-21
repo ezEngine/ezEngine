@@ -181,7 +181,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
     {
       it.Value().m_iTableRow = iRow;
 
-      sTemp.Format("  {0}  ", it.Key());
+      sTemp.SetFormat("  {0}  ", it.Key());
 
       QLabel* pIcon = new QLabel();
       QIcon icon = ezQtUiServices::GetCachedIconResource(":/Icons/Icons/InputSlots.svg");
@@ -200,7 +200,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
       // Flags
       {
         ezStringBuilder sFlags;
-        sFlags.Printf("  %16b  ", uiFlags);
+        sFlags.SetPrintf("  %16b  ", uiFlags);
 
         QLabel* pFlags = (QLabel*)TableInputSlots->cellWidget(iRow, 5);
         pFlags->setAlignment(Qt::AlignRight);
@@ -271,7 +271,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
           pValue->setText("");
         else
         {
-          sTemp.Format(" {0} ", ezArgF(it.Value().m_fValue, 4));
+          sTemp.SetFormat(" {0} ", ezArgF(it.Value().m_fValue, 4));
           pValue->setText(sTemp.GetData());
         }
       }
@@ -322,7 +322,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
     {
       it.Value().m_iTableRow = iRow;
 
-      sTemp.Format("  {0}  ", it.Key());
+      sTemp.SetFormat("  {0}  ", it.Key());
 
       QLabel* pIcon = new QLabel();
       QIcon icon = ezQtUiServices::GetCachedIconResource(":/Icons/Icons/InputActions.svg");
@@ -344,7 +344,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
         if (it.Value().m_sTrigger[slot].IsEmpty())
           sTemp = "  ";
         else
-          sTemp.Format("  [Scale: {0}] {1}  ", ezArgF(it.Value().m_fTriggerScaling[slot], 2), it.Value().m_sTrigger[slot]);
+          sTemp.SetFormat("  [Scale: {0}] {1}  ", ezArgF(it.Value().m_fTriggerScaling[slot], 2), it.Value().m_sTrigger[slot]);
 
         QLabel* pValue = (QLabel*)TableInputActions->cellWidget(iRow, 4 + slot);
         pValue->setText(sTemp.GetData());
@@ -391,9 +391,9 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
         else
         {
           if (it.Value().m_bUseTimeScaling)
-            sTemp.Format(" {0} (Time-Scaled) ", ezArgF(it.Value().m_fValue, 4));
+            sTemp.SetFormat(" {0} (Time-Scaled) ", ezArgF(it.Value().m_fValue, 4));
           else
-            sTemp.Format(" {0} (Absolute) ", ezArgF(it.Value().m_fValue, 4));
+            sTemp.SetFormat(" {0} (Absolute) ", ezArgF(it.Value().m_fValue, 4));
 
           pValue->setText(sTemp.GetData());
         }

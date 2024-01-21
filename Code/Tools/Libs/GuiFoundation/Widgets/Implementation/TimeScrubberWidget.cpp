@@ -131,7 +131,7 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
       const double scaledX = x * scale;
 
       textRect.setRect(scaledX - 20, areaTop, 39, areaHeight);
-      tmp.Format("{0}", ezArgF(x));
+      tmp.SetFormat("{0}", ezArgF(x));
 
       p.drawText(textRect, tmp.GetData(), textOpt);
     }

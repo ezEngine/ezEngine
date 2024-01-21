@@ -566,14 +566,14 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescr
   m_hVertexBuffer = pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData().GetArrayPtr());
 
   ezStringBuilder sName;
-  sName.Format("{0} Vertex Buffer", GetResourceDescription());
+  sName.SetFormat("{0} Vertex Buffer", GetResourceDescription());
   pDevice->GetBuffer(m_hVertexBuffer)->SetDebugName(sName);
 
   if (descriptor.HasIndexBuffer())
   {
     m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology), descriptor.GetIndexBufferData());
 
-    sName.Format("{0} Index Buffer", GetResourceDescription());
+    sName.SetFormat("{0} Index Buffer", GetResourceDescription());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
 
     // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again

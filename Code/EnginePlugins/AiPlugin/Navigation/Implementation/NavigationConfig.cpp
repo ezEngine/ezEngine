@@ -12,7 +12,7 @@ ezAiNavigationConfig::ezAiNavigationConfig()
   ezStringBuilder tmp;
   for (ezUInt32 i = 2; i < ezAiNumGroundTypes; ++i)
   {
-    tmp.Format("Custom Ground Type {}", i + 1);
+    tmp.SetFormat("Custom Ground Type {}", i + 1);
     m_GroundTypes[i].m_sName = tmp;
   }
 

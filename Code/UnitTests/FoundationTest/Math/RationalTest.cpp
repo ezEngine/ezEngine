@@ -46,12 +46,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Rational)
     ezRational r1(50, 25);
 
     ezStringBuilder sb;
-    sb.Format("Rational: {}", r1);
+    sb.SetFormat("Rational: {}", r1);
     EZ_TEST_STRING(sb, "Rational: 2");
 
 
     ezRational r2(233, 76);
-    sb.Format("Rational: {}", r2);
+    sb.SetFormat("Rational: {}", r2);
     EZ_TEST_STRING(sb, "Rational: 233/76");
   }
 }

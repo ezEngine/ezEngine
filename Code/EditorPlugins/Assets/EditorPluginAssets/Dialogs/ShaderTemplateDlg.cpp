@@ -155,13 +155,13 @@ void ezQtShaderTemplateDlg::on_Buttons_accepted()
       ezStringBuilder tmp;
       for (const auto& ed : enumDef.m_Values)
       {
-        tmp.Format("{} {}", ed.m_sValueName, ed.m_iValueValue);
+        tmp.SetFormat("{} {}", ed.m_sValueName, ed.m_iValueValue);
         pp.AddCustomDefine(tmp).IgnoreResult();
       }
 
       if (auto pWidget = qobject_cast<QComboBox*>(pTable->cellWidget(row, 1)))
       {
-        tmp.Format("{} {}", enumDef.m_sName, enumDef.m_Values[pWidget->currentIndex()].m_iValueValue);
+        tmp.SetFormat("{} {}", enumDef.m_sName, enumDef.m_Values[pWidget->currentIndex()].m_iValueValue);
         pp.AddCustomDefine(tmp).IgnoreResult();
       }
     }

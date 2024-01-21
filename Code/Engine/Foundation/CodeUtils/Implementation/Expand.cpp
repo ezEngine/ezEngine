@@ -185,7 +185,7 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
   if (pMacroToken->m_DataView.IsEqual("__LINE__"))
   {
     ezStringBuilder sLine;
-    sLine.Format("{0}", m_CurrentFileStack.PeekBack().m_iCurrentLine);
+    sLine.SetFormat("{0}", m_CurrentFileStack.PeekBack().m_iCurrentLine);
 
     ezToken* pNewToken = AddCustomToken(pMacroToken, sLine);
     pNewToken->m_iType = ezTokenType::Integer;

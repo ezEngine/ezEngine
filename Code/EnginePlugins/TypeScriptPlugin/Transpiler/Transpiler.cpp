@@ -163,7 +163,7 @@ ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezS
     }
 
     ezStringBuilder sHashHeader;
-    sHashHeader.Format("/*SOURCE-HASH:{}*/\n", ezArgU(uiActualFileHash, 16, true, 16, true));
+    sHashHeader.SetFormat("/*SOURCE-HASH:{}*/\n", ezArgU(uiActualFileHash, 16, true, 16, true));
     out_sResult.Prepend(sHashHeader);
 
     EZ_SUCCEED_OR_RETURN(fileOut.WriteBytes(out_sResult.GetData(), out_sResult.GetElementCount()));

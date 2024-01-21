@@ -146,17 +146,17 @@ namespace
     ezStringBuilder fmt;
     if (TestCompilerExecutable(compilerBaseName, &compilerVersion).Succeeded() && TestCompilerExecutable(compilerBaseNameCpp).Succeeded() && compilerVersion.StartsWith(requiredVersion))
     {
-      fmt.Format("{} (system default = {})", compilerBaseName, compilerVersion);
+      fmt.SetFormat("{} (system default = {})", compilerBaseName, compilerVersion);
       inout_compilers.PushBack({fmt.GetView(), compiler, compilerBaseName, compilerBaseNameCpp, false});
     }
 
     ezStringBuilder compilerExecutable;
     ezStringBuilder compilerExecutableCpp;
-    compilerExecutable.Format("{}-{}", compilerBaseName, sRequiredMajorVersion);
-    compilerExecutableCpp.Format("{}-{}", compilerBaseNameCpp, sRequiredMajorVersion);
+    compilerExecutable.SetFormat("{}-{}", compilerBaseName, sRequiredMajorVersion);
+    compilerExecutableCpp.SetFormat("{}-{}", compilerBaseNameCpp, sRequiredMajorVersion);
     if (TestCompilerExecutable(compilerExecutable, &compilerVersion).Succeeded() && TestCompilerExecutable(compilerExecutableCpp).Succeeded() && compilerVersion.StartsWith(requiredVersion))
     {
-      fmt.Format("{} (version {})", compilerBaseName, compilerVersion);
+      fmt.SetFormat("{} (version {})", compilerBaseName, compilerVersion);
       inout_compilers.PushBack({fmt.GetView(), compiler, compilerExecutable, compilerExecutableCpp, false});
     }
   }
@@ -229,7 +229,7 @@ ezString ezCppProject::GetPluginSourceDir(const ezCppSettings& cfg, ezStringView
 ezString ezCppProject::GetBuildDir(const ezCppSettings& cfg)
 {
   ezStringBuilder sBuildDir;
-  sBuildDir.Format("{}/Build/{}", GetTargetSourceDir(), GetGeneratorFolderName(cfg));
+  sBuildDir.SetFormat("{}/Build/{}", GetTargetSourceDir(), GetGeneratorFolderName(cfg));
   return sBuildDir;
 }
 
@@ -320,7 +320,7 @@ ezString ezCppProject::GetSdkCompilerMajorVersion()
 {
 #if EZ_ENABLED(EZ_COMPILER_MSVC)
   ezStringBuilder fmt;
-  fmt.Format("{}.{}", _MSC_VER / 100, _MSC_VER % 100);
+  fmt.SetFormat("{}.{}", _MSC_VER / 100, _MSC_VER % 100);
   return fmt;
 #elif EZ_ENABLED(EZ_COMPILER_CLANG)
   return EZ_PP_STRINGIFY(__clang_major__);
@@ -1086,7 +1086,7 @@ void ezCppProject::LoadPreferences()
     if (TestCompilerExecutable(clangDefaultPath, &clangVersion).Succeeded() && TestCompilerExecutable(clangCppDefaultPath).Succeeded() && clangVersion.StartsWith(clangMajorSdkVersion))
     {
       ezStringBuilder clangNiceName;
-      clangNiceName.Format("Clang (system default = {})", clangVersion);
+      clangNiceName.SetFormat("Clang (system default = {})", clangVersion);
       s_MachineSpecificCompilers.PushBack({clangNiceName, ezCompiler::Clang, clangDefaultPath, clangCppDefaultPath, false});
     }
   }
@@ -1109,7 +1109,7 @@ void ezCppProject::LoadPreferences()
   if (preferences->m_CompilerPreferences.m_Compiler != sdkCompiler)
   {
     ezStringBuilder incompatibleCompilerName = u8"⚠ ";
-    incompatibleCompilerName.Format(u8"⚠ {} (incompatible)", ezCppProject::CompilerToString(preferences->m_CompilerPreferences.m_Compiler));
+    incompatibleCompilerName.SetFormat(u8"⚠ {} (incompatible)", ezCppProject::CompilerToString(preferences->m_CompilerPreferences.m_Compiler));
     s_MachineSpecificCompilers.PushBack(
       {incompatibleCompilerName,
         preferences->m_CompilerPreferences.m_Compiler,

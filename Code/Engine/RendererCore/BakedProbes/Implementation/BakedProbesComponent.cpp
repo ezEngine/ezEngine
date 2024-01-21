@@ -465,7 +465,7 @@ void ezBakedProbesComponent::RenderDebugOverlay()
 void ezBakedProbesComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 {
   ezStringBuilder sPrefix;
-  sPrefix.Format(":project/AssetCache/Generated/{0}", node.GetGuid());
+  sPrefix.SetFormat(":project/AssetCache/Generated/{0}", node.GetGuid());
 
   m_sProbeTreeResourcePrefix.Assign(sPrefix);
 }

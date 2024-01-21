@@ -304,7 +304,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     EZ_PROFILE_SCOPE("Logging");
     ezInt32 iApplicationID = pCmd->GetIntOption("-appid", 0);
     ezStringBuilder sLogFile;
-    sLogFile.Format(":appdata/Log_{0}.htm", iApplicationID);
+    sLogFile.SetFormat(":appdata/Log_{0}.htm", iApplicationID);
     m_LogHTML.BeginLog(sLogFile, sApplicationName);
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);

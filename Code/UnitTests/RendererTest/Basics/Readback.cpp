@@ -143,7 +143,7 @@ void ezRendererTestReadback::CompareReadbackImage(ezImage&& image)
   }
   else
   {
-    sTemp.Format("Readback_Color{}Channel", uiChannels);
+    sTemp.SetFormat("Readback_Color{}Channel", uiChannels);
   }
   m_sReadBackReferenceImage = sTemp;
   m_ReadBackResult.ResetAndMove(std::move(image));
@@ -161,7 +161,7 @@ void ezRendererTestReadback::CompareUploadImage()
   }
   else
   {
-    sTemp.Format("Readback_Upload_Color{}Channel", uiChannels);
+    sTemp.SetFormat("Readback_Upload_Color{}Channel", uiChannels);
   }
   m_sReadBackReferenceImage = sTemp;
   EZ_TEST_IMAGE(1, 3);

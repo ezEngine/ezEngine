@@ -991,7 +991,7 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
         desc.m_bColorStream = false;
 
         ezStringBuilder sGuid;
-        sGuid.Format("ColMeshVisGeo_{}", s_iColMeshVisGeoCounter.Increment());
+        sGuid.SetFormat("ColMeshVisGeo_{}", s_iColMeshVisGeoCounter.Increment());
 
         if (!shapeGeo.m_hMesh.IsValid())
         {

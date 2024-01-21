@@ -774,7 +774,7 @@ const ezRTTI* ezResourceManager::FindResourceTypeOverride(const ezRTTI* pRtti, e
 ezString ezResourceManager::GenerateUniqueResourceID(ezStringView sResourceIDPrefix)
 {
   ezStringBuilder resourceID;
-  resourceID.Format("{}-{}", sResourceIDPrefix, s_pState->m_uiNextResourceID++);
+  resourceID.SetFormat("{}-{}", sResourceIDPrefix, s_pState->m_uiNextResourceID++);
   return resourceID;
 }
 

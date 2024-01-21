@@ -116,7 +116,7 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
       ezStringBuilder sEnum;
       ezReflectionUtils::BitflagsToString(probeData.m_Flags, sEnum, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
       ezStringBuilder s;
-      s.Format("\n RefIdx: {}\nUpdating: {}\nFlags: {}\n", iMappedIndex, activeIndex, sEnum);
+      s.SetFormat("\n RefIdx: {}\nUpdating: {}\nFlags: {}\n", iMappedIndex, activeIndex, sEnum);
       ezDebugRenderer::Draw3DText(pWorld, s, pComponent->GetOwner()->GetGlobalPosition(), ezColorScheme::LightUI(ezColorScheme::Violet));
     }
 

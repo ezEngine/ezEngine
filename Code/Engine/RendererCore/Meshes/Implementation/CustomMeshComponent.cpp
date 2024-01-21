@@ -95,7 +95,7 @@ ezDynamicMeshBufferResourceHandle ezCustomMeshComponent::CreateMeshResource(ezGA
   desc.m_bColorStream = true;
 
   ezStringBuilder sGuid;
-  sGuid.Format("CustomMesh_{}", s_iCustomMeshResources.Increment());
+  sGuid.SetFormat("CustomMesh_{}", s_iCustomMeshResources.Increment());
 
   m_hDynamicMesh = ezResourceManager::CreateResource<ezDynamicMeshBufferResource>(sGuid, std::move(desc));
 

@@ -740,7 +740,7 @@ void ezFmodEventComponent::Update()
       }
 
       ezStringBuilder sb;
-      sb.Format("{}\n{}", path, szCurrentState);
+      sb.SetFormat("{}\n{}", path, szCurrentState);
 
       if (GetUseOcclusion())
       {

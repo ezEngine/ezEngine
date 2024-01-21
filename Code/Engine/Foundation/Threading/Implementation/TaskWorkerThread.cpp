@@ -9,7 +9,7 @@ thread_local ezTaskWorkerInfo tl_TaskWorkerInfo;
 static const char* GenerateThreadName(ezWorkerThreadType::Enum threadType, ezUInt32 uiThreadNumber)
 {
   static ezStringBuilder sTemp;
-  sTemp.Format("{} {}", ezWorkerThreadType::GetThreadTypeName(threadType), uiThreadNumber);
+  sTemp.SetFormat("{} {}", ezWorkerThreadType::GetThreadTypeName(threadType), uiThreadNumber);
   return sTemp.GetData();
 }
 

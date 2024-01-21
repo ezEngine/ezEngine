@@ -75,7 +75,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
   if (pUpdateContentTask == nullptr)
   {
     ezStringBuilder s;
-    s.Format("Resource Content Updater {0}", ezResourceManager::s_pState->m_WorkerTasksUpdateContent.GetCount());
+    s.SetFormat("Resource Content Updater {0}", ezResourceManager::s_pState->m_WorkerTasksUpdateContent.GetCount());
 
     auto& td = ezResourceManager::s_pState->m_WorkerTasksUpdateContent.ExpandAndGetRef();
     td.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);

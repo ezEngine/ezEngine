@@ -18,7 +18,7 @@ namespace
     ezUInt32 uiCounter = s_uiNumASTDumps;
     ++s_uiNumASTDumps;
 
-    out_sOutputPath.Format(":output/Expression/{}_{}_AST.dgml", ezArgU(uiCounter, 2, true), sOutputName);
+    out_sOutputPath.SetFormat(":output/Expression/{}_{}_AST.dgml", ezArgU(uiCounter, 2, true), sOutputName);
   }
 
   void DumpDisassembly(const ezExpressionByteCode& byteCode, ezStringView sOutputName, ezUInt32 uiCounter)
@@ -27,7 +27,7 @@ namespace
     byteCode.Disassemble(sDisassembly);
 
     ezStringBuilder sFileName;
-    sFileName.Format(":output/Expression/{}_{}_ByteCode.txt", ezArgU(uiCounter, 2, true), sOutputName);
+    sFileName.SetFormat(":output/Expression/{}_{}_ByteCode.txt", ezArgU(uiCounter, 2, true), sOutputName);
 
     ezFileWriter fileWriter;
     if (fileWriter.Open(sFileName).Succeeded())
@@ -254,13 +254,13 @@ namespace
     ezStringBuilder bValue;
     if constexpr (std::is_same<T, ezVec3>::value || std::is_same<T, ezVec3I32>::value)
     {
-      aValue.Format("vec3({}, {}, {})", a.x, a.y, a.z);
-      bValue.Format("vec3({}, {}, {})", b.x, b.y, b.z);
+      aValue.SetFormat("vec3({}, {}, {})", a.x, a.y, a.z);
+      bValue.SetFormat("vec3({}, {}, {})", b.x, b.y, b.z);
     }
     else
     {
-      aValue.Format("{}", a);
-      bValue.Format("{}", b);
+      aValue.SetFormat("{}", a);
+      bValue.SetFormat("{}", b);
     }
 
     int oneConstantInstructions = 3; // LoadX, OpX_RC, StoreX
@@ -294,11 +294,11 @@ namespace
     ezStringBuilder code;
     ezExpressionByteCode byteCode;
 
-    code.Format(formatString, sOp, aInput, bInput);
+    code.SetFormat(formatString, sOp, aInput, bInput);
     Compile<U>(code, byteCode, bDumpASTs ? "BinaryNoConstants" : "");
     TestRes(Execute<U>(byteCode, aAsU, bAsU), expectedResultAsU, code, aValue, bValue);
 
-    code.Format(formatString, sOp, aValue, bInput);
+    code.SetFormat(formatString, sOp, aValue, bInput);
     Compile<U>(code, byteCode, bDumpASTs ? "BinaryLeftConstant" : "");
     if constexpr ((flags & NoInstructionsCountCheck) == 0)
     {
@@ -319,7 +319,7 @@ namespace
     }
     TestRes(Execute<U>(byteCode, aAsU, bAsU), expectedResultAsU, code, aValue, bValue);
 
-    code.Format(formatString, sOp, aInput, bValue);
+    code.SetFormat(formatString, sOp, aInput, bValue);
     Compile<U>(code, byteCode, bDumpASTs ? "BinaryRightConstant" : "");
     if constexpr ((flags & NoInstructionsCountCheck) == 0)
     {
@@ -332,7 +332,7 @@ namespace
     }
     TestRes(Execute<U>(byteCode, aAsU, bAsU), expectedResultAsU, code, aValue, bValue);
 
-    code.Format(formatString, sOp, aValue, bValue);
+    code.SetFormat(formatString, sOp, aValue, bValue);
     Compile<U>(code, byteCode, bDumpASTs ? "BinaryConstant" : "");
     if (hasDifferentOutputElements == false)
     {
@@ -721,7 +721,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     for (int i = 0; i <= 16; ++i)
     {
       ezStringBuilder testCode;
-      testCode.Format("output = pow(a, {})", i);
+      testCode.SetFormat("output = pow(a, {})", i);
 
       ezExpressionByteCode testByteCode;
       Compile<int>(testCode, testByteCode);

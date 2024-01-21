@@ -332,7 +332,7 @@ void ezCameraComponent::ShowStats(ezView* pView)
     const ezStringView sName = GetOwner()->GetName();
 
     ezStringBuilder sb;
-    sb.Format("Camera '{0}':\nEV100: {1}, Exposure: {2}", sName.IsEmpty() ? pView->GetName() : sName, GetEV100(), GetExposure());
+    sb.SetFormat("Camera '{0}':\nEV100: {1}, Exposure: {2}", sName.IsEmpty() ? pView->GetName() : sName, GetEV100(), GetExposure());
     ezDebugRenderer::DrawInfoText(pView->GetHandle(), ezDebugTextPlacement::TopLeft, "CamStats", sb, ezColor::White);
   }
 
@@ -648,7 +648,7 @@ void ezCameraComponent::ActivateRenderToTexture()
   EZ_ASSERT_DEV(m_hRenderTargetView.IsInvalidated(), "Render target view is already created");
 
   ezStringBuilder name;
-  name.Format("Camera RT: {0}", GetOwner()->GetName());
+  name.SetFormat("Camera RT: {0}", GetOwner()->GetName());
 
   ezView* pRenderTargetView = nullptr;
   m_hRenderTargetView = ezRenderWorld::CreateView(name, pRenderTargetView);

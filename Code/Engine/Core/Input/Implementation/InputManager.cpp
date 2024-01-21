@@ -39,7 +39,7 @@ void ezInputManager::RegisterInputSlot(ezStringView sInputSlot, ezStringView sDe
       if ((it.Value().m_SlotFlags != ezInputSlotFlags::Default) && (SlotFlags != ezInputSlotFlags::Default))
       {
         ezStringBuilder tmp, tmp2;
-        tmp.Printf("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b",
+        tmp.SetPrintf("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b",
           sInputSlot.GetData(tmp2), it.Value().m_SlotFlags.GetValue(), SlotFlags.GetValue());
 
         ezLog::Warning(tmp);

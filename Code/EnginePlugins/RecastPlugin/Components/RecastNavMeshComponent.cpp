@@ -90,7 +90,7 @@ void ezRcNavMeshComponent::OnObjectCreated(const ezAbstractObjectNode& node)
   ezConversionUtils::ToString(node.GetGuid(), sComponentGuid);
 
   // this is where the editor will put the file for this component
-  sNavMeshFile.Format(":project/AssetCache/Generated/{0}.ezRecastNavMesh", sComponentGuid);
+  sNavMeshFile.SetFormat(":project/AssetCache/Generated/{0}.ezRecastNavMesh", sComponentGuid);
 
   m_hNavMesh = ezResourceManager::LoadResource<ezRecastNavMeshResource>(sNavMeshFile);
 }

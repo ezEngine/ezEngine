@@ -199,7 +199,7 @@ void ezTypeScriptBinding::InjectComponentImportExport(ezStringBuilder& content, 
 
   ezStringBuilder sImportExport, sTypeName;
 
-  sImportExport.Format(R"(import __AllComponents = require("{}")
+  sImportExport.SetFormat(R"(import __AllComponents = require("{}")
 )",
     szComponentFile);
 

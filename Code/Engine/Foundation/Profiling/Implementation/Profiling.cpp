@@ -460,7 +460,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
         const ezTime t1 = m_FrameStartTimes[i];
 
         const ezUInt64 localFrameID = uiNumFrames - i - 1;
-        sFrameName.Format("Frame {}", m_uiFrameCount - localFrameID);
+        sFrameName.SetFormat("Frame {}", m_uiFrameCount - localFrameID);
 
         writer.BeginObject();
         writer.AddVariableString("name", sFrameName);

@@ -192,7 +192,7 @@
 //    const ezVec3 vTargetDir = GetInputDirection() / GetOwner()->GetGlobalScaling().x;
 //
 //    ezStringBuilder tmp;
-//    tmp.Format("Gamepad: {0} / {1}", ezArgF(vTargetDir.x, 1), ezArgF(vTargetDir.y, 1));
+//    tmp.SetFormat("Gamepad: {0} / {1}", ezArgF(vTargetDir.x, 1), ezArgF(vTargetDir.y, 1));
 //    ezDebugRenderer::DrawInfoText(GetWorld(), tmp, ezVec2I32(10, 10), ezColor::White);
 //
 //    m_fKeyframeLerp += fKeyframeFraction;

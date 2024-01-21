@@ -1054,19 +1054,19 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
     ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", "Visibility Culling Stats", ezColor::LimeGreen);
 
-    sb.Format("Total Num Objects: {0}", stats.m_uiTotalNumObjects);
+    sb.SetFormat("Total Num Objects: {0}", stats.m_uiTotalNumObjects);
     ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
-    sb.Format("Num Objects Tested: {0}", stats.m_uiNumObjectsTested);
+    sb.SetFormat("Num Objects Tested: {0}", stats.m_uiNumObjectsTested);
     ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
-    sb.Format("Num Objects Passed: {0}", stats.m_uiNumObjectsPassed);
+    sb.SetFormat("Num Objects Passed: {0}", stats.m_uiNumObjectsPassed);
     ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     // Exponential moving average for better readability.
     m_AverageCullingTime = ezMath::Lerp(m_AverageCullingTime, stats.m_TimeTaken, 0.05f);
 
-    sb.Format("Time Taken: {0}ms", m_AverageCullingTime.GetMilliseconds());
+    sb.SetFormat("Time Taken: {0}ms", m_AverageCullingTime.GetMilliseconds());
     ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     view.GetWorld()->GetSpatialSystem()->GetInternalStats(sb);
@@ -1299,7 +1299,7 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& ref_graph)
   for (ezUInt32 p = 0; p < m_Passes.GetCount(); ++p)
   {
     const auto& pPass = m_Passes[p];
-    sTmp.Format("#{}: {}", p, ezStringUtils::IsNullOrEmpty(pPass->GetName()) ? pPass->GetDynamicRTTI()->GetTypeName() : pPass->GetName());
+    sTmp.SetFormat("#{}: {}", p, ezStringUtils::IsNullOrEmpty(pPass->GetName()) ? pPass->GetDynamicRTTI()->GetTypeName() : pPass->GetName());
 
     ezDGMLGraph::NodeDesc nd;
     nd.m_Color = ezColor::Gray;
@@ -1321,9 +1321,9 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& ref_graph)
       ezStringBuilder sFormat;
       if (!ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), pCon->m_Desc.m_Format, sFormat, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
       {
-        sFormat.Format("Unknown Format {}", (int)pCon->m_Desc.m_Format);
+        sFormat.SetFormat("Unknown Format {}", (int)pCon->m_Desc.m_Format);
       }
-      sTmp.Format("{} #{}: {}x{}:{}, MSAA:{}, {}Format: {}", data.m_iTargetTextureIndex != -1 ? "RenderTarget" : "PoolTexture", i, pCon->m_Desc.m_uiWidth, pCon->m_Desc.m_uiHeight, pCon->m_Desc.m_uiArraySize, (int)pCon->m_Desc.m_SampleCount, ezGALResourceFormat::IsDepthFormat(pCon->m_Desc.m_Format) ? "Depth" : "Color", sFormat);
+      sTmp.SetFormat("{} #{}: {}x{}:{}, MSAA:{}, {}Format: {}", data.m_iTargetTextureIndex != -1 ? "RenderTarget" : "PoolTexture", i, pCon->m_Desc.m_uiWidth, pCon->m_Desc.m_uiHeight, pCon->m_Desc.m_uiArraySize, (int)pCon->m_Desc.m_SampleCount, ezGALResourceFormat::IsDepthFormat(pCon->m_Desc.m_Format) ? "Depth" : "Color", sFormat);
       ezUInt32 uiTextureNode = ref_graph.AddNode(sTmp, &nd);
 
       ezUInt32 uiOutputNode = *nodeMap.GetValue(pCon->m_pOutput->m_pParent);
@@ -1479,7 +1479,7 @@ void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer
     name.Increment();
 
     ezStringBuilder sName;
-    sName.Format("RasterizerPreview-{}", name);
+    sName.SetFormat("RasterizerPreview-{}", name);
 
     ezTexture2DResourceHandle hDebug = ezResourceManager::CreateResource<ezTexture2DResource>(sName, std::move(d));
 

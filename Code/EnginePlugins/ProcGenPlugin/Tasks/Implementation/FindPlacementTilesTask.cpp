@@ -15,7 +15,7 @@ FindPlacementTilesTask::FindPlacementTilesTask(ezProcPlacementComponent* pCompon
   , m_uiOutputIndex(uiOutputIndex)
 {
   ezStringBuilder sName;
-  sName.Format("UpdateTiles {}", m_pComponent->m_OutputContexts[m_uiOutputIndex].m_pOutput->m_sName);
+  sName.SetFormat("UpdateTiles {}", m_pComponent->m_OutputContexts[m_uiOutputIndex].m_pOutput->m_sName);
 
   ConfigureTask(sName, ezTaskNesting::Never);
 }

@@ -12,7 +12,7 @@ void ezCommandInterpreter::FindPossibleCVars(ezStringView sVariable, ezDeque<ezS
   {
     if (pCVar->GetName().StartsWith_NoCase(sVariable))
     {
-      sText.Format("    {0} = {1}", pCVar->GetName(), ezQuakeConsole::GetFullInfoAsString(pCVar));
+      sText.SetFormat("    {0} = {1}", pCVar->GetName(), ezQuakeConsole::GetFullInfoAsString(pCVar));
 
       ezConsoleString cs;
       cs.m_sText = sText;
@@ -35,7 +35,7 @@ void ezCommandInterpreter::FindPossibleFunctions(ezStringView sVariable, ezDeque
   {
     if (pFunc->GetName().StartsWith_NoCase(sVariable))
     {
-      sText.Format("    {0} {1}", pFunc->GetName(), pFunc->GetDescription());
+      sText.SetFormat("    {0} {1}", pFunc->GetName(), pFunc->GetDescription());
 
       ezConsoleString cs;
       cs.m_sText = sText;
@@ -59,7 +59,7 @@ const ezString ezQuakeConsole::GetValueAsString(ezCVar* pCVar)
     case ezCVarType::Int:
     {
       ezCVarInt* pInt = static_cast<ezCVarInt*>(pCVar);
-      s.Format("{0}", pInt->GetValue());
+      s.SetFormat("{0}", pInt->GetValue());
     }
     break;
 
@@ -76,14 +76,14 @@ const ezString ezQuakeConsole::GetValueAsString(ezCVar* pCVar)
     case ezCVarType::String:
     {
       ezCVarString* pString = static_cast<ezCVarString*>(pCVar);
-      s.Format("\"{0}\"", pString->GetValue());
+      s.SetFormat("\"{0}\"", pString->GetValue());
     }
     break;
 
     case ezCVarType::Float:
     {
       ezCVarFloat* pFloat = static_cast<ezCVarFloat*>(pCVar);
-      s.Format("{0}", ezArgF(pFloat->GetValue(), 3));
+      s.SetFormat("{0}", ezArgF(pFloat->GetValue(), 3));
     }
     break;
 

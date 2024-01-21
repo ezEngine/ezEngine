@@ -58,12 +58,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
       }
 
       ezStringBuilder sOutFile;
-      sOutFile.Format(":output/SimdNoise/result-perlin_{}.tga", uiNumOctaves);
+      sOutFile.SetFormat(":output/SimdNoise/result-perlin_{}.tga", uiNumOctaves);
 
       EZ_TEST_BOOL(image.SaveTo(sOutFile).Succeeded());
 
       ezStringBuilder sInFile;
-      sInFile.Format("SimdNoise/perlin_{}.tga", uiNumOctaves);
+      sInFile.SetFormat("SimdNoise/perlin_{}.tga", uiNumOctaves);
       EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(sInFile), "Noise image file is missing: '%s'", sInFile.GetData());
 
       EZ_TEST_FILES(sOutFile, sInFile, "");
@@ -102,7 +102,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
       ezStringBuilder sLine;
       for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(histogram); ++i)
       {
-        sLine.Format("{},\n", histogram[i]);
+        sLine.SetFormat("{},\n", histogram[i]);
         fileWriter.WriteBytes(sLine.GetData(), sLine.GetElementCount()).IgnoreResult();
       }
     }

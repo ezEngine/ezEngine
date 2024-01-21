@@ -597,7 +597,7 @@ ezTypedResourceHandle<ResourceType> ezHeightfieldComponent::GenerateMesh() const
     uiSettingsHash = ezHashingUtils::xxHash64(&m_vTexCoordScale, sizeof(m_vTexCoordScale), uiSettingsHash);
     uiSettingsHash = ezHashingUtils::xxHash64(&m_vTesselation, sizeof(m_vTesselation), uiSettingsHash);
 
-    sResourceName.Format("Heightfield:{}", uiSettingsHash);
+    sResourceName.SetFormat("Heightfield:{}", uiSettingsHash);
 
     ezTypedResourceHandle<ResourceType> hResource = ezResourceManager::GetExistingResource<ResourceType>(sResourceName);
     if (hResource.IsValid())

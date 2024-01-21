@@ -23,7 +23,7 @@ public:
   ezLongOpTask()
   {
     ezStringBuilder name;
-    name.Format("Long Op: '{}'", "TODO: NAME"); // TODO
+    name.SetFormat("Long Op: '{}'", "TODO: NAME"); // TODO
     ConfigureTask(name, ezTaskNesting::Maybe);
   }
 

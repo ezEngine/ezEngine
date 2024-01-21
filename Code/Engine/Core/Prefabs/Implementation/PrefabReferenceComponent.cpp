@@ -64,7 +64,7 @@ void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world,
             // and discard the string's value, and instead write a string that specifies the index of the serialized handle to use
 
             // local game object reference - index into GoReferences
-            tmp.Format("#!LGOR-{}", GoReferences.GetCount());
+            tmp.SetFormat("#!LGOR-{}", GoReferences.GetCount());
             var = tmp.GetData();
 
             GoReferences.PushBack(hObject);
@@ -148,7 +148,7 @@ void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashed
             // and stringify the handle into a 'global game object reference', ie. one that contains the internal integer data of the handle
             // a regular runtime world has a reference resolver that is capable to reverse this stringified format to a handle again
             // which will happen once 'InstantiatePrefab' passes the m_Parameters list to the newly created objects
-            tmp.Format("#!GGOR-{}", hObject.GetInternalID().m_Data);
+            tmp.SetFormat("#!GGOR-{}", hObject.GetInternalID().m_Data);
 
             // map local game object reference to global game object reference
             value = tmp.GetData();

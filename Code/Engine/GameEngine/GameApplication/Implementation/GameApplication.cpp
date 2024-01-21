@@ -182,7 +182,7 @@ void ezGameApplication::Run_FinishFrame()
 void ezGameApplication::UpdateWorldsAndExtractViews()
 {
   ezStringBuilder sb;
-  sb.Format("FRAME {}", ezRenderWorld::GetFrameCounter());
+  sb.SetFormat("FRAME {}", ezRenderWorld::GetFrameCounter());
   EZ_PROFILE_SCOPE(sb.GetData());
 
   Run_BeforeWorldUpdate();

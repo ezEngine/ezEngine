@@ -447,7 +447,7 @@ void ezWorld::Update()
 
   {
     ezStringBuilder sStatName;
-    sStatName.Format("World Update/{0}/Game Object Count", m_Data.m_sName);
+    sStatName.SetFormat("World Update/{0}/Game Object Count", m_Data.m_sName);
 
     ezStringBuilder sStatValue;
     ezStats::SetStat(sStatName, GetObjectCount());

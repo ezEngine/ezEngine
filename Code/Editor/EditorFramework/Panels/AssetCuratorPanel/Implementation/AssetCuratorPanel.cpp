@@ -170,7 +170,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
       ezUInt64 uiHigh;
       guid.GetValues(uiLow, uiHigh);
       ezStringBuilder sTmp;
-      sTmp.Format("{} - u4{{},{}}", sDep, uiLow, uiHigh);
+      sTmp.SetFormat("{} - u4{{},{}}", sDep, uiLow, uiHigh);
 
       return sTmp;
     }

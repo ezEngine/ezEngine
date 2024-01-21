@@ -741,7 +741,7 @@ void ezGALDeviceDX11::BeginFramePlatform(const ezUInt64 uiRenderFrame)
   auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
 
   ezStringBuilder sb;
-  sb.Format("Frame {}", uiRenderFrame);
+  sb.SetFormat("Frame {}", uiRenderFrame);
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
   m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), sb);

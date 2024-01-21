@@ -99,7 +99,7 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3
   EZ_LOCK(s_Mutex);
 
   ezStringBuilder sName;
-  sName.Format("Box-{}-{}-{}", vFullExtents.x, vFullExtents.y, vFullExtents.z);
+  sName.SetFormat("Box-{}-{}-{}", vFullExtents.x, vFullExtents.y, vFullExtents.z);
 
   ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sName];
 

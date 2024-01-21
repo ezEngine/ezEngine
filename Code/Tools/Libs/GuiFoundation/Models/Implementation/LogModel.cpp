@@ -213,7 +213,7 @@ void ezQtLogModel::ProcessNewMessages()
 
       if (msg.m_Type == ezLogMsgType::BeginGroup || msg.m_Type == ezLogMsgType::EndGroup)
       {
-        s.Printf("%*s<<< %s", msg.m_uiIndentation, "", msg.m_sMsg.GetData());
+        s.SetPrintf("%*s<<< %s", msg.m_uiIndentation, "", msg.m_sMsg.GetData());
 
         if (msg.m_Type == ezLogMsgType::EndGroup)
         {
@@ -232,7 +232,7 @@ void ezQtLogModel::ProcessNewMessages()
       }
       else
       {
-        s.Printf("%*s%s", 4 * msg.m_uiIndentation, "", msg.m_sMsg.GetData());
+        s.SetPrintf("%*s%s", 4 * msg.m_uiIndentation, "", msg.m_sMsg.GetData());
         m_AllMessages.PeekBack().m_sMsg = s;
 
         if (msg.m_Type == ezLogMsgType::ErrorMsg)
