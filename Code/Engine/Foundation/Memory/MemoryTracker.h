@@ -4,38 +4,16 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Bitflags.h>
 
-struct ezMemoryTrackingFlags
+enum class ezAllocatorTrackingMode : ezUInt32
 {
-  using StorageType = ezUInt32;
+  Nothing,                       ///< The allocator doesn't track anything. Use this for best performance.
+  Basics,                        ///< The allocator will be known to the system, so it can show up in debugging tools, but barely anything more.
+  AllocationStats,               ///< The allocator keeps track of how many allocations and deallocations it did and how large its memory usage is.
+  AllocationStatsIgnoreLeaks,    ///< Same as AllocationStats, but any remaining allocations at shutdown are not reported as leaks.
+  AllocationStatsAndStacktraces, ///< The allocator will record stack traces for each allocation, which can be used to find memory leaks.
 
-  enum Enum
-  {
-    None,
-    RegisterAllocator = EZ_BIT(0),        ///< Register the allocator with the memory tracker. If EnableAllocationTracking is not set as well it is up to the
-                                          ///< allocator implementation whether it collects usable stats or not.
-    EnableAllocationTracking = EZ_BIT(1), ///< Enable tracking of individual allocations
-    EnableStackTrace = EZ_BIT(2),         ///< Enable stack traces for each allocation
-
-    All = RegisterAllocator | EnableAllocationTracking | EnableStackTrace,
-
-    Default = 0
-#if EZ_ENABLED(EZ_USE_ALLOCATION_TRACKING)
-              | RegisterAllocator | EnableAllocationTracking
-#endif
-#if EZ_ENABLED(EZ_USE_ALLOCATION_STACK_TRACING)
-              | EnableStackTrace
-#endif
-  };
-
-  struct Bits
-  {
-    StorageType RegisterAllocator : 1;
-    StorageType EnableAllocationTracking : 1;
-    StorageType EnableStackTrace : 1;
-  };
+  Default = EZ_ALLOC_TRACKING_DEFAULT,
 };
-
-// EZ_DECLARE_FLAGS_OPERATORS(ezMemoryTrackingFlags);
 
 #define EZ_STATIC_ALLOCATOR_NAME "Statics"
 
@@ -94,11 +72,10 @@ public:
     void* m_pData;
   };
 
-  static ezAllocatorId RegisterAllocator(ezStringView sName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId);
+  static ezAllocatorId RegisterAllocator(ezStringView sName, ezAllocatorTrackingMode mode, ezAllocatorId parentId);
   static void DeregisterAllocator(ezAllocatorId allocatorId);
 
-  static void AddAllocation(
-    ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* pPtr, size_t uiSize, size_t uiAlign, ezTime allocationTime);
+  static void AddAllocation(ezAllocatorId allocatorId, ezAllocatorTrackingMode mode, const void* pPtr, size_t uiSize, size_t uiAlign, ezTime allocationTime);
   static void RemoveAllocation(ezAllocatorId allocatorId, const void* pPtr);
   static void RemoveAllAllocations(ezAllocatorId allocatorId);
   static void SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocatorBase::Stats& stats);

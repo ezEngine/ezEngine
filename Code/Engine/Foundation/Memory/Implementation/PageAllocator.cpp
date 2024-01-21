@@ -9,7 +9,7 @@ ezAllocatorId ezPageAllocator::GetId()
 
   if (id.IsInvalidated())
   {
-    id = ezMemoryTracker::RegisterAllocator("Page", ezMemoryTrackingFlags::Default, ezAllocatorId());
+    id = ezMemoryTracker::RegisterAllocator("Page", ezAllocatorTrackingMode::Default, ezAllocatorId());
   }
 
   return id;

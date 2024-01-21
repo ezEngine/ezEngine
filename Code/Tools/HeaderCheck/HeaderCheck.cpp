@@ -45,7 +45,7 @@ private:
   bool m_bHadErrors;
   bool m_bHadSeriousWarnings;
   bool m_bHadWarnings;
-  ezUniquePtr<ezStackAllocator<ezMemoryTrackingFlags::None>> m_pStackAllocator;
+  ezUniquePtr<ezStackAllocator<ezAllocatorTrackingMode::Nothing>> m_pStackAllocator;
   ezDynamicArray<ezString> m_IncludeDirectories;
 
   struct IgnoreInfo
@@ -177,7 +177,7 @@ public:
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     ezGlobalLog::AddLogWriter(LogInspector);
 
-    m_pStackAllocator = EZ_DEFAULT_NEW(ezStackAllocator<ezMemoryTrackingFlags::None>, "Temp Allocator", ezFoundation::GetAlignedAllocator());
+    m_pStackAllocator = EZ_DEFAULT_NEW(ezStackAllocator<ezAllocatorTrackingMode::Nothing>, "Temp Allocator", ezFoundation::GetAlignedAllocator());
 
     if (GetArgumentCount() < 2)
       ezLog::Error("This tool requires at leas one command-line argument: An absolute path to the top-level folder of a library.");

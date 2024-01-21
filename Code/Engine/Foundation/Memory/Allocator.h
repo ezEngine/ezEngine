@@ -13,13 +13,13 @@ EZ_MAKE_MEMBERFUNCTION_CHECKER(Reallocate, ezHasReallocate);
 ///
 /// AllocationPolicy defines how the actual memory is allocated.\n
 /// TrackingFlags defines how stats about allocations are tracked.\n
-template <typename AllocationPolicy, ezUInt32 TrackingFlags = ezMemoryTrackingFlags::Default>
-class ezAllocator : public ezInternal::ezAllocatorMixinReallocate<AllocationPolicy, TrackingFlags,
+template <typename AllocationPolicy, ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default>
+class ezAllocator : public ezInternal::ezAllocatorMixinReallocate<AllocationPolicy, TrackingMode,
                       ezHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>
 {
 public:
   ezAllocator(ezStringView sName, ezAllocatorBase* pParent = nullptr)
-    : ezInternal::ezAllocatorMixinReallocate<AllocationPolicy, TrackingFlags,
+    : ezInternal::ezAllocatorMixinReallocate<AllocationPolicy, TrackingMode,
         ezHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>(sName, pParent)
   {
   }

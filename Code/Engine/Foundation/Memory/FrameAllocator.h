@@ -6,7 +6,7 @@
 class EZ_FOUNDATION_DLL ezDoubleBufferedStackAllocator
 {
 public:
-  using StackAllocatorType = ezStackAllocator<ezMemoryTrackingFlags::RegisterAllocator>;
+  using StackAllocatorType = ezStackAllocator<ezAllocatorTrackingMode::Basics>;
 
   ezDoubleBufferedStackAllocator(ezStringView sName, ezAllocatorBase* pParent);
   ~ezDoubleBufferedStackAllocator();

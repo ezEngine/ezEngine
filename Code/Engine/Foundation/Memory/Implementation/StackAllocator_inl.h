@@ -1,23 +1,23 @@
-template <ezUInt32 TrackingFlags>
-ezStackAllocator<TrackingFlags>::ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent)
-  : ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>(sName, pParent)
+template <ezAllocatorTrackingMode TrackingMode>
+ezStackAllocator<TrackingMode>::ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent)
+  : ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingMode>(sName, pParent)
   , m_DestructData(pParent)
   , m_PtrToDestructDataIndexTable(pParent)
 {
 }
 
-template <ezUInt32 TrackingFlags>
-ezStackAllocator<TrackingFlags>::~ezStackAllocator()
+template <ezAllocatorTrackingMode TrackingMode>
+ezStackAllocator<TrackingMode>::~ezStackAllocator()
 {
   Reset();
 }
 
-template <ezUInt32 TrackingFlags>
-void* ezStackAllocator<TrackingFlags>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
+template <ezAllocatorTrackingMode TrackingMode>
+void* ezStackAllocator<TrackingMode>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
 {
   EZ_LOCK(m_Mutex);
 
-  void* ptr = ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>::Allocate(uiSize, uiAlign, destructorFunc);
+  void* ptr = ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingMode>::Allocate(uiSize, uiAlign, destructorFunc);
 
   if (destructorFunc != nullptr)
   {
@@ -32,8 +32,8 @@ void* ezStackAllocator<TrackingFlags>::Allocate(size_t uiSize, size_t uiAlign, e
   return ptr;
 }
 
-template <ezUInt32 TrackingFlags>
-void ezStackAllocator<TrackingFlags>::Deallocate(void* pPtr)
+template <ezAllocatorTrackingMode TrackingMode>
+void ezStackAllocator<TrackingMode>::Deallocate(void* pPtr)
 {
   EZ_LOCK(m_Mutex);
 
@@ -45,17 +45,17 @@ void ezStackAllocator<TrackingFlags>::Deallocate(void* pPtr)
     data.m_Ptr = nullptr;
   }
 
-  ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>::Deallocate(pPtr);
+  ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingMode>::Deallocate(pPtr);
 }
 
 EZ_MSVC_ANALYSIS_WARNING_PUSH
 
-// Disable warning for incorrect operator (compiler complains about the TrackingFlags bitwise and in the case that flags = None)
+// Disable warning for incorrect operator (compiler complains about the TrackingMode bitwise and in the case that flags = None)
 // even with the added guard of a check that it can't be 0.
 EZ_MSVC_ANALYSIS_WARNING_DISABLE(6313)
 
-template <ezUInt32 TrackingFlags>
-void ezStackAllocator<TrackingFlags>::Reset()
+template <ezAllocatorTrackingMode TrackingMode>
+void ezStackAllocator<TrackingMode>::Reset()
 {
   EZ_LOCK(m_Mutex);
 
@@ -69,11 +69,11 @@ void ezStackAllocator<TrackingFlags>::Reset()
   m_PtrToDestructDataIndexTable.Clear();
 
   this->m_allocator.Reset();
-  if constexpr ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
+  if constexpr (TrackingMode >= ezAllocatorTrackingMode::AllocationStats)
   {
     ezMemoryTracker::RemoveAllAllocations(this->m_Id);
   }
-  else if constexpr ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
+  else if constexpr (TrackingMode >= ezAllocatorTrackingMode::Basics)
   {
     ezAllocatorBase::Stats stats;
     this->m_allocator.FillStats(stats);

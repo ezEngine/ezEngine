@@ -46,7 +46,7 @@ public:
   /// 
   /// \note Careful! This information is only available, if allocation tracking is enabled!
   /// Otherwise 0 is returned.
-  /// See ezMemoryTrackingFlags::EnableAllocationTracking and EZ_USE_ALLOCATION_TRACKING.
+  /// See ezAllocatorTrackingMode and EZ_ALLOC_TRACKING_DEFAULT.
   virtual size_t AllocatedSize(const void* pPtr) = 0;
 
   virtual ezAllocatorId GetId() const = 0;

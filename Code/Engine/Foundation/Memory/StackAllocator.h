@@ -7,8 +7,8 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-template <ezUInt32 TrackingFlags = ezMemoryTrackingFlags::Default>
-class ezStackAllocator : public ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>
+template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default>
+class ezStackAllocator : public ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingMode>
 {
 public:
   ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent);

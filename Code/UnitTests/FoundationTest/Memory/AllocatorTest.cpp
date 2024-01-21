@@ -62,22 +62,24 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
 
   size_t uiExpectedSize = sizeof(T) * 32;
 
-#if EZ_ENABLED(EZ_USE_ALLOCATION_TRACKING)
-  EZ_TEST_INT(pAllocator->AllocatedSize(pTestBuffer), uiExpectedSize);
+  if (EZ_ALLOC_TRACKING_DEFAULT >= ezAllocatorTrackingMode::AllocationStats)
+  {
+    EZ_TEST_INT(pAllocator->AllocatedSize(pTestBuffer), uiExpectedSize);
 
-  ezAllocatorBase::Stats stats = pAllocator->GetStats();
-  EZ_TEST_INT(stats.m_uiAllocationSize, uiExpectedSize * 2);
-  EZ_TEST_INT(stats.m_uiNumAllocations - stats.m_uiNumDeallocations, 2);
-#endif
+    ezAllocatorBase::Stats stats = pAllocator->GetStats();
+    EZ_TEST_INT(stats.m_uiAllocationSize, uiExpectedSize * 2);
+    EZ_TEST_INT(stats.m_uiNumAllocations - stats.m_uiNumDeallocations, 2);
+  }
 
   EZ_DELETE_ARRAY(pAllocator, TestArray);
   EZ_DELETE_RAW_BUFFER(pAllocator, pTestBuffer);
 
-#if EZ_ENABLED(EZ_USE_ALLOCATION_TRACKING)
-  stats = pAllocator->GetStats();
-  EZ_TEST_INT(stats.m_uiAllocationSize, 0);
-  EZ_TEST_INT(stats.m_uiNumAllocations - stats.m_uiNumDeallocations, 0);
-#endif
+  if (EZ_ALLOC_TRACKING_DEFAULT >= ezAllocatorTrackingMode::Basics)
+  {
+    ezAllocatorBase::Stats stats = pAllocator->GetStats();
+    EZ_TEST_INT(stats.m_uiAllocationSize, 0);
+    EZ_TEST_INT(stats.m_uiNumAllocations - stats.m_uiNumDeallocations, 0);
+  }
 }
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Memory);
@@ -98,7 +100,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     };
     const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
 
-    ezLargeBlockAllocator<BLOCK_SIZE_IN_BYTES> allocator("Test", ezFoundation::GetDefaultAllocator(), ezMemoryTrackingFlags::EnableAllocationTracking);
+    ezLargeBlockAllocator<BLOCK_SIZE_IN_BYTES> allocator("Test", ezFoundation::GetDefaultAllocator(), ezAllocatorTrackingMode::AllocationStats);
 
     ezDynamicArray<ezDataBlock<int, BLOCK_SIZE_IN_BYTES>> blocks;
     blocks.Reserve(1000);
