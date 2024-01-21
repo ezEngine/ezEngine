@@ -415,7 +415,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Acqui
     m_pFreeElementStack = m_pFreeElementStack->m_pParent;
   }
 
-  ezMemoryUtils::Construct<Node>(pNode, 1);
+  ezMemoryUtils::Construct<SkipTrivialTypes, Node>(pNode, 1);
 
   pNode->m_pParent = pParent;
   pNode->m_Key = std::forward<CompatibleKeyType>(key);

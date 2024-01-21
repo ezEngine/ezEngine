@@ -72,7 +72,7 @@ typename ezListBase<T>::ListElement* ezListBase<T>::AcquireNode(const T& data)
     m_pFreeElementStack = m_pFreeElementStack->m_pNext;
   }
 
-  ezMemoryUtils::Construct<ListElement>(pNode, 1);
+  ezMemoryUtils::Construct<SkipTrivialTypes, ListElement>(pNode, 1);
   pNode->m_Data = data;
   return pNode;
 }

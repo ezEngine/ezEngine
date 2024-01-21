@@ -61,7 +61,7 @@ namespace ezMemoryPolicies
 
     // store information in meta data
     AlloctionMetaData* metaData = ezMemoryUtils::AddByteOffset(static_cast<AlloctionMetaData*>(ptr), uiFullPageSize - uiTotalSize);
-    ezMemoryUtils::Construct(metaData, 1);
+    ezMemoryUtils::Construct<SkipTrivialTypes>(metaData, 1);
     metaData->m_uiSize = uiAlignedSize;
 
     // finally add offset to the actual payload

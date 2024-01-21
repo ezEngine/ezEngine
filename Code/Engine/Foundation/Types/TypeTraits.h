@@ -98,20 +98,6 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 };
 
 
-/// \brief Determines whether a type is a pointer.
-template <typename T>
-struct ezIsPointer
-{
-  static constexpr bool value = false;
-};
-
-template <typename T>
-struct ezIsPointer<T*>
-{
-  static constexpr bool value = true;
-};
-
-
 #ifdef __INTELLISENSE__
 
 /// \brief Embed this into a class to mark it as a POD type.
