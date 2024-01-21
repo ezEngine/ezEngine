@@ -598,6 +598,8 @@ endfunction()
 function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 	if(${URL} MATCHES ".tar.gz$")
 		set(PKG_TYPE "tar.gz")
+	elseif(${URL} MATCHES ".tar.xz$")
+		set(PKG_TYPE "tar.xz")
 	else()
 		get_filename_component(PKG_TYPE ${URL} LAST_EXT)
 	endif()
@@ -639,7 +641,6 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 			WORKING_DIRECTORY "${DEST_FOLDER}"
 			COMMAND_ERROR_IS_FATAL ANY
 			RESULT_VARIABLE CMD_STATUS)
-
 	else()
 		execute_process(COMMAND ${CMAKE_COMMAND}
 			-E tar -xf "${PKG_FILE}"

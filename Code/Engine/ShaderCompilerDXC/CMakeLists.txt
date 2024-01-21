@@ -26,7 +26,7 @@ if (EZ_CMAKE_PLATFORM_WINDOWS)
 endif()
 
 if(EZ_CMAKE_COMPILER_CLANG OR EZ_CMAKE_COMPILER_GCC)
-    set_source_files_properties("${EZ_VULKAN_DIR}/source/SPIRV-Reflect/spirv_reflect.c" PROPERTIES COMPILE_FLAGS "-Wno-switch")
+    set_source_files_properties("${EZ_VULKAN_DIR}/x86_64/include/SPIRV-Reflect/spirv_reflect.c" PROPERTIES COMPILE_FLAGS "-Wno-switch")
 endif()
 
 if(EZ_CMAKE_COMPILER_CLANG)
