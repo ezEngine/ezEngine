@@ -221,13 +221,35 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         const ezPin* pSourcePin = startWasInput ? pPin->GetPin() : m_pStartPin->GetPin();
         const ezPin* pTargetPin = startWasInput ? m_pStartPin->GetPin() : pPin->GetPin();
         ConnectPinsAction(*pSourcePin, *pTargetPin);
-        break;
+        goto cleanup;
       }
     }
 
+    OpenSearchMenu(QCursor::pos());
+
+    if (m_pTempNode)
+    {
+      const auto Pins = startWasInput ? m_pTempNode->GetOutputPins() : m_pTempNode->GetInputPins();
+
+      for (auto& pPin : Pins)
+      {
+        const ezPin* pSourcePin = startWasInput ? pPin->GetPin() : m_pStartPin->GetPin();
+        const ezPin* pTargetPin = startWasInput ? m_pStartPin->GetPin() : pPin->GetPin();
+        ezDocumentNodeManager::CanConnectResult connect;
+        ezStatus res = m_pManager->CanConnect(m_pManager->GetConnectionType(), *pSourcePin, *pTargetPin, connect);
+        if (res.Succeeded())
+        {
+          ConnectPinsAction(*pSourcePin, *pTargetPin);
+          break;
+        }
+      }
+    }
+
+  cleanup:
     delete m_pTempConnection;
     m_pTempConnection = nullptr;
     m_pStartPin = nullptr;
+    m_pTempNode = nullptr;
 
     ResetConnectablePinMarkup();
     return;
@@ -387,6 +409,12 @@ void ezQtNodeScene::CreateQtNode(const ezDocumentObject* pObject)
   pNode->setPos(vPos.x, vPos.y);
 
   pNode->ResetFlags();
+
+  // Note: We dont create connections here as it can cause recusion issues
+  if (m_pTempConnection)
+  {
+    m_pTempNode = pNode;
+  }
 }
 
 void ezQtNodeScene::DeleteQtNode(const ezDocumentObject* pObject)
