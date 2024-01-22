@@ -18,7 +18,7 @@ using ezAlignedHeapAllocator = ezAllocatorWithPolicy<ezAllocPolicyAlignedHeap>;
 using ezHeapAllocator = ezAllocatorWithPolicy<ezAllocPolicyHeap>;
 
 /// \brief Guarded allocator
-using ezGuardedAllocator = ezAllocatorWithPolicy<ezAllocPolicyGuarding>;
+using ezGuardingAllocator = ezAllocatorWithPolicy<ezAllocPolicyGuarding>;
 
 /// \brief Proxy allocator
 using ezProxyAllocator = ezAllocatorWithPolicy<ezAllocPolicyProxy>;

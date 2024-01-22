@@ -3,9 +3,9 @@
 #include <Foundation/Memory/CommonAllocators.h>
 
 #if EZ_ENABLED(EZ_USE_GUARDED_ALLOCATIONS)
-using DefaultHeapType = ezGuardedAllocator;
-using DefaultAlignedHeapType = ezGuardedAllocator;
-using DefaultStaticHeapType = ezGuardedAllocator;
+using DefaultHeapType = ezGuardingAllocator;
+using DefaultAlignedHeapType = ezGuardingAllocator;
+using DefaultStaticHeapType = ezGuardingAllocator;
 #else
 using DefaultHeapType = ezHeapAllocator;
 using DefaultAlignedHeapType = ezAlignedHeapAllocator;
