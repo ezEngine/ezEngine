@@ -2,22 +2,20 @@
 
 #include <Foundation/Basics.h>
 
-namespace ezMemoryPolicies
+/// \brief Aligned Heap memory allocation policy.
+///
+/// \see ezAllocatorWithPolicy
+class ezAllocPolicyAlignedHeap
 {
-  /// \brief Aligned Heap memory allocation policy.
-  ///
-  /// \see ezAllocatorWithPolicy
-  class ezAllocPolicyAlignedHeap
-  {
-  public:
-    EZ_ALWAYS_INLINE ezAllocPolicyAlignedHeap(ezAllocator* pParent) {}
-    EZ_ALWAYS_INLINE ~ezAllocPolicyAlignedHeap() = default;
+public:
+  EZ_ALWAYS_INLINE ezAllocPolicyAlignedHeap(ezAllocator* pParent) {}
+  EZ_ALWAYS_INLINE ~ezAllocPolicyAlignedHeap() = default;
 
-    void* Allocate(size_t uiSize, size_t uiAlign);
-    void Deallocate(void* pPtr);
+  void* Allocate(size_t uiSize, size_t uiAlign);
+  void Deallocate(void* pPtr);
 
-    EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return nullptr; }
-  };
+  EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return nullptr; }
+};
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Memory/Policies/Win/AllocPolicyAlignedHeap_win.h>
@@ -26,4 +24,3 @@ namespace ezMemoryPolicies
 #else
 #  error "ezAllocPolicyAlignedHeap is not implemented on current platform"
 #endif
-} // namespace ezMemoryPolicies

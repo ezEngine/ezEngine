@@ -12,13 +12,13 @@
 
 
 /// \brief Default heap allocator
-using ezAlignedHeapAllocator = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyAlignedHeap>;
+using ezAlignedHeapAllocator = ezAllocatorWithPolicy<ezAllocPolicyAlignedHeap>;
 
 /// \brief Default heap allocator
-using ezHeapAllocator = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyHeap>;
+using ezHeapAllocator = ezAllocatorWithPolicy<ezAllocPolicyHeap>;
 
 /// \brief Guarded allocator
-using ezGuardedAllocator = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyGuarding>;
+using ezGuardedAllocator = ezAllocatorWithPolicy<ezAllocPolicyGuarding>;
 
 /// \brief Proxy allocator
-using ezProxyAllocator = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyProxy>;
+using ezProxyAllocator = ezAllocatorWithPolicy<ezAllocPolicyProxy>;

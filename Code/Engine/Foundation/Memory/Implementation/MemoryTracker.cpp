@@ -13,7 +13,7 @@
 namespace
 {
   // no tracking for the tracker data itself
-  using TrackerDataAllocator = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing>;
+  using TrackerDataAllocator = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing>;
 
   static TrackerDataAllocator* s_pTrackerDataAllocator;
 

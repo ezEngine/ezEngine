@@ -213,7 +213,7 @@ private:
   // If changing its position in the class, make sure it always comes before all
   // other members that depend on it to ensure deallocations in those members
   // happen before the allocator get destroyed.
-  ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing> m_ClassAllocator;
+  ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing> m_ClassAllocator;
 
   bool m_bPassThroughPragma;
   bool m_bPassThroughLine;
