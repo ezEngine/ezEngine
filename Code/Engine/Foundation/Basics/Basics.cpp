@@ -5,11 +5,11 @@
 #if EZ_ENABLED(EZ_ALLOC_GUARD_ALLOCATIONS)
 using DefaultHeapType = ezGuardingAllocator;
 using DefaultAlignedHeapType = ezGuardingAllocator;
-using DefaultStaticHeapType = ezGuardingAllocator;
+using DefaultStaticsHeapType = ezAllocatorWithPolicy<ezAllocPolicyGuarding, ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks>;
 #else
 using DefaultHeapType = ezHeapAllocator;
 using DefaultAlignedHeapType = ezAlignedHeapAllocator;
-using DefaultStaticHeapType = ezHeapAllocator;
+using DefaultStaticsHeapType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks>;
 #endif
 
 enum
@@ -83,7 +83,7 @@ ezAllocator* ezFoundation::GetStaticsAllocator()
 
 #endif
 
-    pStaticAllocator = new (s_StaticAllocatorBuffer) DefaultStaticHeapType(EZ_STATIC_ALLOCATOR_NAME);
+    pStaticAllocator = new (s_StaticAllocatorBuffer) DefaultStaticsHeapType("Statics");
   }
 
   return pStaticAllocator;
