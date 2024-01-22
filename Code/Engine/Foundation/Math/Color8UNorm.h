@@ -30,7 +30,7 @@ public:
   /// \brief Conversion to ezUInt8*
   ezUInt8* GetData() { return &r; }
 
-  /// @brief Packs the 4 color values into a single uint32 with A in the least significant bits and R in the most significant ones.
+  /// \brief Packs the 4 color values into a single uint32 with A in the least significant bits and R in the most significant ones.
   [[nodiscard]] ezUInt32 ToRGBA8() const
   {
     // RGBA (A at lowest address, R at highest)
@@ -40,7 +40,7 @@ public:
            (static_cast<ezUInt32>(a) << 0);
   }
 
-  /// @brief Packs the 4 color values into a single uint32 with R in the least significant bits and A in the most significant ones.
+  /// \brief Packs the 4 color values into a single uint32 with R in the least significant bits and A in the most significant ones.
   [[nodiscard]] ezUInt32 ToABGR8() const
   {
     // RGBA (A at highest address, R at lowest)
