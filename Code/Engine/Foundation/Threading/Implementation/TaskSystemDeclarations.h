@@ -13,7 +13,7 @@ class ezTaskWorkerThread;
 class ezTaskSystemState;
 class ezTaskSystemThreadState;
 class ezDGMLGraph;
-class ezAllocatorBase;
+class ezAllocator;
 
 /// \brief Describes the priority with which to execute a task.
 ///
@@ -183,7 +183,7 @@ struct EZ_FOUNDATION_DLL ezParallelForParams
   ezTaskNesting m_NestingMode = ezTaskNesting::Never;
 
   /// The allocator used to for the tasks that the parallel-for uses internally. If null, will use the default allocator.
-  ezAllocatorBase* m_pTaskAllocator = nullptr;
+  ezAllocator* m_pTaskAllocator = nullptr;
 
   void DetermineThreading(ezUInt64 uiNumItemsToExecute, ezUInt32& out_uiNumTasksToRun, ezUInt64& out_uiNumItemsPerTask) const;
 };

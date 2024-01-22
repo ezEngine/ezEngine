@@ -179,7 +179,7 @@ void ezTypeScriptBinding::InjectMessageImportExport(ezStringBuilder& content, co
 
 static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& ref_pRtti)
 {
-  static ezHashTable<ezUInt32, const ezRTTI*, ezHashHelper<ezUInt32>, ezStaticAllocatorWrapper> MessageTypes;
+  static ezHashTable<ezUInt32, const ezRTTI*, ezHashHelper<ezUInt32>, ezStaticsAllocatorWrapper> MessageTypes;
 
   if (!MessageTypes.TryGetValue(uiTypeHash, ref_pRtti))
   {

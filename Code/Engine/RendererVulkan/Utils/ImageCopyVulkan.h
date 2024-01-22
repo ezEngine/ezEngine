@@ -87,7 +87,7 @@ private:
   // This avoids recreating them every frame
   struct Cache
   {
-    Cache(ezAllocatorBase* pAllocator);
+    Cache(ezAllocator* pAllocator);
     ~Cache();
 
     ezHashTable<ezGALShaderHandle, ezGALVertexDeclarationHandle> m_vertexDeclarations;

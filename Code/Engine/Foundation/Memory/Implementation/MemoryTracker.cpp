@@ -3,8 +3,8 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Memory/Allocator.h>
-#include <Foundation/Memory/Policies/HeapAllocation.h>
+#include <Foundation/Memory/AllocatorWithPolicy.h>
+#include <Foundation/Memory/Policies/AllocPolicyHeap.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/System/StackTracer.h>
 #include <Foundation/Threading/Lock.h>
@@ -13,13 +13,13 @@
 namespace
 {
   // no tracking for the tracker data itself
-  using TrackerDataAllocator = ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezAllocatorTrackingMode::Nothing>;
+  using TrackerDataAllocator = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing>;
 
   static TrackerDataAllocator* s_pTrackerDataAllocator;
 
   struct TrackerDataAllocatorWrapper
   {
-    EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator() { return s_pTrackerDataAllocator; }
+    EZ_ALWAYS_INLINE static ezAllocator* GetAllocator() { return s_pTrackerDataAllocator; }
   };
 
 
@@ -32,7 +32,7 @@ namespace
 
     ezAllocatorId m_ParentId;
 
-    ezAllocatorBase::Stats m_Stats;
+    ezAllocator::Stats m_Stats;
 
     ezHashTable<const void*, ezMemoryTracker::AllocationInfo, ezHashHelper<const void*>, TrackerDataAllocatorWrapper> m_Allocations;
   };
@@ -115,7 +115,7 @@ ezAllocatorId ezMemoryTracker::Iterator::ParentId() const
   return CAST_ITER(m_pData)->Value().m_ParentId;
 }
 
-const ezAllocatorBase::Stats& ezMemoryTracker::Iterator::Stats() const
+const ezAllocator::Stats& ezMemoryTracker::Iterator::Stats() const
 {
   return CAST_ITER(m_pData)->Value().m_Stats;
 }
@@ -257,7 +257,7 @@ void ezMemoryTracker::RemoveAllAllocations(ezAllocatorId allocatorId)
 }
 
 // static
-void ezMemoryTracker::SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocatorBase::Stats& stats)
+void ezMemoryTracker::SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocator::Stats& stats)
 {
   EZ_LOCK(*s_pTrackerData);
 
@@ -286,7 +286,7 @@ ezStringView ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
 }
 
 // static
-const ezAllocatorBase::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId allocatorId)
+const ezAllocator::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId allocatorId)
 {
   EZ_LOCK(*s_pTrackerData);
 

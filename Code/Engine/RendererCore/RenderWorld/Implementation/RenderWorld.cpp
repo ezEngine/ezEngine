@@ -76,7 +76,7 @@ namespace ezInternal
 {
   struct RenderDataCache
   {
-    RenderDataCache(ezAllocatorBase* pAllocator)
+    RenderDataCache(ezAllocator* pAllocator)
       : m_PerObjectCaches(pAllocator)
     {
       for (ezUInt32 i = 0; i < MaxNumNewCacheEntries; ++i)
@@ -89,7 +89,7 @@ namespace ezInternal
     {
       PerObjectCache() = default;
 
-      PerObjectCache(ezAllocatorBase* pAllocator)
+      PerObjectCache(ezAllocator* pAllocator)
         : m_Entries(pAllocator)
       {
       }
@@ -102,7 +102,7 @@ namespace ezInternal
 
     struct NewEntryPerComponent
     {
-      NewEntryPerComponent(ezAllocatorBase* pAllocator)
+      NewEntryPerComponent(ezAllocator* pAllocator)
         : m_Cache(pAllocator)
       {
       }

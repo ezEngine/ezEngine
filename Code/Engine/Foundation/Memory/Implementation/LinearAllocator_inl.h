@@ -1,23 +1,23 @@
 template <ezAllocatorTrackingMode TrackingMode>
-ezStackAllocator<TrackingMode>::ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent)
-  : ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingMode>(sName, pParent)
+ezLinearAllocator<TrackingMode>::ezLinearAllocator(ezStringView sName, ezAllocator* pParent)
+  : ezAllocatorWithPolicy<ezAllocPolicyStack, TrackingMode>(sName, pParent)
   , m_DestructData(pParent)
   , m_PtrToDestructDataIndexTable(pParent)
 {
 }
 
 template <ezAllocatorTrackingMode TrackingMode>
-ezStackAllocator<TrackingMode>::~ezStackAllocator()
+ezLinearAllocator<TrackingMode>::~ezLinearAllocator()
 {
   Reset();
 }
 
 template <ezAllocatorTrackingMode TrackingMode>
-void* ezStackAllocator<TrackingMode>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
+void* ezLinearAllocator<TrackingMode>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
 {
   EZ_LOCK(m_Mutex);
 
-  void* ptr = ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingMode>::Allocate(uiSize, uiAlign, destructorFunc);
+  void* ptr = ezAllocatorWithPolicy<ezAllocPolicyStack, TrackingMode>::Allocate(uiSize, uiAlign, destructorFunc);
 
   if (destructorFunc != nullptr)
   {
@@ -33,7 +33,7 @@ void* ezStackAllocator<TrackingMode>::Allocate(size_t uiSize, size_t uiAlign, ez
 }
 
 template <ezAllocatorTrackingMode TrackingMode>
-void ezStackAllocator<TrackingMode>::Deallocate(void* pPtr)
+void ezLinearAllocator<TrackingMode>::Deallocate(void* pPtr)
 {
   EZ_LOCK(m_Mutex);
 
@@ -45,7 +45,7 @@ void ezStackAllocator<TrackingMode>::Deallocate(void* pPtr)
     data.m_Ptr = nullptr;
   }
 
-  ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingMode>::Deallocate(pPtr);
+  ezAllocatorWithPolicy<ezAllocPolicyStack, TrackingMode>::Deallocate(pPtr);
 }
 
 EZ_MSVC_ANALYSIS_WARNING_PUSH
@@ -55,7 +55,7 @@ EZ_MSVC_ANALYSIS_WARNING_PUSH
 EZ_MSVC_ANALYSIS_WARNING_DISABLE(6313)
 
 template <ezAllocatorTrackingMode TrackingMode>
-void ezStackAllocator<TrackingMode>::Reset()
+void ezLinearAllocator<TrackingMode>::Reset()
 {
   EZ_LOCK(m_Mutex);
 
@@ -75,7 +75,7 @@ void ezStackAllocator<TrackingMode>::Reset()
   }
   else if constexpr (TrackingMode >= ezAllocatorTrackingMode::Basics)
   {
-    ezAllocatorBase::Stats stats;
+    ezAllocator::Stats stats;
     this->m_allocator.FillStats(stats);
 
     ezMemoryTracker::SetAllocatorStats(this->m_Id, stats);

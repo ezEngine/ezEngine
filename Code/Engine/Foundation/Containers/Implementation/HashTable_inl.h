@@ -125,7 +125,7 @@ EZ_FORCE_INLINE V& ezHashTableBase<K, V, H>::Iterator::Value()
 // ***** ezHashTableBase *****
 
 template <typename K, typename V, typename H>
-ezHashTableBase<K, V, H>::ezHashTableBase(ezAllocatorBase* pAllocator)
+ezHashTableBase<K, V, H>::ezHashTableBase(ezAllocator* pAllocator)
 {
   m_pEntries = nullptr;
   m_pEntryFlags = nullptr;
@@ -135,7 +135,7 @@ ezHashTableBase<K, V, H>::ezHashTableBase(ezAllocatorBase* pAllocator)
 }
 
 template <typename K, typename V, typename H>
-ezHashTableBase<K, V, H>::ezHashTableBase(const ezHashTableBase<K, V, H>& other, ezAllocatorBase* pAllocator)
+ezHashTableBase<K, V, H>::ezHashTableBase(const ezHashTableBase<K, V, H>& other, ezAllocator* pAllocator)
 {
   m_pEntries = nullptr;
   m_pEntryFlags = nullptr;
@@ -147,7 +147,7 @@ ezHashTableBase<K, V, H>::ezHashTableBase(const ezHashTableBase<K, V, H>& other,
 }
 
 template <typename K, typename V, typename H>
-ezHashTableBase<K, V, H>::ezHashTableBase(ezHashTableBase<K, V, H>&& other, ezAllocatorBase* pAllocator)
+ezHashTableBase<K, V, H>::ezHashTableBase(ezHashTableBase<K, V, H>&& other, ezAllocator* pAllocator)
 {
   m_pEntries = nullptr;
   m_pEntryFlags = nullptr;
@@ -601,7 +601,7 @@ EZ_ALWAYS_INLINE typename ezHashTableBase<K, V, H>::ConstIterator ezHashTableBas
 }
 
 template <typename K, typename V, typename H>
-EZ_ALWAYS_INLINE ezAllocatorBase* ezHashTableBase<K, V, H>::GetAllocator() const
+EZ_ALWAYS_INLINE ezAllocator* ezHashTableBase<K, V, H>::GetAllocator() const
 {
   return m_pAllocator;
 }
@@ -757,7 +757,7 @@ ezHashTable<K, V, H, A>::ezHashTable()
 }
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable(ezAllocatorBase* pAllocator)
+ezHashTable<K, V, H, A>::ezHashTable(ezAllocator* pAllocator)
   : ezHashTableBase<K, V, H>(pAllocator)
 {
 }

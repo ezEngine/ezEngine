@@ -65,7 +65,7 @@
 
 #include <Foundation/Types/TypeTraits.h>
 
-#include <Foundation/Memory/AllocatorBase.h>
+#include <Foundation/Memory/Allocator.h>
 
 #include <Foundation/Configuration/StaticSubSystem.h>
 #include <Foundation/Strings/FormatString.h>
@@ -73,20 +73,20 @@
 class EZ_FOUNDATION_DLL ezFoundation
 {
 public:
-  static ezAllocatorBase* s_pDefaultAllocator;
-  static ezAllocatorBase* s_pAlignedAllocator;
+  static ezAllocator* s_pDefaultAllocator;
+  static ezAllocator* s_pAlignedAllocator;
 
   /// \brief The default allocator can be used for any kind of allocation if no alignment is required
-  EZ_ALWAYS_INLINE static ezAllocatorBase* GetDefaultAllocator()
+  EZ_ALWAYS_INLINE static ezAllocator* GetDefaultAllocator()
   {
     if (s_bIsInitialized)
       return s_pDefaultAllocator;
     else // the default allocator is not yet set so we return the static allocator instead.
-      return GetStaticAllocator();
+      return GetStaticsAllocator();
   }
 
   /// \brief The aligned allocator should be used for all allocations which need alignment
-  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAlignedAllocator()
+  EZ_ALWAYS_INLINE static ezAllocator* GetAlignedAllocator()
   {
     EZ_ASSERT_RELEASE(s_pAlignedAllocator != nullptr, "ezFoundation must have been initialized before this function can be called. This "
                                                       "error can occur when you have a global variable or a static member variable that "
@@ -96,11 +96,11 @@ public:
   }
 
   /// \brief Returns the allocator that is used by global data and static members before the default allocator is created.
-  static ezAllocatorBase* GetStaticAllocator();
+  static ezAllocator* GetStaticsAllocator();
 
 private:
   friend class ezStartup;
-  friend struct ezStaticAllocatorWrapper;
+  friend struct ezStaticsAllocatorWrapper;
 
   static void Initialize();
   static bool s_bIsInitialized;

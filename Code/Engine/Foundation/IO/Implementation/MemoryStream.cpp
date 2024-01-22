@@ -290,7 +290,7 @@ void ezRawMemoryStreamWriter::SetDebugSourceInformation(ezStringView sDebugSourc
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezDefaultMemoryStreamStorage::ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity, ezAllocatorBase* pAllocator)
+ezDefaultMemoryStreamStorage::ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity, ezAllocator* pAllocator)
   : m_Chunks(pAllocator)
 {
   Reserve(uiInitialCapacity);

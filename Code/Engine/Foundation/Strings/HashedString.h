@@ -33,7 +33,7 @@ public:
   };
 
   // Do NOT use a hash-table! The map does not relocate memory when it resizes, which is a vital aspect for the hashed strings to work.
-  using StringStorage = ezMap<ezUInt64, HashedData, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper>;
+  using StringStorage = ezMap<ezUInt64, HashedData, ezCompareHelper<ezUInt64>, ezStaticsAllocatorWrapper>;
   using HashedType = StringStorage::Iterator;
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)

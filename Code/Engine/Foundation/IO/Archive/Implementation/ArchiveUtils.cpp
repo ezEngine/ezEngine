@@ -9,9 +9,9 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
 
-ezHybridArray<ezString, 4, ezStaticAllocatorWrapper>& ezArchiveUtils::GetAcceptedArchiveFileExtensions()
+ezHybridArray<ezString, 4, ezStaticsAllocatorWrapper>& ezArchiveUtils::GetAcceptedArchiveFileExtensions()
 {
-  static ezHybridArray<ezString, 4, ezStaticAllocatorWrapper> extensions;
+  static ezHybridArray<ezString, 4, ezStaticsAllocatorWrapper> extensions;
 
   if (extensions.IsEmpty())
   {

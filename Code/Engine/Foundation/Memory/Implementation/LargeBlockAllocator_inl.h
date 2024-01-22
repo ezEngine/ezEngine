@@ -43,7 +43,7 @@ EZ_FORCE_INLINE T& ezDataBlock<T, SizeInBytes>::operator[](ezUInt32 uiIndex) con
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <ezUInt32 BlockSize>
-ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(ezStringView sName, ezAllocatorBase* pParent, ezAllocatorTrackingMode mode)
+ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(ezStringView sName, ezAllocator* pParent, ezAllocatorTrackingMode mode)
   : m_TrackingMode(mode)
   , m_SuperBlocks(pParent)
   , m_FreeBlocks(pParent)
@@ -112,7 +112,7 @@ EZ_ALWAYS_INLINE ezAllocatorId ezLargeBlockAllocator<BlockSize>::GetId() const
 }
 
 template <ezUInt32 BlockSize>
-EZ_ALWAYS_INLINE const ezAllocatorBase::Stats& ezLargeBlockAllocator<BlockSize>::GetStats() const
+EZ_ALWAYS_INLINE const ezAllocator::Stats& ezLargeBlockAllocator<BlockSize>::GetStats() const
 {
   return ezMemoryTracker::GetAllocatorStats(m_Id);
 }

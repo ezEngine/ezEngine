@@ -2,7 +2,7 @@
 
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Memory/LargeBlockAllocator.h>
-#include <Foundation/Memory/StackAllocator.h>
+#include <Foundation/Memory/LinearAllocator.h>
 
 struct alignas(EZ_ALIGNMENT_MINIMUM) NonAlignedVector
 {
@@ -40,7 +40,7 @@ struct alignas(16) AlignedVector
 template <typename T>
 void TestAlignmentHelper(size_t uiExpectedAlignment)
 {
-  ezAllocatorBase* pAllocator = ezFoundation::GetAlignedAllocator();
+  ezAllocator* pAllocator = ezFoundation::GetAlignedAllocator();
   EZ_TEST_BOOL(pAllocator != nullptr);
 
   size_t uiAlignment = EZ_ALIGNMENT_OF(T);
@@ -66,7 +66,7 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
   {
     EZ_TEST_INT(pAllocator->AllocatedSize(pTestBuffer), uiExpectedSize);
 
-    ezAllocatorBase::Stats stats = pAllocator->GetStats();
+    ezAllocator::Stats stats = pAllocator->GetStats();
     EZ_TEST_INT(stats.m_uiAllocationSize, uiExpectedSize * 2);
     EZ_TEST_INT(stats.m_uiNumAllocations - stats.m_uiNumDeallocations, 2);
   }
@@ -76,7 +76,7 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
 
   if constexpr (ezAllocatorTrackingMode::Default >= ezAllocatorTrackingMode::Basics)
   {
-    ezAllocatorBase::Stats stats = pAllocator->GetStats();
+    ezAllocator::Stats stats = pAllocator->GetStats();
     EZ_TEST_INT(stats.m_uiAllocationSize, 0);
     EZ_TEST_INT(stats.m_uiNumAllocations - stats.m_uiNumDeallocations, 0);
   }
@@ -114,7 +114,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
       blocks.PushBack(block);
     }
 
-    ezAllocatorBase::Stats stats = allocator.GetStats();
+    ezAllocator::Stats stats = allocator.GetStats();
 
     EZ_TEST_BOOL(stats.m_uiNumAllocations == 17);
     EZ_TEST_BOOL(stats.m_uiNumDeallocations == 0);
@@ -169,7 +169,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StackAllocator")
   {
-    ezStackAllocator<> allocator("TestStackAllocator", ezFoundation::GetAlignedAllocator());
+    ezLinearAllocator<> allocator("TestStackAllocator", ezFoundation::GetAlignedAllocator());
 
     void* blocks[8];
     for (size_t i = 0; i < EZ_ARRAY_SIZE(blocks); i++)
@@ -214,7 +214,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StackAllocator with non-PODs")
   {
-    ezStackAllocator<> allocator("TestStackAllocator", ezFoundation::GetAlignedAllocator());
+    ezLinearAllocator<> allocator("TestStackAllocator", ezFoundation::GetAlignedAllocator());
 
     ezDynamicArray<ezConstructionCounter*> counters;
     counters.Reserve(100);

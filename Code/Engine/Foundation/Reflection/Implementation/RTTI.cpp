@@ -10,7 +10,7 @@
 struct ezTypeData
 {
   ezMutex m_Mutex;
-  ezHashTable<ezUInt64, ezRTTI*, ezHashHelper<ezUInt64>, ezStaticAllocatorWrapper> m_TypeNameHashToType;
+  ezHashTable<ezUInt64, ezRTTI*, ezHashHelper<ezUInt64>, ezStaticsAllocatorWrapper> m_TypeNameHashToType;
   ezDynamicArray<ezRTTI*> m_AllTypes;
 
   bool m_bIterating = false;

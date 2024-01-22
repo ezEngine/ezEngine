@@ -442,7 +442,7 @@ EZ_ALWAYS_INLINE ezRandom& ezWorld::GetRandomNumberGenerator()
   return m_Data.m_Random;
 }
 
-EZ_ALWAYS_INLINE ezAllocatorBase* ezWorld::GetAllocator()
+EZ_ALWAYS_INLINE ezAllocator* ezWorld::GetAllocator()
 {
   return &m_Data.m_Allocator;
 }
@@ -452,7 +452,7 @@ EZ_ALWAYS_INLINE ezInternal::WorldLargeBlockAllocator* ezWorld::GetBlockAllocato
   return &m_Data.m_BlockAllocator;
 }
 
-EZ_ALWAYS_INLINE ezDoubleBufferedStackAllocator* ezWorld::GetStackAllocator()
+EZ_ALWAYS_INLINE ezDoubleBufferedLinearAllocator* ezWorld::GetStackAllocator()
 {
   return &m_Data.m_StackAllocator;
 }

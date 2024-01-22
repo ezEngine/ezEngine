@@ -5,14 +5,14 @@
 #include <Foundation/Strings/StringBuilder.h>
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezStringBuilder& rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const ezStringBuilder& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(ezStringBuilder&& rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(ezStringBuilder&& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = std::move(rhs);

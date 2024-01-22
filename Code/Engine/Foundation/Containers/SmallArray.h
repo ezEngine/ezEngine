@@ -20,9 +20,9 @@ public:
   EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T);
 
   ezSmallArrayBase();                                                                    // [tested]
-  ezSmallArrayBase(const ezSmallArrayBase<T, Size>& other, ezAllocatorBase* pAllocator); // [tested]
-  ezSmallArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator);       // [tested]
-  ezSmallArrayBase(ezSmallArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator);      // [tested]
+  ezSmallArrayBase(const ezSmallArrayBase<T, Size>& other, ezAllocator* pAllocator); // [tested]
+  ezSmallArrayBase(const ezArrayPtr<const T>& other, ezAllocator* pAllocator);       // [tested]
+  ezSmallArrayBase(ezSmallArrayBase<T, Size>&& other, ezAllocator* pAllocator);      // [tested]
 
   ~ezSmallArrayBase(); // [tested]
 
@@ -31,10 +31,10 @@ public:
   void operator=(ezSmallArrayBase<T, Size>&& rhs) = delete;
 
   /// \brief Copies the data from some other array into this one.
-  void CopyFrom(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator); // [tested]
+  void CopyFrom(const ezArrayPtr<const T>& other, ezAllocator* pAllocator); // [tested]
 
   /// \brief Moves the data from some other array into this one.
-  void MoveFrom(ezSmallArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator); // [tested]
+  void MoveFrom(ezSmallArrayBase<T, Size>&& other, ezAllocator* pAllocator); // [tested]
 
   /// \brief Conversion to const ezArrayPtr.
   operator ezArrayPtr<const T>() const; // [tested]
@@ -57,18 +57,18 @@ public:
   T& operator[](ezUInt32 uiIndex); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
-  void SetCount(ezUInt16 uiCount, ezAllocatorBase* pAllocator); // [tested]
+  void SetCount(ezUInt16 uiCount, ezAllocator* pAllocator); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Constructs all new elements by copying the FillValue.
-  void SetCount(ezUInt16 uiCount, const T& fillValue, ezAllocatorBase* pAllocator); // [tested]
+  void SetCount(ezUInt16 uiCount, const T& fillValue, ezAllocator* pAllocator); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
   template <typename = void>                                                 // Template is used to only conditionally compile this function in when it is actually used.
-  void SetCountUninitialized(ezUInt16 uiCount, ezAllocatorBase* pAllocator); // [tested]
+  void SetCountUninitialized(ezUInt16 uiCount, ezAllocator* pAllocator); // [tested]
 
   /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
   /// otherwise.
-  void EnsureCount(ezUInt16 uiCount, ezAllocatorBase* pAllocator); // [tested]
+  void EnsureCount(ezUInt16 uiCount, ezAllocator* pAllocator); // [tested]
 
   /// \brief Returns the number of active elements in the array.
   ezUInt32 GetCount() const; // [tested]
@@ -83,10 +83,10 @@ public:
   bool Contains(const T& value) const; // [tested]
 
   /// \brief Inserts value at index by shifting all following elements.
-  void Insert(const T& value, ezUInt32 uiIndex, ezAllocatorBase* pAllocator); // [tested]
+  void Insert(const T& value, ezUInt32 uiIndex, ezAllocator* pAllocator); // [tested]
 
   /// \brief Inserts value at index by shifting all following elements.
-  void Insert(T&& value, ezUInt32 uiIndex, ezAllocatorBase* pAllocator); // [tested]
+  void Insert(T&& value, ezUInt32 uiIndex, ezAllocator* pAllocator); // [tested]
 
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
   bool RemoveAndCopy(const T& value); // [tested]
@@ -107,13 +107,13 @@ public:
   ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezSmallInvalidIndex) const; // [tested]
 
   /// \brief Grows the array by one element and returns a reference to the newly created element.
-  T& ExpandAndGetRef(ezAllocatorBase* pAllocator); // [tested]
+  T& ExpandAndGetRef(ezAllocator* pAllocator); // [tested]
 
   /// \brief Pushes value at the end of the array.
-  void PushBack(const T& value, ezAllocatorBase* pAllocator); // [tested]
+  void PushBack(const T& value, ezAllocator* pAllocator); // [tested]
 
   /// \brief Pushes value at the end of the array.
-  void PushBack(T&& value, ezAllocatorBase* pAllocator); // [tested]
+  void PushBack(T&& value, ezAllocator* pAllocator); // [tested]
 
   /// \brief Pushes value at the end of the array. Does NOT ensure capacity.
   void PushBackUnchecked(const T& value); // [tested]
@@ -122,7 +122,7 @@ public:
   void PushBackUnchecked(T&& value); // [tested]
 
   /// \brief Pushes all elements in range at the end of the array. Increases the capacity if necessary.
-  void PushBackRange(const ezArrayPtr<const T>& range, ezAllocatorBase* pAllocator); // [tested]
+  void PushBackRange(const ezArrayPtr<const T>& range, ezAllocator* pAllocator); // [tested]
 
   /// \brief Removes count elements from the end of the array.
   void PopBack(ezUInt32 uiCountToRemove = 1); // [tested]
@@ -159,11 +159,11 @@ public:
   ezArrayPtr<typename ezArrayPtr<const T>::ByteType> GetByteArrayPtr() const; // [tested]
 
   /// \brief Expands the array so it can at least store the given capacity.
-  void Reserve(ezUInt16 uiCapacity, ezAllocatorBase* pAllocator); // [tested]
+  void Reserve(ezUInt16 uiCapacity, ezAllocator* pAllocator); // [tested]
 
   /// \brief Tries to compact the array to avoid wasting memory. The resulting capacity is at least 'GetCount' (no elements get removed). Will
   /// deallocate all data, if the array is empty.
-  void Compact(ezAllocatorBase* pAllocator); // [tested]
+  void Compact(ezAllocator* pAllocator); // [tested]
 
   /// \brief Returns the reserved number of elements that the array can hold without reallocating.
   ezUInt32 GetCapacity() const { return m_uiCapacity; }
@@ -188,7 +188,7 @@ protected:
     CAPACITY_ALIGNMENT = 4
   };
 
-  void SetCapacity(ezUInt16 uiCapacity, ezAllocatorBase* pAllocator);
+  void SetCapacity(ezUInt16 uiCapacity, ezAllocator* pAllocator);
 
   T* GetElementsPtr();
   const T* GetElementsPtr() const;

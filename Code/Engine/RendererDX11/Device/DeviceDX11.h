@@ -30,7 +30,7 @@ class ezGALPassDX11;
 class EZ_RENDERERDX11_DLL ezGALDeviceDX11 : public ezGALDevice
 {
 private:
-  friend ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& description);
+  friend ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description);
   ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description);
 
 public:

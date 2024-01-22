@@ -125,7 +125,7 @@ void ezSetBase<KeyType, Comparer>::Constructor()
 }
 
 template <typename KeyType, typename Comparer>
-ezSetBase<KeyType, Comparer>::ezSetBase(const Comparer& comparer, ezAllocatorBase* pAllocator)
+ezSetBase<KeyType, Comparer>::ezSetBase(const Comparer& comparer, ezAllocator* pAllocator)
   : m_Elements(pAllocator)
   , m_Comparer(comparer)
 {
@@ -133,7 +133,7 @@ ezSetBase<KeyType, Comparer>::ezSetBase(const Comparer& comparer, ezAllocatorBas
 }
 
 template <typename KeyType, typename Comparer>
-ezSetBase<KeyType, Comparer>::ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocatorBase* pAllocator)
+ezSetBase<KeyType, Comparer>::ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocator* pAllocator)
   : m_Elements(pAllocator)
 {
   Constructor();
@@ -737,13 +737,13 @@ ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet()
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(ezAllocatorBase* pAllocator)
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(ezAllocator* pAllocator)
   : ezSetBase<KeyType, Comparer>(Comparer(), pAllocator)
 {
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const Comparer& comparer, ezAllocatorBase* pAllocator)
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const Comparer& comparer, ezAllocator* pAllocator)
   : ezSetBase<KeyType, Comparer>(comparer, pAllocator)
 {
 }

@@ -20,7 +20,7 @@ namespace ezArchiveUtils
   ///
   /// By default it always contains 'ezArchive'.
   /// Add or overwrite the values, if you want custom file extensions to be handled as ezArchives.
-  EZ_FOUNDATION_DLL ezHybridArray<ezString, 4, ezStaticAllocatorWrapper>& GetAcceptedArchiveFileExtensions();
+  EZ_FOUNDATION_DLL ezHybridArray<ezString, 4, ezStaticsAllocatorWrapper>& GetAcceptedArchiveFileExtensions();
 
   /// \brief Checks case insensitive, whether the given extension is in the list of GetAcceptedArchiveFileExtensions().
   EZ_FOUNDATION_DLL bool IsAcceptedArchiveFileExtensions(ezStringView sExtension);

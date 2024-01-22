@@ -4,7 +4,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
 static ezInt32 s_iDataDirCounter = 0;
-static ezMap<ezString, ezInt32, ezCompareHelper<ezString>, ezStaticAllocatorWrapper> s_KnownDataDirs;
+static ezMap<ezString, ezInt32, ezCompareHelper<ezString>, ezStaticsAllocatorWrapper> s_KnownDataDirs;
 
 static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
 {

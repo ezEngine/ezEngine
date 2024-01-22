@@ -1,20 +1,17 @@
-#include <Foundation/Memory/Policies/GuardedAllocation.h>
+#include <Foundation/Memory/Policies/AllocPolicyGuarding.h>
 
-namespace ezMemoryPolicies
+ezAllocPolicyGuarding::ezAllocPolicyGuarding(ezAllocator* pParent)
 {
-  ezGuardedAllocation::ezGuardedAllocation(ezAllocatorBase* pParent)
-  {
-    EZ_ASSERT_NOT_IMPLEMENTED;
-  }
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
 
-  void* ezGuardedAllocation::Allocate(size_t uiSize, size_t uiAlign)
-  {
-    EZ_ASSERT_NOT_IMPLEMENTED;
-    return nullptr;
-  }
+void* ezAllocPolicyGuarding::Allocate(size_t uiSize, size_t uiAlign)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return nullptr;
+}
 
-  void ezGuardedAllocation::Deallocate(void* ptr)
-  {
-    EZ_ASSERT_NOT_IMPLEMENTED;
-  }
-} // namespace ezMemoryPolicies
+void ezAllocPolicyGuarding::Deallocate(void* ptr)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}

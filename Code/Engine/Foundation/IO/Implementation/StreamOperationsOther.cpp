@@ -7,16 +7,16 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
 
-// ezAllocatorBase::Stats
+// ezAllocator::Stats
 
-void operator<<(ezStreamWriter& inout_stream, const ezAllocatorBase::Stats& rhs)
+void operator<<(ezStreamWriter& inout_stream, const ezAllocator::Stats& rhs)
 {
   inout_stream << rhs.m_uiNumAllocations;
   inout_stream << rhs.m_uiNumDeallocations;
   inout_stream << rhs.m_uiAllocationSize;
 }
 
-void operator>>(ezStreamReader& inout_stream, ezAllocatorBase::Stats& rhs)
+void operator>>(ezStreamReader& inout_stream, ezAllocator::Stats& rhs)
 {
   inout_stream >> rhs.m_uiNumAllocations;
   inout_stream >> rhs.m_uiNumDeallocations;

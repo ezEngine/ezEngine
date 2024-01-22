@@ -12,7 +12,7 @@ namespace
 {
   static ezVariantArray GetDefaultExcludeTags()
   {
-    ezVariantArray value(ezStaticAllocatorWrapper::GetAllocator());
+    ezVariantArray value(ezStaticsAllocatorWrapper::GetAllocator());
     value.PushBack(ezStringView("SkyLight"));
     return value;
   }

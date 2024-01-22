@@ -3,7 +3,7 @@
 #include <Foundation/Types/ScopeExit.h>
 
 template <typename EventData, typename MutexType, ezEventType EventType>
-ezEventBase<EventData, MutexType, EventType>::ezEventBase(ezAllocatorBase* pAllocator)
+ezEventBase<EventData, MutexType, EventType>::ezEventBase(ezAllocator* pAllocator)
   : m_EventHandlers(pAllocator)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -286,7 +286,7 @@ ezEvent<EventData, MutexType, AllocatorWrapper, EventType>::ezEvent()
 }
 
 template <typename EventData, typename MutexType, typename AllocatorWrapper, ezEventType EventType>
-ezEvent<EventData, MutexType, AllocatorWrapper, EventType>::ezEvent(ezAllocatorBase* pAllocator)
+ezEvent<EventData, MutexType, AllocatorWrapper, EventType>::ezEvent(ezAllocator* pAllocator)
   : ezEventBase<EventData, MutexType, EventType>(pAllocator)
 {
 }

@@ -106,7 +106,7 @@ ezScriptInstance::ezScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorl
 //////////////////////////////////////////////////////////////////////////
 
 // static
-ezAllocatorBase* ezScriptAllocator::GetAllocator()
+ezAllocator* ezScriptAllocator::GetAllocator()
 {
   static ezProxyAllocator s_ScriptAllocator("Script", ezFoundation::GetDefaultAllocator());
   return &s_ScriptAllocator;

@@ -1054,7 +1054,7 @@ namespace
     ezUInt64 m_uiFrame;
   };
 
-  static ezDynamicArray<FreeCacheEntry, ezStaticAllocatorWrapper> s_FreeMaterialCacheEntries;
+  static ezDynamicArray<FreeCacheEntry, ezStaticsAllocatorWrapper> s_FreeMaterialCacheEntries;
 } // namespace
 
 void ezMaterialResource::CachedValues::Reset()

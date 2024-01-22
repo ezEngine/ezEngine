@@ -1,163 +1,145 @@
+
+EZ_ALWAYS_INLINE ezAllocator::ezAllocator() = default;
+
+EZ_ALWAYS_INLINE ezAllocator::~ezAllocator() = default;
+
+
+namespace ezMath
+{
+  // due to #include order issues, we have to forward declare this function here
+
+  EZ_FOUNDATION_DLL ezUInt64 SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d);
+} // namespace ezMath
+
 namespace ezInternal
 {
-  template <typename AllocationPolicy, ezAllocatorTrackingMode TrackingMode>
-  class ezAllocatorImpl : public ezAllocatorBase
+  template <typename T>
+  struct NewInstance
   {
-  public:
-    ezAllocatorImpl(ezStringView sName, ezAllocatorBase* pParent);
-    ~ezAllocatorImpl();
+    EZ_ALWAYS_INLINE NewInstance(T* pInstance, ezAllocator* pAllocator)
+    {
+      m_pInstance = pInstance;
+      m_pAllocator = pAllocator;
+    }
 
-    // ezAllocatorBase implementation
-    virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc = nullptr) override;
-    virtual void Deallocate(void* pPtr) override;
-    virtual size_t AllocatedSize(const void* pPtr) override;
-    virtual ezAllocatorId GetId() const override;
-    virtual Stats GetStats() const override;
+    template <typename U>
+    EZ_ALWAYS_INLINE NewInstance(NewInstance<U>&& other)
+    {
+      m_pInstance = other.m_pInstance;
+      m_pAllocator = other.m_pAllocator;
 
-    ezAllocatorBase* GetParent() const;
+      other.m_pInstance = nullptr;
+      other.m_pAllocator = nullptr;
+    }
 
-  protected:
-    AllocationPolicy m_allocator;
+    EZ_ALWAYS_INLINE NewInstance(std::nullptr_t) {}
 
-    ezAllocatorId m_Id;
-    ezThreadID m_ThreadID;
+    template <typename U>
+    EZ_ALWAYS_INLINE NewInstance<U> Cast()
+    {
+      return NewInstance<U>(static_cast<U*>(m_pInstance), m_pAllocator);
+    }
+
+    EZ_ALWAYS_INLINE operator T*() { return m_pInstance; }
+
+    EZ_ALWAYS_INLINE T* operator->() { return m_pInstance; }
+
+    T* m_pInstance = nullptr;
+    ezAllocator* m_pAllocator = nullptr;
   };
 
-  template <typename AllocationPolicy, ezAllocatorTrackingMode TrackingMode, bool HasReallocate>
-  class ezAllocatorMixinReallocate : public ezAllocatorImpl<AllocationPolicy, TrackingMode>
+  template <typename T>
+  EZ_ALWAYS_INLINE bool operator<(const NewInstance<T>& lhs, T* rhs)
   {
-  public:
-    ezAllocatorMixinReallocate(ezStringView sName, ezAllocatorBase* pParent);
-  };
-
-  template <typename AllocationPolicy, ezAllocatorTrackingMode TrackingMode>
-  class ezAllocatorMixinReallocate<AllocationPolicy, TrackingMode, true> : public ezAllocatorImpl<AllocationPolicy, TrackingMode>
-  {
-  public:
-    ezAllocatorMixinReallocate(ezStringView sName, ezAllocatorBase* pParent);
-    virtual void* Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign) override;
-  };
-}; // namespace ezInternal
-
-template <typename A, ezAllocatorTrackingMode TrackingMode>
-EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingMode>::ezAllocatorImpl(ezStringView sName, ezAllocatorBase* pParent /* = nullptr */)
-  : m_allocator(pParent)
-  , m_ThreadID(ezThreadUtils::GetCurrentThreadID())
-{
-  if constexpr (TrackingMode >= ezAllocatorTrackingMode::Basics)
-  {
-    this->m_Id = ezMemoryTracker::RegisterAllocator(sName, TrackingMode, pParent != nullptr ? pParent->GetId() : ezAllocatorId());
-  }
-}
-
-template <typename A, ezAllocatorTrackingMode TrackingMode>
-ezInternal::ezAllocatorImpl<A, TrackingMode>::~ezAllocatorImpl()
-{
-  if constexpr (TrackingMode >= ezAllocatorTrackingMode::Basics)
-  {
-    ezMemoryTracker::DeregisterAllocator(this->m_Id);
-  }
-}
-
-template <typename A, ezAllocatorTrackingMode TrackingMode>
-void* ezInternal::ezAllocatorImpl<A, TrackingMode>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
-{
-  // zero size allocations always return nullptr without tracking (since deallocate nullptr is ignored)
-  if (uiSize == 0)
-    return nullptr;
-
-  EZ_ASSERT_DEBUG(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
-
-  ezTime fAllocationTime = ezTime::Now();
-
-  void* ptr = m_allocator.Allocate(uiSize, uiAlign);
-  EZ_ASSERT_DEV(ptr != nullptr, "Could not allocate {0} bytes. Out of memory?", uiSize);
-
-  if constexpr (TrackingMode >= ezAllocatorTrackingMode::AllocationStats)
-  {
-    ezMemoryTracker::AddAllocation(this->m_Id, TrackingMode, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
+    return lhs.m_pInstance < rhs;
   }
 
-  return ptr;
-}
-
-template <typename A, ezAllocatorTrackingMode TrackingMode>
-void ezInternal::ezAllocatorImpl<A, TrackingMode>::Deallocate(void* pPtr)
-{
-  if constexpr (TrackingMode >= ezAllocatorTrackingMode::AllocationStats)
+  template <typename T>
+  EZ_ALWAYS_INLINE bool operator<(T* lhs, const NewInstance<T>& rhs)
   {
-    ezMemoryTracker::RemoveAllocation(this->m_Id, pPtr);
+    return lhs < rhs.m_pInstance;
   }
 
-  m_allocator.Deallocate(pPtr);
-}
-
-template <typename A, ezAllocatorTrackingMode TrackingMode>
-size_t ezInternal::ezAllocatorImpl<A, TrackingMode>::AllocatedSize(const void* pPtr)
-{
-  if constexpr (TrackingMode >= ezAllocatorTrackingMode::AllocationStats)
+  template <typename T>
+  EZ_FORCE_INLINE void Delete(ezAllocator* pAllocator, T* pPtr)
   {
-    return ezMemoryTracker::GetAllocationInfo(this->m_Id, pPtr).m_uiSize;
-  }
-  else
-  {
-    return 0;
-  }
-}
-
-template <typename A, ezAllocatorTrackingMode TrackingMode>
-ezAllocatorId ezInternal::ezAllocatorImpl<A, TrackingMode>::GetId() const
-{
-  return this->m_Id;
-}
-
-template <typename A, ezAllocatorTrackingMode TrackingMode>
-ezAllocatorBase::Stats ezInternal::ezAllocatorImpl<A, TrackingMode>::GetStats() const
-{
-  if constexpr (TrackingMode >= ezAllocatorTrackingMode::Basics)
-  {
-    return ezMemoryTracker::GetAllocatorStats(this->m_Id);
-  }
-  else
-  {
-    return Stats();
-  }
-}
-
-template <typename A, ezAllocatorTrackingMode TrackingMode>
-EZ_ALWAYS_INLINE ezAllocatorBase* ezInternal::ezAllocatorImpl<A, TrackingMode>::GetParent() const
-{
-  return m_allocator.GetParent();
-}
-
-template <typename A, ezAllocatorTrackingMode TrackingMode, bool HasReallocate>
-ezInternal::ezAllocatorMixinReallocate<A, TrackingMode, HasReallocate>::ezAllocatorMixinReallocate(ezStringView sName, ezAllocatorBase* pParent)
-  : ezAllocatorImpl<A, TrackingMode>(sName, pParent)
-{
-}
-
-template <typename A, ezAllocatorTrackingMode TrackingMode>
-ezInternal::ezAllocatorMixinReallocate<A, TrackingMode, true>::ezAllocatorMixinReallocate(ezStringView sName, ezAllocatorBase* pParent)
-  : ezAllocatorImpl<A, TrackingMode>(sName, pParent)
-{
-}
-
-template <typename A, ezAllocatorTrackingMode TrackingMode>
-void* ezInternal::ezAllocatorMixinReallocate<A, TrackingMode, true>::Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
-{
-  if constexpr (TrackingMode >= ezAllocatorTrackingMode::AllocationStats)
-  {
-    ezMemoryTracker::RemoveAllocation(this->m_Id, pPtr);
+    if (pPtr != nullptr)
+    {
+      ezMemoryUtils::Destruct(pPtr, 1);
+      pAllocator->Deallocate(pPtr);
+    }
   }
 
-  ezTime fAllocationTime = ezTime::Now();
-
-  void* pNewMem = this->m_allocator.Reallocate(pPtr, uiCurrentSize, uiNewSize, uiAlign);
-
-  if constexpr (TrackingMode >= ezAllocatorTrackingMode::AllocationStats)
+  template <typename T>
+  EZ_FORCE_INLINE T* CreateRawBuffer(ezAllocator* pAllocator, size_t uiCount)
   {
-    ezMemoryTracker::AddAllocation(this->m_Id, TrackingMode, pNewMem, uiNewSize, uiAlign, ezTime::Now() - fAllocationTime);
+    ezUInt64 safeAllocationSize = ezMath::SafeMultiply64(uiCount, sizeof(T));
+    return static_cast<T*>(pAllocator->Allocate(static_cast<size_t>(safeAllocationSize), EZ_ALIGNMENT_OF(T))); // Down-cast to size_t for 32-bit
   }
 
-  return pNewMem;
-}
+  EZ_FORCE_INLINE void DeleteRawBuffer(ezAllocator* pAllocator, void* pPtr)
+  {
+    if (pPtr != nullptr)
+    {
+      pAllocator->Deallocate(pPtr);
+    }
+  }
+
+  template <typename T>
+  inline ezArrayPtr<T> CreateArray(ezAllocator* pAllocator, ezUInt32 uiCount)
+  {
+    T* buffer = CreateRawBuffer<T>(pAllocator, uiCount);
+    ezMemoryUtils::Construct<SkipTrivialTypes>(buffer, uiCount);
+
+    return ezArrayPtr<T>(buffer, uiCount);
+  }
+
+  template <typename T>
+  inline void DeleteArray(ezAllocator* pAllocator, ezArrayPtr<T> arrayPtr)
+  {
+    T* buffer = arrayPtr.GetPtr();
+    if (buffer != nullptr)
+    {
+      ezMemoryUtils::Destruct(buffer, arrayPtr.GetCount());
+      pAllocator->Deallocate(buffer);
+    }
+  }
+
+  template <typename T>
+  EZ_FORCE_INLINE T* ExtendRawBuffer(T* pPtr, ezAllocator* pAllocator, size_t uiCurrentCount, size_t uiNewCount, ezTypeIsPod)
+  {
+    return (T*)pAllocator->Reallocate(pPtr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), EZ_ALIGNMENT_OF(T));
+  }
+
+  template <typename T>
+  EZ_FORCE_INLINE T* ExtendRawBuffer(T* pPtr, ezAllocator* pAllocator, size_t uiCurrentCount, size_t uiNewCount, ezTypeIsMemRelocatable)
+  {
+    return (T*)pAllocator->Reallocate(pPtr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), EZ_ALIGNMENT_OF(T));
+  }
+
+  template <typename T>
+  EZ_FORCE_INLINE T* ExtendRawBuffer(T* pPtr, ezAllocator* pAllocator, size_t uiCurrentCount, size_t uiNewCount, ezTypeIsClass)
+  {
+    EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value,
+      "POD type is treated as class. Use EZ_DECLARE_POD_TYPE(YourClass) or EZ_DEFINE_AS_POD_TYPE(ExternalClass) to mark it as POD.");
+
+    T* pNewMem = CreateRawBuffer<T>(pAllocator, uiNewCount);
+    ezMemoryUtils::RelocateConstruct(pNewMem, pPtr, uiCurrentCount);
+    DeleteRawBuffer(pAllocator, pPtr);
+    return pNewMem;
+  }
+
+  template <typename T>
+  EZ_FORCE_INLINE T* ExtendRawBuffer(T* pPtr, ezAllocator* pAllocator, size_t uiCurrentCount, size_t uiNewCount)
+  {
+    EZ_ASSERT_DEV(uiCurrentCount < uiNewCount, "Shrinking of a buffer is not implemented yet");
+    EZ_ASSERT_DEV(!(uiCurrentCount == uiNewCount), "Same size passed in twice.");
+    if (pPtr == nullptr)
+    {
+      EZ_ASSERT_DEV(uiCurrentCount == 0, "current count must be 0 if ptr is nullptr");
+
+      return CreateRawBuffer<T>(pAllocator, uiNewCount);
+    }
+    return ExtendRawBuffer(pPtr, pAllocator, uiCurrentCount, uiNewCount, ezGetTypeClass<T>());
+  }
+} // namespace ezInternal

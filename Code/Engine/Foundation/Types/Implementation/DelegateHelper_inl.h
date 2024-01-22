@@ -4,7 +4,7 @@ struct EZ_FOUNDATION_DLL ezLambdaDelegateStorageBase
 {
   ezLambdaDelegateStorageBase() = default;
   virtual ~ezLambdaDelegateStorageBase() = default;
-  virtual ezLambdaDelegateStorageBase* Clone(ezAllocatorBase* pAllocator) const = 0;
+  virtual ezLambdaDelegateStorageBase* Clone(ezAllocator* pAllocator) const = 0;
   virtual void InplaceCopy(ezUInt8* pBuffer) const = 0;
   virtual void InplaceMove(ezUInt8* pBuffer) = 0;
 
@@ -31,7 +31,7 @@ private:
   }
 
 public:
-  virtual ezLambdaDelegateStorageBase* Clone(ezAllocatorBase* pAllocator) const override
+  virtual ezLambdaDelegateStorageBase* Clone(ezAllocator* pAllocator) const override
   {
     if constexpr (std::is_copy_constructible<Function>::value)
     {
@@ -112,7 +112,7 @@ public:
 
   /// \brief Constructs the delegate from a regular C function type.
   template <typename Function>
-  EZ_FORCE_INLINE ezDelegate(Function function, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
+  EZ_FORCE_INLINE ezDelegate(Function function, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
   {
     EZ_CHECK_AT_COMPILETIME_MSG(DataSize >= 16, "DataSize must be at least 16 bytes");
 
@@ -338,7 +338,7 @@ private:
     struct
     {
       ezLambdaDelegateStorageBase* m_pLambdaStorage;
-      ezAllocatorBase* m_pAllocator;
+      ezAllocator* m_pAllocator;
     };
   };
 };

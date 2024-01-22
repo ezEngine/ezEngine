@@ -15,7 +15,7 @@ namespace
 {
   void* ezImguiAllocate(size_t uiSize, void* pUserData)
   {
-    ezAllocatorBase* pAllocator = static_cast<ezAllocatorBase*>(pUserData);
+    ezAllocator* pAllocator = static_cast<ezAllocator*>(pUserData);
     return pAllocator->Allocate(uiSize, EZ_ALIGNMENT_MINIMUM);
   }
 
@@ -23,7 +23,7 @@ namespace
   {
     if (pPtr != nullptr)
     {
-      ezAllocatorBase* pAllocator = static_cast<ezAllocatorBase*>(pUserData);
+      ezAllocator* pAllocator = static_cast<ezAllocator*>(pUserData);
       pAllocator->Deallocate(pPtr);
     }
   }

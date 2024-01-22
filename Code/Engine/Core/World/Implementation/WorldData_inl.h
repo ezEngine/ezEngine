@@ -181,7 +181,7 @@ namespace ezInternal
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_FORCE_INLINE WorldData::InitBatch::InitBatch(ezAllocatorBase* pAllocator, ezStringView sName, bool bMustFinishWithinOneFrame)
+  EZ_FORCE_INLINE WorldData::InitBatch::InitBatch(ezAllocator* pAllocator, ezStringView sName, bool bMustFinishWithinOneFrame)
     : m_bMustFinishWithinOneFrame(bMustFinishWithinOneFrame)
     , m_ComponentsToInitialize(pAllocator)
     , m_ComponentsToStartSimulation(pAllocator)

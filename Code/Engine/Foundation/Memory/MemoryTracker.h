@@ -54,7 +54,7 @@ public:
     ezAllocatorId Id() const;
     ezStringView Name() const;
     ezAllocatorId ParentId() const;
-    const ezAllocatorBase::Stats& Stats() const;
+    const ezAllocator::Stats& Stats() const;
 
     void Next();
     bool IsValid() const;
@@ -78,12 +78,12 @@ public:
   static void AddAllocation(ezAllocatorId allocatorId, ezAllocatorTrackingMode mode, const void* pPtr, size_t uiSize, size_t uiAlign, ezTime allocationTime);
   static void RemoveAllocation(ezAllocatorId allocatorId, const void* pPtr);
   static void RemoveAllAllocations(ezAllocatorId allocatorId);
-  static void SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocatorBase::Stats& stats);
+  static void SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocator::Stats& stats);
 
   static void ResetPerFrameAllocatorStats();
 
   static ezStringView GetAllocatorName(ezAllocatorId allocatorId);
-  static const ezAllocatorBase::Stats& GetAllocatorStats(ezAllocatorId allocatorId);
+  static const ezAllocator::Stats& GetAllocatorStats(ezAllocatorId allocatorId);
   static ezAllocatorId GetAllocatorParentId(ezAllocatorId allocatorId);
   static const AllocationInfo& GetAllocationInfo(ezAllocatorId allocatorId, const void* pPtr);
 

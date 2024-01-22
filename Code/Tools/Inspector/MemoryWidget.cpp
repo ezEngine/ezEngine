@@ -429,7 +429,7 @@ void ezQtMemoryWidget::ProcessTelemetry(void* pUnuseed)
       ezUInt32 uiAllocatorId;
       ezUInt32 uiParentId;
 
-      ezAllocatorBase::Stats MemStat;
+      ezAllocator::Stats MemStat;
       Msg.GetReader() >> uiAllocatorId;
       Msg.GetReader() >> sAllocatorName;
       Msg.GetReader() >> uiParentId;

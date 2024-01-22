@@ -7,7 +7,7 @@ ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray()
 }
 
 template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(ezAllocatorBase* pAllocator)
+ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(ezAllocator* pAllocator)
   : ezDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, pAllocator)
 {
 }

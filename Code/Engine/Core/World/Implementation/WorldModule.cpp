@@ -31,7 +31,7 @@ void ezWorldModule::DeregisterUpdateFunction(const UpdateFunctionDesc& desc)
   m_pWorld->DeregisterUpdateFunction(desc);
 }
 
-ezAllocatorBase* ezWorldModule::GetAllocator()
+ezAllocator* ezWorldModule::GetAllocator()
 {
   return m_pWorld->GetAllocator();
 }
@@ -235,7 +235,7 @@ void ezWorldModuleFactory::FillBaseTypeIds()
   // the mapping for m_TypeToId[ezWorldModule(interface)], such that querying the TypeID for the interface works as well
   // and yields the implementation
 
-  ezHybridArray<NewEntry, 64, ezStaticAllocatorWrapper> newEntries;
+  ezHybridArray<NewEntry, 64, ezStaticsAllocatorWrapper> newEntries;
   const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>(); // base type where we want to stop iterating upwards
 
   // explicit mappings

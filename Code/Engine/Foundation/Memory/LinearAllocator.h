@@ -2,17 +2,17 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
-#include <Foundation/Memory/Allocator.h>
-#include <Foundation/Memory/Policies/StackAllocation.h>
+#include <Foundation/Memory/AllocatorWithPolicy.h>
+#include <Foundation/Memory/Policies/AllocPolicyStack.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
 template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default>
-class ezStackAllocator : public ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingMode>
+class ezLinearAllocator : public ezAllocatorWithPolicy<ezAllocPolicyStack, TrackingMode>
 {
 public:
-  ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent);
-  ~ezStackAllocator();
+  ezLinearAllocator(ezStringView sName, ezAllocator* pParent);
+  ~ezLinearAllocator();
 
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc) override;
   virtual void Deallocate(void* pPtr) override;
@@ -35,4 +35,4 @@ private:
   ezHashTable<void*, ezUInt32> m_PtrToDestructDataIndexTable;
 };
 
-#include <Foundation/Memory/Implementation/StackAllocator_inl.h>
+#include <Foundation/Memory/Implementation/LinearAllocator_inl.h>

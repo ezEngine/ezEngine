@@ -1,17 +1,17 @@
 #pragma once
 
-#include <Foundation/Memory/StackAllocator.h>
+#include <Foundation/Memory/LinearAllocator.h>
 
 /// \brief A double buffered stack allocator
-class EZ_FOUNDATION_DLL ezDoubleBufferedStackAllocator
+class EZ_FOUNDATION_DLL ezDoubleBufferedLinearAllocator
 {
 public:
-  using StackAllocatorType = ezStackAllocator<ezAllocatorTrackingMode::Basics>;
+  using StackAllocatorType = ezLinearAllocator<ezAllocatorTrackingMode::Basics>;
 
-  ezDoubleBufferedStackAllocator(ezStringView sName, ezAllocatorBase* pParent);
-  ~ezDoubleBufferedStackAllocator();
+  ezDoubleBufferedLinearAllocator(ezStringView sName, ezAllocator* pParent);
+  ~ezDoubleBufferedLinearAllocator();
 
-  EZ_ALWAYS_INLINE ezAllocatorBase* GetCurrentAllocator() const { return m_pCurrentAllocator; }
+  EZ_ALWAYS_INLINE ezAllocator* GetCurrentAllocator() const { return m_pCurrentAllocator; }
 
   void Swap();
   void Reset();
@@ -24,7 +24,7 @@ private:
 class EZ_FOUNDATION_DLL ezFrameAllocator
 {
 public:
-  EZ_ALWAYS_INLINE static ezAllocatorBase* GetCurrentAllocator() { return s_pAllocator->GetCurrentAllocator(); }
+  EZ_ALWAYS_INLINE static ezAllocator* GetCurrentAllocator() { return s_pAllocator->GetCurrentAllocator(); }
 
   static void Swap();
   static void Reset();
@@ -35,5 +35,5 @@ private:
   static void Startup();
   static void Shutdown();
 
-  static ezDoubleBufferedStackAllocator* s_pAllocator;
+  static ezDoubleBufferedLinearAllocator* s_pAllocator;
 };

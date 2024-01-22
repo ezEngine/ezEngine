@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
-#include <Foundation/Memory/StackAllocator.h>
+#include <Foundation/Memory/LinearAllocator.h>
 
 class ezDGMLGraph;
 
@@ -295,7 +295,7 @@ private:
   static void UpdateHash(Node* pNode);
   static bool IsEqual(const Node* pNodeA, const Node* pNodeB);
 
-  ezStackAllocator<> m_Allocator;
+  ezLinearAllocator<> m_Allocator;
 
   ezSet<ezExpression::FunctionDesc> m_FunctionDescs;
 

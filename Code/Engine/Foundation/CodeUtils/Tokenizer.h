@@ -81,7 +81,7 @@ public:
   /// \brief Constructor.
   ///
   /// Takes an additional optional allocator. If no allocator is given the default allocator will be used.
-  ezTokenizer(ezAllocatorBase* pAllocator = nullptr);
+  ezTokenizer(ezAllocator* pAllocator = nullptr);
 
   ~ezTokenizer();
 

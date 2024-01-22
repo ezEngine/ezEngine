@@ -116,7 +116,7 @@ struct ezHashHelper<ezShaderUtils::ezBuiltinShaderType>
 
 ezUniquePtr<ezImageCopyVulkan::Cache> ezImageCopyVulkan::s_cache;
 
-ezImageCopyVulkan::Cache::Cache(ezAllocatorBase* pAllocator)
+ezImageCopyVulkan::Cache::Cache(ezAllocator* pAllocator)
   : m_vertexDeclarations(pAllocator)
   , m_renderPasses(pAllocator)
   , m_sourceImageViews(pAllocator)
