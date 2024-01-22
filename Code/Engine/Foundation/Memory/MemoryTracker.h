@@ -15,8 +15,6 @@ enum class ezAllocatorTrackingMode : ezUInt32
   Default = EZ_ALLOC_TRACKING_DEFAULT,
 };
 
-#define EZ_STATIC_ALLOCATOR_NAME "Statics"
-
 /// \brief Memory tracker which keeps track of all allocations and constructions
 class EZ_FOUNDATION_DLL ezMemoryTracker
 {
