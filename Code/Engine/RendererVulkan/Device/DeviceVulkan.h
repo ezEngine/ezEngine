@@ -54,7 +54,7 @@ class ezInitContextVulkan;
 class EZ_RENDERERVULKAN_DLL ezGALDeviceVulkan : public ezGALDevice
 {
 private:
-  friend ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& Description);
+  friend ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& Description);
   ezGALDeviceVulkan(const ezGALDeviceCreationDescription& Description);
 
 public:
