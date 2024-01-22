@@ -9,10 +9,10 @@ namespace ezMemoryPolicies
   /// \note Note that the stats are taken on the proxy as well as on the parent.
   ///
   /// \see ezAllocator
-  class ezProxyAllocation
+  class ezAllocPolicyProxy
   {
   public:
-    EZ_FORCE_INLINE ezProxyAllocation(ezAllocatorBase* pParent)
+    EZ_FORCE_INLINE ezAllocPolicyProxy(ezAllocatorBase* pParent)
       : m_pParent(pParent)
     {
       EZ_ASSERT_ALWAYS(m_pParent != nullptr, "Parent allocator must not be nullptr");

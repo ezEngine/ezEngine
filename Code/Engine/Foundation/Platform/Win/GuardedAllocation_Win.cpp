@@ -2,7 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#  include <Foundation/Memory/Policies/GuardedAllocation.h>
+#  include <Foundation/Memory/Policies/AllocPolicyGuarding.h>
 
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
@@ -32,7 +32,7 @@ namespace ezMemoryPolicies
     ezUInt32 m_magic[32];
   };
 
-  ezGuardedAllocation::ezGuardedAllocation(ezAllocatorBase* pParent)
+  ezAllocPolicyGuarding::ezAllocPolicyGuarding(ezAllocatorBase* pParent)
   {
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
@@ -40,7 +40,7 @@ namespace ezMemoryPolicies
   }
 
 
-  void* ezGuardedAllocation::Allocate(size_t uiSize, size_t uiAlign)
+  void* ezAllocPolicyGuarding::Allocate(size_t uiSize, size_t uiAlign)
   {
     EZ_ASSERT_DEV(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
     uiAlign = ezMath::Max<size_t>(uiAlign, EZ_ALIGNMENT_MINIMUM);
@@ -73,7 +73,7 @@ namespace ezMemoryPolicies
   EZ_MSVC_ANALYSIS_WARNING_PUSH
   EZ_MSVC_ANALYSIS_WARNING_DISABLE(6250)
 
-  void ezGuardedAllocation::Deallocate(void* pPtr)
+  void ezAllocPolicyGuarding::Deallocate(void* pPtr)
   {
     ezLock<ezMutex> lock(m_Mutex);
 

@@ -5,20 +5,20 @@
 
 #include <Foundation/Memory/Allocator.h>
 
-#include <Foundation/Memory/Policies/AlignedHeapAllocation.h>
-#include <Foundation/Memory/Policies/GuardedAllocation.h>
-#include <Foundation/Memory/Policies/HeapAllocation.h>
-#include <Foundation/Memory/Policies/ProxyAllocation.h>
+#include <Foundation/Memory/Policies/AllocPolicyAlignedHeap.h>
+#include <Foundation/Memory/Policies/AllocPolicyGuarding.h>
+#include <Foundation/Memory/Policies/AllocPolicyHeap.h>
+#include <Foundation/Memory/Policies/AllocPolicyProxy.h>
 
 
 /// \brief Default heap allocator
-using ezAlignedHeapAllocator = ezAllocator<ezMemoryPolicies::ezAlignedHeapAllocation>;
+using ezAlignedHeapAllocator = ezAllocator<ezMemoryPolicies::ezAllocPolicyAlignedHeap>;
 
 /// \brief Default heap allocator
-using ezHeapAllocator = ezAllocator<ezMemoryPolicies::ezHeapAllocation>;
+using ezHeapAllocator = ezAllocator<ezMemoryPolicies::ezAllocPolicyHeap>;
 
 /// \brief Guarded allocator
-using ezGuardedAllocator = ezAllocator<ezMemoryPolicies::ezGuardedAllocation>;
+using ezGuardedAllocator = ezAllocator<ezMemoryPolicies::ezAllocPolicyGuarding>;
 
 /// \brief Proxy allocator
-using ezProxyAllocator = ezAllocator<ezMemoryPolicies::ezProxyAllocation>;
+using ezProxyAllocator = ezAllocator<ezMemoryPolicies::ezAllocPolicyProxy>;

@@ -7,11 +7,11 @@ namespace ezMemoryPolicies
   /// \brief Default heap memory allocation policy.
   ///
   /// \see ezAllocator
-  class ezHeapAllocation
+  class ezAllocPolicyHeap
   {
   public:
-    EZ_ALWAYS_INLINE ezHeapAllocation(ezAllocatorBase* pParent) {}
-    EZ_ALWAYS_INLINE ~ezHeapAllocation() = default;
+    EZ_ALWAYS_INLINE ezAllocPolicyHeap(ezAllocatorBase* pParent) {}
+    EZ_ALWAYS_INLINE ~ezAllocPolicyHeap() = default;
 
     EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
     {

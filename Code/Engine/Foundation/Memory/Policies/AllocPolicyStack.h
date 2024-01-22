@@ -10,7 +10,7 @@ namespace ezMemoryPolicies
   /// \note It is also possible to free all allocations at once.
   ///
   /// \see ezAllocator
-  class ezStackAllocation
+  class ezAllocPolicyStack
   {
   public:
     enum
@@ -18,13 +18,13 @@ namespace ezMemoryPolicies
       Alignment = 16
     };
 
-    EZ_FORCE_INLINE ezStackAllocation(ezAllocatorBase* pParent)
+    EZ_FORCE_INLINE ezAllocPolicyStack(ezAllocatorBase* pParent)
       : m_pParent(pParent)
       , m_uiNextBucketSize(4096)
     {
     }
 
-    EZ_FORCE_INLINE ~ezStackAllocation()
+    EZ_FORCE_INLINE ~ezAllocPolicyStack()
     {
       EZ_ASSERT_DEV(m_uiCurrentBucketIndex == 0 && (m_Buckets.IsEmpty() || m_Buckets[m_uiCurrentBucketIndex].GetPtr() == m_pNextAllocation),
         "There is still something allocated!");

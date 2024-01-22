@@ -7,11 +7,11 @@ namespace ezMemoryPolicies
   /// \brief Aligned Heap memory allocation policy.
   ///
   /// \see ezAllocator
-  class ezAlignedHeapAllocation
+  class ezAllocPolicyAlignedHeap
   {
   public:
-    EZ_ALWAYS_INLINE ezAlignedHeapAllocation(ezAllocatorBase* pParent) {}
-    EZ_ALWAYS_INLINE ~ezAlignedHeapAllocation() = default;
+    EZ_ALWAYS_INLINE ezAllocPolicyAlignedHeap(ezAllocatorBase* pParent) {}
+    EZ_ALWAYS_INLINE ~ezAllocPolicyAlignedHeap() = default;
 
     void* Allocate(size_t uiSize, size_t uiAlign);
     void Deallocate(void* pPtr);
@@ -20,10 +20,10 @@ namespace ezMemoryPolicies
   };
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Memory/Policies/Win/AlignedHeapAllocation_win.h>
+#  include <Foundation/Memory/Policies/Win/AllocPolicyAlignedHeap_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Memory/Policies/Posix/AlignedHeapAllocation_posix.h>
+#  include <Foundation/Memory/Policies/Posix/AllocPolicyAlignedHeap_posix.h>
 #else
-#  error "ezAlignedHeapAllocation is not implemented on current platform"
+#  error "ezAllocPolicyAlignedHeap is not implemented on current platform"
 #endif
 } // namespace ezMemoryPolicies
