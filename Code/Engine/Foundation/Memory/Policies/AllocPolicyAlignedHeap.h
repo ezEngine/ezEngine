@@ -10,13 +10,13 @@ namespace ezMemoryPolicies
   class ezAllocPolicyAlignedHeap
   {
   public:
-    EZ_ALWAYS_INLINE ezAllocPolicyAlignedHeap(ezAllocatorBase* pParent) {}
+    EZ_ALWAYS_INLINE ezAllocPolicyAlignedHeap(ezAllocator* pParent) {}
     EZ_ALWAYS_INLINE ~ezAllocPolicyAlignedHeap() = default;
 
     void* Allocate(size_t uiSize, size_t uiAlign);
     void Deallocate(void* pPtr);
 
-    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
+    EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return nullptr; }
   };
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

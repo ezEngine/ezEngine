@@ -42,12 +42,12 @@ ezVisualScriptCoroutineAllocator::ezVisualScriptCoroutineAllocator(const ezShare
 {
 }
 
-void ezVisualScriptCoroutineAllocator::Deallocate(void* pObject, ezAllocatorBase* pAllocator /*= nullptr*/)
+void ezVisualScriptCoroutineAllocator::Deallocate(void* pObject, ezAllocator* pAllocator /*= nullptr*/)
 {
   EZ_REPORT_FAILURE("Deallocate is not supported");
 }
 
-ezInternal::NewInstance<void> ezVisualScriptCoroutineAllocator::AllocateInternal(ezAllocatorBase* pAllocator)
+ezInternal::NewInstance<void> ezVisualScriptCoroutineAllocator::AllocateInternal(ezAllocator* pAllocator)
 {
   return EZ_SCRIPT_NEW(ezVisualScriptCoroutine, m_pDesc);
 }

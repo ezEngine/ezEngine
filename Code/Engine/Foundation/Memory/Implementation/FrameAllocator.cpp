@@ -5,7 +5,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-ezDoubleBufferedStackAllocator::ezDoubleBufferedStackAllocator(ezStringView sName0, ezAllocatorBase* pParent)
+ezDoubleBufferedStackAllocator::ezDoubleBufferedStackAllocator(ezStringView sName0, ezAllocator* pParent)
 {
   ezStringBuilder sName = sName0;
   sName.Append("0");

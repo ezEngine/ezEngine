@@ -91,13 +91,13 @@ public:
 
 protected:
   /// \brief Creates an empty hashtable. Does not allocate any data yet.
-  explicit ezHashTableBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezHashTableBase(ezAllocator* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given hashtable.
-  ezHashTableBase(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHashTableBase(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Moves data from an existing hashtable into this one.
-  ezHashTableBase(ezHashTableBase<KeyType, ValueType, Hasher>&& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHashTableBase(ezHashTableBase<KeyType, ValueType, Hasher>&& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezHashTableBase(); // [tested]
@@ -199,7 +199,7 @@ public:
   ConstIterator GetEndIterator() const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const;
+  ezAllocator* GetAllocator() const;
 
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
@@ -221,7 +221,7 @@ private:
   ezUInt32 m_uiCount;
   ezUInt32 m_uiCapacity;
 
-  ezAllocatorBase* m_pAllocator;
+  ezAllocator* m_pAllocator;
 
   enum
   {
@@ -261,7 +261,7 @@ class ezHashTable : public ezHashTableBase<KeyType, ValueType, Hasher>
 {
 public:
   ezHashTable();
-  explicit ezHashTable(ezAllocatorBase* pAllocator);
+  explicit ezHashTable(ezAllocator* pAllocator);
 
   ezHashTable(const ezHashTable<KeyType, ValueType, Hasher, AllocatorWrapper>& other);
   ezHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& other);

@@ -8,10 +8,10 @@ class EZ_FOUNDATION_DLL ezDoubleBufferedStackAllocator
 public:
   using StackAllocatorType = ezStackAllocator<ezAllocatorTrackingMode::Basics>;
 
-  ezDoubleBufferedStackAllocator(ezStringView sName, ezAllocatorBase* pParent);
+  ezDoubleBufferedStackAllocator(ezStringView sName, ezAllocator* pParent);
   ~ezDoubleBufferedStackAllocator();
 
-  EZ_ALWAYS_INLINE ezAllocatorBase* GetCurrentAllocator() const { return m_pCurrentAllocator; }
+  EZ_ALWAYS_INLINE ezAllocator* GetCurrentAllocator() const { return m_pCurrentAllocator; }
 
   void Swap();
   void Reset();
@@ -24,7 +24,7 @@ private:
 class EZ_FOUNDATION_DLL ezFrameAllocator
 {
 public:
-  EZ_ALWAYS_INLINE static ezAllocatorBase* GetCurrentAllocator() { return s_pAllocator->GetCurrentAllocator(); }
+  EZ_ALWAYS_INLINE static ezAllocator* GetCurrentAllocator() { return s_pAllocator->GetCurrentAllocator(); }
 
   static void Swap();
   static void Reset();

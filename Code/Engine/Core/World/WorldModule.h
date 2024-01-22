@@ -84,7 +84,7 @@ protected:
   void DeregisterUpdateFunction(const UpdateFunctionDesc& desc);
 
   /// \brief Returns the allocator used by the world.
-  ezAllocatorBase* GetAllocator();
+  ezAllocator* GetAllocator();
 
   /// \brief Returns the block allocator used by the world.
   ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
@@ -136,7 +136,7 @@ public:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, WorldModuleFactory);
 
-  using CreatorFunc = ezWorldModule* (*)(ezAllocatorBase*, ezWorld*);
+  using CreatorFunc = ezWorldModule* (*)(ezAllocator*, ezWorld*);
 
   ezWorldModuleFactory();
   ezWorldModuleTypeId RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc);

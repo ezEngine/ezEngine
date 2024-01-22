@@ -11,7 +11,7 @@ template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Defaul
 class ezStackAllocator : public ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>
 {
 public:
-  ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent);
+  ezStackAllocator(ezStringView sName, ezAllocator* pParent);
   ~ezStackAllocator();
 
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc) override;

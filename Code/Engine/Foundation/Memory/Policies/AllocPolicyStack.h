@@ -18,7 +18,7 @@ namespace ezMemoryPolicies
       Alignment = 16
     };
 
-    EZ_FORCE_INLINE ezAllocPolicyStack(ezAllocatorBase* pParent)
+    EZ_FORCE_INLINE ezAllocPolicyStack(ezAllocator* pParent)
       : m_pParent(pParent)
       , m_uiNextBucketSize(4096)
     {
@@ -94,7 +94,7 @@ namespace ezMemoryPolicies
       m_pNextAllocation = !m_Buckets.IsEmpty() ? m_Buckets[0].GetPtr() : nullptr;
     }
 
-    EZ_FORCE_INLINE void FillStats(ezAllocatorBase::Stats& ref_stats)
+    EZ_FORCE_INLINE void FillStats(ezAllocator::Stats& ref_stats)
     {
       ref_stats.m_uiNumAllocations = m_Buckets.GetCount();
       for (auto& bucket : m_Buckets)
@@ -103,10 +103,10 @@ namespace ezMemoryPolicies
       }
     }
 
-    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return m_pParent; }
+    EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return m_pParent; }
 
   private:
-    ezAllocatorBase* m_pParent = nullptr;
+    ezAllocator* m_pParent = nullptr;
 
     ezUInt32 m_uiCurrentBucketIndex = 0;
     ezUInt32 m_uiNextBucketSize = 0;

@@ -91,7 +91,7 @@ public:
 
   // Other rendering creation functions
 
-  using SwapChainFactoryFunction = ezDelegate<ezGALSwapChain*(ezAllocatorBase*)>;
+  using SwapChainFactoryFunction = ezDelegate<ezGALSwapChain*(ezAllocator*)>;
   ezGALSwapChainHandle CreateSwapChain(const SwapChainFactoryFunction& func);
   ezResult UpdateSwapChain(ezGALSwapChainHandle hSwapChain, ezEnum<ezGALPresentMode> newPresentMode);
   void DestroySwapChain(ezGALSwapChainHandle hSwapChain);

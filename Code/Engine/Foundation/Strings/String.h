@@ -28,28 +28,28 @@ struct ezHybridStringBase : public ezStringBase<ezHybridStringBase<Size>>
 {
 protected:
   /// \brief Creates an empty string.
-  ezHybridStringBase(ezAllocatorBase* pAllocator); // [tested]
+  ezHybridStringBase(ezAllocator* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Moves the data from \a rhs.
-  ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const char* rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHybridStringBase(const char* rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const wchar_t* rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHybridStringBase(const wchar_t* rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const ezStringView& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHybridStringBase(const ezStringView& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const ezStringBuilder& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHybridStringBase(const ezStringBuilder& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Moves the data from \a rhs.
-  ezHybridStringBase(ezStringBuilder&& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHybridStringBase(ezStringBuilder&& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezHybridStringBase(); // [tested]
@@ -77,10 +77,10 @@ protected:
 
 #if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const std::string_view& rhs, ezAllocatorBase* pAllocator);
+  ezHybridStringBase(const std::string_view& rhs, ezAllocator* pAllocator);
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const std::string& rhs, ezAllocatorBase* pAllocator);
+  ezHybridStringBase(const std::string& rhs, ezAllocator* pAllocator);
 
   /// \brief Copies the data from \a rhs.
   void operator=(const std::string_view& rhs);
@@ -143,7 +143,7 @@ struct ezHybridString : public ezHybridStringBase<Size>
 {
 public:
   ezHybridString();
-  ezHybridString(ezAllocatorBase* pAllocator);
+  ezHybridString(ezAllocator* pAllocator);
 
   ezHybridString(const ezHybridString<Size, AllocatorWrapper>& other);
   ezHybridString(const ezHybridStringBase<Size>& other);

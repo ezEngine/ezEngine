@@ -11,7 +11,7 @@ public:
   ~ezRemoteInterfaceEnet();
 
   /// \brief Allocates a new instance with the given allocator
-  static ezInternal::NewInstance<ezRemoteInterfaceEnet> Make(ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  static ezInternal::NewInstance<ezRemoteInterfaceEnet> Make(ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
   /// \brief The port through which the connection was started
   ezUInt16 GetPort() const { return m_uiPort; }

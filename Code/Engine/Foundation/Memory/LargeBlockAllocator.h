@@ -39,7 +39,7 @@ template <ezUInt32 BlockSizeInByte>
 class ezLargeBlockAllocator
 {
 public:
-  ezLargeBlockAllocator(ezStringView sName, ezAllocatorBase* pParent, ezAllocatorTrackingMode mode = ezAllocatorTrackingMode::Default);
+  ezLargeBlockAllocator(ezStringView sName, ezAllocator* pParent, ezAllocatorTrackingMode mode = ezAllocatorTrackingMode::Default);
   ~ezLargeBlockAllocator();
 
   template <typename T>
@@ -53,7 +53,7 @@ public:
 
   ezAllocatorId GetId() const;
 
-  const ezAllocatorBase::Stats& GetStats() const;
+  const ezAllocator::Stats& GetStats() const;
 
 private:
   void* Allocate(size_t uiAlign);

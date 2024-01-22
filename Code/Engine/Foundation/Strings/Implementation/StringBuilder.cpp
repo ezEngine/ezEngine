@@ -1151,7 +1151,7 @@ void ezStringBuilder::SetPrintf(const char* szUtf8Format, ...)
 }
 
 #if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
-ezStringBuilder::ezStringBuilder(const std::string_view& rhs, ezAllocatorBase* pAllocator)
+ezStringBuilder::ezStringBuilder(const std::string_view& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
@@ -1160,7 +1160,7 @@ ezStringBuilder::ezStringBuilder(const std::string_view& rhs, ezAllocatorBase* p
   *this = rhs;
 }
 
-ezStringBuilder::ezStringBuilder(const std::string& rhs, ezAllocatorBase* pAllocator)
+ezStringBuilder::ezStringBuilder(const std::string& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;

@@ -292,7 +292,7 @@ public:
 
 
   /// \brief Returns the allocator used by this world.
-  ezAllocatorBase* GetAllocator();
+  ezAllocator* GetAllocator();
 
   /// \brief Returns the block allocator used by this world.
   ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();

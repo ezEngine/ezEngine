@@ -19,7 +19,7 @@ namespace
 
   struct TrackerDataAllocatorWrapper
   {
-    EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator() { return s_pTrackerDataAllocator; }
+    EZ_ALWAYS_INLINE static ezAllocator* GetAllocator() { return s_pTrackerDataAllocator; }
   };
 
 
@@ -32,7 +32,7 @@ namespace
 
     ezAllocatorId m_ParentId;
 
-    ezAllocatorBase::Stats m_Stats;
+    ezAllocator::Stats m_Stats;
 
     ezHashTable<const void*, ezMemoryTracker::AllocationInfo, ezHashHelper<const void*>, TrackerDataAllocatorWrapper> m_Allocations;
   };
@@ -115,7 +115,7 @@ ezAllocatorId ezMemoryTracker::Iterator::ParentId() const
   return CAST_ITER(m_pData)->Value().m_ParentId;
 }
 
-const ezAllocatorBase::Stats& ezMemoryTracker::Iterator::Stats() const
+const ezAllocator::Stats& ezMemoryTracker::Iterator::Stats() const
 {
   return CAST_ITER(m_pData)->Value().m_Stats;
 }
@@ -257,7 +257,7 @@ void ezMemoryTracker::RemoveAllAllocations(ezAllocatorId allocatorId)
 }
 
 // static
-void ezMemoryTracker::SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocatorBase::Stats& stats)
+void ezMemoryTracker::SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocator::Stats& stats)
 {
   EZ_LOCK(*s_pTrackerData);
 
@@ -286,7 +286,7 @@ ezStringView ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
 }
 
 // static
-const ezAllocatorBase::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId allocatorId)
+const ezAllocator::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId allocatorId)
 {
   EZ_LOCK(*s_pTrackerData);
 

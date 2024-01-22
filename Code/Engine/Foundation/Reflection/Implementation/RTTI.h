@@ -236,24 +236,24 @@ struct EZ_FOUNDATION_DLL ezRTTIAllocator
 
   /// \brief Allocates one instance.
   template <typename T>
-  ezInternal::NewInstance<T> Allocate(ezAllocatorBase* pAllocator = nullptr)
+  ezInternal::NewInstance<T> Allocate(ezAllocator* pAllocator = nullptr)
   {
     return AllocateInternal(pAllocator).Cast<T>();
   }
 
   /// \brief Clones the given instance.
   template <typename T>
-  ezInternal::NewInstance<T> Clone(const void* pObject, ezAllocatorBase* pAllocator = nullptr)
+  ezInternal::NewInstance<T> Clone(const void* pObject, ezAllocator* pAllocator = nullptr)
   {
     return CloneInternal(pObject, pAllocator).Cast<T>();
   }
 
   /// \brief Deallocates the given instance.
-  virtual void Deallocate(void* pObject, ezAllocatorBase* pAllocator = nullptr) = 0; // [tested]
+  virtual void Deallocate(void* pObject, ezAllocator* pAllocator = nullptr) = 0; // [tested]
 
 private:
-  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocatorBase* pAllocator) = 0;
-  virtual ezInternal::NewInstance<void> CloneInternal(const void* pObject, ezAllocatorBase* pAllocator)
+  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) = 0;
+  virtual ezInternal::NewInstance<void> CloneInternal(const void* pObject, ezAllocator* pAllocator)
   {
     EZ_REPORT_FAILURE("Cloning is not supported by this allocator.");
     return ezInternal::NewInstance<void>(nullptr, pAllocator);
@@ -267,14 +267,14 @@ struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
   virtual bool CanAllocate() const override { return false; } // [tested]
 
   /// \brief Will trigger an assert.
-  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocatorBase* pAllocator) override // [tested]
+  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) override // [tested]
   {
     EZ_REPORT_FAILURE("This function should never be called.");
     return ezInternal::NewInstance<void>(nullptr, pAllocator);
   }
 
   /// \brief Will trigger an assert.
-  virtual void Deallocate(void* pObject, ezAllocatorBase* pAllocator) override // [tested]
+  virtual void Deallocate(void* pObject, ezAllocator* pAllocator) override // [tested]
   {
     EZ_REPORT_FAILURE("This function should never be called.");
   }
@@ -285,7 +285,7 @@ template <typename CLASS, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 struct ezRTTIDefaultAllocator : public ezRTTIAllocator
 {
   /// \brief Returns a new instance that was allocated with the given allocator.
-  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocatorBase* pAllocator) override // [tested]
+  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) override // [tested]
   {
     if (pAllocator == nullptr)
     {
@@ -296,7 +296,7 @@ struct ezRTTIDefaultAllocator : public ezRTTIAllocator
   }
 
   /// \brief Clones the given instance with the given allocator.
-  virtual ezInternal::NewInstance<void> CloneInternal(const void* pObject, ezAllocatorBase* pAllocator) override // [tested]
+  virtual ezInternal::NewInstance<void> CloneInternal(const void* pObject, ezAllocator* pAllocator) override // [tested]
   {
     if (pAllocator == nullptr)
     {
@@ -307,7 +307,7 @@ struct ezRTTIDefaultAllocator : public ezRTTIAllocator
   }
 
   /// \brief Deletes the given instance with the given allocator.
-  virtual void Deallocate(void* pObject, ezAllocatorBase* pAllocator) override // [tested]
+  virtual void Deallocate(void* pObject, ezAllocator* pAllocator) override // [tested]
   {
     if (pAllocator == nullptr)
     {
@@ -319,13 +319,13 @@ struct ezRTTIDefaultAllocator : public ezRTTIAllocator
   }
 
 private:
-  ezInternal::NewInstance<void> CloneImpl(const void* pObject, ezAllocatorBase* pAllocator, ezTraitInt<0>)
+  ezInternal::NewInstance<void> CloneImpl(const void* pObject, ezAllocator* pAllocator, ezTraitInt<0>)
   {
     EZ_REPORT_FAILURE("Clone failed since the type is not copy constructible");
     return ezInternal::NewInstance<void>(nullptr, pAllocator);
   }
 
-  ezInternal::NewInstance<void> CloneImpl(const void* pObject, ezAllocatorBase* pAllocator, ezTraitInt<1>)
+  ezInternal::NewInstance<void> CloneImpl(const void* pObject, ezAllocator* pAllocator, ezTraitInt<1>)
   {
     return EZ_NEW(pAllocator, CLASS, *static_cast<const CLASS*>(pObject));
   }

@@ -65,7 +65,7 @@ void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, Ca
     ezUInt64 uiItemsPerInvocation;
     params.DetermineThreading(uiNumItems, uiMultiplicity, uiItemsPerInvocation);
 
-    ezAllocatorBase* pAllocator = (params.m_pTaskAllocator != nullptr) ? params.m_pTaskAllocator : ezFoundation::GetDefaultAllocator();
+    ezAllocator* pAllocator = (params.m_pTaskAllocator != nullptr) ? params.m_pTaskAllocator : ezFoundation::GetDefaultAllocator();
 
     ezSharedPtr<Task> pIndexedTask = EZ_NEW(pAllocator, Task, uiStartIndex, uiNumItems, std::move(taskCallback), static_cast<IndexType>(uiItemsPerInvocation));
     pIndexedTask->ConfigureTask(szTaskName, ezTaskNesting::Never);

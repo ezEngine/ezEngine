@@ -24,8 +24,8 @@ alignas(EZ_ALIGNMENT_MINIMUM) static ezUInt8 s_StaticAllocatorBuffer[HEAP_ALLOCA
 alignas(EZ_ALIGNMENT_MINIMUM) static ezUInt8 s_AlignedAllocatorBuffer[ALIGNED_ALLOCATOR_BUFFER_SIZE];
 
 bool ezFoundation::s_bIsInitialized = false;
-ezAllocatorBase* ezFoundation::s_pDefaultAllocator = nullptr;
-ezAllocatorBase* ezFoundation::s_pAlignedAllocator = nullptr;
+ezAllocator* ezFoundation::s_pDefaultAllocator = nullptr;
+ezAllocator* ezFoundation::s_pAlignedAllocator = nullptr;
 
 void ezFoundation::Initialize()
 {
@@ -50,12 +50,12 @@ void ezFoundation::Initialize()
 }
 
 #if defined(EZ_CUSTOM_STATIC_ALLOCATOR_FUNC)
-extern ezAllocatorBase* EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
+extern ezAllocator* EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
 #endif
 
-ezAllocatorBase* ezFoundation::GetStaticsAllocator()
+ezAllocator* ezFoundation::GetStaticsAllocator()
 {
-  static ezAllocatorBase* pStaticAllocator = nullptr;
+  static ezAllocator* pStaticAllocator = nullptr;
 
   if (pStaticAllocator == nullptr)
   {
@@ -64,7 +64,7 @@ ezAllocatorBase* ezFoundation::GetStaticsAllocator()
 #  if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
 #    if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    using GetStaticAllocatorFunc = ezAllocatorBase* (*)();
+    using GetStaticAllocatorFunc = ezAllocator* (*)();
 
     HMODULE hThisModule = GetModuleHandle(nullptr);
     GetStaticAllocatorFunc func = (GetStaticAllocatorFunc)GetProcAddress(hThisModule, EZ_CUSTOM_STATIC_ALLOCATOR_FUNC);

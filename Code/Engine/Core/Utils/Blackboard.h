@@ -79,7 +79,7 @@ public:
   /// which created the blackboard is already unloaded.
   ///
   /// See https://groups.google.com/g/microsoft.public.vc.language/c/atSh_2VSc2w/m/EgJ3r_7OzVUJ?pli=1
-  static ezSharedPtr<ezBlackboard> Create(ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  static ezSharedPtr<ezBlackboard> Create(ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
   /// \brief Factory method to get access to a globally registered blackboard.
   ///
@@ -90,7 +90,7 @@ public:
   ///
   /// If at some point you want to "remove" a global blackboard, instead call UnregisterAllEntries() to
   /// clear all its values.
-  static ezSharedPtr<ezBlackboard> GetOrCreateGlobal(const ezHashedString& sBlackboardName, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  static ezSharedPtr<ezBlackboard> GetOrCreateGlobal(const ezHashedString& sBlackboardName, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
   /// \brief Finds a global blackboard with the given name.
   static ezSharedPtr<ezBlackboard> FindGlobal(const ezTempHashedString& sBlackboardName);

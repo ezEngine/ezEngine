@@ -28,7 +28,7 @@ CreatorFuncInfo* GetCreatorFuncInfo(ezStringView sRendererName)
   return pFuncInfo;
 }
 
-ezInternal::NewInstance<ezGALDevice> ezGALDeviceFactory::CreateDevice(ezStringView sRendererName, ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& desc)
+ezInternal::NewInstance<ezGALDevice> ezGALDeviceFactory::CreateDevice(ezStringView sRendererName, ezAllocator* pAllocator, const ezGALDeviceCreationDescription& desc)
 {
   if (auto pFuncInfo = GetCreatorFuncInfo(sRendererName))
   {

@@ -19,7 +19,7 @@
 using ezAllocatorId = ezGenericId<24, 8>;
 
 /// \brief Base class for all memory allocators.
-class EZ_FOUNDATION_DLL ezAllocatorBase
+class EZ_FOUNDATION_DLL ezAllocator
 {
 public:
   struct Stats
@@ -34,8 +34,8 @@ public:
     ezTime m_PerFrameAllocationTime;         ///< time spend on allocations in this frame
   };
 
-  ezAllocatorBase();
-  virtual ~ezAllocatorBase();
+  ezAllocator();
+  virtual ~ezAllocator();
 
   /// \brief Interface, do not use this directly, always use the new/delete macros below
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc = nullptr) = 0;
@@ -53,10 +53,10 @@ public:
   virtual Stats GetStats() const = 0;
 
 private:
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezAllocatorBase);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezAllocator);
 };
 
-#include <Foundation/Memory/Implementation/AllocatorBase_inl.h>
+#include <Foundation/Memory/Implementation/Allocator_inl.h>
 
 /// \brief creates a new instance of type using the given allocator
 #define EZ_NEW(allocator, type, ...) \

@@ -1,42 +1,42 @@
 #pragma once
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   Clear();
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   operator=(std::move(rhs));
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const char* rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const char* rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const wchar_t* rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const wchar_t* rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezStringView& rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const ezStringView& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
@@ -169,7 +169,7 @@ EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString()
 }
 
 template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocatorBase* pAllocator)
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocator* pAllocator)
   : ezHybridStringBase<Size>(pAllocator)
 {
 }
@@ -261,13 +261,13 @@ EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const ezStringView& rhs
 #if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const std::string_view& rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const std::string_view& rhs, ezAllocator* pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const std::string& rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const std::string& rhs, ezAllocator* pAllocator)
 {
   *this = rhs;
 }

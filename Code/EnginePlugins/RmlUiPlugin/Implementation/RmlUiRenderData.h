@@ -41,7 +41,7 @@ class ezRmlUiRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiRenderData, ezRenderData);
 
 public:
-  ezRmlUiRenderData(ezAllocatorBase* pAllocator)
+  ezRmlUiRenderData(ezAllocator* pAllocator)
     : m_Batches(pAllocator)
   {
   }

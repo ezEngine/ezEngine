@@ -18,7 +18,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(const ezInternal::NewInstance<U>& i
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(U* pInstance, ezAllocatorBase* pAllocator)
+EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(U* pInstance, ezAllocator* pAllocator)
 {
   m_pInstance = pInstance;
   m_pAllocator = pAllocator;

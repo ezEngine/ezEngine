@@ -32,7 +32,7 @@ namespace ezMemoryPolicies
     ezUInt32 m_magic[32];
   };
 
-  ezAllocPolicyGuarding::ezAllocPolicyGuarding(ezAllocatorBase* pParent)
+  ezAllocPolicyGuarding::ezAllocPolicyGuarding(ezAllocator* pParent)
   {
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);

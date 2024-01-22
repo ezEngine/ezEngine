@@ -108,7 +108,7 @@
 #include <Foundation/Math/Vec4.h>
 
 #include <Foundation/Memory/AllocatorWithPolicy.h>
-#include <Foundation/Memory/AllocatorBase.h>
+#include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 #include <Foundation/Memory/BlockStorage.h>
 #include <Foundation/Memory/CommonAllocators.h>

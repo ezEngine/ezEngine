@@ -113,10 +113,10 @@ public:
 
 protected:
   /// \brief Initializes the list to be empty.
-  explicit ezListBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezListBase(ezAllocator* pAllocator); // [tested]
 
   /// \brief Initializes the list with a copy from another list.
-  ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator); // [tested]
+  ezListBase(const ezListBase<T>& cc, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destroys the list and all its content.
   ~ezListBase(); // [tested]
@@ -201,7 +201,7 @@ public:
   ConstIterator GetEndIterator() const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
+  ezAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
 
   /// \brief Comparison operator
   bool operator==(const ezListBase<T>& rhs) const; // [tested]
@@ -242,7 +242,7 @@ class ezList : public ezListBase<T>
 {
 public:
   ezList();
-  explicit ezList(ezAllocatorBase* pAllocator);
+  explicit ezList(ezAllocator* pAllocator);
 
   ezList(const ezList<T, AllocatorWrapper>& other);
   ezList(const ezListBase<T>& other);

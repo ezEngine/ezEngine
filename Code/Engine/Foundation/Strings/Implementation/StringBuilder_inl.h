@@ -2,7 +2,7 @@
 
 #include <Foundation/Strings/StringConversion.h>
 
-inline ezStringBuilder::ezStringBuilder(ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
@@ -27,7 +27,7 @@ inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) noexcept
   *this = std::move(rhs);
 }
 
-inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
@@ -36,7 +36,7 @@ inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAl
   *this = szUTF8;
 }
 
-inline ezStringBuilder::ezStringBuilder(const wchar_t* pWChar, ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(const wchar_t* pWChar, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
@@ -45,7 +45,7 @@ inline ezStringBuilder::ezStringBuilder(const wchar_t* pWChar, ezAllocatorBase* 
   *this = pWChar;
 }
 
-inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
@@ -54,7 +54,7 @@ inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocatorBase* pAllo
   *this = rhs;
 }
 
-EZ_ALWAYS_INLINE ezAllocatorBase* ezStringBuilder::GetAllocator() const
+EZ_ALWAYS_INLINE ezAllocator* ezStringBuilder::GetAllocator() const
 {
   return m_Data.GetAllocator();
 }

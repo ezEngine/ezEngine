@@ -10,13 +10,13 @@ namespace ezMemoryPolicies
   class ezAllocPolicyGuarding
   {
   public:
-    ezAllocPolicyGuarding(ezAllocatorBase* pParent);
+    ezAllocPolicyGuarding(ezAllocator* pParent);
     EZ_ALWAYS_INLINE ~ezAllocPolicyGuarding() = default;
 
     void* Allocate(size_t uiSize, size_t uiAlign);
     void Deallocate(void* pPtr);
 
-    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
+    EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return nullptr; }
 
   private:
     ezMutex m_Mutex;

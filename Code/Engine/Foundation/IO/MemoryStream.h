@@ -80,7 +80,7 @@ class ezMemoryStreamContainerStorage : public ezMemoryStreamStorageInterface
 {
 public:
   /// \brief Creates the storage object for a memory stream. Use \a uiInitialCapacity to reserve some memory up front.
-  ezMemoryStreamContainerStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
+  ezMemoryStreamContainerStorage(ezUInt32 uiInitialCapacity = 0, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
     : m_Storage(pAllocator)
   {
     m_Storage.Reserve(uiInitialCapacity);
@@ -144,7 +144,7 @@ private:
 class EZ_FOUNDATION_DLL ezContiguousMemoryStreamStorage : public ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>
 {
 public:
-  ezContiguousMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
+  ezContiguousMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
     : ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>(uiInitialCapacity, pAllocator)
   {
   }
@@ -160,7 +160,7 @@ public:
 class EZ_FOUNDATION_DLL ezDefaultMemoryStreamStorage final : public ezMemoryStreamStorageInterface
 {
 public:
-  ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
   ~ezDefaultMemoryStreamStorage();
 
   virtual void Reserve(ezUInt64 uiBytes) override; // [tested]

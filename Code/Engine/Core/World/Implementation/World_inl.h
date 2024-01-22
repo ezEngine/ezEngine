@@ -442,7 +442,7 @@ EZ_ALWAYS_INLINE ezRandom& ezWorld::GetRandomNumberGenerator()
   return m_Data.m_Random;
 }
 
-EZ_ALWAYS_INLINE ezAllocatorBase* ezWorld::GetAllocator()
+EZ_ALWAYS_INLINE ezAllocator* ezWorld::GetAllocator()
 {
   return &m_Data.m_Allocator;
 }

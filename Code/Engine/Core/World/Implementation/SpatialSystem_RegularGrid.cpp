@@ -179,7 +179,7 @@ struct CellDataMapping
 
 struct ezSpatialSystem_RegularGrid::Cell
 {
-  Cell(ezAllocatorBase* pAlignedAlloctor, ezAllocatorBase* pAllocator)
+  Cell(ezAllocator* pAlignedAlloctor, ezAllocator* pAllocator)
     : m_BoundingSpheres(pAlignedAlloctor)
     , m_BoundingBoxHalfExtents(pAlignedAlloctor)
     , m_TagSets(pAllocator)

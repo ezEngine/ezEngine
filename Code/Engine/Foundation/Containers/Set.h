@@ -88,10 +88,10 @@ public:
 
 protected:
   /// \brief Initializes the set to be empty.
-  ezSetBase(const Comparer& comparer, ezAllocatorBase* pAllocator); // [tested]
+  ezSetBase(const Comparer& comparer, ezAllocator* pAllocator); // [tested]
 
   /// \brief Copies all keys from the given set into this one.
-  ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocatorBase* pAllocator); // [tested]
+  ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destroys all elements in the set.
   ~ezSetBase(); // [tested]
@@ -157,7 +157,7 @@ public:
   void Intersection(const ezSetBase<KeyType, Comparer>& operand); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
+  ezAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
 
   /// \brief Comparison operator
   bool operator==(const ezSetBase<KeyType, Comparer>& rhs) const; // [tested]
@@ -232,8 +232,8 @@ class ezSet : public ezSetBase<KeyType, Comparer>
 {
 public:
   ezSet();
-  explicit ezSet(ezAllocatorBase* pAllocator);
-  ezSet(const Comparer& comparer, ezAllocatorBase* pAllocator);
+  explicit ezSet(ezAllocator* pAllocator);
+  ezSet(const Comparer& comparer, ezAllocator* pAllocator);
 
   ezSet(const ezSet<KeyType, Comparer, AllocatorWrapper>& other);
   ezSet(const ezSetBase<KeyType, Comparer>& other);

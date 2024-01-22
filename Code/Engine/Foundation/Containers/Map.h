@@ -140,10 +140,10 @@ public:
 
 protected:
   /// \brief Initializes the map to be empty.
-  ezMapBase(const Comparer& comparer, ezAllocatorBase* pAllocator); // [tested]
+  ezMapBase(const Comparer& comparer, ezAllocator* pAllocator); // [tested]
 
   /// \brief Copies all key/value pairs from the given map into this one.
-  ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocatorBase* pAllocator); // [tested]
+  ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destroys all elements from the map.
   ~ezMapBase(); // [tested]
@@ -252,7 +252,7 @@ public:
   ConstIterator UpperBound(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
+  ezAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
 
   /// \brief Comparison operator
   bool operator==(const ezMapBase<KeyType, ValueType, Comparer>& rhs) const; // [tested]
@@ -325,8 +325,8 @@ class ezMap : public ezMapBase<KeyType, ValueType, Comparer>
 {
 public:
   ezMap();
-  explicit ezMap(ezAllocatorBase* pAllocator);
-  ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator);
+  explicit ezMap(ezAllocator* pAllocator);
+  ezMap(const Comparer& comparer, ezAllocator* pAllocator);
 
   ezMap(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& other);
   ezMap(const ezMapBase<KeyType, ValueType, Comparer>& other);

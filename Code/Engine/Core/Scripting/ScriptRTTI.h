@@ -80,7 +80,7 @@ private:
 
 struct EZ_CORE_DLL ezScriptAllocator
 {
-  static ezAllocatorBase* GetAllocator();
+  static ezAllocator* GetAllocator();
 };
 
 /// \brief creates a new instance of type using the script allocator

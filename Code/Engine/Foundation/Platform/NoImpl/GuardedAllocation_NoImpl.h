@@ -2,7 +2,7 @@
 
 namespace ezMemoryPolicies
 {
-  ezAllocPolicyGuarding::ezAllocPolicyGuarding(ezAllocatorBase* pParent)
+  ezAllocPolicyGuarding::ezAllocPolicyGuarding(ezAllocator* pParent)
   {
     EZ_ASSERT_NOT_IMPLEMENTED;
   }

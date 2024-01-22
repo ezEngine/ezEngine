@@ -1,5 +1,5 @@
 template <ezAllocatorTrackingMode TrackingMode>
-ezStackAllocator<TrackingMode>::ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent)
+ezStackAllocator<TrackingMode>::ezStackAllocator(ezStringView sName, ezAllocator* pParent)
   : ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>(sName, pParent)
   , m_DestructData(pParent)
   , m_PtrToDestructDataIndexTable(pParent)
@@ -75,7 +75,7 @@ void ezStackAllocator<TrackingMode>::Reset()
   }
   else if constexpr (TrackingMode >= ezAllocatorTrackingMode::Basics)
   {
-    ezAllocatorBase::Stats stats;
+    ezAllocator::Stats stats;
     this->m_allocator.FillStats(stats);
 
     ezMemoryTracker::SetAllocatorStats(this->m_Id, stats);

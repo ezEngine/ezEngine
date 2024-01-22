@@ -12,7 +12,7 @@ namespace ezMemoryPolicies
   class ezAllocPolicyProxy
   {
   public:
-    EZ_FORCE_INLINE ezAllocPolicyProxy(ezAllocatorBase* pParent)
+    EZ_FORCE_INLINE ezAllocPolicyProxy(ezAllocator* pParent)
       : m_pParent(pParent)
     {
       EZ_ASSERT_ALWAYS(m_pParent != nullptr, "Parent allocator must not be nullptr");
@@ -29,9 +29,9 @@ namespace ezMemoryPolicies
 
     EZ_FORCE_INLINE size_t AllocatedSize(const void* pPtr) { return m_pParent->AllocatedSize(pPtr); }
 
-    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return m_pParent; }
+    EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return m_pParent; }
 
   private:
-    ezAllocatorBase* m_pParent;
+    ezAllocator* m_pParent;
   };
 } // namespace ezMemoryPolicies

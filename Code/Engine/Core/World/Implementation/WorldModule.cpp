@@ -31,7 +31,7 @@ void ezWorldModule::DeregisterUpdateFunction(const UpdateFunctionDesc& desc)
   m_pWorld->DeregisterUpdateFunction(desc);
 }
 
-ezAllocatorBase* ezWorldModule::GetAllocator()
+ezAllocator* ezWorldModule::GetAllocator()
 {
   return m_pWorld->GetAllocator();
 }

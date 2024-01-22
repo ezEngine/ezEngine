@@ -21,7 +21,7 @@ public:
   /// \brief Creates a shared ptr from a pointer and an allocator. The passed allocator will be used to destroy the instance when the shared
   /// ptr goes out of scope.
   template <typename U>
-  ezSharedPtr(U* pInstance, ezAllocatorBase* pAllocator);
+  ezSharedPtr(U* pInstance, ezAllocator* pAllocator);
 
   /// \brief Copy constructs a shared ptr from another. Both will hold a reference to the managed object afterwards.
   ezSharedPtr(const ezSharedPtr<T>& other);
@@ -120,7 +120,7 @@ private:
   void ReleaseReferenceIfValid();
 
   T* m_pInstance;
-  ezAllocatorBase* m_pAllocator;
+  ezAllocator* m_pAllocator;
 };
 
 #include <Foundation/Types/Implementation/SharedPtr_inl.h>

@@ -10,7 +10,7 @@ namespace ezMemoryPolicies
   class ezAllocPolicyHeap
   {
   public:
-    EZ_ALWAYS_INLINE ezAllocPolicyHeap(ezAllocatorBase* pParent) {}
+    EZ_ALWAYS_INLINE ezAllocPolicyHeap(ezAllocator* pParent) {}
     EZ_ALWAYS_INLINE ~ezAllocPolicyHeap() = default;
 
     EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
@@ -40,7 +40,7 @@ namespace ezMemoryPolicies
 
     EZ_ALWAYS_INLINE void Deallocate(void* pPtr) { free(RestorePtr(pPtr)); }
 
-    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
+    EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return nullptr; }
 
   private:
     EZ_ALWAYS_INLINE size_t PadSize(size_t uiSize)

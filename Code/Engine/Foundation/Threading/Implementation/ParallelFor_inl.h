@@ -58,7 +58,7 @@ void ezTaskSystem::ParallelForInternal(ezArrayPtr<ElemType> taskItems, ezParalle
     ezUInt64 uiItemsPerInvocation;
     params.DetermineThreading(taskItems.GetCount(), uiMultiplicity, uiItemsPerInvocation);
 
-    ezAllocatorBase* pAllocator = (params.m_pTaskAllocator != nullptr) ? params.m_pTaskAllocator : ezFoundation::GetDefaultAllocator();
+    ezAllocator* pAllocator = (params.m_pTaskAllocator != nullptr) ? params.m_pTaskAllocator : ezFoundation::GetDefaultAllocator();
 
     ezSharedPtr<ArrayPtrTask<ElemType>> pArrayPtrTask = EZ_NEW(pAllocator, ArrayPtrTask<ElemType>, taskItems, std::move(taskCallback), static_cast<ezUInt32>(uiItemsPerInvocation));
     pArrayPtrTask->ConfigureTask(taskName ? taskName : "Generic ArrayPtr Task", params.m_NestingMode);

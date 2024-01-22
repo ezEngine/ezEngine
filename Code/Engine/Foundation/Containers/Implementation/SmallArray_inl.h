@@ -3,20 +3,20 @@ template <typename T, ezUInt16 Size>
 ezSmallArrayBase<T, Size>::ezSmallArrayBase() = default;
 
 template <typename T, ezUInt16 Size>
-EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::ezSmallArrayBase(const ezSmallArrayBase<T, Size>& other, ezAllocatorBase* pAllocator)
+EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::ezSmallArrayBase(const ezSmallArrayBase<T, Size>& other, ezAllocator* pAllocator)
 {
   CopyFrom((ezArrayPtr<const T>)other, pAllocator);
   m_uiUserData = other.m_uiUserData;
 }
 
 template <typename T, ezUInt16 Size>
-EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::ezSmallArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator)
+EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::ezSmallArrayBase(const ezArrayPtr<const T>& other, ezAllocator* pAllocator)
 {
   CopyFrom(other, pAllocator);
 }
 
 template <typename T, ezUInt16 Size>
-EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::ezSmallArrayBase(ezSmallArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator)
+EZ_ALWAYS_INLINE ezSmallArrayBase<T, Size>::ezSmallArrayBase(ezSmallArrayBase<T, Size>&& other, ezAllocator* pAllocator)
 {
   MoveFrom(std::move(other), pAllocator);
 }
@@ -29,7 +29,7 @@ EZ_FORCE_INLINE ezSmallArrayBase<T, Size>::~ezSmallArrayBase()
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::CopyFrom(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::CopyFrom(const ezArrayPtr<const T>& other, ezAllocator* pAllocator)
 {
   EZ_ASSERT_DEV(other.GetCount() <= ezSmallInvalidIndex, "Can't copy {} elements to small array. Maximum count is {}", other.GetCount(), ezSmallInvalidIndex);
 
@@ -66,7 +66,7 @@ void ezSmallArrayBase<T, Size>::CopyFrom(const ezArrayPtr<const T>& other, ezAll
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::MoveFrom(ezSmallArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::MoveFrom(ezSmallArrayBase<T, Size>&& other, ezAllocator* pAllocator)
 {
   Clear();
 
@@ -139,7 +139,7 @@ EZ_ALWAYS_INLINE T& ezSmallArrayBase<T, Size>::operator[](const ezUInt32 uiIndex
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, ezAllocator* pAllocator)
 {
   const ezUInt32 uiOldCount = m_uiCount;
   const ezUInt32 uiNewCount = uiCount;
@@ -158,7 +158,7 @@ void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, ezAllocatorBase* pAll
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, const T& fillValue, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, const T& fillValue, ezAllocator* pAllocator)
 {
   const ezUInt32 uiOldCount = m_uiCount;
   const ezUInt32 uiNewCount = uiCount;
@@ -177,7 +177,7 @@ void ezSmallArrayBase<T, Size>::SetCount(ezUInt16 uiCount, const T& fillValue, e
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::EnsureCount(ezUInt16 uiCount, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::EnsureCount(ezUInt16 uiCount, ezAllocator* pAllocator)
 {
   if (uiCount > m_uiCount)
   {
@@ -187,7 +187,7 @@ void ezSmallArrayBase<T, Size>::EnsureCount(ezUInt16 uiCount, ezAllocatorBase* p
 
 template <typename T, ezUInt16 Size>
 template <typename> // Second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would trigger early.
-void ezSmallArrayBase<T, Size>::SetCountUninitialized(ezUInt16 uiCount, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::SetCountUninitialized(ezUInt16 uiCount, ezAllocator* pAllocator)
 {
   static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types.");
   const ezUInt32 uiOldCount = m_uiCount;
@@ -232,7 +232,7 @@ bool ezSmallArrayBase<T, Size>::Contains(const T& value) const
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::Insert(const T& value, ezUInt32 uiIndex, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::Insert(const T& value, ezUInt32 uiIndex, ezAllocator* pAllocator)
 {
   EZ_ASSERT_DEV(uiIndex <= m_uiCount, "Invalid index. Array has {0} elements, trying to insert element at index {1}.", m_uiCount, uiIndex);
 
@@ -243,7 +243,7 @@ void ezSmallArrayBase<T, Size>::Insert(const T& value, ezUInt32 uiIndex, ezAlloc
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::Insert(T&& value, ezUInt32 uiIndex, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::Insert(T&& value, ezUInt32 uiIndex, ezAllocator* pAllocator)
 {
   EZ_ASSERT_DEV(uiIndex <= m_uiCount, "Invalid index. Array has {0} elements, trying to insert element at index {1}.", m_uiCount, uiIndex);
 
@@ -335,7 +335,7 @@ ezUInt32 ezSmallArrayBase<T, Size>::LastIndexOf(const T& value, ezUInt32 uiStart
 }
 
 template <typename T, ezUInt16 Size>
-T& ezSmallArrayBase<T, Size>::ExpandAndGetRef(ezAllocatorBase* pAllocator)
+T& ezSmallArrayBase<T, Size>::ExpandAndGetRef(ezAllocator* pAllocator)
 {
   Reserve(m_uiCount + 1, pAllocator);
 
@@ -351,7 +351,7 @@ T& ezSmallArrayBase<T, Size>::ExpandAndGetRef(ezAllocatorBase* pAllocator)
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::PushBack(const T& value, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::PushBack(const T& value, ezAllocator* pAllocator)
 {
   Reserve(m_uiCount + 1, pAllocator);
 
@@ -360,7 +360,7 @@ void ezSmallArrayBase<T, Size>::PushBack(const T& value, ezAllocatorBase* pAlloc
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::PushBack(T&& value, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::PushBack(T&& value, ezAllocator* pAllocator)
 {
   Reserve(m_uiCount + 1, pAllocator);
 
@@ -387,7 +387,7 @@ void ezSmallArrayBase<T, Size>::PushBackUnchecked(T&& value)
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::PushBackRange(const ezArrayPtr<const T>& range, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::PushBackRange(const ezArrayPtr<const T>& range, ezAllocator* pAllocator)
 {
   const ezUInt32 uiRangeCount = range.GetCount();
   Reserve(m_uiCount + uiRangeCount, pAllocator);
@@ -483,7 +483,7 @@ EZ_ALWAYS_INLINE ezArrayPtr<typename ezArrayPtr<const T>::ByteType> ezSmallArray
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::Reserve(ezUInt16 uiCapacity, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::Reserve(ezUInt16 uiCapacity, ezAllocator* pAllocator)
 {
   if (m_uiCapacity >= uiCapacity)
     return;
@@ -499,7 +499,7 @@ void ezSmallArrayBase<T, Size>::Reserve(ezUInt16 uiCapacity, ezAllocatorBase* pA
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::Compact(ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::Compact(ezAllocator* pAllocator)
 {
   if (IsEmpty())
   {
@@ -545,7 +545,7 @@ EZ_ALWAYS_INLINE U& ezSmallArrayBase<T, Size>::GetUserData()
 }
 
 template <typename T, ezUInt16 Size>
-void ezSmallArrayBase<T, Size>::SetCapacity(ezUInt16 uiCapacity, ezAllocatorBase* pAllocator)
+void ezSmallArrayBase<T, Size>::SetCapacity(ezUInt16 uiCapacity, ezAllocator* pAllocator)
 {
   if (m_uiCapacity > Size && uiCapacity > m_uiCapacity)
   {
