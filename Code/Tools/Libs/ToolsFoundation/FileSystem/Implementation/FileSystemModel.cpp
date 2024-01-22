@@ -48,9 +48,9 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 namespace
 {
-  thread_local ezHybridArray<ezFileChangedEvent, 2, ezStaticAllocatorWrapper> g_PostponedFiles;
+  thread_local ezHybridArray<ezFileChangedEvent, 2, ezStaticsAllocatorWrapper> g_PostponedFiles;
   thread_local bool g_bInFileBroadcast = false;
-  thread_local ezHybridArray<ezFolderChangedEvent, 2, ezStaticAllocatorWrapper> g_PostponedFolders;
+  thread_local ezHybridArray<ezFolderChangedEvent, 2, ezStaticsAllocatorWrapper> g_PostponedFolders;
   thread_local bool g_bInFolderBroadcast = false;
 } // namespace
 

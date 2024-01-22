@@ -174,7 +174,7 @@ public:
 };
 
 /// \brief String that uses the static allocator to prevent leak reports in RTTI attributes.
-using ezUntrackedString = ezHybridString<32, ezStaticAllocatorWrapper>;
+using ezUntrackedString = ezHybridString<32, ezStaticsAllocatorWrapper>;
 
 using ezDynamicString = ezHybridString<1>;
 using ezString = ezHybridString<32>;

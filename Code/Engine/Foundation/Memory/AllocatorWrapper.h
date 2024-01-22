@@ -14,9 +14,9 @@ struct ezDefaultAllocatorWrapper
   EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator() { return ezFoundation::GetDefaultAllocator(); }
 };
 
-struct ezStaticAllocatorWrapper
+struct ezStaticsAllocatorWrapper
 {
-  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator() { return ezFoundation::GetStaticAllocator(); }
+  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator() { return ezFoundation::GetStaticsAllocator(); }
 };
 
 struct ezAlignedAllocatorWrapper

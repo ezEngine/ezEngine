@@ -71,7 +71,7 @@ private:
     ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps);
   }
 
-  static ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> s_TimingScopes;
+  static ezDeque<GPUTimingScope, ezStaticsAllocatorWrapper> s_TimingScopes;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererFoundation, GPUProfilingSystem);
 };
@@ -97,7 +97,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, GPUProfilingSystem)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> GPUProfilingSystem::s_TimingScopes;
+ezDeque<GPUTimingScope, ezStaticsAllocatorWrapper> GPUProfilingSystem::s_TimingScopes;
 
 //////////////////////////////////////////////////////////////////////////
 

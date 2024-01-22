@@ -82,7 +82,7 @@ public:
     if (s_bIsInitialized)
       return s_pDefaultAllocator;
     else // the default allocator is not yet set so we return the static allocator instead.
-      return GetStaticAllocator();
+      return GetStaticsAllocator();
   }
 
   /// \brief The aligned allocator should be used for all allocations which need alignment
@@ -96,11 +96,11 @@ public:
   }
 
   /// \brief Returns the allocator that is used by global data and static members before the default allocator is created.
-  static ezAllocatorBase* GetStaticAllocator();
+  static ezAllocatorBase* GetStaticsAllocator();
 
 private:
   friend class ezStartup;
-  friend struct ezStaticAllocatorWrapper;
+  friend struct ezStaticsAllocatorWrapper;
 
   static void Initialize();
   static bool s_bIsInitialized;

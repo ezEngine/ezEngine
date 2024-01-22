@@ -158,7 +158,7 @@ ezResult ezDataDirectory::ArchiveType::InternalInitializeDataDirectory(ezStringV
   bool bSupported = false;
   ezStringBuilder sArchivePath;
 
-  ezHybridArray<ezString, 4, ezStaticAllocatorWrapper> extensions = ezArchiveUtils::GetAcceptedArchiveFileExtensions();
+  ezHybridArray<ezString, 4, ezStaticsAllocatorWrapper> extensions = ezArchiveUtils::GetAcceptedArchiveFileExtensions();
 
 
   for (const auto& ext : extensions)

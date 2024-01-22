@@ -53,7 +53,7 @@ void ezFoundation::Initialize()
 extern ezAllocatorBase* EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
 #endif
 
-ezAllocatorBase* ezFoundation::GetStaticAllocator()
+ezAllocatorBase* ezFoundation::GetStaticsAllocator()
 {
   static ezAllocatorBase* pStaticAllocator = nullptr;
 

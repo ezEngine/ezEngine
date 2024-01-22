@@ -202,10 +202,10 @@ protected:
   const ezRTTI* (*m_VerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
-  ezSmallArray<ezAbstractMessageHandler*, 1, ezStaticAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
+  ezSmallArray<ezAbstractMessageHandler*, 1, ezStaticsAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
 
   ezArrayPtr<ezMessageSenderInfo> m_MessageSenders;
-  ezSmallArray<const ezRTTI*, 7, ezStaticAllocatorWrapper> m_ParentHierarchy;
+  ezSmallArray<const ezRTTI*, 7, ezStaticsAllocatorWrapper> m_ParentHierarchy;
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);
