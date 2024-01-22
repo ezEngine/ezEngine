@@ -2,13 +2,13 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
-#include <Foundation/Memory/Allocator.h>
+#include <Foundation/Memory/AllocatorWithPolicy.h>
 #include <Foundation/Memory/Policies/AllocPolicyStack.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
 template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default>
-class ezStackAllocator : public ezAllocator<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>
+class ezStackAllocator : public ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>
 {
 public:
   ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent);

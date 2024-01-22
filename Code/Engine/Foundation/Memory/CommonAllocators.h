@@ -3,7 +3,7 @@
 
 /// \file
 
-#include <Foundation/Memory/Allocator.h>
+#include <Foundation/Memory/AllocatorWithPolicy.h>
 
 #include <Foundation/Memory/Policies/AllocPolicyAlignedHeap.h>
 #include <Foundation/Memory/Policies/AllocPolicyGuarding.h>
@@ -12,13 +12,13 @@
 
 
 /// \brief Default heap allocator
-using ezAlignedHeapAllocator = ezAllocator<ezMemoryPolicies::ezAllocPolicyAlignedHeap>;
+using ezAlignedHeapAllocator = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyAlignedHeap>;
 
 /// \brief Default heap allocator
-using ezHeapAllocator = ezAllocator<ezMemoryPolicies::ezAllocPolicyHeap>;
+using ezHeapAllocator = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyHeap>;
 
 /// \brief Guarded allocator
-using ezGuardedAllocator = ezAllocator<ezMemoryPolicies::ezAllocPolicyGuarding>;
+using ezGuardedAllocator = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyGuarding>;
 
 /// \brief Proxy allocator
-using ezProxyAllocator = ezAllocator<ezMemoryPolicies::ezAllocPolicyProxy>;
+using ezProxyAllocator = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyProxy>;

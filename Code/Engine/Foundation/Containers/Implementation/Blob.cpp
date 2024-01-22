@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/Blob.h>
 
-#include <Foundation/Memory/Allocator.h>
+#include <Foundation/Memory/AllocatorWithPolicy.h>
 
 ezBlob::ezBlob() = default;
 

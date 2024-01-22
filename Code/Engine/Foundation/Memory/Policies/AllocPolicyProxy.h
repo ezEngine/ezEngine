@@ -8,7 +8,7 @@ namespace ezMemoryPolicies
   ///
   /// \note Note that the stats are taken on the proxy as well as on the parent.
   ///
-  /// \see ezAllocator
+  /// \see ezAllocatorWithPolicy
   class ezAllocPolicyProxy
   {
   public:

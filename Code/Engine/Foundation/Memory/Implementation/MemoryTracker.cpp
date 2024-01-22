@@ -3,7 +3,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Memory/Allocator.h>
+#include <Foundation/Memory/AllocatorWithPolicy.h>
 #include <Foundation/Memory/Policies/AllocPolicyHeap.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/System/StackTracer.h>
@@ -13,7 +13,7 @@
 namespace
 {
   // no tracking for the tracker data itself
-  using TrackerDataAllocator = ezAllocator<ezMemoryPolicies::ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing>;
+  using TrackerDataAllocator = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing>;
 
   static TrackerDataAllocator* s_pTrackerDataAllocator;
 

@@ -1,6 +1,6 @@
 template <ezAllocatorTrackingMode TrackingMode>
 ezStackAllocator<TrackingMode>::ezStackAllocator(ezStringView sName, ezAllocatorBase* pParent)
-  : ezAllocator<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>(sName, pParent)
+  : ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>(sName, pParent)
   , m_DestructData(pParent)
   , m_PtrToDestructDataIndexTable(pParent)
 {
@@ -17,7 +17,7 @@ void* ezStackAllocator<TrackingMode>::Allocate(size_t uiSize, size_t uiAlign, ez
 {
   EZ_LOCK(m_Mutex);
 
-  void* ptr = ezAllocator<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>::Allocate(uiSize, uiAlign, destructorFunc);
+  void* ptr = ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>::Allocate(uiSize, uiAlign, destructorFunc);
 
   if (destructorFunc != nullptr)
   {
@@ -45,7 +45,7 @@ void ezStackAllocator<TrackingMode>::Deallocate(void* pPtr)
     data.m_Ptr = nullptr;
   }
 
-  ezAllocator<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>::Deallocate(pPtr);
+  ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>::Deallocate(pPtr);
 }
 
 EZ_MSVC_ANALYSIS_WARNING_PUSH

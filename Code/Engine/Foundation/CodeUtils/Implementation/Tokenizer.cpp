@@ -24,7 +24,7 @@ namespace
 {
   // This allocator is used to get rid of some of the memory allocation tracking
   // that would otherwise occur for allocations made by the tokenizer.
-  thread_local ezAllocator<ezMemoryPolicies::ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing> s_ClassAllocator("ezTokenizer", ezFoundation::GetDefaultAllocator());
+  thread_local ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing> s_ClassAllocator("ezTokenizer", ezFoundation::GetDefaultAllocator());
 } // namespace
 
 

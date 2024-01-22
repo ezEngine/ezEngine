@@ -9,7 +9,7 @@ namespace ezMemoryPolicies
   ///
   /// \note It is also possible to free all allocations at once.
   ///
-  /// \see ezAllocator
+  /// \see ezAllocatorWithPolicy
   class ezAllocPolicyStack
   {
   public:

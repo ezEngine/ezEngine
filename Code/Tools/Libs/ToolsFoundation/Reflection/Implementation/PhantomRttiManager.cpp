@@ -1,7 +1,7 @@
 #include <ToolsFoundation/ToolsFoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Memory/Allocator.h>
+#include <Foundation/Memory/AllocatorWithPolicy.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <ToolsFoundation/Reflection/PhantomRtti.h>

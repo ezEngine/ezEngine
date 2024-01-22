@@ -6,7 +6,7 @@ namespace ezMemoryPolicies
 {
   /// \brief Default heap memory allocation policy.
   ///
-  /// \see ezAllocator
+  /// \see ezAllocatorWithPolicy
   class ezAllocPolicyHeap
   {
   public:

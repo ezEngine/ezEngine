@@ -6,7 +6,7 @@ namespace ezMemoryPolicies
 {
   /// \brief Aligned Heap memory allocation policy.
   ///
-  /// \see ezAllocator
+  /// \see ezAllocatorWithPolicy
   class ezAllocPolicyAlignedHeap
   {
   public:
