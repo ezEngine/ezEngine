@@ -68,7 +68,7 @@
 #define EZ_SUPPORTS_LONG_PATHS EZ_OFF
 
 // Allocators
-#define EZ_USE_GUARDED_ALLOCATIONS EZ_OFF
+#define EZ_ALLOC_GUARD_ALLOCATIONS EZ_OFF
 #define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::Nothing
 
 // Other Features

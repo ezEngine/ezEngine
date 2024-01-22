@@ -2,7 +2,7 @@
 
 #include <Foundation/Memory/CommonAllocators.h>
 
-#if EZ_ENABLED(EZ_USE_GUARDED_ALLOCATIONS)
+#if EZ_ENABLED(EZ_ALLOC_GUARD_ALLOCATIONS)
 using DefaultHeapType = ezGuardingAllocator;
 using DefaultAlignedHeapType = ezGuardingAllocator;
 using DefaultStaticHeapType = ezGuardingAllocator;
@@ -88,5 +88,3 @@ ezAllocator* ezFoundation::GetStaticsAllocator()
 
   return pStaticAllocator;
 }
-
-
