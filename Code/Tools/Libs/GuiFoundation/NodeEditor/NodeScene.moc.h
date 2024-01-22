@@ -45,7 +45,7 @@ public:
       StraightLine,
       SubwayLines,
 
-      Default = SubwayLines
+      Default = BezierCurve
     };
   };
 

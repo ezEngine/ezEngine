@@ -138,6 +138,7 @@ void ezQtNodeView::resizeEvent(QResizeEvent* event)
 
 void ezQtNodeView::drawBackground(QPainter* painter, const QRectF& r)
 {
+#if(false)
   QGraphicsView::drawBackground(painter, r);
 
   QPen pfine(ezToQtColor(ezColorScheme::GetColor(ezColorScheme::Gray, 0)), 1.0);
@@ -149,7 +150,7 @@ void ezQtNodeView::drawBackground(QPainter* painter, const QRectF& r)
 
   painter->setPen(p);
   DrawGrid(painter, 150);
-
+#endif
   // Only force constant redraws when doing the debug animation.
   if (GetScene()->GetConnectionDecorationFlags().IsSet(ezQtNodeScene::ConnectionDecorationFlags::DrawDebugging))
   {
