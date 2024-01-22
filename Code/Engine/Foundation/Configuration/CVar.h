@@ -210,8 +210,10 @@ public:
   /// \brief Returns all the CVar flags.
   ezBitflags<ezCVarFlags> GetFlags() const { return m_Flags; } // [tested]
 
+  using CVarEvents = ezEvent<const ezCVarEvent&, ezMutex, ezStaticsAllocatorWrapper>;
+
   /// \brief Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
-  ezEvent<const ezCVarEvent&, ezNoMutex, ezStaticsAllocatorWrapper> m_CVarEvents; // [tested]
+  CVarEvents m_CVarEvents; // [tested]
 
   /// \brief Broadcasts changes to ANY CVar. Thus code that needs to update when any one of them changes can use this to be notified.
   static ezEvent<const ezCVarEvent&> s_AllCVarEvents;
