@@ -29,7 +29,7 @@ namespace ezInternal
     mutable ezProxyAllocator m_Allocator;
     ezLocalAllocatorWrapper m_AllocatorWrapper;
     ezInternal::WorldLargeBlockAllocator m_BlockAllocator;
-    ezDoubleBufferedStackAllocator m_StackAllocator;
+    ezDoubleBufferedLinearAllocator m_StackAllocator;
 
     enum
     {

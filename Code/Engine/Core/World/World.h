@@ -298,7 +298,7 @@ public:
   ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
 
   /// \brief Returns the stack allocator used by this world.
-  ezDoubleBufferedStackAllocator* GetStackAllocator();
+  ezDoubleBufferedLinearAllocator* GetStackAllocator();
 
   /// \brief Mark the world for reading by using EZ_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is
   /// writing.

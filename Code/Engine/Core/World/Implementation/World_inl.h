@@ -452,7 +452,7 @@ EZ_ALWAYS_INLINE ezInternal::WorldLargeBlockAllocator* ezWorld::GetBlockAllocato
   return &m_Data.m_BlockAllocator;
 }
 
-EZ_ALWAYS_INLINE ezDoubleBufferedStackAllocator* ezWorld::GetStackAllocator()
+EZ_ALWAYS_INLINE ezDoubleBufferedLinearAllocator* ezWorld::GetStackAllocator()
 {
   return &m_Data.m_StackAllocator;
 }

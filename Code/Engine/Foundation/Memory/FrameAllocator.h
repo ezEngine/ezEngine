@@ -3,13 +3,13 @@
 #include <Foundation/Memory/LinearAllocator.h>
 
 /// \brief A double buffered stack allocator
-class EZ_FOUNDATION_DLL ezDoubleBufferedStackAllocator
+class EZ_FOUNDATION_DLL ezDoubleBufferedLinearAllocator
 {
 public:
   using StackAllocatorType = ezLinearAllocator<ezAllocatorTrackingMode::Basics>;
 
-  ezDoubleBufferedStackAllocator(ezStringView sName, ezAllocator* pParent);
-  ~ezDoubleBufferedStackAllocator();
+  ezDoubleBufferedLinearAllocator(ezStringView sName, ezAllocator* pParent);
+  ~ezDoubleBufferedLinearAllocator();
 
   EZ_ALWAYS_INLINE ezAllocator* GetCurrentAllocator() const { return m_pCurrentAllocator; }
 
@@ -35,5 +35,5 @@ private:
   static void Startup();
   static void Shutdown();
 
-  static ezDoubleBufferedStackAllocator* s_pAllocator;
+  static ezDoubleBufferedLinearAllocator* s_pAllocator;
 };
