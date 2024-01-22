@@ -25,12 +25,8 @@
 #  define EZ_USE_PROFILING EZ_OFF
 
 // Tracking of memory allocations.
-#  undef EZ_USE_ALLOCATION_TRACKING
-#  define EZ_USE_ALLOCATION_TRACKING EZ_OFF
-
-// Stack traces for memory allocations.
-#  undef EZ_USE_ALLOCATION_STACK_TRACING
-#  define EZ_USE_ALLOCATION_STACK_TRACING EZ_OFF
+#  undef EZ_ALLOC_TRACKING_DEFAULT
+#  define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::Nothing
 
 #else
 
@@ -43,12 +39,8 @@
 #  define EZ_USE_PROFILING EZ_ON
 
 // Tracking of memory allocations.
-#  undef EZ_USE_ALLOCATION_TRACKING
-#  define EZ_USE_ALLOCATION_TRACKING EZ_ON
-
-// Stack traces for memory allocations.
-#  undef EZ_USE_ALLOCATION_STACK_TRACING
-#  define EZ_USE_ALLOCATION_STACK_TRACING EZ_ON
+#  undef EZ_ALLOC_TRACKING_DEFAULT
+#  define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::AllocationStatsAndStacktraces
 
 #endif
 

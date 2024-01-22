@@ -10,14 +10,10 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#endif
-
 namespace
 {
   // no tracking for the tracker data itself
-  using TrackerDataAllocator = ezAllocator<ezMemoryPolicies::ezHeapAllocation, 0>;
+  using TrackerDataAllocator = ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezAllocatorTrackingMode::Nothing>;
 
   static TrackerDataAllocator* s_pTrackerDataAllocator;
 
@@ -32,7 +28,7 @@ namespace
     EZ_ALWAYS_INLINE AllocatorData() = default;
 
     ezHybridString<32, TrackerDataAllocatorWrapper> m_sName;
-    ezBitflags<ezMemoryTrackingFlags> m_Flags;
+    ezAllocatorTrackingMode m_TrackingMode;
 
     ezAllocatorId m_ParentId;
 
@@ -143,7 +139,7 @@ ezMemoryTracker::Iterator::~Iterator()
 
 
 // static
-ezAllocatorId ezMemoryTracker::RegisterAllocator(ezStringView sName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId)
+ezAllocatorId ezMemoryTracker::RegisterAllocator(ezStringView sName, ezAllocatorTrackingMode mode, ezAllocatorId parentId)
 {
   Initialize();
 
@@ -151,7 +147,7 @@ ezAllocatorId ezMemoryTracker::RegisterAllocator(ezStringView sName, ezBitflags<
 
   AllocatorData data;
   data.m_sName = sName;
-  data.m_Flags = flags;
+  data.m_TrackingMode = mode;
   data.m_ParentId = parentId;
 
   ezAllocatorId id = s_pTrackerData->m_AllocatorData.Insert(data);
@@ -186,14 +182,12 @@ void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
 }
 
 // static
-void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* pPtr, size_t uiSize, size_t uiAlign, ezTime allocationTime)
+void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezAllocatorTrackingMode mode, const void* pPtr, size_t uiSize, size_t uiAlign, ezTime allocationTime)
 {
-  EZ_ASSERT_DEV((flags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0, "Allocation tracking is turned off, but ezMemoryTracker::AddAllocation() is called anyway.");
-
   EZ_ASSERT_DEV(uiAlign < 0xFFFF, "Alignment too big");
 
   ezArrayPtr<void*> stackTrace;
-  if (flags.IsSet(ezMemoryTrackingFlags::EnableStackTrace))
+  if (mode >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
   {
     void* pBuffer[64];
     ezArrayPtr<void*> tempTrace(pBuffer);
@@ -212,7 +206,6 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemo
     data.m_Stats.m_uiPerFrameAllocationSize += uiSize;
     data.m_Stats.m_PerFrameAllocationTime += allocationTime;
 
-    EZ_ASSERT_DEBUG(data.m_Flags == flags, "Given flags have to be identical to allocator flags");
     auto pInfo = &data.m_Allocations[pPtr];
     pInfo->m_uiSize = uiSize;
     pInfo->m_uiAlignment = (ezUInt16)uiAlign;
@@ -396,20 +389,24 @@ ezUInt32 ezMemoryTracker::PrintMemoryLeaks(PrintFunc printfunc)
 
     if (leak.IsRootLeak())
     {
-      if (uiNumLeaks == 0)
-      {
-        printfunc("\n\n--------------------------------------------------------------------\n"
-                  "Memory Leak Report:"
-                  "\n--------------------------------------------------------------------\n\n");
-      }
-
       const AllocatorData& data = s_pTrackerData->m_AllocatorData[leak.m_AllocatorId];
-      ezMemoryTracker::AllocationInfo info;
-      data.m_Allocations.TryGetValue(ptr, info);
 
-      DumpLeak(info, data.m_sName.GetData());
+      if (data.m_TrackingMode != ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks)
+      {
+        if (uiNumLeaks == 0)
+        {
+          printfunc("\n\n--------------------------------------------------------------------\n"
+                    "Memory Leak Report:"
+                    "\n--------------------------------------------------------------------\n\n");
+        }
 
-      ++uiNumLeaks;
+        ezMemoryTracker::AllocationInfo info;
+        data.m_Allocations.TryGetValue(ptr, info);
+
+        DumpLeak(info, data.m_sName.GetData());
+
+        ++uiNumLeaks;
+      }
     }
   }
 
