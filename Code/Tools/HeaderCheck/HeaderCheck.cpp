@@ -11,7 +11,7 @@
 #include <Foundation/Logging/HTMLWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/Memory/StackAllocator.h>
+#include <Foundation/Memory/LinearAllocator.h>
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
@@ -45,7 +45,7 @@ private:
   bool m_bHadErrors;
   bool m_bHadSeriousWarnings;
   bool m_bHadWarnings;
-  ezUniquePtr<ezStackAllocator<ezAllocatorTrackingMode::Nothing>> m_pStackAllocator;
+  ezUniquePtr<ezLinearAllocator<ezAllocatorTrackingMode::Nothing>> m_pStackAllocator;
   ezDynamicArray<ezString> m_IncludeDirectories;
 
   struct IgnoreInfo
@@ -177,7 +177,7 @@ public:
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     ezGlobalLog::AddLogWriter(LogInspector);
 
-    m_pStackAllocator = EZ_DEFAULT_NEW(ezStackAllocator<ezAllocatorTrackingMode::Nothing>, "Temp Allocator", ezFoundation::GetAlignedAllocator());
+    m_pStackAllocator = EZ_DEFAULT_NEW(ezLinearAllocator<ezAllocatorTrackingMode::Nothing>, "Temp Allocator", ezFoundation::GetAlignedAllocator());
 
     if (GetArgumentCount() < 2)
       ezLog::Error("This tool requires at leas one command-line argument: An absolute path to the top-level folder of a library.");

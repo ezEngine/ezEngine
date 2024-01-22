@@ -1,5 +1,5 @@
 template <ezAllocatorTrackingMode TrackingMode>
-ezStackAllocator<TrackingMode>::ezStackAllocator(ezStringView sName, ezAllocator* pParent)
+ezLinearAllocator<TrackingMode>::ezLinearAllocator(ezStringView sName, ezAllocator* pParent)
   : ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>(sName, pParent)
   , m_DestructData(pParent)
   , m_PtrToDestructDataIndexTable(pParent)
@@ -7,13 +7,13 @@ ezStackAllocator<TrackingMode>::ezStackAllocator(ezStringView sName, ezAllocator
 }
 
 template <ezAllocatorTrackingMode TrackingMode>
-ezStackAllocator<TrackingMode>::~ezStackAllocator()
+ezLinearAllocator<TrackingMode>::~ezLinearAllocator()
 {
   Reset();
 }
 
 template <ezAllocatorTrackingMode TrackingMode>
-void* ezStackAllocator<TrackingMode>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
+void* ezLinearAllocator<TrackingMode>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
 {
   EZ_LOCK(m_Mutex);
 
@@ -33,7 +33,7 @@ void* ezStackAllocator<TrackingMode>::Allocate(size_t uiSize, size_t uiAlign, ez
 }
 
 template <ezAllocatorTrackingMode TrackingMode>
-void ezStackAllocator<TrackingMode>::Deallocate(void* pPtr)
+void ezLinearAllocator<TrackingMode>::Deallocate(void* pPtr)
 {
   EZ_LOCK(m_Mutex);
 
@@ -55,7 +55,7 @@ EZ_MSVC_ANALYSIS_WARNING_PUSH
 EZ_MSVC_ANALYSIS_WARNING_DISABLE(6313)
 
 template <ezAllocatorTrackingMode TrackingMode>
-void ezStackAllocator<TrackingMode>::Reset()
+void ezLinearAllocator<TrackingMode>::Reset()
 {
   EZ_LOCK(m_Mutex);
 

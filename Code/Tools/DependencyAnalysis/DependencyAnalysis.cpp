@@ -13,7 +13,7 @@
 #include <Foundation/Logging/HTMLWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/Memory/StackAllocator.h>
+#include <Foundation/Memory/LinearAllocator.h>
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Foundation/Memory/StackAllocator.h>
+#include <Foundation/Memory/LinearAllocator.h>
 
 /// \brief A double buffered stack allocator
 class EZ_FOUNDATION_DLL ezDoubleBufferedStackAllocator
 {
 public:
-  using StackAllocatorType = ezStackAllocator<ezAllocatorTrackingMode::Basics>;
+  using StackAllocatorType = ezLinearAllocator<ezAllocatorTrackingMode::Basics>;
 
   ezDoubleBufferedStackAllocator(ezStringView sName, ezAllocator* pParent);
   ~ezDoubleBufferedStackAllocator();

@@ -8,11 +8,11 @@
 #include <Foundation/Threading/Mutex.h>
 
 template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default>
-class ezStackAllocator : public ezAllocatorWithPolicy<ezMemoryPolicies::ezAllocPolicyStack, TrackingMode>
+class ezLinearAllocator : public ezAllocatorWithPolicy<ezAllocPolicyStack, TrackingMode>
 {
 public:
-  ezStackAllocator(ezStringView sName, ezAllocator* pParent);
-  ~ezStackAllocator();
+  ezLinearAllocator(ezStringView sName, ezAllocator* pParent);
+  ~ezLinearAllocator();
 
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc) override;
   virtual void Deallocate(void* pPtr) override;
@@ -35,4 +35,4 @@ private:
   ezHashTable<void*, ezUInt32> m_PtrToDestructDataIndexTable;
 };
 
-#include <Foundation/Memory/Implementation/StackAllocator_inl.h>
+#include <Foundation/Memory/Implementation/LinearAllocator_inl.h>
