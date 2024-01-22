@@ -62,7 +62,7 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
 
   size_t uiExpectedSize = sizeof(T) * 32;
 
-  if (EZ_ALLOC_TRACKING_DEFAULT >= ezAllocatorTrackingMode::AllocationStats)
+  if constexpr (ezAllocatorTrackingMode::Default >= ezAllocatorTrackingMode::AllocationStats)
   {
     EZ_TEST_INT(pAllocator->AllocatedSize(pTestBuffer), uiExpectedSize);
 
@@ -74,7 +74,7 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
   EZ_DELETE_ARRAY(pAllocator, TestArray);
   EZ_DELETE_RAW_BUFFER(pAllocator, pTestBuffer);
 
-  if (EZ_ALLOC_TRACKING_DEFAULT >= ezAllocatorTrackingMode::Basics)
+  if constexpr (ezAllocatorTrackingMode::Default >= ezAllocatorTrackingMode::Basics)
   {
     ezAllocatorBase::Stats stats = pAllocator->GetStats();
     EZ_TEST_INT(stats.m_uiAllocationSize, 0);

@@ -78,14 +78,14 @@ void SetAppStats()
 #endif
   ezStats::SetStat("Features/Profiling", sOut.GetData());
 
-  if (EZ_ALLOC_TRACKING_DEFAULT >= ezAllocatorTrackingMode::AllocationStats)
+  if constexpr (ezAllocatorTrackingMode::Default >= ezAllocatorTrackingMode::AllocationStats)
     sOut = "Enabled";
   else
     sOut = "Disabled";
 
   ezStats::SetStat("Features/Allocation Tracking", sOut.GetData());
 
-  if (EZ_ALLOC_TRACKING_DEFAULT >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
+  if constexpr (ezAllocatorTrackingMode::Default >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
     sOut = "Enabled";
   else
     sOut = "Disabled";

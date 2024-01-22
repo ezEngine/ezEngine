@@ -206,7 +206,6 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezAllocatorTracki
     data.m_Stats.m_uiPerFrameAllocationSize += uiSize;
     data.m_Stats.m_PerFrameAllocationTime += allocationTime;
 
-    EZ_ASSERT_DEBUG(data.m_TrackingMode == mode, "Given flags have to be identical to allocator flags");
     auto pInfo = &data.m_Allocations[pPtr];
     pInfo->m_uiSize = uiSize;
     pInfo->m_uiAlignment = (ezUInt16)uiAlign;
