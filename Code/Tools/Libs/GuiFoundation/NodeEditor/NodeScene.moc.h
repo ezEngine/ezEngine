@@ -123,6 +123,7 @@ private:
   bool m_bIgnoreSelectionChange = false;
   ezQtPin* m_pStartPin = nullptr;
   ezQtConnection* m_pTempConnection = nullptr;
+  ezQtNode* m_pTempNode = nullptr;
   ezDeque<const ezDocumentObject*> m_Selection;
   ezVec2 m_vMousePos = ezVec2::MakeZero();
   QString m_sContextMenuSearchText;
