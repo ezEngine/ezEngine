@@ -32,6 +32,12 @@ void AccumulateLight(inout AccumulatedLight result, AccumulatedLight light, floa
   result.specularLight += light.specularLight * color;
 }
 
+void AccumulateLight(inout AccumulatedLight result, AccumulatedLight light, float3 color, float specularMultiplier)
+{
+  result.diffuseLight += light.diffuseLight * color;
+  result.specularLight += (light.specularLight * color) * specularMultiplier;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 float RoughnessFromMipLevel(uint mipLevel, uint mipCount)

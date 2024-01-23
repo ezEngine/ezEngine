@@ -86,7 +86,6 @@ public:
   static float CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera);
 
 protected:
-  bool m_bUseColorTemperature = false;
   ezColorGammaUB m_LightColor = ezColor::White;
   ezUInt32 m_uiTemperature = 6550;
   float m_fIntensity = 10.0f;
@@ -95,4 +94,5 @@ protected:
   float m_fSlopeBias = 0.25f;
   float m_fConstantBias = 0.1f;
   bool m_bCastShadows = false;
+  bool m_bUseColorTemperature = false;
 };
