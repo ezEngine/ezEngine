@@ -24,7 +24,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 5)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("UseColorTemperature", GetUsingColorTemperature, SetUsingColorTemperature),
-    EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
+    EZ_ACCESSOR_PROPERTY("LightColor", GetBaseLightColor, SetLightColor),
     EZ_ACCESSOR_PROPERTY("Temperature", GetTemperature, SetTemperature)->AddAttributes(new ezSliderAttribute(1000, 15000), new ezDefaultValueAttribute(6550), new ezSuffixAttribute(" K")),
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
     EZ_ACCESSOR_PROPERTY("SpecularMultiplier", GetSpecularMultiplier, SetSpecularMultiplier)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
