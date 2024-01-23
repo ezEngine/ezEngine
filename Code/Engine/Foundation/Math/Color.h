@@ -246,6 +246,7 @@ public:
   /// \brief Sets all four RGBA components.
   void SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
 
+  /// \brief Returns a color created from the kelvin temperature. https://wikipedia.org/wiki/Color_temperature
   static ezColor MakeFromKelvin(ezUInt32 uiKelvin);
   // *** Conversion Operators/Functions ***
 public:

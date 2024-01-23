@@ -1,4 +1,3 @@
-#include "Color.h"
 #pragma once
 
 inline ezColor::ezColor()
