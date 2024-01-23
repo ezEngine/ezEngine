@@ -70,18 +70,16 @@ void ezLightComponent::SetLightColor(ezColorGammaUB lightColor)
   InvalidateCachedRenderData();
 }
 
-ezColorGammaUB ezLightComponent::GetLightColor() const
+ezColorGammaUB ezLightComponent::GetBaseLightColor() const
 {
   return m_LightColor;
 }
 
-ezColorGammaUB ezLightComponent::GetFinalLightColor() const
+ezColorGammaUB ezLightComponent::GetLightColor() const
 {
   if (m_bUseColorTemperature)
   {
-    ezColor kelvinColor;
-    kelvinColor.SetKelvin(m_uTemperature);
-    return kelvinColor;
+    return ezColor::MakeFromKelvin(m_uiTemperature);
   }
   else
   {
@@ -96,16 +94,16 @@ void ezLightComponent::SetIntensity(float fIntensity)
   TriggerLocalBoundsUpdate();
 }
 
-void ezLightComponent::SetTemperature(ezUInt32 uTemperature)
+void ezLightComponent::SetTemperature(ezUInt32 uiTemperature)
 {
-  m_uTemperature = ezMath::Clamp(uTemperature, 1500u, 40000u);
+  m_uiTemperature = ezMath::Clamp(uiTemperature, 1500u, 40000u);
 
   InvalidateCachedRenderData();
 }
 
 ezUInt32 ezLightComponent::GetTemperature() const
 {
-  return m_uTemperature;
+  return m_uiTemperature;
 }
 
 float ezLightComponent::GetIntensity() const
@@ -185,7 +183,7 @@ void ezLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fConstantBias;
   s << m_bCastShadows;
   s << m_bUseColorTemperature;
-  s << m_uTemperature;
+  s << m_uiTemperature;
   s << m_fSpecularMultiplier;
 }
 
@@ -216,7 +214,7 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
 
     s >> m_bUseColorTemperature;
-    s >> m_uTemperature;
+    s >> m_uiTemperature;
     s >> m_fSpecularMultiplier;
   }
 }

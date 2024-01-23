@@ -38,15 +38,17 @@ public:
   ezLightComponent();
   ~ezLightComponent();
 
+  /// \brief Used to enable kelvin color values. This is a physical representation of light color using.
+  /// for more detail: https://wikipedia.org/wiki/Color_temperature
   void SetUsingColorTemperature(bool bUseColorTemperature);
   bool GetUsingColorTemperature() const;
 
   void SetLightColor(ezColorGammaUB lightColor); // [ property ]
-  ezColorGammaUB GetLightColor() const;          // [ property ]
+  ezColorGammaUB GetBaseLightColor() const;          // [ property ]
 
-  ezColorGammaUB GetFinalLightColor() const;
+  ezColorGammaUB GetLightColor() const;
 
-  void SetTemperature(ezUInt32 uTemperature); // [ property ]
+  void SetTemperature(ezUInt32 uiTemperature); // [ property ]
   ezUInt32 GetTemperature() const;            // [ property ]
 
   /// \brief Sets the brightness of the lightsource.
@@ -86,7 +88,7 @@ public:
 protected:
   bool m_bUseColorTemperature = false;
   ezColorGammaUB m_LightColor = ezColor::White;
-  ezUInt32 m_uTemperature = 6550;
+  ezUInt32 m_uiTemperature = 6550;
   float m_fIntensity = 10.0f;
   float m_fSpecularMultiplier = 1.0f;
   float m_fPenumbraSize = 0.1f;

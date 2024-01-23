@@ -158,16 +158,7 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = t;
-
-  if (m_bUseColorTemperature)
-  {
-    pRenderData->m_LightColor.SetKelvin(m_uTemperature);
-  }
-  else
-  {
-    pRenderData->m_LightColor = m_LightColor;
-  }
-
+  pRenderData->m_LightColor = GetLightColor();
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
   pRenderData->m_fRange = m_fEffectiveRange;
