@@ -26,8 +26,7 @@ struct EZ_SHADER_STRUCT ezPerLightData
   UINT1(spotParams); // scale and offset as 16 bit floats
   UINT1(projectorAtlasOffset); // xy as 16 bit floats
   UINT1(projectorAtlasScale); // xy as 16 bit floats
-
-  UINT1(reserved);
+  FLOAT1(specularMultiplier);
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)

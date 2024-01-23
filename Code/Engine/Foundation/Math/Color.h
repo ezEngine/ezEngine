@@ -246,6 +246,7 @@ public:
   /// \brief Sets all four RGBA components.
   void SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
 
+  void SetKelvin(ezUInt32 uKelvin);
   // *** Conversion Operators/Functions ***
 public:
   /// \brief Sets this color from a HSV (hue, saturation, value) format.

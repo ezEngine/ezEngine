@@ -262,7 +262,7 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   const ezLightComponent* pLightComponent = nullptr;
   if (GetWorld()->TryGetComponent(m_hLightComponent, pLightComponent))
   {
-    lightColor = pLightComponent->GetLightColor();
+    lightColor = pLightComponent->GetFinalLightColor();
     lightColor *= pLightComponent->GetIntensity() * 0.1f;
   }
 

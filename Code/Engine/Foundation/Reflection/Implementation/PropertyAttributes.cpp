@@ -144,6 +144,22 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDefaultValueAttribute, 1, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSliderAttribute, 1, ezRTTIDefaultAllocator<ezSliderAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Min", m_MinValue),
+    EZ_MEMBER_PROPERTY("Max", m_MaxValue),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const ezVariant&, const ezVariant&),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClampValueAttribute, 1, ezRTTIDefaultAllocator<ezClampValueAttribute>)
 {
   EZ_BEGIN_PROPERTIES

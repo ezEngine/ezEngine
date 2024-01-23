@@ -15,6 +15,7 @@ public:
 
   ezColor m_LightColor;
   float m_fIntensity;
+  float m_fSpecularMultiplier;
   ezUInt32 m_uiShadowDataOffset;
 };
 
@@ -37,12 +38,23 @@ public:
   ezLightComponent();
   ~ezLightComponent();
 
+  void SetUsingColorTemperature(bool bUseColorTemperature);
+  bool GetUsingColorTemperature() const;
+
   void SetLightColor(ezColorGammaUB lightColor); // [ property ]
   ezColorGammaUB GetLightColor() const;          // [ property ]
+
+  ezColorGammaUB GetFinalLightColor() const;
+
+  void SetTemperature(ezUInt32 uTemperature); // [ property ]
+  ezUInt32 GetTemperature() const;            // [ property ]
 
   /// \brief Sets the brightness of the lightsource.
   void SetIntensity(float fIntensity); // [ property ]
   float GetIntensity() const;          // [ property ]
+
+  void SetSpecularMultiplier(float fSpecularMultiplier); // [ property ]
+  float GetSpecularMultiplier() const;                   // [ property ]
 
   /// \brief Sets whether the lightsource shall cast dynamic shadows.
   void SetCastShadows(bool bCastShadows); // [ property ]
@@ -72,8 +84,11 @@ public:
   static float CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera);
 
 protected:
+  bool m_bUseColorTemperature = false;
   ezColorGammaUB m_LightColor = ezColor::White;
+  ezUInt32 m_uTemperature = 6550;
   float m_fIntensity = 10.0f;
+  float m_fSpecularMultiplier = 1.0f;
   float m_fPenumbraSize = 0.1f;
   float m_fSlopeBias = 0.25f;
   float m_fConstantBias = 0.1f;
