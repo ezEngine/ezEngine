@@ -431,11 +431,11 @@ void ezShaderCompilerDXC::CreateNewShaderResourceDeclaration(ezStringView sPlatf
 
   if (binding.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
   {
-    out_sDeclaration.Format("[[vk::combinedImageSampler]] {} : register({}{}, space{})", sDeclaration, sResourcePrefix, binding.m_iSlot, binding.m_iSet);
+    out_sDeclaration.SetFormat("[[vk::combinedImageSampler]] {} : register({}{}, space{})", sDeclaration, sResourcePrefix, binding.m_iSlot, binding.m_iSet);
   }
   else
   {
-    out_sDeclaration.Format("{} : register({}{}, space{})", sDeclaration, sResourcePrefix, binding.m_iSlot, binding.m_iSet);
+    out_sDeclaration.SetFormat("{} : register({}{}, space{})", sDeclaration, sResourcePrefix, binding.m_iSlot, binding.m_iSet);
   }
 }
 

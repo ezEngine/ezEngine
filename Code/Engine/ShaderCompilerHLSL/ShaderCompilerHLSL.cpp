@@ -564,7 +564,7 @@ void ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration(ezStringView sPlat
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
   }
-  out_sDeclaration.Format("{} : register({}{})", sDeclaration, sResourcePrefix, binding.m_iSlot);
+  out_sDeclaration.SetFormat("{} : register({}{})", sDeclaration, sResourcePrefix, binding.m_iSlot);
 }
 
 void ezShaderCompilerHLSL::Initialize()
