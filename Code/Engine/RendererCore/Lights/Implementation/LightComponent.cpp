@@ -19,12 +19,15 @@ void ezLightRenderData::FillBatchIdAndSortingKey(float fScreenSpaceSize)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 4)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 5)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ACCESSOR_PROPERTY("UseColorTemperature", GetUsingColorTemperature, SetUsingColorTemperature),
     EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
+    EZ_ACCESSOR_PROPERTY("Temperature", GetTemperature, SetTemperature)->AddAttributes(new ezSliderAttribute(1000, 15000), new ezDefaultValueAttribute(6550), new ezSuffixAttribute(" K")),
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
+    EZ_ACCESSOR_PROPERTY("SpecularMultiplier", GetSpecularMultiplier, SetSpecularMultiplier)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("CastShadows", GetCastShadows, SetCastShadows),
     EZ_ACCESSOR_PROPERTY("PenumbraSize", GetPenumbraSize, SetPenumbraSize)->AddAttributes(new ezClampValueAttribute(0.0f, 0.5f), new ezDefaultValueAttribute(0.1f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("SlopeBias", GetSlopeBias, SetSlopeBias)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f), new ezDefaultValueAttribute(0.25f)),
@@ -48,6 +51,18 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezLightComponent::ezLightComponent() = default;
 ezLightComponent::~ezLightComponent() = default;
 
+void ezLightComponent::SetUsingColorTemperature(bool bUseColorTemperature)
+{
+  m_bUseColorTemperature = bUseColorTemperature;
+
+  InvalidateCachedRenderData();
+}
+
+bool ezLightComponent::GetUsingColorTemperature() const
+{
+  return m_bUseColorTemperature;
+}
+
 void ezLightComponent::SetLightColor(ezColorGammaUB lightColor)
 {
   m_LightColor = lightColor;
@@ -55,9 +70,21 @@ void ezLightComponent::SetLightColor(ezColorGammaUB lightColor)
   InvalidateCachedRenderData();
 }
 
-ezColorGammaUB ezLightComponent::GetLightColor() const
+ezColorGammaUB ezLightComponent::GetBaseLightColor() const
 {
   return m_LightColor;
+}
+
+ezColorGammaUB ezLightComponent::GetLightColor() const
+{
+  if (m_bUseColorTemperature)
+  {
+    return ezColor::MakeFromKelvin(m_uiTemperature);
+  }
+  else
+  {
+    return m_LightColor;
+  }
 }
 
 void ezLightComponent::SetIntensity(float fIntensity)
@@ -67,9 +94,33 @@ void ezLightComponent::SetIntensity(float fIntensity)
   TriggerLocalBoundsUpdate();
 }
 
+void ezLightComponent::SetTemperature(ezUInt32 uiTemperature)
+{
+  m_uiTemperature = ezMath::Clamp(uiTemperature, 1500u, 40000u);
+
+  InvalidateCachedRenderData();
+}
+
+ezUInt32 ezLightComponent::GetTemperature() const
+{
+  return m_uiTemperature;
+}
+
 float ezLightComponent::GetIntensity() const
 {
   return m_fIntensity;
+}
+
+void ezLightComponent::SetSpecularMultiplier(float fSpecularMultiplier)
+{
+  m_fSpecularMultiplier = ezMath::Max(fSpecularMultiplier, 0.0f);
+
+  InvalidateCachedRenderData();
+}
+
+float ezLightComponent::GetSpecularMultiplier() const
+{
+  return m_fSpecularMultiplier;
 }
 
 void ezLightComponent::SetCastShadows(bool bCastShadows)
@@ -131,6 +182,9 @@ void ezLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fSlopeBias;
   s << m_fConstantBias;
   s << m_bCastShadows;
+  s << m_bUseColorTemperature;
+  s << m_uiTemperature;
+  s << m_fSpecularMultiplier;
 }
 
 void ezLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -155,6 +209,14 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 
   s >> m_bCastShadows;
+
+  if (uiVersion >= 5)
+  {
+
+    s >> m_bUseColorTemperature;
+    s >> m_uiTemperature;
+    s >> m_fSpecularMultiplier;
+  }
 }
 
 void ezLightComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)

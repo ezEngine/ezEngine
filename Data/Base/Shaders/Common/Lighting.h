@@ -528,7 +528,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
         lightColor = lerp(1.0f, debugColor, 0.5f);
       #endif
 
-      AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector), lightColor * (attenuation * shadowTerm));
+      AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector), lightColor * (attenuation * shadowTerm), lightData.specularMultiplier);
 
       #if defined(USE_MATERIAL_SUBSURFACE_COLOR)
         AccumulateLight(totalLight, SubsurfaceShading(matData, lightVector, viewVector), lightColor * (attenuation * subsurfaceShadow));        

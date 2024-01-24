@@ -552,7 +552,35 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
   auto pNoTemporaryTransactions = m_pProp->GetAttributeByType<ezNoTemporaryTransactionsAttribute>();
   m_bUseTemporaryTransaction = (pNoTemporaryTransactions == nullptr);
 
-  if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
+  if (const ezSliderAttribute* pSlider = m_pProp->GetAttributeByType <ezSliderAttribute>())
+  {
+    EZ_ASSERT_DEV(m_iNumComponents == 1, "Sliders only suport 1 component");
+
+    const ezInt32 iMinValue = pSlider->GetMinValue().ConvertTo<ezInt32>();
+    const ezInt32 iMaxValue = pSlider->GetMaxValue().ConvertTo<ezInt32>();
+
+    ezQtScopedBlockSignals bs(m_pWidget[0]);
+    m_pWidget[0]->setMinimum(pSlider->GetMinValue());
+    m_pWidget[0]->setMaximum(pSlider->GetMaxValue());
+
+    if (pSlider->GetMinValue().IsValid() && pSlider->GetMaxValue().IsValid() && m_bUseTemporaryTransaction)
+    {
+      ezQtScopedBlockSignals bs2(m_pSlider);
+
+      // we have to create the slider here, because in the constructor we don't know the real
+      // min and max values from the ezClampValueAttribute (only the rough type ranges)
+      m_pSlider = new QSlider(this);
+      m_pSlider->installEventFilter(this);
+      m_pSlider->setOrientation(Qt::Orientation::Horizontal);
+      m_pSlider->setMinimum(iMinValue);
+      m_pSlider->setMaximum(iMaxValue);
+
+      m_pLayout->insertWidget(0, m_pSlider, 5); // make it take up most of the space
+      connect(m_pSlider, SIGNAL(valueChanged(int)), this, SLOT(SlotSliderValueChanged(int)));
+      connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(on_EditingFinished_triggered()));
+    }
+  }
+  else if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
   {
     switch (m_iNumComponents)
     {

@@ -15,6 +15,7 @@ public:
 
   ezColor m_LightColor;
   float m_fIntensity;
+  float m_fSpecularMultiplier;
   ezUInt32 m_uiShadowDataOffset;
 };
 
@@ -37,12 +38,25 @@ public:
   ezLightComponent();
   ~ezLightComponent();
 
+  /// \brief Used to enable kelvin color values. This is a physical representation of light color using.
+  /// for more detail: https://wikipedia.org/wiki/Color_temperature
+  void SetUsingColorTemperature(bool bUseColorTemperature);
+  bool GetUsingColorTemperature() const;
+
   void SetLightColor(ezColorGammaUB lightColor); // [ property ]
-  ezColorGammaUB GetLightColor() const;          // [ property ]
+  ezColorGammaUB GetBaseLightColor() const;          // [ property ]
+
+  ezColorGammaUB GetLightColor() const;
+
+  void SetTemperature(ezUInt32 uiTemperature); // [ property ]
+  ezUInt32 GetTemperature() const;            // [ property ]
 
   /// \brief Sets the brightness of the lightsource.
   void SetIntensity(float fIntensity); // [ property ]
   float GetIntensity() const;          // [ property ]
+
+  void SetSpecularMultiplier(float fSpecularMultiplier); // [ property ]
+  float GetSpecularMultiplier() const;                   // [ property ]
 
   /// \brief Sets whether the lightsource shall cast dynamic shadows.
   void SetCastShadows(bool bCastShadows); // [ property ]
@@ -73,9 +87,12 @@ public:
 
 protected:
   ezColorGammaUB m_LightColor = ezColor::White;
+  ezUInt32 m_uiTemperature = 6550;
   float m_fIntensity = 10.0f;
+  float m_fSpecularMultiplier = 1.0f;
   float m_fPenumbraSize = 0.1f;
   float m_fSlopeBias = 0.25f;
   float m_fConstantBias = 0.1f;
   bool m_bCastShadows = false;
+  bool m_bUseColorTemperature = false;
 };

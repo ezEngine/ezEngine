@@ -170,6 +170,7 @@ namespace
 
     ref_perLightData.colorAndType = *reinterpret_cast<ezUInt32*>(&lightColor.r);
     ref_perLightData.intensity = pLightRenderData->m_fIntensity;
+    ref_perLightData.specularMultiplier = pLightRenderData->m_fSpecularMultiplier;
     ref_perLightData.shadowDataOffset = pLightRenderData->m_uiShadowDataOffset;
   }
 

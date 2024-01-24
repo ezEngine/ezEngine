@@ -88,6 +88,7 @@ void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
@@ -188,6 +189,7 @@ void OnLoadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezGreyBoxComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezLightComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin()
@@ -200,6 +202,7 @@ void OnUnloadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezGreyBoxComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezLightComponent_PropertyMetaStateEventHandler);
 
 
   ezSelectionActions::UnregisterActions();
@@ -304,5 +307,29 @@ void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& 
       props["SlopedBottom"].m_Visibility = ezPropertyUiState::Default;
       props["Detail"].m_sNewLabelText = "Steps";
       break;
+  }
+}
+
+void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezLightComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (!e.m_pObject-> GetTypeAccessor().GetType()->IsDerivedFrom(pRtti))
+    return;
+
+  auto& props = *e.m_pPropertyStates;
+
+  const bool bUseColorTemperature = e.m_pObject->GetTypeAccessor().GetValue("UseColorTemperature").ConvertTo<bool>();
+
+  if (bUseColorTemperature)
+  {
+    props["Temperature"].m_Visibility = ezPropertyUiState::Default;
+    props["LightColor"].m_Visibility = ezPropertyUiState::Invisible;
+  }
+  else
+  {
+    props["Temperature"].m_Visibility = ezPropertyUiState::Invisible;
+    props["LightColor"].m_Visibility = ezPropertyUiState::Default;
   }
 }

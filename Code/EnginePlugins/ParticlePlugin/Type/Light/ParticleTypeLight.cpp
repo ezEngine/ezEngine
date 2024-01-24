@@ -177,6 +177,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
     pRenderData->m_GlobalTransform.m_vPosition = transform * pPosition[i].GetAsVec3();
     pRenderData->m_LightColor = tintColor * pColor[i].ToLinearFloat();
     pRenderData->m_fIntensity = intensity;
+    pRenderData->m_fSpecularMultiplier = 1.0f;
     pRenderData->m_fRange = pSize[i] * sizeFactor;
     pRenderData->m_uiShadowDataOffset = ezInvalidIndex;
 

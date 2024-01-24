@@ -193,6 +193,27 @@ private:
   ezVariant m_Value;
 };
 
+/// \brief A property attribute that provides a ui slider between the min and max values
+class EZ_FOUNDATION_DLL ezSliderAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSliderAttribute, ezPropertyAttribute);
+
+public:
+  ezSliderAttribute() = default;
+  ezSliderAttribute(const ezVariant& min, const ezVariant& max)
+    : m_MinValue(min)
+    , m_MaxValue(max)
+  {
+  }
+
+  const ezVariant& GetMinValue() const { return m_MinValue; }
+  const ezVariant& GetMaxValue() const { return m_MaxValue; }
+
+private:
+  ezVariant m_MinValue;
+  ezVariant m_MaxValue;
+};
+
 /// \brief A property attribute that allows to define min and max values for the UI. Min or max may be set to an invalid variant to indicate
 /// unbounded values in one direction.
 class EZ_FOUNDATION_DLL ezClampValueAttribute : public ezPropertyAttribute

@@ -113,8 +113,9 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = t;
-  pRenderData->m_LightColor = m_LightColor;
+  pRenderData->m_LightColor = GetLightColor();
   pRenderData->m_fIntensity = m_fIntensity;
+  pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
   pRenderData->m_fRange = m_fEffectiveRange;
   // pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddPointLight(this, fScreenSpaceSize, msg.m_pView) : ezInvalidIndex;
