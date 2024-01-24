@@ -9,6 +9,9 @@ public:
   ezExpressionParser();
   ~ezExpressionParser();
 
+  static const ezHashTable<ezHashedString, ezEnum<ezExpressionAST::DataType>>& GetKnownTypes();
+  static const ezHashTable<ezHashedString, ezEnum<ezExpressionAST::NodeType>>& GetBuiltinFunctions();
+
   void RegisterFunction(const ezExpression::FunctionDesc& funcDesc);
   void UnregisterFunction(const ezExpression::FunctionDesc& funcDesc);
 
@@ -22,8 +25,8 @@ public:
 private:
   static constexpr int s_iLowestPrecedence = 20;
 
-  void RegisterKnownTypes();
-  void RegisterBuiltinFunctions();
+  static void RegisterKnownTypes();
+  static void RegisterBuiltinFunctions();
   void SetupInAndOutputs(ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs);
 
   ezResult ParseStatement();
@@ -58,10 +61,7 @@ private:
   ezUInt32 m_uiCurrentToken = 0;
   ezExpressionAST* m_pAST = nullptr;
 
-  ezHashTable<ezHashedString, ezEnum<ezExpressionAST::DataType>> m_KnownTypes;
-
   ezHashTable<ezHashedString, ezExpressionAST::Node*> m_KnownVariables;
-  ezHashTable<ezHashedString, ezEnum<ezExpressionAST::NodeType>> m_BuiltinFunctions;
   ezHashTable<ezHashedString, ezHybridArray<ezExpression::FunctionDesc, 1>> m_FunctionDescs;
 };
 

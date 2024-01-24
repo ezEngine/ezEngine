@@ -205,7 +205,7 @@ ezBakingScene::~ezBakingScene() = default;
 
 namespace
 {
-  static ezDynamicArray<ezUniquePtr<ezBakingScene>, ezStaticAllocatorWrapper> s_BakingScenes;
+  static ezDynamicArray<ezUniquePtr<ezBakingScene>, ezStaticsAllocatorWrapper> s_BakingScenes;
 }
 
 EZ_IMPLEMENT_SINGLETON(ezBaking);

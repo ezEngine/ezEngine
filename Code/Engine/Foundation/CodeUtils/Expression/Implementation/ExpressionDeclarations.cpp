@@ -186,4 +186,22 @@ ezExpressionFunction ezDefaultExpressionFunctions::s_PerlinNoiseFunc = {
   &PerlinNoise,
 };
 
+//////////////////////////////////////////////////////////////////////////
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExpressionWidgetAttribute, 1, ezRTTIDefaultAllocator<ezExpressionWidgetAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("InputsProperty", m_sInputsProperty),
+    EZ_MEMBER_PROPERTY("OutputsProperty", m_sOutputsProperty),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on

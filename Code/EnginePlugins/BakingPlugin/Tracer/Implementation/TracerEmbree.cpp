@@ -12,7 +12,7 @@
 namespace
 {
   static RTCDevice s_rtcDevice;
-  static ezHashTable<ezHashedString, RTCScene, ezHashHelper<ezHashedString>, ezStaticAllocatorWrapper> s_rtcMeshCache;
+  static ezHashTable<ezHashedString, RTCScene, ezHashHelper<ezHashedString>, ezStaticsAllocatorWrapper> s_rtcMeshCache;
 
   const char* rtcErrorCodeToString[] = {
     "RTC_NO_ERROR",

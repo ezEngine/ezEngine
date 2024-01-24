@@ -941,7 +941,17 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
   {
     FillDesc(typeDesc, "Builtin_Expression", mathColor);
 
-    AddInputProperty(typeDesc, "Expression", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
+    {
+      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
+      propDesc.m_Category = ezPropertyCategory::Member;
+      propDesc.m_sName = "Expression";
+      propDesc.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
+      propDesc.m_Flags = ezPropertyFlags::StandardType;
+
+      auto pExpressionWidgetAttr = EZ_DEFAULT_NEW(ezExpressionWidgetAttribute, "Inputs", "Outputs");
+      propDesc.m_Attributes.PushBack(pExpressionWidgetAttr);
+    }
+
     {
       auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
       propDesc.m_Category = ezPropertyCategory::Array;

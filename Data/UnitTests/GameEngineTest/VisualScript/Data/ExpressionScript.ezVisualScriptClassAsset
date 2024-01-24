@@ -11,7 +11,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10163322385344490409,4703445058848971318}}
-		u4 %Hash{3587753556313705177}
+		u4 %Hash{4363568332753421547}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{8429620071346684093,8549466192346882346}}
@@ -126,7 +126,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Expression{"out = clamp(a+2, 0, 100);"}
+		s %Expression{"// Stuff\nvar x = sqrt(64);\nout = clamp(a+2, x, 100);"}
 		VarArray %Inputs
 		{
 			Uuid{u4{526452164269556881,5010950217796638205}}
@@ -415,6 +415,17 @@ o
 }
 o
 {
+	Uuid %id{u4{2080867964305562301,6703698648149485880}}
+	s %t{"ezExpressionWidgetAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %InputsProperty{"Inputs"}
+		s %OutputsProperty{"Outputs"}
+	}
+}
+o
+{
 	Uuid %id{u4{17601748048729279361,6918974278701945691}}
 	s %t{"ezColorAttribute"}
 	u3 %v{1}
@@ -677,7 +688,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{2080867964305562301,6703698648149485880}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
