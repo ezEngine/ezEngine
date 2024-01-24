@@ -13,6 +13,7 @@ FORWARD_PASS_WRITE_DEPTH
 MSAA
 SHADING_QUALITY
 CAMERA_MODE
+VERTEX_SKINNING
 VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX" }
 
   string %CheckPermutations
@@ -27,10 +28,15 @@ MSAA=FALSE
 SHADING_QUALITY=SHADING_QUALITY_NORMAL
 CAMERA_MODE=CAMERA_MODE_PERSPECTIVE
 VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX=TRUE
+VERTEX_SKINNING=FALSE
 "}
 
   string %CodeRenderStates { "#include <Shaders/Materials/MaterialState.h>" }
   string %CodeVertexShader { "
+
+#if VERTEX_SKINNING
+  #define USE_SKINNING
+#endif
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
   #define USE_DEBUG_INTERPOLATOR
@@ -87,6 +93,10 @@ float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition)
 " }
 
   string %CodeGeometryShader { "
+#if VERTEX_SKINNING
+  #define USE_SKINNING
+#endif
+
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 " }
@@ -95,6 +105,7 @@ float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition)
 Permutation BLEND_MODE;
 Permutation SHADING_MODE;
 Permutation TWO_SIDED;
+Permutation VERTEX_SKINNING;
 float MaskThreshold @Default($prop0);
 " }
 
@@ -104,6 +115,10 @@ float MaskThreshold @Default($prop0);
 #define USE_MATERIAL_OCCLUSION
 #define USE_TWO_SIDED_LIGHTING
 #define USE_DECALS
+
+#if VERTEX_SKINNING
+  #define USE_SKINNING
+#endif
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
   #define USE_DEBUG_INTERPOLATOR
