@@ -307,19 +307,27 @@ namespace ezMath
 
     if (divider == (Type)0)
     {
-      if (x >= edge2)
-        return (Type)1;
-      return (Type)0;
+      return (x >= edge2) ? 1 : 0;
     }
 
-    x = (x - edge1) / divider;
-
-    if (x <= (Type)0)
-      return (Type)0;
-    if (x >= (Type)1)
-      return (Type)1;
+    x = Saturate((x - edge1) / divider);
 
     return (x * x * ((Type)3 - ((Type)2 * x)));
+  }
+
+  template <typename Type>
+  inline Type SmootherStep(Type x, Type edge1, Type edge2)
+  {
+    const Type divider = edge2 - edge1;
+
+    if (divider == (Type)0)
+    {
+      return (x >= edge2) ? 1 : 0;
+    }
+
+    x = Saturate((x - edge1) / divider);
+
+    return (x * x * x * (x * ((Type)6 * x - (Type)15) + (Type)10));
   }
 
   inline ezUInt8 ColorFloatToByte(float value)

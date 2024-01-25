@@ -449,6 +449,35 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
     auto pBMinusA = CreateBinaryOperator(NodeType::Subtract, pBValue, pAValue);
     return CreateBinaryOperator(NodeType::Add, pAValue, CreateBinaryOperator(NodeType::Multiply, pSValue, pBMinusA));
   }
+  else if (nodeType == NodeType::SmoothStep || nodeType == NodeType::SmootherStep)
+  {
+    auto pTernaryNode = static_cast<const TernaryOperator*>(pNode);
+    auto pXValue = pTernaryNode->m_pFirstOperand;
+    auto pEdge1Value = pTernaryNode->m_pSecondOperand;
+    auto pEdge2Value = pTernaryNode->m_pThirdOperand;
+
+    auto pXMinusEdge1 = CreateBinaryOperator(NodeType::Subtract, pXValue, pEdge1Value);
+    auto pDivider = CreateBinaryOperator(NodeType::Subtract, pEdge2Value, pEdge1Value);
+    auto pNormalizedX = CreateBinaryOperator(NodeType::Divide, pXMinusEdge1, pDivider);
+    auto pX = ReplaceUnsupportedInstructions(CreateUnaryOperator(NodeType::Saturate, pNormalizedX));
+    auto pXX = CreateBinaryOperator(NodeType::Multiply, pX, pX);
+
+    if (nodeType == NodeType::SmoothStep)
+    {      
+      auto p2X = CreateBinaryOperator(NodeType::Multiply, pX, CreateConstant(2));
+      auto p3Minus2X = CreateBinaryOperator(NodeType::Subtract, CreateConstant(3), p2X);
+      return CreateBinaryOperator(NodeType::Multiply, pXX, p3Minus2X);
+    }
+    else
+    {
+      auto pXXX = CreateBinaryOperator(NodeType::Multiply, pXX, pX);
+      auto p6X = CreateBinaryOperator(NodeType::Multiply, pX, CreateConstant(6));
+      auto p6XMinus15 = CreateBinaryOperator(NodeType::Subtract, p6X, CreateConstant(15));
+      auto pTimesX = CreateBinaryOperator(NodeType::Multiply, p6XMinus15, pX);
+      auto pAdd10 = CreateBinaryOperator(NodeType::Add, pTimesX, CreateConstant(10));
+      return CreateBinaryOperator(NodeType::Multiply, pXXX, pAdd10);
+    }
+  }
   else if (nodeType == NodeType::TypeConversion)
   {
     auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
@@ -889,8 +918,10 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
   else if (NodeType::IsTernary(nodeType))
   {
     auto pTernaryNode = static_cast<const TernaryOperator*>(pNode);
-    if (nodeType == NodeType::Clamp || nodeType == NodeType::Lerp)
+    if (nodeType == NodeType::Clamp || nodeType == NodeType::Lerp ||
+        nodeType == NodeType::SmoothStep || nodeType == NodeType::SmootherStep)
     {
+      // Nothing to do here since these nodes will be replaced at a later step anyways
       return pNode;
     }
     else if (nodeType == NodeType::Select)
@@ -1040,5 +1071,3 @@ ezResult ezExpressionAST::ScalarizeOutputs()
 
   return EZ_SUCCESS;
 }
-
-

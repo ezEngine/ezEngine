@@ -192,9 +192,9 @@ public:
   void Clear();
   bool IsEmpty() const { return m_uiByteCodeCount == 0; }
 
-  const StorageType* GetByteCode() const;
+  const StorageType* GetByteCodeStart() const;
   const StorageType* GetByteCodeEnd() const;
-  ezArrayPtr<const StorageType> GetByteCodeAsArray() const;
+  ezArrayPtr<const StorageType> GetByteCode() const;
 
   ezUInt32 GetNumInstructions() const;
   ezUInt32 GetNumTempRegisters() const;

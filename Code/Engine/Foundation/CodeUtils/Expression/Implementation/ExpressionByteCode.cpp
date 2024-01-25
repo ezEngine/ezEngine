@@ -210,7 +210,7 @@ ezExpressionByteCode::~ezExpressionByteCode()
 void ezExpressionByteCode::operator=(const ezExpressionByteCode& other)
 {
   Clear();
-  Init(other.GetByteCodeAsArray(), other.GetInputs(), other.GetOutputs(), other.GetFunctions(), other.GetNumTempRegisters(), other.GetNumInstructions());
+  Init(other.GetByteCode(), other.GetInputs(), other.GetOutputs(), other.GetFunctions(), other.GetNumTempRegisters(), other.GetNumInstructions());
 }
 
 bool ezExpressionByteCode::operator==(const ezExpressionByteCode& other) const
@@ -281,7 +281,7 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
     out_sString.AppendFormat("0x{}({})", ezArgU(x, 8, true, 16), ezArgF(*reinterpret_cast<float*>(&x), 6));
   };
 
-  const StorageType* pByteCode = GetByteCode();
+  const StorageType* pByteCode = GetByteCodeStart();
   const StorageType* pByteCodeEnd = GetByteCodeEnd();
 
   while (pByteCode < pByteCodeEnd)

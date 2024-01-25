@@ -218,6 +218,8 @@ void ezExpressionParser::RegisterBuiltinFunctions()
   // Ternary
   s_BuiltinFunctions.Insert(ezMakeHashedString("clamp"), ezExpressionAST::NodeType::Clamp);
   s_BuiltinFunctions.Insert(ezMakeHashedString("lerp"), ezExpressionAST::NodeType::Lerp);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("smoothstep"), ezExpressionAST::NodeType::SmoothStep);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("smootherstep"), ezExpressionAST::NodeType::SmootherStep);
 }
 
 void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs)
@@ -567,7 +569,8 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
       return nullptr;
   }
 
-  auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult {
+  auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult
+  {
     if (arguments.GetCount() != uiExpectedArgumentCount)
     {
       ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected {} but got {}", sFunctionName, uiExpectedArgumentCount, arguments.GetCount()));
@@ -767,5 +770,3 @@ ezResult ezExpressionParser::CheckOutputs()
 
   return EZ_SUCCESS;
 }
-
-

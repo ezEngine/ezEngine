@@ -84,6 +84,8 @@ public:
       Clamp,
       Select,
       Lerp,
+      SmoothStep,
+      SmootherStep,
       LastTernary,
 
       Constant,

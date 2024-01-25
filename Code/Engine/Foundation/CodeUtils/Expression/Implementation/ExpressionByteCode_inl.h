@@ -1,5 +1,5 @@
 
-EZ_ALWAYS_INLINE const ezExpressionByteCode::StorageType* ezExpressionByteCode::GetByteCode() const
+EZ_ALWAYS_INLINE const ezExpressionByteCode::StorageType* ezExpressionByteCode::GetByteCodeStart() const
 {
   return m_pByteCode;
 }
@@ -9,7 +9,7 @@ EZ_ALWAYS_INLINE const ezExpressionByteCode::StorageType* ezExpressionByteCode::
   return m_pByteCode + m_uiByteCodeCount;
 }
 
-EZ_ALWAYS_INLINE ezArrayPtr<const ezExpressionByteCode::StorageType> ezExpressionByteCode::GetByteCodeAsArray() const
+EZ_ALWAYS_INLINE ezArrayPtr<const ezExpressionByteCode::StorageType> ezExpressionByteCode::GetByteCode() const
 {
   return ezMakeArrayPtr(m_pByteCode, m_uiByteCodeCount);
 }

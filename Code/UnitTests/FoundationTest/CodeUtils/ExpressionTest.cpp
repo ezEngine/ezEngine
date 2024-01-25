@@ -863,6 +863,24 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     EZ_TEST_FLOAT(TestInstruction("output = lerp(a, b, c)", -1.0f, -11.0f, 0.1f), -2.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = lerp(1, 5, 0.75)"), 4.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = lerp(-1, -11, 0.1)"), -2.0f, ezMath::DefaultEpsilon<float>());
+
+    // SmoothStep
+    EZ_TEST_FLOAT(TestInstruction("output = smoothstep(a, b, c)", 0.0f, 0.0f, 1.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smoothstep(a, b, c)", 0.2f, 0.0f, 1.0f), ezMath::SmoothStep(0.2f, 0.0f, 1.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smoothstep(a, b, c)", 0.5f, 0.0f, 1.0f), 0.5f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smoothstep(a, b, c)", 0.2f, 0.2f, 0.8f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smoothstep(a, b, c)", 0.4f, 0.2f, 0.8f), ezMath::SmoothStep(0.4f, 0.2f, 0.8f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = smoothstep(0.2, 0, 1)"), ezMath::SmoothStep(0.2f, 0.0f, 1.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = smoothstep(0.4, 0.2, 0.8)"), ezMath::SmoothStep(0.4f, 0.2f, 0.8f), ezMath::DefaultEpsilon<float>());
+
+    // SmootherStep
+    EZ_TEST_FLOAT(TestInstruction("output = smootherstep(a, b, c)", 0.0f, 0.0f, 1.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smootherstep(a, b, c)", 0.2f, 0.0f, 1.0f), ezMath::SmootherStep(0.2f, 0.0f, 1.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smootherstep(a, b, c)", 0.5f, 0.0f, 1.0f), 0.5f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smootherstep(a, b, c)", 0.2f, 0.2f, 0.8f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smootherstep(a, b, c)", 0.4f, 0.2f, 0.8f), ezMath::SmootherStep(0.4f, 0.2f, 0.8f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = smootherstep(0.2, 0, 1)"), ezMath::SmootherStep(0.2f, 0.0f, 1.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = smootherstep(0.4, 0.2, 0.8)"), ezMath::SmootherStep(0.4f, 0.2f, 0.8f), ezMath::DefaultEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Local variables")

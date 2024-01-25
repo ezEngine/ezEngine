@@ -288,6 +288,10 @@ namespace ezMath
   template <typename Type>
   [[nodiscard]] Type SmoothStep(Type value, Type edge1, Type edge2); // [tested]
 
+  /// \brief Returns 0, if value is <= edge1, 1 if value >= edge2 and the second order hermite interpolation in between
+  template <typename Type>
+  [[nodiscard]] Type SmootherStep(Type value, Type edge1, Type edge2); // [tested]
+
   /// \brief Returns true, if there exists some x with base^x == value
   [[nodiscard]] EZ_FOUNDATION_DLL bool IsPowerOf(ezInt32 value, ezInt32 iBase); // [tested]
 

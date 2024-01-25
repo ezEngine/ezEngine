@@ -63,7 +63,7 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
   m_Registers.SetCountUninitialized(uiTotalNumRegisters);
 
   // Execute bytecode
-  const ezExpressionByteCode::StorageType* pByteCode = byteCode.GetByteCode();
+  const ezExpressionByteCode::StorageType* pByteCode = byteCode.GetByteCodeStart();
   const ezExpressionByteCode::StorageType* pByteCodeEnd = byteCode.GetByteCodeEnd();
 
   ExecutionContext context;
