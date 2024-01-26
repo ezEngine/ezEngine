@@ -152,7 +152,7 @@ void ezQtNodeView::drawBackground(QPainter* painter, const QRectF& r)
   {
     double scale = m_ViewScale.manhattanLength() < 0.25 ? 150.0 : 300.0;
 
-    QPen p(ezToQtColor(ezColorScheme::GetColor(ezColorScheme::Gray, 2)), 1.0);
+    QPen p(ezToQtColor(ezColorScheme::GetColor(ezColorScheme::Gray, 1)), 1.0);
 
     painter->setPen(p);
     DrawGrid(painter, scale);

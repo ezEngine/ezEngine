@@ -41,12 +41,15 @@ struct ezVisualScriptExpressionDataType
 
   enum Enum
   {
-    Int = ezVisualScriptDataType::Int,
-    Float = ezVisualScriptDataType::Float,
-    Vector3 = ezVisualScriptDataType::Vector3,
+    Int = ezProcessingStream::DataType::Int,
+    Float = ezProcessingStream::DataType::Float,
+    Vector3 = ezProcessingStream::DataType::Float3,
+    Color = ezProcessingStream::DataType::Float4,
 
     Default = Float
   };
+
+  static ezVisualScriptDataType::Enum GetVisualScriptDataType(Enum dataType);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptExpressionDataType);

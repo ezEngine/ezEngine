@@ -85,6 +85,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptExpressionDataType, 1)
   EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Int),
   EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Float),
   EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Vector3),
+  EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Color),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptExpressionVariable, ezNoBase, 1, ezRTTIDefaultAllocator<ezVisualScriptExpressionVariable>)
@@ -98,3 +99,22 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptExpressionVariable, ezNoBase, 1, ez
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
+
+ezVisualScriptDataType::Enum ezVisualScriptExpressionDataType::GetVisualScriptDataType(Enum dataType)
+{
+  switch (dataType)
+  {
+    case Int:
+      return ezVisualScriptDataType::Int;
+    case Float:
+      return ezVisualScriptDataType::Float;
+    case Vector3:
+      return ezVisualScriptDataType::Vector3;
+    case Color:
+      return ezVisualScriptDataType::Color;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return ezVisualScriptDataType::Invalid;
+}

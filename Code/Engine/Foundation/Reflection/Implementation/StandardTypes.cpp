@@ -87,6 +87,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezColor, ezNoBase, 1, ezRTTINoAllocator)
     EZ_CONSTRUCTOR_PROPERTY(ezColorLinearUB),
     EZ_CONSTRUCTOR_PROPERTY(ezColorGammaUB),
     EZ_SCRIPT_FUNCTION_PROPERTY(MakeRGBA, In, "R", In, "G", In, "B", In, "A")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeHSV, In, "Hue", In, "Saturation", In, "Value")->AddFlags(ezPropertyFlags::Const),
   }
   EZ_END_FUNCTIONS;
 }

@@ -189,6 +189,6 @@ ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromExpressionVa
   if (typeVar.IsA<ezInt64>() == false)
     return ezVisualScriptDataType::Invalid;
 
-  auto dataType = static_cast<ezVisualScriptDataType::Enum>(typeVar.Get<ezInt64>());
-  return dataType;
+  auto expressionDataType = static_cast<ezVisualScriptExpressionDataType::Enum>(typeVar.Get<ezInt64>());
+  return ezVisualScriptExpressionDataType::GetVisualScriptDataType(expressionDataType);
 }
