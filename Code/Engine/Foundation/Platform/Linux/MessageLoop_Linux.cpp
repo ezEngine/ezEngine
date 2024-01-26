@@ -55,7 +55,7 @@ bool ezMessageLoop_linux::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilte
     if (m_pollInfos[0].revents != 0)
     {
       ezUInt8 wakeupByte;
-      auto readResult = read(m_wakeupPipeReadEndFd, &wakeupByte, sizeof(wakeupByte));
+      read(m_wakeupPipeReadEndFd, &wakeupByte, sizeof(wakeupByte));
       m_pollInfos[0].revents = 0;
       return true;
     }
@@ -154,7 +154,7 @@ void ezMessageLoop_linux::RemovePendingWaits(ezPipeChannel_linux* pChannel)
 void ezMessageLoop_linux::WakeUp()
 {
   ezUInt8 wakeupByte = 0;
-  int writeResult = write(m_wakeupPipeWriteEndFd, &wakeupByte, sizeof(wakeupByte));
+  write(m_wakeupPipeWriteEndFd, &wakeupByte, sizeof(wakeupByte));
 }
 
 #endif

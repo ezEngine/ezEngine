@@ -65,22 +65,6 @@ namespace
 
 #undef CALL_FUNCTOR
 
-  ezVariantType::Enum GetDispatchType(const ezAbstractProperty* pProp)
-  {
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-    {
-      return ezVariantType::TypedPointer;
-    }
-    else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
-    {
-      return pProp->GetSpecificType()->GetVariantType();
-    }
-    else
-    {
-      return ezVariantType::TypedObject;
-    }
-  }
-
   struct GetTypeFromVariantTypeFunc
   {
     template <typename T>
