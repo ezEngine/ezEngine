@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <GuiFoundation/PropertyGrid/Implementation/ExpressionPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>

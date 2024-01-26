@@ -41,10 +41,10 @@ struct ezVisualScriptExpressionDataType
 
   enum Enum
   {
-    Int = ezProcessingStream::DataType::Int,
-    Float = ezProcessingStream::DataType::Float,
-    Vector3 = ezProcessingStream::DataType::Float3,
-    Color = ezProcessingStream::DataType::Float4,
+    Int = static_cast<ezUInt8>(ezProcessingStream::DataType::Int),
+    Float = static_cast<ezUInt8>(ezProcessingStream::DataType::Float),
+    Vector3 = static_cast<ezUInt8>(ezProcessingStream::DataType::Float3),
+    Color = static_cast<ezUInt8>(ezProcessingStream::DataType::Float4),
 
     Default = Float
   };

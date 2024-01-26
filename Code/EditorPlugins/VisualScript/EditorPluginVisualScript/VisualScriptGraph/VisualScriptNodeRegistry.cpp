@@ -4,13 +4,15 @@
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptTypeDeduction.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+
 #include <Core/Messages/EventMessage.h>
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Core/Scripting/ScriptCoroutine.h>
+#include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdRandom.h>
-#include <GuiFoundation/UIServices/DynamicStringEnum.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
 namespace
 {
@@ -219,7 +221,7 @@ void ezVisualScriptNodeRegistry::NodeDesc::AddOutputExecutionPin(ezStringView sN
   m_bImplicitExecution = false;
 }
 
-void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, ezHashedString sDynamicPinProperty, ezVisualScriptNodeRegistry::PinDesc::DeductTypeFunc deductTypeFunc, bool bReplaceWithArray ,ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4> & inout_pins)
+void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, ezHashedString sDynamicPinProperty, ezVisualScriptNodeRegistry::PinDesc::DeductTypeFunc deductTypeFunc, bool bReplaceWithArray, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& inout_pins)
 {
   if ((scriptDataType == ezVisualScriptDataType::AnyPointer || scriptDataType == ezVisualScriptDataType::Any) && deductTypeFunc == nullptr)
   {
@@ -1549,7 +1551,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       auto pArgRtti = pFunction->GetArgumentType(argIdx);
       auto argType = pScriptableFunctionAttribute->GetArgumentType(argIdx);
       const bool bIsDynamicPinProperty = dynamicPins.Contains(sArgName);
-      
+
       ezHashedString sDynamicPinProperty;
       if (bIsDynamicPinProperty)
       {
