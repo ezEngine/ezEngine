@@ -20,7 +20,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezSensorComponent, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezSensorComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -58,12 +58,14 @@ void ezSensorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_UpdateRate;
   s << m_bShowDebugInfo;
   s << m_Color;
+  m_IncludeTags.Save(s);
+  m_ExcludeTags.Save(s);
 }
 
 void ezSensorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_sSpatialCategory;
@@ -72,6 +74,11 @@ void ezSensorComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_UpdateRate;
   s >> m_bShowDebugInfo;
   s >> m_Color;
+  if (uiVersion >= 2)
+  {
+    m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+    m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+  }
 }
 
 void ezSensorComponent::OnActivated()
