@@ -115,7 +115,7 @@ ezResult ezGALDevice::Init()
     return EZ_FAILURE;
   }
 
-  ezGALSharedTextureSwapChain::SetFactoryMethod([this](const ezGALSharedTextureSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocator* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSharedTextureSwapChain, desc); }); });
+  ezGALSharedTextureSwapChain::SetFactoryMethod([this](const ezGALSharedTextureSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSharedTextureSwapChain, desc); }); });
 
   // Fill the capabilities
   FillCapabilitiesPlatform();
@@ -700,6 +700,7 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   }
 
   const auto& parentDesc = pParentTexture->GetDescription();
+  EZ_IGNORE_UNUSED(parentDesc);
   EZ_ASSERT_DEV(parentDesc.m_Type != ezGALTextureType::Texture2DProxy, "Can't create a proxy texture of a proxy texture.");
   EZ_ASSERT_DEV(parentDesc.m_Type == ezGALTextureType::TextureCube || parentDesc.m_uiArraySize > 1,
     "Proxy textures can only be created for cubemaps or array textures.");

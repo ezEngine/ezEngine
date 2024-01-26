@@ -78,6 +78,7 @@ ezUInt64 ezCompressedStreamReaderZstd::ReadBytes(void* pReadBuffer, ezUInt64 uiB
       return outBuffer.pos;
 
     const size_t res = ZSTD_decompressStream(reinterpret_cast<ZSTD_DStream*>(m_pZstdDStream), &outBuffer, reinterpret_cast<ZSTD_inBuffer*>(&m_InBuffer));
+    EZ_IGNORE_UNUSED(res);
     EZ_ASSERT_DEV(!ZSTD_isError(res), "Decompressing the stream failed: '{0}'", ZSTD_getErrorName(res));
   }
 

@@ -56,6 +56,7 @@ void ezDuktapeContext::DestroyContext()
   m_pContext = nullptr;
 
   const auto stats = m_Allocator.GetStats();
+  EZ_IGNORE_UNUSED(stats);
   EZ_ASSERT_DEBUG(stats.m_uiAllocationSize == 0, "Duktape did not free all data");
   EZ_ASSERT_DEBUG(stats.m_uiNumAllocations == stats.m_uiNumDeallocations, "Duktape did not free all data");
 }

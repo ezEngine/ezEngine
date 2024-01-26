@@ -280,7 +280,9 @@ void ezGALCommandEncoder::CopyBufferRegion(
     const ezUInt32 uiDestSize = pDest->GetSize();
     const ezUInt32 uiSourceSize = pSource->GetSize();
 
+    EZ_IGNORE_UNUSED(uiDestSize);
     EZ_ASSERT_DEV(uiDestSize >= uiDestOffset + uiByteCount, "Destination buffer too small (or offset too big)");
+    EZ_IGNORE_UNUSED(uiSourceSize);
     EZ_ASSERT_DEV(uiSourceSize >= uiSourceOffset + uiByteCount, "Source buffer too small (or offset too big)");
 
     m_CommonImpl.CopyBufferRegionPlatform(pDest, uiDestOffset, pSource, uiSourceOffset, uiByteCount);
@@ -424,6 +426,7 @@ void ezGALCommandEncoder::GenerateMipMaps(ezGALResourceViewHandle hResourceView)
   {
     EZ_ASSERT_DEV(!pResourceView->GetDescription().m_hTexture.IsInvalidated(), "Resource view needs a valid texture to generate mip maps.");
     const ezGALTexture* pTexture = m_Device.GetTexture(pResourceView->GetDescription().m_hTexture);
+    EZ_IGNORE_UNUSED(pTexture);
     EZ_ASSERT_DEV(pTexture->GetDescription().m_bAllowDynamicMipGeneration,
       "Dynamic mip map generation needs to be enabled (m_bAllowDynamicMipGeneration = true)!");
 

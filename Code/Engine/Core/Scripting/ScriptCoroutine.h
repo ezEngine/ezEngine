@@ -72,7 +72,7 @@ public:
     ezTime m_MaxDelay = ezTime::MakeZero();
   };
 
-  virtual void Start(ezArrayPtr<ezVariant> arguments) = 0;
+  virtual void StartWithVarargs(ezArrayPtr<ezVariant> arguments) = 0;
   virtual void Stop() {}
   virtual Result Update(ezTime deltaTimeSinceLastUpdate) = 0;
 
@@ -104,7 +104,8 @@ private:
     static_cast<Derived*>(this)->Start(ezVariantAdapter<typename getArgument<I, Args...>::Type>(arguments[I])...);
   }
 
-  virtual void Start(ezArrayPtr<ezVariant> arguments) override
+protected:
+  virtual void StartWithVarargs(ezArrayPtr<ezVariant> arguments) override
   {
     StartImpl(arguments, std::make_index_sequence<sizeof...(Args)>{});
   }

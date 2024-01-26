@@ -60,11 +60,6 @@ namespace
     return ezSimdBBox(bmin, bmax);
   }
 
-  EZ_ALWAYS_INLINE bool FilterByCategory(ezUInt32 uiCategoryBitmask, ezUInt32 uiQueryBitmask)
-  {
-    return (uiCategoryBitmask & uiQueryBitmask) == 0;
-  }
-
   EZ_ALWAYS_INLINE bool FilterByTags(const ezTagSet& tags, const ezTagSet* pIncludeTags, const ezTagSet* pExcludeTags)
   {
     if (pExcludeTags && !pExcludeTags->IsEmpty() && pExcludeTags->IsAnySet(tags))
@@ -81,6 +76,8 @@ namespace
     return ezSpatialData::GetCategoryFlags(category).IsSet(ezSpatialData::Flags::FrequentChanges) == false;
   }
 
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   void TagsToString(const ezTagSet& tags, ezStringBuilder& out_sSb)
   {
     out_sSb.Append("{ ");
@@ -98,6 +95,7 @@ namespace
 
     out_sSb.Append(" }");
   }
+#endif
 
   EZ_FORCE_INLINE bool SphereFrustumIntersect(const ezSimdBSphere& sphere, const PlaneData& planeData)
   {
@@ -602,11 +600,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*= 128*/)
   : m_AlignedAllocator("Spatial System Aligned", ezFoundation::GetAlignedAllocator())
-  , m_Grids(&m_Allocator)
-  , m_DataTable(&m_Allocator)
   , m_vCellSize(uiCellSize)
   , m_vOverlapSize(uiCellSize / 4.0f)
   , m_fInvCellSize(1.0f / uiCellSize)
+  , m_Grids(&m_Allocator)
+  , m_DataTable(&m_Allocator)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(Data) == 8);
 

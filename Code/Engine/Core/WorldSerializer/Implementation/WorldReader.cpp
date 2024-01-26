@@ -665,8 +665,6 @@ bool ezWorldReader::InstantiationContext::DeserializeComponents(ezTime endTime)
 {
   EZ_PROFILE_SCOPE("ezWorldReader::DeserializeComponents");
 
-  ezStreamReader& s = *m_WorldReader.m_pStream;
-
   for (; m_uiCurrentComponentTypeIndex < m_WorldReader.m_ComponentTypes.GetCount(); ++m_uiCurrentComponentTypeIndex)
   {
     auto& compTypeInfo = m_WorldReader.m_ComponentTypes[m_uiCurrentComponentTypeIndex];

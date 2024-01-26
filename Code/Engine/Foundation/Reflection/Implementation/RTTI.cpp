@@ -175,6 +175,7 @@ void ezRTTI::VerifyCorrectness() const
         const bool bNewProperty = !Known.Find(pInstance->m_Properties[i]->GetPropertyName()).IsValid();
         Known.Insert(pInstance->m_Properties[i]->GetPropertyName());
 
+        EZ_IGNORE_UNUSED(bNewProperty);
         EZ_ASSERT_DEV(bNewProperty, "{0}: The property with name '{1}' is already defined in type '{2}'.", m_sTypeName,
           pInstance->m_Properties[i]->GetPropertyName(), pInstance->GetTypeName());
       }
@@ -186,6 +187,7 @@ void ezRTTI::VerifyCorrectness() const
   {
     for (const ezAbstractProperty* pFunc : m_Functions)
     {
+      EZ_IGNORE_UNUSED(pFunc);
       EZ_ASSERT_DEV(pFunc->GetCategory() == ezPropertyCategory::Function, "Invalid function property '{}'", pFunc->GetPropertyName());
     }
   }
@@ -418,10 +420,7 @@ void ezRTTI::AssignPlugin(ezStringView sPluginName)
   }
 }
 
-// warning C4505: 'IsValidIdentifierName': unreferenced function with internal linkage has been removed
-// happens in Release builds, because the function is only used in a debug assert
-EZ_WARNING_PUSH()
-EZ_WARNING_DISABLE_MSVC(4505)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
 static bool IsValidIdentifierName(ezStringView sIdentifier)
 {
@@ -455,7 +454,7 @@ static bool IsValidIdentifierName(ezStringView sIdentifier)
   return true;
 }
 
-EZ_WARNING_POP()
+#endif
 
 void ezRTTI::SanityCheckType(ezRTTI* pType)
 {
@@ -482,6 +481,7 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
     {
       case ezPropertyCategory::Constant:
       {
+        EZ_IGNORE_UNUSED(pSpecificType);
         EZ_ASSERT_DEV(pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "Only standard type constants are supported!");
       }
       break;

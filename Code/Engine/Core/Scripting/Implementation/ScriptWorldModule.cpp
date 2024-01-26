@@ -102,7 +102,7 @@ void ezScriptWorldModule::StartCoroutine(ezScriptCoroutineHandle hCoroutine, ezA
   ezUniquePtr<ezScriptCoroutine>* pCoroutine = nullptr;
   if (m_RunningScriptCoroutines.TryGetValue(hCoroutine.GetInternalID(), pCoroutine))
   {
-    (*pCoroutine)->Start(arguments);
+    (*pCoroutine)->StartWithVarargs(arguments);
     (*pCoroutine)->UpdateAndSchedule();
   }
 }

@@ -9,7 +9,7 @@ public:
   ezVisualScriptCoroutine(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
   ~ezVisualScriptCoroutine();
 
-  virtual void Start(ezArrayPtr<ezVariant> arguments) override;
+  virtual void StartWithVarargs(ezArrayPtr<ezVariant> arguments) override;
   virtual void Stop() override;
   virtual Result Update(ezTime deltaTimeSinceLastUpdate) override;
 
