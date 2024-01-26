@@ -26,8 +26,10 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezSensorComponent, 1)
   {
     EZ_ENUM_MEMBER_PROPERTY("UpdateRate", ezUpdateRate, m_UpdateRate),
     EZ_ACCESSOR_PROPERTY("SpatialCategory", GetSpatialCategory, SetSpatialCategory)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum")),
+    EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
+    EZ_SET_MEMBER_PROPERTY("ExcludeTags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_MEMBER_PROPERTY("TestVisibility", m_bTestVisibility)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),    
+    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezDefaultValueAttribute(ezColorScheme::LightUI(ezColorScheme::Orange))),
   }
@@ -307,6 +309,8 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
+  params.m_IncludeTags = m_IncludeTags;
+  params.m_ExcludeTags = m_ExcludeTags;
 
   ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
   ezSimdFloat radiusSquared = m_fRadius * m_fRadius;
@@ -384,6 +388,8 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
+  params.m_IncludeTags = m_IncludeTags;
+  params.m_ExcludeTags = m_ExcludeTags;
 
   ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
   ezSimdFloat radiusSquared = m_fRadius * m_fRadius;
@@ -465,6 +471,8 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
+  params.m_IncludeTags = m_IncludeTags;
+  params.m_ExcludeTags = m_ExcludeTags;
 
   ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
   const ezSimdFloat nearSquared = m_fNearDistance * m_fNearDistance;

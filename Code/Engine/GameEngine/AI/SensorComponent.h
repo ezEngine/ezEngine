@@ -63,6 +63,9 @@ public:
   void SetColor(ezColorGammaUB color); // [ property ]
   ezColorGammaUB GetColor() const;     // [ property ]
 
+  ezTagSet m_IncludeTags; // [ property ]
+  ezTagSet m_ExcludeTags; // [ property ]
+
   /// \brief Returns the list of objects that this sensor has detected during its last update
   ezArrayPtr<const ezGameObjectHandle> GetLastDetectedObjects() const { return m_LastDetectedObjects; }
 
