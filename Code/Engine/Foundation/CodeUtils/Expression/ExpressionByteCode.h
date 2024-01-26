@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
-#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/Blob.h>
 
 class ezStreamWriter;
 class ezStreamReader;
@@ -181,16 +181,20 @@ public:
   using StorageType = ezUInt32;
 
   ezExpressionByteCode();
+  ezExpressionByteCode(const ezExpressionByteCode& other);
   ~ezExpressionByteCode();
+
+  void operator=(const ezExpressionByteCode& other);
 
   bool operator==(const ezExpressionByteCode& other) const;
   bool operator!=(const ezExpressionByteCode& other) const { return !(*this == other); }
 
   void Clear();
-  bool IsEmpty() const { return m_ByteCode.IsEmpty(); }
+  bool IsEmpty() const { return m_uiByteCodeCount == 0; }
 
-  const StorageType* GetByteCode() const;
+  const StorageType* GetByteCodeStart() const;
   const StorageType* GetByteCodeEnd() const;
+  ezArrayPtr<const StorageType> GetByteCode() const;
 
   ezUInt32 GetNumInstructions() const;
   ezUInt32 GetNumTempRegisters() const;
@@ -206,19 +210,37 @@ public:
 
   void Disassemble(ezStringBuilder& out_sDisassembly) const;
 
-  void Save(ezStreamWriter& inout_stream) const;
-  ezResult Load(ezStreamReader& inout_stream);
+  ezResult Save(ezStreamWriter& inout_stream) const;
+  ezResult Load(ezStreamReader& inout_stream, ezByteArrayPtr externalMemory = ezByteArrayPtr());
+
+  ezConstByteBlobPtr GetDataBlob() const { return m_Data.GetByteBlobPtr(); }
 
 private:
   friend class ezExpressionCompiler;
 
-  ezDynamicArray<StorageType> m_ByteCode;
-  ezDynamicArray<ezExpression::StreamDesc> m_Inputs;
-  ezDynamicArray<ezExpression::StreamDesc> m_Outputs;
-  ezDynamicArray<ezExpression::FunctionDesc> m_Functions;
+  void Init(ezArrayPtr<const StorageType> byteCode, ezArrayPtr<const ezExpression::StreamDesc> inputs, ezArrayPtr<const ezExpression::StreamDesc> outputs, ezArrayPtr<const ezExpression::FunctionDesc> functions, ezUInt32 uiNumTempRegisters, ezUInt32 uiNumInstructions);
 
+  ezBlob m_Data;
+
+  ezExpression::StreamDesc* m_pInputs = nullptr;
+  ezExpression::StreamDesc* m_pOutputs = nullptr;
+  ezExpression::FunctionDesc* m_pFunctions = nullptr;
+  StorageType* m_pByteCode = nullptr;
+
+  ezUInt32 m_uiByteCodeCount = 0;
+  ezUInt16 m_uiNumInputs = 0;
+  ezUInt16 m_uiNumOutputs = 0;
+  ezUInt16 m_uiNumFunctions = 0;
+
+  ezUInt16 m_uiNumTempRegisters = 0;
   ezUInt32 m_uiNumInstructions = 0;
-  ezUInt32 m_uiNumTempRegisters = 0;
 };
+
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+static_assert(sizeof(ezExpressionByteCode) == 64);
+#endif
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezExpressionByteCode);
+EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezExpressionByteCode);
 
 #include <Foundation/CodeUtils/Expression/Implementation/ExpressionByteCode_inl.h>

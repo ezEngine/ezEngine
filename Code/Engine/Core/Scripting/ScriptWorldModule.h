@@ -4,6 +4,7 @@
 #include <Core/Scripting/ScriptCoroutine.h>
 #include <Core/Utils/IntervalScheduler.h>
 #include <Core/World/World.h>
+#include <Foundation/CodeUtils/Expression/ExpressionVM.h>
 
 using ezScriptClassResourceHandle = ezTypedResourceHandle<class ezScriptClassResource>;
 class ezScriptInstance;
@@ -49,6 +50,10 @@ public:
 
   ///@}
 
+  /// \brief Returns a expression vm that can be used in custom script implementations.
+  /// Make sure to only execute one expression at a time, the VM is NOT thread safe.
+  ezExpressionVM& GetSharedExpressionVM() { return m_SharedExpressionVM; }
+
   struct FunctionContext
   {
     enum Flags : ezUInt8
@@ -74,6 +79,8 @@ private:
   ezIdTable<ezScriptCoroutineId, ezUniquePtr<ezScriptCoroutine>> m_RunningScriptCoroutines;
   ezHashTable<ezScriptInstance*, ezSmallArray<ezScriptCoroutineHandle, 8>> m_InstanceToScriptCoroutines;
   ezDynamicArray<ezUniquePtr<ezScriptCoroutine>> m_DeadScriptCoroutines;
+
+  ezExpressionVM m_SharedExpressionVM;
 };
 
 //////////////////////////////////////////////////////////////////////////

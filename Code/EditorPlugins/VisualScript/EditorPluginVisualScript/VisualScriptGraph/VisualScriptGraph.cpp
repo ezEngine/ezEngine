@@ -9,15 +9,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex)
+ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex, ezUInt32 uiElementIndex)
   : ezPin(type, sName, pinDesc.GetColor(), pObject)
-  , m_pDataType(pinDesc.m_pDataType)
-  , m_DeductTypeFunc(pinDesc.m_DeductTypeFunc)
+  , m_pDesc(&pinDesc)
   , m_uiDataPinIndex(uiDataPinIndex)
-  , m_ScriptDataType(pinDesc.m_ScriptDataType)
-  , m_bRequired(pinDesc.m_bRequired)
-  , m_bHasDynamicPinProperty(pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
-  , m_bSplitExecution(pinDesc.m_bSplitExecution)
+  , m_uiElementIndex(uiElementIndex)
 {
   if (pinDesc.IsExecutionPin())
   {
@@ -37,13 +33,14 @@ ezVisualScriptPin::~ezVisualScriptPin()
 
 ezVisualScriptDataType::Enum ezVisualScriptPin::GetResolvedScriptDataType() const
 {
-  if (m_ScriptDataType == ezVisualScriptDataType::AnyPointer || m_ScriptDataType == ezVisualScriptDataType::Any)
+  auto scriptDataType = GetScriptDataType();
+  if (scriptDataType == ezVisualScriptDataType::AnyPointer || scriptDataType == ezVisualScriptDataType::Any)
   {
     auto pManager = static_cast<const ezVisualScriptNodeManager*>(GetParent()->GetDocumentObjectManager());
     return pManager->GetDeductedType(*this);
   }
 
-  return m_ScriptDataType;
+  return scriptDataType;
 }
 
 ezStringView ezVisualScriptPin::GetDataTypeName() const
@@ -51,12 +48,12 @@ ezStringView ezVisualScriptPin::GetDataTypeName() const
   ezVisualScriptDataType::Enum resolvedDataType = GetResolvedScriptDataType();
   if (resolvedDataType == ezVisualScriptDataType::Invalid)
   {
-    return ezVisualScriptDataType::GetName(m_ScriptDataType);
+    return ezVisualScriptDataType::GetName(GetScriptDataType());
   }
 
-  if ((resolvedDataType == ezVisualScriptDataType::TypedPointer || resolvedDataType == ezVisualScriptDataType::EnumValue) && m_pDataType != nullptr)
+  if ((resolvedDataType == ezVisualScriptDataType::TypedPointer || resolvedDataType == ezVisualScriptDataType::EnumValue) && GetDataType() != nullptr)
   {
-    return m_pDataType->GetTypeName();
+    return GetDataType()->GetTypeName();
   }
 
   return ezVisualScriptDataType::GetName(resolvedDataType);
@@ -67,7 +64,7 @@ bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bU
   ezVisualScriptDataType::Enum sourceScriptDataType = bUseResolvedDataTypes ? GetResolvedScriptDataType() : GetScriptDataType();
   ezVisualScriptDataType::Enum targetScriptDataType = bUseResolvedDataTypes ? targetPin.GetResolvedScriptDataType() : targetPin.GetScriptDataType();
 
-  const ezRTTI* pSourceDataType = m_pDataType;
+  const ezRTTI* pSourceDataType = GetDataType();
   const ezRTTI* pTargetDataType = targetPin.GetDataType();
 
   if (ezVisualScriptDataType::IsPointer(sourceScriptDataType) &&
@@ -431,7 +428,7 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
         ++inout_dataPinIndex;
       }
 
-      auto pPin = EZ_DEFAULT_NEW(ezVisualScriptPin, type, dynamicPinNames[i], pinDesc, pObject, uiDataPinIndex);
+      auto pPin = EZ_DEFAULT_NEW(ezVisualScriptPin, type, dynamicPinNames[i], pinDesc, pObject, uiDataPinIndex, i);
       out_pins.PushBack(pPin);
     }
   };

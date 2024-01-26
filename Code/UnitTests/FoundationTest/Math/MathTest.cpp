@@ -550,6 +550,12 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
       EZ_TEST_FLOAT(ezMath::SmoothStep(0.0f * iScale, 0.1f * iScale, 0.1f * iScale), iScale > 0 ? 0.0f : 1.0f, 0.000001);
       EZ_TEST_FLOAT(ezMath::SmoothStep(0.2f * iScale, 0.1f * iScale, 0.1f * iScale), iScale < 0 ? 0.0f : 1.0f, 0.000001);
     }
+
+    EZ_TEST_FLOAT(ezMath::SmoothStep(0.2f, 0.0f, 1.0f), 0.104f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::SmoothStep(0.4f, 0.2f, 0.8f), 0.259259f, 0.00001f);
+
+    EZ_TEST_FLOAT(ezMath::SmootherStep(0.2f, 0.0f, 1.0f), 0.05792f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::SmootherStep(0.4f, 0.2f, 0.8f), 0.209876f, 0.00001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsPowerOf")

@@ -214,7 +214,8 @@ namespace
       expectedResultAsU = expectedResult;
     }
 
-    auto TestRes = [](U res, U expectedRes, const char* szCode, const char* szAValue, const char* szBValue) {
+    auto TestRes = [](U res, U expectedRes, const char* szCode, const char* szAValue, const char* szBValue)
+    {
       if constexpr (std::is_same<T, float>::value)
       {
         EZ_TEST_FLOAT_MSG(res, expectedRes, ezMath::DefaultEpsilon<float>(), "%s (a=%s, b=%s)", szCode, szAValue, szBValue);
@@ -386,13 +387,15 @@ namespace
     ezProcessingStream inputs[] = {
       ezProcessingStream(s_sA, a.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type),
       ezProcessingStream(s_sB, b.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type),
+      ezProcessingStream(s_sC, a.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type), // Dummy stream, not actually used
+      ezProcessingStream(s_sD, a.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type), // Dummy stream, not actually used
     };
 
     ezProcessingStream outputs[] = {
       ezProcessingStream(s_sOutput, o.GetByteArrayPtr(), StreamDataTypeDeduction<T>::Type),
     };
 
-    EZ_TEST_BOOL(s_pVM->Execute(testByteCode, inputs, outputs, uiCount).Succeeded());
+    EZ_TEST_BOOL(s_pVM->Execute(testByteCode, inputs, outputs, uiCount, ezExpression::GlobalData(), ezExpressionVM::Flags::BestPerformance).Succeeded());
 
     for (ezUInt32 i = 0; i < uiCount; ++i)
     {
@@ -860,6 +863,24 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     EZ_TEST_FLOAT(TestInstruction("output = lerp(a, b, c)", -1.0f, -11.0f, 0.1f), -2.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = lerp(1, 5, 0.75)"), 4.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = lerp(-1, -11, 0.1)"), -2.0f, ezMath::DefaultEpsilon<float>());
+
+    // SmoothStep
+    EZ_TEST_FLOAT(TestInstruction("output = smoothstep(a, b, c)", 0.0f, 0.0f, 1.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smoothstep(a, b, c)", 0.2f, 0.0f, 1.0f), ezMath::SmoothStep(0.2f, 0.0f, 1.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smoothstep(a, b, c)", 0.5f, 0.0f, 1.0f), 0.5f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smoothstep(a, b, c)", 0.2f, 0.2f, 0.8f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smoothstep(a, b, c)", 0.4f, 0.2f, 0.8f), ezMath::SmoothStep(0.4f, 0.2f, 0.8f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = smoothstep(0.2, 0, 1)"), ezMath::SmoothStep(0.2f, 0.0f, 1.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = smoothstep(0.4, 0.2, 0.8)"), ezMath::SmoothStep(0.4f, 0.2f, 0.8f), ezMath::DefaultEpsilon<float>());
+
+    // SmootherStep
+    EZ_TEST_FLOAT(TestInstruction("output = smootherstep(a, b, c)", 0.0f, 0.0f, 1.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smootherstep(a, b, c)", 0.2f, 0.0f, 1.0f), ezMath::SmootherStep(0.2f, 0.0f, 1.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smootherstep(a, b, c)", 0.5f, 0.0f, 1.0f), 0.5f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smootherstep(a, b, c)", 0.2f, 0.2f, 0.8f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = smootherstep(a, b, c)", 0.4f, 0.2f, 0.8f), ezMath::SmootherStep(0.4f, 0.2f, 0.8f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = smootherstep(0.2, 0, 1)"), ezMath::SmootherStep(0.2f, 0.0f, 1.0f), ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestConstant<float>("output = smootherstep(0.4, 0.2, 0.8)"), ezMath::SmootherStep(0.4f, 0.2f, 0.8f), ezMath::DefaultEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Local variables")

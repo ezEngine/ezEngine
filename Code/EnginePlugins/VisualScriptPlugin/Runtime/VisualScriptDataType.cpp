@@ -200,6 +200,33 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromVariantType(ezVariantTy
   }
 }
 
+ezProcessingStream::DataType ezVisualScriptDataType::GetStreamDataType(Enum dataType)
+{
+  // We treat ezColor and ezVec4 as the same in the visual script <=> expression binding
+  // so ensure that they have the same size and layout
+  static_assert(sizeof(ezColor) == sizeof(ezVec4));
+  static_assert(offsetof(ezColor, r) == offsetof(ezVec4, x));
+  static_assert(offsetof(ezColor, g) == offsetof(ezVec4, y));
+  static_assert(offsetof(ezColor, b) == offsetof(ezVec4, z));
+  static_assert(offsetof(ezColor, a) == offsetof(ezVec4, w));
+
+  switch (dataType)
+  {
+    case Int:
+      return ezProcessingStream::DataType::Int;
+    case Float:
+      return ezProcessingStream::DataType::Float;
+    case Vector3:
+      return ezProcessingStream::DataType::Float3;
+    case Color:
+      return ezProcessingStream::DataType::Float4;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return ezProcessingStream::DataType::Float;
+}
+
 // static
 const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
 {

@@ -5,6 +5,21 @@
 
 // ****** ezColor ******
 
+ezColor ezColor::MakeNaN()
+{
+  return ezColor(ezMath::NaN<float>(), ezMath::NaN<float>(), ezMath::NaN<float>(), ezMath::NaN<float>());
+}
+
+ezColor ezColor::MakeZero()
+{
+  return ezColor(0.0f, 0.0f, 0.0f, 0.0f);
+}
+
+ezColor ezColor::MakeRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha /*= 1.0f*/)
+{
+  return ezColor(fLinearRed, fLinearGreen, fLinearBlue, fLinearAlpha);
+}
+
 void ezColor::operator=(const ezColorLinearUB& cc)
 {
   *this = cc.ToLinearFloat();
@@ -436,15 +451,6 @@ const ezColor ezColor::WhiteSmoke(ezColorGammaUB(0xF5, 0xF5, 0xF5));
 const ezColor ezColor::Yellow(ezColorGammaUB(0xFF, 0xFF, 0x00));
 const ezColor ezColor::YellowGreen(ezColorGammaUB(0x9A, 0xCD, 0x32));
 
-ezColor ezColor::MakeNaN()
-{
-  return ezColor(ezMath::NaN<float>(), ezMath::NaN<float>(), ezMath::NaN<float>(), ezMath::NaN<float>());
-}
-
-ezColor ezColor::MakeZero()
-{
-  return ezColor(0.0f, 0.0f, 0.0f, 0.0f);
-}
 
 ezUInt32 ezColor::ToRGBA8() const
 {

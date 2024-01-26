@@ -103,6 +103,14 @@ ezScriptInstance::ezScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorl
 {
 }
 
+void ezScriptInstance::SetInstanceVariables(const ezArrayMap<ezHashedString, ezVariant>& parameters)
+{
+  for (auto it : parameters)
+  {
+    SetInstanceVariable(it.key, it.value);
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 // static

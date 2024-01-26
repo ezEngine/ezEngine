@@ -7,12 +7,15 @@
 
 #include <QAction>
 #include <QBoxLayout>
+#include <QCheckBox>
 #include <QClipboard>
 #include <QDragEnterEvent>
+#include <QEvent>
 #include <QFont>
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QLabel>
+#include <QLayout>
 #include <QMenu>
 #include <QMimeData>
 #include <QPainter>
@@ -20,8 +23,8 @@
 #include <QScrollArea>
 #include <QSlider>
 #include <QStringBuilder>
+#include <QSyntaxHighlighter>
 #include <QToolButton>
 #include <QWidget>
 #include <QWidgetAction>
 #include <QtWidgets>
-#include <qevent.h>

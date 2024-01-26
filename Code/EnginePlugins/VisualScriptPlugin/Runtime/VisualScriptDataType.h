@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/World/GameObject.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <VisualScriptPlugin/VisualScriptPluginDLL.h>
 
 /// \brief Data types that are available in visual script. These are a subset of ezVariantType.
@@ -54,6 +55,8 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
 
   static ezVariantType::Enum GetVariantType(Enum dataType);
   static Enum FromVariantType(ezVariantType::Enum variantType);
+
+  static ezProcessingStream::DataType GetStreamDataType(Enum dataType);
 
   static const ezRTTI* GetRtti(Enum dataType);
   static Enum FromRtti(const ezRTTI* pRtti);

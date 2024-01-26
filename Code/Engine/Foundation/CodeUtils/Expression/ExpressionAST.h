@@ -84,6 +84,8 @@ public:
       Clamp,
       Select,
       Lerp,
+      SmoothStep,
+      SmootherStep,
       LastTernary,
 
       Constant,
@@ -274,7 +276,8 @@ public:
 
   void PrintGraph(ezDGMLGraph& inout_graph) const;
 
-  ezHybridArray<Output*, 8> m_OutputNodes;
+  ezSmallArray<Input*, 8> m_InputNodes;
+  ezSmallArray<Output*, 8> m_OutputNodes;
 
   // Transforms
   Node* TypeDeductionAndConversion(Node* pNode);
@@ -285,6 +288,7 @@ public:
   Node* CommonSubexpressionElimination(Node* pNode);
   Node* Validate(Node* pNode);
 
+  ezResult ScalarizeInputs();
   ezResult ScalarizeOutputs();
 
 private:

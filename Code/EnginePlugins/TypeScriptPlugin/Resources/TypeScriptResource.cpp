@@ -59,7 +59,7 @@ ezTypeScriptInstance::ezTypeScriptInstance(ezComponent& inout_owner, ezWorld* pW
 {
 }
 
-void ezTypeScriptInstance::ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters)
+void ezTypeScriptInstance::SetInstanceVariables(const ezArrayMap<ezHashedString, ezVariant>& parameters)
 {
   ezDuktapeHelper duk(m_Binding.GetDukTapeContext());
 
@@ -74,7 +74,35 @@ void ezTypeScriptInstance::ApplyParameters(const ezArrayMap<ezHashedString, ezVa
 
   duk.PopStack(); // [ ]
 
-  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
+  EZ_DUK_VERIFY_STACK(duk, 0);
+}
+
+void ezTypeScriptInstance::SetInstanceVariable(const ezHashedString& sName, const ezVariant& value)
+{
+  ezDuktapeHelper duk(m_Binding.GetDukTapeContext());
+
+  m_Binding.DukPutComponentObject(&GetComponent()); // [ comp ]
+
+  ezTypeScriptBinding::SetVariantProperty(duk, sName, -1, value); // [ comp ]
+  
+  duk.PopStack(); // [ ]
+
+  EZ_DUK_VERIFY_STACK(duk, 0);
+}
+
+ezVariant ezTypeScriptInstance::GetInstanceVariable(const ezHashedString& sName)
+{
+  ezDuktapeHelper duk(m_Binding.GetDukTapeContext());
+
+  m_Binding.DukPutComponentObject(&GetComponent()); // [ comp ]
+
+  ezVariant value = ezTypeScriptBinding::GetVariantProperty(duk, sName, -1, nullptr); // [ comp ]
+
+  duk.PopStack(); // [ ]
+
+  EZ_DUK_VERIFY_STACK(duk, 0);
+
+  return value;
 }
 
 //////////////////////////////////////////////////////////////////////////

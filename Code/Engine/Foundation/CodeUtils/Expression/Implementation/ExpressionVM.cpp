@@ -36,20 +36,34 @@ void ezExpressionVM::UnregisterFunction(const ezExpressionFunction& func)
 }
 
 ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezProcessingStream> inputs,
-  ezArrayPtr<ezProcessingStream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData)
+  ezArrayPtr<ezProcessingStream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData, ezBitflags<Flags> flags)
 {
-  EZ_SUCCEED_OR_RETURN(ScalarizeStreams(inputs, m_ScalarizedInputs));
-  EZ_SUCCEED_OR_RETURN(ScalarizeStreams(outputs, m_ScalarizedOutputs));
+  if (flags.IsSet(Flags::ScalarizeStreams))
+  {
+    EZ_SUCCEED_OR_RETURN(ScalarizeStreams(inputs, m_ScalarizedInputs));
+    EZ_SUCCEED_OR_RETURN(ScalarizeStreams(outputs, m_ScalarizedOutputs));
 
-  EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetInputs(), m_ScalarizedInputs, "Input", uiNumInstances, m_MappedInputs));
-  EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetOutputs(), m_ScalarizedOutputs, "Output", uiNumInstances, m_MappedOutputs));
+    inputs = m_ScalarizedInputs;
+    outputs = m_ScalarizedOutputs;
+  }
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  else
+  {
+    AreStreamsScalarized(inputs).AssertSuccess("Input streams are not scalarized");
+    AreStreamsScalarized(outputs).AssertSuccess("Output streams are not scalarized");
+  }
+#endif
+
+  EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetInputs(), inputs, "Input", uiNumInstances, flags, m_MappedInputs));
+  EZ_SUCCEED_OR_RETURN(MapStreams(byteCode.GetOutputs(), outputs, "Output", uiNumInstances, flags, m_MappedOutputs));
+
   EZ_SUCCEED_OR_RETURN(MapFunctions(byteCode.GetFunctions(), globalData));
 
   const ezUInt32 uiTotalNumRegisters = byteCode.GetNumTempRegisters() * ((uiNumInstances + 3) / 4);
   m_Registers.SetCountUninitialized(uiTotalNumRegisters);
 
   // Execute bytecode
-  const ezExpressionByteCode::StorageType* pByteCode = byteCode.GetByteCode();
+  const ezExpressionByteCode::StorageType* pByteCode = byteCode.GetByteCodeStart();
   const ezExpressionByteCode::StorageType* pByteCodeEnd = byteCode.GetByteCodeEnd();
 
   ExecutionContext context;
@@ -120,47 +134,90 @@ ezResult ezExpressionVM::ScalarizeStreams(ezArrayPtr<const ezProcessingStream> s
   return EZ_SUCCESS;
 }
 
-ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<ezProcessingStream> streams, ezStringView sStreamType, ezUInt32 uiNumInstances, ezDynamicArray<ezProcessingStream*>& out_MappedStreams)
+ezResult ezExpressionVM::AreStreamsScalarized(ezArrayPtr<const ezProcessingStream> streams)
+{
+  for (auto& stream : streams)
+  {
+    const ezUInt32 uiNumElements = ezExpressionAST::DataType::GetElementCount(ezExpressionAST::DataType::FromStreamType(stream.GetDataType()));
+    if (uiNumElements > 1)
+    {
+      return EZ_FAILURE;
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+
+ezResult ezExpressionVM::ValidateStream(const ezProcessingStream& stream, const ezExpression::StreamDesc& streamDesc, ezStringView sStreamType, ezUInt32 uiNumInstances)
+{
+  // verify stream data type
+  if (stream.GetDataType() != streamDesc.m_DataType)
+  {
+    ezLog::Error("{} stream '{}' expects data of type '{}' or a compatible type. Given type '{}' is not compatible.", sStreamType, streamDesc.m_sName, ezProcessingStream::GetDataTypeName(streamDesc.m_DataType), ezProcessingStream::GetDataTypeName(stream.GetDataType()));
+    return EZ_FAILURE;
+  }
+
+  // verify stream size
+  ezUInt32 uiElementSize = stream.GetElementSize();
+  ezUInt32 uiExpectedSize = stream.GetElementStride() * (uiNumInstances - 1) + uiElementSize;
+
+  if (stream.GetDataSize() < uiExpectedSize)
+  {
+    ezLog::Error("{} stream '{}' data size must be {} bytes or more. Only {} bytes given", sStreamType, streamDesc.m_sName, uiExpectedSize, stream.GetDataSize());
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
+template <typename T>
+ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<T> streams, ezStringView sStreamType, ezUInt32 uiNumInstances, ezBitflags<Flags> flags, ezDynamicArray<T*>& out_MappedStreams)
 {
   out_MappedStreams.Clear();
   out_MappedStreams.Reserve(streamDescs.GetCount());
 
-  for (auto& streamDesc : streamDescs)
+  if (flags.IsSet(Flags::MapStreamsByName))
   {
-    bool bFound = false;
+    for (auto& streamDesc : streamDescs)
+    {
+      bool bFound = false;
+
+      for (ezUInt32 i = 0; i < streams.GetCount(); ++i)
+      {
+        auto& stream = streams[i];
+        if (stream.GetName() == streamDesc.m_sName)
+        {
+          EZ_SUCCEED_OR_RETURN(ValidateStream(stream, streamDesc, sStreamType, uiNumInstances));
+
+          out_MappedStreams.PushBack(&stream);
+          bFound = true;
+          break;
+        }
+      }
+
+      if (!bFound)
+      {
+        ezLog::Error("Bytecode expects an {} stream '{}'", sStreamType, streamDesc.m_sName);
+        return EZ_FAILURE;
+      }
+    }
+  }
+  else
+  {
+    if (streams.GetCount() != streamDescs.GetCount())
+      return EZ_FAILURE;
 
     for (ezUInt32 i = 0; i < streams.GetCount(); ++i)
     {
-      auto& stream = streams[i];
-      if (stream.GetName() == streamDesc.m_sName)
-      {
-        // verify stream data type
-        if (stream.GetDataType() != streamDesc.m_DataType)
-        {
-          ezLog::Error("{} stream '{}' expects data of type '{}' or a compatible type. Given type '{}' is not compatible.", sStreamType, streamDesc.m_sName, ezProcessingStream::GetDataTypeName(streamDesc.m_DataType), ezProcessingStream::GetDataTypeName(stream.GetDataType()));
-          return EZ_FAILURE;
-        }
+      auto& stream = streams.GetPtr()[i];
 
-        // verify stream size
-        ezUInt32 uiElementSize = stream.GetElementSize();
-        ezUInt32 uiExpectedSize = stream.GetElementStride() * (uiNumInstances - 1) + uiElementSize;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      auto& streamDesc = streamDescs.GetPtr()[i];
+      EZ_SUCCEED_OR_RETURN(ValidateStream(stream, streamDesc, sStreamType, uiNumInstances));
+#endif
 
-        if (stream.GetDataSize() < uiExpectedSize)
-        {
-          ezLog::Error("{} stream '{}' data size must be {} bytes or more. Only {} bytes given", sStreamType, streamDesc.m_sName, uiExpectedSize, stream.GetDataSize());
-          return EZ_FAILURE;
-        }
-
-        out_MappedStreams.PushBack(&stream);
-        bFound = true;
-        break;
-      }
-    }
-
-    if (!bFound)
-    {
-      ezLog::Error("Bytecode expects an {} stream '{}'", sStreamType, streamDesc.m_sName);
-      return EZ_FAILURE;
+      out_MappedStreams.PushBack(&stream);
     }
   }
 
@@ -204,5 +261,3 @@ ezResult ezExpressionVM::MapFunctions(ezArrayPtr<const ezExpression::FunctionDes
 
   return EZ_SUCCESS;
 }
-
-

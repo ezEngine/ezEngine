@@ -186,7 +186,7 @@ protected:
   /// \brief Returns true if adding a connection between the two pins would create a circular graph
   bool WouldConnectionCreateCircle(const ezPin& source, const ezPin& target) const;
 
-  void GetDynamicPinNames(const ezDocumentObject* pObject, ezStringView sPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const;
+  virtual void GetDynamicPinNames(const ezDocumentObject* pObject, ezStringView sPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const;
   virtual bool TryRecreatePins(const ezDocumentObject* pObject);
 
   struct NodeInternal
@@ -208,6 +208,8 @@ private:
   void ObjectHandler(const ezDocumentObjectEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
+
+  void HandlePotentialDynamicPinPropertyChanged(const ezDocumentObject* pObject, ezStringView sPropertyName);
 
   void RestoreOldMetaDataAfterLoading(const ezAbstractObjectGraph& graph, const ezAbstractObjectNode::Property& connectionsProperty, const ezDocumentObject* pSourceObject);
 

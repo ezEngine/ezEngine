@@ -211,6 +211,9 @@ public:
   /// \brief Returns a color with all four RGBA components set to zero. This is different to ezColor::Black, which has alpha still set to 1.0.
   [[nodiscard]] static ezColor MakeZero();
 
+  /// \brief Returns a color with the given r, g, b, a values. The values must be given in a linear color space.
+  [[nodiscard]] static ezColor MakeRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f);
+
   // *** Constructors ***
 public:
   /// \brief default-constructed color is uninitialized (for speed)

@@ -4,13 +4,15 @@
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptTypeDeduction.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+
 #include <Core/Messages/EventMessage.h>
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Core/Scripting/ScriptCoroutine.h>
+#include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdRandom.h>
-#include <GuiFoundation/UIServices/DynamicStringEnum.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
 namespace
 {
@@ -219,7 +221,7 @@ void ezVisualScriptNodeRegistry::NodeDesc::AddOutputExecutionPin(ezStringView sN
   m_bImplicitExecution = false;
 }
 
-void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, ezHashedString sDynamicPinProperty, ezVisualScriptNodeRegistry::PinDesc::DeductTypeFunc deductTypeFunc, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& inout_pins)
+void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, ezHashedString sDynamicPinProperty, ezVisualScriptNodeRegistry::PinDesc::DeductTypeFunc deductTypeFunc, bool bReplaceWithArray, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& inout_pins)
 {
   if ((scriptDataType == ezVisualScriptDataType::AnyPointer || scriptDataType == ezVisualScriptDataType::Any) && deductTypeFunc == nullptr)
   {
@@ -233,18 +235,19 @@ void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStringVi
   pin.m_pDataType = pDataType;
   pin.m_ScriptDataType = scriptDataType;
   pin.m_bRequired = bRequired;
+  pin.m_bReplaceWithArray = bReplaceWithArray;
 
   inout_nodeDesc.m_bHasDynamicPins |= (sDynamicPinProperty.IsEmpty() == false);
 }
 
-void ezVisualScriptNodeRegistry::NodeDesc::AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/, PinDesc::DeductTypeFunc deductTypeFunc /*= nullptr*/)
+void ezVisualScriptNodeRegistry::NodeDesc::AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/, PinDesc::DeductTypeFunc deductTypeFunc /*= nullptr*/, bool bReplaceWithArray /*= false*/)
 {
-  AddDataPin(*this, sName, pDataType, scriptDataType, bRequired, sDynamicPinProperty, deductTypeFunc, m_InputPins);
+  AddDataPin(*this, sName, pDataType, scriptDataType, bRequired, sDynamicPinProperty, deductTypeFunc, bReplaceWithArray, m_InputPins);
 }
 
 void ezVisualScriptNodeRegistry::NodeDesc::AddOutputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/, PinDesc::DeductTypeFunc deductTypeFunc /*= nullptr*/)
 {
-  AddDataPin(*this, sName, pDataType, scriptDataType, false, sDynamicPinProperty, deductTypeFunc, m_OutputPins);
+  AddDataPin(*this, sName, pDataType, scriptDataType, false, sDynamicPinProperty, deductTypeFunc, false, m_OutputPins);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -936,6 +939,56 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     }
   }
 
+  // Builtin_Expression
+  {
+    FillDesc(typeDesc, "Builtin_Expression", mathColor);
+
+    {
+      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
+      propDesc.m_Category = ezPropertyCategory::Member;
+      propDesc.m_sName = "Expression";
+      propDesc.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
+      propDesc.m_Flags = ezPropertyFlags::StandardType;
+
+      auto pExpressionWidgetAttr = EZ_DEFAULT_NEW(ezExpressionWidgetAttribute, "Inputs", "Outputs");
+      propDesc.m_Attributes.PushBack(pExpressionWidgetAttr);
+    }
+
+    {
+      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
+      propDesc.m_Category = ezPropertyCategory::Array;
+      propDesc.m_sName = "Inputs";
+      propDesc.m_sType = ezGetStaticRTTI<ezVisualScriptExpressionVariable>()->GetTypeName();
+      propDesc.m_Flags = ezPropertyFlags::Class;
+
+      auto pMaxSizeAttr = EZ_DEFAULT_NEW(ezMaxArraySizeAttribute, 16);
+      propDesc.m_Attributes.PushBack(pMaxSizeAttr);
+    }
+
+    {
+      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
+      propDesc.m_Category = ezPropertyCategory::Array;
+      propDesc.m_sName = "Outputs";
+      propDesc.m_sType = ezGetStaticRTTI<ezVisualScriptExpressionVariable>()->GetTypeName();
+      propDesc.m_Flags = ezPropertyFlags::Class;
+
+      auto pMaxSizeAttr = EZ_DEFAULT_NEW(ezMaxArraySizeAttribute, 16);
+      propDesc.m_Attributes.PushBack(pMaxSizeAttr);
+    }
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Expression::{Expression}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Expression;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductDummy;
+
+    nodeDesc.AddInputDataPin("Input", nullptr, ezVisualScriptDataType::Any, false, ezMakeHashedString("Inputs"), &ezVisualScriptTypeDeduction::DeductFromExpressionInput);
+    nodeDesc.AddOutputDataPin("Output", nullptr, ezVisualScriptDataType::Any, ezMakeHashedString("Outputs"), &ezVisualScriptTypeDeduction::DeductFromExpressionOutput);
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sMathCategory);
+  }
+
   // Builtin_ToBool, Builtin_ToByte, Builtin_ToInt, Builtin_ToInt64, Builtin_ToFloat, Builtin_ToDouble, Builtin_ToString, Builtin_ToVariant,
   {
     struct ConversionNodeDesc
@@ -1512,7 +1565,8 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       }
 
       ezVisualScriptDataType::Enum pinScriptDataType = scriptDataType;
-      if (bIsDynamicPinProperty && scriptDataType == ezVisualScriptDataType::Array)
+      const bool bIsArrayDynamicPinProperty = bIsDynamicPinProperty && scriptDataType == ezVisualScriptDataType::Array;
+      if (bIsArrayDynamicPinProperty)
       {
         pArgRtti = ezGetStaticRTTI<ezVariant>();
         pinScriptDataType = ezVisualScriptDataType::Variant;
@@ -1537,7 +1591,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
             AddInputProperty(typeDesc, sArgName, pArgRtti, scriptDataType, attributes);
           }
 
-          nodeDesc.AddInputDataPin(sArgName, pArgRtti, pinScriptDataType, false, sDynamicPinProperty);
+          nodeDesc.AddInputDataPin(sArgName, pArgRtti, pinScriptDataType, false, sDynamicPinProperty, nullptr, bIsArrayDynamicPinProperty);
 
           if (titleArgIdx == ezInvalidIndex &&
               (pinScriptDataType == ezVisualScriptDataType::String || pinScriptDataType == ezVisualScriptDataType::HashedString))
