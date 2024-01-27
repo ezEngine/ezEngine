@@ -158,7 +158,7 @@ void ezOpenXRRemoting::HandleEvent(const XrEventDataBuffer& event)
   if (!m_bInitialized)
     return;
 
-  switch (event.type)
+  switch ((ezUInt32)event.type)
   {
     case XR_TYPE_REMOTING_EVENT_DATA_CONNECTED_MSFT:
     {
@@ -184,6 +184,8 @@ void ezOpenXRRemoting::HandleEvent(const XrEventDataBuffer& event)
       m_event.Broadcast(data);
     }
     break;
+    default:
+      break;
   }
 }
 

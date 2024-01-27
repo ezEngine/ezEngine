@@ -113,6 +113,8 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
           EZ_ASSERT_DEBUG(paramDesc.SemanticIndex <= 1, "BoneWeights out of range");
           semantic = static_cast<ezGALVertexAttributeSemantic::Enum>((ezUInt32)semantic + paramDesc.SemanticIndex);
           break;
+        default:
+          break;
       }
 
       ezShaderVertexInputAttribute& attr = vertexInputAttributes.ExpandAndGetRef();
