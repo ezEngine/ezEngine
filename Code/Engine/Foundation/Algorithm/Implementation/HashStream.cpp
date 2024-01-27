@@ -2,8 +2,13 @@
 
 #include <Foundation/Algorithm/HashStream.h>
 
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_CLANG("-Wunused-function")
+
 #define XXH_INLINE_ALL
 #include <Foundation/ThirdParty/xxHash/xxhash.h>
+
+EZ_WARNING_POP()
 
 ezHashStreamWriter32::ezHashStreamWriter32(ezUInt32 uiSeed)
 {

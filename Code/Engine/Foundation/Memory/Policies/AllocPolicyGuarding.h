@@ -19,5 +19,7 @@ public:
 private:
   ezMutex m_Mutex;
 
+  ezUInt32 m_uiPageSize;
+
   ezStaticRingBuffer<void*, (1 << 16)> m_AllocationsToFreeLater;
 };

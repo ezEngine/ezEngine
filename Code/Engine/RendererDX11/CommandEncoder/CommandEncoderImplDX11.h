@@ -19,7 +19,7 @@ struct ID3D11Query;
 
 class ezGALDeviceDX11;
 
-class EZ_RENDERERDX11_DLL ezGALCommandEncoderImplDX11 : public ezGALCommandEncoderCommonPlatformInterface, public ezGALCommandEncoderRenderPlatformInterface, public ezGALCommandEncoderComputePlatformInterface
+class EZ_RENDERERDX11_DLL ezGALCommandEncoderImplDX11 final : public ezGALCommandEncoderCommonPlatformInterface, public ezGALCommandEncoderRenderPlatformInterface, public ezGALCommandEncoderComputePlatformInterface
 {
 public:
   ezGALCommandEncoderImplDX11(ezGALDeviceDX11& ref_deviceDX11);
