@@ -26,6 +26,7 @@
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
+#include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <RendererCore/Lights/BoxReflectionProbeComponent.h>
@@ -89,8 +90,24 @@ void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e
 void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
-
 void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+
+QImage SliderImageGenerator_LightTemperature(ezUInt32 width, ezUInt32 height)
+{
+  // can use a 1D image, height doesn't need to be all used
+  QImage image = QImage(width, 1, QImage::Format::Format_RGB32);
+
+  for (int x = 0; x < width; ++x)
+  {
+    const double pos = (double)x / (width - 1.0);
+    ezColor c = ezColor::MakeFromKelvin(static_cast<ezUInt32>((pos * 14000) + 1000));
+
+    ezColorGammaUB cg = c;
+    image.setPixel(x, 0, qRgb(cg.r, cg.g, cg.b));
+  }
+
+  return image;
+}
 
 void OnLoadPlugin()
 {
@@ -113,6 +130,9 @@ void OnLoadPlugin()
   ezSceneGizmoActions::RegisterActions();
   ezSceneActions::RegisterActions();
   ezLayerActions::RegisterActions();
+
+  // misc
+  ezQtImageSliderWidget::s_ImageGenerators["LightTemperature"] = SliderImageGenerator_LightTemperature;
 
   // Menu Bar
   const char* MenuBars[] = {"EditorPluginScene_DocumentMenuBar", "EditorPluginScene_Scene2MenuBar"};
@@ -315,7 +335,7 @@ void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
   static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezLightComponent");
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
 
-  if (!e.m_pObject-> GetTypeAccessor().GetType()->IsDerivedFrom(pRtti))
+  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom(pRtti))
     return;
 
   auto& props = *e.m_pPropertyStates;
