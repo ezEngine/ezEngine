@@ -344,6 +344,6 @@ function(ez_enable_strict_warnings TARGET_NAME)
 	endif()
 
 	if(EZ_CMAKE_COMPILER_CLANG)
-		target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall)
+		target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall -Wlogical-op-parentheses)
 	endif()
 endfunction()

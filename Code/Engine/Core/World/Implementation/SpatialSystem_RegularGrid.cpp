@@ -1042,8 +1042,8 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
       continue;
 
     if ((pGrid->m_Category.GetBitmask() & uiGridBitmask) == 0 ||
-        (queryParams.m_pIncludeTags && pGrid->m_IncludeTags != *queryParams.m_pIncludeTags || !queryParams.m_pIncludeTags && !pGrid->m_IncludeTags.IsEmpty()) ||
-        (queryParams.m_pExcludeTags && pGrid->m_ExcludeTags != *queryParams.m_pExcludeTags || !queryParams.m_pExcludeTags && !pGrid->m_ExcludeTags.IsEmpty()))
+        ((queryParams.m_pIncludeTags && pGrid->m_IncludeTags != *queryParams.m_pIncludeTags) || (!queryParams.m_pIncludeTags && !pGrid->m_IncludeTags.IsEmpty())) ||
+        ((queryParams.m_pExcludeTags && pGrid->m_ExcludeTags != *queryParams.m_pExcludeTags) || (!queryParams.m_pExcludeTags && !pGrid->m_ExcludeTags.IsEmpty())))
       continue;
 
     uiGridBitmask &= ~pGrid->m_Category.GetBitmask();
@@ -1066,7 +1066,7 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
   }
 
   // then search for the rest
-  const bool useTagsFilter = queryParams.m_pIncludeTags && queryParams.m_pIncludeTags->IsEmpty() == false || queryParams.m_pExcludeTags && queryParams.m_pExcludeTags->IsEmpty() == false;
+  const bool useTagsFilter = (queryParams.m_pIncludeTags && queryParams.m_pIncludeTags->IsEmpty() == false) || (queryParams.m_pExcludeTags && queryParams.m_pExcludeTags->IsEmpty() == false);
   CellCallback cellCallback = useTagsFilter ? filterByTagsCallback : noFilterCallback;
 
   while (uiGridBitmask > 0)
@@ -1211,8 +1211,8 @@ void ezSpatialSystem_RegularGrid::UpdateCacheCandidate(const ezTagSet* pIncludeT
   for (auto& cacheCandidate : m_CacheCandidates)
   {
     if (cacheCandidate.m_Category == category &&
-        (pIncludeTags && cacheCandidate.m_IncludeTags == *pIncludeTags || !pIncludeTags && cacheCandidate.m_IncludeTags.IsEmpty()) &&
-        (pExcludeTags && cacheCandidate.m_ExcludeTags == *pExcludeTags || !pExcludeTags && cacheCandidate.m_ExcludeTags.IsEmpty()))
+        ((pIncludeTags && cacheCandidate.m_IncludeTags == *pIncludeTags) || (!pIncludeTags && cacheCandidate.m_IncludeTags.IsEmpty())) &&
+        ((pExcludeTags && cacheCandidate.m_ExcludeTags == *pExcludeTags) || (!pExcludeTags && cacheCandidate.m_ExcludeTags.IsEmpty())))
     {
       pCacheCandiate = &cacheCandidate;
       break;
