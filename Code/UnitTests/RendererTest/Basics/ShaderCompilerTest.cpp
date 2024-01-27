@@ -42,16 +42,7 @@ ezTestAppRun ezRendererTestShaderCompiler::RunSubTest(ezInt32 iIdentifier, ezUIn
     return ezTestAppRun::Quit;
 
   {
-    //ezShaderPermutationBinary permutationBinary;
-
     ezResourceLock<ezShaderPermutationResource> pResource(m_hActiveShaderPermutation, ezResourceAcquireMode::BlockTillLoaded);
-    //ezStringBuilder sPermutationFile = pResource->GetResourceID();
-
-    //sPermutationFile.ChangeFileExtension("");
-    //sPermutationFile.Shrink(ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
-
-    //sPermutationFile.Shrink(0, 9); // remove underscore and the hash at the end
-    //sPermutationFile.Append(".ezShader");
 
     ezArrayPtr<const ezPermutationVar> permutationVars = static_cast<const ezShaderPermutationResource*>(pResource.GetPointer())->GetPermutationVars();
 

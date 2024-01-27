@@ -1016,6 +1016,11 @@ void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezU
 {
   if (!m_bRenderPassActive && !m_bInsideCompute)
   {
+    if (m_pPipelineBarrier->IsDirty())
+    {
+      m_pPipelineBarrier->Flush();
+    }
+
     m_pCommandBuffer->beginRenderPass(m_renderPass, vk::SubpassContents::eInline);
     m_bClearSubmitted = true;
     m_bRenderPassActive = true;
@@ -1038,7 +1043,7 @@ void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezU
     }
   }
   // Clear depth / stencil
-  if (bClearDepth || bClearStencil)
+  if ((bClearDepth || bClearStencil) && m_depthMask != vk::ImageAspectFlagBits::eNone)
   {
     vk::ClearAttachment& attachment = attachments.ExpandAndGetRef();
     if (bClearDepth && (m_depthMask & vk::ImageAspectFlagBits::eDepth))

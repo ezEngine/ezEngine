@@ -22,6 +22,8 @@ ezInitContextVulkan::ezInitContextVulkan(ezGALDeviceVulkan* pDevice)
 
 ezInitContextVulkan::~ezInitContextVulkan()
 {
+  EZ_ASSERT_DEBUG(!m_currentCommandBuffer, "GetFinishedCommandBuffer should have been called before destruction.");
+
   m_pCommandBufferPool->DeInitialize();
   m_pStagingBufferPool->DeInitialize();
 }

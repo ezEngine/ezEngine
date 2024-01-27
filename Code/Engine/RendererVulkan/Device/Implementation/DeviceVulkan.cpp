@@ -924,8 +924,10 @@ vk::Fence ezGALDeviceVulkan::Submit()
 
   auto res = renderFence;
   ReclaimLater(renderFence);
-  ReclaimLater(m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer, m_pCommandBufferPool.Borrow());
-
+  if (m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer)
+  {
+    ReclaimLater(m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer, m_pCommandBufferPool.Borrow());
+  }
   return res;
 }
 
@@ -1435,6 +1437,8 @@ void ezGALDeviceVulkan::FlushPlatform()
 
 void ezGALDeviceVulkan::WaitIdlePlatform()
 {
+  // Make sure command buffers get flushed.
+  Submit();
   m_device.waitIdle();
   DestroyDeadObjects();
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)

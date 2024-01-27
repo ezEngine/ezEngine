@@ -293,7 +293,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     vk::Extent3D extend = pTex->GetMipLevelSize(pRenderTargetView->GetDescription().m_uiMipLevel);
     out_desc.m_msaa = texDesc.m_SampleCount;
     out_desc.m_size = {extend.width, extend.height};
-    out_desc.layers = texDesc.m_uiArraySize;
+    out_desc.layers = pRenderTargetView->GetDescription().m_uiSliceCount;
   }
   for (size_t i = 0; i < uiColorCount; i++)
   {
@@ -306,7 +306,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     vk::Extent3D extend = pTex->GetMipLevelSize(pRenderTargetView->GetDescription().m_uiMipLevel);
     out_desc.m_msaa = texDesc.m_SampleCount;
     out_desc.m_size = {extend.width, extend.height};
-    out_desc.layers = texDesc.m_uiArraySize;
+    out_desc.layers = pRenderTargetView->GetDescription().m_uiSliceCount;
   }
 
   // In some places rendering is started with an empty ezGALRenderTargetSetup just to be able to run GPU commands.
