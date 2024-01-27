@@ -104,7 +104,6 @@ private:
     static_cast<Derived*>(this)->Start(ezVariantAdapter<typename getArgument<I, Args...>::Type>(arguments[I])...);
   }
 
-protected:
   virtual void StartWithVarargs(ezArrayPtr<ezVariant> arguments) override
   {
     StartImpl(arguments, std::make_index_sequence<sizeof...(Args)>{});
