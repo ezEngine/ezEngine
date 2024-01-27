@@ -458,8 +458,6 @@ ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder)
   if (s_sUserDocumentsPath.IsEmpty())
   {
 #  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-    android_app* app = ezAndroidUtils::GetAndroidApp();
-    // s_sUserDataPath = app->activity->internalDataPath;
     EZ_ASSERT_NOT_IMPLEMENTED;
 #  else
     s_sUserDataPath = getenv("HOME");
