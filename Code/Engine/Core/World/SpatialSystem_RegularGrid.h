@@ -123,5 +123,5 @@ private:
   void RemoveCachedGrid(ezUInt32 uiCandidateIndex);
   void RemoveAllCachedGrids();
 
-  void UpdateCacheCandidate(const ezTagSet& includeTags, const ezTagSet& excludeTags, ezSpatialData::Category category, float filteredRatio) const;
+  void UpdateCacheCandidate(const ezTagSet* pIncludeTags, const ezTagSet* pExcludeTags, ezSpatialData::Category category, float filteredRatio) const;
 };

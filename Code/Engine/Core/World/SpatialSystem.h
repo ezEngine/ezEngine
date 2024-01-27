@@ -46,8 +46,8 @@ public:
   struct QueryParams
   {
     ezUInt32 m_uiCategoryBitmask = 0;
-    ezTagSet m_IncludeTags;
-    ezTagSet m_ExcludeTags;
+    const ezTagSet* m_pIncludeTags = nullptr;
+    const ezTagSet* m_pExcludeTags = nullptr;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     QueryStats* m_pStats = nullptr;
 #endif

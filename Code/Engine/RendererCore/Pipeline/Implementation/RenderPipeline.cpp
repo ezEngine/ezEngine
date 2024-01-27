@@ -992,8 +992,8 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
-  queryParams.m_IncludeTags = view.m_IncludeTags;
-  queryParams.m_ExcludeTags = view.m_ExcludeTags;
+  queryParams.m_pIncludeTags = &view.m_IncludeTags;
+  queryParams.m_pExcludeTags = &view.m_ExcludeTags;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   queryParams.m_pStats = bRecordStats ? &stats : nullptr;
 #endif
@@ -1359,8 +1359,8 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
 
     ezSpatialSystem::QueryParams queryParams;
     queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::OcclusionStatic.GetBitmask() | ezDefaultSpatialDataCategories::OcclusionDynamic.GetBitmask();
-    queryParams.m_IncludeTags = view.m_IncludeTags;
-    queryParams.m_ExcludeTags = view.m_ExcludeTags;
+    queryParams.m_pIncludeTags = &view.m_IncludeTags;
+    queryParams.m_pExcludeTags = &view.m_ExcludeTags;
 
     m_VisibleObjects.Clear();
     view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {}, ezVisibilityState::Indirect);
