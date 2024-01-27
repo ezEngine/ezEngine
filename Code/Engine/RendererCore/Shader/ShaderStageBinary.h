@@ -47,7 +47,7 @@ private:
 
 private:
   ezUInt32 m_uiSourceHash = 0;
-  ezSharedPtr<ezGALShaderByteCode> m_GALByteCode;
+  ezSharedPtr<ezGALShaderByteCode> m_pGALByteCode;
 
 private: // statics
   static ezShaderStageBinary* LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash);

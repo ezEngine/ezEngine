@@ -421,7 +421,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
         if (pBinary)
         {
-          spd.m_ByteCode[stage] = pBinary->m_GALByteCode;
+          spd.m_ByteCode[stage] = pBinary->m_pGALByteCode;
           spd.m_bWriteToDisk[stage] = false;
         }
         else
@@ -454,7 +454,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       {
         ezShaderStageBinary bin;
         bin.m_uiSourceHash = spd.m_uiSourceHash[stage];
-        bin.m_GALByteCode = spd.m_ByteCode[stage];
+        bin.m_pGALByteCode = spd.m_ByteCode[stage];
 
         if (bin.WriteStageBinary(pLog).Failed())
         {

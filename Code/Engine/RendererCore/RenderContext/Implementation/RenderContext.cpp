@@ -763,10 +763,10 @@ void ezRenderContext::ResetContextState()
 
     if (it.Key() == sLinearSampler)
     {
-      m_FallbackSampler = it.Value();
+      m_hFallbackSampler = it.Value();
     }
   }
-  EZ_ASSERT_DEBUG(!m_FallbackSampler.IsInvalidated(), "'LinearSampler' should have been registered as an immutable sampler.");
+  EZ_ASSERT_DEBUG(!m_hFallbackSampler.IsInvalidated(), "'LinearSampler' should have been registered as an immutable sampler.");
 
   m_BoundUAVs.Clear();
   m_BoundConstantBuffers.Clear();
@@ -1288,7 +1288,7 @@ void ezRenderContext::ApplySamplerBindings(const ezGALShader* pShader)
       if (!m_BoundSamplers.TryGetValue(uiResourceHash, hSamplerState))
       {
         // Fallback in case no sampler was set.
-        hSamplerState = m_FallbackSampler;
+        hSamplerState = m_hFallbackSampler;
       }
 
       m_pGALCommandEncoder->SetSamplerState(binding, hSamplerState);

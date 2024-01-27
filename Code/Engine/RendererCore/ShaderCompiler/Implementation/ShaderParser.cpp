@@ -666,11 +666,11 @@ ezResult ParseResource(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezSh
   return EZ_SUCCESS;
 }
 
-void ezShaderParser::ParseShaderResources(ezStringView sShaderStageSource, ezDynamicArray<ezShaderResourceDefinition>& out_Resources)
+void ezShaderParser::ParseShaderResources(ezStringView sShaderStageSource, ezDynamicArray<ezShaderResourceDefinition>& out_resources)
 {
   if (sShaderStageSource.IsEmpty())
   {
-    out_Resources.Clear();
+    out_resources.Clear();
     return;
   }
 
@@ -690,7 +690,7 @@ void ezShaderParser::ParseShaderResources(ezStringView sShaderStageSource, ezDyn
     ezShaderResourceDefinition resourceDef;
     if (ParseResource(tokens, uiCurToken, resourceDef).Succeeded())
     {
-      out_Resources.PushBack(std::move(resourceDef));
+      out_resources.PushBack(std::move(resourceDef));
       continue;
     }
     ++uiCurToken;
@@ -756,7 +756,7 @@ ezResult ezShaderParser::SanityCheckShaderResourceBindings(const ezHashTable<ezH
   return EZ_SUCCESS;
 }
 
-void ezShaderParser::ApplyShaderResourceBindings(ezStringView sPlatform, ezStringView sShaderStageSource, const ezDynamicArray<ezShaderResourceDefinition>& resources, const ezHashTable<ezHashedString, ezShaderResourceBinding>& bindings, const CreateResourceDeclaration& createDeclaration, ezStringBuilder& out_shaderStageSource)
+void ezShaderParser::ApplyShaderResourceBindings(ezStringView sPlatform, ezStringView sShaderStageSource, const ezDynamicArray<ezShaderResourceDefinition>& resources, const ezHashTable<ezHashedString, ezShaderResourceBinding>& bindings, const CreateResourceDeclaration& createDeclaration, ezStringBuilder& out_sShaderStageSource)
 {
   ezDeque<ezString> partStorage;
   ezHybridArray<ezStringView, 16> parts;
@@ -782,12 +782,12 @@ void ezShaderParser::ApplyShaderResourceBindings(ezStringView sPlatform, ezStrin
   for (const ezStringView& sPart : parts)
     uiSize += sPart.GetElementCount();
 
-  out_shaderStageSource.Clear();
-  out_shaderStageSource.Reserve(uiSize);
+  out_sShaderStageSource.Clear();
+  out_sShaderStageSource.Reserve(uiSize);
 
   for (const ezStringView& sPart : parts)
   {
-    out_shaderStageSource.Append(sPart);
+    out_sShaderStageSource.Append(sPart);
   }
 }
 

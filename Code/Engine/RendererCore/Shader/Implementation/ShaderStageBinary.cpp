@@ -17,7 +17,7 @@ ezShaderStageBinary::ezShaderStageBinary() = default;
 
 ezShaderStageBinary::~ezShaderStageBinary()
 {
-  m_GALByteCode = nullptr;
+  m_pGALByteCode = nullptr;
 }
 
 ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream) const
@@ -29,19 +29,19 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream) const
   inout_stream << m_uiSourceHash;
 
   // ezGALShaderByteCode
-  inout_stream << m_GALByteCode->m_Stage;
-  inout_stream << m_GALByteCode->m_bWasCompiledWithDebug;
+  inout_stream << m_pGALByteCode->m_Stage;
+  inout_stream << m_pGALByteCode->m_bWasCompiledWithDebug;
 
   // m_ByteCode
-  const ezUInt32 uiByteCodeSize = m_GALByteCode->m_ByteCode.GetCount();
+  const ezUInt32 uiByteCodeSize = m_pGALByteCode->m_ByteCode.GetCount();
   inout_stream << uiByteCodeSize;
-  if (!m_GALByteCode->m_ByteCode.IsEmpty() && inout_stream.WriteBytes(&m_GALByteCode->m_ByteCode[0], uiByteCodeSize).Failed())
+  if (!m_pGALByteCode->m_ByteCode.IsEmpty() && inout_stream.WriteBytes(&m_pGALByteCode->m_ByteCode[0], uiByteCodeSize).Failed())
     return EZ_FAILURE;
 
   // m_ShaderResourceBindings
-  const ezUInt16 uiResources = static_cast<ezUInt16>(m_GALByteCode->m_ShaderResourceBindings.GetCount());
+  const ezUInt16 uiResources = static_cast<ezUInt16>(m_pGALByteCode->m_ShaderResourceBindings.GetCount());
   inout_stream << uiResources;
-  for (const auto& r : m_GALByteCode->m_ShaderResourceBindings)
+  for (const auto& r : m_pGALByteCode->m_ShaderResourceBindings)
   {
     inout_stream << r.m_ResourceType;
     inout_stream << r.m_TextureType;
@@ -59,9 +59,9 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream) const
   }
 
   // m_ShaderVertexInput
-  const ezUInt16 uiVertexInputs = static_cast<ezUInt16>(m_GALByteCode->m_ShaderVertexInput.GetCount());
+  const ezUInt16 uiVertexInputs = static_cast<ezUInt16>(m_pGALByteCode->m_ShaderVertexInput.GetCount());
   inout_stream << uiVertexInputs;
-  for (const auto& v : m_GALByteCode->m_ShaderVertexInput)
+  for (const auto& v : m_pGALByteCode->m_ShaderVertexInput)
   {
     inout_stream << v.m_eSemantic;
     inout_stream << v.m_eFormat;
@@ -92,8 +92,8 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream, const ezShader
 
 ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
 {
-  EZ_ASSERT_DEBUG(m_GALByteCode == nullptr, "");
-  m_GALByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode);
+  EZ_ASSERT_DEBUG(m_pGALByteCode == nullptr, "");
+  m_pGALByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode);
 
   ezUInt8 uiVersion = 0;
 
@@ -111,15 +111,15 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
   inout_stream >> m_uiSourceHash;
 
   // ezGALShaderByteCode
-  inout_stream >> m_GALByteCode->m_Stage;
-  inout_stream >> m_GALByteCode->m_bWasCompiledWithDebug;
+  inout_stream >> m_pGALByteCode->m_Stage;
+  inout_stream >> m_pGALByteCode->m_bWasCompiledWithDebug;
 
   // m_ByteCode
   {
     ezUInt32 uiByteCodeSize = 0;
     inout_stream >> uiByteCodeSize;
-    m_GALByteCode->m_ByteCode.SetCountUninitialized(uiByteCodeSize);
-    if (!m_GALByteCode->m_ByteCode.IsEmpty() && inout_stream.ReadBytes(&m_GALByteCode->m_ByteCode[0], uiByteCodeSize) != uiByteCodeSize)
+    m_pGALByteCode->m_ByteCode.SetCountUninitialized(uiByteCodeSize);
+    if (!m_pGALByteCode->m_ByteCode.IsEmpty() && inout_stream.ReadBytes(&m_pGALByteCode->m_ByteCode[0], uiByteCodeSize) != uiByteCodeSize)
       return EZ_FAILURE;
   }
 
@@ -128,11 +128,11 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
     ezUInt16 uiResources = 0;
     inout_stream >> uiResources;
 
-    m_GALByteCode->m_ShaderResourceBindings.SetCount(uiResources);
+    m_pGALByteCode->m_ShaderResourceBindings.SetCount(uiResources);
 
     ezString sTemp;
 
-    for (auto& r : m_GALByteCode->m_ShaderResourceBindings)
+    for (auto& r : m_pGALByteCode->m_ShaderResourceBindings)
     {
       inout_stream >> r.m_ResourceType;
       inout_stream >> r.m_TextureType;
@@ -158,9 +158,9 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
   {
     ezUInt16 uiVertexInputs = 0;
     inout_stream >> uiVertexInputs;
-    m_GALByteCode->m_ShaderVertexInput.SetCount(uiVertexInputs);
+    m_pGALByteCode->m_ShaderVertexInput.SetCount(uiVertexInputs);
 
-    for (auto& v : m_GALByteCode->m_ShaderVertexInput)
+    for (auto& v : m_pGALByteCode->m_ShaderVertexInput)
     {
       inout_stream >> v.m_eSemantic;
       inout_stream >> v.m_eFormat;
@@ -195,7 +195,7 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream, ezShaderConstan
 
 ezSharedPtr<const ezGALShaderByteCode> ezShaderStageBinary::GetByteCode() const
 {
-  return m_GALByteCode;
+  return m_pGALByteCode;
 }
 
 ezResult ezShaderStageBinary::WriteStageBinary(ezLogInterface* pLog) const
@@ -203,7 +203,7 @@ ezResult ezShaderStageBinary::WriteStageBinary(ezLogInterface* pLog) const
   ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
 
   sShaderStageFile.AppendPath(ezShaderManager::GetActivePlatform().GetData());
-  sShaderStageFile.AppendFormat("/{0}_{1}.ezShaderStage", ezGALShaderStage::Names[m_GALByteCode->m_Stage], ezArgU(m_uiSourceHash, 8, true, 16, true));
+  sShaderStageFile.AppendFormat("/{0}_{1}.ezShaderStage", ezGALShaderStage::Names[m_pGALByteCode->m_Stage], ezArgU(m_uiSourceHash, 8, true, 16, true));
 
   ezFileWriter StageFileOut;
   if (StageFileOut.Open(sShaderStageFile.GetData()).Failed())

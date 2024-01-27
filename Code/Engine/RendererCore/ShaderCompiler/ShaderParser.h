@@ -54,14 +54,14 @@ public:
   /// Used by the shader compiler implementations to generate resource mappings to sets/slots without creating conflicts across shader stages. For a list of supported resource declarations and possible pitfalls, please refer to https://ezengine.net/pages/docs/graphics/shaders/shader-resources.html.
   /// \param sShaderStageSource The shader source to parse.
   /// \param out_Resources The shader resources found inside the source.
-  static void ParseShaderResources(ezStringView sShaderStageSource, ezDynamicArray<ezShaderResourceDefinition>& out_Resources);
+  static void ParseShaderResources(ezStringView sShaderStageSource, ezDynamicArray<ezShaderResourceDefinition>& out_resources);
 
   /// \brief Delegate to creates a new declaration and register binding for a specific shader ezShaderResourceDefinition.
   /// \param sPlatform The platform for which the shader is being compiled. Will be one of the values returned by GetSupportedPlatforms.
   /// \param sDeclaration The shader resource declaration without any attributes, e.g. "Texture2D DiffuseTexture"
   /// \param binding The binding that needs to be set on the output out_sDeclaration.
   /// \param out_sDeclaration The new declaration that changes sDeclaration according to the provided 'binding', e.g. "Texture2D DiffuseTexture : register(t0, space5)"
-  typedef ezDelegate<void(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration)> CreateResourceDeclaration;
+  using CreateResourceDeclaration = ezDelegate<void (ezStringView, ezStringView, const ezShaderResourceBinding &, ezStringBuilder &)>;
 
   /// \brief Merges the shader resource bindings of all used shader stages.
   ///
@@ -82,5 +82,5 @@ public:
   /// \param bindings The binding information that each shader resource should have after patching. These bindings must have unique set / slots combinations for each resource.
   /// \param createDeclaration The callback to be called to generate the new shader resource declaration.
   /// \param out_shaderStageSource The new shader source code after patching.
-  static void ApplyShaderResourceBindings(ezStringView sPlatform, ezStringView sShaderStageSource, const ezDynamicArray<ezShaderResourceDefinition>& resources, const ezHashTable<ezHashedString, ezShaderResourceBinding>& bindings, const CreateResourceDeclaration& createDeclaration, ezStringBuilder& out_shaderStageSource);
+  static void ApplyShaderResourceBindings(ezStringView sPlatform, ezStringView sShaderStageSource, const ezDynamicArray<ezShaderResourceDefinition>& resources, const ezHashTable<ezHashedString, ezShaderResourceBinding>& bindings, const CreateResourceDeclaration& createDeclaration, ezStringBuilder& out_sShaderStageSource);
 };

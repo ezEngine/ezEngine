@@ -317,7 +317,7 @@ private:
   ezHashTable<ezUInt64, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
   ezHashTable<ezUInt64, ezGALSamplerStateHandle> m_BoundSamplers;
   ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundBuffer;
-  ezGALSamplerStateHandle m_FallbackSampler;
+  ezGALSamplerStateHandle m_hFallbackSampler;
 
   struct BoundConstantBuffer
   {
