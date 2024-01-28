@@ -11,7 +11,7 @@ ezVisualScriptCoroutine::ezVisualScriptCoroutine(const ezSharedPtr<const ezVisua
 
 ezVisualScriptCoroutine::~ezVisualScriptCoroutine() = default;
 
-void ezVisualScriptCoroutine::Start(ezArrayPtr<ezVariant> arguments)
+void ezVisualScriptCoroutine::StartWithVarargs(ezArrayPtr<ezVariant> arguments)
 {
   m_LocalDataStorage.AllocateStorage();
 

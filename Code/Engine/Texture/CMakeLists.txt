@@ -11,6 +11,10 @@ if(MSVC)
 	target_compile_options(${PROJECT_NAME} PRIVATE /wd4005)
 endif()
 
+if(EZ_CMAKE_COMPILER_CLANG)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unknown-pragmas -Wno-unused-const-variable)
+endif()
+
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
     Foundation

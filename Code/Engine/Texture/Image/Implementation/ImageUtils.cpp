@@ -282,6 +282,7 @@ static void ApplyFunc(ImageType& inout_image, Func func)
   ezUInt32 uiHeight = inout_image.GetHeight();
   ezUInt32 uiDepth = inout_image.GetDepth();
 
+  EZ_IGNORE_UNUSED(uiDepth);
   EZ_ASSERT_DEV(uiWidth > 0 && uiHeight > 0 && uiDepth > 0, "The image passed to FindMinMax has illegal dimension {}x{}x{}.", uiWidth, uiHeight, uiDepth);
 
   ezUInt64 uiRowPitch = inout_image.GetRowPitch();
@@ -315,6 +316,7 @@ static void ApplyFunc(ImageType& inout_image, Func func)
 static void FindMinMax(const ezImageView& image, ezUInt8& out_uiMinRgb, ezUInt8& out_uiMaxRgb, ezUInt8& out_uiMinAlpha, ezUInt8& out_uiMaxAlpha)
 {
   ezImageFormat::Enum imageFormat = image.GetImageFormat();
+  EZ_IGNORE_UNUSED(imageFormat);
   EZ_ASSERT_DEV(ezImageFormat::GetBitsPerChannel(imageFormat, ezImageFormatChannel::R) == 8 && ezImageFormat::GetDataType(imageFormat) == ezImageFormatDataType::UNORM, "Only 8bpp unorm formats are supported in FindMinMax");
 
   out_uiMinRgb = 255u;

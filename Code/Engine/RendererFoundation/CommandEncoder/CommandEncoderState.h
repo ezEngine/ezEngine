@@ -22,7 +22,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderState
   ezGALSamplerStateHandle m_hSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT];
 };
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderRenderState : public ezGALCommandEncoderState
+struct EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderRenderState final : public ezGALCommandEncoderState
 {
   virtual void InvalidateState() override;
 

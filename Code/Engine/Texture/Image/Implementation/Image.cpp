@@ -35,6 +35,7 @@ void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezCon
 
   ezUInt64 dataSize = ComputeLayout();
 
+  EZ_IGNORE_UNUSED(dataSize);
   EZ_ASSERT_DEV(imageData.GetCount() == dataSize, "Provided image storage ({} bytes) doesn't match required data size ({} bytes)",
     imageData.GetCount(), dataSize);
 

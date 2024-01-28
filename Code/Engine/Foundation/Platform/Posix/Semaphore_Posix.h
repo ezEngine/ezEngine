@@ -9,6 +9,10 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <semaphore.h>
 #include <sys/stat.h>
 
+EZ_WARNING_PUSH()
+// On OSX sem_destroy and sem_init are deprecated
+EZ_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
+
 ezSemaphore::ezSemaphore() = default;
 
 ezSemaphore::~ezSemaphore()
@@ -97,3 +101,5 @@ ezResult ezSemaphore::TryAcquireToken()
 
   return EZ_FAILURE;
 }
+
+EZ_WARNING_POP()

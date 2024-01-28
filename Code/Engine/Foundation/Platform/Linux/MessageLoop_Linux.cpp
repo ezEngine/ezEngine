@@ -56,6 +56,8 @@ bool ezMessageLoop_linux::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilte
     {
       ezUInt8 wakeupByte;
       auto readResult = read(m_wakeupPipeReadEndFd, &wakeupByte, sizeof(wakeupByte));
+      EZ_IGNORE_UNUSED(readResult);
+      EZ_ASSERT_DEV(readResult == sizeof(wakeupByte), "Wakeup byte not read");
       m_pollInfos[0].revents = 0;
       return true;
     }
@@ -155,6 +157,8 @@ void ezMessageLoop_linux::WakeUp()
 {
   ezUInt8 wakeupByte = 0;
   int writeResult = write(m_wakeupPipeWriteEndFd, &wakeupByte, sizeof(wakeupByte));
+  EZ_IGNORE_UNUSED(writeResult);
+  EZ_ASSERT_DEV(writeResult == sizeof(wakeupByte), "Wakeup byte not written");
 }
 
 #endif

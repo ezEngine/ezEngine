@@ -22,13 +22,15 @@ namespace
 
 #define DEFINE_TARGET_REGISTER()                                                                                                        \
   ezExpression::Register* r = context.m_pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode) * context.m_uiNumSimd4Instances; \
-  ezExpression::Register* re = r + context.m_uiNumSimd4Instances;
+  ezExpression::Register* re = r + context.m_uiNumSimd4Instances;                                                                       \
+  EZ_IGNORE_UNUSED(re);
 
 #define DEFINE_OP_REGISTER(name) \
   const ezExpression::Register* name = context.m_pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode) * context.m_uiNumSimd4Instances;
 
 #define DEFINE_CONSTANT(name)                                                      \
   const ezUInt32 EZ_CONCAT(name, Raw) = *pByteCode;                                \
+  EZ_IGNORE_UNUSED(EZ_CONCAT(name, Raw));                                          \
   const ezExpression::Register tmp = ezExpressionByteCode::GetConstant(pByteCode); \
   const ezExpression::Register* name = &tmp;
 
@@ -37,28 +39,15 @@ namespace
   ++r;                            \
   ++a;
 
-#define DEFINE_UNARY_OP(name, code)                                                    \
-  void EZ_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context)  \
-  {                                                                                    \
-    DEFINE_TARGET_REGISTER();                                                          \
-    DEFINE_OP_REGISTER(a);                                                             \
-    while (r != re)                                                                    \
-    {                                                                                  \
-      UNARY_OP_INNER_LOOP(code)                                                        \
-    }                                                                                  \
-  }                                                                                    \
-                                                                                       \
-  void EZ_CONCAT(name, _16)(const ByteCodeType*& pByteCode, ExecutionContext& context) \
-  {                                                                                    \
-    DEFINE_TARGET_REGISTER();                                                          \
-    DEFINE_OP_REGISTER(a);                                                             \
-    while (r != re)                                                                    \
-    {                                                                                  \
-      UNARY_OP_INNER_LOOP(code)                                                        \
-      UNARY_OP_INNER_LOOP(code)                                                        \
-      UNARY_OP_INNER_LOOP(code)                                                        \
-      UNARY_OP_INNER_LOOP(code)                                                        \
-    }                                                                                  \
+#define DEFINE_UNARY_OP(name, code)                                                   \
+  void EZ_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context) \
+  {                                                                                   \
+    DEFINE_TARGET_REGISTER();                                                         \
+    DEFINE_OP_REGISTER(a);                                                            \
+    while (r != re)                                                                   \
+    {                                                                                 \
+      UNARY_OP_INNER_LOOP(code)                                                       \
+    }                                                                                 \
   }
 
 #define BINARY_OP_INNER_LOOP(code)        \

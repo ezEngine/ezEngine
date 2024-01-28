@@ -604,11 +604,6 @@ void ezStandardInputDevice::WindowMessage(
 
         bWasStupidLeftShift = false;
 
-        int iRequest = raw->data.keyboard.MakeCode << 16;
-
-        if (raw->data.keyboard.Flags & RI_KEY_E0)
-          iRequest |= 1 << 24;
-
         const bool bPressed = !(raw->data.keyboard.Flags & 0x01);
 
         m_InputSlotValues[sInputSlotName] = bPressed ? 1.0f : 0.0f;
@@ -693,7 +688,6 @@ void ezStandardInputDevice::WindowMessage(
           else
           {
             static int iTouchPoint = 0;
-            static bool bTouchPointDown = false;
 
             ezStringView sSlot = ezInputManager::GetInputSlotTouchPoint(iTouchPoint);
             ezStringView sSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
@@ -704,13 +698,11 @@ void ezStandardInputDevice::WindowMessage(
 
             if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN | RI_MOUSE_BUTTON_2_DOWN)) != 0)
             {
-              bTouchPointDown = true;
               m_InputSlotValues[sSlot] = 1.0f;
             }
 
             if ((uiButtons & (RI_MOUSE_BUTTON_1_UP | RI_MOUSE_BUTTON_2_UP)) != 0)
             {
-              bTouchPointDown = false;
               m_InputSlotValues[sSlot] = 0.0f;
             }
           }

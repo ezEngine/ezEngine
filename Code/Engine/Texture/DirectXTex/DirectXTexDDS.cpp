@@ -2,6 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_CLANG("-Wunused-but-set-variable")
+
 //-------------------------------------------------------------------------------------
 // DirectXTexDDS.cpp
 //
@@ -2427,6 +2430,8 @@ HRESULT DirectX::SaveToDDSFile(
 
     return S_OK;
 }
+
+EZ_WARNING_POP()
 
 #endif
 

@@ -232,7 +232,7 @@ retry:
 
   m_SyncTimeDiff = ezTime::MakeZero();
 
-  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocator* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
+  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
 
   return EZ_SUCCESS;
 }
@@ -738,8 +738,6 @@ void ezGALDeviceDX11::PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVS
 
 void ezGALDeviceDX11::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 {
-  auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
-
   ezStringBuilder sb;
   sb.SetFormat("Frame {}", uiRenderFrame);
 
@@ -771,8 +769,6 @@ void ezGALDeviceDX11::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 
 void ezGALDeviceDX11::EndFramePlatform()
 {
-  auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
-
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pFrameTimingScope);
 #endif

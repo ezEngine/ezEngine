@@ -317,6 +317,7 @@ ezComponentInitBatchHandle ezWorld::CreateComponentInitBatch(ezStringView sBatch
 void ezWorld::DeleteComponentInitBatch(const ezComponentInitBatchHandle& hBatch)
 {
   auto& pInitBatch = m_Data.m_InitBatches[hBatch.GetInternalID()];
+  EZ_IGNORE_UNUSED(pInitBatch);
   EZ_ASSERT_DEV(pInitBatch->m_ComponentsToInitialize.IsEmpty() && pInitBatch->m_ComponentsToStartSimulation.IsEmpty(), "Init batch has not been completely processed");
   m_Data.m_InitBatches.Remove(hBatch.GetInternalID());
 }

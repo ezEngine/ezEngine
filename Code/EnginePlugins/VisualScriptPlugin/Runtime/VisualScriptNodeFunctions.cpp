@@ -254,7 +254,7 @@ namespace
         return ExecResult::Error();
       }
 
-      pCoroutine->Start(args);
+      pCoroutine->StartWithVarargs(args);
 
       inout_context.SetCurrentCoroutine(pCoroutine);
     }
