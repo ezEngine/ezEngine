@@ -32,7 +32,7 @@ ezResult ezDummyXR::Initialize()
   m_Info.m_sDeviceName = "Dummy VR device";
   m_Info.m_vEyeRenderTargetSize = ezSizeU32(640, 720);
 
-  m_GALdeviceEventsId = ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&ezDummyXR::GALDeviceEventHandler, this));
+  m_GALdeviceEventsId = ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezDummyXR::GALDeviceEventHandler, this));
   m_ExecutionEventsId = ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezDummyXR::GameApplicationEventHandler, this));
 
   m_bInitialized = true;
@@ -44,7 +44,7 @@ void ezDummyXR::Deinitialize()
   m_bInitialized = false;
   if (m_GALdeviceEventsId != 0)
   {
-    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(m_GALdeviceEventsId);
+    ezGALDevice::s_Events.RemoveEventHandler(m_GALdeviceEventsId);
   }
   if (m_ExecutionEventsId != 0)
   {

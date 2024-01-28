@@ -91,6 +91,18 @@ ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
     {
       m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
       m_resourceBufferInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
+
+      ezGALResourceFormat::Enum viewFormat = m_Description.m_OverrideViewFormat;
+      if (viewFormat == ezGALResourceFormat::Invalid)
+        viewFormat = ezGALResourceFormat::RUInt;
+
+      vk::BufferViewCreateInfo viewCreateInfo;
+      viewCreateInfo.buffer = pParentBuffer->GetVkBuffer();
+      viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
+      viewCreateInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
+      viewCreateInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
+
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createBufferView(&viewCreateInfo, nullptr, &m_bufferView));
     }
   }
 
@@ -103,6 +115,7 @@ ezResult ezGALUnorderedAccessViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
   pVulkanDevice->DeleteLater(m_resourceImageInfo.imageView);
   m_resourceImageInfo = vk::DescriptorImageInfo();
   m_resourceBufferInfo = vk::DescriptorBufferInfo();
+  pVulkanDevice->DeleteLater(m_bufferView);
   return EZ_SUCCESS;
 }
 

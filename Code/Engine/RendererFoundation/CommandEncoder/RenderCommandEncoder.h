@@ -18,13 +18,12 @@ public:
   ///   Each bit represents a bound color target. If all bits are set, all bound color targets will be cleared.
   void Clear(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true, float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
 
-  void Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex);
-  void DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex);
-  void DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex);
-  void DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
-  void DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex);
-  void DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
-  void DrawAuto();
+  ezResult Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex);
+  ezResult DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex);
+  ezResult DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex);
+  ezResult DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
+  ezResult DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex);
+  ezResult DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
 
   // State functions
 

@@ -51,7 +51,7 @@ namespace
 } // namespace
 
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
-
+ezEvent<const ezGALDeviceEvent&> ezGALDevice::s_Events;
 
 ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& desc)
   : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
@@ -132,11 +132,13 @@ ezResult ezGALDevice::Init()
 
   ezProfilingSystem::InitializeGPUData();
 
+
+
   {
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::AfterInit;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 
   return EZ_SUCCESS;
@@ -152,7 +154,7 @@ ezResult ezGALDevice::Shutdown()
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::BeforeShutdown;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 
   DestroyDeadObjects();
@@ -1247,7 +1249,7 @@ void ezGALDevice::BeginFrame(const ezUInt64 uiRenderFrame)
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::BeforeBeginFrame;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 
   {
@@ -1265,7 +1267,7 @@ void ezGALDevice::BeginFrame(const ezUInt64 uiRenderFrame)
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::AfterBeginFrame;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 }
 
@@ -1275,7 +1277,7 @@ void ezGALDevice::EndFrame()
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::BeforeEndFrame;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 
   {
@@ -1293,7 +1295,7 @@ void ezGALDevice::EndFrame()
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::AfterEndFrame;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 }
 

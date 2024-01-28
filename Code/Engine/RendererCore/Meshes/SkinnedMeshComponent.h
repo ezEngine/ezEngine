@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RendererCore/Meshes/MeshComponentBase.h>
-#include <RendererCore/Shader/Types.h>
+#include <RendererFoundation/Shader/Types.h>
 #include <memory>
 
 class ezShaderTransform;

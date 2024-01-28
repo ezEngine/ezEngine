@@ -322,8 +322,12 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
       m_PipelineDesc.m_pCurrentVertexDecl = static_cast<const ezGALVertexDeclarationVulkan*>(m_GALDeviceVulkan.GetVertexDeclaration(m_hVertexDecl));
     }
 
-    const ezGALShaderVulkan::DescriptorSetLayoutDesc& descriptorLayoutDesc = m_PipelineDesc.m_pCurrentShader->GetDescriptorSetLayout();
-    m_LayoutDesc.m_layout = ezResourceCacheVulkan::RequestDescriptorSetLayout(descriptorLayoutDesc);
+    const ezUInt32 uiSets = m_PipelineDesc.m_pCurrentShader->GetSetCount();
+    m_LayoutDesc.m_layout.SetCount(uiSets);
+    for (ezUInt32 uiSet = 0; uiSet < uiSets; ++uiSet)
+    {
+      m_LayoutDesc.m_layout[uiSet] = m_PipelineDesc.m_pCurrentShader->GetDescriptorSetLayout(uiSet);
+    }
     m_PipelineDesc.m_layout = ezResourceCacheVulkan::RequestPipelineLayout(m_LayoutDesc);
     m_pipeline = ezResourceCacheVulkan::RequestGraphicsPipeline(m_PipelineDesc);
   }
@@ -457,7 +461,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
   }
 
   // Descriptor Set
-  vk::DescriptorSet descriptorSet = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_LayoutDesc.m_layout);
+  vk::DescriptorSet descriptorSet = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_LayoutDesc.m_layout[0]);
   {
     ezHybridArray<vk::WriteDescriptorSet, 16> descriptorWrites;
 
@@ -465,27 +469,27 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
     sourceInfo.imageLayout = bSourceIsDepth ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal;
     sourceInfo.imageView = sourceView;
 
-    ezArrayPtr<const ezGALShaderVulkan::BindingMapping> bindingMapping = m_PipelineDesc.m_pCurrentShader->GetBindingMapping();
+    ezArrayPtr<const ezShaderResourceBinding> bindingMapping = m_PipelineDesc.m_pCurrentShader->GetBindings();
     const ezUInt32 uiCount = bindingMapping.GetCount();
     for (ezUInt32 i = 0; i < uiCount; i++)
     {
-      const ezGALShaderVulkan::BindingMapping& mapping = bindingMapping[i];
+      const ezShaderResourceBinding& mapping = bindingMapping[i];
       vk::WriteDescriptorSet& write = descriptorWrites.ExpandAndGetRef();
       write.dstArrayElement = 0;
-      write.descriptorType = mapping.m_descriptorType;
-      write.dstBinding = mapping.m_uiTarget;
+      write.descriptorType = ezConversionUtilsVulkan::GetDescriptorType(mapping.m_ResourceType);
+      write.dstBinding = mapping.m_iSlot;
       write.dstSet = descriptorSet;
       write.descriptorCount = 1;
-      switch (mapping.m_type)
+      switch (mapping.m_ResourceType)
       {
-        case ezGALShaderVulkan::BindingMapping::ConstantBuffer:
+        case ezGALShaderResourceType::ConstantBuffer:
         {
           //#TODO_VULKAN constant buffer for offset in the shader to allow region copy
           //const ezGALBufferVulkan* pBuffer = m_pBoundConstantBuffers[mapping.m_uiSource];
           //write.pBufferInfo = &pBuffer->GetBufferInfo();
         }
         break;
-        case ezGALShaderVulkan::BindingMapping::ResourceView:
+        case ezGALShaderResourceType::Texture:
         {
           write.pImageInfo = &sourceInfo;
         }

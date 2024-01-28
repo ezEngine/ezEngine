@@ -63,12 +63,12 @@ public:
   static GPUTimingScope& AllocateScope() { return s_TimingScopes.ExpandAndGetRef(); }
 
 private:
-  static void OnEngineStartup() { ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
+  static void OnEngineStartup() { ezGALDevice::GetDefaultDevice()->s_Events.AddEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
 
   static void OnEngineShutdown()
   {
     s_TimingScopes.Clear();
-    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps);
+    ezGALDevice::GetDefaultDevice()->s_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps);
   }
 
   static ezDeque<GPUTimingScope, ezStaticsAllocatorWrapper> s_TimingScopes;

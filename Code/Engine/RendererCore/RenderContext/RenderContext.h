@@ -164,6 +164,22 @@ public:
   void BindConstantBuffer(const ezTempHashedString& sSlotName, ezGALBufferHandle hConstantBuffer);
   void BindConstantBuffer(const ezTempHashedString& sSlotName, ezConstantBufferStorageHandle hConstantBufferStorage);
 
+  /// \brief Sets push constants to the given data block.
+  /// Note that for platforms that don't support push constants, this is emulated via a constant buffer. Thus, a slot name must be provided as well which matches the name of the BEGIN_PUSH_CONSTANTS block in the shader.
+  /// \param sSlotName Name of the BEGIN_PUSH_CONSTANTS block in the shader.
+  /// \param data Data of the push constants. If more than 128 bytes, ezGALDeviceCapabilities::m_uiMaxPushConstantsSize should be checked to ensure the data block is not too big for the platform.
+  void SetPushConstants(const ezTempHashedString& sSlotName, ezArrayPtr<const ezUInt8> data);
+
+  /// Templated version of SetPushConstants.
+  /// \tparam T Type of the push constants struct.
+  /// \param sSlotName Name of the BEGIN_PUSH_CONSTANTS block in the shader.
+  /// \param constants Instance of type T that contains the push constants.
+  template <typename T>
+  EZ_ALWAYS_INLINE void SetPushConstants(const ezTempHashedString& sSlotName, const T& constants)
+  {
+    SetPushConstants(sSlotName, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&constants), sizeof(T)));
+  }
+
   /// \brief Sets the currently active shader on the given render context.
   ///
   /// This function has no effect until the next draw or dispatch call on the context.
@@ -262,12 +278,14 @@ public:
   }
 
   // Default sampler state
-  static ezGALSamplerStateHandle GetDefaultSamplerState(ezBitflags<ezDefaultSamplerFlags> flags);
+  static ezGALSamplerStateCreationDescription GetDefaultSamplerState(ezBitflags<ezDefaultSamplerFlags> flags);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererContext);
 
   static void LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type, ezShaderUtils::ezBuiltinShader& out_shader);
+  static void RegisterImmutableSamplers();
+  static void OnEngineStartup();
   static void OnEngineShutdown();
 
 private:
@@ -299,6 +317,7 @@ private:
   ezHashTable<ezUInt64, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
   ezHashTable<ezUInt64, ezGALSamplerStateHandle> m_BoundSamplers;
   ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundBuffer;
+  ezGALSamplerStateHandle m_hFallbackSampler;
 
   struct BoundConstantBuffer
   {
@@ -321,6 +340,7 @@ private:
   ezHashTable<ezUInt64, BoundConstantBuffer> m_BoundConstantBuffers;
 
   ezConstantBufferStorageHandle m_hGlobalConstantBufferStorage;
+  ezConstantBufferStorageHandle m_hPushConstantsStorage;
 
   struct ShaderVertexDecl
   {
@@ -350,8 +370,6 @@ private:
   static ezIdTable<ezConstantBufferStorageId, ezConstantBufferStorageBase*> s_ConstantBufferStorageTable;
   static ezMap<ezUInt32, ezDynamicArray<ezConstantBufferStorageBase*>> s_FreeConstantBufferStorage;
 
-  static ezGALSamplerStateHandle s_hDefaultSamplerStates[4];
-
 private: // Per Renderer States
   friend RenderingScope;
   friend ComputeScope;
@@ -369,9 +387,9 @@ private: // Per Renderer States
   void BindShaderInternal(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags);
   ezShaderPermutationResource* ApplyShaderState();
   ezMaterialResource* ApplyMaterialState();
-  void ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary);
-  void ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
-  void ApplyUAVBindings(const ezShaderStageBinary* pBinary);
-  void ApplySamplerBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
-  void ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
+  void ApplyConstantBufferBindings(const ezGALShader* pShader);
+  void ApplyTextureBindings(const ezGALShader* pShader);
+  void ApplyUAVBindings(const ezGALShader* pShader);
+  void ApplySamplerBindings(const ezGALShader* pShader);
+  void ApplyBufferBindings(const ezGALShader* pShader);
 };

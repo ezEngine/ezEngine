@@ -11,7 +11,7 @@
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Shader/Types.h>
+#include <RendererFoundation/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
 
 ezCVarBool cvar_FeatureRopesVisBones("Feature.Ropes.VisBones", false, ezCVarFlags::Default, "Enables debug visualization of rope bones");

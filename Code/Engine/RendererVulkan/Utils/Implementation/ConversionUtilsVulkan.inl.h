@@ -1,4 +1,6 @@
 #include <RendererFoundation/Resources/ResourceFormats.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
+
 
 namespace
 {
@@ -292,3 +294,58 @@ EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStag
 
   return res;
 }
+
+EZ_ALWAYS_INLINE vk::DescriptorType ezConversionUtilsVulkan::GetDescriptorType(ezGALShaderResourceType::Enum type)
+{
+  switch (type)
+  {
+    case ezGALShaderResourceType::Unknown:
+      EZ_REPORT_FAILURE("Unknown descriptor type");
+    case ezGALShaderResourceType::Sampler:
+      return vk::DescriptorType::eSampler;
+    case ezGALShaderResourceType::ConstantBuffer:
+      return vk::DescriptorType::eUniformBuffer;
+    case ezGALShaderResourceType::Texture:
+      return vk::DescriptorType::eSampledImage;
+    case ezGALShaderResourceType::TextureAndSampler:
+      return vk::DescriptorType::eCombinedImageSampler;
+    case ezGALShaderResourceType::TexelBuffer:
+      return vk::DescriptorType::eUniformTexelBuffer;
+    case ezGALShaderResourceType::StructuredBuffer:
+      return vk::DescriptorType::eStorageBuffer;
+    case ezGALShaderResourceType::TextureRW:
+      return vk::DescriptorType::eStorageImage;
+    case ezGALShaderResourceType::TexelBufferRW:
+      return vk::DescriptorType::eStorageTexelBuffer;
+    case ezGALShaderResourceType::StructuredBufferRW:
+      return vk::DescriptorType::eStorageBuffer;
+  }
+
+  return vk::DescriptorType::eMutableVALVE;
+}
+
+EZ_ALWAYS_INLINE vk::ShaderStageFlagBits ezConversionUtilsVulkan::GetShaderStages(ezBitflags<ezGALShaderStageFlags> stages)
+{
+  return (vk::ShaderStageFlagBits)stages.GetValue();
+}
+
+EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStages(ezBitflags<ezGALShaderStageFlags> stages)
+{
+  vk::PipelineStageFlags res;
+  for (int i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
+  {
+    ezGALShaderStageFlags::Enum flag = ezGALShaderStageFlags::MakeFromShaderStage((ezGALShaderStage::Enum)i);
+    if (stages.IsSet(flag))
+    {
+      res |= GetPipelineStage((ezGALShaderStage::Enum)i);
+    }
+  }
+  return res;
+}
+
+EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eVertex == (ezUInt32)ezGALShaderStageFlags::VertexShader);
+EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eTessellationControl == (ezUInt32)ezGALShaderStageFlags::HullShader);
+EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eTessellationEvaluation == (ezUInt32)ezGALShaderStageFlags::DomainShader);
+EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eGeometry == (ezUInt32)ezGALShaderStageFlags::GeometryShader);
+EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eFragment == (ezUInt32)ezGALShaderStageFlags::PixelShader);
+EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eCompute == (ezUInt32)ezGALShaderStageFlags::ComputeShader);

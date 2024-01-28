@@ -5,28 +5,6 @@
 void ezGALCommandEncoderState::InvalidateState()
 {
   m_hShader = ezGALShaderHandle();
-
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hConstantBuffers); ++i)
-  {
-    m_hConstantBuffers[i].Invalidate();
-  }
-
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
-  {
-    m_hResourceViews[i].Clear();
-    m_pResourcesForResourceViews[i].Clear();
-  }
-
-  m_hUnorderedAccessViews.Clear();
-  m_pResourcesForUnorderedAccessViews.Clear();
-
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
-  {
-    for (ezUInt32 j = 0; j < EZ_GAL_MAX_SAMPLER_COUNT; j++)
-    {
-      m_hSamplerStates[i][j].Invalidate();
-    }
-  }
 }
 
 void ezGALCommandEncoderRenderState::InvalidateState()

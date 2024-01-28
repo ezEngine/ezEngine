@@ -30,10 +30,11 @@ public:
 
   virtual void SetShaderPlatform(const ezGALShader* pShader) override;
 
-  virtual void SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer) override;
-  virtual void SetSamplerStatePlatform(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState) override;
-  virtual void SetResourceViewPlatform(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) override;
-  virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
+  virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) override;
+  virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) override;
+  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALResourceView* pResourceView) override;
+  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
+  virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
 
   // Query functions
 
@@ -89,13 +90,12 @@ public:
 
   virtual void ClearPlatform(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
 
-  virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
-  virtual void DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
-  virtual void DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) override;
-  virtual void DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
-  virtual void DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) override;
-  virtual void DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
-  virtual void DrawAutoPlatform() override;
+  virtual ezResult DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
+  virtual ezResult DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
+  virtual ezResult DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) override;
+  virtual ezResult DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual ezResult DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) override;
+  virtual ezResult DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
 
   // State functions
 
@@ -115,13 +115,15 @@ public:
   // ezGALCommandEncoderComputePlatformInterface
   // Dispatch
 
-  virtual void DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
-  virtual void DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
+  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
 
 private:
   friend class ezGALPassDX11;
 
-  void FlushDeferredStateChanges();
+  bool UnsetResourceViews(const ezGALResourceBase* pResource);
+  bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);
+  ezResult FlushDeferredStateChanges();
 
   ezGALDeviceDX11& m_GALDeviceDX11;
   ezGALCommandEncoder* m_pOwner = nullptr;
@@ -134,9 +136,11 @@ private:
   ezGAL::ModifiedRange m_BoundConstantBuffersRange[ezGALShaderStage::ENUM_COUNT];
 
   ezHybridArray<ID3D11ShaderResourceView*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT] = {};
+  ezHybridArray<const ezGALResourceBase*, 16> m_ResourcesForResourceViews[ezGALShaderStage::ENUM_COUNT];
   ezGAL::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
 
   ezHybridArray<ID3D11UnorderedAccessView*, 16> m_BoundUnoderedAccessViews;
+  ezHybridArray<const ezGALResourceBase*, 16> m_ResourcesForUnorderedAccessViews;
   ezGAL::ModifiedRange m_BoundUnoderedAccessViewsRange;
 
   ID3D11SamplerState* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT] = {};

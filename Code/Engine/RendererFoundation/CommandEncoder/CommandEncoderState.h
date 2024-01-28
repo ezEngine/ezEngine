@@ -10,16 +10,6 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderState
   virtual void InvalidateState();
 
   ezGALShaderHandle m_hShader;
-
-  ezGALBufferHandle m_hConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
-
-  ezHybridArray<ezGALResourceViewHandle, 16> m_hResourceViews[ezGALShaderStage::ENUM_COUNT];
-  ezHybridArray<const ezGALResourceBase*, 16> m_pResourcesForResourceViews[ezGALShaderStage::ENUM_COUNT];
-
-  ezHybridArray<ezGALUnorderedAccessViewHandle, 16> m_hUnorderedAccessViews;
-  ezHybridArray<const ezGALResourceBase*, 16> m_pResourcesForUnorderedAccessViews;
-
-  ezGALSamplerStateHandle m_hSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT];
 };
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderRenderState final : public ezGALCommandEncoderState

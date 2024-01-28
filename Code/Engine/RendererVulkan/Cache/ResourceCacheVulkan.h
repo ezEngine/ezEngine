@@ -32,18 +32,18 @@ public:
 
   struct PipelineLayoutDesc
   {
-    EZ_DECLARE_POD_TYPE();
-    vk::DescriptorSetLayout m_layout;
+    ezHybridArray<vk::DescriptorSetLayout, 4> m_layout;
+    vk::PushConstantRange m_pushConstants;
   };
 
   struct GraphicsPipelineDesc
   {
     EZ_DECLARE_POD_TYPE();
-    vk::RenderPass m_renderPass;
-    vk::PipelineLayout m_layout;
+    vk::RenderPass m_renderPass; // Created from ezGALRenderingSetup
+    vk::PipelineLayout m_layout; // Created from shader
     ezEnum<ezGALPrimitiveTopology> m_topology;
     ezEnum<ezGALMSAASampleCount> m_msaa;
-    ezUInt8 m_uiAttachmentCount = 0;
+    ezUInt8 m_uiAttachmentCount = 0; // DX12 requires format list for RT and DT
     const ezGALRasterizerStateVulkan* m_pCurrentRasterizerState = nullptr;
     const ezGALBlendStateVulkan* m_pCurrentBlendState = nullptr;
     const ezGALDepthStencilStateVulkan* m_pCurrentDepthStencilState = nullptr;

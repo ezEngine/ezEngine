@@ -90,14 +90,14 @@ bool ezIpcChannel::Send(ezArrayPtr<const ezUInt8> data)
   }
   if (IsConnected())
   {
+    EZ_LOCK(m_pOwner->m_TasksMutex);
+    if (!m_pOwner->m_SendQueue.Contains(this))
+      m_pOwner->m_SendQueue.PushBack(this);
     if (NeedWakeup())
     {
-      EZ_LOCK(m_pOwner->m_TasksMutex);
-      if (!m_pOwner->m_SendQueue.Contains(this))
-        m_pOwner->m_SendQueue.PushBack(this);
       m_pOwner->WakeUp();
-      return true;
     }
+    return true;
   }
   return false;
 }

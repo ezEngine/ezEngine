@@ -21,101 +21,59 @@ ezGALRenderCommandEncoder::~ezGALRenderCommandEncoder() = default;
 void ezGALRenderCommandEncoder::Clear(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask /*= 0xFFFFFFFFu*/, bool bClearDepth /*= true*/, bool bClearStencil /*= true*/, float fDepthClear /*= 1.0f*/, ezUInt8 uiStencilClear /*= 0x0u*/)
 {
   AssertRenderingThread();
-
   m_RenderImpl.ClearPlatform(clearColor, uiRenderTargetClearMask, bClearDepth, bClearStencil, fDepthClear, uiStencilClear);
 }
 
-void ezGALRenderCommandEncoder::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
+ezResult ezGALRenderCommandEncoder::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
 {
   AssertRenderingThread();
-
-  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices
-  /// (0, 1, 2, ..)
-
-  m_RenderImpl.DrawPlatform(uiVertexCount, uiStartVertex);
-
   CountDrawCall();
+  return m_RenderImpl.DrawPlatform(uiVertexCount, uiStartVertex);
 }
 
-void ezGALRenderCommandEncoder::DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
+ezResult ezGALRenderCommandEncoder::DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
 {
   AssertRenderingThread();
-
-  m_RenderImpl.DrawIndexedPlatform(uiIndexCount, uiStartIndex);
-
   CountDrawCall();
+  return m_RenderImpl.DrawIndexedPlatform(uiIndexCount, uiStartIndex);
 }
 
-void ezGALRenderCommandEncoder::DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex)
+ezResult ezGALRenderCommandEncoder::DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex)
 {
   AssertRenderingThread();
-  /// \todo Assert for instancing
-
-  m_RenderImpl.DrawIndexedInstancedPlatform(uiIndexCountPerInstance, uiInstanceCount, uiStartIndex);
-
   CountDrawCall();
+  return m_RenderImpl.DrawIndexedInstancedPlatform(uiIndexCountPerInstance, uiInstanceCount, uiStartIndex);
 }
 
-void ezGALRenderCommandEncoder::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+ezResult ezGALRenderCommandEncoder::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
 {
   AssertRenderingThread();
-  /// \todo Assert for instancing
-  /// \todo Assert for indirect draw
-  /// \todo Assert offset < buffer size
-
   const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndirectArgumentBuffer);
   EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
-
-  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
-  m_RenderImpl.DrawIndexedInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
-
   CountDrawCall();
+  return m_RenderImpl.DrawIndexedInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
 }
 
-void ezGALRenderCommandEncoder::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
+ezResult ezGALRenderCommandEncoder::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
 {
   AssertRenderingThread();
-  /// \todo Assert for instancing
-
-  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices
-  /// (0, 1, 2, ..)
-
-  m_RenderImpl.DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex);
-
   CountDrawCall();
+  return m_RenderImpl.DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex);
 }
 
-void ezGALRenderCommandEncoder::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+ezResult ezGALRenderCommandEncoder::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
 {
   AssertRenderingThread();
-  /// \todo Assert for instancing
-  /// \todo Assert for indirect draw
-  /// \todo Assert offset < buffer size
-
   const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndirectArgumentBuffer);
   EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
-
-  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
-  m_RenderImpl.DrawInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
-
   CountDrawCall();
-}
-
-void ezGALRenderCommandEncoder::DrawAuto()
-{
-  AssertRenderingThread();
-  /// \todo Assert for draw auto support
-
-  m_RenderImpl.DrawAutoPlatform();
-
-  CountDrawCall();
+  return m_RenderImpl.DrawInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
 }
 
 void ezGALRenderCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
 {
   if (m_RenderState.m_hIndexBuffer == hIndexBuffer)
   {
-    CountRedundantStateChange();
     return;
   }
 
@@ -126,14 +84,12 @@ void ezGALRenderCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
   m_RenderImpl.SetIndexBufferPlatform(pBuffer);
 
   m_RenderState.m_hIndexBuffer = hIndexBuffer;
-  CountStateChange();
 }
 
 void ezGALRenderCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer)
 {
   if (m_RenderState.m_hVertexBuffers[uiSlot] == hVertexBuffer)
   {
-    CountRedundantStateChange();
     return;
   }
 
@@ -144,7 +100,6 @@ void ezGALRenderCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHand
   m_RenderImpl.SetVertexBufferPlatform(uiSlot, pBuffer);
 
   m_RenderState.m_hVertexBuffers[uiSlot] = hVertexBuffer;
-  CountStateChange();
 }
 
 void ezGALRenderCommandEncoder::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology)
@@ -153,15 +108,12 @@ void ezGALRenderCommandEncoder::SetPrimitiveTopology(ezGALPrimitiveTopology::Enu
 
   if (m_RenderState.m_Topology == topology)
   {
-    CountRedundantStateChange();
     return;
   }
 
   m_RenderImpl.SetPrimitiveTopologyPlatform(topology);
 
   m_RenderState.m_Topology = topology;
-
-  CountStateChange();
 }
 
 void ezGALRenderCommandEncoder::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration)
@@ -170,7 +122,6 @@ void ezGALRenderCommandEncoder::SetVertexDeclaration(ezGALVertexDeclarationHandl
 
   if (m_RenderState.m_hVertexDeclaration == hVertexDeclaration)
   {
-    CountRedundantStateChange();
     return;
   }
 
@@ -180,8 +131,6 @@ void ezGALRenderCommandEncoder::SetVertexDeclaration(ezGALVertexDeclarationHandl
   m_RenderImpl.SetVertexDeclarationPlatform(pVertexDeclaration);
 
   m_RenderState.m_hVertexDeclaration = hVertexDeclaration;
-
-  CountStateChange();
 }
 
 void ezGALRenderCommandEncoder::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& blendFactor, ezUInt32 uiSampleMask)
@@ -190,7 +139,6 @@ void ezGALRenderCommandEncoder::SetBlendState(ezGALBlendStateHandle hBlendState,
 
   if (m_RenderState.m_hBlendState == hBlendState && m_RenderState.m_BlendFactor.IsEqualRGBA(blendFactor, 0.001f) && m_RenderState.m_uiSampleMask == uiSampleMask)
   {
-    CountRedundantStateChange();
     return;
   }
 
@@ -201,8 +149,6 @@ void ezGALRenderCommandEncoder::SetBlendState(ezGALBlendStateHandle hBlendState,
   m_RenderState.m_hBlendState = hBlendState;
   m_RenderState.m_BlendFactor = blendFactor;
   m_RenderState.m_uiSampleMask = uiSampleMask;
-
-  CountStateChange();
 }
 
 void ezGALRenderCommandEncoder::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue /*= 0xFFu*/)
@@ -211,7 +157,6 @@ void ezGALRenderCommandEncoder::SetDepthStencilState(ezGALDepthStencilStateHandl
 
   if (m_RenderState.m_hDepthStencilState == hDepthStencilState && m_RenderState.m_uiStencilRefValue == uiStencilRefValue)
   {
-    CountRedundantStateChange();
     return;
   }
 
@@ -221,8 +166,6 @@ void ezGALRenderCommandEncoder::SetDepthStencilState(ezGALDepthStencilStateHandl
 
   m_RenderState.m_hDepthStencilState = hDepthStencilState;
   m_RenderState.m_uiStencilRefValue = uiStencilRefValue;
-
-  CountStateChange();
 }
 
 void ezGALRenderCommandEncoder::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState)
@@ -231,7 +174,6 @@ void ezGALRenderCommandEncoder::SetRasterizerState(ezGALRasterizerStateHandle hR
 
   if (m_RenderState.m_hRasterizerState == hRasterizerState)
   {
-    CountRedundantStateChange();
     return;
   }
 
@@ -240,8 +182,6 @@ void ezGALRenderCommandEncoder::SetRasterizerState(ezGALRasterizerStateHandle hR
   m_RenderImpl.SetRasterizerStatePlatform(pRasterizerState);
 
   m_RenderState.m_hRasterizerState = hRasterizerState;
-
-  CountStateChange();
 }
 
 void ezGALRenderCommandEncoder::SetViewport(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
@@ -250,7 +190,6 @@ void ezGALRenderCommandEncoder::SetViewport(const ezRectFloat& rect, float fMinD
 
   if (m_RenderState.m_ViewPortRect == rect && m_RenderState.m_fViewPortMinDepth == fMinDepth && m_RenderState.m_fViewPortMaxDepth == fMaxDepth)
   {
-    CountRedundantStateChange();
     return;
   }
 
@@ -259,8 +198,6 @@ void ezGALRenderCommandEncoder::SetViewport(const ezRectFloat& rect, float fMinD
   m_RenderState.m_ViewPortRect = rect;
   m_RenderState.m_fViewPortMinDepth = fMinDepth;
   m_RenderState.m_fViewPortMaxDepth = fMaxDepth;
-
-  CountStateChange();
 }
 
 void ezGALRenderCommandEncoder::SetScissorRect(const ezRectU32& rect)
@@ -269,15 +206,12 @@ void ezGALRenderCommandEncoder::SetScissorRect(const ezRectU32& rect)
 
   if (m_RenderState.m_ScissorRect == rect)
   {
-    CountRedundantStateChange();
     return;
   }
 
   m_RenderImpl.SetScissorRectPlatform(rect);
 
   m_RenderState.m_ScissorRect = rect;
-
-  CountStateChange();
 }
 
 void ezGALRenderCommandEncoder::ClearStatisticsCounters()

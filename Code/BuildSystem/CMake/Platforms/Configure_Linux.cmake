@@ -156,11 +156,11 @@ macro(ez_platformhook_find_vulkan)
     
 	if(EZ_CMAKE_ARCHITECTURE_64BIT)
 		add_library(EzVulkan::Loader SHARED IMPORTED)
-		set_target_properties(EzVulkan::Loader PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/x86_64/lib/libvulkan.so.1.3.216")
+		set_target_properties(EzVulkan::Loader PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/x86_64/lib/libvulkan.so")
 		set_target_properties(EzVulkan::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_DIR}/x86_64/include")
 
 		add_library(EzVulkan::DXC SHARED IMPORTED)
-		set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/x86_64/lib/libdxcompiler.so.3.7")
+		set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/x86_64/lib/libdxcompiler.so")
 		set_target_properties(EzVulkan::DXC PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_DIR}/x86_64/include")
 	else()
 		message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")

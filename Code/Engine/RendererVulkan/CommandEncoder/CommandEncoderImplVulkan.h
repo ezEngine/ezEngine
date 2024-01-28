@@ -35,10 +35,11 @@ public:
 
   virtual void SetShaderPlatform(const ezGALShader* pShader) override;
 
-  virtual void SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer) override;
-  virtual void SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState) override;
-  virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) override;
-  virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
+  virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) override;
+  virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) override;
+  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALResourceView* pResourceView) override;
+  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
+  virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
 
   // Query functions
 
@@ -93,13 +94,12 @@ public:
 
   virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
 
-  virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
-  virtual void DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
-  virtual void DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) override;
-  virtual void DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
-  virtual void DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) override;
-  virtual void DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
-  virtual void DrawAutoPlatform() override;
+  virtual ezResult DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
+  virtual ezResult DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
+  virtual ezResult DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) override;
+  virtual ezResult DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual ezResult DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) override;
+  virtual ezResult DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
 
   // State functions
 
@@ -120,12 +120,25 @@ public:
   void BeginCompute();
   void EndCompute();
 
-  virtual void DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
-  virtual void DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
+  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
 
 private:
-  void FlushDeferredStateChanges();
+  // Map resources from sets then slots to pointer.
+  struct SetResources
+  {
+    ezDynamicArray<const ezGALBufferVulkan*> m_pBoundConstantBuffers;
+    ezDynamicArray<const ezGALResourceViewVulkan*> m_pBoundShaderResourceViews;
+    ezDynamicArray<const ezGALUnorderedAccessViewVulkan*> m_pBoundUnoderedAccessViews;
+    ezDynamicArray<const ezGALSamplerStateVulkan*> m_pBoundSamplerStates;
+  };
 
+private:
+  ezResult FlushDeferredStateChanges();
+  const ezGALResourceViewVulkan* GetShaderResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping);
+  const ezGALUnorderedAccessViewVulkan* GetShaderUAV(const SetResources& resources, const ezShaderResourceBinding& mapping);
+
+private:
   ezGALDeviceVulkan& m_GALDeviceVulkan;
   vk::Device m_vkDevice;
 
@@ -142,7 +155,7 @@ private:
   bool m_bRenderPassActive = false; ///< #TODO_VULKAN Disabling and re-enabling the render pass is buggy as we might execute a clear twice.
   bool m_bClearSubmitted = false; ///< Start render pass is lazy so if no draw call is executed we need to make sure the clear is executed anyways.
   bool m_bInsideCompute = false;  ///< Within BeginCompute / EndCompute block.
-
+  bool m_bPushConstantsDirty = false;
 
   // Bound objects for deferred state flushes
   ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
@@ -166,10 +179,11 @@ private:
   vk::Buffer m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   vk::DeviceSize m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
 
-  const ezGALBufferVulkan* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT] = {};
-  ezHybridArray<const ezGALResourceViewVulkan*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT] = {};
-  ezHybridArray<const ezGALUnorderedAccessViewVulkan*, 16> m_pBoundUnoderedAccessViews;
-  const ezGALSamplerStateVulkan* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT] = {};
+  ezHybridArray<SetResources, 4> m_Resources;
 
+  ezDeque<vk::DescriptorImageInfo> m_TextureAndSampler;
   ezHybridArray<vk::WriteDescriptorSet, 16> m_DescriptorWrites;
+  ezHybridArray<vk::DescriptorSet, 4> m_DescriptorSets;
+
+  ezDynamicArray<ezUInt8> m_PushConstants;
 };

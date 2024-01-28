@@ -485,7 +485,7 @@ XrResult ezOpenXR::InitSession()
   XR_SUCCEED_OR_CLEANUP_LOG(m_pInput->CreateActions(m_pSession, m_pSceneSpace), DeinitSession);
   XR_SUCCEED_OR_CLEANUP_LOG(m_pInput->AttachSessionActionSets(m_pSession), DeinitSession);
 
-  m_GALdeviceEventsId = ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&ezOpenXR::GALDeviceEventHandler, this));
+  m_GALdeviceEventsId = ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezOpenXR::GALDeviceEventHandler, this));
 
   SetStageSpace(ezXRStageSpace::Standing);
   if (m_Extensions.m_bSpatialAnchor)
@@ -512,7 +512,7 @@ void ezOpenXR::DeinitSession()
   m_pAnchors = nullptr;
   if (m_GALdeviceEventsId != 0)
   {
-    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(m_GALdeviceEventsId);
+    ezGALDevice::s_Events.RemoveEventHandler(m_GALdeviceEventsId);
   }
 
   if (m_pSceneSpace)

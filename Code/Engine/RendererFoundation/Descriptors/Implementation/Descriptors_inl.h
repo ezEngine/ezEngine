@@ -1,16 +1,4 @@
-inline bool ezShaderResourceType::IsArray(ezShaderResourceType::Enum format)
-{
-  switch (format)
-  {
-    case ezShaderResourceType::Texture1DArray:
-    case ezShaderResourceType::Texture2DArray:
-    case ezShaderResourceType::Texture2DMSArray:
-    case ezShaderResourceType::TextureCubeArray:
-      return true;
-    default:
-      return false;
-  }
-}
+
 
 inline ezGALShaderCreationDescription::ezGALShaderCreationDescription()
   : ezHashableStruct()
@@ -21,13 +9,7 @@ inline ezGALShaderCreationDescription::~ezGALShaderCreationDescription()
 {
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
   {
-    ezGALShaderByteCode* pByteCode = m_ByteCodes[i];
     m_ByteCodes[i] = nullptr;
-
-    if (pByteCode != nullptr && pByteCode->GetRefCount() == 0)
-    {
-      EZ_DEFAULT_DELETE(pByteCode);
-    }
   }
 }
 

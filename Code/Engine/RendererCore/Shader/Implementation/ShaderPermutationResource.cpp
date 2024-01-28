@@ -24,7 +24,7 @@ ezShaderPermutationResource::ezShaderPermutationResource()
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    m_pShaderStageBinaries[stage] = nullptr;
+    m_ByteCodes[stage] = nullptr;
   }
 }
 
@@ -123,13 +123,13 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
 
     // store not only the hash but also the pointer to the stage binary
     // since it contains other useful information (resource bindings), that we need for shader binding
-    m_pShaderStageBinaries[stage] = pStageBin;
+    m_ByteCodes[stage] = pStageBin->GetByteCode();
 
-    EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'", ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
+    EZ_ASSERT_DEV(pStageBin->m_pGALByteCode->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'", ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_pGALByteCode->m_Stage]);
 
-    ShaderDesc.m_ByteCodes[stage] = pStageBin->m_GALByteCode;
+    ShaderDesc.m_ByteCodes[stage] = pStageBin->m_pGALByteCode;
 
-    uiGPUMem += pStageBin->m_ByteCode.GetCount();
+    uiGPUMem += pStageBin->m_pGALByteCode->m_ByteCode.GetCount();
   }
 
   m_hShader = pDevice->CreateShader(ShaderDesc);
