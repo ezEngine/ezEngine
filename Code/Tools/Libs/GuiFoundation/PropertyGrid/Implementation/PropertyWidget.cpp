@@ -822,10 +822,12 @@ void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 
 ezMap<ezString, ezQtImageSliderWidget::ImageGeneratorFunc> ezQtImageSliderWidget::s_ImageGenerators;
 
-ezQtImageSliderWidget::ezQtImageSliderWidget(ImageGeneratorFunc generator, QWidget* pParent)
+ezQtImageSliderWidget::ezQtImageSliderWidget(ImageGeneratorFunc generator, double fMinValue, double fMaxValue, QWidget* pParent)
   : QWidget(pParent)
 {
   m_Generator = generator;
+  m_fMinValue = fMinValue;
+  m_fMaxValue = fMaxValue;
 
   setAutoFillBackground(false);
 }
@@ -851,7 +853,9 @@ void ezQtImageSliderWidget::paintEvent(QPaintEvent* event)
 
   painter.drawTiledPixmap(area, QPixmap::fromImage(m_Image));
 
-  const double pos = (int)(m_fValue * area.width()) + 0.5f;
+  const float factor = ezMath::Unlerp(m_fMinValue, m_fMaxValue, m_fValue);
+
+  const double pos = (int)(factor * area.width()) + 0.5f;
 
   const double top = area.top() + 0.5;
   const double bot = area.bottom() + 0.5;
@@ -890,7 +894,7 @@ void ezQtImageSliderWidget::UpdateImage()
 
   if (m_Generator)
   {
-    m_Image = m_Generator(rect().width(), rect().height());
+    m_Image = m_Generator(rect().width(), rect().height(), m_fMinValue, m_fMaxValue);
   }
   else
   {
@@ -915,8 +919,9 @@ void ezQtImageSliderWidget::mouseMoveEvent(QMouseEvent* event)
     const int x = ezMath::Clamp(coord.x(), 0, width - 1);
 
     const double fx = (double)x / (width - 1);
+    const double val = ezMath::Lerp(m_fMinValue, m_fMaxValue, fx);
 
-    valueChanged(fx);
+    valueChanged(val);
   }
 
   event->accept();
@@ -959,7 +964,7 @@ void ezQtPropertyEditorSliderWidget::OnInit()
   m_fMinValue = pRange->GetMinValue().ConvertTo<double>();
   m_fMaxValue = pRange->GetMaxValue().ConvertTo<double>();
 
-  m_pSlider = new ezQtImageSliderWidget(ezQtImageSliderWidget::s_ImageGenerators[pSliderAttr->m_sImageGenerator], this);
+  m_pSlider = new ezQtImageSliderWidget(ezQtImageSliderWidget::s_ImageGenerators[pSliderAttr->m_sImageGenerator], m_fMinValue, m_fMaxValue, this);
 
   m_pLayout->insertWidget(0, m_pSlider);
   connect(m_pSlider, SIGNAL(valueChanged(double)), this, SLOT(SlotSliderValueChanged(double)));
@@ -971,9 +976,7 @@ void ezQtPropertyEditorSliderWidget::OnInit()
 
     if (pDefault->GetValue().CanConvertTo<double>())
     {
-      const ezInt32 val = pDefault->GetValue().ConvertTo<double>();
-      const double pos = (val - m_fMinValue) / (m_fMaxValue - m_fMinValue);
-      m_pSlider->SetValue(pos);
+      m_pSlider->SetValue(pDefault->GetValue().ConvertTo<double>());
     }
   }
 }
@@ -984,23 +987,19 @@ void ezQtPropertyEditorSliderWidget::InternalSetValue(const ezVariant& value)
 
   m_OriginalType = value.GetType();
 
-  const double val = value.ConvertTo<double>();
-  const double pos = static_cast<double>(val - m_fMinValue) / static_cast<double>(m_fMaxValue - m_fMinValue);
-  m_pSlider->SetValue(pos);
+  m_pSlider->SetValue(value.ConvertTo<double>());
 }
 
-void ezQtPropertyEditorSliderWidget::SlotSliderValueChanged(double value)
+void ezQtPropertyEditorSliderWidget::SlotSliderValueChanged(double fValue)
 {
   if (!m_bTemporaryCommand)
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
 
-  const double fValue = ezMath::Lerp(m_fMinValue, m_fMaxValue, value);
-
   BroadcastValueChanged(ezVariant(fValue).ConvertTo(m_OriginalType));
 
-  m_pSlider->SetValue(value);
+  m_pSlider->SetValue(fValue);
 }
 
 void ezQtPropertyEditorSliderWidget::on_EditingFinished_triggered()

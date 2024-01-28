@@ -153,9 +153,9 @@ class EZ_GUIFOUNDATION_DLL ezQtImageSliderWidget : public QWidget
 {
   Q_OBJECT
 public:
-  using ImageGeneratorFunc = QImage (*)(ezUInt32 width, ezUInt32 height);
+  using ImageGeneratorFunc = QImage (*)(ezUInt32 uiWidth, ezUInt32 uiHeight, double fMinValue, double fMaxValue);
 
-  ezQtImageSliderWidget(ImageGeneratorFunc generator, QWidget* pParent);
+  ezQtImageSliderWidget(ImageGeneratorFunc generator, double fMinValue, double fMaxValue, QWidget* pParent);
 
   static ezMap<ezString, ImageGeneratorFunc> s_ImageGenerators;
 
@@ -177,6 +177,8 @@ protected:
   ImageGeneratorFunc m_Generator = nullptr;
   QImage m_Image;
   double m_fValue = 0;
+  double m_fMinValue = 0;
+  double m_fMaxValue = 0;
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorSliderWidget : public ezQtStandardPropertyWidget
@@ -188,7 +190,7 @@ public:
   ~ezQtPropertyEditorSliderWidget();
 
 private Q_SLOTS:
-  void SlotSliderValueChanged(double value);
+  void SlotSliderValueChanged(double fValue);
   void on_EditingFinished_triggered();
 
 protected:

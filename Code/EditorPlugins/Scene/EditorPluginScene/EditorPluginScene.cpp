@@ -92,7 +92,7 @@ void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& 
 void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight)
+QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight, double fMinValue, double fMaxValue)
 {
   // can use a 1D image, height doesn't need to be all used
   QImage image = QImage(uiWidth, 1, QImage::Format::Format_RGB32);
@@ -100,7 +100,7 @@ QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight
   for (int x = 0; x < uiWidth; ++x)
   {
     const double pos = (double)x / (uiWidth - 1.0);
-    ezColor c = ezColor::MakeFromKelvin(static_cast<ezUInt32>((pos * 14000) + 1000));
+    ezColor c = ezColor::MakeFromKelvin(static_cast<ezUInt32>((pos * (fMaxValue - fMinValue)) + fMinValue));
 
     ezColorGammaUB cg = c;
     image.setPixel(x, 0, qRgb(cg.r, cg.g, cg.b));

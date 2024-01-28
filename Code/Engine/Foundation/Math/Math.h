@@ -280,6 +280,10 @@ namespace ezMath
   template <typename T>
   [[nodiscard]] T Lerp(T f1, T f2, double fFactor); // [tested]
 
+  /// \brief Returns the interpolation factor such that Lerp(fMin, fMax, factor) == fValue.
+  template <typename T>
+  [[nodiscard]] constexpr float Unlerp(T fMin, T fMax, T fValue); // [tested]
+
   /// \brief Returns 0, if value < edge, and 1, if value >= edge.
   template <typename T>
   [[nodiscard]] constexpr T Step(T value, T edge); // [tested]
