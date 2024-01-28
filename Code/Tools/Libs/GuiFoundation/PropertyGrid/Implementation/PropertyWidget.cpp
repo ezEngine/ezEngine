@@ -513,7 +513,6 @@ void ezQtPropertyEditorAngleWidget::SlotValueChanged()
 
 /// *** INT SPINBOX ***
 
-
 ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iNumComponents, ezInt32 iMinValue, ezInt32 iMaxValue)
   : ezQtStandardPropertyWidget()
 {
@@ -552,35 +551,7 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
   auto pNoTemporaryTransactions = m_pProp->GetAttributeByType<ezNoTemporaryTransactionsAttribute>();
   m_bUseTemporaryTransaction = (pNoTemporaryTransactions == nullptr);
 
-  if (const ezSliderAttribute* pSlider = m_pProp->GetAttributeByType <ezSliderAttribute>())
-  {
-    EZ_ASSERT_DEV(m_iNumComponents == 1, "Sliders only suport 1 component");
-
-    const ezInt32 iMinValue = pSlider->GetMinValue().ConvertTo<ezInt32>();
-    const ezInt32 iMaxValue = pSlider->GetMaxValue().ConvertTo<ezInt32>();
-
-    ezQtScopedBlockSignals bs(m_pWidget[0]);
-    m_pWidget[0]->setMinimum(pSlider->GetMinValue());
-    m_pWidget[0]->setMaximum(pSlider->GetMaxValue());
-
-    if (pSlider->GetMinValue().IsValid() && pSlider->GetMaxValue().IsValid() && m_bUseTemporaryTransaction)
-    {
-      ezQtScopedBlockSignals bs2(m_pSlider);
-
-      // we have to create the slider here, because in the constructor we don't know the real
-      // min and max values from the ezClampValueAttribute (only the rough type ranges)
-      m_pSlider = new QSlider(this);
-      m_pSlider->installEventFilter(this);
-      m_pSlider->setOrientation(Qt::Orientation::Horizontal);
-      m_pSlider->setMinimum(iMinValue);
-      m_pSlider->setMaximum(iMaxValue);
-
-      m_pLayout->insertWidget(0, m_pSlider, 5); // make it take up most of the space
-      connect(m_pSlider, SIGNAL(valueChanged(int)), this, SLOT(SlotSliderValueChanged(int)));
-      connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(on_EditingFinished_triggered()));
-    }
-  }
-  else if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
+  if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
   {
     switch (m_iNumComponents)
     {
@@ -840,6 +811,200 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
 void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 {
   if (m_bUseTemporaryTransaction && m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
+
+  m_bTemporaryCommand = false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+ezMap<ezString, ezQtImageSliderWidget::ImageGeneratorFunc> ezQtImageSliderWidget::s_ImageGenerators;
+
+ezQtImageSliderWidget::ezQtImageSliderWidget(ImageGeneratorFunc generator, double fMinValue, double fMaxValue, QWidget* pParent)
+  : QWidget(pParent)
+{
+  m_Generator = generator;
+  m_fMinValue = fMinValue;
+  m_fMaxValue = fMaxValue;
+
+  setAutoFillBackground(false);
+}
+
+void ezQtImageSliderWidget::SetValue(double fValue)
+{
+  if (m_fValue == fValue)
+    return;
+
+  m_fValue = fValue;
+  update();
+}
+
+void ezQtImageSliderWidget::paintEvent(QPaintEvent* event)
+{
+  QPainter painter(this);
+  painter.setRenderHint(QPainter::RenderHint::Antialiasing);
+
+  const QRect area = rect();
+
+  if (area.width() != m_Image.width())
+    UpdateImage();
+
+  painter.drawTiledPixmap(area, QPixmap::fromImage(m_Image));
+
+  const float factor = ezMath::Unlerp(m_fMinValue, m_fMaxValue, m_fValue);
+
+  const double pos = (int)(factor * area.width()) + 0.5f;
+
+  const double top = area.top() + 0.5;
+  const double bot = area.bottom() + 0.5;
+  const double len = 5.0;
+  const double wid = 2.0;
+
+  const QColor col = qRgb(80, 80, 80);
+
+  painter.setPen(col);
+  painter.setBrush(col);
+
+  {
+    QPainterPath path;
+    path.moveTo(QPointF(pos - wid, top));
+    path.lineTo(QPointF(pos, top + len));
+    path.lineTo(QPointF(pos + wid, top));
+    path.closeSubpath();
+
+    painter.drawPath(path);
+  }
+
+  {
+    QPainterPath path;
+    path.moveTo(QPointF(pos - wid, bot));
+    path.lineTo(QPointF(pos, bot - len));
+    path.lineTo(QPointF(pos + wid, bot));
+    path.closeSubpath();
+
+    painter.drawPath(path);
+  }
+}
+
+void ezQtImageSliderWidget::UpdateImage()
+{
+  const int width = rect().width();
+
+  if (m_Generator)
+  {
+    m_Image = m_Generator(rect().width(), rect().height(), m_fMinValue, m_fMaxValue);
+  }
+  else
+  {
+    m_Image = QImage(width, 1, QImage::Format::Format_RGB32);
+
+    ezColorGammaUB cg = ezColor::HotPink;
+    for (int x = 0; x < width; ++x)
+    {
+      m_Image.setPixel(x, 0, qRgb(cg.r, cg.g, cg.b));
+    }
+  }
+}
+
+void ezQtImageSliderWidget::mouseMoveEvent(QMouseEvent* event)
+{
+  if (event->buttons().testFlag(Qt::LeftButton))
+  {
+    const int width = rect().width();
+    const int height = rect().height();
+
+    QPoint coord = event->pos();
+    const int x = ezMath::Clamp(coord.x(), 0, width - 1);
+
+    const double fx = (double)x / (width - 1);
+    const double val = ezMath::Lerp(m_fMinValue, m_fMaxValue, fx);
+
+    valueChanged(val);
+  }
+
+  event->accept();
+}
+
+void ezQtImageSliderWidget::mousePressEvent(QMouseEvent* event)
+{
+  mouseMoveEvent(event);
+  event->accept();
+}
+
+void ezQtImageSliderWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  if (event->button() == Qt::LeftButton)
+  {
+    Q_EMIT sliderReleased();
+  }
+  event->accept();
+}
+
+/// *** SLIDER ***
+
+ezQtPropertyEditorSliderWidget::ezQtPropertyEditorSliderWidget()
+  : ezQtStandardPropertyWidget()
+{
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
+  setLayout(m_pLayout);
+}
+
+ezQtPropertyEditorSliderWidget::~ezQtPropertyEditorSliderWidget() = default;
+
+void ezQtPropertyEditorSliderWidget::OnInit()
+{
+  const ezImageSliderUiAttribute* pSliderAttr = m_pProp->GetAttributeByType<ezImageSliderUiAttribute>();
+  const ezClampValueAttribute* pRange = m_pProp->GetAttributeByType<ezClampValueAttribute>();
+  EZ_ASSERT_DEV(pRange != nullptr, "ezImageSliderUiAttribute always has to be compined with ezClampValueAttribute to specify the valid range.");
+  EZ_ASSERT_DEV(pRange->GetMinValue().IsValid() && pRange->GetMaxValue().IsValid(), "The min and max values used with ezImageSliderUiAttribute both have to be valid.");
+
+  m_fMinValue = pRange->GetMinValue().ConvertTo<double>();
+  m_fMaxValue = pRange->GetMaxValue().ConvertTo<double>();
+
+  m_pSlider = new ezQtImageSliderWidget(ezQtImageSliderWidget::s_ImageGenerators[pSliderAttr->m_sImageGenerator], m_fMinValue, m_fMaxValue, this);
+
+  m_pLayout->insertWidget(0, m_pSlider);
+  connect(m_pSlider, SIGNAL(valueChanged(double)), this, SLOT(SlotSliderValueChanged(double)));
+  connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(on_EditingFinished_triggered()));
+
+  if (const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
+  {
+    ezQtScopedBlockSignals bs(m_pSlider);
+
+    if (pDefault->GetValue().CanConvertTo<double>())
+    {
+      m_pSlider->SetValue(pDefault->GetValue().ConvertTo<double>());
+    }
+  }
+}
+
+void ezQtPropertyEditorSliderWidget::InternalSetValue(const ezVariant& value)
+{
+  ezQtScopedBlockSignals bs(m_pSlider);
+
+  m_OriginalType = value.GetType();
+
+  m_pSlider->SetValue(value.ConvertTo<double>());
+}
+
+void ezQtPropertyEditorSliderWidget::SlotSliderValueChanged(double fValue)
+{
+  if (!m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
+
+  m_bTemporaryCommand = true;
+
+  BroadcastValueChanged(ezVariant(fValue).ConvertTo(m_OriginalType));
+
+  m_pSlider->SetValue(fValue);
+}
+
+void ezQtPropertyEditorSliderWidget::on_EditingFinished_triggered()
+{
+  if (m_bTemporaryCommand)
     Broadcast(ezPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;

@@ -13,7 +13,8 @@ namespace ezMath
   template <typename T>
   constexpr EZ_ALWAYS_INLINE T Sign(T f)
   {
-    return (f < 0 ? T(-1) : f > 0 ? T(1) : 0);
+    return (f < 0 ? T(-1) : f > 0 ? T(1)
+                                  : 0);
   }
 
   template <typename T>
@@ -241,6 +242,12 @@ namespace ezMath
     EZ_ASSERT_DEBUG((fFactor >= -0.00001) && (fFactor <= 1.0 + 0.00001), "lerp: factor is not in the range [0; 1]");
 
     return (T)(f1 + (fFactor * (f2 - f1)));
+  }
+
+  template <typename T>
+  EZ_FORCE_INLINE constexpr float Unlerp(T fMin, T fMax, T fValue)
+  {
+    return static_cast<float>(fValue - fMin) / static_cast<float>(fMax - fMin);
   }
 
   ///  Returns 0, if value < edge, and 1, if value >= edge.
