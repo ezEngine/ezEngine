@@ -2,8 +2,7 @@ ez_cmake_init()
 
 
 ez_requires(EZ_BUILD_OPENVR)
-
-ez_requires_windows()
+ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
 
 AddOpenVR()
 

@@ -3,6 +3,7 @@
 # #####################################
 
 function(ez_uwp_mark_import_as_content IMPORT)
+	# PLATFORM-TODO
 	if(NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 		return()
 	endif()
@@ -28,6 +29,7 @@ endfunction()
 # ## ez_uwp_add_import_to_sources(<target_name> <import>)
 # #####################################
 function(ez_uwp_add_import_to_sources TARGET_NAME IMPORT)
+	# PLATFORM-TODO
 	if(NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 		return()
 	endif()
@@ -50,6 +52,7 @@ endfunction()
 # ## ez_uwp_add_default_content(<target>)
 # #####################################
 function(ez_uwp_fix_library_properties TARGET_NAME ALL_SOURCE_FILES)
+	# PLATFORM-TODO
 	if(NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 		return()
 	endif()
@@ -76,6 +79,7 @@ endfunction()
 function(ez_uwp_add_default_content TARGET_NAME)
 	ez_pull_all_vars()
 
+	# PLATFORM-TODO
 	if(NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 		return()
 	endif()

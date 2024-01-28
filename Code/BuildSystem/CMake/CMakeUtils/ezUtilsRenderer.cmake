@@ -3,6 +3,7 @@
 # #####################################
 
 macro(ez_requires_renderer)
+	# PLATFORM-TODO
 	if(EZ_CMAKE_PLATFORM_WINDOWS)
 		ez_requires_d3d()
 	else()
@@ -12,9 +13,10 @@ endmacro()
 
 # #####################################
 # ## ez_add_renderers(<target>)
-# ## Add all required libraries and dependencies to the given target so it has accedss to all available renderers.
+# ## Add all required libraries and dependencies to the given target so it has access to all available renderers.
 # #####################################
 function(ez_add_renderers TARGET_NAME)
+	# PLATFORM-TODO
 	if(EZ_BUILD_EXPERIMENTAL_VULKAN)
 		target_link_libraries(${TARGET_NAME}
 			PRIVATE

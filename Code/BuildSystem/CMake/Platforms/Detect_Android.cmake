@@ -1,0 +1,8 @@
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+
+    set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_NAME "Android")
+    set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Android")
+    set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSTFIX "Android")
+
+endif()

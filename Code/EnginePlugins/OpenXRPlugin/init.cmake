@@ -10,7 +10,7 @@ set (EZ_BUILD_OPENXR ON CACHE BOOL "Whether support for OpenXR should be added")
 
 macro(ez_requires_openxr)
 
-	ez_requires_windows()
+	ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
 	ez_requires(EZ_BUILD_OPENXR)
 	# While counter-intuitive, we need to find the package here so that the PUBLIC inherited
 	# target_sources using generator expressions can be resolved in the dependant projects.

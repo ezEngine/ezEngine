@@ -8,7 +8,7 @@ set(EZ_BUILD_EXPERIMENTAL_VULKAN OFF CACHE BOOL "Whether to enable experimental 
 # ## ez_requires_vulkan()
 # #####################################
 macro(ez_requires_vulkan)
-	ez_requires_one_of(EZ_CMAKE_PLATFORM_LINUX EZ_CMAKE_PLATFORM_WINDOWS)
+	ez_requires(EZ_CMAKE_PLATFORM_SUPPORTS_VULKAN)
 	ez_requires(EZ_BUILD_EXPERIMENTAL_VULKAN)
 	find_package(EzVulkan REQUIRED)
 endmacro()
@@ -24,16 +24,9 @@ function(ez_link_target_vulkan TARGET_NAME)
 	if(EZVULKAN_FOUND)
 		target_link_libraries(${TARGET_NAME} PRIVATE EzVulkan::Loader)
 
-		# Only on linux is the loader a dll.
-		if(EZ_CMAKE_PLATFORM_LINUX)
-			get_target_property(_dll_location EzVulkan::Loader IMPORTED_LOCATION)
-
-			if(NOT _dll_location STREQUAL "")
-				add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-					COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzVulkan::Loader> $<TARGET_FILE_DIR:${TARGET_NAME}>)
-			endif()
-
-			unset(_dll_location)
+		if (COMMAND ez_platformhook_link_target_vulkan)
+			# call platform-specific hook for linking with Vulkan
+			ez_platformhook_link_target_vulkan()
 		endif()
 	endif()
 endfunction()

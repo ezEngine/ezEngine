@@ -138,4 +138,5 @@ if(EZ_CMAKE_PLATFORM_WINDOWS) # The only platform it makes sense to check for Di
 		DirectX11_DXGUID_LIBRARY
 		DirectX11_DXGI_LIBRARY
 		DirectX11_D3DCOMPILER_LIBRARY)
-endif(EZ_CMAKE_PLATFORM_WINDOWS)
+		
+endif()

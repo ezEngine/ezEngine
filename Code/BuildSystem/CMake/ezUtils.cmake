@@ -44,6 +44,7 @@ macro(ez_pull_output_vars LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 	set(PLATFORM_POSTFIX "")
 	set(ARCH "x${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
 
+	# PLATFORM-TODO (build output path hook? add more variables?)
 	if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 		# UWP has deployment problems if all applications output to the same path.
 		set(SUB_DIR "/${TARGET_NAME}")
@@ -265,38 +266,6 @@ function(ez_add_output_ez_prefix TARGET_NAME)
 endfunction()
 
 # #####################################
-# ## ez_set_library_properties(<target>)
-# #####################################
-function(ez_set_library_properties TARGET_NAME)
-	ez_pull_all_vars()
-
-	if(EZ_CMAKE_PLATFORM_LINUX)
-		# c = libc.so (the C standard library)
-		# m = libm.so (the C standard library math portion)
-		# pthread = libpthread.so (thread support)
-		# rt = librt.so (compiler runtime functions)
-		target_link_libraries(${TARGET_NAME} PRIVATE pthread rt c m)
-
-		if(EZ_CMAKE_COMPILER_GCC)
-			# Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
-			target_link_libraries(${TARGET_NAME} PRIVATE -lgcc_s -lgcc)
-		endif()
-	endif()
-endfunction()
-
-# #####################################
-# ## ez_set_application_properties(<target>)
-# #####################################
-function(ez_set_application_properties TARGET_NAME)
-	ez_pull_all_vars()
-
-	# We need to link against pthread and rt last or linker errors will occur.
-	if(EZ_CMAKE_PLATFORM_LINUX)
-		target_link_libraries(${TARGET_NAME} PRIVATE pthread rt)
-	endif()
-endfunction()
-
-# #####################################
 # ## ez_make_winmain_executable(<target>)
 # #####################################
 function(ez_make_winmain_executable TARGET_NAME)
@@ -415,27 +384,13 @@ macro(ez_requires_one_of)
 endmacro()
 
 # #####################################
-# ## ez_requires_windows()
-# #####################################
-macro(ez_requires_windows)
-	ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
-endmacro()
-
-# #####################################
-# ## ez_requires_windows_desktop()
-# #####################################
-macro(ez_requires_windows_desktop)
-	ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-endmacro()
-
-# #####################################
 # ## ez_requires_editor()
 # #####################################
 macro(ez_requires_editor)
 	ez_requires_qt()
 	ez_requires_renderer()
-	if(EZ_CMAKE_PLATFORM_LINUX)
-		ez_requires(EZ_EXPERIMENTAL_EDITOR_ON_LINUX)
+	if(NOT EZ_CMAKE_PLATFORM_SUPPORTS_EDITOR)
+		return()
 	endif()
 endmacro()
 
