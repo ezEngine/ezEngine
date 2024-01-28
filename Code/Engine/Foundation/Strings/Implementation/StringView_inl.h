@@ -57,12 +57,12 @@ inline void ezStringView::operator++()
   if (!IsValid())
     return;
 
-  ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd);
+  ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd).IgnoreResult(); // if it fails, the string is just empty
 }
 
 inline void ezStringView::operator+=(ezUInt32 d)
 {
-  ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, d);
+  ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, d).IgnoreResult(); // if it fails, the string is just empty
 }
 EZ_ALWAYS_INLINE bool ezStringView::IsValid() const
 {

@@ -51,7 +51,9 @@ ezInt32 ezStringView::CompareN_NoCase(ezStringView sOther, ezUInt32 uiCharsToCom
 const char* ezStringView::ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const
 {
   const char* pos = GetStartPointer();
-  ezUnicodeUtils::MoveToNextUtf8(pos, GetEndPointer(), uiCharacterIndex);
+  if (ezUnicodeUtils::MoveToNextUtf8(pos, GetEndPointer(), uiCharacterIndex).Failed())
+    return nullptr;
+
   return pos;
 }
 
@@ -119,13 +121,23 @@ void ezStringView::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBac
 {
   while (IsValid() && (uiShrinkCharsFront > 0))
   {
-    ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, 1);
+    if (ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, 1).Failed())
+    {
+      *this = {};
+      return;
+    }
+
     --uiShrinkCharsFront;
   }
 
   while (IsValid() && (uiShrinkCharsBack > 0))
   {
-    ezUnicodeUtils::MoveToPriorUtf8(m_pEnd, 1);
+    if (ezUnicodeUtils::MoveToPriorUtf8(m_pEnd, m_pStart, 1).Failed())
+    {
+      *this = {};
+      return;
+    }
+
     --uiShrinkCharsBack;
   }
 }
@@ -145,15 +157,13 @@ ezStringView ezStringView::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNu
   }
 
   const char* pStart = m_pStart;
-  ezUnicodeUtils::MoveToNextUtf8(pStart, m_pEnd, uiFirstCharacter);
-
-  if (pStart == m_pEnd)
+  if (ezUnicodeUtils::MoveToNextUtf8(pStart, m_pEnd, uiFirstCharacter).Failed() || pStart == m_pEnd)
   {
     return {};
   }
 
   const char* pEnd = pStart;
-  ezUnicodeUtils::MoveToNextUtf8(pEnd, m_pEnd, uiNumCharacters);
+  ezUnicodeUtils::MoveToNextUtf8(pEnd, m_pEnd, uiNumCharacters).IgnoreResult(); // if it fails, it just points to the end
 
   return ezStringView(pStart, pEnd);
 }
@@ -162,7 +172,7 @@ void ezStringView::ChopAwayFirstCharacterUtf8()
 {
   if (IsValid())
   {
-    ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, 1);
+    ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, 1).AssertSuccess();
   }
 }
 

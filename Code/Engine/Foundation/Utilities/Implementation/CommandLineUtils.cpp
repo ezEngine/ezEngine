@@ -45,7 +45,7 @@ void ezCommandLineUtils::SplitCommandLineString(const char* szCommandString, boo
       out_args.PushBack(path);
       lastEnd = currentChar + 1;
     }
-    ezUnicodeUtils::MoveToNextUtf8(currentChar);
+    ezUnicodeUtils::MoveToNextUtf8(currentChar).IgnoreResult();
   }
 
   out_argsV.Reserve(out_argsV.GetCount());

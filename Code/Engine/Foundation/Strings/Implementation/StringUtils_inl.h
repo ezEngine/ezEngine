@@ -95,8 +95,7 @@ inline ezUInt32 ezStringUtils::GetCharacterCount(const char* szUtf8, const char*
   return uiCharacters;
 }
 
-inline void ezStringUtils::GetCharacterAndElementCount(
-  const char* szUtf8, ezUInt32& ref_uiCharacterCount, ezUInt32& ref_uiElementCount, const char* pStringEnd)
+inline void ezStringUtils::GetCharacterAndElementCount(const char* szUtf8, ezUInt32& ref_uiCharacterCount, ezUInt32& ref_uiElementCount, const char* pStringEnd)
 {
   ref_uiCharacterCount = 0;
   ref_uiElementCount = 0;

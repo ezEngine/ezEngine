@@ -48,7 +48,7 @@ struct ezStringIterator
 
     if (m_pCurPtr < m_pEndPtr)
     {
-      ezUnicodeUtils::MoveToNextUtf8(m_pCurPtr);
+      ezUnicodeUtils::MoveToNextUtf8(m_pCurPtr).AssertSuccess();
     }
 
     return static_cast<ezUInt32>(m_pCurPtr - pPrevElement);
@@ -59,7 +59,7 @@ struct ezStringIterator
   {
     if (m_pCurPtr < m_pEndPtr)
     {
-      ezUnicodeUtils::MoveToNextUtf8(m_pCurPtr);
+      ezUnicodeUtils::MoveToNextUtf8(m_pCurPtr).AssertSuccess();
     }
 
     return *this;
@@ -70,7 +70,7 @@ struct ezStringIterator
   {
     if (m_pStartPtr < m_pCurPtr)
     {
-      ezUnicodeUtils::MoveToPriorUtf8(m_pCurPtr);
+      ezUnicodeUtils::MoveToPriorUtf8(m_pCurPtr, m_pStartPtr).AssertSuccess();
     }
 
     return *this;
@@ -183,7 +183,7 @@ struct ezStringReverseIterator
     }
     else if (m_pCurPtr == m_pEndPtr)
     {
-      ezUnicodeUtils::MoveToPriorUtf8(m_pCurPtr);
+      ezUnicodeUtils::MoveToPriorUtf8(m_pCurPtr, m_pStartPtr).AssertSuccess();
     }
   }
 
@@ -207,7 +207,7 @@ struct ezStringReverseIterator
   EZ_FORCE_INLINE ezStringReverseIterator& operator++() // [tested]
   {
     if (m_pCurPtr != nullptr && m_pStartPtr < m_pCurPtr)
-      ezUnicodeUtils::MoveToPriorUtf8(m_pCurPtr);
+      ezUnicodeUtils::MoveToPriorUtf8(m_pCurPtr, m_pStartPtr).AssertSuccess();
     else
       m_pCurPtr = nullptr;
 
@@ -220,7 +220,7 @@ struct ezStringReverseIterator
     if (m_pCurPtr != nullptr)
     {
       const char* szOldPos = m_pCurPtr;
-      ezUnicodeUtils::MoveToNextUtf8(m_pCurPtr);
+      ezUnicodeUtils::MoveToNextUtf8(m_pCurPtr).AssertSuccess();
 
       if (m_pCurPtr == m_pEndPtr)
         m_pCurPtr = szOldPos;
