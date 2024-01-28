@@ -25,19 +25,19 @@ ezCVarType::Enum ezTypedCVar<Type, CVarType>::GetType() const
 }
 
 template <typename Type, ezCVarType::Enum CVarType>
-void ezTypedCVar<Type, CVarType>::SetToRestartValue()
+void ezTypedCVar<Type, CVarType>::SetToDelayedSyncValue()
 {
-  if (m_Values[ezCVarValue::Current] == m_Values[ezCVarValue::Restart])
+  if (m_Values[ezCVarValue::Current] == m_Values[ezCVarValue::DelayedSync])
     return;
 
   // this will NOT trigger a 'restart value changed' event
-  m_Values[ezCVarValue::Current] = m_Values[ezCVarValue::Restart];
+  m_Values[ezCVarValue::Current] = m_Values[ezCVarValue::DelayedSync];
 
   ezCVarEvent e(this);
   e.m_EventType = ezCVarEvent::ValueChanged;
   m_CVarEvents.Broadcast(e);
 
-  // broadcast the same to the 'all cvars' event handlers
+  // broadcast the same to the 'all CVars' event handlers
   s_AllCVarEvents.Broadcast(e);
 }
 
@@ -52,12 +52,12 @@ void ezTypedCVar<Type, CVarType>::operator=(const Type& value)
 {
   ezCVarEvent e(this);
 
-  if (GetFlags().IsAnySet(ezCVarFlags::RequiresRestart))
+  if (GetFlags().IsAnySet(ezCVarFlags::RequiresDelayedSync))
   {
-    if (value == m_Values[ezCVarValue::Restart]) // no change
+    if (value == m_Values[ezCVarValue::DelayedSync]) // no change
       return;
 
-    e.m_EventType = ezCVarEvent::RestartValueChanged;
+    e.m_EventType = ezCVarEvent::DelayedSyncValueChanged;
   }
   else
   {
@@ -68,7 +68,7 @@ void ezTypedCVar<Type, CVarType>::operator=(const Type& value)
     e.m_EventType = ezCVarEvent::ValueChanged;
   }
 
-  m_Values[ezCVarValue::Restart] = value;
+  m_Values[ezCVarValue::DelayedSync] = value;
 
   m_CVarEvents.Broadcast(e);
 

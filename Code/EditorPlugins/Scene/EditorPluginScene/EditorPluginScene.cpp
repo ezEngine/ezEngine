@@ -32,6 +32,7 @@
 #include <RendererCore/Lights/BoxReflectionProbeComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
+#include <RendererCore/Utils/CoreRenderProfile.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
 void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -341,15 +342,11 @@ void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
   auto& props = *e.m_pPropertyStates;
 
   const bool bUseColorTemperature = e.m_pObject->GetTypeAccessor().GetValue("UseColorTemperature").ConvertTo<bool>();
+  props["Temperature"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["LightColor"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
 
-  if (bUseColorTemperature)
-  {
-    props["Temperature"].m_Visibility = ezPropertyUiState::Default;
-    props["LightColor"].m_Visibility = ezPropertyUiState::Invisible;
-  }
-  else
-  {
-    props["Temperature"].m_Visibility = ezPropertyUiState::Invisible;
-    props["LightColor"].m_Visibility = ezPropertyUiState::Default;
-  }
+  const bool bCastShadows = e.m_pObject->GetTypeAccessor().GetValue("CastShadows").ConvertTo<bool>();
+  props["PenumbraSize"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["SlopeBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["ConstantBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 }

@@ -31,7 +31,7 @@ ezUInt32 ezAssetCurator::FindAssetProfileByName(const char* szPlatform)
 
   for (ezUInt32 i = 0; i < m_AssetProfiles.GetCount(); ++i)
   {
-    if (m_AssetProfiles[i]->m_sName.IsEqual_NoCase(szPlatform))
+    if (m_AssetProfiles[i]->GetConfigName().IsEqual_NoCase(szPlatform))
     {
       return i;
     }
@@ -150,7 +150,7 @@ ezResult ezAssetCurator::SaveAssetProfiles()
 
   for (const auto* pCfg : m_AssetProfiles)
   {
-    ddl.BeginObject("Config", pCfg->m_sName);
+    ddl.BeginObject("Config", pCfg->GetConfigName());
 
     // make sure to create the same GUID every time, otherwise the serialized file changes all the time
     const ezUuid guid = ezUuid::MakeStableUuidFromString(pCfg->GetConfigName());
@@ -221,7 +221,7 @@ void ezAssetCurator::SetupDefaultAssetProfiles()
 
   {
     ezPlatformProfile* pCfg = EZ_DEFAULT_NEW(ezPlatformProfile);
-    pCfg->m_sName = "PC";
+    pCfg->SetConfigName("PC");
     pCfg->AddMissingConfigs();
     m_AssetProfiles.PushBack(pCfg);
   }

@@ -1,8 +1,8 @@
 #include <EditorEngineProcess/EditorEngineProcessPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <Foundation/System/SystemInformation.h>
 #include <Foundation/Logging/ETWWriter.h>
+#include <Foundation/System/SystemInformation.h>
 
 #include <Core/Console/QuakeConsole.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
@@ -248,7 +248,8 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
 
   ezSet<const ezRTTI*> types;
   ezRTTI::ForEachType(
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType) == false)
       {
         types.Insert(pRtti);
@@ -360,7 +361,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
 
-      m_PlatformProfile.m_sName = pMsg1->m_sPayload;
+      m_PlatformProfile.SetConfigName(pMsg1->m_sPayload);
       Init_PlatformProfile_LoadForRuntime();
 
       ezResourceManager::ReloadAllResources(false);
@@ -512,7 +513,8 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
   if (pDocumentContext == nullptr)
   {
     ezRTTI::ForEachDerivedType<ezEngineProcessDocumentContext>(
-      [&](const ezRTTI* pRtti) {
+      [&](const ezRTTI* pRtti)
+      {
         auto* pProp = pRtti->FindPropertyByName("DocumentType");
         if (pProp && pProp->GetCategory() == ezPropertyCategory::Constant)
         {
@@ -562,7 +564,8 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
 void ezEngineProcessGameApplication::Init_LoadProjectPlugins()
 {
-  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool {
+  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool
+    {
     const bool isEnginePluginLhs = lhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
     const bool isEnginePluginRhs = rhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
 
