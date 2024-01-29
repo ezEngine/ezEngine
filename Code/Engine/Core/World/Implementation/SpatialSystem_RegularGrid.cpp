@@ -60,12 +60,22 @@ namespace
     return ezSimdBBox(bmin, bmax);
   }
 
+  EZ_ALWAYS_INLINE bool AreTagSetsEqual(const ezTagSet& a, const ezTagSet* pB)
+  {
+    if (pB != nullptr)
+    {
+      return a == *pB;
+    }
+
+    return a.IsEmpty();
+  }
+
   EZ_ALWAYS_INLINE bool FilterByTags(const ezTagSet& tags, const ezTagSet* pIncludeTags, const ezTagSet* pExcludeTags)
   {
-    if (pExcludeTags && !pExcludeTags->IsEmpty() && pExcludeTags->IsAnySet(tags))
+    if (pExcludeTags != nullptr && !pExcludeTags->IsEmpty() && pExcludeTags->IsAnySet(tags))
       return true;
 
-    if (pIncludeTags && !pIncludeTags->IsEmpty() && !pIncludeTags->IsAnySet(tags))
+    if (pIncludeTags != nullptr && !pIncludeTags->IsEmpty() && !pIncludeTags->IsAnySet(tags))
       return true;
 
     return false;
@@ -927,33 +937,55 @@ ezVisibilityState ezSpatialSystem_RegularGrid::GetVisibilityState(const ezSpatia
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 void ezSpatialSystem_RegularGrid::GetInternalStats(ezStringBuilder& sb) const
 {
-  sb = "Cache Candidates:\n";
-
   EZ_LOCK(m_CacheCandidatesMutex);
+
+  ezUInt32 uiNumActiveGrids = 0;
+  for (auto& pGrid : m_Grids)
+  {
+    uiNumActiveGrids += (pGrid != nullptr) ? 1 : 0;
+  }
+
+  sb.SetFormat("Num Grids: {}\n", uiNumActiveGrids);
+
+  for (auto& pGrid : m_Grids)
+  {
+    if (pGrid == nullptr)
+      continue;
+
+    sb.AppendFormat(" \nCategory: {}, CanBeCached: {}\nIncludeTags: ", ezSpatialData::GetCategoryName(pGrid->m_Category), pGrid->m_bCanBeCached);
+    TagsToString(pGrid->m_IncludeTags, sb);
+    sb.Append(", ExcludeTags: ");
+    TagsToString(pGrid->m_ExcludeTags, sb);
+    sb.Append("\n");
+  }
+
+  sb.Append("\nCache Candidates:\n");
 
   for (auto& sortedCandidate : m_SortedCacheCandidates)
   {
     auto& candidate = m_CacheCandidates[sortedCandidate.m_uiIndex];
+    const ezUInt32 uiGridIndex = candidate.m_uiGridIndex;
+    Grid* pGrid = nullptr;
 
-    sb.AppendFormat(" \nCategory: {}\nInclude Tags: ", candidate.m_Category.m_uiValue);
+    if (uiGridIndex != ezInvalidIndex)
+    {
+      pGrid = m_Grids[uiGridIndex].Borrow();
+      if (pGrid->CachingCompleted())
+      {
+        continue;
+      }
+    }
+
+    sb.AppendFormat(" \nCategory: {}\nIncludeTags: ", ezSpatialData::GetCategoryName(candidate.m_Category));
     TagsToString(candidate.m_IncludeTags, sb);
-    sb.Append("\nExclude Tags: ");
+    sb.Append(", ExcludeTags: ");
     TagsToString(candidate.m_ExcludeTags, sb);
     sb.AppendFormat("\nScore: {}", ezArgF(sortedCandidate.m_fScore, 2));
 
-    const ezUInt32 uiGridIndex = candidate.m_uiGridIndex;
-    if (uiGridIndex != ezInvalidIndex)
+    if (pGrid != nullptr)
     {
-      auto& pGrid = m_Grids[uiGridIndex];
-      if (pGrid->CachingCompleted())
-      {
-        sb.Append("\nReady to use!\n");
-      }
-      else
-      {
-        const ezUInt32 uiNumObjectsMigrated = pGrid->m_uiLastMigrationIndex;
-        sb.AppendFormat("\nMigration Status: {}%%\n", ezArgF(float(uiNumObjectsMigrated) / m_DataTable.GetCount() * 100.0f, 2));
-      }
+      const ezUInt32 uiNumObjectsMigrated = pGrid->m_uiLastMigrationIndex;
+      sb.AppendFormat("\nMigrationStatus: {}%%\n", ezArgF(float(uiNumObjectsMigrated) / m_DataTable.GetCount() * 100.0f, 2));
     }
   }
 }
@@ -1042,8 +1074,8 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
       continue;
 
     if ((pGrid->m_Category.GetBitmask() & uiGridBitmask) == 0 ||
-        ((queryParams.m_pIncludeTags && pGrid->m_IncludeTags != *queryParams.m_pIncludeTags) || (!queryParams.m_pIncludeTags && !pGrid->m_IncludeTags.IsEmpty())) ||
-        ((queryParams.m_pExcludeTags && pGrid->m_ExcludeTags != *queryParams.m_pExcludeTags) || (!queryParams.m_pExcludeTags && !pGrid->m_ExcludeTags.IsEmpty())))
+        AreTagSetsEqual(pGrid->m_IncludeTags, queryParams.m_pIncludeTags) == false ||
+        AreTagSetsEqual(pGrid->m_ExcludeTags, queryParams.m_pExcludeTags) == false)
       continue;
 
     uiGridBitmask &= ~pGrid->m_Category.GetBitmask();
@@ -1211,8 +1243,8 @@ void ezSpatialSystem_RegularGrid::UpdateCacheCandidate(const ezTagSet* pIncludeT
   for (auto& cacheCandidate : m_CacheCandidates)
   {
     if (cacheCandidate.m_Category == category &&
-        ((pIncludeTags && cacheCandidate.m_IncludeTags == *pIncludeTags) || (!pIncludeTags && cacheCandidate.m_IncludeTags.IsEmpty())) &&
-        ((pExcludeTags && cacheCandidate.m_ExcludeTags == *pExcludeTags) || (!pExcludeTags && cacheCandidate.m_ExcludeTags.IsEmpty())))
+        AreTagSetsEqual(cacheCandidate.m_IncludeTags, pIncludeTags) &&
+        AreTagSetsEqual(cacheCandidate.m_ExcludeTags, pExcludeTags))
     {
       pCacheCandiate = &cacheCandidate;
       break;
@@ -1226,7 +1258,19 @@ void ezSpatialSystem_RegularGrid::UpdateCacheCandidate(const ezTagSet* pIncludeT
   }
   else
   {
-    m_CacheCandidates.PushBack({pIncludeTags ? *pIncludeTags : ezTagSet(), pExcludeTags ? *pIncludeTags : ezTagSet(), category, 1, filteredRatio});
+    auto& cacheCandidate = m_CacheCandidates.ExpandAndGetRef();
+    cacheCandidate.m_Category = category;
+    cacheCandidate.m_fQueryCount = 1;
+    cacheCandidate.m_fFilteredRatio = filteredRatio;
+
+    if (pIncludeTags != nullptr)
+    {
+      cacheCandidate.m_IncludeTags = *pIncludeTags;
+    }
+    if (pExcludeTags != nullptr)
+    {
+      cacheCandidate.m_ExcludeTags = *pExcludeTags;
+    }
   }
 }
 
