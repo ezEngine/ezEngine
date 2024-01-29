@@ -429,4 +429,19 @@ ezResult ezTexConvProcessor::DilateColor2D(ezImage& img) const
   return EZ_SUCCESS;
 }
 
+ezResult ezTexConvProcessor::InvertNormalMap(ezImage& image)
+{
+  if (m_Descriptor.m_Usage != ezTexConvUsage::NormalMap_Inverted)
+    return EZ_SUCCESS;
 
+  // we'll assume that at this point in the processing pipeline, the format is
+  // RGBA32F which should result in tightly packed mipmaps.
+  EZ_ASSERT_DEV(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT && image.GetRowPitch() % sizeof(float[4]) == 0, "");
+
+  for (auto& value : image.GetBlobPtr<ezColor>())
+  {
+    value.g = 1.0f - value.g;
+  }
+
+  return EZ_SUCCESS;
+}
