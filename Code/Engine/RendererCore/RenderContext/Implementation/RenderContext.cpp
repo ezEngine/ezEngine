@@ -1301,7 +1301,7 @@ void ezRenderContext::ApplyBufferBindings(const ezGALShader* pShader)
   const auto& bindings = pShader->GetBindingMapping();
   for (const ezShaderResourceBinding& binding : bindings)
   {
-    if (binding.m_ResourceType >= ezGALShaderResourceType::TexelBuffer && binding.m_ResourceType >= ezGALShaderResourceType::StructuredBuffer)
+    if (binding.m_ResourceType == ezGALShaderResourceType::TexelBuffer || binding.m_ResourceType == ezGALShaderResourceType::StructuredBuffer)
     {
       const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
 

@@ -70,19 +70,24 @@ ezResult ezBakingScene::Extract()
   ezBoundingBox queryBox = m_BoundingBox;
   queryBox.Grow(ezVec3(m_Settings.m_fMaxRayDistance));
 
+  ezTagSet excludeTags;
+  excludeTags.SetByName("Editor");
+
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask();
-  queryParams.m_ExcludeTags.SetByName("Editor");
+  queryParams.m_pExcludeTags = &excludeTags;
 
   ezMsgExtractGeometry msg;
   msg.m_Mode = ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
   msg.m_pMeshObjects = &m_MeshObjects;
 
-  world.GetSpatialSystem()->FindObjectsInBox(queryBox, queryParams, [&](ezGameObject* pObject)
+  world.GetSpatialSystem()->FindObjectsInBox(queryBox, queryParams,
+    [&](ezGameObject* pObject)
     {
-    pObject->SendMessage(msg);
+      pObject->SendMessage(msg);
 
-    return ezVisitorExecution::Continue; });
+      return ezVisitorExecution::Continue;
+    });
 
   return EZ_SUCCESS;
 }
