@@ -101,7 +101,11 @@ public:
   /// \brief Returns the amount of bytes that this string takes (excluding the '\0' terminator).
   ezUInt32 GetElementCount() const; // [tested]
 
-  /// \brief Returns the number of characters in this string.
+  /// \brief Returns the number of characters in this string. Might be less than GetElementCount, if it contains Utf8
+  /// multi-byte characters.
+  ///
+  /// \note This is a slow operation, as it has to run through the entire string to count the Unicode characters.
+  /// Only call this once and use the result as long as the string doesn't change. Don't call this in a loop.
   ezUInt32 GetCharacterCount() const; // [tested]
 
   /// \brief Returns a view to a sub-string of this string, starting at character uiFirstCharacter, up until uiFirstCharacter +
@@ -133,7 +137,6 @@ private:
   friend class ezStringBuilder;
 
   ezHybridArray<char, Size> m_Data;
-  ezUInt32 m_uiCharacterCount = 0;
 };
 
 

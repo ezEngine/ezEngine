@@ -10,7 +10,7 @@ const char* ezPathUtils::FindPreviousSeparator(const char* szPathStart, const ch
 
   while (szStartSearchAt > szPathStart)
   {
-    ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt);
+    ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt, szPathStart).AssertSuccess();
 
     if (IsPathSeparator(*szStartSearchAt))
       return szStartSearchAt;
@@ -174,7 +174,7 @@ void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& ref_sRoot
 
   do
   {
-    ezUnicodeUtils::MoveToNextUtf8(szStart, szPathEnd);
+    ezUnicodeUtils::MoveToNextUtf8(szStart, szPathEnd).AssertSuccess();
 
     if (*szStart == '\0')
       return;
@@ -182,10 +182,10 @@ void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& ref_sRoot
   } while (IsPathSeparator(*szStart));
 
   const char* szEnd = szStart;
-  ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd);
+  ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd).AssertSuccess();
 
   while (*szEnd != '\0' && !IsPathSeparator(*szEnd))
-    ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd);
+    ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd).AssertSuccess();
 
   ref_sRoot = ezStringView(szStart, szEnd);
   if (*szEnd == '\0')
@@ -195,7 +195,7 @@ void ezPathUtils::GetRootedPathParts(ezStringView sPath, ezStringView& ref_sRoot
   else
   {
     // skip path separator for the relative path
-    ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd);
+    ezUnicodeUtils::MoveToNextUtf8(szEnd, szPathEnd).AssertSuccess();
     ref_sRelPath = ezStringView(szEnd, szPathEnd);
   }
 }

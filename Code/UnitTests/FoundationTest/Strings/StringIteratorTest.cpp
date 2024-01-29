@@ -45,7 +45,7 @@ void TestConstruction(const STRING& value, const char* szStart, const char* szEn
   EZ_TEST_BOOL(itBeginR.IsValid());
   EZ_TEST_BOOL(itBeginR == itBeginR);
   const char* szEndPrior = szEnd;
-  ezUnicodeUtils::MoveToPriorUtf8(szEndPrior);
+  ezUnicodeUtils::MoveToPriorUtf8(szEndPrior, szStart).AssertSuccess();
   EZ_TEST_BOOL(itBeginR.GetData() == szEndPrior);
   EZ_TEST_BOOL(itBeginR.GetCharacter() == ezUnicodeUtils::ConvertUtf8ToUtf32("F"));
   EZ_TEST_BOOL(*itBeginR == ezUnicodeUtils::ConvertUtf8ToUtf32("F"));

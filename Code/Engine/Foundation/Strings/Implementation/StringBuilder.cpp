@@ -8,7 +8,6 @@
 
 ezStringBuilder::ezStringBuilder(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   Append(sData1, sData2, sData3, sData4, sData5, sData6);
@@ -40,7 +39,7 @@ void ezStringBuilder::SetSubString_ElementCount(const char* pStart, ezUInt32 uiE
 void ezStringBuilder::SetSubString_CharacterCount(const char* pStart, ezUInt32 uiCharacterCount)
 {
   const char* pEnd = pStart;
-  ezUnicodeUtils::MoveToNextUtf8(pEnd, uiCharacterCount);
+  ezUnicodeUtils::MoveToNextUtf8(pEnd, uiCharacterCount).IgnoreResult(); // fine to fail, will just copy as much as possible
 
   ezStringView view(pStart, pEnd);
   *this = view;
@@ -67,10 +66,8 @@ void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2, ezStringV
     EZ_ASSERT_DEBUG(pStrings[i].GetStartPointer() < m_Data.GetData() || pStrings[i].GetStartPointer() >= m_Data.GetData() + m_Data.GetCapacity(),
       "Parameter {0} comes from the string builders own storage. This type assignment is not allowed.", i);
 
-    ezUInt32 uiCharacters = 0;
-    ezStringUtils::GetCharacterAndElementCount(pStrings[i].GetStartPointer(), uiCharacters, uiStrLen[i], pStrings[i].GetEndPointer());
+    uiStrLen[i] = pStrings[i].GetElementCount();
     uiMoreBytes += uiStrLen[i];
-    m_uiCharacterCount += uiCharacters;
 
     EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStrings[i].GetStartPointer(), pStrings[i].GetEndPointer()), "Parameter {0} is not a valid Utf8 sequence.", i + 1);
   }
@@ -112,10 +109,8 @@ void ezStringBuilder::Prepend(ezStringView sData1, ezStringView sData2, ezString
     if (pStrings[i].IsEmpty())
       continue;
 
-    ezUInt32 uiCharacters = 0;
-    ezStringUtils::GetCharacterAndElementCount(pStrings[i].GetStartPointer(), uiCharacters, uiStrLen[i], pStrings[i].GetEndPointer());
+    uiStrLen[i] = pStrings[i].GetElementCount();
     uiMoreBytes += uiStrLen[i];
-    m_uiCharacterCount += uiCharacters;
 
     EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStrings[i].GetStartPointer(), pStrings[i].GetEndPointer()), "Parameter {0} is not a valid Utf8 sequence.", i + 1);
   }
@@ -245,39 +240,27 @@ void ezStringBuilder::ChangeCharacterNonASCII(iterator& it, ezUInt32 uiCharacter
 
 void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack)
 {
-  if (uiShrinkCharsFront + uiShrinkCharsBack >= m_uiCharacterCount)
+  if (uiShrinkCharsBack > 0)
   {
-    Clear();
-    return;
+    const char* szEnd = GetData() + GetElementCount();
+    const char* szNewEnd = szEnd;
+    if (ezUnicodeUtils::MoveToPriorUtf8(szNewEnd, GetData(), uiShrinkCharsBack).Failed())
+    {
+      Clear();
+      return;
+    }
+
+    const ezUInt32 uiLessBytes = (ezUInt32)(szEnd - szNewEnd);
+
+    m_Data.PopBack(uiLessBytes + 1);
+    AppendTerminator();
   }
 
   const char* szNewStart = &m_Data[0];
-
-  if (IsPureASCII())
+  if (ezUnicodeUtils::MoveToNextUtf8(szNewStart, uiShrinkCharsFront).Failed())
   {
-    if (uiShrinkCharsBack > 0)
-    {
-      m_Data.PopBack(uiShrinkCharsBack + 1);
-      AppendTerminator();
-    }
-
-    szNewStart = &m_Data[uiShrinkCharsFront];
-  }
-  else
-  {
-    if (uiShrinkCharsBack > 0)
-    {
-      const char* szEnd = GetData() + GetElementCount();
-      const char* szNewEnd = szEnd;
-      ezUnicodeUtils::MoveToPriorUtf8(szNewEnd, uiShrinkCharsBack);
-
-      const ezUInt32 uiLessBytes = (ezUInt32)(szEnd - szNewEnd);
-
-      m_Data.PopBack(uiLessBytes + 1);
-      AppendTerminator();
-    }
-
-    ezUnicodeUtils::MoveToNextUtf8(szNewStart, uiShrinkCharsFront);
+    Clear();
+    return;
   }
 
   if (szNewStart > &m_Data[0])
@@ -287,9 +270,6 @@ void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkChars
     ezMemoryUtils::CopyOverlapped(&m_Data[0], szNewStart, m_Data.GetCount() - uiLessBytes);
     m_Data.PopBack(uiLessBytes);
   }
-
-  m_uiCharacterCount -= uiShrinkCharsFront;
-  m_uiCharacterCount -= uiShrinkCharsBack;
 }
 
 void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEndPos, ezStringView sReplaceWith)
@@ -298,9 +278,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
   EZ_ASSERT_DEV(ezMath::IsInRange(szEndPos, GetData(), GetData() + m_Data.GetCount()), "szEndPos is not inside this string.");
   EZ_ASSERT_DEV(szStartPos <= szEndPos, "ezStartPos must be before ezEndPos");
 
-  ezUInt32 uiWordChars = 0;
-  ezUInt32 uiWordBytes = 0;
-  ezStringUtils::GetCharacterAndElementCount(sReplaceWith.GetStartPointer(), uiWordChars, uiWordBytes, sReplaceWith.GetEndPointer());
+  const ezUInt32 uiWordBytes = sReplaceWith.GetElementCount();
 
   const ezUInt32 uiSubStringBytes = (ezUInt32)(szEndPos - szStartPos);
 
@@ -312,27 +290,17 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
   {
     while (szWritePos < szEndPos)
     {
-      if (!ezUnicodeUtils::IsUtf8ContinuationByte(*szWritePos))
-        --m_uiCharacterCount;
-
       *szWritePos = *szReadPos;
       ++szWritePos;
       ++szReadPos;
     }
 
-    // the number of bytes might be identical, but that does not mean that the number of characters is also identical
-    // therefore we subtract the number of characters that were found in the old substring
-    // and add the number of characters for the new substring
-    m_uiCharacterCount += uiWordChars;
     return;
   }
 
   // the replacement is shorter than the existing stuff -> move characters to the left, no reallocation needed
   if (uiWordBytes < uiSubStringBytes)
   {
-    m_uiCharacterCount -= ezStringUtils::GetCharacterCount(szStartPos, szEndPos);
-    m_uiCharacterCount += uiWordChars;
-
     // first copy the replacement to the correct position
     ezMemoryUtils::Copy(szWritePos, sReplaceWith.GetStartPointer(), uiWordBytes);
 
@@ -350,9 +318,6 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
 
   // else the replacement is longer than the existing word
   {
-    m_uiCharacterCount -= ezStringUtils::GetCharacterCount(szStartPos, szEndPos);
-    m_uiCharacterCount += uiWordChars;
-
     const ezUInt32 uiDifference = uiWordBytes - uiSubStringBytes;
     const ezUInt64 uiRelativeWritePosition = szWritePos - GetData();
     const ezUInt64 uiDataByteCountBefore = m_Data.GetCount();
@@ -605,10 +570,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll_NoCase(const char* szSearchFor, ez
 
 void ezStringBuilder::operator=(ezStringView rhs)
 {
-  ezUInt32 uiBytes;
-  ezUInt32 uiCharacters;
-
-  ezStringUtils::GetCharacterAndElementCount(rhs.GetStartPointer(), uiCharacters, uiBytes, rhs.GetEndPointer());
+  ezUInt32 uiBytes = rhs.GetElementCount();
 
   // if we need more room, allocate up front (rhs cannot use our own data in this case)
   if (uiBytes + 1 > m_Data.GetCount())
@@ -622,8 +584,6 @@ void ezStringBuilder::operator=(ezStringView rhs)
 
   m_Data.SetCountUninitialized(uiBytes + 1);
   m_Data[uiBytes] = '\0';
-
-  m_uiCharacterCount = uiCharacters;
 }
 
 enum PathUpState
@@ -732,12 +692,9 @@ void ezStringBuilder::MakeCleanPath()
   const ezUInt32 uiPrevByteCount = m_Data.GetCount();
   const ezUInt32 uiNewByteCount = (ezUInt32)(writeOffset) + 1;
 
+  EZ_IGNORE_UNUSED(uiPrevByteCount);
   EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: {0} Bytes, New: {1} Bytes",
     uiPrevByteCount, uiNewByteCount);
-
-  // we will only remove characters and only ASCII ones (slash, backslash, dot)
-  // so the number of characters shrinks equally to the number of bytes
-  m_uiCharacterCount -= (uiPrevByteCount - uiNewByteCount);
 
   // make sure to write the terminating \0 and reset the count
   szCurWritePos[writeOffset] = '\0';
@@ -798,7 +755,6 @@ void ezStringBuilder::AppendWithSeparator(ezStringView sOptional, ezStringView s
   const ezStringView pStrings[uiMaxParams] = {sOptional, sText1, sText2, sText3, sText4, sText5, sText6};
   ezUInt32 uiStrLen[uiMaxParams] = {0};
   ezUInt32 uiMoreBytes = 0;
-  ezUInt32 uiMoreChars = 0;
 
   // first figure out how much the string has to grow
   for (ezUInt32 i = 0; i < uiMaxParams; ++i)
@@ -809,10 +765,8 @@ void ezStringBuilder::AppendWithSeparator(ezStringView sOptional, ezStringView s
     EZ_ASSERT_DEBUG(pStrings[i].GetStartPointer() < m_Data.GetData() || pStrings[i].GetStartPointer() >= m_Data.GetData() + m_Data.GetCapacity(),
       "Parameter {0} comes from the string builders own storage. This type assignment is not allowed.", i);
 
-    ezUInt32 uiCharacters = 0;
-    ezStringUtils::GetCharacterAndElementCount(pStrings[i].GetStartPointer(), uiCharacters, uiStrLen[i], pStrings[i].GetEndPointer());
+    uiStrLen[i] = pStrings[i].GetElementCount();
     uiMoreBytes += uiStrLen[i];
-    uiMoreChars += uiCharacters;
 
     EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(pStrings[i].GetStartPointer(), pStrings[i].GetEndPointer()), "Parameter {0} is not a valid Utf8 sequence.", i + 1);
   }
@@ -828,7 +782,6 @@ void ezStringBuilder::AppendWithSeparator(ezStringView sOptional, ezStringView s
 
   // now resize
   m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
-  m_uiCharacterCount += uiMoreChars;
 
   // and then append all the strings
   for (ezUInt32 i = 0; i < uiMaxParams; ++i)
@@ -1028,12 +981,9 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
   const ezUInt32 uiPrevByteCount = m_Data.GetCount();
   const ezUInt32 uiNewByteCount = (ezUInt32)(szCurWritePos - &m_Data[0]) + 1;
 
+  EZ_IGNORE_UNUSED(uiPrevByteCount);
   EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: {0} Bytes, New: {1} Bytes",
     uiPrevByteCount, uiNewByteCount);
-
-  // we will only remove characters and only ASCII ones (slash, backslash)
-  // so the number of characters shrinks equally to the number of bytes
-  m_uiCharacterCount -= (uiPrevByteCount - uiNewByteCount);
 
   // make sure to write the terminating \0 and reset the count
   *szCurWritePos = '\0';
@@ -1154,7 +1104,6 @@ void ezStringBuilder::SetPrintf(const char* szUtf8Format, ...)
 ezStringBuilder::ezStringBuilder(const std::string_view& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = rhs;
@@ -1163,7 +1112,6 @@ ezStringBuilder::ezStringBuilder(const std::string_view& rhs, ezAllocator* pAllo
 ezStringBuilder::ezStringBuilder(const std::string& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = rhs;

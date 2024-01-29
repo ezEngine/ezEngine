@@ -46,16 +46,14 @@ public:
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size>
   ezStringBuilder(const ezHybridStringBase<Size>& rhs)
-    : m_uiCharacterCount(rhs.m_uiCharacterCount)
-    , m_Data(rhs.m_Data)
+    : m_Data(rhs.m_Data)
   {
   }
 
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size, typename A>
   ezStringBuilder(const ezHybridString<Size, A>& rhs)
-    : m_uiCharacterCount(rhs.m_uiCharacterCount)
-    , m_Data(rhs.m_Data)
+    : m_Data(rhs.m_Data)
   {
   }
 
@@ -63,16 +61,14 @@ public:
   /// \brief Moves the given string into this one.
   template <ezUInt16 Size>
   ezStringBuilder(ezHybridStringBase<Size>&& rhs)
-    : m_uiCharacterCount(rhs.m_uiCharacterCount)
-    , m_Data(std::move(rhs.m_Data))
+    : m_Data(std::move(rhs.m_Data))
   {
   }
 
   /// \brief Moves the given string into this one.
   template <ezUInt16 Size, typename A>
   ezStringBuilder(ezHybridString<Size, A>&& rhs)
-    : m_uiCharacterCount(rhs.m_uiCharacterCount)
-    , m_Data(std::move(rhs.m_Data))
+    : m_Data(std::move(rhs.m_Data))
   {
   }
 
@@ -108,7 +104,6 @@ public:
   template <ezUInt16 Size>
   void operator=(const ezHybridStringBase<Size>& rhs)
   {
-    m_uiCharacterCount = rhs.m_uiCharacterCount;
     m_Data = rhs.m_Data;
   }
 
@@ -116,7 +111,6 @@ public:
   template <ezUInt16 Size, typename A>
   void operator=(const ezHybridString<Size, A>& rhs)
   {
-    m_uiCharacterCount = rhs.m_uiCharacterCount;
     m_Data = rhs.m_Data;
   }
 
@@ -124,7 +118,6 @@ public:
   template <ezUInt16 Size>
   void operator=(ezHybridStringBase<Size>&& rhs)
   {
-    m_uiCharacterCount = rhs.m_uiCharacterCount;
     m_Data = std::move(rhs.m_Data);
   }
 
@@ -132,7 +125,6 @@ public:
   template <ezUInt16 Size, typename A>
   void operator=(ezHybridString<Size, A>&& rhs) noexcept
   {
-    m_uiCharacterCount = rhs.m_uiCharacterCount;
     m_Data = std::move(rhs.m_Data);
   }
 
@@ -150,10 +142,10 @@ public:
 
   /// \brief Returns the number of characters of which this string consists. Might be less than GetElementCount, if it contains Utf8
   /// multi-byte characters.
+  ///
+  /// \note This is a slow operation, as it has to run through the entire string to count the Unicode characters.
+  /// Only call this once and use the result as long as the string doesn't change. Don't call this in a loop.
   ezUInt32 GetCharacterCount() const; // [tested]
-
-  /// \brief Returns whether this string only contains ASCII characters, which means that GetElementCount() == GetCharacterCount()
-  bool IsPureASCII() const; // [tested]
 
   /// \brief Converts all characters to upper case. Might move the string data around, so all iterators to the data will be invalid
   /// afterwards.
@@ -418,7 +410,6 @@ private:
 
   friend ezStreamReader;
 
-  ezUInt32 m_uiCharacterCount;
   ezHybridArray<char, 128> m_Data;
 };
 

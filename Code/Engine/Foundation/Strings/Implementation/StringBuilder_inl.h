@@ -5,14 +5,12 @@
 inline ezStringBuilder::ezStringBuilder(ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 }
 
 inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs)
   : m_Data(rhs.GetAllocator())
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = rhs;
@@ -21,7 +19,6 @@ inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs)
 inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) noexcept
   : m_Data(rhs.GetAllocator())
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = std::move(rhs);
@@ -30,7 +27,6 @@ inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) noexcept
 inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = szUTF8;
@@ -39,7 +35,6 @@ inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocator* pAlloca
 inline ezStringBuilder::ezStringBuilder(const wchar_t* pWChar, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = pWChar;
@@ -48,7 +43,6 @@ inline ezStringBuilder::ezStringBuilder(const wchar_t* pWChar, ezAllocator* pAll
 inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = rhs;
@@ -73,13 +67,11 @@ EZ_FORCE_INLINE void ezStringBuilder::operator=(const wchar_t* pWChar)
 
 EZ_ALWAYS_INLINE void ezStringBuilder::operator=(const ezStringBuilder& rhs)
 {
-  m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = rhs.m_Data;
 }
 
 EZ_ALWAYS_INLINE void ezStringBuilder::operator=(ezStringBuilder&& rhs) noexcept
 {
-  m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = std::move(rhs.m_Data);
 }
 
@@ -90,12 +82,11 @@ EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetElementCount() const
 
 EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetCharacterCount() const
 {
-  return m_uiCharacterCount;
+  return ezStringUtils::GetCharacterCount(m_Data.GetData());
 }
 
 EZ_FORCE_INLINE void ezStringBuilder::Clear()
 {
-  m_uiCharacterCount = 0;
   m_Data.SetCountUninitialized(1);
   m_Data[0] = '\0';
 }
@@ -115,7 +106,6 @@ inline void ezStringBuilder::Append(ezUInt32 uiChar)
     m_Data[uiOldCount + i] = szChar[i];
   }
   m_Data[uiOldCount + uiCharLen] = '\0';
-  ++m_uiCharacterCount;
 }
 
 inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
@@ -204,11 +194,6 @@ inline void ezStringBuilder::ChangeCharacter(iterator& ref_it, ezUInt32 uiCharac
   }
 
   ChangeCharacterNonASCII(ref_it, uiCharacter);
-}
-
-EZ_ALWAYS_INLINE bool ezStringBuilder::IsPureASCII() const
-{
-  return m_uiCharacterCount + 1 == m_Data.GetCount();
 }
 
 EZ_ALWAYS_INLINE void ezStringBuilder::Reserve(ezUInt32 uiNumElements)

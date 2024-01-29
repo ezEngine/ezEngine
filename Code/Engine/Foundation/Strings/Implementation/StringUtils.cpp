@@ -545,8 +545,8 @@ bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStarts
     if (ezStringUtils::CompareChars_NoCase(szStartsWith, szString) != 0)
       return false;
 
-    ezUnicodeUtils::MoveToNextUtf8(szString, pStringEnd);
-    ezUnicodeUtils::MoveToNextUtf8(szStartsWith, szStartsWithEnd);
+    ezUnicodeUtils::MoveToNextUtf8(szString, pStringEnd).AssertSuccess();
+    ezUnicodeUtils::MoveToNextUtf8(szStartsWith, szStartsWithEnd).AssertSuccess();
   }
 
   // if both are equally long, this comparison will return true
@@ -589,8 +589,8 @@ bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith
       return true;
 
     // move to the previous character
-    ezUnicodeUtils::MoveToPriorUtf8(pCur1);
-    ezUnicodeUtils::MoveToPriorUtf8(pCur2);
+    ezUnicodeUtils::MoveToPriorUtf8(pCur1, szString).AssertSuccess();
+    ezUnicodeUtils::MoveToPriorUtf8(pCur2, szEndsWith).AssertSuccess();
 
     if (ezStringUtils::CompareChars_NoCase(pCur1, pCur2) != 0)
       return false;
@@ -615,7 +615,7 @@ const char* ezStringUtils::FindSubString(const char* szSource, const char* szStr
     if (ezStringUtils::StartsWith(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
       return pCurPos;
 
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd).AssertSuccess();
   }
 
   return nullptr;
@@ -634,7 +634,7 @@ const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char
     if (ezStringUtils::StartsWith_NoCase(pCurPos, szStringToFind, pSourceEnd, szStringToFindEnd))
       return pCurPos;
 
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pSourceEnd).AssertSuccess();
   }
 
   return nullptr;
@@ -654,7 +654,7 @@ const char* ezStringUtils::FindLastSubString(const char* szSource, const char* s
   // while we haven't reached the stars .. erm, start
   while (szStartSearchAt > szSource)
   {
-    ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt);
+    ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt, szSource).AssertSuccess();
 
     if (ezStringUtils::StartsWith(szStartSearchAt, szStringToFind, pSourceEnd, szStringToFindEnd))
       return szStartSearchAt;
@@ -674,7 +674,7 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
 
   while (szStartSearchAt > szSource)
   {
-    ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt);
+    ezUnicodeUtils::MoveToPriorUtf8(szStartSearchAt, szSource).AssertSuccess();
 
     if (ezStringUtils::StartsWith_NoCase(szStartSearchAt, szStringToFind, pSourceEnd, szStringToFindEnd))
       return szStartSearchAt;
@@ -708,14 +708,13 @@ const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSea
     }
 
     pPrevPos = pCurPos;
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd).AssertSuccess();
   }
 
   return nullptr;
 }
 
-const char* ezStringUtils::FindWholeWord_NoCase(
-  const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER isDelimiterCB, const char* pStringEnd)
+const char* ezStringUtils::FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER isDelimiterCB, const char* pStringEnd)
 {
   // Handle nullptr-pointer strings
   if ((IsNullOrEmpty(szString)) || (IsNullOrEmpty(szSearchFor)))
@@ -738,7 +737,7 @@ const char* ezStringUtils::FindWholeWord_NoCase(
     }
 
     pPrevPos = pCurPos;
-    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd);
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos, pStringEnd).AssertSuccess();
   }
 
   return nullptr;
@@ -804,7 +803,8 @@ const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FIL
       break;
 
     bAlwaysSkipFirst = false;
-    ezUnicodeUtils::MoveToNextUtf8(szString);
+
+    ezUnicodeUtils::MoveToNextUtf8(szString).AssertSuccess();
   }
 
   return szString;
@@ -820,7 +820,7 @@ const char* ezStringUtils::FindWordEnd(const char* szString, EZ_CHARACTER_FILTER
       break;
 
     bAlwaysSkipFirst = false;
-    ezUnicodeUtils::MoveToNextUtf8(szString);
+    ezUnicodeUtils::MoveToNextUtf8(szString).AssertSuccess();
   }
 
   return szString;

@@ -17,7 +17,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s.IsEmpty());
     EZ_TEST_INT(s.GetCharacterCount(), 0);
     EZ_TEST_INT(s.GetElementCount(), 0);
-    EZ_TEST_BOOL(s.IsPureASCII());
     EZ_TEST_BOOL(s == "");
   }
 
@@ -30,14 +29,12 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == sUtf8.GetData());
     EZ_TEST_INT(s.GetElementCount(), 18);
     EZ_TEST_INT(s.GetCharacterCount(), 13);
-    EZ_TEST_BOOL(!s.IsPureASCII());
 
     ezStringBuilder s2("test test");
 
     EZ_TEST_BOOL(s2 == "test test");
     EZ_TEST_INT(s2.GetElementCount(), 9);
     EZ_TEST_INT(s2.GetCharacterCount(), 9);
-    EZ_TEST_BOOL(s2.IsPureASCII());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(wchar_t)")
@@ -48,14 +45,12 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == sUtf8.GetData());
     EZ_TEST_INT(s.GetElementCount(), 18);
     EZ_TEST_INT(s.GetCharacterCount(), 13);
-    EZ_TEST_BOOL(!s.IsPureASCII());
 
     ezStringBuilder s2(L"test test");
 
     EZ_TEST_BOOL(s2 == "test test");
     EZ_TEST_INT(s2.GetElementCount(), 9);
     EZ_TEST_INT(s2.GetCharacterCount(), 9);
-    EZ_TEST_BOOL(s2.IsPureASCII());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(copy)")
@@ -67,7 +62,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s2 == sUtf8.GetData());
     EZ_TEST_INT(s2.GetElementCount(), 18);
     EZ_TEST_INT(s2.GetCharacterCount(), 13);
-    EZ_TEST_BOOL(!s2.IsPureASCII());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(StringView)")
@@ -80,7 +74,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     EZ_TEST_INT(s.GetElementCount(), 6);
     EZ_TEST_INT(s.GetCharacterCount(), 4);
-    EZ_TEST_BOOL(!s.IsPureASCII());
     EZ_TEST_BOOL(s == ezStringUtf8(L"c äö").GetData());
   }
 
@@ -104,7 +97,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == sUtf8.GetData());
     EZ_TEST_INT(s.GetElementCount(), 18);
     EZ_TEST_INT(s.GetCharacterCount(), 13);
-    EZ_TEST_BOOL(!s.IsPureASCII());
 
     ezStringBuilder s2("bla");
     s2 = "test test";
@@ -112,7 +104,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s2 == "test test");
     EZ_TEST_INT(s2.GetElementCount(), 9);
     EZ_TEST_INT(s2.GetCharacterCount(), 9);
-    EZ_TEST_BOOL(s2.IsPureASCII());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(wchar_t)")
@@ -124,7 +115,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == sUtf8.GetData());
     EZ_TEST_INT(s.GetElementCount(), 18);
     EZ_TEST_INT(s.GetCharacterCount(), 13);
-    EZ_TEST_BOOL(!s.IsPureASCII());
 
     ezStringBuilder s2("bla");
     s2 = L"test test";
@@ -132,7 +122,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s2 == "test test");
     EZ_TEST_INT(s2.GetElementCount(), 9);
     EZ_TEST_INT(s2.GetCharacterCount(), 9);
-    EZ_TEST_BOOL(s2.IsPureASCII());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(copy)")
@@ -145,7 +134,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s2 == sUtf8.GetData());
     EZ_TEST_INT(s2.GetElementCount(), 18);
     EZ_TEST_INT(s2.GetCharacterCount(), 13);
-    EZ_TEST_BOOL(!s2.IsPureASCII());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(StringView)")
@@ -182,32 +170,27 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringBuilder s(L"abc äöü € def");
 
     EZ_TEST_BOOL(!s.IsEmpty());
-    EZ_TEST_BOOL(!s.IsPureASCII());
 
     s.Clear();
     EZ_TEST_BOOL(s.IsEmpty());
     EZ_TEST_INT(s.GetElementCount(), 0);
     EZ_TEST_INT(s.GetCharacterCount(), 0);
-    EZ_TEST_BOOL(s.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetElementCount / GetCharacterCount / IsPureASCII")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetElementCount / GetCharacterCount")
   {
     ezStringBuilder s(L"abc äöü € def");
 
-    EZ_TEST_BOOL(!s.IsPureASCII());
     EZ_TEST_INT(s.GetElementCount(), 18);
     EZ_TEST_INT(s.GetCharacterCount(), 13);
 
     s = "abc";
 
-    EZ_TEST_BOOL(s.IsPureASCII());
     EZ_TEST_INT(s.GetElementCount(), 3);
     EZ_TEST_INT(s.GetCharacterCount(), 3);
 
     s = L"Hällo! I love €";
 
-    EZ_TEST_BOOL(!s.IsPureASCII());
     EZ_TEST_INT(s.GetElementCount(), 18);
     EZ_TEST_INT(s.GetCharacterCount(), 15);
   }
