@@ -8,7 +8,17 @@ SamplerState LinearClampSampler;
 SamplerState PointSampler;
 SamplerState PointClampSampler;
 
-const static float PI = 3.1415926535897932f;
+static const float PI                  = 3.14159265f;
+static const float PI2                 = 6.28318530f;
+static const float PI4                 = 12.5663706f;
+static const float INV_PI              = 0.31830988f;
+static const float PI_HALF             = PI * 0.5f;
+static const float FLT_MIN             = 0.00000001f;
+static const float FLT_MAX_10          = 511.0f;
+static const float FLT_MAX_11          = 1023.0f;
+static const float FLT_MAX_14          = 8191.0f;
+static const float FLT_MAX_16          = 32767.0f;
+static const float FLT_MAX_16U         = 65535.0f;
 
 float4 RGBA8ToFloat4(uint x)
 {
@@ -142,4 +152,64 @@ float SmoothMinCubic(float a, float b, float k = 0.1)
 {
   float h = max(k - abs(a - b), 0.0) / k;
   return min(a, b) - h * h * h * k * (1.0 / 6.0);
+}
+
+// Find good arbitrary axis vectors to represent U and V axes of a plane,
+// given just the normal. 
+void FindBestAxisVectors(float3 input, out float3 axis1, out float3 axis2)
+{
+  const float3 N = abs(input);
+
+  // Find best basis vectors.
+  if (N.z > N.x && N.z > N.y)
+  {
+    axis1 = float3(1, 0, 0);
+  }
+  else
+  {
+    axis1 = float3(0, 0, 1);
+  }
+
+  axis1 = normalize(axis1 - input * dot(axis1, input));
+  axis2 = cross(axis1, input);
+}
+
+float saturate_11(float x)
+{
+  return clamp(x, FLT_MIN, FLT_MAX_11);
+}
+
+float2 saturate_11(float2 x)
+{
+  return clamp(x, FLT_MIN, FLT_MAX_11);
+}
+
+float3 saturate_11(float3 x)
+{
+  return clamp(x, FLT_MIN, FLT_MAX_11);
+}
+
+float4 saturate_11(float4 x)
+{
+  return clamp(x, FLT_MIN, FLT_MAX_11);
+}
+
+float saturate_16(float x)
+{
+  return clamp(x, FLT_MIN, FLT_MAX_16);
+}
+
+float2 saturate_16(float2 x)
+{
+  return clamp(x, FLT_MIN, FLT_MAX_16);
+}
+
+float3 saturate_16(float3 x)
+{
+  return clamp(x, FLT_MIN, FLT_MAX_16);
+}
+
+float4 saturate_16(float4 x)
+{
+  return clamp(x, FLT_MIN, FLT_MAX_16);
 }

@@ -6,7 +6,7 @@ ALL
 BLEND_MODE
 RENDER_PASS
 SHADING_MODE
-BRDF_SHADING_MODEL
+BRDF_SHADING_MODEL = BRDF_SHADING_MODEL_NEW
 BRDF_DIFFUSE
 TWO_SIDED
 FLIP_WINDING
@@ -25,32 +25,40 @@ Permutation TWO_SIDED;
 Permutation BRDF_SHADING_MODEL;
 Permutation BRDF_DIFFUSE;
 
-Color BaseColor @Default(Color(1.0, 1.0, 1.0));
+Color BaseColor @Default(Color(1.0, 1.0, 1.0)) @Group("Albedo");
 bool UseBaseTexture;
 Texture2D BaseTexture;
 
 float MaskThreshold @Default(0.25);
 
-bool UseNormalTexture;
+bool UseNormalTexture @Group("Normal");
 Texture2D NormalTexture;
 
 bool UseOcclusionTexture;
 Texture2D OcclusionTexture;
 
-float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
+float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0) @Group("Roughness");
 bool UseRoughnessTexture;
 Texture2D RoughnessTexture;
 
-float MetallicValue @Default(0.0) @Clamp(0.0, 1.0);
+float MetallicValue @Default(0.0) @Clamp(0.0, 1.0) @Group("Metallic");
 bool UseMetallicTexture;
 Texture2D MetallicTexture;
 
 bool UseOrmTexture;
 Texture2D OrmTexture;
 
-Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
+Color EmissiveColor @Default(Color(0.0, 0.0, 0.0)) @Group("Emissive");
 bool UseEmissiveTexture;
 Texture2D EmissiveTexture;
+
+float Clearcoat @Default(0.0) @Clamp(0.0, 1.0) @Group("ClearCoat");
+float ClearcoatRoughness @Default(0.0) @Clamp(0.0, 1.0);
+bool UseClearcoatInfluenceTexture;
+bool UseClearcoatRoughnessTexture;
+bool UseClearcoatNormalTexture;
+Texture2D ClearcoatTexture;
+
 
 [MATERIALCONFIG]
 
@@ -59,6 +67,35 @@ Texture2D EmissiveTexture;
 [RENDERSTATE]
 
 #include <Shaders/Materials/MaterialState.h>
+
+[SHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  COLOR4F(EmissiveColor);
+  FLOAT1(MetallicValue);
+  FLOAT1(ReflectanceValue);
+  FLOAT1(RoughnessValue);
+  FLOAT1(MaskThreshold);
+  FLOAT1(Anisotropic);
+  FLOAT1(AnisotropicRotation);
+  FLOAT1(Clearcoat);
+  FLOAT1(ClearcoatRoughness);
+  BOOL1(UseBaseTexture);
+  BOOL1(UseNormalTexture);
+  BOOL1(UseRoughnessTexture);
+  BOOL1(UseMetallicTexture);
+  BOOL1(UseEmissiveTexture);
+  BOOL1(UseOcclusionTexture);
+  BOOL1(UseOrmTexture);
+  BOOL1(UseClearcoatInfluenceTexture);
+  BOOL1(UseClearcoatRoughnessTexture);
+  BOOL1(UseClearcoatNormalTexture);
+};
+
 
 [VERTEXSHADER]
 
@@ -74,7 +111,6 @@ Texture2D EmissiveTexture;
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -108,6 +144,7 @@ VS_OUT main(VS_IN Input)
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_MATERIAL_EMISSIVE
 #define USE_MATERIAL_OCCLUSION
+#define USE_MATERIAL_SPECULAR_CLEARCOAT
 #define USE_TWO_SIDED_LIGHTING
 #define USE_DECALS
 #define USE_FOG
@@ -116,7 +153,6 @@ VS_OUT main(VS_IN Input)
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture;
@@ -139,6 +175,9 @@ SamplerState OcclusionTexture_AutoSampler;
 
 Texture2D OrmTexture;
 SamplerState OrmTexture_AutoSampler;
+
+Texture2D ClearcoatTexture;
+SamplerState ClearcoatTexture_AutoSampler;
 
 float3 GetNormal()
 {
@@ -255,5 +294,34 @@ float GetOcclusion()
   else
   {
     return 1.0f;
+  }
+}
+
+void GetSpecularClearCoatParams(out float clearcoat, out float clearcoatRoughness, out float3 normal)
+{
+  clearcoat = Clearcoat;
+  clearcoatRoughness = ClearcoatRoughness;
+  normal = normalize(G.Input.Normal);
+
+  [branch]
+  if (UseClearcoatInfluenceTexture)
+  {
+    clearcoat *= ClearcoatTexture.Sample(ClearcoatTexture_AutoSampler, G.Input.TexCoord0.xy).w;
+  }
+
+  [branch]
+  if (UseClearcoatRoughnessTexture)
+  {
+    clearcoatRoughness *= ClearcoatTexture.Sample(ClearcoatTexture_AutoSampler, G.Input.TexCoord0.xy).z;
+  }
+
+  clearcoat = saturate(clearcoat);
+  clearcoatRoughness = clamp(clearcoatRoughness, 0.01, 1.0);
+
+  [branch]
+  if (UseClearcoatNormalTexture)
+  {
+    float3 normalTS = DecodeNormalTexture(ClearcoatTexture.Sample(ClearcoatTexture_AutoSampler, G.Input.TexCoord0.xy));
+    normal = normalize(TangentToWorldSpace(normalTS));
   }
 }
