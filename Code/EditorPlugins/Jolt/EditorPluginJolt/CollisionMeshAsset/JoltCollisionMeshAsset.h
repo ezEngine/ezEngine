@@ -45,7 +45,7 @@ public:
   virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
   virtual ezStringView GetDocumentExtension() const override { return "ezJoltCollisionMeshAsset"; }
   virtual ezStringView GetGeneratorGroup() const override { return "JoltCollisionMeshes"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument) override;
+  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
 };
 
 class ezJoltConvexCollisionMeshAssetDocumentGenerator : public ezAssetDocumentGenerator
@@ -59,5 +59,5 @@ public:
   virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
   virtual ezStringView GetDocumentExtension() const override { return "ezJoltConvexCollisionMeshAsset"; }
   virtual ezStringView GetGeneratorGroup() const override { return "JoltCollisionMeshes"; }
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument) override;
+  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
 };

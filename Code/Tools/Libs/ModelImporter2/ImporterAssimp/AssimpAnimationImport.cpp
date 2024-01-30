@@ -42,6 +42,15 @@ namespace ezModelImporter2
 
   ezResult ImporterAssimp::ImportAnimations()
   {
+    // always output the available animation clips, even if no clip is supposed to be read
+    {
+      m_OutputAnimationNames.SetCount(m_pScene->mNumAnimations);
+      for (ezUInt32 animIdx = 0; animIdx < m_pScene->mNumAnimations; ++animIdx)
+      {
+        m_OutputAnimationNames[animIdx] = m_pScene->mAnimations[animIdx]->mName.C_Str();
+      }
+    }
+
     auto* pAnimOut = m_Options.m_pAnimationOutput;
 
     if (pAnimOut == nullptr)
@@ -51,12 +60,6 @@ namespace ezModelImporter2
       return EZ_FAILURE;
 
     pAnimOut->m_bAdditive = m_Options.m_bAdditiveAnimation;
-
-    m_OutputAnimationNames.SetCount(m_pScene->mNumAnimations);
-    for (ezUInt32 animIdx = 0; animIdx < m_pScene->mNumAnimations; ++animIdx)
-    {
-      m_OutputAnimationNames[animIdx] = m_pScene->mAnimations[animIdx]->mName.C_Str();
-    }
 
     if (m_Options.m_sAnimationToImport.IsEmpty())
       m_Options.m_sAnimationToImport = m_pScene->mAnimations[0]->mName.C_Str();

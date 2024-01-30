@@ -66,7 +66,7 @@ public:
   virtual ezStringView GetGeneratorGroup() const = 0;
 
   /// \brief Tells the generator to create a new asset document with the chosen mode.
-  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument) = 0;
+  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) = 0;
 
   /// \brief Returns whether this generator supports the given file type for import.
   bool SupportsFileType(ezStringView sFile) const;

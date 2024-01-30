@@ -6,7 +6,8 @@ Animation Clip;Animation Clip
 
 # UI
 
-AnimationClipImport;Animation Clip
+AnimationClipImport_Single;Animation Clip (Single)
+AnimationClipImport_All;Animation Clips (All)
 
 # Properties
 
