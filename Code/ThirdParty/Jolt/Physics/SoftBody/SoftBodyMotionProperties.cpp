@@ -113,6 +113,7 @@ void SoftBodyMotionProperties::DetermineCollidingShapes(const SoftBodyUpdateCont
 			{
 				const Body &body = lock.GetBody();
 				if (body.IsRigidBody() // TODO: We should support soft body vs soft body
+					&& !body.IsSensor()
 					&& mSoftBody.GetCollisionGroup().CanCollide(body.GetCollisionGroup()))
 				{
 					CollidingShape cs;
@@ -149,6 +150,7 @@ void SoftBodyMotionProperties::DetermineCollidingShapes(const SoftBodyUpdateCont
 	AABox bounds = mLocalBounds;
 	bounds.Encapsulate(mLocalPredictedBounds);
 	bounds = bounds.Transformed(inContext.mCenterOfMassTransform);
+	bounds.ExpandBy(Vec3::sReplicate(mSettings->mVertexRadius));
 	ObjectLayer layer = inContext.mBody->GetObjectLayer();
 	DefaultBroadPhaseLayerFilter broadphase_layer_filter = inSystem.GetDefaultBroadPhaseLayerFilter(layer);
 	DefaultObjectLayerFilter object_layer_filter = inSystem.GetDefaultLayerFilter(layer);
@@ -307,6 +309,7 @@ void SoftBodyMotionProperties::ApplyCollisionConstraintsAndUpdateVelocities(cons
 
 	float dt = inContext.mSubStepDeltaTime;
 	float restitution_treshold = -2.0f * inContext.mGravity.Length() * dt;
+	float vertex_radius = mSettings->mVertexRadius;
 	for (Vertex &v : mVertices)
 		if (v.mInvMass > 0.0f)
 		{
@@ -320,7 +323,7 @@ void SoftBodyMotionProperties::ApplyCollisionConstraintsAndUpdateVelocities(cons
 			if (v.mCollidingShapeIndex >= 0)
 			{
 				// Check if there is a collision
-				float projected_distance = -v.mCollisionPlane.SignedDistance(v.mPosition);
+				float projected_distance = -v.mCollisionPlane.SignedDistance(v.mPosition) + vertex_radius;
 				if (projected_distance > 0.0f)
 				{
 					// Note that we already calculated the velocity, so this does not affect the velocity (next iteration starts by setting previous position to current position)

@@ -19,6 +19,7 @@
 #include <Jolt/Physics/Collision/CollideConvexVsTriangles.h>
 #include <Jolt/Physics/Collision/ManifoldBetweenTwoFaces.h>
 #include <Jolt/Physics/Collision/Shape/ConvexShape.h>
+#include <Jolt/Physics/Collision/InternalEdgeRemovingCollector.h>
 #include <Jolt/Physics/Constraints/CalculateSolverSteps.h>
 #include <Jolt/Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
 #include <Jolt/Physics/DeterminismLog.h>
@@ -377,9 +378,8 @@ EPhysicsUpdateError PhysicsSystem::Update(float inDeltaTime, int inCollisionStep
 				{
 					context.mPhysicsSystem->JobBodySetIslandIndex();
 
-					if (step.mStartNextStep.IsValid())
-						step.mStartNextStep.RemoveDependency();
-				}, 1); // depends on: finalize islands
+					JobHandle::sRemoveDependencies(step.mSolvePositionConstraints);
+				}, 2); // depends on: finalize islands, finish building jobs
 
 			// Job to start the next collision step
 			if (!is_last_step)
@@ -421,7 +421,7 @@ EPhysicsUpdateError PhysicsSystem::Update(float inDeltaTime, int inCollisionStep
 							// Kick the step listeners job first
 							JobHandle::sRemoveDependencies(next_step->mStepListeners);
 						}
-					}, 4); // depends on: update soft bodies, body set island index, contact removed callbacks, finish building the previous step
+					}, 3); // depends on: update soft bodies, contact removed callbacks, finish building the previous step
 			}
 
 			// This job will solve the velocity constraints
@@ -498,10 +498,11 @@ EPhysicsUpdateError PhysicsSystem::Update(float inDeltaTime, int inCollisionStep
 						// Kick the next step
 						if (step.mSoftBodyPrepare.IsValid())
 							step.mSoftBodyPrepare.RemoveDependency();
-					}, 2); // depends on: resolve ccd contacts, finish building jobs.
+					}, 3); // depends on: resolve ccd contacts, body set island index, finish building jobs.
 
-			// Unblock previous job.
+			// Unblock previous jobs.
 			step.mResolveCCDContacts.RemoveDependency();
+			step.mBodySetIslandIndex.RemoveDependency();
 
 			// The soft body prepare job will create other jobs if needed
 			step.mSoftBodyPrepare = inJobSystem->CreateJob("SoftBodyPrepare", cColorSoftBodyPrepare, [&context, &step]()
@@ -1124,7 +1125,8 @@ void PhysicsSystem::ProcessBodyPair(ContactAllocator &ioContactAllocator, const 
 
 			// Perform collision detection between the two shapes
 			SubShapeIDCreator part1, part2;
-			CollisionDispatch::sCollideShapeVsShape(body1->GetShape(), body2->GetShape(), Vec3::sReplicate(1.0f), Vec3::sReplicate(1.0f), transform1, transform2, part1, part2, settings, collector);
+			auto f = body1->GetEnhancedInternalEdgeRemovalWithBody(*body2)? InternalEdgeRemovingCollector::sCollideShapeVsShape : CollisionDispatch::sCollideShapeVsShape;
+			f(body1->GetShape(), body2->GetShape(), Vec3::sReplicate(1.0f), Vec3::sReplicate(1.0f), transform1, transform2, part1, part2, settings, collector, { });
 
 			// Add the contacts
 			for (ContactManifold &manifold : collector.mManifolds)
@@ -1224,7 +1226,8 @@ void PhysicsSystem::ProcessBodyPair(ContactAllocator &ioContactAllocator, const 
 
 			// Perform collision detection between the two shapes
 			SubShapeIDCreator part1, part2;
-			CollisionDispatch::sCollideShapeVsShape(body1->GetShape(), body2->GetShape(), Vec3::sReplicate(1.0f), Vec3::sReplicate(1.0f), transform1, transform2, part1, part2, settings, collector);
+			auto f = body1->GetEnhancedInternalEdgeRemovalWithBody(*body2)? InternalEdgeRemovingCollector::sCollideShapeVsShape : CollisionDispatch::sCollideShapeVsShape;
+			f(body1->GetShape(), body2->GetShape(), Vec3::sReplicate(1.0f), Vec3::sReplicate(1.0f), transform1, transform2, part1, part2, settings, collector, { });
 
 			constraint_created = collector.mConstraintCreated;
 		}
