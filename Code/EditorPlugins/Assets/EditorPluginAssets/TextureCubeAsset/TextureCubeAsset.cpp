@@ -263,7 +263,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputF
   }
 }
 
-ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_pGeneratedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -274,11 +274,13 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAb
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-  if (out_pGeneratedDocument == nullptr)
+  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  ezTextureCubeAssetDocument* pAssetDoc = ezDynamicCast<ezTextureCubeAssetDocument*>(out_pGeneratedDocument);
+  out_pGeneratedDocuments.PushBack(pDoc);
+
+  ezTextureCubeAssetDocument* pAssetDoc = ezDynamicCast<ezTextureCubeAssetDocument*>(pDoc);
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("Input1", sInputFileRel.GetView());

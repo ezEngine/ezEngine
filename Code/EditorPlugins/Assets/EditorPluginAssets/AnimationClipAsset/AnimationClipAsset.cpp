@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
@@ -365,12 +366,19 @@ void ezAnimationClipAssetDocumentGenerator::GetImportModes(ezStringView sAbsInpu
   {
     ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
-    info.m_sName = "AnimationClipImport";
+    info.m_sName = "AnimationClipImport_Single";
+    info.m_sIcon = ":/AssetIcons/Animation_Clip.svg";
+  }
+
+  {
+    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
+    info.m_sName = "AnimationClipImport_All";
     info.m_sIcon = ":/AssetIcons/Animation_Clip.svg";
   }
 }
 
-ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
+ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_pGeneratedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -381,14 +389,79 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFile
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-  if (out_pGeneratedDocument == nullptr)
-    return ezStatus("Could not create target document");
+  ezStringBuilder title;
+  title.SetFormat("Select Preview Mesh for Animation Clip '{}'", sInputFileAbs.GetFileName());
 
-  ezAnimationClipAssetDocument* pAssetDoc = ezDynamicCast<ezAnimationClipAssetDocument*>(out_pGeneratedDocument);
+  ezStringBuilder sPreviewMesh;
 
-  auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("File", sInputFileRel.GetView());
+  ezQtAssetBrowserDlg dlg(nullptr, ezUuid::MakeInvalid(), "CompatibleAsset_Mesh_Skinned", title);
+  if (dlg.exec() != 0)
+  {
+    if (dlg.GetSelectedAssetGuid().IsValid())
+    {
+      ezConversionUtils::ToString(dlg.GetSelectedAssetGuid(), sPreviewMesh);
+    }
+  }
 
-  return ezStatus(EZ_SUCCESS);
+  if (sMode == "AnimationClipImport_Single")
+  {
+    ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+    if (pDoc == nullptr)
+      return ezStatus("Could not create target document");
+
+    out_pGeneratedDocuments.PushBack(pDoc);
+
+    ezAnimationClipAssetDocument* pAssetDoc = ezDynamicCast<ezAnimationClipAssetDocument*>(pDoc);
+
+    auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
+    accessor.SetValue("File", sInputFileRel.GetView());
+    accessor.SetValue("PreviewMesh", sPreviewMesh.GetView());
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  if (sMode == "AnimationClipImport_All")
+  {
+    ezModelImporter2::ImportOptions opt;
+    opt.m_sSourceFile = sInputFileAbs;
+
+    ezUniquePtr<ezModelImporter2::Importer> pImporter = ezModelImporter2::RequestImporterForFileType(opt.m_sSourceFile);
+    if (pImporter == nullptr)
+      return ezStatus("No known importer for this file type.");
+
+    if (pImporter->Import(opt).Failed())
+      return ezStatus("Failed to import asset.");
+
+    ezStringBuilder sFilename;
+    ezStringBuilder sOutFile2;
+
+    for (const auto& clip : pImporter->m_OutputAnimationNames)
+    {
+      sFilename = clip;
+      sFilename.ReplaceAll(" ", "-");
+      sFilename.Prepend(sOutFile.GetFileName(), "_");
+
+      sOutFile2 = sOutFile;
+      sOutFile2.ChangeFileName(sFilename);
+      ezOSFile::FindFreeFilename(sOutFile2);
+
+      ezDocument* pDoc = pApp->CreateDocument(sOutFile2, ezDocumentFlags::None);
+      if (pDoc == nullptr)
+        return ezStatus("Could not create target document");
+
+      out_pGeneratedDocuments.PushBack(pDoc);
+
+      ezAnimationClipAssetDocument* pAssetDoc = ezDynamicCast<ezAnimationClipAssetDocument*>(pDoc);
+
+      auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
+      accessor.SetValue("File", sInputFileRel.GetView());
+      accessor.SetValue("UseAnimationClip", clip);
+      accessor.SetValue("PreviewMesh", sPreviewMesh.GetView());
+    }
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ezStatus(EZ_FAILURE);
 }

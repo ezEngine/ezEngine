@@ -188,7 +188,7 @@ void ezDecalAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, e
   }
 }
 
-ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
+ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_pGeneratedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -199,12 +199,13 @@ ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezS
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-
-  if (out_pGeneratedDocument == nullptr)
+  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  ezDecalAssetDocument* pAssetDoc = ezDynamicCast<ezDecalAssetDocument*>(out_pGeneratedDocument);
+  out_pGeneratedDocuments.PushBack(pDoc);
+
+  ezDecalAssetDocument* pAssetDoc = ezDynamicCast<ezDecalAssetDocument*>(pDoc);
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("BaseColor", sInputFileRel.GetView());

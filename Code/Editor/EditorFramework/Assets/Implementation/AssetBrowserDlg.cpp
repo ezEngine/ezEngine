@@ -42,7 +42,7 @@ void ezQtAssetBrowserDlg::Init(QWidget* pParent)
     AssetBrowserWidget->GetAssetBrowserFilter()->SetTypeFilter(s_TypeFilter[m_sVisibleFilters]);
 }
 
-ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters)
+ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters, ezStringView sWindowTitle)
   : QDialog(pParent)
 {
   {
@@ -77,6 +77,11 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
   AssetBrowserWidget->SetSelectedAsset(preselectedAsset);
 
   AssetBrowserWidget->SearchWidget->setFocus();
+
+  if (!sWindowTitle.IsEmpty())
+  {
+    setWindowTitle(ezMakeQString(sWindowTitle));
+  }
 }
 
 ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, ezStringView sWindowTitle, ezStringView sPreselectedFileAbs, ezStringView sFileExtensions)
