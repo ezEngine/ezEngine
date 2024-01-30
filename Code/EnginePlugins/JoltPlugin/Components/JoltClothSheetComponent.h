@@ -161,6 +161,9 @@ public:
   /// Damping slows down cloth movement over time. Higher values make it stop sooner and also improve performance.
   float m_fDamping = 0.5f; // [ property ]
 
+  /// How thick the cloth is, to prevent it from intersecting with other geometry.
+  float m_fThickness = 0.05f; // [ property ]
+
   /// Tint color for the cloth material.
   ezColor m_Color = ezColor::White; // [ property ]
 

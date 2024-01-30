@@ -49,7 +49,7 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezJoltClothSheetFlags, 1)
   EZ_ENUM_CONSTANT(ezJoltClothSheetFlags::FixedEdgeLeft),
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_COMPONENT_TYPE(ezJoltClothSheetComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltClothSheetComponent, 2, ezComponentMode::Static)
   {
     EZ_BEGIN_PROPERTIES
     {
@@ -59,6 +59,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltClothSheetComponent, 1, ezComponentMode::Static)
       EZ_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 10.0f)),
       EZ_MEMBER_PROPERTY("GravityFactor", m_fGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("Damping", m_fDamping)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+      EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.0f, 0.5f)),
       EZ_BITFLAGS_ACCESSOR_PROPERTY("Flags", ezJoltClothSheetFlags, GetFlags, SetFlags),
       EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
       EZ_MEMBER_PROPERTY("TextureScale", m_vTextureScale)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f))),
@@ -109,12 +110,13 @@ void ezJoltClothSheetComponent::SerializeComponent(ezWorldWriter& inout_stream) 
   s << m_hMaterial;
   s << m_vTextureScale;
   s << m_Color;
+  s << m_fThickness;
 }
 
 void ezJoltClothSheetComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_vSize;
@@ -127,6 +129,11 @@ void ezJoltClothSheetComponent::DeserializeComponent(ezWorldReader& inout_stream
   s >> m_hMaterial;
   s >> m_vTextureScale;
   s >> m_Color;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fThickness;
+  }
 }
 
 void ezJoltClothSheetComponent::OnActivated()
@@ -145,6 +152,7 @@ static JPH::Ref<JPH::SoftBodySharedSettings> CreateCloth(ezVec2U32 vSegments, ez
 {
   // Create settings
   JPH::SoftBodySharedSettings* settings = new JPH::SoftBodySharedSettings;
+
   for (ezUInt32 y = 0; y < vSegments.y; ++y)
   {
     for (ezUInt32 x = 0; x < vSegments.x; ++x)
@@ -280,6 +288,8 @@ void ezJoltClothSheetComponent::SetupCloth()
     RemoveBody();
 
     JPH::Ref<JPH::SoftBodySharedSettings> settings = CreateCloth(m_vSegments, m_vSize.CompDiv(ezVec2(m_vSegments.x - 1, m_vSegments.y - 1)), m_Flags);
+
+    settings->mVertexRadius = m_fThickness;
 
     ezTransform t = GetOwner()->GetGlobalTransform();
 
