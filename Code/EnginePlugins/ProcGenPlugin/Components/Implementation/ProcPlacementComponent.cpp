@@ -519,7 +519,7 @@ void ezProcPlacementComponentManager::RemoveTilesForComponent(ezProcPlacementCom
 
 void ezProcPlacementComponentManager::OnResourceEvent(const ezResourceEvent& resourceEvent)
 {
-  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUnloading)
+  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUnloading || resourceEvent.m_pResource->GetReferenceCount() == 0)
     return;
 
   if (auto pResource = ezDynamicCast<const ezProcGenGraphResource*>(resourceEvent.m_pResource))
