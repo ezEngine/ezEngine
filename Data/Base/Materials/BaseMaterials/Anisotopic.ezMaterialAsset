@@ -14,7 +14,7 @@ o
 			s{"Shaders/Materials/AnisotripicMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{15419993012073775488,5560774441118604434}}
-		u4 %Hash{16117079466993843072}
+		u4 %Hash{5422691086389149109}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -39,7 +39,7 @@ o
 		s %AnisotropicTexture{""}
 		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_OPAQUE"}
 		s %BRDF_DIFFUSE{"BRDF_DIFFUSE::BRDF_DIFFUSE_LAMBERT"}
-		s %BRDF_SHADING_MODEL{"BRDF_SHADING_MODEL::BRDF_SHADING_MODEL_OLD"}
+		s %BRDF_SHADING_MODEL{"BRDF_SHADING_MODEL::BRDF_SHADING_MODEL_NEW"}
 		Color %BaseColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		s %BaseTexture{""}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}

@@ -14,7 +14,7 @@ o
 			s{"Shaders/Materials/ClearCoatMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{2877521846955768503,5704610120525599306}}
-		u4 %Hash{1630072013527044697}
+		u4 %Hash{4468526429688314377}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -36,11 +36,11 @@ o
 	{
 		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_OPAQUE"}
 		s %BRDF_DIFFUSE{"BRDF_DIFFUSE::BRDF_DIFFUSE_BURLEY"}
-		s %BRDF_SHADING_MODEL{"BRDF_SHADING_MODEL::BRDF_SHADING_MODEL_OLD"}
-		Color %BaseColor{f{0xCAB6543C,0xB2D2113D,0,0x0000803F}}
+		s %BRDF_SHADING_MODEL{"BRDF_SHADING_MODEL::BRDF_SHADING_MODEL_NEW"}
+		Color %BaseColor{f{0x9018783E,0x64C56C3D,0,0x0000803F}}
 		s %BaseTexture{""}
 		f %Clearcoat{0x0000803F}
-		f %ClearcoatRoughness{0x8FC2F53C}
+		f %ClearcoatRoughness{0}
 		s %ClearcoatTexture{""}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		s %EmissiveTexture{""}
@@ -369,7 +369,7 @@ o
 	u3 %v{1}
 	p
 	{
-		d %Max{0x0000000000000040}
+		d %Max{0x000000000000F03F}
 		d %Min{0}
 	}
 }

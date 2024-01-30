@@ -14,7 +14,7 @@ o
 			s{"Shaders/Materials/SheenMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{6265628776206533274,5217668045322473775}}
-		u4 %Hash{14755507563316457204}
+		u4 %Hash{607876475815216730}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -36,8 +36,8 @@ o
 	{
 		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_OPAQUE"}
 		s %BRDF_DIFFUSE{"BRDF_DIFFUSE::BRDF_DIFFUSE_LAMBERT"}
-		s %BRDF_SHADING_MODEL{"BRDF_SHADING_MODEL::BRDF_SHADING_MODEL_OLD"}
-		Color %BaseColor{f{0xBA72F23E,0,0,0x0000803F}}
+		s %BRDF_SHADING_MODEL{"BRDF_SHADING_MODEL::BRDF_SHADING_MODEL_NEW"}
+		Color %BaseColor{f{0,0,0,0x0000803F}}
 		s %BaseTexture{""}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		s %EmissiveTexture{""}
@@ -1227,7 +1227,7 @@ o
 	u3 %v{1}
 	p
 	{
-		d %Max{0x0000000000000040}
+		d %Max{0x000000000000F03F}
 		d %Min{0}
 	}
 }
