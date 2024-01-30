@@ -46,7 +46,8 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezCVarBool cvar_RenderingShadowsShowPoolStats("Rendering.Shadows.ShowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
 #endif
 
-/// NOTE: These are set up in ezGameState::SetupMainView from the ezCoreRenderProfileConfig
+/// NOTE: The default values for these are defined in ezCoreRenderProfileConfig
+///       but they can also be overwritten in custom game states at startup.
 EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingShadowsAtlasSize("Rendering.Shadows.AtlasSize", 4096, ezCVarFlags::RequiresDelayedSync, "The size of the shadow atlas texture.");
 EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingShadowsMaxShadowMapSize("Rendering.Shadows.MaxShadowMapSize", 1024, ezCVarFlags::RequiresDelayedSync, "The max shadow map size used.");
 EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingShadowsMinShadowMapSize("Rendering.Shadows.MinShadowMapSize", 64, ezCVarFlags::RequiresDelayedSync, "The min shadow map size used.");
