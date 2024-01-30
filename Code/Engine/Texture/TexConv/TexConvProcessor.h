@@ -34,6 +34,7 @@ private:
   ezResult ClampInputValues(ezArrayPtr<ezImage> images, float maxValue) const;
   ezResult ClampInputValues(ezImage& image, float maxValue) const;
   ezResult DetectNumChannels(ezArrayPtr<const ezTexConvSliceChannelMapping> channelMapping, ezUInt32& uiNumChannels);
+  ezResult InvertNormalMap(ezImage& img);
 
   //////////////////////////////////////////////////////////////////////////
   // Reading from the descriptor
