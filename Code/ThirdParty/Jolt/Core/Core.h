@@ -78,6 +78,8 @@
 	#define JPH_PLATFORM_ANDROID
 #elif defined(__linux__)
 	#define JPH_PLATFORM_LINUX
+#elif defined(__FreeBSD__)
+	#define JPH_PLATFORM_FREEBSD
 #elif defined(__APPLE__)
     #include <TargetConditionals.h>
     #if defined(TARGET_OS_IPHONE) && !TARGET_OS_IPHONE
@@ -180,6 +182,13 @@
 	#define JPH_VECTOR_ALIGNMENT 16
 	#define JPH_DVECTOR_ALIGNMENT 32
 	#define JPH_DISABLE_CUSTOM_ALLOCATOR
+#elif defined(__e2k__)
+	// Elbrus e2k architecture
+	#define JPH_CPU_E2K
+	#define JPH_CPU_ADDRESS_BITS 64
+	#define JPH_USE_SSE
+	#define JPH_VECTOR_ALIGNMENT 16
+	#define JPH_DVECTOR_ALIGNMENT 32
 #else
 	#error Unsupported CPU architecture
 #endif
@@ -329,10 +338,12 @@
 	// Creating one should only be a couple of minutes of work if you have the documentation for the platform
 	// (you only need to define JPH_BREAKPOINT, JPH_PLATFORM_BLUE_GET_TICKS, JPH_PLATFORM_BLUE_MUTEX*, JPH_PLATFORM_BLUE_RWLOCK* and include the right header).
 	#include <Jolt/Core/PlatformBlue.h>
-#elif defined(JPH_PLATFORM_LINUX) || defined(JPH_PLATFORM_ANDROID) || defined(JPH_PLATFORM_MACOS) || defined(JPH_PLATFORM_IOS)
+#elif defined(JPH_PLATFORM_LINUX) || defined(JPH_PLATFORM_ANDROID) || defined(JPH_PLATFORM_MACOS) || defined(JPH_PLATFORM_IOS) || defined(JPH_PLATFORM_FREEBSD)
 	#if defined(JPH_CPU_X86)
 		#define JPH_BREAKPOINT	__asm volatile ("int $0x3")
 	#elif defined(JPH_CPU_ARM)
+		#define JPH_BREAKPOINT	__builtin_trap()
+	#elif defined(JPH_CPU_E2K)
 		#define JPH_BREAKPOINT	__builtin_trap()
 	#endif
 #elif defined(JPH_PLATFORM_WASM)
@@ -340,9 +351,6 @@
 #else
 	#error Unknown platform
 #endif
-
-// Crashes the application
-#define JPH_CRASH				do { int *ptr = nullptr; *ptr = 0; } while (false)
 
 // Begin the JPH namespace
 #define JPH_NAMESPACE_BEGIN																		\
