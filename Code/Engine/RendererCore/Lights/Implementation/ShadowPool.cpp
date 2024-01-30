@@ -748,12 +748,6 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
   EZ_PROFILE_SCOPE("Shadow Pool Update");
 
-  if (cvar_RenderingShadowsAtlasSize.HasDelayedSyncValueChanged() || cvar_RenderingShadowsMinShadowMapSize.HasDelayedSyncValueChanged() || cvar_RenderingShadowsMaxShadowMapSize.HasDelayedSyncValueChanged() || s_uiLastConfigModification != ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetLastModificationCounter())
-  {
-    OnEngineShutdown();
-    OnEngineStartup();
-  }
-
   ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForExtraction();
   auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
   packedShadowData.SetCountUninitialized(s_pData->m_uiUsedPackedShadowData);
@@ -1031,6 +1025,12 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 
   if (s_pData->m_hShadowAtlasTexture.IsInvalidated() || s_pData->m_hShadowDataBuffer.IsInvalidated())
     return;
+
+  if (cvar_RenderingShadowsAtlasSize.HasDelayedSyncValueChanged() || cvar_RenderingShadowsMinShadowMapSize.HasDelayedSyncValueChanged() || cvar_RenderingShadowsMaxShadowMapSize.HasDelayedSyncValueChanged() || s_uiLastConfigModification != ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetLastModificationCounter())
+  {
+    OnEngineShutdown();
+    OnEngineStartup();
+  }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALPass* pGALPass = pDevice->BeginPass("Shadow Atlas");
