@@ -188,7 +188,7 @@ void ezDecalAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, e
   }
 }
 
-ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_pGeneratedDocuments)
+ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -203,7 +203,7 @@ ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezS
   if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  out_pGeneratedDocuments.PushBack(pDoc);
+  out_generatedDocuments.PushBack(pDoc);
 
   ezDecalAssetDocument* pAssetDoc = ezDynamicCast<ezDecalAssetDocument*>(pDoc);
 

@@ -145,7 +145,7 @@ void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbsInput
   }
 }
 
-ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_pGeneratedDocuments)
+ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -160,7 +160,7 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(ezStringView sInputFileA
   if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  out_pGeneratedDocuments.PushBack(pDoc);
+  out_generatedDocuments.PushBack(pDoc);
 
   ezAnimatedMeshAssetDocument* pAssetDoc = ezDynamicCast<ezAnimatedMeshAssetDocument*>(pDoc);
 

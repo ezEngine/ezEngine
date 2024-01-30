@@ -121,7 +121,7 @@ void ezLUTAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezD
   info.m_sIcon = ":/AssetIcons/LUT.svg";
 }
 
-ezStatus ezLUTAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_pGeneratedDocuments)
+ezStatus ezLUTAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -136,7 +136,7 @@ ezStatus ezLUTAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStr
   if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  out_pGeneratedDocuments.PushBack(pDoc);
+  out_generatedDocuments.PushBack(pDoc);
 
   ezLUTAssetDocument* pAssetDoc = ezDynamicCast<ezLUTAssetDocument*>(pDoc);
 

@@ -445,7 +445,7 @@ void ezSkeletonAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile
   }
 }
 
-ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_pGeneratedDocuments)
+ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -460,7 +460,7 @@ ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, 
   if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  out_pGeneratedDocuments.PushBack(pDoc);
+  out_generatedDocuments.PushBack(pDoc);
 
   ezSkeletonAssetDocument* pAssetDoc = ezDynamicCast<ezSkeletonAssetDocument*>(pDoc);
 

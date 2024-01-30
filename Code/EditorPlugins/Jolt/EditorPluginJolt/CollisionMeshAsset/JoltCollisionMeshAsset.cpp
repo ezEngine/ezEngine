@@ -370,7 +370,7 @@ void ezJoltCollisionMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbs
   }
 }
 
-ezStatus ezJoltCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_pGeneratedDocuments)
+ezStatus ezJoltCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -385,7 +385,7 @@ ezStatus ezJoltCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInput
   if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  out_pGeneratedDocuments.PushBack(pDoc);
+  out_generatedDocuments.PushBack(pDoc);
 
   ezJoltCollisionMeshAssetDocument* pAssetDoc = ezDynamicCast<ezJoltCollisionMeshAssetDocument*>(pDoc);
   if (pAssetDoc == nullptr)
@@ -422,7 +422,7 @@ void ezJoltConvexCollisionMeshAssetDocumentGenerator::GetImportModes(ezStringVie
   }
 }
 
-ezStatus ezJoltConvexCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_pGeneratedDocuments)
+ezStatus ezJoltConvexCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -437,7 +437,7 @@ ezStatus ezJoltConvexCollisionMeshAssetDocumentGenerator::Generate(ezStringView 
   if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  out_pGeneratedDocuments.PushBack(pDoc);
+  out_generatedDocuments.PushBack(pDoc);
 
   ezJoltCollisionMeshAssetDocument* pAssetDoc = ezDynamicCast<ezJoltCollisionMeshAssetDocument*>(pDoc);
   if (pAssetDoc == nullptr)

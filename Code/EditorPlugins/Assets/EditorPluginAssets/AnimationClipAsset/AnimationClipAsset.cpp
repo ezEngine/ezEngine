@@ -378,7 +378,7 @@ void ezAnimationClipAssetDocumentGenerator::GetImportModes(ezStringView sAbsInpu
   }
 }
 
-ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_pGeneratedDocuments)
+ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -409,7 +409,7 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFile
     if (pDoc == nullptr)
       return ezStatus("Could not create target document");
 
-    out_pGeneratedDocuments.PushBack(pDoc);
+    out_generatedDocuments.PushBack(pDoc);
 
     ezAnimationClipAssetDocument* pAssetDoc = ezDynamicCast<ezAnimationClipAssetDocument*>(pDoc);
 
@@ -449,7 +449,7 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFile
       if (pDoc == nullptr)
         return ezStatus("Could not create target document");
 
-      out_pGeneratedDocuments.PushBack(pDoc);
+      out_generatedDocuments.PushBack(pDoc);
 
       ezAnimationClipAssetDocument* pAssetDoc = ezDynamicCast<ezAnimationClipAssetDocument*>(pDoc);
 
