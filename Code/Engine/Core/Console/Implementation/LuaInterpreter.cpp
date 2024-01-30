@@ -186,7 +186,7 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_state)
       }
       else
       {
-        if (pCVAR->GetFlags().IsAnySet(ezCVarFlags::RequiresRestart))
+        if (pCVAR->GetFlags().IsAnySet(ezCVarFlags::ShowRequiresRestartMsg))
         {
           inout_state.AddOutputLine("  This change takes only effect after a restart.", ezConsoleString::Type::Note);
         }

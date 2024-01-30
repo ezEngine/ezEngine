@@ -163,7 +163,8 @@ void ezQtAssetProfilesDlg::ObjectToNative(ezUuid objectGuid, ezPlatformProfile* 
 
   // Write object to graph.
   ezAbstractObjectGraph graph;
-  auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool {
+  auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool
+  {
     if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       return false;
     return true;
@@ -280,7 +281,7 @@ void ezQtAssetProfilesDlg::on_AddButton_clicked()
     return;
 
   ezPlatformProfile profile;
-  profile.m_sName = sProfileName;
+  profile.SetConfigName(sProfileName);
   profile.AddMissingConfigs();
 
   auto& binding = m_ProfileBindings[NativeToObject(&profile)];

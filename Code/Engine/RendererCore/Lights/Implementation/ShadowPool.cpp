@@ -1,8 +1,10 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Math/Math.h>
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -12,6 +14,7 @@
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Utils/CoreRenderProfile.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
@@ -21,35 +24,37 @@
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ShadowPool)
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"Foundation",
-"Core",
-"RenderWorld"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation",
+    "Core",
+    "RenderWorld"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_HIGHLEVELSYSTEMS_STARTUP
-{
-  ezShadowPool::OnEngineStartup();
-}
+  ON_HIGHLEVELSYSTEMS_STARTUP
+  {
+    ezShadowPool::OnEngineStartup();
+  }
 
-ON_HIGHLEVELSYSTEMS_SHUTDOWN
-{
-  ezShadowPool::OnEngineShutdown();
-}
-
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
+  {
+    ezShadowPool::OnEngineShutdown();
+  }
 EZ_END_SUBSYSTEM_DECLARATION;
-  // clang-format on
+// clang-format on
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_RenderingShadowsShowPoolStats("Rendering.Shadows.ShowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
 #endif
 
-static ezUInt32 s_uiShadowAtlasTextureWidth = 4096; ///\todo make this configurable
-static ezUInt32 s_uiShadowAtlasTextureHeight = 4096;
-static ezUInt32 s_uiShadowMapSize = 1024;
-static ezUInt32 s_uiMinShadowMapSize = 64;
-static float s_fFadeOutScaleStart = (s_uiMinShadowMapSize + 1.0f) / s_uiShadowMapSize;
-static float s_fFadeOutScaleEnd = s_fFadeOutScaleStart * 0.5f;
+/// NOTE: The default values for these are defined in ezCoreRenderProfileConfig
+///       but they can also be overwritten in custom game states at startup.
+EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingShadowsAtlasSize("Rendering.Shadows.AtlasSize", 4096, ezCVarFlags::RequiresDelayedSync, "The size of the shadow atlas texture.");
+EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingShadowsMaxShadowMapSize("Rendering.Shadows.MaxShadowMapSize", 1024, ezCVarFlags::RequiresDelayedSync, "The max shadow map size used.");
+EZ_RENDERERCORE_DLL ezCVarInt cvar_RenderingShadowsMinShadowMapSize("Rendering.Shadows.MinShadowMapSize", 64, ezCVarFlags::RequiresDelayedSync, "The min shadow map size used.");
+
+static ezUInt32 s_uiLastConfigModification = 0;
+static float s_fFadeOutScaleStart = 0.0f;
+static float s_fFadeOutScaleEnd = 0.0f;
 
 struct ShadowView
 {
@@ -256,10 +261,58 @@ struct ezShadowPool::Data
   {
     if (m_hShadowAtlasTexture.IsInvalidated())
     {
+      // use the current CVar values to initialize the values
+      ezUInt32 uiAtlas = cvar_RenderingShadowsAtlasSize;
+      ezUInt32 uiMax = cvar_RenderingShadowsMaxShadowMapSize;
+      ezUInt32 uiMin = cvar_RenderingShadowsMinShadowMapSize;
+
+      // if the platform profile has changed, use it to reset the defaults
+      if (s_uiLastConfigModification != ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetLastModificationCounter())
+      {
+        s_uiLastConfigModification = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetLastModificationCounter();
+
+        const auto* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezCoreRenderProfileConfig>();
+
+        uiAtlas = pConfig->m_uiShadowAtlasTextureSize;
+        uiMax = pConfig->m_uiMaxShadowMapSize;
+        uiMin = pConfig->m_uiMinShadowMapSize;
+      }
+
+      // if the CVars were modified recently (e.g. during game startup), use those values to override the default
+      if (cvar_RenderingShadowsAtlasSize.HasDelayedSyncValueChanged())
+        uiAtlas = cvar_RenderingShadowsAtlasSize.GetValue(ezCVarValue::DelayedSync);
+
+      if (cvar_RenderingShadowsMaxShadowMapSize.HasDelayedSyncValueChanged())
+        uiMax = cvar_RenderingShadowsMaxShadowMapSize.GetValue(ezCVarValue::DelayedSync);
+
+      if (cvar_RenderingShadowsMinShadowMapSize.HasDelayedSyncValueChanged())
+        uiMin = cvar_RenderingShadowsMinShadowMapSize.GetValue(ezCVarValue::DelayedSync);
+
+      // make sure the values are valid
+      uiAtlas = ezMath::Clamp(ezMath::PowerOfTwo_Floor(uiAtlas), 512u, 8192u);
+      uiMax = ezMath::Clamp(ezMath::PowerOfTwo_Floor(uiMax), 64u, 2048u);
+      uiMin = ezMath::Clamp(ezMath::PowerOfTwo_Floor(uiMin), 8u, 512u);
+
+      uiMax = ezMath::Min(uiMax, uiAtlas);
+      uiMin = ezMath::Min(uiMin, uiMax);
+
+      // write back the clamped values, so that everyone sees the valid values
+      cvar_RenderingShadowsAtlasSize = uiAtlas;
+      cvar_RenderingShadowsMaxShadowMapSize = uiMax;
+      cvar_RenderingShadowsMinShadowMapSize = uiMin;
+
+      // apply the new values
+      cvar_RenderingShadowsAtlasSize.SetToDelayedSyncValue();
+      cvar_RenderingShadowsMaxShadowMapSize.SetToDelayedSyncValue();
+      cvar_RenderingShadowsMinShadowMapSize.SetToDelayedSyncValue();
+
       ezGALTextureCreationDescription desc;
-      desc.SetAsRenderTarget(s_uiShadowAtlasTextureWidth, s_uiShadowAtlasTextureHeight, ezGALResourceFormat::D16);
+      desc.SetAsRenderTarget(cvar_RenderingShadowsAtlasSize, cvar_RenderingShadowsAtlasSize, ezGALResourceFormat::D16);
 
       m_hShadowAtlasTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
+
+      s_fFadeOutScaleStart = (cvar_RenderingShadowsMinShadowMapSize + 1.0f) / cvar_RenderingShadowsMaxShadowMapSize;
+      s_fFadeOutScaleEnd = s_fFadeOutScaleStart * 0.5f;
     }
   }
 
@@ -408,7 +461,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
   }
 
   float fMaxReferenceSize = ezMath::Max(pReferenceView->GetViewport().width, pReferenceView->GetViewport().height);
-  float fShadowMapScale = fMaxReferenceSize / s_uiShadowMapSize;
+  float fShadowMapScale = fMaxReferenceSize / cvar_RenderingShadowsMaxShadowMapSize;
 
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pDirLight, pReferenceView, fShadowMapScale, sizeof(ezDirShadowData), pData))
@@ -513,7 +566,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       // stabilize
       ezMat4 worldToLightMatrix = pView->GetViewMatrix(ezCameraEye::Left);
       ezVec3 offset = worldToLightMatrix.TransformPosition(ezVec3::MakeZero());
-      float texelInWorld = (2.0f * radius) / s_uiShadowMapSize;
+      float texelInWorld = (2.0f * radius) / cvar_RenderingShadowsMaxShadowMapSize;
       offset.x -= ezMath::Floor(offset.x / texelInWorld) * texelInWorld;
       offset.y -= ezMath::Floor(offset.y / texelInWorld) * texelInWorld;
 
@@ -567,7 +620,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
   ezVec3 vPosition = pOwner->GetGlobalPosition();
   ezVec3 vUp = ezVec3(0.0f, 0.0f, 1.0f);
 
-  float fPenumbraSize = ezMath::Max(pPointLight->GetPenumbraSize(), (0.5f / s_uiMinShadowMapSize)); // at least one texel for hardware pcf
+  float fPenumbraSize = ezMath::Max(pPointLight->GetPenumbraSize(), (0.5f / cvar_RenderingShadowsMinShadowMapSize)); // at least one texel for hardware pcf
   float fFov = AddSafeBorder(ezAngle::MakeFromDegree(90.0f), fPenumbraSize);
 
   float fNearPlane = 0.1f; ///\todo expose somewhere
@@ -719,13 +772,13 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
   // Prepare atlas
   s_AtlasCells.Clear();
-  s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(0, 0, s_uiShadowAtlasTextureWidth, s_uiShadowAtlasTextureHeight);
+  s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(0, 0, cvar_RenderingShadowsAtlasSize, cvar_RenderingShadowsAtlasSize);
 
-  float fAtlasInvWidth = 1.0f / s_uiShadowAtlasTextureWidth;
-  float fAtlasInvHeight = 1.0f / s_uiShadowAtlasTextureWidth;
+  float fAtlasInvWidth = 1.0f / cvar_RenderingShadowsAtlasSize;
+  float fAtlasInvHeight = 1.0f / cvar_RenderingShadowsAtlasSize;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezUInt32 uiTotalAtlasSize = s_uiShadowAtlasTextureWidth * s_uiShadowAtlasTextureHeight;
+  ezUInt32 uiTotalAtlasSize = cvar_RenderingShadowsAtlasSize * cvar_RenderingShadowsAtlasSize;
   ezUInt32 uiUsedAtlasSize = 0;
 
   ezDebugRendererContext debugContext(ezWorld::GetWorld(0));
@@ -747,7 +800,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
     ezUInt32 uiShadowDataIndex = sorted.m_uiIndex;
     auto& shadowData = s_pData->m_ShadowData[uiShadowDataIndex];
 
-    ezUInt32 uiShadowMapSize = s_uiShadowMapSize;
+    ezUInt32 uiShadowMapSize = cvar_RenderingShadowsMaxShadowMapSize;
     float fadeOutStart = s_fFadeOutScaleStart;
     float fadeOutEnd = s_fFadeOutScaleEnd;
 
@@ -943,7 +996,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
       float relativeShadowSize = uiShadowMapSize * fAtlasInvHeight;
 
       float slopeBias = shadowData.m_fSlopeBias * penumbraSize * ezMath::Tan(fov * 0.5f);
-      float constantBias = shadowData.m_fConstantBias * s_uiShadowMapSize / uiShadowMapSize;
+      float constantBias = shadowData.m_fConstantBias * cvar_RenderingShadowsMaxShadowMapSize / uiShadowMapSize;
       float fadeOut = ezMath::Clamp((shadowData.m_fShadowMapScale - fadeOutEnd) / (fadeOutStart - fadeOutEnd), 0.0f, 1.0f);
 
       ezUInt32 uiParamsIndex = GET_SHADOW_PARAMS_INDEX(shadowData.m_uiPackedDataOffset);
@@ -973,6 +1026,12 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 
   if (s_pData->m_hShadowAtlasTexture.IsInvalidated() || s_pData->m_hShadowDataBuffer.IsInvalidated())
     return;
+
+  if (cvar_RenderingShadowsAtlasSize.HasDelayedSyncValueChanged() || cvar_RenderingShadowsMinShadowMapSize.HasDelayedSyncValueChanged() || cvar_RenderingShadowsMaxShadowMapSize.HasDelayedSyncValueChanged() || s_uiLastConfigModification != ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetLastModificationCounter())
+  {
+    OnEngineShutdown();
+    OnEngineStartup();
+  }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALPass* pGALPass = pDevice->BeginPass("Shadow Atlas");

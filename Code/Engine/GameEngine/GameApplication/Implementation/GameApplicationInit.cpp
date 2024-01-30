@@ -38,7 +38,7 @@ ezCommandLineOptionString opt_Renderer("app", "-renderer", "The renderer impleme
 
 void ezGameApplication::Init_ConfigureAssetManagement()
 {
-  const ezStringBuilder sAssetRedirFile("AssetCache/", m_PlatformProfile.m_sName, ".ezAidlt");
+  const ezStringBuilder sAssetRedirFile("AssetCache/", m_PlatformProfile.GetConfigName(), ".ezAidlt");
 
   // which redirection table to search
   ezDataDirectory::FolderType::s_sRedirectionFile = sAssetRedirFile;

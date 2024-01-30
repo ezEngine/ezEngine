@@ -4,6 +4,7 @@
 #include <Core/ActorSystem/Actor.h>
 #include <Core/ActorSystem/ActorManager.h>
 #include <Core/ActorSystem/ActorPluginWindow.h>
+#include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/GameState/GameStateWindow.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/World.h>
@@ -22,6 +23,7 @@
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Utils/CoreRenderProfile.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 
@@ -33,7 +35,6 @@ EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
 // clang-format on
 
 ezGameState::ezGameState() = default;
-
 ezGameState::~ezGameState() = default;
 
 void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
@@ -199,6 +200,7 @@ void ezGameState::SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewp
     ezLog::Error("Main view is invalid, SetupMainView canceled.");
     return;
   }
+
   if (m_bXREnabled)
   {
     const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
@@ -356,7 +358,8 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   wndDesc.LoadFromDDL(sWndCfg).IgnoreResult();
 
   ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
-  pWindow->ResetOnClickClose([this]() { this->RequestQuit(); });
+  pWindow->ResetOnClickClose([this]()
+    { this->RequestQuit(); });
   if (pWindow->GetInputDevice())
     pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
 
@@ -365,9 +368,8 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
 
 ezUniquePtr<ezWindowOutputTargetGAL> ezGameState::CreateMainOutputTarget(ezWindow* pMainWindow)
 {
-  ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size) {
-    SetupMainView(hSwapChain, size);
-  });
+  ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
+    { SetupMainView(hSwapChain, size); });
 
   ezGALWindowSwapChainCreationDescription desc;
   desc.m_pWindow = pMainWindow;

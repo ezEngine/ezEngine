@@ -47,6 +47,7 @@ public:
   ezPlatformProfile();
   ~ezPlatformProfile();
 
+  void SetConfigName(ezStringView sName) { m_sName = sName; }
   ezStringView GetConfigName() const { return m_sName; }
 
   void Clear();
@@ -70,6 +71,11 @@ public:
   ezResult SaveForRuntime(ezStringView sFile) const;
   ezResult LoadForRuntime(ezStringView sFile);
 
+  /// \brief Returns a number indicating when the profile counter changed last. By storing and comparing this value, other code can update their state if necessary.
+  ezUInt32 GetLastModificationCounter() const { return m_uiLastModificationCounter; }
+
+private:
+  ezUInt32 m_uiLastModificationCounter = 0;
   ezString m_sName;
   ezEnum<ezProfileTargetPlatform> m_TargetPlatform;
   ezDynamicArray<ezProfileConfigData*> m_Configs;

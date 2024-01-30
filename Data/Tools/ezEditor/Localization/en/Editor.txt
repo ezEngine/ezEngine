@@ -166,9 +166,11 @@ Selection.Attach;Attach to This
 Selection.Detach;Detach
 Selection.CopyReference;Copy Object Reference
 
-ezRenderPipelineProfileConfig;Render Pipelines
+# Profile Configs
 
+ezRenderPipelineProfileConfig;Render Pipelines
 ezTextureAssetProfileConfig;Texture Assets
+ezCoreRenderProfileConfig;Rendering Options
 
 # Gizmo
 
