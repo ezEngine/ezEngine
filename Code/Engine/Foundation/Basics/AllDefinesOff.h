@@ -97,4 +97,4 @@
 #define EZ_MIGRATE_RUNTIMECONFIGS EZ_OFF
 
 // Interoperability with other libraries
-#define EZ_INTEROP_STL_STRINGS EZ_OFF
+#define EZ_INTEROP_STL_STRINGS EZ_ON
