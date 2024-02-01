@@ -73,6 +73,7 @@
 
 // Other Features
 #define EZ_USE_PROFILING EZ_OFF
+#define EZ_USE_STRING_VALIDATION EZ_OFF
 
 // Hashed String
 /// \brief Ref counting on hashed strings adds the possibility to cleanup unused strings. Since ref counting has a performance overhead it is disabled

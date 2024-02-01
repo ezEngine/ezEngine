@@ -3,7 +3,7 @@
 #include <Foundation/Strings/StringView.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_USE_STRING_VALIDATION)
 #  include <Foundation/Logging/Log.h>
 
 ezAtomicInteger32 ezStringUtils::g_MaxUsedStringLength;
@@ -34,6 +34,7 @@ void ezStringUtils::PrintStringLengthStatistics()
 
   ezUInt32 uiPercent = 0;
   ezUInt32 uiStrings = 0;
+
   for (ezUInt32 i = 0; i < 256; ++i)
   {
     if (100.0f * (uiStrings + g_UsedStringLengths[i]) / (float)uiCopiedStrings >= uiPercent)

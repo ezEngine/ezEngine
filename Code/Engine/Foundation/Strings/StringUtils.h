@@ -270,7 +270,7 @@ public:
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& ref_uiWritePos, double value, ezUInt8 uiWidth, bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes = false);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_USE_STRING_VALIDATION)
   static void AddUsedStringLength(ezUInt32 uiLength);
   static void PrintStringLengthStatistics();
   static ezAtomicInteger32 g_MaxUsedStringLength;
@@ -279,7 +279,9 @@ public:
   EZ_ALWAYS_INLINE static void AddUsedStringLength(ezUInt32)
   {
   }
-  EZ_ALWAYS_INLINE static void PrintStringLengthStatistics() {}
+  EZ_ALWAYS_INLINE static void PrintStringLengthStatistics()
+  {
+  }
 #endif
 };
 
