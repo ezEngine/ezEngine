@@ -2,6 +2,7 @@
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GreyBoxComponent.h>
@@ -51,6 +52,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 5, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
     EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
     EZ_MESSAGE_HANDLER(ezMsgExtractOccluderData, OnMsgExtractOccluderData),
+    EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -417,6 +420,20 @@ void ezGreyBoxComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg)
   }
 
   msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform());
+}
+
+void ezGreyBoxComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
+{
+  m_hMaterial = ref_msg.m_hMaterial;
+
+  InvalidateCachedRenderData();
+}
+
+void ezGreyBoxComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
+{
+  ref_msg.ModifyColor(m_Color);
+
+  InvalidateCachedRenderData();
 }
 
 void ezGreyBoxComponent::InvalidateMesh()
