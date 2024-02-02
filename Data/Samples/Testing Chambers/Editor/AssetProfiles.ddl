@@ -20,7 +20,6 @@ AssetProfiles
 						Uuid{uint64{12803743945353238805,11270308862817989453}}
 					}
 					string %Name{"PC"}
-					string %Platform{"ezProfileTargetPlatform::PC"}
 				}
 			}
 			o

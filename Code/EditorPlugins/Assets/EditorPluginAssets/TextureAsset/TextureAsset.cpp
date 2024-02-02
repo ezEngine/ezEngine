@@ -388,8 +388,6 @@ ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szT
     return ezTransformStatus();
   }
 
-  // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
-
   const auto* pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>();
 
   const auto props = GetProperties();

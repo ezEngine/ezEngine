@@ -6,22 +6,6 @@
 class ezChunkStreamWriter;
 class ezChunkStreamReader;
 
-struct ezProfileTargetPlatform
-{
-  enum Enum
-  {
-    PC,
-    UWP,
-    Android,
-
-    Default = PC
-  };
-
-  using StorageType = ezUInt8;
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezProfileTargetPlatform);
-
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief Base class for configuration objects that store e.g. asset transform settings or runtime configuration information
@@ -77,7 +61,6 @@ public:
 private:
   ezUInt32 m_uiLastModificationCounter = 0;
   ezString m_sName;
-  ezEnum<ezProfileTargetPlatform> m_TargetPlatform;
   ezDynamicArray<ezProfileConfigData*> m_Configs;
 };
 

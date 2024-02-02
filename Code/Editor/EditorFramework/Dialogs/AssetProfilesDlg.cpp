@@ -42,22 +42,22 @@ public:
   {
     if (iColumn == 0)
     {
-      if (iRole == Qt::DecorationRole)
-      {
-        const ezInt32 iPlatform = pObject->GetTypeAccessor().GetValue("Platform").ConvertTo<ezInt32>();
+      //if (iRole == Qt::DecorationRole)
+      //{
+      //  const ezInt32 iPlatform = pObject->GetTypeAccessor().GetValue("Platform").ConvertTo<ezInt32>();
 
-        switch (iPlatform)
-        {
-          case ezProfileTargetPlatform::PC:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg");
+      //  switch (iPlatform)
+      //  {
+      //    case ezProfileTargetPlatform::PC:
+      //      return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg");
 
-          case ezProfileTargetPlatform::UWP:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg"); // TODO: icon
+      //    case ezProfileTargetPlatform::UWP:
+      //      return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg"); // TODO: icon
 
-          case ezProfileTargetPlatform::Android:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid.svg");
-        }
-      }
+      //    case ezProfileTargetPlatform::Android:
+      //      return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid.svg");
+      //  }
+      //}
 
       if (iRole == Qt::DisplayRole)
       {

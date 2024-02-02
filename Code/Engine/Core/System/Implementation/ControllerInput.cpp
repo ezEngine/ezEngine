@@ -1,7 +1,6 @@
 #include <Core/CorePCH.h>
 
 #include <Core/System/ControllerInput.h>
-#include <Foundation/System/PlatformFeatures.h>
 
 namespace
 {

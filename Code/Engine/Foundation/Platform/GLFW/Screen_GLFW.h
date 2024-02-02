@@ -1,7 +1,6 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-#include <Foundation/System/PlatformFeatures.h>
 #include <Foundation/System/Screen.h>
 #include <GLFW/glfw3.h>
 

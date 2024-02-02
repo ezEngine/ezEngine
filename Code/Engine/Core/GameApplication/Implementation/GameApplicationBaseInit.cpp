@@ -14,6 +14,7 @@
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Platform/PlatformDesc.h>
 #include <Foundation/Types/TagRegistry.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 
@@ -51,7 +52,13 @@ void ezGameApplicationBase::ExecuteInitFunctions()
 
 void ezGameApplicationBase::Init_PlatformProfile_SetPreferred()
 {
-  m_PlatformProfile.SetConfigName(opt_Profile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  m_PlatformProfile.SetConfigName("Default");
+
+  if (opt_Profile.IsOptionSpecified())
+  {
+    m_PlatformProfile.SetConfigName(opt_Profile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  }
+
   m_PlatformProfile.AddMissingConfigs();
 }
 
