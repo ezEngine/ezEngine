@@ -648,4 +648,36 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     set2->~ezSet<ezString>();
     ezMemoryUtils::PatternFill(set2Mem, 0xBA, uiSetSize);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetReverseIterator")
+  {
+    ezSet<ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m.Insert(i);
+
+    ezInt32 i = 1000 - 1;
+    for (ezSet<ezUInt32>::ReverseIterator it = m.GetReverseIterator(); it.IsValid(); ++it)
+    {
+      EZ_TEST_INT(it.Key(), i);
+      --i;
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetReverseIterator (const)")
+  {
+    ezSet<ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m.Insert(i);
+
+    const ezSet<ezUInt32> m2(m);
+
+    ezInt32 i = 1000 - 1;
+    for (ezSet<ezUInt32>::ReverseIterator it = m2.GetReverseIterator(); it.IsValid(); ++it)
+    {
+      EZ_TEST_INT(it.Key(), i);
+      --i;
+    }
+  }
 }
