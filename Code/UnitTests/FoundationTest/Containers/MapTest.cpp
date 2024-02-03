@@ -382,40 +382,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     EZ_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLastIterator / Backward Iteration")
-  {
-    ezMap<ezUInt32, ezUInt32> m;
-
-    for (ezInt32 i = 0; i < 1000; ++i)
-      m[i] = i * 10;
-
-    ezInt32 i = 1000 - 1;
-    for (ezMap<ezUInt32, ezUInt32>::Iterator it = m.GetLastIterator(); it.IsValid(); --it)
-    {
-      EZ_TEST_INT(it.Key(), i);
-      EZ_TEST_INT(it.Value(), i * 10);
-      --i;
-    }
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLastIterator / Backward Iteration (const)")
-  {
-    ezMap<ezUInt32, ezUInt32> m;
-
-    for (ezInt32 i = 0; i < 1000; ++i)
-      m[i] = i * 10;
-
-    const ezMap<ezUInt32, ezUInt32> m2(m);
-
-    ezInt32 i = 1000 - 1;
-    for (ezMap<ezUInt32, ezUInt32>::ConstIterator it = m2.GetLastIterator(); it.IsValid(); --it)
-    {
-      EZ_TEST_INT(it.Key(), i);
-      EZ_TEST_INT(it.Value(), i * 10);
-      --i;
-    }
-  }
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "LowerBound")
   {
     ezMap<ezInt32, ezInt32> m, m2;

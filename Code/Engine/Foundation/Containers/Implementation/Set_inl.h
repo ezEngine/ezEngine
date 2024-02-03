@@ -195,12 +195,6 @@ EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyTy
 }
 
 template <typename KeyType, typename Comparer>
-EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::GetLastIterator() const
-{
-  return Iterator(GetRightMost());
-}
-
-template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::GetLeftMost() const
 {
   if (IsEmpty())

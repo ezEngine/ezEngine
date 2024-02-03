@@ -167,12 +167,6 @@ public:
   /// \brief Returns a constant Iterator to the very first element.
   ConstIterator GetIterator() const; // [tested]
 
-  /// \brief Returns an Iterator to the very last element. For reverse traversal.
-  Iterator GetLastIterator(); // [tested]
-
-  /// \brief Returns a constant Iterator to the very last element. For reverse traversal.
-  ConstIterator GetLastIterator() const; // [tested]
-
   /// \brief Inserts the key/value pair into the tree and returns an Iterator to it. O(log n) operation.
   template <typename CompatibleKeyType, typename CompatibleValueType>
   Iterator Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]

@@ -330,8 +330,6 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
   {
     ezUInt32 sum = 0;
 
-
-
     for (ezUInt32 size = 1024; size < 4096 * 32; size += 1024)
     {
       ezMap<void*, ezUInt32> map;
@@ -357,21 +355,19 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
         for (ezUInt32 i = 0; i < 1024; i++)
           free(ptrs[i]);
 
-        auto last = map.GetLastIterator();
-        for (auto it = map.GetIterator(); it != last; ++it)
+        for (auto it = map.GetIterator(); it.IsValid(); ++it)
         {
           sum += it.Value();
         }
       }
       ezTime t1 = ezTime::Now();
 
-      auto last = map.GetLastIterator();
-      for (auto it = map.GetIterator(); it != last; ++it)
+      for (auto it = map.GetIterator(); it.IsValid(); ++it)
       {
         free(it.Key());
       }
-      ezLog::Info(
-        "[test]ezMap<void*, ezUInt32> size = {0} => {1}ms", size, ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
+
+      ezLog::Info("[test]ezMap<void*, ezUInt32> size = {0} => {1}ms", size, ezArgF((t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), 4), sum);
     }
   }
 

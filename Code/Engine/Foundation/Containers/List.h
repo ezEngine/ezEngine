@@ -185,17 +185,11 @@ public:
   /// \brief Returns an iterator to the first list-element.
   Iterator GetIterator(); // [tested]
 
-  /// \brief Returns an iterator to the last list-element. Can be used for reverse iteration.
-  Iterator GetLastIterator(); // [tested]
-
   /// \brief Returns an iterator pointing behind the last element. Necessary if one wants to insert elements at the end of a list.
   Iterator GetEndIterator(); // [tested]
 
   /// \brief Returns a const-iterator to the first list-element.
   ConstIterator GetIterator() const; // [tested]
-
-  /// \brief Returns a const-iterator to the last list-element. Can be used for reverse iteration.
-  ConstIterator GetLastIterator() const; // [tested]
 
   /// \brief Returns a const-iterator pointing behind the last element. Necessary if one wants to insert elements at the end of a list.
   ConstIterator GetEndIterator() const; // [tested]

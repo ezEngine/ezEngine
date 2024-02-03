@@ -201,18 +201,6 @@ EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::GetLastIterator()
-{
-  return Iterator(GetRightMost());
-}
-
-template <typename KeyType, typename ValueType, typename Comparer>
-EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::GetLastIterator() const
-{
-  return ConstIterator(GetRightMost());
-}
-
-template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::GetLeftMost() const
 {
   if (IsEmpty())

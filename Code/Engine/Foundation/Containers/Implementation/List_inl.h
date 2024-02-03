@@ -107,12 +107,6 @@ EZ_ALWAYS_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetIterator()
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetLastIterator()
-{
-  return Iterator(m_Last.m_pPrev);
-}
-
-template <typename T>
 EZ_ALWAYS_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetEndIterator()
 {
   return m_End;
@@ -122,12 +116,6 @@ template <typename T>
 EZ_ALWAYS_INLINE typename ezListBase<T>::ConstIterator ezListBase<T>::GetIterator() const
 {
   return ConstIterator(m_First.m_pNext);
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE typename ezListBase<T>::ConstIterator ezListBase<T>::GetLastIterator() const
-{
-  return ConstIterator(m_Last.m_pPrev);
 }
 
 template <typename T>
