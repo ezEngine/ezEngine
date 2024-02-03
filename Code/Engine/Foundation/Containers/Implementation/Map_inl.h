@@ -7,11 +7,9 @@
 #define STACK_SIZE 64
 
 template <typename KeyType, typename ValueType, typename Comparer>
-void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
+template <bool REVERSE>
+void ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>::Advance(const ezInt32 dir0, const ezInt32 dir1)
 {
-  const ezInt32 dir0 = 0;
-  const ezInt32 dir1 = 1;
-
   if (m_pElement == nullptr)
   {
     EZ_ASSERT_DEBUG(m_pElement != nullptr, "The Iterator is invalid (end).");
@@ -58,54 +56,31 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
+template <bool REVERSE>
+void ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>::Next()
 {
-  const ezInt32 dir0 = 1;
-  const ezInt32 dir1 = 0;
-
-  if (m_pElement == nullptr)
+  if constexpr (REVERSE)
   {
-    EZ_ASSERT_DEBUG(m_pElement != nullptr, "The Iterator is invalid (end).");
-    return;
+    Advance(1, 0);
   }
-
-  // if this element has a right child, go there and then search for the left most child of that
-  if (m_pElement->m_pLink[dir1] != m_pElement->m_pLink[dir1]->m_pLink[dir1])
+  else
   {
-    m_pElement = m_pElement->m_pLink[dir1];
-
-    while (m_pElement->m_pLink[dir0] != m_pElement->m_pLink[dir0]->m_pLink[dir0])
-      m_pElement = m_pElement->m_pLink[dir0];
-
-    return;
+    Advance(0, 1);
   }
+}
 
-  // if this element has a parent and this element is that parents left child, go directly to the parent
-  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) && (m_pElement->m_pParent->m_pLink[dir0] == m_pElement))
+template <typename KeyType, typename ValueType, typename Comparer>
+template <bool REVERSE>
+void ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>::Prev()
+{
+  if constexpr (REVERSE)
   {
-    m_pElement = m_pElement->m_pParent;
-    return;
+    Advance(0, 1);
   }
-
-  // if this element has a parent and this element is that parents right child, search for the next parent, whose left child this is
-  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) && (m_pElement->m_pParent->m_pLink[dir1] == m_pElement))
+  else
   {
-    while (m_pElement->m_pParent->m_pLink[dir1] == m_pElement)
-      m_pElement = m_pElement->m_pParent;
-
-    // if we are at the root node..
-    if ((m_pElement->m_pParent == nullptr) || (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
-    {
-      m_pElement = nullptr;
-      return;
-    }
-
-    m_pElement = m_pElement->m_pParent;
-    return;
+    Advance(1, 0);
   }
-
-  m_pElement = nullptr;
-  return;
 }
 
 // ***** ezMapBase *****
@@ -198,6 +173,18 @@ template <typename KeyType, typename ValueType, typename Comparer>
 EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::GetIterator() const
 {
   return ConstIterator(GetLeftMost());
+}
+
+template <typename KeyType, typename ValueType, typename Comparer>
+EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ReverseIterator ezMapBase<KeyType, ValueType, Comparer>::GetReverseIterator()
+{
+  return ReverseIterator(GetRightMost());
+}
+
+template <typename KeyType, typename ValueType, typename Comparer>
+EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstReverseIterator ezMapBase<KeyType, ValueType, Comparer>::GetReverseIterator() const
+{
+  return ConstReverseIterator(GetRightMost());
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
