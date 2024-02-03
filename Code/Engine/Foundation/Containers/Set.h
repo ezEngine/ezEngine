@@ -61,7 +61,7 @@ public:
     } // [tested]
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_ALWAYS_INLINE const KeyType& operator*() { return Key(); }
+    EZ_ALWAYS_INLINE const KeyType& operator*() const { return Key(); }
 
     /// \brief Advances the iterator to the next element in the set. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
