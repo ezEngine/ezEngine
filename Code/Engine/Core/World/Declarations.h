@@ -143,6 +143,12 @@ struct ezComponentHandle
   friend class ezComponent;
 };
 
+/// \brief A typed handle to a component.
+///
+/// This should be preferred if the component type to be stored inside the handle is known, as it provides
+/// compile time checks against wrong usages (e.g. assigning unrelated types) and more clearly conveys intent.
+///
+/// See struct \see ezComponentHandle for more information about general component handle usage.
 template <typename TYPE>
 struct ezTypedComponentHandle : public ezComponentHandle
 {
