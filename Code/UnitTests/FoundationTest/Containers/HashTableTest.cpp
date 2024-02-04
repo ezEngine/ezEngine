@@ -611,4 +611,47 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       map.Remove(it);
     }
   }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Find")
+  {
+    ezStringBuilder tmp;
+    ezHashTable<ezString, ezInt32> map;
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.SetFormat("stuff{}bla", i);
+      map[tmp] = i;
+    }
+
+    for (ezInt32 i = map.GetCount() - 1; i > 0; --i)
+    {
+      tmp.SetFormat("stuff{}bla", i);
+
+      auto it = map.Find(tmp);
+      auto cit = static_cast<const ezHashTable<ezString, ezInt32>&>(map).Find(tmp);
+
+      EZ_TEST_STRING(it.Key(), tmp);
+      EZ_TEST_INT(it.Value(), i);
+
+      EZ_TEST_STRING(cit.Key(), tmp);
+      EZ_TEST_INT(cit.Value(), i);
+
+      int allowedIterations = map.GetCount();
+      for (auto it2 = it; it2.IsValid(); ++it2)
+      {
+        // just test that iteration is possible and terminates correctly
+        --allowedIterations;
+        EZ_TEST_BOOL(allowedIterations >= 0);
+      }
+
+      allowedIterations = map.GetCount();
+      for (auto cit2 = cit; cit2.IsValid(); ++cit2)
+      {
+        // just test that iteration is possible and terminates correctly
+        --allowedIterations;
+        EZ_TEST_BOOL(allowedIterations >= 0);
+      }
+
+      map.Remove(it);
+    }
+  }
 }

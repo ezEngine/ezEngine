@@ -556,4 +556,35 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
 
     EZ_TEST_BOOL(set2.IsEmpty());
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Find")
+  {
+    ezStringBuilder tmp;
+    ezHashSet<ezString> set;
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.SetFormat("stuff{}bla", i);
+      set.Insert(tmp);
+    }
+
+    for (ezInt32 i = set.GetCount() - 1; i > 0; --i)
+    {
+      tmp.SetFormat("stuff{}bla", i);
+
+      auto it = set.Find(tmp);
+
+      EZ_TEST_STRING(it.Key(), tmp);
+
+      int allowedIterations = set.GetCount();
+      for (auto it2 = it; it2.IsValid(); ++it2)
+      {
+        // just test that iteration is possible and terminates correctly
+        --allowedIterations;
+        EZ_TEST_BOOL(allowedIterations >= 0);
+      }
+
+      set.Remove(it);
+    }
+  }
 }

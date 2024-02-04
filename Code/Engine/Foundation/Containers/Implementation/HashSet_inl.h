@@ -370,6 +370,23 @@ EZ_FORCE_INLINE bool ezHashSetBase<K, H>::Contains(const CompatibleKeyType& key)
 }
 
 template <typename K, typename H>
+template <typename CompatibleKeyType>
+EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>::Find(const CompatibleKeyType& key) const
+{
+  ezUInt32 uiIndex = FindEntry(key);
+  if (uiIndex == ezInvalidIndex)
+  {
+    return GetEndIterator();
+  }
+
+  ConstIterator it(*this);
+  it.m_uiCurrentIndex = uiIndex;
+  it.m_uiCurrentCount = 0; // we do not know the 'count' (which is used as an optimization), so we just use 0
+
+  return it;
+}
+
+template <typename K, typename H>
 bool ezHashSetBase<K, H>::ContainsSet(const ezHashSetBase<K, H>& operand) const
 {
   for (const K& key : operand)

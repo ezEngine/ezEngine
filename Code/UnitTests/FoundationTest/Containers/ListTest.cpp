@@ -4,7 +4,10 @@
 
 EZ_CREATE_SIMPLE_TEST(Containers, List)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor") { ezList<ezInt32> l; }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
+  {
+    ezList<ezInt32> l;
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack() / PeekBack")
   {
@@ -247,13 +250,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
       l.Insert(it, *it + 10000);
     }
 
+    i = 1;
+
     // now remove every second element and only keep the larger values
-    for (ezList<ezInt32>::Iterator it = l.GetLastIterator(); it.IsValid(); --it)
+    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it.IsValid(); )
     {
-      it = l.Remove(it);
-      --it;
-      --i;
       EZ_TEST_INT(*it, i + 10000);
+
+      ++it;
+      it = l.Remove(it);
+      ++i;
     }
 
     i = 1;

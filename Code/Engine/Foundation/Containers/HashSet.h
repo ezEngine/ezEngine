@@ -34,7 +34,7 @@ public:
     const KeyType& Key() const; // [tested]
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_ALWAYS_INLINE const KeyType& operator*() { return Key(); } // [tested]
+    EZ_ALWAYS_INLINE const KeyType& operator*() const { return Key(); } // [tested]
 
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -139,6 +139,10 @@ public:
 
   /// \brief Swaps this map with the other one.
   void Swap(ezHashSetBase<KeyType, Hasher>& other); // [tested]
+
+  /// \brief Searches for key, returns a ConstIterator to it or an invalid iterator, if no such key is found. O(1) operation.
+  template <typename CompatibleKeyType>
+  ConstIterator Find(const CompatibleKeyType& key) const;
 
 private:
   KeyType* m_pEntries;

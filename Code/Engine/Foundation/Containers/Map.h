@@ -36,18 +36,19 @@ private:
 
 public:
   /// \brief Base class for all iterators.
-  struct ConstIterator
+  template <bool REVERSE>
+  struct ConstIteratorBase
   {
     using iterator_category = std::forward_iterator_tag;
-    using value_type = ConstIterator;
+    using value_type = ConstIteratorBase<false>;
     using difference_type = std::ptrdiff_t;
-    using pointer = ConstIterator*;
-    using reference = ConstIterator&;
+    using pointer = ConstIteratorBase<false>*;
+    using reference = ConstIteratorBase<false>&;
 
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_ALWAYS_INLINE ConstIterator()
+    EZ_ALWAYS_INLINE ConstIteratorBase()
       : m_pElement(nullptr)
     {
     } // [tested]
@@ -56,8 +57,8 @@ public:
     EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
-    EZ_ALWAYS_INLINE bool operator==(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement == it2.m_pElement); }
-    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator&);
+    EZ_ALWAYS_INLINE bool operator==(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>& it2) const { return (m_pElement == it2.m_pElement); }
+    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>&);
 
     /// \brief Returns the 'key' of the element that this iterator points to.
     EZ_FORCE_INLINE const KeyType& Key() const
@@ -74,7 +75,7 @@ public:
     } // [tested]
 
     /// \brief Returns '*this' to enable foreach
-    EZ_ALWAYS_INLINE ConstIterator& operator*() { return *this; } // [tested]
+    EZ_ALWAYS_INLINE ConstIteratorBase<REVERSE>& operator*() { return *this; } // [tested]
 
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -89,9 +90,11 @@ public:
     EZ_ALWAYS_INLINE void operator--() { Prev(); } // [tested]
 
   protected:
+    void Advance(const ezInt32 dir0, const ezInt32 dir1);
+
     friend class ezMapBase<KeyType, ValueType, Comparer>;
 
-    EZ_ALWAYS_INLINE explicit ConstIterator(Node* pInit)
+    EZ_ALWAYS_INLINE explicit ConstIteratorBase(Node* pInit)
       : m_pElement(pInit)
     {
     }
@@ -99,23 +102,27 @@ public:
     Node* m_pElement;
   };
 
+  using ConstIterator = ConstIteratorBase<false>;
+  using ConstReverseIterator = ConstIteratorBase<true>;
+
   /// \brief Forward Iterator to iterate over all elements in sorted order.
-  struct Iterator : public ConstIterator
+  template <bool REVERSE>
+  struct IteratorBase : public ConstIteratorBase<REVERSE>
   {
     using iterator_category = std::forward_iterator_tag;
-    using value_type = Iterator;
+    using value_type = IteratorBase<REVERSE>;
     using difference_type = std::ptrdiff_t;
-    using pointer = Iterator*;
-    using reference = Iterator&;
+    using pointer = IteratorBase<REVERSE>*;
+    using reference = IteratorBase<REVERSE>&;
 
     // this is required to pull in the const version of this function
-    using ConstIterator::Value;
+    using ConstIteratorBase<REVERSE>::Value;
 
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_ALWAYS_INLINE Iterator()
-      : ConstIterator()
+    EZ_ALWAYS_INLINE IteratorBase()
+      : ConstIteratorBase<REVERSE>()
     {
     }
 
@@ -127,16 +134,19 @@ public:
     }
 
     /// \brief Returns '*this' to enable foreach
-    EZ_ALWAYS_INLINE Iterator& operator*() { return *this; } // [tested]
+    EZ_ALWAYS_INLINE IteratorBase<REVERSE>& operator*() { return *this; } // [tested]
 
   private:
     friend class ezMapBase<KeyType, ValueType, Comparer>;
 
-    EZ_ALWAYS_INLINE explicit Iterator(Node* pInit)
-      : ConstIterator(pInit)
+    EZ_ALWAYS_INLINE explicit IteratorBase(Node* pInit)
+      : ConstIteratorBase<REVERSE>(pInit)
     {
     }
   };
+
+  using Iterator = IteratorBase<false>;
+  using ReverseIterator = IteratorBase<true>;
 
 protected:
   /// \brief Initializes the map to be empty.
@@ -164,14 +174,14 @@ public:
   /// \brief Returns an Iterator to the very first element.
   Iterator GetIterator(); // [tested]
 
+  /// \brief Returns a ReverseIterator to the very last element.
+  ReverseIterator GetReverseIterator(); // [tested]
+
   /// \brief Returns a constant Iterator to the very first element.
   ConstIterator GetIterator() const; // [tested]
 
-  /// \brief Returns an Iterator to the very last element. For reverse traversal.
-  Iterator GetLastIterator(); // [tested]
-
-  /// \brief Returns a constant Iterator to the very last element. For reverse traversal.
-  ConstIterator GetLastIterator() const; // [tested]
+  /// \brief Returns a constant ReverseIterator to the very last element.
+  ConstReverseIterator GetReverseIterator() const; // [tested]
 
   /// \brief Inserts the key/value pair into the tree and returns an Iterator to it. O(log n) operation.
   template <typename CompatibleKeyType, typename CompatibleValueType>
