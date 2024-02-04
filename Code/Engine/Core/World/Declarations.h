@@ -143,6 +143,31 @@ struct ezComponentHandle
   friend class ezComponent;
 };
 
+/// \brief A typed handle to a component.
+///
+/// This should be preferred if the component type to be stored inside the handle is known, as it provides
+/// compile time checks against wrong usages (e.g. assigning unrelated types) and more clearly conveys intent.
+///
+/// See struct \see ezComponentHandle for more information about general component handle usage.
+template <typename TYPE>
+struct ezTypedComponentHandle : public ezComponentHandle
+{
+  ezTypedComponentHandle() = default;
+  explicit ezTypedComponentHandle(const ezComponentHandle& untyped)
+  {
+    m_InternalId = untyped.GetInternalID();
+  }
+
+  template <typename T, std::enable_if_t<std::is_convertible_v<T*, TYPE*>,bool> = true>
+  explicit ezTypedComponentHandle(const ezTypedComponentHandle<T>& other) : ezTypedComponentHandle(static_cast<const ezComponentHandle&>(other)) {}
+
+  template <typename T, std::enable_if_t<std::is_convertible_v<T*, TYPE*>,bool> = true>
+  EZ_ALWAYS_INLINE void operator=(const ezTypedComponentHandle<T>& other)
+  {
+    ezComponentHandle::operator=(other);
+  }
+};
+
 /// \brief HashHelper implementation so component handles can be used as key in a hashtable.
 template <>
 struct ezHashHelper<ezComponentHandle>

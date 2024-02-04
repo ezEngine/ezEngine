@@ -23,7 +23,7 @@ EZ_ALWAYS_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
 }
 
 template <typename ComponentType>
-EZ_ALWAYS_INLINE ezComponentHandle ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerObject, ComponentType*& out_pComponent)
+EZ_ALWAYS_INLINE ezTypedComponentHandle<ComponentType> ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerObject, ComponentType*& out_pComponent)
 {
   ezComponent* pComponent = nullptr;
   ezComponentHandle hComponent = CreateComponentNoInit(pOwnerObject, pComponent);
@@ -34,7 +34,7 @@ EZ_ALWAYS_INLINE ezComponentHandle ezComponentManagerBase::CreateComponent(ezGam
   }
 
   out_pComponent = ezStaticCast<ComponentType*>(pComponent);
-  return hComponent;
+  return ezTypedComponentHandle<ComponentType>(hComponent);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
