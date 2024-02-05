@@ -1,7 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/CodeUtils/Preprocessor.h>
-#include <RendererCore/Shader/Implementation/Helper.h>
+#include <RendererCore/Shader/ShaderHelper.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
@@ -360,5 +360,3 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInter
 
   return hShaderPermutation;
 }
-
-
