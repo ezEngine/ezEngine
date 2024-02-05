@@ -1043,7 +1043,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFunctionArgumentAttributes, 1, ezRTTIDefaultAl
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("ArgIndex", m_uiArgIndex),
-    EZ_ARRAY_MEMBER_PROPERTY("ArgAttributes", m_ArgAttributes),
+    EZ_ARRAY_MEMBER_PROPERTY("ArgAttributes", m_ArgAttributes)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES;
 }
@@ -1076,6 +1076,15 @@ ezFunctionArgumentAttributes::ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, 
       return;
 
     m_ArgAttributes.PushBack(pAttribute4);
+  }
+}
+
+ezFunctionArgumentAttributes::~ezFunctionArgumentAttributes()
+{
+  for (auto pAttribute : m_ArgAttributes)
+  {
+    auto pAttributeNonConst = const_cast<ezPropertyAttribute*>(pAttribute);
+    EZ_DEFAULT_DELETE(pAttributeNonConst);
   }
 }
 
