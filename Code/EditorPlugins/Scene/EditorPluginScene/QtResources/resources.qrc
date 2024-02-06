@@ -94,6 +94,7 @@
     <file>ezPostProcessingComponent.svg</file>
     <file>ezVolumeBoxComponent.svg</file>
     <file>ezVolumeSphereComponent.svg</file>
+    <file>ezLodComponent.svg</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.svg</file>
