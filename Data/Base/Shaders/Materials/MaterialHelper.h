@@ -228,3 +228,11 @@ float4 ColorizeGameObjectId(uint gameObjectId)
   return float4(isDynamic ? intensity : 0.0f, isDynamic ? 0.0f : intensity, 0.0f, 1.0f);
 }
 
+float4 SampleColorPalette(Texture2D paletteTex, uint row, float column)
+{
+  uint width, height;
+  paletteTex.GetDimensions(width, height);
+
+  float2 uv = float2(column, (row + 0.5f) / height);
+  return paletteTex.Sample(LinearClampSampler, uv);
+}
