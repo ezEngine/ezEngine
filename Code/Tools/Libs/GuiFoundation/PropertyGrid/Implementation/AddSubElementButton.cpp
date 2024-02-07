@@ -420,24 +420,40 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   {
     for (auto& item : m_Items)
     {
-      res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty(), index), index);
-      if (res.m_Result.Failed())
+      if (m_uiMaxElements > 0 && m_pObjectAccessor->GetCount(item.m_pObject, m_pProp) >= m_uiMaxElements)
+      {
+        res = ezStatus("Maximum number of allowed elements reached.");
         break;
+      }
+      else
+      {
+        res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty(), index), index);
+        if (res.m_Result.Failed())
+          break;
+      }
     }
   }
   else if (GetProperty()->GetFlags().IsSet(ezPropertyFlags::Class))
   {
     for (auto& item : m_Items)
     {
-      ezUuid guid;
-      res = m_pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
-      if (res.m_Result.Failed())
+      if (m_uiMaxElements > 0 && m_pObjectAccessor->GetCount(item.m_pObject, m_pProp) >= m_uiMaxElements)
+      {
+        res = ezStatus("Maximum number of allowed elements reached.");
         break;
+      }
+      else
+      {
+        ezUuid guid;
+        res = m_pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
+        if (res.m_Result.Failed())
+          break;
 
-      ezHybridArray<ezPropertySelection, 1> selection;
-      selection.PushBack({m_pObjectAccessor->GetObject(guid), ezVariant()});
-      ezDefaultObjectState defaultState(m_pObjectAccessor, selection);
-      defaultState.RevertObject().AssertSuccess();
+        ezHybridArray<ezPropertySelection, 1> selection;
+        selection.PushBack({m_pObjectAccessor->GetObject(guid), ezVariant()});
+        ezDefaultObjectState defaultState(m_pObjectAccessor, selection);
+        defaultState.RevertObject().AssertSuccess();
+      }
     }
   }
 

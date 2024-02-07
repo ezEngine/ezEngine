@@ -12,7 +12,7 @@ EZ_WARNING_POP()
 
 EZ_WARNING_PUSH()
 EZ_WARNING_DISABLE_CLANG("-Wunused-local-typedef")
-EZ_WARNING_DISABLE_GCC("-Wunused-local-typedef")
+EZ_WARNING_DISABLE_GCC("-Wunused-local-typedefs")
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariant& other)
 {

@@ -408,6 +408,7 @@ ezStringView ezOSFile::GetApplicationDirectory()
 #  endif
   }
 
+  EZ_ASSERT_ALWAYS(!s_Path.IsEmpty(), "Failed to retrieve application directory.");
   return s_Path;
 }
 

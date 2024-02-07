@@ -26,9 +26,10 @@ public:
   ~ezRenderComponent();
 
   /// \brief Called by ezRenderComponent::OnUpdateLocalBounds().
-  /// If EZ_SUCCESS is returned, \a bounds and \a bAlwaysVisible will be integrated into the ezMsgUpdateLocalBounds result,
+  ///
+  /// If EZ_SUCCESS is returned, out_bounds and out_bAlwaysVisible will be integrated into the ezMsgUpdateLocalBounds ref_msg,
   /// otherwise the out values are simply ignored.
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) = 0;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) = 0;
 
   /// \brief Call this when some value was modified that affects the size of the local bounding box and it should be recomputed.
   void TriggerLocalBoundsUpdate();
