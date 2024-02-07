@@ -109,6 +109,7 @@ export import JointAttachmentComponent = __AllComponents.JointAttachmentComponen
 export import JointOverrideComponent = __AllComponents.JointOverrideComponent;
 export import LensFlareComponent = __AllComponents.LensFlareComponent;
 export import LocalBlackboardComponent = __AllComponents.LocalBlackboardComponent;
+export import LodComponent = __AllComponents.LodComponent;
 export import MarkerComponent = __AllComponents.MarkerComponent;
 export import OccluderComponent = __AllComponents.OccluderComponent;
 export import ParticleComponent = __AllComponents.ParticleComponent;

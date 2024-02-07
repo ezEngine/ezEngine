@@ -225,11 +225,11 @@ public:
   /// If the path is relative, it is attempted to open the specified file, which means it is searched in all available
   /// data directories. The path to the file that is found will be returned.
   ///
+  /// \param sPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data
+  /// directory that would handle it.
   /// \param out_sAbsolutePath will contain the absolute path to the file. Can be nullptr.
   /// \param out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Can be
   /// nullptr.
-  /// \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data
-  /// directory that would handle it.
   /// \param out_ppDataDir If not null, it will be set to the data directory that would handle this path.
   ///
   /// \returns The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.

@@ -238,7 +238,8 @@ ezResult ezOSFile::InternalDeleteFile(ezStringView sFile)
 {
   if (DeleteFileW(ezDosDevicePath(sFile)) == FALSE)
   {
-    if (GetLastError() == ERROR_FILE_NOT_FOUND)
+    DWORD error = GetLastError();
+    if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND)
       return EZ_SUCCESS;
 
     return EZ_FAILURE;
@@ -251,7 +252,8 @@ ezResult ezOSFile::InternalDeleteDirectory(ezStringView sDirectory)
 {
   if (RemoveDirectoryW(ezDosDevicePath(sDirectory)) == FALSE)
   {
-    if (GetLastError() == ERROR_FILE_NOT_FOUND)
+    DWORD error = GetLastError();
+    if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND)
       return EZ_SUCCESS;
 
     return EZ_FAILURE;
@@ -702,5 +704,3 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
 }
 
 #endif
-
-

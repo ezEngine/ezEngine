@@ -26,7 +26,8 @@ public:
   ~ezRenderComponent();
 
   /// \brief Called by ezRenderComponent::OnUpdateLocalBounds().
-  /// If EZ_SUCCESS is returned, ref_bounds and ref_bAlwaysVisible will be integrated into the ezMsgUpdateLocalBounds result,
+  ///
+  /// If EZ_SUCCESS is returned, out_bounds and out_bAlwaysVisible will be integrated into the ezMsgUpdateLocalBounds ref_msg,
   /// otherwise the out values are simply ignored.
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) = 0;
 

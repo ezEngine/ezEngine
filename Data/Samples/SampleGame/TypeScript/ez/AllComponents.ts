@@ -360,10 +360,16 @@ export class DeviceTrackingComponent extends Component
 export class LightComponent extends RenderComponent
 {
   public static GetTypeNameHash(): number { return 3732905662; }
+  get UseColorTemperature(): boolean { return __CPP_ComponentProperty_get(this, 3390607811); }
+  set UseColorTemperature(value: boolean) { __CPP_ComponentProperty_set(this, 3390607811, value); }
   get LightColor(): Color { return __CPP_ComponentProperty_get(this, 1934568030); }
   set LightColor(value: Color) { __CPP_ComponentProperty_set(this, 1934568030, value); }
+  get Temperature(): number { return __CPP_ComponentProperty_get(this, 941002825); }
+  set Temperature(value: number) { __CPP_ComponentProperty_set(this, 941002825, value); }
   get Intensity(): number { return __CPP_ComponentProperty_get(this, 2874814740); }
   set Intensity(value: number) { __CPP_ComponentProperty_set(this, 2874814740, value); }
+  get SpecularMultiplier(): number { return __CPP_ComponentProperty_get(this, 4242523270); }
+  set SpecularMultiplier(value: number) { __CPP_ComponentProperty_set(this, 4242523270, value); }
   get CastShadows(): boolean { return __CPP_ComponentProperty_get(this, 250551917); }
   set CastShadows(value: boolean) { __CPP_ComponentProperty_set(this, 250551917, value); }
   get PenumbraSize(): number { return __CPP_ComponentProperty_get(this, 3718860233); }
@@ -628,6 +634,19 @@ export class LocalBlackboardComponent extends BlackboardComponent
   set SendEntryChangedMessage(value: boolean) { __CPP_ComponentProperty_set(this, 994580380, value); }
 }
 
+export class LodComponent extends RenderComponent
+{
+  public static GetTypeNameHash(): number { return 3310849595; }
+  get BoundsOffset(): Vec3 { return __CPP_ComponentProperty_get(this, 383236148); }
+  set BoundsOffset(value: Vec3) { __CPP_ComponentProperty_set(this, 383236148, value); }
+  get BoundsRadius(): number { return __CPP_ComponentProperty_get(this, 2685930657); }
+  set BoundsRadius(value: number) { __CPP_ComponentProperty_set(this, 2685930657, value); }
+  get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 2212156245); }
+  set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 2212156245, value); }
+  get OverlapRanges(): boolean { return __CPP_ComponentProperty_get(this, 3582593088); }
+  set OverlapRanges(value: boolean) { __CPP_ComponentProperty_set(this, 3582593088, value); }
+}
+
 export class MarkerComponent extends Component
 {
   public static GetTypeNameHash(): number { return 1601973565; }
@@ -827,6 +846,8 @@ export class RotorComponent extends TransformComponent
 export class ScriptComponent extends EventMessageHandlerComponent
 {
   public static GetTypeNameHash(): number { return 1614462437; }
+  SetScriptVariable(Name: string, Value: any): void { __CPP_ComponentFunction_Call(this, 1554318557, Name, Value); }
+  GetScriptVariable(Name: string): any { return __CPP_ComponentFunction_Call(this, 4178349120, Name); }
   get UpdateInterval(): number { return __CPP_ComponentProperty_get(this, 3597189607); }
   set UpdateInterval(value: number) { __CPP_ComponentProperty_set(this, 3597189607, value); }
   get ScriptClass(): string { return __CPP_ComponentProperty_get(this, 1184048898); }

@@ -34,6 +34,11 @@ public:
   /// \brief Attempts to read the given number of bytes into the buffer. Returns the actual number of bytes read.
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override;
 
+  /// \brief Whether the end of the file was reached during reading.
+  ///
+  /// \note This is not 100% accurate, it does not guarantee that if it returns false, that the next read will return any data.
+  bool IsEOF() const { return m_bEOF; }
+
 private:
   ezUInt64 m_uiBytesCached = 0;
   ezUInt64 m_uiCacheReadPosition = 0;

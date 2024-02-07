@@ -134,8 +134,8 @@ void ExpressionHighlighter::highlightBlock(const QString& text)
         }
         else if (ch == '/' && next == '/')
         {
-          i = text.length();
-          setFormat(start, text.length(), m_Colors[ExpressionTokenType::Comment]);
+          i = (int)text.length();
+          setFormat(start, (int)text.length(), m_Colors[ExpressionTokenType::Comment]);
         }
         else
         {
@@ -209,7 +209,7 @@ void ExpressionHighlighter::highlightBlock(const QString& text)
   }
 
   if (state == Comment)
-    setFormat(start, text.length(), m_Colors[ExpressionTokenType::Comment]);
+    setFormat(start, (int)text.length(), m_Colors[ExpressionTokenType::Comment]);
   else
     state = Start;
 

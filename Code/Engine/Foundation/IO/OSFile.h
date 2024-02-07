@@ -270,8 +270,6 @@ public:
   static ezResult CopyFolder(ezStringView sSourceFolder, ezStringView sDestinationFolder, ezDynamicArray<ezString>* out_pFilesCopied = nullptr);
 
   /// \brief Deletes all files recursively in \a szFolder.
-  ///
-  /// \note The current implementation does not remove the (empty) folders themselves.
   static ezResult DeleteFolder(ezStringView sFolder);
 
 #endif
@@ -405,7 +403,7 @@ private:
   /// \brief Platform specific data about the open file.
   ezOSFileData m_FileData;
 
-  /// \brief The application binaries' path.
+  /// \brief The application binary's path.
   static ezString64 s_sApplicationPath;
 
   /// \brief The path where user data is stored on this OS

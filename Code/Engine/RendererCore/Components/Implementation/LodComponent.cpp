@@ -1,10 +1,15 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Graphics/Camera.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Math/BoundingSphere.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/Components/LodComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/View.h>
 
 float CalculateSphereScreenSpaceCoverage(const ezBoundingSphere& sphere, const ezCamera& camera)
 {
