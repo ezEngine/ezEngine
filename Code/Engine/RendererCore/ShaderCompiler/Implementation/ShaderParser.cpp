@@ -1,7 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Foundation/CodeUtils/TokenParseUtils.h>
-#include <Foundation/CodeUtils/Tokenizer.h>
+#include <Foundation/CodeUtils/Preprocessor.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
@@ -466,7 +466,7 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& inout_stream,
   {
     ezLog::Error("Failed to preprocess material parameter section");
     return;
-  }    
+  }
 
   ezTokenizer tokenizer;
   tokenizer.Tokenize(ezMakeArrayPtr((const ezUInt8*)sContent.GetData(), sContent.GetElementCount()), ezLog::GetThreadLocalLogSystem());
