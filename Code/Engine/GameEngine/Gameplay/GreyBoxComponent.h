@@ -14,7 +14,8 @@ struct ezMsgExtractRenderData;
 struct ezMsgBuildStaticMesh;
 struct ezMsgExtractGeometry;
 struct ezMsgExtractOccluderData;
-struct ezMsgTransformChanged;
+struct ezMsgSetMeshMaterial;
+struct ezMsgSetColor;
 class ezMeshResourceDescriptor;
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
@@ -143,6 +144,9 @@ protected:
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
   void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
+
+  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
 
   ezEnum<ezGreyBoxShape> m_Shape;
   ezMaterialResourceHandle m_hMaterial;

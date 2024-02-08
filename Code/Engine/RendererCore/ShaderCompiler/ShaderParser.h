@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Strings/String.h>
+#include <RendererCore/Shader/ShaderHelper.h>
 #include <RendererCore/ShaderCompiler/Declarations.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 
@@ -37,13 +37,15 @@ public:
     ezHybridArray<EnumValue, 16> m_Values;
   };
 
+  static ezResult PreprocessSection(ezStreamReader& inout_stream, ezShaderHelper::ezShaderSections::Enum section, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult);
+
   static void ParseMaterialParameterSection(
-    ezStreamReader& inout_stream, ezHybridArray<ParameterDefinition, 16>& out_parameter, ezHybridArray<EnumDefinition, 4>& out_enumDefinitions);
+    ezStreamReader& inout_stream, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions);
 
   static void ParsePermutationSection(
-    ezStreamReader& inout_stream, ezHybridArray<ezHashedString, 16>& out_permVars, ezHybridArray<ezPermutationVar, 16>& out_fixedPermVars);
+    ezStreamReader& inout_stream, ezDynamicArray<ezHashedString>& out_permVars, ezDynamicArray<ezPermutationVar>& out_fixedPermVars);
   static void ParsePermutationSection(
-    ezStringView sPermutationSection, ezHybridArray<ezHashedString, 16>& out_permVars, ezHybridArray<ezPermutationVar, 16>& out_fixedPermVars);
+    ezStringView sPermutationSection, ezDynamicArray<ezHashedString>& out_permVars, ezDynamicArray<ezPermutationVar>& out_fixedPermVars);
 
   static void ParsePermutationVarConfig(ezStringView sPermutationVarConfig, ezVariant& out_defaultValue, EnumDefinition& out_enumDefinition);
 
@@ -61,7 +63,7 @@ public:
   /// \param sDeclaration The shader resource declaration without any attributes, e.g. "Texture2D DiffuseTexture"
   /// \param binding The binding that needs to be set on the output out_sDeclaration.
   /// \param out_sDeclaration The new declaration that changes sDeclaration according to the provided 'binding', e.g. "Texture2D DiffuseTexture : register(t0, space5)"
-  using CreateResourceDeclaration = ezDelegate<void (ezStringView, ezStringView, const ezShaderResourceBinding &, ezStringBuilder &)>;
+  using CreateResourceDeclaration = ezDelegate<void(ezStringView, ezStringView, const ezShaderResourceBinding&, ezStringBuilder&)>;
 
   /// \brief Merges the shader resource bindings of all used shader stages.
   ///

@@ -45,6 +45,7 @@ void ezProcPlacementComponentManager::Initialize()
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcPlacementComponentManager::PreparePlace, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+    desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
@@ -52,6 +53,7 @@ void ezProcPlacementComponentManager::Initialize()
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcPlacementComponentManager::PlaceObjects, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
@@ -110,30 +112,37 @@ void ezProcPlacementComponentManager::FindTiles(const ezWorldModule::UpdateConte
     return;
   }
 
-  // Schedule find tiles tasks
-  m_UpdateTilesTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
-
-  for (auto& visibleComponent : m_VisibleComponents)
+  if (GetWorldSimulationEnabled())
   {
-    ezProcPlacementComponent* pComponent = nullptr;
-    if (!TryGetComponent(visibleComponent.m_hComponent, pComponent))
-    {
-      continue;
-    }
+    // Schedule find tiles tasks
+    m_UpdateTilesTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
-    auto& outputContexts = pComponent->m_OutputContexts;
-    for (auto& outputContext : outputContexts)
+    for (auto& visibleComponent : m_VisibleComponents)
     {
-      outputContext.m_pUpdateTilesTask->AddCameraPosition(visibleComponent.m_vCameraPosition);
-
-      if (outputContext.m_pUpdateTilesTask->IsTaskFinished())
+      ezProcPlacementComponent* pComponent = nullptr;
+      if (!TryGetComponent(visibleComponent.m_hComponent, pComponent))
       {
-        ezTaskSystem::AddTaskToGroup(m_UpdateTilesTaskGroupID, outputContext.m_pUpdateTilesTask);
+        continue;
+      }
+
+      auto& outputContexts = pComponent->m_OutputContexts;
+      for (auto& outputContext : outputContexts)
+      {
+        outputContext.m_pUpdateTilesTask->AddCameraPosition(visibleComponent.m_vCameraPosition);
+
+        if (outputContext.m_pUpdateTilesTask->IsTaskFinished())
+        {
+          ezTaskSystem::AddTaskToGroup(m_UpdateTilesTaskGroupID, outputContext.m_pUpdateTilesTask);
+        }
       }
     }
-  }
 
-  ezTaskSystem::StartTaskGroup(m_UpdateTilesTaskGroupID);
+    ezTaskSystem::StartTaskGroup(m_UpdateTilesTaskGroupID);
+  }
+  else
+  {
+    ClearVisibleComponents();
+  }
 }
 
 void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateContext& context)
@@ -205,7 +214,8 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
       }
 
       // Sort by distance, larger distances come first since new tiles are processed in reverse order.
-      m_NewTiles.Sort([](auto& ref_tileA, auto& ref_tileB) { return ref_tileA.m_fDistanceToCamera > ref_tileB.m_fDistanceToCamera; });
+      m_NewTiles.Sort([](auto& ref_tileA, auto& ref_tileB)
+        { return ref_tileA.m_fDistanceToCamera > ref_tileB.m_fDistanceToCamera; });
     }
 
     ClearVisibleComponents();
@@ -258,39 +268,36 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   const ezWorld* pWorld = GetWorld();
 
   // Update processing tasks
-  if (GetWorldSimulationEnabled())
   {
+    EZ_PROFILE_SCOPE("Prepare processing tasks");
+
+    ezTaskGroupID prepareTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+
+    for (auto& processingTask : m_ProcessingTasks)
     {
-      EZ_PROFILE_SCOPE("Prepare processing tasks");
+      if (!processingTask.IsValid() || processingTask.IsScheduled())
+        continue;
 
-      ezTaskGroupID prepareTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+      auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
+      activeTile.PreparePlacementData(pWorld, pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>(), *processingTask.m_pData);
 
-      for (auto& processingTask : m_ProcessingTasks)
-      {
-        if (!processingTask.IsValid() || processingTask.IsScheduled())
-          continue;
-
-        auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
-        activeTile.PreparePlacementData(pWorld, pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>(), *processingTask.m_pData);
-
-        ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
-      }
-
-      ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
-      ezTaskSystem::WaitForGroup(prepareTaskGroupID);
+      ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
     }
 
+    ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
+    ezTaskSystem::WaitForGroup(prepareTaskGroupID);
+  }
+
+  {
+    EZ_PROFILE_SCOPE("Kickoff placement tasks");
+
+    for (auto& processingTask : m_ProcessingTasks)
     {
-      EZ_PROFILE_SCOPE("Kickoff placement tasks");
+      if (!processingTask.IsValid() || processingTask.IsScheduled())
+        continue;
 
-      for (auto& processingTask : m_ProcessingTasks)
-      {
-        if (!processingTask.IsValid() || processingTask.IsScheduled())
-          continue;
-
-        processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
-        processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
-      }
+      processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
+      processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
     }
   }
 }
@@ -305,7 +312,8 @@ void ezProcPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateCo
     sortedTask.m_uiTaskIndex = i;
   }
 
-  m_SortedProcessingTasks.Sort([](auto& ref_taskA, auto& ref_taskB) { return ref_taskA.m_uiScheduledFrame < ref_taskB.m_uiScheduledFrame; });
+  m_SortedProcessingTasks.Sort([](auto& ref_taskA, auto& ref_taskB)
+    { return ref_taskA.m_uiScheduledFrame < ref_taskB.m_uiScheduledFrame; });
 
   ezUInt32 uiTotalNumPlacedObjects = 0;
 
@@ -538,11 +546,16 @@ void ezProcPlacementComponentManager::OnResourceEvent(const ezResourceEvent& res
 
 void ezProcPlacementComponentManager::AddVisibleComponent(const ezComponentHandle& hComponent, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const
 {
+  if (!GetWorldSimulationEnabled())
+    return;
+
   EZ_LOCK(m_VisibleComponentsMutex);
 
   for (auto& visibleComponent : m_VisibleComponents)
   {
-    if (visibleComponent.m_hComponent == hComponent && visibleComponent.m_vCameraPosition == cameraPosition && visibleComponent.m_vCameraDirection == cameraDirection)
+    if (visibleComponent.m_hComponent == hComponent &&
+        visibleComponent.m_vCameraPosition.IsEqual(cameraPosition, ezMath::LargeEpsilon<float>()) &&
+        visibleComponent.m_vCameraDirection.IsEqual(cameraDirection, ezMath::LargeEpsilon<float>()))
     {
       return;
     }
@@ -682,23 +695,23 @@ void ezProcPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_m
 
 void ezProcPlacementComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const
 {
+  if (ref_msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView &&
+      ref_msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
+    return;
+
   // Don't extract render data for selection or in shadow views.
   if (ref_msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  if (ref_msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView || ref_msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
-  {
-    const ezCamera* pCamera = ref_msg.m_pView->GetCullingCamera();
+  if (m_hResource.IsValid() == false)
+    return;
 
-    ezVec3 cameraPosition = pCamera->GetCenterPosition();
-    ezVec3 cameraDirection = pCamera->GetCenterDirForwards();
+  const ezCamera* pCamera = ref_msg.m_pView->GetCullingCamera();
+  const ezVec3 cameraPosition = pCamera->GetCenterPosition();
+  const ezVec3 cameraDirection = pCamera->GetCenterDirForwards();
 
-    if (m_hResource.IsValid())
-    {
-      auto pManager = static_cast<const ezProcPlacementComponentManager*>(GetOwningManager());
-      pManager->AddVisibleComponent(GetHandle(), cameraPosition, cameraDirection);
-    }
-  }
+  auto pManager = static_cast<const ezProcPlacementComponentManager*>(GetOwningManager());
+  pManager->AddVisibleComponent(GetHandle(), cameraPosition, cameraDirection);
 }
 
 void ezProcPlacementComponent::SerializeComponent(ezWorldWriter& inout_stream) const

@@ -4,7 +4,6 @@
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <RendererCore/Shader/Implementation/Helper.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <RendererCore/ShaderCompiler/Declarations.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>

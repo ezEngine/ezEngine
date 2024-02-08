@@ -1,10 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <RendererCore/Shader/Implementation/Helper.h>
+#include <RendererCore/Shader/ShaderHelper.h>
 
 namespace ezShaderHelper
 {
-
   void ezTextSectionizer::Clear()
   {
     m_Sections.Clear();

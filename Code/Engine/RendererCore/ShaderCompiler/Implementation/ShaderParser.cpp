@@ -1,10 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Foundation/CodeUtils/TokenParseUtils.h>
-#include <Foundation/CodeUtils/Tokenizer.h>
+#include <Foundation/CodeUtils/Preprocessor.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <RendererCore/Shader/Implementation/Helper.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 
@@ -66,7 +65,7 @@ namespace
     s_NameToDescriptorTable.Insert("RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
     s_NameToDescriptorTable.Insert("AppendStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
     s_NameToDescriptorTable.Insert("ConsumeStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
-    
+
     s_NameToTextureTable.Insert("Texture1D"_ezsv, ezGALShaderTextureType::Texture1D);
     s_NameToTextureTable.Insert("Texture1DArray"_ezsv, ezGALShaderTextureType::Texture1DArray);
     s_NameToTextureTable.Insert("Texture2D"_ezsv, ezGALShaderTextureType::Texture2D);
@@ -383,20 +382,94 @@ namespace
   }
 } // namespace
 
-// static
-void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& inout_stream, ezHybridArray<ParameterDefinition, 16>& out_parameter, ezHybridArray<EnumDefinition, 4>& out_enumDefinitions)
+ezResult ezShaderParser::PreprocessSection(ezStreamReader& inout_stream, ezShaderHelper::ezShaderSections::Enum section, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult)
 {
   ezString sContent;
   sContent.ReadAll(inout_stream);
 
-  ezShaderHelper::ezTextSectionizer Sections;
-  ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
+  ezShaderHelper::ezTextSectionizer sections;
+  ezShaderHelper::GetShaderSections(sContent, sections);
 
   ezUInt32 uiFirstLine = 0;
-  ezStringView s = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALPARAMETER, uiFirstLine);
+  ezStringView sSectionContent = sections.GetSectionContent(section, uiFirstLine);
+
+  ezPreprocessor pp;
+  pp.SetPassThroughPragma(false);
+  pp.SetPassThroughLine(false);
+
+  // setup defines
+  {
+    EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine("TRUE 1"));
+    EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine("FALSE 0"));
+    EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine("PLATFORM_SHADER ="));
+
+    for (auto& sDefine : customDefines)
+    {
+      EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine(sDefine));
+    }
+  }
+
+  pp.SetFileOpenFunction([&](ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& out_fileContent, ezTimestamp& out_fileModification)
+    {
+        if (sAbsoluteFile == "SectionContent")
+        {
+          out_fileContent.PushBackRange(ezMakeArrayPtr((const ezUInt8*)sSectionContent.GetStartPointer(), sSectionContent.GetElementCount()));
+          return EZ_SUCCESS;
+        }
+
+        ezFileReader r;
+        if (r.Open(sAbsoluteFile).Failed())
+        {
+          ezLog::Error("Could not find include file '{0}'", sAbsoluteFile);
+          return EZ_FAILURE;
+        }
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+        ezFileStats stats;
+        if (ezFileSystem::GetFileStats(sAbsoluteFile, stats).Succeeded())
+        {
+          out_fileModification = stats.m_LastModificationTime;
+        }
+#endif
+
+        ezUInt8 Temp[4096];
+        while (ezUInt64 uiRead = r.ReadBytes(Temp, 4096))
+        {
+          out_fileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
+        }
+
+        return EZ_SUCCESS; });
+
+  bool bFoundUndefinedVars = false;
+  pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
+    {
+        if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
+        {
+          bFoundUndefinedVars = true;
+
+          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}. Only material permutation variables are allowed in material config sections.", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
+        } });
+
+  if (pp.Process("SectionContent", out_sResult, false).Failed() || bFoundUndefinedVars)
+  {
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
+// static
+void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& inout_stream, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions)
+{
+  ezStringBuilder sContent;
+  if (PreprocessSection(inout_stream, ezShaderHelper::ezShaderSections::MATERIALPARAMETER, ezArrayPtr<ezString>(), sContent).Failed())
+  {
+    ezLog::Error("Failed to preprocess material parameter section");
+    return;
+  }
 
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetStartPointer(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem());
+  tokenizer.Tokenize(ezMakeArrayPtr((const ezUInt8*)sContent.GetData(), sContent.GetElementCount()), ezLog::GetThreadLocalLogSystem());
 
   TokenStream tokens;
   tokenizer.GetAllLines(tokens);
@@ -427,7 +500,7 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& inout_stream,
 }
 
 // static
-void ezShaderParser::ParsePermutationSection(ezStreamReader& inout_stream, ezHybridArray<ezHashedString, 16>& out_permVars, ezHybridArray<ezPermutationVar, 16>& out_fixedPermVars)
+void ezShaderParser::ParsePermutationSection(ezStreamReader& inout_stream, ezDynamicArray<ezHashedString>& out_permVars, ezDynamicArray<ezPermutationVar>& out_fixedPermVars)
 {
   ezString sContent;
   sContent.ReadAll(inout_stream);
@@ -441,7 +514,7 @@ void ezShaderParser::ParsePermutationSection(ezStreamReader& inout_stream, ezHyb
 }
 
 // static
-void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHashedString, 16>& out_permVars, ezHybridArray<ezPermutationVar, 16>& out_fixedPermVars)
+void ezShaderParser::ParsePermutationSection(ezStringView s, ezDynamicArray<ezHashedString>& out_permVars, ezDynamicArray<ezPermutationVar>& out_fixedPermVars)
 {
   out_permVars.Clear();
   out_fixedPermVars.Clear();
@@ -589,10 +662,10 @@ ezResult ParseResource(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezSh
   s_NameToTextureTable.TryGetValue(tokens[uiTypeToken]->m_DataView, out_resourceDefinition.m_Binding.m_TextureType);
 
   // Skip optional template
-  TokenMatch templatePattern[] = {"<"_ezsv,ezTokenType::Identifier, ">"_ezsv};
+  TokenMatch templatePattern[] = {"<"_ezsv, ezTokenType::Identifier, ">"_ezsv};
   ezHybridArray<ezUInt32, 8> acceptedTokens;
   Accept(tokens, ref_uiCurToken, templatePattern, &acceptedTokens);
-  
+
   // Match name
   ezUInt32 uiNameToken = ref_uiCurToken;
   if (!Accept(tokens, ref_uiCurToken, ezTokenType::Identifier, &uiNameToken))
@@ -603,7 +676,7 @@ ezResult ParseResource(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezSh
   ezUInt32 uiEndToken = uiNameToken;
 
   // Match optional array
-  TokenMatch arrayPattern[] = {"["_ezsv,ezTokenType::Integer, "]"_ezsv};
+  TokenMatch arrayPattern[] = {"["_ezsv, ezTokenType::Integer, "]"_ezsv};
   TokenMatch bindlessPattern[] = {"["_ezsv, "]"_ezsv};
   if (Accept(tokens, ref_uiCurToken, arrayPattern, &acceptedTokens))
   {
@@ -618,8 +691,8 @@ ezResult ParseResource(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezSh
   out_resourceDefinition.m_sDeclaration = ezStringView(tokens[uiTypeToken]->m_DataView.GetStartPointer(), tokens[uiEndToken]->m_DataView.GetEndPointer());
 
   // Match optional register
-  TokenMatch slotPattern[] = {":"_ezsv,"register"_ezsv, "("_ezsv,ezTokenType::Identifier, ")"_ezsv};
-  TokenMatch slotAndSetPattern[] = {":"_ezsv,"register"_ezsv, "("_ezsv,ezTokenType::Identifier, ","_ezsv, ezTokenType::Identifier, ")"_ezsv};
+  TokenMatch slotPattern[] = {":"_ezsv, "register"_ezsv, "("_ezsv, ezTokenType::Identifier, ")"_ezsv};
+  TokenMatch slotAndSetPattern[] = {":"_ezsv, "register"_ezsv, "("_ezsv, ezTokenType::Identifier, ","_ezsv, ezTokenType::Identifier, ")"_ezsv};
   if (Accept(tokens, ref_uiCurToken, slotPattern, &acceptedTokens))
   {
     ezStringView sSlot = tokens[acceptedTokens[3]]->m_DataView;

@@ -2,7 +2,10 @@
 
 #include "StandardMacros.h"
 
+#ifndef PLATFORM_SHADER
 #define PLATFORM_SHADER EZ_OFF
+#endif
+
 #define PLATFORM_DX11 EZ_OFF
 #define PLATFORM_VULKAN EZ_OFF
 

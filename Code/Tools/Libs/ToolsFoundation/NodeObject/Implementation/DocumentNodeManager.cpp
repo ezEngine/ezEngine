@@ -896,6 +896,9 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
 
 void ezDocumentNodeManager::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
 {
+  if (e.m_pObject == nullptr)
+    return;
+
   HandlePotentialDynamicPinPropertyChanged(e.m_pObject, e.m_sProperty);
 
   if (const ezDocumentObject* pParent = e.m_pObject->GetParent())
