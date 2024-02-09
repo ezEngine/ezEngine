@@ -4,36 +4,47 @@
 
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Strings/StringBuilder.h>
+#  include <Foundation/Types/Delegate.h>
+#  include <Foundation/Types/Enum.h>
 #  include <jni.h>
 
 class ezJniObject;
 class ezJniClass;
 class ezJniString;
 
-/// \brief Describes error conditions that occur while attempting to translate checked calls into JNI.
-enum class ezJniErrorState
+struct ezJniError
 {
-  /// \brief No JNI error occurred.
-  SUCCESS = 0,
+  using StorageType = ezUInt8;
+  enum Enum
+  {
+    /// \brief No JNI error occurred.
+    SUCCESS = 0,
 
-  /// \brief The method could not be executed because the JVM is still holding a pending exception.
-  PENDING_EXCEPTION,
+    /// \brief The method could not be executed because the JVM is still holding a pending exception.
+    PENDING_EXCEPTION,
 
-  /// \brief No method matching the passed parameters or return type was found.
-  NO_MATCHING_METHOD,
+    /// \brief No method matching the passed parameters or return type was found.
+    NO_MATCHING_METHOD,
 
-  /// \brief A call could not be resolved due to multiple matching overloads.
-  AMBIGUOUS_CALL,
+    /// \brief A call could not be resolved due to multiple matching overloads.
+    AMBIGUOUS_CALL,
 
-  /// \brief No field matching the return type, static-ness or writability was found.
-  NO_MATCHING_FIELD,
+    /// \brief No field matching the return type, static-ness or writability was found.
+    NO_MATCHING_FIELD,
 
-  /// \brief A field or method was requested on a null object.
-  CALL_ON_NULL_OBJECT,
+    /// \brief A field or method was requested on a null object.
+    CALL_ON_NULL_OBJECT,
 
-  /// \brief A class was not found.
-  CLASS_NOT_FOUND,
+    /// \brief A class was not found.
+    CLASS_NOT_FOUND,
+
+    Default = SUCCESS
+  };
+  EZ_ENUM_TO_STRING(SUCCESS, PENDING_EXCEPTION, NO_MATCHING_METHOD, AMBIGUOUS_CALL, NO_MATCHING_FIELD, CALL_ON_NULL_OBJECT, CLASS_NOT_FOUND);
 };
+
+using ezJniErrorState = ezEnum<ezJniError>;
+using ezJniErrorHandler = ezDelegate<void(ezJniErrorState)>;
 
 /// \brief Attaches the current thread to the Java virtual machine.
 ///
@@ -51,6 +62,44 @@ enum class ezJniErrorState
 ///       ezJniClass myClassType = activity.Call<ezJniObject>("getClassLoader").Call<ezJniClass>("loadClass", ezJniString("com.myproject.MyClass"));
 ///     }
 ///   \endcode
+///
+/// Note that all JNICalls may fail, including the construction of ezJniClass and ezJniObject instances.
+/// You may use GetLastError() and ClearLastError() to check for, and do your own error-specific handling.
+/// \example
+///   \code
+///     void foo()
+///     {
+///       ezJniAttachment attachment;
+///       ezJniObject activity = attachment.GetActivity();
+///       ezJniClass myClassType = activity.Call<ezJniObject>("getClassLoader").Call<ezJniClass>("loadClass", ezJniString("com.myproject.MyClass"));
+///       if(attachment.GetLastError() == ezJniErrorState::NO_MATCHING_METHOD){SpecificErrorHandling();}
+///     }
+///   \endcode
+/// 
+/// You may also call InstallErrorHandler() after creation to install your own error handler.
+/// Check out its documentation for details. This reduces boilerplate and enables method chaining:
+/// \example
+///   \code
+///     void foo()
+///     {
+///       ezJniAttachment attachment;
+///       attachment.InstallErrorHandler(&ThrowRuntimeError);
+/// 
+///       try{
+///         attachment
+///           .GetActivity()
+///           .Call<ezJniObject>("getClassLoader")
+///           .Call<ezJniClass>("loadClass", ezJniString("com.myproject.MyClass")
+///           .CreateInstance()
+///           .Call<ezJniObject>("MyMethod");
+///       }
+///       catch(const std::runtime_error& error)}
+///       }
+///     }
+///   \endcode
+///
+/// Either way, the error is always internally logged with ezLog::Error.
+/// ClearLastError() is called whenever a ezJniAttachment is destroyed, so you needn't worry about cleanup in that case.
 class EZ_FOUNDATION_DLL ezJniAttachment
 {
 public:
@@ -98,6 +147,13 @@ public:
 
   /// \brief Used internally. Returns true and logs a message is an error or exception is pending.
   static bool FailOnPendingErrorOrException();
+
+  /// \brief Installs an error handler valid for the current ezJniAttachment's lifetime. Called for all ezJniErrorStates but SUCCESS.
+  /// There must not be any other ezJniAttachments existing on the same thread for the call to succeed.
+  /// There must not be any new ezJniAttachments instances created before the current ezJniAttachment is destroyed.
+  /// These invariants should hold true with correct usage and are guarded by asserts.
+  /// May be called more than once to replace an existing error handler on the same instance.
+  void InstallErrorHandler(ezJniErrorHandler onError);
 
 private:
   static thread_local JNIEnv* s_env;
@@ -496,6 +552,21 @@ public:
   /// \brief Sets the value of the static field with the given name without performing any type checks.
   template <typename T>
   void UnsafeSetStaticField(const char* name, const char* signature, const T& arg) const;
+};
+
+/// \brief Class holding a local reference to a Java null pointer of type Class.
+class EZ_FOUNDATION_DLL ezJniNullPtr
+{
+  ezJniClass m_class;
+
+public:
+  /// \brief Constructs a Class from a ezJniClass.
+  ///
+  /// \param clazz The ezJniClass.
+  explicit ezJniNullPtr(ezJniClass& clazz);
+
+  /// \brief Returns the fully qualified name of the ezJniClass that was passed into the constructor.
+  const char* GetTypeSignature();
 };
 
 #  include <Foundation/Basics/Platform/Android/AndroidJni.inl>

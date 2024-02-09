@@ -1849,3 +1849,34 @@ Ret ezJniObject::UnsafeGetField(const char* name, const char* signature) const
     return ezJniTraits<Ret>::GetField(m_object, field);
   }
 }
+
+template<>
+struct ezJniTraits<ezJniNullPtr>
+{
+
+  static inline bool AppendSignature(ezJniNullPtr& object, ezStringBuilder& str)
+  {
+    str.Append("L");
+    str.Append(object.GetTypeSignature());
+    str.ReplaceAll(".", "/");
+    str.Append(";");
+    return true;
+  }
+
+  static inline jvalue ToValue(const ezJniNullPtr& object)
+  {
+    jvalue j;
+    j.l = nullptr;
+    return j;
+  }
+
+  static inline ezJniClass GetStaticType()
+  {
+    return ezJniClass("java/lang/Object");
+  }
+
+  static inline ezJniClass GetRuntimeType(ezJniNullPtr& arg)
+  {
+    return ezJniClass(arg.GetTypeSignature());
+  }
+};
