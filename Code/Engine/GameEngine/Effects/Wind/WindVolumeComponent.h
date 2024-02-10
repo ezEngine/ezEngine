@@ -45,9 +45,8 @@ public:
   /// \brief How strong the wind shall blow at the strongest point of the volume.
   ezEnum<ezWindStrength> m_Strength; // [ property ]
 
-  /// \brief Whether the wind shall blow forwards or backwards.
-  /// Depending on the shape, this may also mean inwards or outwards.
-  bool m_bReverseDirection = false; // [ property ]
+  /// \brief Factor to scale the wind strength. Negative values can be used to reverse the wind direction.
+  float m_fStrengthFactor = 1.0f;
 
   /// \brief Computes the wind force at a global position.
   ///

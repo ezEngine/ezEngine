@@ -11,12 +11,12 @@
 ezSpatialData::Category ezWindVolumeComponent::SpatialDataCategory = ezSpatialData::RegisterCategory("WindVolumes", ezSpatialData::Flags::None);
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, 2)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Strength", ezWindStrength, m_Strength),
-    EZ_MEMBER_PROPERTY("ReverseDirection", m_bReverseDirection),
+    EZ_MEMBER_PROPERTY("StrengthFactor", m_fStrengthFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10, 10)),
     EZ_MEMBER_PROPERTY("BurstDuration", m_BurstDuration),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
   }
@@ -74,7 +74,7 @@ void ezWindVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_BurstDuration;
   s << m_OnFinishedAction;
   s << m_Strength;
-  s << m_bReverseDirection;
+  s << m_fStrengthFactor;
 }
 
 void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -87,9 +87,16 @@ void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_OnFinishedAction;
   s >> m_Strength;
 
-  if (uiVersion >= 2)
+  if (uiVersion == 2)
   {
-    s >> m_bReverseDirection;
+    bool bReverse = false;
+    s >> bReverse;
+    m_fStrengthFactor = bReverse ? -1 : 1;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_fStrengthFactor;
   }
 }
 
@@ -124,8 +131,34 @@ void ezWindVolumeComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 
 float ezWindVolumeComponent::GetWindInMetersPerSecond() const
 {
-  return m_bReverseDirection ? -ezWindStrength::GetInMetersPerSecond(m_Strength) : ezWindStrength::GetInMetersPerSecond(m_Strength);
+  return ezWindStrength::GetInMetersPerSecond(m_Strength) * m_fStrengthFactor;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezWindVolumeComponentPatch_2_3 : public ezGraphPatch
+{
+public:
+  ezWindVolumeComponentPatch_2_3()
+    : ezGraphPatch("ezWindVolumeComponent", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto pReverseDirection =  pNode->FindProperty("ReverseDirection");
+    if (pReverseDirection && pReverseDirection->m_Value.IsA<bool>())
+    {
+      float fFactor = pReverseDirection->m_Value.Get<bool>() ? -1 : 1;
+      pNode->AddProperty("StrengthFactor", fFactor);
+    }
+  }
+};
+
+ezWindVolumeComponentPatch_2_3 g_ezWindVolumeComponentPatch_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
