@@ -8,7 +8,6 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/System/PlatformFeatures.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
