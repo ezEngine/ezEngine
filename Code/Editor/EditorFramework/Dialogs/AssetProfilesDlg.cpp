@@ -44,22 +44,14 @@ public:
   {
     if (iColumn == 0)
     {
-      // if (iRole == Qt::DecorationRole)
-      //{
-      //   const ezInt32 iPlatform = pObject->GetTypeAccessor().GetValue("Platform").ConvertTo<ezInt32>();
+      if (iRole == Qt::DecorationRole)
+      {
+        const ezString sTargetPlatform = pObject->GetTypeAccessor().GetValue("TargetPlatform").ConvertTo<ezString>();
 
-      //  switch (iPlatform)
-      //  {
-      //    case ezProfileTargetPlatform::PC:
-      //      return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg");
+        const ezStringBuilder sIconName(":Platforms/Icons/Platform", sTargetPlatform, ".svg");
 
-      //    case ezProfileTargetPlatform::UWP:
-      //      return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg"); // TODO: icon
-
-      //    case ezProfileTargetPlatform::Android:
-      //      return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid.svg");
-      //  }
-      //}
+        return ezQtUiServices::GetSingleton()->GetCachedIconResource(sIconName);
+      }
 
       if (iRole == Qt::DisplayRole)
       {
