@@ -190,7 +190,7 @@ void ezDetourCrowdAgentComponent::OnDeactivated()
 ezQuat ezDetourCrowdAgentComponent::RotateTowardsDirection(const ezQuat& qCurrentRot, const ezVec3& vTargetDir, ezAngle& out_angularSpeed) const
 {
   // This function makes use of the fact that the object is always upright
-  
+
   ezAngle currentAngle = 2.0 * ezMath::ACos(qCurrentRot.w);
   if (qCurrentRot.z < 0)
     currentAngle = ezAngle::MakeFromRadian(2.0f * ezMath::Pi<float>() - currentAngle.GetRadian());
@@ -299,7 +299,7 @@ void ezDetourCrowdAgentComponent::SyncTransform(const struct dtCrowdAgent* pDtAg
   //      return;
   //    }
   //    vDiff /= fDistance;
-  //    
+  //
   //    // Speed is increased in case we're trying to chase the dtAgent
   //    const float fSpeed = ezMath::Min(m_fMaxSpeed * 1.3f, fDistance / fDeltaTime);
 //
@@ -332,7 +332,7 @@ void ezDetourCrowdAgentComponent::SyncTransform(const struct dtCrowdAgent* pDtAg
   //  else
   //  {
   //    m_vVelocity = vVelocity;
-  //    
+  //
   //    ezQuat qRotation = GetOwner()->GetGlobalRotation();
   //    if (SyncRotation(vPosition, qRotation, vVelocity, pDtAgent))
   //      GetOwner()->SetGlobalRotation(qRotation);
@@ -464,11 +464,9 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
           // Likewise, if ezAgent's target has changed since the last time (m_uiTargetDirtyBit is set), set target
           if (pAgent->m_uiTargetDirtyBit || pDtAgent->targetState == DT_CROWDAGENT_TARGET_NONE || pDtAgent->targetState == DT_CROWDAGENT_TARGET_FAILED)
           {
-            m_pDetourCrowdModule->SetAgentTargetPosition(pAgent->m_iAgentId, pAgent->m_vTargetPosition);
-            pAgent->m_vActualTargetPosition = ezRcPos(pDtAgent->targetPos);
-            pAgent->m_uiTargetDirtyBit = 0;
+            SetAgentTargetPosition(pAgent, pDtAgent);
           }
-          
+
           // If ezAgent is waiting for path status, but dtAgent has already got it, sync it and fire events
           if (pDtAgent->targetState == DT_CROWDAGENT_TARGET_VALID)
           {
@@ -481,12 +479,7 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
           }
           else if (pDtAgent->targetState == DT_CROWDAGENT_TARGET_FAILED)
           {
-            pAgent->m_PathToTargetState = ezAgentPathFindingState::HasTargetPathFindingFailed;
-
-            ezAgentSteeringEvent e;
-            e.m_pComponent = pAgent;
-            e.m_Type = ezAgentSteeringEvent::ErrorNoPathToTarget;
-            pAgent->m_SteeringEvents.Broadcast(e);
+            ErrorNoPathToTarget(pAgent);
           }
           break;
         case ezAgentPathFindingState::HasTargetPathFindingFailed:
@@ -500,10 +493,7 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
           // If ezAgent thinks it has a path, but dtAgent has none (probably because it was deleted), repeat the process
           if (pDtAgent->targetState == DT_CROWDAGENT_TARGET_NONE)
           {
-            m_pDetourCrowdModule->SetAgentTargetPosition(pAgent->m_iAgentId, pAgent->m_vTargetPosition);
-            pAgent->m_PathToTargetState = ezAgentPathFindingState::HasTargetWaitingForPath;
-            pAgent->m_vActualTargetPosition = ezRcPos(pDtAgent->targetPos);
-            pAgent->m_uiTargetDirtyBit = 0;
+            SetAgentTargetPosition(pAgent, pDtAgent);
           }
           // If ezAgent and dtAgent both agree they have a target and a valid path, check if target is reached
           else
@@ -516,7 +506,7 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
               m_pDetourCrowdModule->ClearAgentTargetPosition(pAgent->m_iAgentId);
 
               pAgent->m_PathToTargetState = ezAgentPathFindingState::HasNoTarget;
-              
+
               ezAgentSteeringEvent e;
               e.m_pComponent = pAgent;
               e.m_Type = ezAgentSteeringEvent::TargetReached;
@@ -545,4 +535,31 @@ void ezDetourCrowdAgentComponentManager::Update(const ezWorldModule::UpdateConte
       }
     }
   }
+}
+
+void ezDetourCrowdAgentComponentManager::SetAgentTargetPosition(ezDetourCrowdAgentComponent* pAgent, const dtCrowdAgent* pDtAgent)
+{
+  if (!m_pDetourCrowdModule->IsInitializedAndReady())
+    return;
+
+  if (m_pDetourCrowdModule->SetAgentTargetPosition(pAgent->m_iAgentId, pAgent->m_vTargetPosition, ezVec3(1, 1, 2)))
+  {
+    pAgent->m_PathToTargetState = ezAgentPathFindingState::HasTargetWaitingForPath;
+    pAgent->m_vActualTargetPosition = ezRcPos(pDtAgent->targetPos);
+    pAgent->m_uiTargetDirtyBit = 0;
+  }
+  else
+  {
+    ErrorNoPathToTarget(pAgent);
+  }
+}
+
+void ezDetourCrowdAgentComponentManager::ErrorNoPathToTarget(ezDetourCrowdAgentComponent* pAgent)
+{
+  pAgent->m_PathToTargetState = ezAgentPathFindingState::HasTargetPathFindingFailed;
+
+  ezAgentSteeringEvent e;
+  e.m_pComponent = pAgent;
+  e.m_Type = ezAgentSteeringEvent::ErrorNoPathToTarget;
+  pAgent->m_SteeringEvents.Broadcast(e);
 }

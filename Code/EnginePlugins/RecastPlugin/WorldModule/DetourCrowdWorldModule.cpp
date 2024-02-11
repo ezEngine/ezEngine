@@ -10,7 +10,7 @@
 #include <RecastPlugin/WorldModule/DetourCrowdWorldModule.h>
 
 ezCVarBool cvar_DetourCrowdVisAgents("Recast.Crowd.VisAgents", false, ezCVarFlags::Default, "Draws DetourCrowd agents, if any");
-ezCVarBool cvar_DetourCrowdVisCorners("Recast.Crowd.VisCorners", false, ezCVarFlags::Default, "Draws next few path cornders of the DetourCrowd agents");
+ezCVarBool cvar_DetourCrowdVisCorners("Recast.Crowd.VisCorners", false, ezCVarFlags::Default, "Draws next few path corners of the DetourCrowd agents");
 ezCVarInt cvar_DetourCrowdMaxAgents("Recast.Crowd.MaxAgents", 128, ezCVarFlags::Save, "Determines how many DetourCrowd agents can be created");
 ezCVarFloat cvar_DetourCrowdMaxRadius("Recast.Crowd.MaxRadius", 2.0f, ezCVarFlags::Save, "Determines the maximum allowed radius of a DetourCrowd agent");
 
@@ -41,7 +41,6 @@ void ezDetourCrowdWorldModule::Initialize()
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
     desc.m_fPriority = 0.0f;
-    //desc.m_DependsOn.PushBack(ezMakeHashedString("ezRecastWorldModule::UpdateNavMesh"));
 
     RegisterUpdateFunction(desc);
   }
@@ -72,7 +71,7 @@ void ezDetourCrowdWorldModule::Deinitialize()
     dtFreeCrowd(m_pDtCrowd);
     m_pDtCrowd = nullptr;
   }
-  
+
   SUPER::Deinitialize();
 }
 
@@ -83,7 +82,7 @@ bool ezDetourCrowdWorldModule::IsInitializedAndReady() const
 
   if (m_pRecastModule == nullptr)
     return false;
-  
+
   const dtNavMesh* pNavMesh = m_pRecastModule->GetDetourNavMesh();
 
   return m_pDtCrowd->getNavMeshQuery()->getAttachedNavMesh() == pNavMesh;
@@ -105,7 +104,7 @@ void ezDetourCrowdWorldModule::FillDtCrowdAgentParams(const ezDetourCrowdAgentPa
   out_params.maxSpeed = params.m_fMaxSpeed;
   out_params.collisionQueryRange = ezMath::Max(1.2f, 12.0f * params.m_fRadius);
   out_params.pathOptimizationRange = ezMath::Max(3.0f, 30.0f * params.m_fRadius);
-  out_params.updateFlags = DT_CROWD_ANTICIPATE_TURNS | DT_CROWD_OPTIMIZE_VIS | DT_CROWD_OPTIMIZE_TOPO 
+  out_params.updateFlags = DT_CROWD_ANTICIPATE_TURNS | DT_CROWD_OPTIMIZE_VIS | DT_CROWD_OPTIMIZE_TOPO
     | DT_CROWD_OBSTACLE_AVOIDANCE | DT_CROWD_SEPARATION;
   out_params.obstacleAvoidanceType = 3;
   out_params.separationWeight = params.m_fSeparationWeight;
@@ -133,15 +132,20 @@ void ezDetourCrowdWorldModule::DestroyAgent(ezInt32 iAgentId)
   m_pDtCrowd->removeAgent(iAgentId);
 }
 
-void ezDetourCrowdWorldModule::SetAgentTargetPosition(ezInt32 iAgentId, const ezVec3& vPos, const ezVec3& vQueryHalfExtents)
+bool ezDetourCrowdWorldModule::SetAgentTargetPosition(ezInt32 iAgentId, const ezVec3& vPos, const ezVec3& vQueryHalfExtents)
 {
   if (!IsInitializedAndReady())
-    return;
+    return false;
 
   float vNavPos[3];
   dtPolyRef navPolyRef;
   m_pDtCrowd->getNavMeshQuery()->findNearestPoly(ezRcPos(vPos), ezRcPos(vQueryHalfExtents), m_pDtCrowd->getFilter(0), &navPolyRef, vNavPos);
-  m_pDtCrowd->requestMoveTarget(iAgentId, navPolyRef, vNavPos);
+  if (navPolyRef != 0)
+  {
+    m_pDtCrowd->requestMoveTarget(iAgentId, navPolyRef, vNavPos);
+    return true;
+  }
+  return false;
 }
 
 void ezDetourCrowdWorldModule::ClearAgentTargetPosition(ezInt32 iAgentId)
@@ -170,7 +174,7 @@ void ezDetourCrowdWorldModule::UpdateNavMesh(const ezWorldModule::UpdateContext&
   ezInt32 iDesiredMaxAgents = ezMath::Clamp(cvar_DetourCrowdMaxAgents.GetValue(), 8, 2048);
   ezInt32 fDesiredMaxRadius = ezMath::Clamp(cvar_DetourCrowdMaxRadius.GetValue(), 0.01f, 5.0f);
 
-  if (pNavMesh != nullptr && (m_pDtCrowd == nullptr || m_pDtCrowd->getNavMeshQuery()->getAttachedNavMesh() != pNavMesh 
+  if (pNavMesh != nullptr && (m_pDtCrowd == nullptr || m_pDtCrowd->getNavMeshQuery()->getAttachedNavMesh() != pNavMesh
     || m_iMaxAgents != iDesiredMaxAgents || m_fMaxAgentRadius != fDesiredMaxRadius))
   {
     if (m_pDtCrowd == nullptr)
