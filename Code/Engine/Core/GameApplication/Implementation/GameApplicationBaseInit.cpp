@@ -20,7 +20,7 @@
 
 ezCommandLineOptionBool opt_DisableConsoleOutput("app", "-disableConsoleOutput", "Disables logging to the standard console window.", false);
 ezCommandLineOptionInt opt_TelemetryPort("app", "-TelemetryPort", "The network port over which telemetry is sent.", ezTelemetry::s_uiPort);
-ezCommandLineOptionString opt_Profile("app", "-profile", "The platform profile to use.", "PC");
+ezCommandLineOptionString opt_Profile("app", "-profile", "The platform profile to use.", "Default");
 
 ezString ezGameApplicationBase::GetBaseDataDirectoryPath() const
 {
@@ -52,7 +52,7 @@ void ezGameApplicationBase::ExecuteInitFunctions()
 
 void ezGameApplicationBase::Init_PlatformProfile_SetPreferred()
 {
-  m_PlatformProfile.SetConfigName("Default");
+  m_PlatformProfile.SetConfigName(ezPlatformDesc::GetThisPlatformDesc().GetName());
 
   if (opt_Profile.IsOptionSpecified())
   {
@@ -185,7 +185,17 @@ void ezGameApplicationBase::Init_PlatformProfile_LoadForRuntime()
 {
   const ezStringBuilder sRuntimeProfileFile(":project/RuntimeConfigs/", m_PlatformProfile.GetConfigName(), ".ezProfile");
   m_PlatformProfile.AddMissingConfigs();
-  m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile).IgnoreResult();
+
+  if (ezFileSystem::ExistsFile(sRuntimeProfileFile))
+  {
+    m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile).AssertSuccess();
+  }
+  else
+  {
+    ezLog::Info("Platform profile '{}' doesn't exist, switching to 'Default'", m_PlatformProfile.GetConfigName());
+
+    m_PlatformProfile.LoadForRuntime(":project/RuntimeConfigs/Default.ezProfile").IgnoreResult();
+  }
 }
 
 void ezGameApplicationBase::Init_ConfigureInput() {}

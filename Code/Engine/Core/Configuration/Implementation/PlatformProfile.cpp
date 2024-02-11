@@ -27,6 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlatformProfile, 1, ezRTTIDefaultAllocator<ezP
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("TargetPlatform", m_sTargetPlatform)->AddAttributes(new ezDynamicStringEnumAttribute("TargetPlatformNames"), new ezDefaultValueAttribute("Windows")),
     EZ_ARRAY_MEMBER_PROPERTY("Configs", m_Configs)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
   }
   EZ_END_PROPERTIES;
