@@ -52,11 +52,22 @@ void ezGameApplicationBase::ExecuteInitFunctions()
 
 void ezGameApplicationBase::Init_PlatformProfile_SetPreferred()
 {
-  m_PlatformProfile.SetConfigName(ezPlatformDesc::GetThisPlatformDesc().GetName());
-
   if (opt_Profile.IsOptionSpecified())
   {
     m_PlatformProfile.SetConfigName(opt_Profile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
+  }
+  else
+  {
+    m_PlatformProfile.SetConfigName(ezPlatformDesc::GetThisPlatformDesc().GetName());
+
+    const ezStringBuilder sRuntimeProfileFile(":project/RuntimeConfigs/", m_PlatformProfile.GetConfigName(), ".ezProfile");
+
+    if (!ezFileSystem::ExistsFile(sRuntimeProfileFile))
+    {
+      ezLog::Info("Platform profile '{}' doesn't exist, switching to 'Default'", m_PlatformProfile.GetConfigName());
+
+      m_PlatformProfile.SetConfigName("Default");
+    }
   }
 
   m_PlatformProfile.AddMissingConfigs();
@@ -186,16 +197,7 @@ void ezGameApplicationBase::Init_PlatformProfile_LoadForRuntime()
   const ezStringBuilder sRuntimeProfileFile(":project/RuntimeConfigs/", m_PlatformProfile.GetConfigName(), ".ezProfile");
   m_PlatformProfile.AddMissingConfigs();
 
-  if (ezFileSystem::ExistsFile(sRuntimeProfileFile))
-  {
-    m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile).AssertSuccess();
-  }
-  else
-  {
-    ezLog::Info("Platform profile '{}' doesn't exist, switching to 'Default'", m_PlatformProfile.GetConfigName());
-
-    m_PlatformProfile.LoadForRuntime(":project/RuntimeConfigs/Default.ezProfile").IgnoreResult();
-  }
+  m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile).IgnoreResult();
 }
 
 void ezGameApplicationBase::Init_ConfigureInput() {}

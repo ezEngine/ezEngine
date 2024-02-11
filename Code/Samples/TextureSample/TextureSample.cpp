@@ -90,7 +90,7 @@ public:
       // which redirection table to search
       ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
       // which platform assets to use
-      ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
+      ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/Default/";
     }
 
     ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
