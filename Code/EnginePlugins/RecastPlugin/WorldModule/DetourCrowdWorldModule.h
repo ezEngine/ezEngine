@@ -63,8 +63,8 @@ public:
 
   void DestroyAgent(ezInt32 iAgentId);
 
-  void SetAgentTargetPosition(ezInt32 iAgentId, const ezVec3& vPos, const ezVec3& vQueryHalfExtents = ezVec3(0.5f, 0.5f, 0.5f));
-  
+  bool SetAgentTargetPosition(ezInt32 iAgentId, const ezVec3& vPos, const ezVec3& vQueryHalfExtents);
+
   void ClearAgentTargetPosition(ezInt32 iAgentId);
 
   void UpdateAgentParams(ezInt32 iAgentId, const ezDetourCrowdAgentParams& params);

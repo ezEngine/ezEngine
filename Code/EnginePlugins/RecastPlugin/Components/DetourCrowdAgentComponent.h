@@ -19,7 +19,7 @@ struct ezDetourCrowdAgentRotationMode
   {
     LookAtNextPathCorner,
     MatchVelocityDirection,
-    
+
     Default = LookAtNextPathCorner
   };
 };
@@ -42,6 +42,9 @@ public:
 
 private:
   void Update(const ezWorldModule::UpdateContext& ctx);
+
+  void SetAgentTargetPosition(ezDetourCrowdAgentComponent* pAgent, const struct dtCrowdAgent* pDtAgent);
+  void ErrorNoPathToTarget(ezDetourCrowdAgentComponent* pAgent);
 
   ezUInt32 m_uiNextOwnerId = 1;
   ezDetourCrowdWorldModule* m_pDetourCrowdModule = nullptr;
@@ -74,7 +77,7 @@ public:
   ezDetourCrowdAgentComponent();
   ~ezDetourCrowdAgentComponent();
 
-  /// \brief Sets the position to navigate to. 
+  /// \brief Sets the position to navigate to.
   ///
   /// If the position is not on navmesh, the nearest point on navmesh (with some threshold)
   /// will be the actual target. You can get it by calling GetActualTargetPosition().
@@ -116,8 +119,8 @@ public:
   void SetStoppingDistance(float fStoppingDistance);
   void SetMaxAngularSpeed(ezAngle maxAngularSpeed);
   void SetRotationMode(ezDetourCrowdAgentRotationMode::Enum rotationMode) { m_RotationMode = rotationMode; }
-  /// \brief The agent will push other agents with lower pushiness and will get pushed by agents 
-  /// with higher pushiness. 
+  /// \brief The agent will push other agents with lower pushiness and will get pushed by agents
+  /// with higher pushiness.
   void SetPushiness(float fPushiness);
 
   ezVec3 GetVelocity() const { return m_vVelocity; }
@@ -143,7 +146,7 @@ protected:
 
   ezInt32 m_iAgentId = -1;
   ezUInt32 m_uiOwnerId = 0;
-  ezVec3 m_vVelocity;
+  ezVec3 m_vVelocity = ezVec3::MakeZero();
   ezAngle m_AngularSpeed;
   ezVec3 m_vTargetPosition;
   ezVec3 m_vActualTargetPosition;
