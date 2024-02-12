@@ -3,7 +3,6 @@
 #include <Core/System/Window.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/System/PlatformFeatures.h>
 #include <RendererFoundation/RendererReflection.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>

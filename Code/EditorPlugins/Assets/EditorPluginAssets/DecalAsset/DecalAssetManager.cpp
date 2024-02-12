@@ -50,7 +50,7 @@ void ezDecalAssetDocumentManager::AddEntriesToAssetTable(ezStringView sDataDirec
 
   if (projectDir.StartsWith_NoCase(sDataDirectory))
   {
-    addEntry("{ ProjectDecalAtlas }", "PC/Decals.ezTextureAtlas", "Decal Atlas");
+    addEntry("{ ProjectDecalAtlas }", "Default/Decals.ezTextureAtlas", "Decal Atlas");
   }
 }
 

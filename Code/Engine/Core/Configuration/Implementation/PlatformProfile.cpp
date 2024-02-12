@@ -9,14 +9,6 @@
 #include <Core/ResourceManager/ResourceManager.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProfileTargetPlatform, 1)
-  EZ_ENUM_CONSTANTS(ezProfileTargetPlatform::PC, ezProfileTargetPlatform::UWP, ezProfileTargetPlatform::Android)
-EZ_END_STATIC_REFLECTED_ENUM;
-// clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProfileConfigData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 // clang-format on
@@ -35,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlatformProfile, 1, ezRTTIDefaultAllocator<ezP
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezHiddenAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("Platform", ezProfileTargetPlatform, m_TargetPlatform),
+    EZ_MEMBER_PROPERTY("TargetPlatform", m_sTargetPlatform)->AddAttributes(new ezDynamicStringEnumAttribute("TargetPlatformNames"), new ezDefaultValueAttribute("Windows")),
     EZ_ARRAY_MEMBER_PROPERTY("Configs", m_Configs)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
   }
   EZ_END_PROPERTIES;

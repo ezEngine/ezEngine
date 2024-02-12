@@ -202,6 +202,16 @@ ezResult ezAssetCurator::LoadAssetProfiles()
     }
   }
 
+  if (m_AssetProfiles.IsEmpty() || m_AssetProfiles[0]->GetConfigName() != "Default")
+  {
+    ezPlatformProfile* pCfg = EZ_DEFAULT_NEW(ezPlatformProfile);
+    pCfg->SetConfigName("Default");
+    pCfg->SetTargetPlatform("Windows");
+
+    pCfg->AddMissingConfigs();
+    m_AssetProfiles.Insert(pCfg, 0);
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -221,7 +231,8 @@ void ezAssetCurator::SetupDefaultAssetProfiles()
 
   {
     ezPlatformProfile* pCfg = EZ_DEFAULT_NEW(ezPlatformProfile);
-    pCfg->SetConfigName("PC");
+    pCfg->SetConfigName("Default");
+    pCfg->SetTargetPlatform("Windows");
     pCfg->AddMissingConfigs();
     m_AssetProfiles.PushBack(pCfg);
   }

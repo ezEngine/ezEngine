@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <Foundation/System/PlatformFeatures.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/Device/Device.h>

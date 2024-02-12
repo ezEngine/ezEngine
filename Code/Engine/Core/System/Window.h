@@ -5,7 +5,6 @@
 #include <Foundation/Math/Size.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/System/PlatformFeatures.h>
 #include <Foundation/Types/UniquePtr.h>
 
 class ezOpenDdlWriter;

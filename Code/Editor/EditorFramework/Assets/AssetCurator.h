@@ -159,7 +159,7 @@ public:
   ///@{
 
 public:
-  /// \brief The main platform on which development happens. E.g. "PC".
+  /// \brief The main platform on which development happens. E.g. "Default".
   ///
   /// TODO: review this concept
   const ezPlatformProfile* GetDevelopmentAssetProfile() const;

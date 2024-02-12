@@ -108,7 +108,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   opt.m_Arguments.PushBack("-project");
   opt.AddArgument("\"{0}\"", sProjectDir);
   opt.m_Arguments.PushBack("-transform");
-  opt.m_Arguments.PushBack("PC");
+  opt.m_Arguments.PushBack("Default");
   opt.m_Arguments.PushBack("-outputDir");
   opt.AddArgument("\"{0}\"", sOutputPath);
   opt.m_Arguments.PushBack("-noRecent");

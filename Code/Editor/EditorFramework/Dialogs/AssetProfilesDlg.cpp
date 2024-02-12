@@ -3,6 +3,8 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Dialogs/AssetProfilesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/Platform/PlatformDesc.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
@@ -44,19 +46,11 @@ public:
     {
       if (iRole == Qt::DecorationRole)
       {
-        const ezInt32 iPlatform = pObject->GetTypeAccessor().GetValue("Platform").ConvertTo<ezInt32>();
+        const ezString sTargetPlatform = pObject->GetTypeAccessor().GetValue("TargetPlatform").ConvertTo<ezString>();
 
-        switch (iPlatform)
-        {
-          case ezProfileTargetPlatform::PC:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg");
+        const ezStringBuilder sIconName(":Platforms/Icons/Platform", sTargetPlatform, ".svg");
 
-          case ezProfileTargetPlatform::UWP:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg"); // TODO: icon
-
-          case ezProfileTargetPlatform::Android:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid.svg");
-        }
+        return ezQtUiServices::GetSingleton()->GetCachedIconResource(sIconName);
       }
 
       if (iRole == Qt::DisplayRole)
@@ -94,6 +88,16 @@ ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* pParent)
   // do not allow to delete or rename the first item
   DeleteButton->setEnabled(false);
   RenameButton->setEnabled(false);
+
+  {
+    auto& platEnum = ezDynamicStringEnum::CreateDynamicEnum("TargetPlatformNames");
+    platEnum.Clear();
+
+    for (auto pDesc = ezPlatformDesc::GetFirstInstance(); pDesc != nullptr; pDesc = pDesc->GetNextInstance())
+    {
+      platEnum.AddValidValue(pDesc->GetName(), true);
+    }
+  }
 
   m_pDocument = EZ_DEFAULT_NEW(ezAssetProfilesDocument, "<none>");
   m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetProfilesDlg::SelectionEventHandler, this));
