@@ -165,6 +165,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir2"));
 
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir/SomeFolder"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir\\", "C:/DataDir"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir/"));
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir2"));
