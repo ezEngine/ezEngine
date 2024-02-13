@@ -52,3 +52,27 @@ ezTransformStatus ezCustomDataAssetDocument::InternalTransformAsset(ezStreamWrit
   ezAbstractGraphBinarySerializer::Write(stream, &abstractObjectGraph);
   return ezStatus(EZ_SUCCESS);
 }
+
+void ezCustomDataAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  const ezDocumentObject* pObject = GetPropertyObject();
+
+  const ezUuid typeGuid = GetObjectAccessor()->Get<ezUuid>(pObject, "Type");
+  if (const ezDocumentObject* pDataObject = GetObjectAccessor()->GetObject(typeGuid))
+  {
+    const ezRTTI* pRtti = pDataObject->GetType();
+
+    ezStringBuilder tags(";");
+
+    while (pRtti && pRtti != ezGetStaticRTTI<ezCustomData>())
+    {
+      tags.Append(pRtti->GetTypeName(), ";");
+
+      pRtti = pRtti->GetParentType();
+    }
+
+    pInfo->m_sAssetsDocumentTags = tags;
+  }
+}

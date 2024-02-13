@@ -9,7 +9,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserDlg : public QDialog, public Ui_Ass
   Q_OBJECT
 
 public:
-  ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters, ezStringView sWindowTitle = {});
+  ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters, ezStringView sWindowTitle = {}, ezStringView sRequiredTag = {});
   ezQtAssetBrowserDlg(QWidget* pParent, ezStringView sWindowTitle, ezStringView sPreselectedFileAbs, ezStringView sFileExtensions);
   ~ezQtAssetBrowserDlg();
 
@@ -30,6 +30,7 @@ private:
   ezString m_sSelectedAssetPathAbsolute;
   ezUuid m_SelectedAssetGuid;
   ezString m_sVisibleFilters;
+  ezString m_sRequiredTag;
 
   static bool s_bShowItemsInSubFolder;
   static bool s_bShowItemsInHiddenFolder;

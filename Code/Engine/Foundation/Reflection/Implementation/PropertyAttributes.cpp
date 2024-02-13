@@ -303,12 +303,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetBrowserAttribute, 1, ezRTTIDefaultAllocat
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
+    EZ_MEMBER_PROPERTY("RequiredTag", m_sRequiredTag),
     EZ_BITFLAGS_MEMBER_PROPERTY("DependencyFlags", ezDependencyFlags, m_DependencyFlags),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
     EZ_CONSTRUCTOR_PROPERTY(const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, ezBitflags<ezDependencyFlags>),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, ezBitflags<ezDependencyFlags>),
   }
   EZ_END_FUNCTIONS;
 }

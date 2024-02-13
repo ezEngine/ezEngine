@@ -497,7 +497,7 @@ void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
   ezStringBuilder sFile = m_pWidget->text().toUtf8().data();
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
 
-  ezQtAssetBrowserDlg dlg(this, m_AssetGuid, pAssetAttribute->GetTypeFilter());
+  ezQtAssetBrowserDlg dlg(this, m_AssetGuid, pAssetAttribute->GetTypeFilter(), {}, pAssetAttribute->GetRequiredTag());
   if (dlg.exec() == 0)
     return;
 

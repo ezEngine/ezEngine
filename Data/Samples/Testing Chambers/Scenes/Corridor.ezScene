@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{18390794500262769089}
+		u4 %Hash{13468912887378756999}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -148,6 +148,7 @@ o
 			s{"{ f6a08d26-5e08-4a5d-8180-19084b82b935 }"}
 			s{"{ fbbe8b57-91b5-4a9f-bf1e-e30ac87a8a6c }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -1689,6 +1690,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000E040}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -4799,6 +4803,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00007041}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -6672,6 +6679,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00007041}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -7051,6 +7061,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00007041}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -7516,6 +7529,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000A041}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -8032,6 +8048,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000E040}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -8783,6 +8802,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -9361,6 +9383,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00002041}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -9771,6 +9796,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -9836,7 +9864,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::ForceDynamic"}
-		s %Name{""}
+		s %Name{"asdf"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -10323,6 +10351,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00004040}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -12480,6 +12511,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00002041}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -12661,7 +12695,10 @@ o
 		u3 %NumCascades{2}
 		f %PenumbraSize{0xCDCC4C3D}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x9A99193F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -13262,6 +13299,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x46E11241}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -14884,6 +14924,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000E040}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -19775,6 +19818,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -24488,6 +24534,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000E040}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -28136,6 +28185,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -32751,6 +32803,9 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000E040}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -34171,6 +34226,7 @@ o
 	{
 		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Surface;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -35140,6 +35196,7 @@ o
 	{
 		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Material;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -35332,6 +35389,7 @@ o
 	{
 		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Material;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -35728,6 +35786,7 @@ o
 	{
 		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Surface;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -36183,6 +36242,7 @@ o
 	{
 		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Data_2D;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -36423,7 +36483,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -36761,7 +36821,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Physics/Jolt/Animation"}
+		s %Category{"Physics/Jolt/Effects"}
 	}
 }
 o
@@ -37146,6 +37206,7 @@ o
 	{
 		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Jolt_Colmesh_Convex;"}
+		s %RequiredTag{""}
 	}
 }
 o
