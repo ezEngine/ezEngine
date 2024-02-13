@@ -81,7 +81,9 @@ public:
     m_bBool = true;
     m_Color = ezColor(1.0f, 0.0f, 0.0f, 0.0f);
     m_Color2 = ezColorGammaUB(255, 10, 1);
+    m_sCharPtr = "Test";
     m_sString = "Test";
+    m_sStringView = "Test";
     m_Buffer.PushBack(0xFF);
     m_Buffer.PushBack(0x0);
     m_Buffer.PushBack(0xCD);
@@ -91,12 +93,20 @@ public:
   ezIntegerStruct m_IntegerStruct;
   ezFloatStruct m_FloatStruct;
 
-  void SetBool(bool b) { m_bBool = b; }
   bool GetBool() const { return m_bBool; }
-  void SetColor(ezColor c) { m_Color = c; }
+  void SetBool(bool b) { m_bBool = b; }
+
   ezColor GetColor() const { return m_Color; }
-  const char* GetString() const { return m_sString.GetData(); }
-  void SetString(const char* szSz) { m_sString = szSz; }
+  void SetColor(ezColor c) { m_Color = c; }
+
+  const char* GetCharPtr() const { return m_sCharPtr.GetData(); }
+  void SetCharPtr(const char* szSz) { m_sCharPtr = szSz; }
+
+  const ezString& GetString() const { return m_sString; }
+  void SetString(const ezString& sStr) { m_sString = sStr; }
+
+  ezStringView GetStringView() const { return m_sStringView.GetView(); }
+  void SetStringView(ezStringView sStrView) { m_sStringView = sStrView; }
 
   const ezDataBuffer& GetBuffer() const { return m_Buffer; }
   void SetBuffer(const ezDataBuffer& data) { m_Buffer = data; }
@@ -108,7 +118,9 @@ private:
   bool m_bBool;
   ezColor m_Color;
   ezColorGammaUB m_Color2;
+  ezString m_sCharPtr;
   ezString m_sString;
+  ezString m_sStringView;
   ezDataBuffer m_Buffer;
   ezVarianceTypeAngle m_VarianceAngle;
 };

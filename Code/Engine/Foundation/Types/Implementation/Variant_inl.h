@@ -251,6 +251,20 @@ EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
       return Cast<ezHashedString>() == other;
     }
   }
+  else if constexpr (std::is_same_v<T, ezStringView>)
+  {
+    if (m_uiType == Type::String)
+    {
+      return Cast<ezString>().GetView() == other;
+    }
+  }
+  else if constexpr (std::is_same_v<T, ezString>)
+  {
+    if (m_uiType == Type::StringView)
+    {
+      return Cast<ezStringView>() == other.GetView();
+    }
+  }
 
   using StorageType = typename TypeDeduction<T>::StorageType;
   EZ_ASSERT_DEV(IsA<StorageType>(), "Stored type '{0}' does not match comparison type '{1}'", m_uiType, TypeDeduction<T>::value);

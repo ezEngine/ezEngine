@@ -436,17 +436,33 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     test.m_values.PushBack(ezVariant(ezString("String1")));
     test.m_values.PushBack(ezVariant(ezStringView("String2"), false));
 
-    ezVariant ret;
-    funccall.Execute(&test, test.m_values, ret);
-    EZ_TEST_BOOL(ret.GetType() == ezVariantType::String);
-    EZ_TEST_BOOL(ret == ezString("StringRet"));
+    {
+      // Exact types
+      ezVariant ret;
+      funccall.Execute(&test, test.m_values, ret);
+      EZ_TEST_BOOL(ret.GetType() == ezVariantType::String);
+      EZ_TEST_BOOL(ret == ezString("StringRet"));
+    }
 
-    test.m_bPtrAreNull = true;
-    test.m_values[0] = ezVariant();
-    ret = ezVariant();
-    funccall.Execute(&test, test.m_values, ret);
-    EZ_TEST_BOOL(ret.GetType() == ezVariantType::String);
-    EZ_TEST_BOOL(ret == ezString("StringRet"));
+    {
+      // Using ezString instead of ezStringView
+      test.m_values[2] = ezString("String2");
+      ezVariant ret;
+      funccall.Execute(&test, test.m_values, ret);
+      EZ_TEST_BOOL(ret.GetType() == ezVariantType::String);
+      EZ_TEST_BOOL(ret == ezString("StringRet"));
+      test.m_values[2] = ezVariant(ezStringView("String2"), false);
+    }
+
+    {
+      // Using nullptr instead of const char*
+      test.m_bPtrAreNull = true;
+      test.m_values[0] = ezVariant();
+      ezVariant ret;
+      funccall.Execute(&test, test.m_values, ret);
+      EZ_TEST_BOOL(ret.GetType() == ezVariantType::String);
+      EZ_TEST_BOOL(ret == ezString("StringRet"));
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Member Functions - Enum")

@@ -90,7 +90,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, 22, ezTestClass2Allocator)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Text", GetText, SetText)->AddAttributes(new ezDefaultValueAttribute("Legen")),
+    EZ_ACCESSOR_PROPERTY("CharPtr", GetCharPtr, SetCharPtr)->AddAttributes(new ezDefaultValueAttribute("AAA")),
+    EZ_ACCESSOR_PROPERTY("String", GetString, SetString)->AddAttributes(new ezDefaultValueAttribute("BBB")),
+    EZ_ACCESSOR_PROPERTY("StringView", GetStringView, SetStringView)->AddAttributes(new ezDefaultValueAttribute("CCC")),
     EZ_MEMBER_PROPERTY("Time", m_Time),
     EZ_ENUM_MEMBER_PROPERTY("Enum", ezExampleEnum, m_enumClass),
     EZ_BITFLAGS_MEMBER_PROPERTY("Bitflags", ezExampleBitflags, m_bitflagsClass),

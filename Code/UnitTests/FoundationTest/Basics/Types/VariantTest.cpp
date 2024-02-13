@@ -760,6 +760,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(v.IsString());
+    EZ_TEST_BOOL(v.CanConvertTo<ezStringView>());
+    ezStringView view = v.ConvertTo<ezStringView>();
+    EZ_TEST_BOOL(view == v.Get<ezString>());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -771,6 +774,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.Get<ezString>() == ezString("This is an ezString"));
 
     EZ_TEST_BOOL(v == ezVariant(ezString("This is an ezString")));
+    EZ_TEST_BOOL(v == ezVariant(ezStringView("This is an ezString"), false));
     EZ_TEST_BOOL(v != ezVariant(ezString("This is something else")));
 
     EZ_TEST_BOOL(v == ezString("This is an ezString"));
@@ -784,6 +788,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(v.IsString());
+    EZ_TEST_BOOL(v.CanConvertTo<ezStringView>());
+    ezStringView view = v.ConvertTo<ezStringView>();
+    EZ_TEST_BOOL(view == v.Get<ezString>());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
@@ -798,6 +805,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.Get<ezStringView>() == sCopy);
 
     EZ_TEST_BOOL(v == ezVariant(ezStringView(sCopy.GetData()), false));
+    EZ_TEST_BOOL(v == ezVariant(ezString("This is an ezStringView")));
     EZ_TEST_BOOL(v != ezVariant(ezStringView("This is something else"), false));
 
     EZ_TEST_BOOL(v == ezStringView(sCopy.GetData()));
@@ -808,6 +816,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(v.IsString());
+    EZ_TEST_BOOL(v.CanConvertTo<ezString>());
+    ezString sString = v.ConvertTo<ezString>();
+    EZ_TEST_BOOL(sString == v.Get<ezStringView>());
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
