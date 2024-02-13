@@ -311,8 +311,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetBrowserAttribute, 1, ezRTTIDefaultAllocat
   {
     EZ_CONSTRUCTOR_PROPERTY(const char*),
     EZ_CONSTRUCTOR_PROPERTY(const char*, ezBitflags<ezDependencyFlags>),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, ezBitflags<ezDependencyFlags>, const char*),
     EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, ezBitflags<ezDependencyFlags>),
   }
   EZ_END_FUNCTIONS;
 }

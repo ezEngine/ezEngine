@@ -462,15 +462,14 @@ class EZ_FOUNDATION_DLL ezAssetBrowserAttribute : public ezTypeWidgetAttribute
 
 public:
   ezAssetBrowserAttribute() = default;
-  ezAssetBrowserAttribute(const char* szTypeFilter, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package, const char* szRequiredTag = "")
+  ezAssetBrowserAttribute(const char* szTypeFilter, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
     : m_DependencyFlags(depencyFlags)
   {
     SetTypeFilter(szTypeFilter);
-    m_sRequiredTag = szRequiredTag;
   }
 
-  ezAssetBrowserAttribute(const char* szTypeFilter, const char* szRequiredTag)
-    : m_DependencyFlags(ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+  ezAssetBrowserAttribute(const char* szTypeFilter, const char* szRequiredTag, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+    : m_DependencyFlags(depencyFlags)
   {
     SetTypeFilter(szTypeFilter);
     m_sRequiredTag = szRequiredTag;
