@@ -59,10 +59,8 @@ void ezCustomDataAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pIn
 
   const ezDocumentObject* pObject = GetPropertyObject();
 
-  ezVariant type = pObject->GetTypeAccessor().GetValue("Type");
-  EZ_ASSERT_DEV(type.IsA<ezUuid>(), "Implementation error");
-
-  if (const ezDocumentObject* pDataObject = pObject->GetChild(type.Get<ezUuid>()))
+  const ezUuid typeGuid = GetObjectAccessor()->Get<ezUuid>(pObject, "Type");
+  if (const ezDocumentObject* pDataObject = GetObjectAccessor()->GetObject(typeGuid))
   {
     const ezRTTI* pRtti = pDataObject->GetType();
 
