@@ -462,11 +462,18 @@ class EZ_FOUNDATION_DLL ezAssetBrowserAttribute : public ezTypeWidgetAttribute
 
 public:
   ezAssetBrowserAttribute() = default;
-  ezAssetBrowserAttribute(const char* szTypeFilter,
-    ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+  ezAssetBrowserAttribute(const char* szTypeFilter, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package, const char* szRequiredTag = "")
     : m_DependencyFlags(depencyFlags)
   {
     SetTypeFilter(szTypeFilter);
+    m_sRequiredTag = szRequiredTag;
+  }
+
+  ezAssetBrowserAttribute(const char* szTypeFilter, const char* szRequiredTag)
+    : m_DependencyFlags(ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+  {
+    SetTypeFilter(szTypeFilter);
+    m_sRequiredTag = szRequiredTag;
   }
 
   void SetTypeFilter(const char* szTypeFilter)
@@ -474,11 +481,15 @@ public:
     ezStringBuilder sTemp(";", szTypeFilter, ";");
     m_sTypeFilter = sTemp;
   }
+
   const char* GetTypeFilter() const { return m_sTypeFilter; }
   ezBitflags<ezDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
 
+  const char* GetRequiredTag() const { return m_sRequiredTag; }
+
 private:
   ezUntrackedString m_sTypeFilter;
+  ezUntrackedString m_sRequiredTag;
   ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 

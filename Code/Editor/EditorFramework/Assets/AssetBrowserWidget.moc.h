@@ -32,6 +32,7 @@ public:
   void SetSelectedFile(ezStringView sAbsPath);
   void ShowOnlyTheseTypeFilters(ezStringView sFilters);
   void UseFileExtensionFilters(ezStringView sFileExtensions);
+  void SetRequiredTag(ezStringView sRequiredTag);
 
   void SaveState(const char* szSettingsName);
   void RestoreState(const char* szSettingsName);

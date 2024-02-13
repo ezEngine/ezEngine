@@ -16,6 +16,7 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References{}
+		s %Tags{";SampleCustomData;"}
 	}
 }
 }

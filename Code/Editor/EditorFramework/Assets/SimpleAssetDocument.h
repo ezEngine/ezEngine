@@ -61,6 +61,7 @@ public:
   }
 
   ezDocumentObject* GetPropertyObject() { return this->GetObjectManager()->GetRootObject()->GetChildren()[0]; }
+  const ezDocumentObject* GetPropertyObject() const { return this->GetObjectManager()->GetRootObject()->GetChildren()[0]; }
 
 protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override

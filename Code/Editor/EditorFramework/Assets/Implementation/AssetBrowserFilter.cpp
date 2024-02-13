@@ -178,6 +178,28 @@ void ezQtAssetBrowserFilter::SetFileExtensionFilters(ezStringView sExtensions)
   }
 }
 
+void ezQtAssetBrowserFilter::SetRequiredTag(ezStringView sRequiredTag)
+{
+  ezStringBuilder tag;
+
+  if (sRequiredTag == "*")
+  {
+    tag = "*";
+  }
+  else if (!sRequiredTag.IsEmpty())
+  {
+    tag.Set(";", sRequiredTag, ";");
+  }
+  // else: tag stays empty
+
+  if (m_sRequiredTag == tag)
+    return;
+
+  m_sRequiredTag = tag;
+
+  Q_EMIT FilterChanged();
+}
+
 void ezQtAssetBrowserFilter::SetTemporaryPinnedItem(ezStringView sDataDirParentRelativePath)
 {
   if (m_sTemporaryPinnedItem == sDataDirParentRelativePath)
@@ -291,6 +313,25 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
 
     if (!m_sTypeFilter.FindSubString(m_sTemp))
       return true;
+  }
+
+  if (pInfo && m_sRequiredTag != "*") // '*' means everything is allowed
+  {
+    const auto& tags = pInfo->m_pAssetInfo->m_Info->GetAssetsDocumentTags();
+
+    if (m_sRequiredTag.IsEmpty())
+    {
+      // if the required tag is empty, we only display assets without any tags
+      // so the "default tag" (nothing at all) is already a tag for not-tagged items
+      // if you really want to see all assets, use * as the required tag
+      return !tags.IsEmpty();
+    }
+    else
+    {
+      // otherwise search for ";required;" in the tags string (note the semicolons at the start and end as delimiters
+      if (tags.FindSubString(m_sRequiredTag) == nullptr)
+        return true;
+    }
   }
 
   return false;

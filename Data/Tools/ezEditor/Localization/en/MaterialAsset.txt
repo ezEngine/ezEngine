@@ -27,5 +27,6 @@ SHADING_MODE::SHADING_MODE_FULLBRIGHT;Fullbright
 VisualShader.CleanGraph;Clean Visual Shader Graph
 MaterialAsset.Model;Preview Model
 CustomAction_CreateShaderFromTemplate;Create Shader From Template...
+AssetFilterTags;Asset Filter Tags;Semicolon-separated tags to only allow to select this material in specific contexts. Components must specifically request this tag.
 
 # Properties

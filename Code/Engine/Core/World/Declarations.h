@@ -153,9 +153,9 @@ template <typename TYPE>
 struct ezTypedComponentHandle : public ezComponentHandle
 {
   ezTypedComponentHandle() = default;
-  explicit ezTypedComponentHandle(const ezComponentHandle& untyped)
+  explicit ezTypedComponentHandle(const ezComponentHandle& hUntyped)
   {
-    m_InternalId = untyped.GetInternalID();
+    m_InternalId = hUntyped.GetInternalID();
   }
 
   template <typename T, std::enable_if_t<std::is_convertible_v<T*, TYPE*>,bool> = true>

@@ -260,11 +260,9 @@ void ezPathUtils::MakeValidFilename(ezStringView sFilename, ezUInt32 uiReplaceme
 
 bool ezPathUtils::IsSubPath(ezStringView sPrefixPath, ezStringView sFullPath)
 {
-  /// \test this is new
-
   ezStringBuilder tmp = sPrefixPath;
   tmp.MakeCleanPath();
-  tmp.AppendPath("");
+  tmp.Trim("", "/");
 
   if (sFullPath.StartsWith(tmp))
   {
@@ -281,7 +279,7 @@ bool ezPathUtils::IsSubPath_NoCase(ezStringView sPrefixPath, ezStringView sFullP
 {
   ezStringBuilder tmp = sPrefixPath;
   tmp.MakeCleanPath();
-  tmp.AppendPath("");
+  tmp.Trim("", "/");
 
   if (sFullPath.StartsWith_NoCase(tmp))
   {
@@ -293,5 +291,3 @@ bool ezPathUtils::IsSubPath_NoCase(ezStringView sPrefixPath, ezStringView sFullP
 
   return false;
 }
-
-

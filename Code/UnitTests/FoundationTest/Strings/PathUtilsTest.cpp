@@ -134,13 +134,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsSubPath")
   {
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir/SomeFolder"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir/", "C:/DataDir/SomeFolder"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir/"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir/", "C:/DataDir/"));
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir2"));
 
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir/SomeFolder"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir/"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir\\", "C:/DataDir/"));
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir2"));
 
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:\\DataDiR", "C:/DataDir/SomeFolder"));
@@ -154,12 +157,15 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsSubPath_NoCase")
   {
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir/SomeFolder"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir/SomeFolder"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir/"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir/"));
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir2"));
 
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir/SomeFolder"));
-    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir\\", "C:/DataDir"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir/"));
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir2"));
 

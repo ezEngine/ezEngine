@@ -1225,3 +1225,8 @@ void ezQtAssetBrowserWidget::UseFileExtensionFilters(ezStringView sFileExtension
 {
   m_pFilter->SetFileExtensionFilters(sFileExtensions);
 }
+
+void ezQtAssetBrowserWidget::SetRequiredTag(ezStringView sRequiredTag)
+{
+  m_pFilter->SetRequiredTag(sRequiredTag);
+}

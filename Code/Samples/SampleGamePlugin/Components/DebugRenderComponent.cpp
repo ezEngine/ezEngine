@@ -27,7 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2, ezComponentMode::Static)
     EZ_BITFLAGS_MEMBER_PROPERTY("Render", DebugRenderComponentMask, m_RenderTypes)->AddAttributes(new ezDefaultValueAttribute(DebugRenderComponentMask::Box)),
 
     // BEGIN-DOCS-CODE-SNIPPET: customdata-property
-    EZ_ACCESSOR_PROPERTY("CustomData", GetSampleCustomDataResource, SetSampleCustomDataResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_CustomData")),
+    EZ_ACCESSOR_PROPERTY("CustomData", GetSampleCustomDataResource, SetSampleCustomDataResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_CustomData", "SampleCustomData")),
     // END-DOCS-CODE-SNIPPET
   }
   EZ_END_PROPERTIES;
@@ -195,11 +195,14 @@ void DebugRenderComponent::Update()
   if (m_hCustomData.IsValid())
   {
     // BEGIN-DOCS-CODE-SNIPPET: customdata-access
-    ezResourceLock<SampleCustomDataResource> pCustomDataResource(m_hCustomData, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock<SampleCustomDataResource> pCustomDataResource(m_hCustomData, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
 
-    const SampleCustomData* pCustomData = pCustomDataResource->GetData();
+    if (pCustomDataResource.GetAcquireResult() == ezResourceAcquireResult::Final)
+    {
+      const SampleCustomData* pCustomData = pCustomDataResource->GetData();
 
-    ezDebugRenderer::Draw3DText(GetWorld(), ezFmt(pCustomData->m_sText), GetOwner()->GetGlobalPosition(), pCustomData->m_Color, pCustomData->m_iSize);
+      ezDebugRenderer::Draw3DText(GetWorld(), ezFmt(pCustomData->m_sText), GetOwner()->GetGlobalPosition(), pCustomData->m_Color, pCustomData->m_iSize);
+    }
     // END-DOCS-CODE-SNIPPET
   }
 }

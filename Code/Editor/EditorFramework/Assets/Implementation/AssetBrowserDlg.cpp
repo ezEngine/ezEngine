@@ -42,7 +42,7 @@ void ezQtAssetBrowserDlg::Init(QWidget* pParent)
     AssetBrowserWidget->GetAssetBrowserFilter()->SetTypeFilter(s_TypeFilter[m_sVisibleFilters]);
 }
 
-ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters, ezStringView sWindowTitle)
+ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters, ezStringView sWindowTitle, ezStringView sRequiredTag)
   : QDialog(pParent)
 {
   {
@@ -64,6 +64,7 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
     }
 
     m_sVisibleFilters = allFiltered;
+    m_sRequiredTag = sRequiredTag;
   }
   Init(pParent);
 
@@ -73,6 +74,8 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
   {
     AssetBrowserWidget->ShowOnlyTheseTypeFilters(m_sVisibleFilters);
   }
+
+  AssetBrowserWidget->SetRequiredTag(m_sRequiredTag);
 
   AssetBrowserWidget->SetSelectedAsset(preselectedAsset);
 
