@@ -247,27 +247,31 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       const ezRTTI* pType = ezRTTI::FindTypeByName("ezTestClass2");
 
       auto Props = pType->GetProperties();
-      EZ_TEST_INT(Props.GetCount(), 6);
-      EZ_TEST_STRING(Props[0]->GetPropertyName(), "Text");
-      EZ_TEST_STRING(Props[1]->GetPropertyName(), "Time");
-      EZ_TEST_STRING(Props[2]->GetPropertyName(), "Enum");
-      EZ_TEST_STRING(Props[3]->GetPropertyName(), "Bitflags");
-      EZ_TEST_STRING(Props[4]->GetPropertyName(), "Array");
-      EZ_TEST_STRING(Props[5]->GetPropertyName(), "Variant");
+      EZ_TEST_INT(Props.GetCount(), 8);
+      EZ_TEST_STRING(Props[0]->GetPropertyName(), "CharPtr");
+      EZ_TEST_STRING(Props[1]->GetPropertyName(), "String");
+      EZ_TEST_STRING(Props[2]->GetPropertyName(), "StringView");
+      EZ_TEST_STRING(Props[3]->GetPropertyName(), "Time");
+      EZ_TEST_STRING(Props[4]->GetPropertyName(), "Enum");
+      EZ_TEST_STRING(Props[5]->GetPropertyName(), "Bitflags");
+      EZ_TEST_STRING(Props[6]->GetPropertyName(), "Array");
+      EZ_TEST_STRING(Props[7]->GetPropertyName(), "Variant");
 
       ezHybridArray<const ezAbstractProperty*, 32> AllProps;
       pType->GetAllProperties(AllProps);
 
-      EZ_TEST_INT(AllProps.GetCount(), 9);
+      EZ_TEST_INT(AllProps.GetCount(), 11);
       EZ_TEST_STRING(AllProps[0]->GetPropertyName(), "SubStruct");
       EZ_TEST_STRING(AllProps[1]->GetPropertyName(), "Color");
       EZ_TEST_STRING(AllProps[2]->GetPropertyName(), "SubVector");
-      EZ_TEST_STRING(AllProps[3]->GetPropertyName(), "Text");
-      EZ_TEST_STRING(AllProps[4]->GetPropertyName(), "Time");
-      EZ_TEST_STRING(AllProps[5]->GetPropertyName(), "Enum");
-      EZ_TEST_STRING(AllProps[6]->GetPropertyName(), "Bitflags");
-      EZ_TEST_STRING(AllProps[7]->GetPropertyName(), "Array");
-      EZ_TEST_STRING(AllProps[8]->GetPropertyName(), "Variant");
+      EZ_TEST_STRING(AllProps[3]->GetPropertyName(), "CharPtr");
+      EZ_TEST_STRING(AllProps[4]->GetPropertyName(), "String");
+      EZ_TEST_STRING(AllProps[5]->GetPropertyName(), "StringView");
+      EZ_TEST_STRING(AllProps[6]->GetPropertyName(), "Time");
+      EZ_TEST_STRING(AllProps[7]->GetPropertyName(), "Enum");
+      EZ_TEST_STRING(AllProps[8]->GetPropertyName(), "Bitflags");
+      EZ_TEST_STRING(AllProps[9]->GetPropertyName(), "Array");
+      EZ_TEST_STRING(AllProps[10]->GetPropertyName(), "Variant");
     }
   }
 
@@ -528,7 +532,15 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
     const ezRTTI* pRtti = ezGetStaticRTTI<ezTestClass2>();
 
     {
-      TestMemberProperty<const char*>("Text", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::Const, ezString("Legen"), ezString("dary"));
+      TestMemberProperty<const char*>("CharPtr", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::Const, ezString("AAA"), ezString("aaaa"));
+
+      TestMemberProperty<ezString>("String", &Instance, pRtti, ezPropertyFlags::StandardType, ezString("BBB"), ezString("bbbb"));
+
+      TestMemberProperty<ezStringView>("StringView", &Instance, pRtti, ezPropertyFlags::StandardType, "CCC"_ezsv, "cccc"_ezsv);
+
+      Instance.SetStringView("CCC");
+      TestMemberProperty<ezStringView>("StringView", &Instance, pRtti, ezPropertyFlags::StandardType, ezString("CCC"), ezString("cccc"));
+
       const ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubVector", false);
       EZ_TEST_BOOL(pProp == nullptr);
     }

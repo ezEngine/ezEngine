@@ -96,10 +96,9 @@ namespace
 // ezToolsReflectionUtils public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pProperty)
+ezVariantType::Enum ezToolsReflectionUtils::GetStorageType(const ezAbstractProperty* pProperty)
 {
-  const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
-  auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+  ezVariantType::Enum type = ezVariantType::Uuid;
 
   const bool bIsValueType = ezReflectionUtils::IsValueType(pProperty);
 
@@ -107,7 +106,51 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
   {
     case ezPropertyCategory::Member:
     {
-      return ezReflectionUtils::GetDefaultValue(pProperty);
+      if (bIsValueType)
+        type = pProperty->GetSpecificType()->GetVariantType();
+      else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        type = ezVariantType::Int64;
+    }
+    break;
+    case ezPropertyCategory::Array:
+    case ezPropertyCategory::Set:
+    {
+      type = ezVariantType::VariantArray;
+    }
+    break;
+    case ezPropertyCategory::Map:
+    {
+      type = ezVariantType::VariantDictionary;
+    }
+    break;
+    default:
+      break;
+  }
+
+  // We can't 'store' a string view as it has no ownership of its own. Thus, all string views are stored as strings instead.
+  if (type == ezVariantType::StringView)
+    type = ezVariantType::String;
+
+  return type;
+}
+
+ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pProperty)
+{
+  const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
+  const bool bIsValueType = ezReflectionUtils::IsValueType(pProperty);
+
+  switch (pProperty->GetCategory())
+  {
+    case ezPropertyCategory::Member:
+    {
+      const ezVariantType::Enum memberType = GetStorageType(pProperty);
+      ezVariant value = ezReflectionUtils::GetDefaultValue(pProperty);
+      // Sometimes, the default value does not match the storage type, e.g. ezStringView is stored as ezString as it needs to be stored in the editor representation, but the reflection can still return default values matching ezStringView (constants for example).
+      if (bIsValueType && value.GetType() != memberType)
+        value = value.ConvertTo(memberType);
+
+      EZ_ASSERT_DEBUG(!value.IsValid() || memberType == value.GetType(), "Default value type does not match the storage type of the property");
+      return value;
     }
     break;
     case ezPropertyCategory::Array:
@@ -115,12 +158,14 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
     {
       if (bIsValueType && pAttrib && pAttrib->GetValue().IsA<ezVariantArray>())
       {
+        auto elementType = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+
         const ezVariantArray& value = pAttrib->GetValue().Get<ezVariantArray>();
         ezVariantArray ret;
         ret.SetCount(value.GetCount());
         for (ezUInt32 i = 0; i < value.GetCount(); i++)
         {
-          ret[i] = value[i].ConvertTo(type);
+          ret[i] = value[i].ConvertTo(elementType);
         }
         return ret;
       }
