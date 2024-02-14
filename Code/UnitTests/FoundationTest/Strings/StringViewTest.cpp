@@ -602,9 +602,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     p = "This/Is\\My//Path.dot\\";
     EZ_TEST_BOOL(p.GetFileName() == "");
 
-    // so far we treat file and folders whose names start with a '.' as extensions
     p = "This/Is\\My//Path.dot\\.stupidfile";
-    EZ_TEST_BOOL(p.GetFileName() == "");
+    EZ_TEST_BOOL(p.GetFileName() == ".stupidfile");
+
+    p = "This/Is\\My//Path.dot\\.stupidfile.ext";
+    EZ_TEST_BOOL(p.GetFileName() == ".stupidfile");
+
+    p = "This/Is\\My//Path.dot\\.stupidfile.ext.";
+    EZ_TEST_BOOL(p.GetFileName() == ".stupidfile.ext.");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileDirectory")

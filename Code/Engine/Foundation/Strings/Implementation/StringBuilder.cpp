@@ -819,10 +819,21 @@ void ezStringBuilder::ChangeFileExtension(ezStringView sNewExtension)
 
   const ezStringView it = ezPathUtils::GetFileExtension(GetView());
 
-  if (it.IsEmpty() && !EndsWith("."))
-    Append(".", sNewExtension);
+  if (it.IsEmpty())
+  {
+    if (!EndsWith("."))
+    {
+      Append(".", sNewExtension);
+    }
+    else
+    {
+      Append(sNewExtension);
+    }
+  }
   else
+  {
     ReplaceSubString(it.GetStartPointer(), it.GetEndPointer(), sNewExtension);
+  }
 }
 
 void ezStringBuilder::RemoveFileExtension()
