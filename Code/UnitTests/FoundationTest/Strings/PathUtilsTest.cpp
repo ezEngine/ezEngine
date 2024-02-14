@@ -42,6 +42,17 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("This/Is\\My//Path.dot\\file.extension"));
     EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("This/Is\\My//Path.dot\\file_no_extension"));
     EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension(""));
+
+    EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("/foo/bar.txt"));
+    EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("/foo/bar."));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/bar"));
+    EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("/foo/bar.txt/bar.cc"));
+    EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("/foo/bar.txt/bar."));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/bar.txt/bar"));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/."));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/.."));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/.hidden"));
+    EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("/foo/..bar"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasExtension")
@@ -59,6 +70,20 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(ezPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file.extension") == "extension");
     EZ_TEST_BOOL(ezPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file") == "");
     EZ_TEST_BOOL(ezPathUtils::GetFileExtension("") == "");
+
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt") == "txt");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.") == ".");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt/bar.cc") == "cc");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt/bar.") == ".");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt/bar") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/.") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/..") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/.hidden") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/..bar") == "bar");
+
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("foo.bar.baz.tar") == "tar");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("foo.bar.baz") == "baz");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileNameAndExtension")
