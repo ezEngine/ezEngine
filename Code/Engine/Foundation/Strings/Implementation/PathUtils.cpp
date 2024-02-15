@@ -21,40 +21,63 @@ const char* ezPathUtils::FindPreviousSeparator(const char* szPathStart, const ch
 
 bool ezPathUtils::HasAnyExtension(ezStringView sPath)
 {
-  const char* szDot = ezStringUtils::FindLastSubString(sPath.GetStartPointer(), ".", nullptr, sPath.GetEndPointer());
-
-  if (szDot == nullptr)
-    return false;
-
-  // find the last separator in the string
-  const char* szSeparator = FindPreviousSeparator(sPath.GetStartPointer(), sPath.GetEndPointer());
-
-  return (szSeparator < szDot);
+  return !GetFileExtension(sPath, true).IsEmpty();
 }
 
 bool ezPathUtils::HasExtension(ezStringView sPath, ezStringView sExtension)
 {
-  if (ezStringUtils::StartsWith(sExtension.GetStartPointer(), ".", sExtension.GetEndPointer()))
-    return ezStringUtils::EndsWith_NoCase(sPath.GetStartPointer(), sExtension.GetStartPointer(), sPath.GetEndPointer(), sExtension.GetEndPointer());
+  sPath = GetFileNameAndExtension(sPath);
+  ezStringView fullExt = GetFileExtension(sPath, true);
 
-  ezStringBuilder sExt;
-  sExt.Append(".", sExtension);
+  if (sExtension.IsEmpty() && fullExt.IsEmpty())
+    return true;
 
-  return ezStringUtils::EndsWith_NoCase(sPath.GetStartPointer(), sExt.GetData(), sPath.GetEndPointer());
+  // if there is a single dot at the start of the extension, remove it
+  if (sExtension.StartsWith("."))
+    sExtension.ChopAwayFirstCharacterAscii();
+
+  if (!fullExt.EndsWith_NoCase(sExtension))
+    return false;
+
+  // remove the checked extension
+  sPath = ezStringView(sPath.GetStartPointer(), sPath.GetEndPointer() - sExtension.GetElementCount());
+
+  // checked extension didn't start with a dot -> make sure there is one at the end of sPath
+  if (!sPath.EndsWith("."))
+    return false;
+
+  // now make sure the rest isn't just the dot
+  return sPath.GetElementCount() > 1;
 }
 
-ezStringView ezPathUtils::GetFileExtension(ezStringView sPath)
+ezStringView ezPathUtils::GetFileExtension(ezStringView sPath, bool bFullExtension)
 {
-  const char* szDot = ezStringUtils::FindLastSubString(sPath.GetStartPointer(), ".", nullptr, sPath.GetEndPointer());
+  // get rid of any path before the filename
+  sPath = GetFileNameAndExtension(sPath);
 
+  // ignore all dots that the file name may start with (".", "..", ".file", "..file", etc)
+  // filename may be empty afterwards, which means no dot will be found -> no extension
+  while (sPath.StartsWith("."))
+    sPath.ChopAwayFirstCharacterAscii();
+
+  const char* szDot;
+
+  if (bFullExtension)
+  {
+    szDot = sPath.FindSubString(".");
+  }
+  else
+  {
+    szDot = sPath.FindLastSubString(".");
+  }
+
+  // no dot at all -> no extension
   if (szDot == nullptr)
-    return ezStringView(nullptr);
+    return ezStringView();
 
-  // find the last separator in the string
-  const char* szSeparator = FindPreviousSeparator(sPath.GetStartPointer(), sPath.GetEndPointer());
-
-  if (szSeparator > szDot)
-    return ezStringView(nullptr);
+  // dot at the very end of the string -> not an extension
+  if (szDot + 1 == sPath.GetEndPointer())
+    return ezStringView();
 
   return ezStringView(szDot + 1, sPath.GetEndPointer());
 }
@@ -69,28 +92,17 @@ ezStringView ezPathUtils::GetFileNameAndExtension(ezStringView sPath)
   return ezStringView(szSeparator + 1, sPath.GetEndPointer());
 }
 
-ezStringView ezPathUtils::GetFileName(ezStringView sPath)
+ezStringView ezPathUtils::GetFileName(ezStringView sPath, bool bRemoveFullExtension)
 {
-  const char* szSeparator = FindPreviousSeparator(sPath.GetStartPointer(), sPath.GetEndPointer());
+  // reduce the problem to just the filename + extension
+  sPath = GetFileNameAndExtension(sPath);
 
-  const char* szDot = ezStringUtils::FindLastSubString(sPath.GetStartPointer(), ".", sPath.GetEndPointer());
+  ezStringView ext = GetFileExtension(sPath, bRemoveFullExtension);
 
-  if (szDot < szSeparator) // includes (szDot == nullptr), szSeparator will never be nullptr here -> no extension
-  {
-    return ezStringView(szSeparator + 1, sPath.GetEndPointer());
-  }
+  if (ext.IsEmpty())
+    return sPath;
 
-  if (szSeparator == nullptr)
-  {
-    if (szDot == nullptr) // no folder, no extension -> the entire thing is just a name
-      return sPath;
-
-    return ezStringView(sPath.GetStartPointer(), szDot); // no folder, but an extension -> remove the extension
-  }
-
-  // now: there is a separator AND an extension
-
-  return ezStringView(szSeparator + 1, szDot);
+  return ezStringView(sPath.GetStartPointer(), sPath.GetEndPointer() - ext.GetElementCount() - 1);
 }
 
 ezStringView ezPathUtils::GetFileDirectory(ezStringView sPath)
