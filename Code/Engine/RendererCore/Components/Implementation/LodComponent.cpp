@@ -11,7 +11,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 
-float CalculateSphereScreenSpaceCoverage(const ezBoundingSphere& sphere, const ezCamera& camera)
+static float CalculateSphereScreenSpaceCoverage(const ezBoundingSphere& sphere, const ezCamera& camera)
 {
   if (camera.IsPerspective())
   {
@@ -46,7 +46,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLodComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new ezCategoryAttribute("Construction"),
     new ezSphereVisualizerAttribute("BoundsRadius", ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "BoundsOffset"),
     new ezTransformManipulatorAttribute("BoundsOffset"),
   }
