@@ -31,6 +31,11 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
       "Sleeping for 10 ms should cause the timestamp to change!");
     EZ_TEST_BOOL_MSG(!currentTimestamp.Compare(ezTimestamp::CurrentTimestamp(), ezTimestamp::CompareMode::Identical),
       "Sleeping for 10 ms should cause the timestamp to change!");
+
+    // a valid timestamp should always be 'newer' than an invalid one
+    EZ_TEST_BOOL(currentTimestamp.Compare(ezTimestamp::MakeInvalid(), ezTimestamp::CompareMode::Newer) == true);
+    // an invalid timestamp should not be 'newer' than any valid one
+    EZ_TEST_BOOL(ezTimestamp::MakeInvalid().Compare(currentTimestamp, ezTimestamp::CompareMode::Newer) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Public Accessors")

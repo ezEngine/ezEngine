@@ -51,7 +51,6 @@ public:
 
   // *** Public Functions ***
 public:
-
   /// \brief Returns whether the timestamp is valid.
   bool IsValid() const; // [tested]
 
@@ -84,7 +83,7 @@ public:
 
 
 private:
-  static constexpr const ezInt64 EZ_INVALID_TIME_STAMP = 0x7FFFFFFFFFFFFFFFLL;
+  static constexpr const ezInt64 EZ_INVALID_TIME_STAMP = ezMath::MinValue<ezInt64>();
 
   EZ_ALLOW_PRIVATE_PROPERTIES(ezTimestamp);
   /// \brief The date is stored as microseconds since Unix epoch.
