@@ -24,4 +24,9 @@ public:
   ezEnum<ezMeshBoneWeigthPrecision> m_BoneWeightPrecision;
 
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
+
+  bool m_bSimplifyMesh = false;
+  bool m_bAggressiveSimplification = false;
+  ezUInt8 m_uiMeshSimplification = 50;
+  ezUInt8 m_uiMaxSimplificationError = 5;
 };

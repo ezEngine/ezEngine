@@ -35,10 +35,6 @@ namespace ezModelImporter2
     if (m_OptimizedMeshes.Contains(pMesh))
       return;
 
-    // animated meshes are not yet supported
-    if (m_Options.m_bImportSkinningData)
-      return;
-
     m_OptimizedMeshes.Insert(pMesh);
 
     size_t numIndices = pMesh->mNumFaces * 3;
@@ -105,8 +101,28 @@ namespace ezModelImporter2
     }
     if (pMesh->HasBones() && m_Options.m_bImportSkinningData)
     {
-      // TODO: vertex weights have to be remapped manually
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      for (ezUInt32 b = 0; b < pMesh->mNumBones; ++b)
+      {
+        auto& bone = pMesh->mBones[b];
+
+        for (ezUInt32 w = 0; w < bone->mNumWeights;)
+        {
+          auto& weight = bone->mWeights[w];
+          const ezUInt32 uiNewIdx = remapTable[weight.mVertexId];
+
+          if (uiNewIdx == ~0u)
+          {
+            // this vertex got removed -> swap it with the last weight
+            bone->mWeights[w] = bone->mWeights[bone->mNumWeights - 1];
+            --bone->mNumWeights;
+          }
+          else
+          {
+            bone->mWeights[w].mVertexId = uiNewIdx;
+            ++w;
+          }
+        }
+      }
     }
 
     pMesh->mNumVertices = numUniqueVerts;
