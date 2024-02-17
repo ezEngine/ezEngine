@@ -46,6 +46,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 1, ezRTTIDef
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::Meshes)),
     EZ_ARRAY_MEMBER_PROPERTY("Surfaces", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
     EZ_MEMBER_PROPERTY("Surface", m_sConvexMeshSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
+
+    EZ_MEMBER_PROPERTY("SimplifyMesh", m_bSimplifyMesh),
+    EZ_MEMBER_PROPERTY("MeshSimplification", m_uiMeshSimplification)->AddAttributes(new ezDefaultValueAttribute(50), new ezClampValueAttribute(1, 100)),
+    EZ_MEMBER_PROPERTY("MaxSimplificationError", m_uiMaxSimplificationError)->AddAttributes(new ezDefaultValueAttribute(20), new ezClampValueAttribute(1, 100)),
+    EZ_MEMBER_PROPERTY("AggressiveSimplification", m_bAggressiveSimplification),
   }
   EZ_END_PROPERTIES;
 }

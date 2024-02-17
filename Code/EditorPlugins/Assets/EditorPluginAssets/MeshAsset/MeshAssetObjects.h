@@ -73,6 +73,6 @@ public:
 
   bool m_bSimplifyMesh = false;
   bool m_bAggressiveSimplification = false;
-  ezUInt8 m_uiMeshSimplification = 0;
+  ezUInt8 m_uiMeshSimplification = 50;
   ezUInt8 m_uiMaxSimplificationError = 5;
 };
