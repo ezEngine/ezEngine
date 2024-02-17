@@ -34,6 +34,10 @@ namespace ezModelImporter2
     ezAnimationClipResourceDescriptor* m_pAnimationOutput = nullptr;
     ezUInt32 m_uiFirstAnimKeyframe = 0;
     ezUInt32 m_uiNumAnimKeyframes = 0;
+
+    ezUInt8 m_uiMeshSimplification = 0;
+    ezUInt8 m_uiMaxSimplificationError = 5;
+    bool m_bAggressiveSimplification = false;
   };
 
   enum class PropertySemantic : ezInt8

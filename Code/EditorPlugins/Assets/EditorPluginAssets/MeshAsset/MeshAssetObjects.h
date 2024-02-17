@@ -70,4 +70,9 @@ public:
 
   ezUInt32 m_uiVertices = 0;
   ezUInt32 m_uiTriangles = 0;
+
+  bool m_bSimplifyMesh = false;
+  bool m_bAggressiveSimplification = false;
+  ezUInt8 m_uiMeshSimplification = 0;
+  ezUInt8 m_uiMaxSimplificationError = 5;
 };

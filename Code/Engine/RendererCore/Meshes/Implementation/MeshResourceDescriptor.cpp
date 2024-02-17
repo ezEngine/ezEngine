@@ -1,9 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
@@ -214,13 +214,13 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
   {
     chunk.BeginChunk("VertexBuffer", 1);
 
-    // size in bytes
-    chunk << m_MeshBufferDescriptor.GetVertexBufferData().GetCount();
+      // size in bytes
+      chunk << m_MeshBufferDescriptor.GetVertexBufferData().GetCount();
 
-    if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
-    {
-      chunk.WriteBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount()).IgnoreResult();
-    }
+      if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
+      {
+        chunk.WriteBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount()).IgnoreResult();
+      }
 
     chunk.EndChunk();
   }
@@ -229,13 +229,13 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
   {
     chunk.BeginChunk("IndexBuffer", 1);
 
-    // size in bytes
-    chunk << m_MeshBufferDescriptor.GetIndexBufferData().GetCount();
+      // size in bytes
+      chunk << m_MeshBufferDescriptor.GetIndexBufferData().GetCount();
 
-    if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
-    {
-      chunk.WriteBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount()).IgnoreResult();
-    }
+      if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
+      {
+        chunk.WriteBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount()).IgnoreResult();
+      }
 
     chunk.EndChunk();
   }
@@ -450,11 +450,12 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
       // Version 2
       if (ci.m_uiChunkVersion >= 2)
       {
-        bCalculateBounds = false;
         chunk >> m_Bounds.m_vCenter;
         chunk >> m_Bounds.m_vBoxHalfExtends;
         chunk >> m_Bounds.m_fSphereRadius;
+        bCalculateBounds = !m_Bounds.IsValid();
       }
+
       if (ci.m_uiChunkVersion >= 4)
       {
         chunk >> m_fMaxBoneVertexOffset;
@@ -471,11 +472,11 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
 
       // size in bytes
       chunk >> count;
-      m_MeshBufferDescriptor.GetVertexBufferData().SetCountUninitialized(count);
+        m_MeshBufferDescriptor.GetVertexBufferData().SetCountUninitialized(count);
 
-      if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
-        chunk.ReadBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount());
-    }
+        if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
+          chunk.ReadBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount());
+      }
 
     if (ci.m_sChunkName == "IndexBuffer")
     {
@@ -487,11 +488,11 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
 
       // size in bytes
       chunk >> count;
-      m_MeshBufferDescriptor.GetIndexBufferData().SetCountUninitialized(count);
+        m_MeshBufferDescriptor.GetIndexBufferData().SetCountUninitialized(count);
 
-      if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
-        chunk.ReadBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount());
-    }
+        if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
+          chunk.ReadBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount());
+      }
 
     if (ci.m_sChunkName == "BindPose")
     {
@@ -530,6 +531,11 @@ void ezMeshResourceDescriptor::ComputeBounds()
   {
     m_Bounds = m_MeshBufferDescriptor.ComputeBounds();
   }
+
+  if (!m_Bounds.IsValid())
+  {
+    m_Bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), ezVec3(0.1f), 0.1f);
+  }
 }
 
 ezResult ezMeshResourceDescriptor::BoneData::Serialize(ezStreamWriter& inout_stream) const
@@ -547,5 +553,3 @@ ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& inout_s
 
   return EZ_SUCCESS;
 }
-
-

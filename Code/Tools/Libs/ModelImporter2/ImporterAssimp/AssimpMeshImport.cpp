@@ -8,6 +8,7 @@
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <assimp/scene.h>
+#include <meshoptimizer/meshoptimizer.h>
 #include <mikktspace/mikktspace.h>
 
 namespace ezModelImporter2
@@ -25,10 +26,114 @@ namespace ezModelImporter2
     ezUInt32 uiColor1 = ezInvalidIndex;
   };
 
+  void ImporterAssimp::SimplifyAiMesh(aiMesh* pMesh)
+  {
+    if (m_Options.m_uiMeshSimplification == 0)
+      return;
+
+    // already processed
+    if (m_OptimizedMeshes.Contains(pMesh))
+      return;
+
+    // animated meshes are not yet supported
+    if (m_Options.m_bImportSkinningData)
+      return;
+
+    m_OptimizedMeshes.Insert(pMesh);
+
+    size_t numIndices = pMesh->mNumFaces * 3;
+
+    ezDynamicArray<ezUInt32> indices;
+    indices.Reserve(numIndices);
+
+    ezDynamicArray<ezUInt32> simplifiedIndices;
+    simplifiedIndices.SetCountUninitialized(numIndices);
+
+    for (ezUInt32 face = 0; face < pMesh->mNumFaces; ++face)
+    {
+      indices.PushBack(pMesh->mFaces[face].mIndices[0]);
+      indices.PushBack(pMesh->mFaces[face].mIndices[1]);
+      indices.PushBack(pMesh->mFaces[face].mIndices[2]);
+    }
+
+    const float fTargetError = ezMath::Clamp<ezUInt32>(m_Options.m_uiMaxSimplificationError, 1, 99) / 100.0f;
+    const size_t numTargetIndices = static_cast<size_t>((numIndices * (100 - ezMath::Min<ezUInt32>(m_Options.m_uiMeshSimplification, 99))) / 100.0f);
+
+    float err;
+    size_t numNewIndices = 0;
+
+    if (m_Options.m_bAggressiveSimplification)
+    {
+      numNewIndices = meshopt_simplifySloppy(simplifiedIndices.GetData(), indices.GetData(), numIndices, &pMesh->mVertices[0].x, pMesh->mNumVertices, sizeof(aiVector3D), numTargetIndices, fTargetError, &err);
+    }
+    else
+    {
+      numNewIndices = meshopt_simplify(simplifiedIndices.GetData(), indices.GetData(), numIndices, &pMesh->mVertices[0].x, pMesh->mNumVertices, sizeof(aiVector3D), numTargetIndices, fTargetError, 0, &err);
+      simplifiedIndices.SetCount(numNewIndices);
+    }
+
+    ezDynamicArray<ezUInt32> remapTable;
+    remapTable.SetCountUninitialized(pMesh->mNumVertices);
+    const size_t numUniqueVerts = meshopt_optimizeVertexFetchRemap(remapTable.GetData(), simplifiedIndices.GetData(), numNewIndices, pMesh->mNumVertices);
+
+    meshopt_remapVertexBuffer(pMesh->mVertices, pMesh->mVertices, pMesh->mNumVertices, sizeof(aiVector3D), remapTable.GetData());
+
+    if (pMesh->HasNormals())
+    {
+      meshopt_remapVertexBuffer(pMesh->mNormals, pMesh->mNormals, pMesh->mNumVertices, sizeof(aiVector3D), remapTable.GetData());
+    }
+    if (pMesh->HasTextureCoords(0))
+    {
+      meshopt_remapVertexBuffer(pMesh->mTextureCoords[0], pMesh->mTextureCoords[0], pMesh->mNumVertices, sizeof(aiVector3D), remapTable.GetData());
+    }
+    if (pMesh->HasTextureCoords(1))
+    {
+      meshopt_remapVertexBuffer(pMesh->mTextureCoords[1], pMesh->mTextureCoords[1], pMesh->mNumVertices, sizeof(aiVector3D), remapTable.GetData());
+    }
+    if (pMesh->HasVertexColors(0))
+    {
+      meshopt_remapVertexBuffer(pMesh->mColors[0], pMesh->mColors[0], pMesh->mNumVertices, sizeof(aiColor4D), remapTable.GetData());
+    }
+    if (pMesh->HasVertexColors(1))
+    {
+      meshopt_remapVertexBuffer(pMesh->mColors[1], pMesh->mColors[1], pMesh->mNumVertices, sizeof(aiColor4D), remapTable.GetData());
+    }
+    if (pMesh->HasTangentsAndBitangents())
+    {
+      meshopt_remapVertexBuffer(pMesh->mTangents, pMesh->mTangents, pMesh->mNumVertices, sizeof(aiVector3D), remapTable.GetData());
+      meshopt_remapVertexBuffer(pMesh->mBitangents, pMesh->mBitangents, pMesh->mNumVertices, sizeof(aiVector3D), remapTable.GetData());
+    }
+    if (pMesh->HasBones() && m_Options.m_bImportSkinningData)
+    {
+      // TODO: vertex weights have to be remapped manually
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+
+    pMesh->mNumVertices = numUniqueVerts;
+
+    ezDynamicArray<ezUInt32> newIndices;
+    newIndices.SetCountUninitialized(numNewIndices);
+
+    meshopt_remapIndexBuffer(newIndices.GetData(), simplifiedIndices.GetData(), numNewIndices, remapTable.GetData());
+
+    pMesh->mNumFaces = numNewIndices / 3;
+
+    ezUInt32 nextIdx = 0;
+    for (ezUInt32 face = 0; face < pMesh->mNumFaces; ++face)
+    {
+      pMesh->mFaces[face].mIndices[0] = newIndices[nextIdx++];
+      pMesh->mFaces[face].mIndices[1] = newIndices[nextIdx++];
+      pMesh->mFaces[face].mIndices[2] = newIndices[nextIdx++];
+    }
+  }
+
   ezResult ImporterAssimp::ProcessAiMesh(aiMesh* pMesh, const ezMat4& transform)
   {
     if ((pMesh->mPrimitiveTypes & aiPrimitiveType::aiPrimitiveType_TRIANGLE) == 0) // no triangles in there ?
       return EZ_SUCCESS;
+
+    // if enabled, the aiMesh is modified in-place to have less detail
+    SimplifyAiMesh(pMesh);
 
     {
       auto& mi = m_MeshInstances[pMesh->mMaterialIndex].ExpandAndGetRef();
@@ -449,6 +554,9 @@ namespace ezModelImporter2
   ezResult ImporterAssimp::RecomputeTangents()
   {
     auto& md = m_Options.m_pMeshOutput->MeshBufferDesc();
+
+    if (!md.HasIndexBuffer())
+      return EZ_FAILURE;
 
     MikkData mikkd;
     mikkd.m_pMeshBuffer = &md;

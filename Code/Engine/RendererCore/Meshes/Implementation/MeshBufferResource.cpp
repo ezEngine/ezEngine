@@ -45,13 +45,11 @@ ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetIndexBufferData() c
 
 ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetVertexBufferData()
 {
-  EZ_ASSERT_DEV(!m_VertexStreamData.IsEmpty(), "The vertex data must be allocated first");
   return m_VertexStreamData;
 }
 
 ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetIndexBufferData()
 {
-  EZ_ASSERT_DEV(!m_IndexBufferData.IsEmpty(), "The index data must be allocated first");
   return m_IndexBufferData;
 }
 
@@ -413,6 +411,11 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
 
       return bounds;
     }
+  }
+
+  if (!bounds.IsValid())
+  {
+    bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), ezVec3(0.1f), 0.1f);
   }
 
   return bounds;

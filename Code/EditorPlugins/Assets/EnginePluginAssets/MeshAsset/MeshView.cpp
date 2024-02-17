@@ -57,7 +57,12 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
     ezUInt32 uiNumVertices = bufferDesc.m_uiTotalSize / bufferDesc.m_uiStructSize;
     ezUInt32 uiNumTriangles = pMeshBuffer->GetPrimitiveCount();
-    const ezBoundingBox& bbox = pMeshBuffer->GetBounds().GetBox();
+    ezBoundingBox bbox = ezBoundingBox::MakeFromMinMax(ezVec3(-1), ezVec3(1));
+
+    if (pMeshBuffer->GetBounds().IsValid())
+    {
+      bbox = pMeshBuffer->GetBounds().GetBox();
+    }
 
     ezUInt32 uiNumUVs = 0;
     ezUInt32 uiNumColors = 0;

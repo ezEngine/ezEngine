@@ -115,7 +115,9 @@ ezResult ezGALDevice::Init()
     return EZ_FAILURE;
   }
 
-  ezGALSharedTextureSwapChain::SetFactoryMethod([this](const ezGALSharedTextureSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSharedTextureSwapChain, desc); }); });
+  ezGALSharedTextureSwapChain::SetFactoryMethod([this](const ezGALSharedTextureSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
+    { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain*
+        { return EZ_NEW(pAllocator, ezGALSharedTextureSwapChain, desc); }); });
 
   // Fill the capabilities
   FillCapabilitiesPlatform();
@@ -583,7 +585,7 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = uiVertexSize;
-  desc.m_uiTotalSize = uiVertexSize * uiVertexCount;
+  desc.m_uiTotalSize = uiVertexSize * ezMath::Max(1u, uiVertexCount);
   desc.m_BufferType = ezGALBufferType::VertexBuffer;
   desc.m_ResourceAccess.m_bImmutable = !initialData.IsEmpty() && !bDataIsMutable;
 
@@ -594,7 +596,7 @@ ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum indexType,
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(indexType);
-  desc.m_uiTotalSize = desc.m_uiStructSize * uiIndexCount;
+  desc.m_uiTotalSize = desc.m_uiStructSize * ezMath::Max(1u, uiIndexCount);
   desc.m_BufferType = ezGALBufferType::IndexBuffer;
   desc.m_ResourceAccess.m_bImmutable = !bDataIsMutable && !initialData.IsEmpty();
 
@@ -1080,14 +1082,14 @@ ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const SwapChainFactoryFunction
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ///// \todo Platform independent validation
-  //if (desc.m_pWindow == nullptr)
+  // if (desc.m_pWindow == nullptr)
   //{
-  //  ezLog::Error("The desc for the swap chain creation contained an invalid (nullptr) window handle!");
-  //  return ezGALSwapChainHandle();
-  //}
+  //   ezLog::Error("The desc for the swap chain creation contained an invalid (nullptr) window handle!");
+  //   return ezGALSwapChainHandle();
+  // }
 
   ezGALSwapChain* pSwapChain = func(&m_Allocator);
-  //ezGALSwapChainDX11* pSwapChain = EZ_NEW(&m_Allocator, ezGALSwapChainDX11, Description);
+  // ezGALSwapChainDX11* pSwapChain = EZ_NEW(&m_Allocator, ezGALSwapChainDX11, Description);
 
   if (!pSwapChain->InitPlatform(this).Succeeded())
   {
@@ -1261,7 +1263,7 @@ void ezGALDevice::BeginFrame(const ezUInt64 uiRenderFrame)
   }
 
   // TODO: move to beginrendering/compute calls
-  //m_pPrimaryContext->ClearStatisticsCounters();
+  // m_pPrimaryContext->ClearStatisticsCounters();
 
   {
     ezGALDeviceEvent e;
@@ -1591,5 +1593,3 @@ const ezGALSwapChain* ezGALDevice::GetSwapChainInternal(ezGALSwapChainHandle hSw
   }
   return pSwapChain;
 }
-
-
