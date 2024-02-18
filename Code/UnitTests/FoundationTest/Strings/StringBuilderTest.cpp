@@ -317,12 +317,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == ezStringUtf8(L"Test42foobär").GetData());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Format")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFormat")
   {
     ezStringBuilder s("abc");
     s.SetFormat("Test{0}{1}{2}", 42, "foo", ezStringUtf8(L"bär").GetData());
-
     EZ_TEST_BOOL(s == ezStringUtf8(L"Test42foobär").GetData());
+
+    s.SetFormat("%%процент{}%%", 100);
+    EZ_TEST_BOOL(s == ezStringUtf8(L"%процент100%").GetData());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToUpper")

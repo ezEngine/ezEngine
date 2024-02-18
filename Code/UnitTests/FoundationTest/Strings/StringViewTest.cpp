@@ -3,6 +3,14 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 
+#include <string_view>
+
+using namespace std;
+
+const ezStringView gConstant1 = "gConstant1"_ezsv;
+const ezStringView gConstant2("gConstant2");
+const std::string_view gConstant3 = "gConstant3"sv;
+
 EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 {
   ezStringBuilder tmp;
@@ -55,6 +63,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringView b = "Hello Worl"_ezsv;
     EZ_TEST_INT(b.GetElementCount(), 10);
     EZ_TEST_STRING(b.GetData(tmp), "Hello Worl");
+
+    // tests a special case in which the MSVC compiler would run into trouble
+    EZ_TEST_INT(gConstant1.GetElementCount(), 10);
+    EZ_TEST_STRING(gConstant1.GetData(tmp), "gConstant1");
+
+    EZ_TEST_INT(gConstant2.GetElementCount(), 10);
+    EZ_TEST_STRING(gConstant2.GetData(tmp), "gConstant2");
+
+    EZ_TEST_INT(gConstant3.size(), 10);
+    EZ_TEST_BOOL(gConstant3 == "gConstant3");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator++")

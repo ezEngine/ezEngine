@@ -84,7 +84,7 @@ public:
   /// \brief Returns the number of bytes from the start position up to its end.
   ///
   /// \note Note that the element count (bytes) may be larger than the number of characters in that string, due to Utf8 encoding.
-  ezUInt32 GetElementCount() const { return (ezUInt32)(m_pEnd - m_pStart); } // [tested]
+  ezUInt32 GetElementCount() const { return m_uiElementCount; } // [tested]
 
   /// \brief Allows to set the start position to a different value.
   ///
@@ -99,7 +99,7 @@ public:
   ///
   /// That means it might point to the '\0' terminator, UNLESS the view only represents a sub-string of a larger string.
   /// Accessing the value at 'GetEnd' has therefore no real use.
-  const char* GetEndPointer() const { return m_pEnd; } // [tested]
+  const char* GetEndPointer() const { return m_pStart + m_uiElementCount; } // [tested]
 
   /// Returns whether the string is an empty string.
   bool IsEmpty() const; // [tested]
@@ -294,7 +294,7 @@ public:
 
 private:
   const char* m_pStart = nullptr;
-  const char* m_pEnd = nullptr;
+  ezUInt32 m_uiElementCount = 0;
 };
 
 /// \brief String literal suffix to create a ezStringView.

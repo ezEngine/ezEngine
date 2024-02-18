@@ -4,14 +4,14 @@ EZ_ALWAYS_INLINE constexpr ezStringView::ezStringView() = default;
 
 EZ_ALWAYS_INLINE ezStringView::ezStringView(char* pStart)
   : m_pStart(pStart)
-  , m_pEnd(pStart + ezStringUtils::GetStringElementCount(pStart))
+  , m_uiElementCount(ezStringUtils::GetStringElementCount(pStart))
 {
 }
 
 template <typename T>
 constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(T pStart, typename std::enable_if<std::is_same<T, const char*>::value, int>::type*)
   : m_pStart(pStart)
-  , m_pEnd(pStart + ezStringUtils::GetStringElementCount(pStart))
+  , m_uiElementCount(ezStringUtils::GetStringElementCount(pStart))
 {
 }
 
@@ -19,7 +19,7 @@ template <typename T>
 EZ_ALWAYS_INLINE ezStringView::ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type*)
 {
   m_pStart = str;
-  m_pEnd = m_pStart + ezStringUtils::GetStringElementCount(m_pStart);
+  m_uiElementCount = ezStringUtils::GetStringElementCount(m_pStart);
 }
 
 EZ_ALWAYS_INLINE ezStringView::ezStringView(const char* pStart, const char* pEnd)
@@ -27,19 +27,19 @@ EZ_ALWAYS_INLINE ezStringView::ezStringView(const char* pStart, const char* pEnd
   EZ_ASSERT_DEV(pStart <= pEnd, "It should start BEFORE it ends.");
 
   m_pStart = pStart;
-  m_pEnd = pEnd;
+  m_uiElementCount = static_cast<ezUInt32>(pEnd - pStart);
 }
 
 constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(const char* pStart, ezUInt32 uiLength)
   : m_pStart(pStart)
-  , m_pEnd(pStart + uiLength)
+  , m_uiElementCount(uiLength)
 {
 }
 
 template <size_t N>
 EZ_ALWAYS_INLINE ezStringView::ezStringView(const char (&str)[N])
   : m_pStart(str)
-  , m_pEnd(str + N - 1)
+  , m_uiElementCount(N - 1)
 {
   static_assert(N > 0, "Not a string literal");
   EZ_ASSERT_DEBUG(str[N - 1] == '\0', "Not a string literal. Manually cast to 'const char*' if you are trying to pass a const char fixed size array.");
@@ -49,7 +49,7 @@ template <size_t N>
 EZ_ALWAYS_INLINE ezStringView::ezStringView(char (&str)[N])
 {
   m_pStart = str;
-  m_pEnd = m_pStart + ezStringUtils::GetStringElementCount(str, str + N);
+  m_uiElementCount = ezStringUtils::GetStringElementCount(str, str + N);
 }
 
 inline void ezStringView::operator++()
@@ -57,58 +57,65 @@ inline void ezStringView::operator++()
   if (!IsValid())
     return;
 
-  ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd).IgnoreResult(); // if it fails, the string is just empty
+  const char* pEnd = m_pStart + m_uiElementCount;
+  ezUnicodeUtils::MoveToNextUtf8(m_pStart, pEnd).IgnoreResult(); // if it fails, the string is just empty
+  m_uiElementCount = static_cast<ezUInt32>(pEnd - m_pStart);
 }
 
 inline void ezStringView::operator+=(ezUInt32 d)
 {
-  ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, d).IgnoreResult(); // if it fails, the string is just empty
+  const char* pEnd = m_pStart + m_uiElementCount;
+  ezUnicodeUtils::MoveToNextUtf8(m_pStart, pEnd, d).IgnoreResult(); // if it fails, the string is just empty
+  m_uiElementCount = static_cast<ezUInt32>(pEnd - m_pStart);
 }
+
 EZ_ALWAYS_INLINE bool ezStringView::IsValid() const
 {
-  return (m_pStart != nullptr) && (m_pStart < m_pEnd);
+  return (m_pStart != nullptr) && (m_uiElementCount > 0);
 }
 
 EZ_ALWAYS_INLINE void ezStringView::SetStartPosition(const char* szCurPos)
 {
-  EZ_ASSERT_DEV((szCurPos >= m_pStart) && (szCurPos <= m_pEnd), "New start position must still be inside the view's range.");
+  EZ_ASSERT_DEV((szCurPos >= m_pStart) && (szCurPos <= m_pStart + m_uiElementCount), "New start position must still be inside the view's range.");
 
+  const char* pEnd = m_pStart + m_uiElementCount;
   m_pStart = szCurPos;
+  m_uiElementCount = static_cast<ezUInt32>(pEnd - m_pStart);
 }
 
 EZ_ALWAYS_INLINE bool ezStringView::IsEmpty() const
 {
-  return m_pStart == m_pEnd || ezStringUtils::IsNullOrEmpty(m_pStart);
+  return m_uiElementCount == 0;
 }
 
 EZ_ALWAYS_INLINE bool ezStringView::IsEqual(ezStringView sOther) const
 {
-  return ezStringUtils::IsEqual(m_pStart, sOther.GetStartPointer(), m_pEnd, sOther.GetEndPointer());
+  return ezStringUtils::IsEqual(m_pStart, sOther.GetStartPointer(), m_pStart + m_uiElementCount, sOther.GetEndPointer());
 }
 
 EZ_ALWAYS_INLINE bool ezStringView::IsEqual_NoCase(ezStringView sOther) const
 {
-  return ezStringUtils::IsEqual_NoCase(m_pStart, sOther.GetStartPointer(), m_pEnd, sOther.GetEndPointer());
+  return ezStringUtils::IsEqual_NoCase(m_pStart, sOther.GetStartPointer(), m_pStart + m_uiElementCount, sOther.GetEndPointer());
 }
 
 EZ_ALWAYS_INLINE bool ezStringView::StartsWith(ezStringView sStartsWith) const
 {
-  return ezStringUtils::StartsWith(m_pStart, sStartsWith.GetStartPointer(), m_pEnd, sStartsWith.GetEndPointer());
+  return ezStringUtils::StartsWith(m_pStart, sStartsWith.GetStartPointer(), m_pStart + m_uiElementCount, sStartsWith.GetEndPointer());
 }
 
 EZ_ALWAYS_INLINE bool ezStringView::StartsWith_NoCase(ezStringView sStartsWith) const
 {
-  return ezStringUtils::StartsWith_NoCase(m_pStart, sStartsWith.GetStartPointer(), m_pEnd, sStartsWith.GetEndPointer());
+  return ezStringUtils::StartsWith_NoCase(m_pStart, sStartsWith.GetStartPointer(), m_pStart + m_uiElementCount, sStartsWith.GetEndPointer());
 }
 
 EZ_ALWAYS_INLINE bool ezStringView::EndsWith(ezStringView sEndsWith) const
 {
-  return ezStringUtils::EndsWith(m_pStart, sEndsWith.GetStartPointer(), m_pEnd, sEndsWith.GetEndPointer());
+  return ezStringUtils::EndsWith(m_pStart, sEndsWith.GetStartPointer(), m_pStart + m_uiElementCount, sEndsWith.GetEndPointer());
 }
 
 EZ_ALWAYS_INLINE bool ezStringView::EndsWith_NoCase(ezStringView sEndsWith) const
 {
-  return ezStringUtils::EndsWith_NoCase(m_pStart, sEndsWith.GetStartPointer(), m_pEnd, sEndsWith.GetEndPointer());
+  return ezStringUtils::EndsWith_NoCase(m_pStart, sEndsWith.GetStartPointer(), m_pStart + m_uiElementCount, sEndsWith.GetEndPointer());
 }
 
 EZ_ALWAYS_INLINE void ezStringView::Trim(const char* szTrimChars)
@@ -120,7 +127,9 @@ EZ_ALWAYS_INLINE void ezStringView::Trim(const char* szTrimCharsStart, const cha
 {
   if (IsValid())
   {
-    ezStringUtils::Trim(m_pStart, m_pEnd, szTrimCharsStart, szTrimCharsEnd);
+    const char* pEnd = m_pStart + m_uiElementCount;
+    ezStringUtils::Trim(m_pStart, pEnd, szTrimCharsStart, szTrimCharsEnd);
+    m_uiElementCount = static_cast<ezUInt32>(pEnd - m_pStart);
   }
 }
 
