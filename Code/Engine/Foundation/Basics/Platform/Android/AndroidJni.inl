@@ -1854,11 +1854,10 @@ template<>
 struct ezJniTraits<ezJniNullPtr>
 {
 
-  static inline bool AppendSignature(ezJniNullPtr& object, ezStringBuilder& str)
+  static inline bool AppendSignature(const ezJniNullPtr& object, ezStringBuilder& str)
   {
     str.Append("L");
-    str.Append(object.GetTypeSignature());
-    str.ReplaceAll(".", "/");
+    str.Append(object.GetTypeSignature().GetData());
     str.Append(";");
     return true;
   }
@@ -1875,8 +1874,8 @@ struct ezJniTraits<ezJniNullPtr>
     return ezJniClass("java/lang/Object");
   }
 
-  static inline ezJniClass GetRuntimeType(ezJniNullPtr& arg)
+  static inline ezJniClass GetRuntimeType(const ezJniNullPtr& arg)
   {
-    return ezJniClass(arg.GetTypeSignature());
+    return ezJniClass(arg.GetTypeSignature().GetData());
   }
 };

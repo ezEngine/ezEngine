@@ -554,7 +554,11 @@ public:
   void UnsafeSetStaticField(const char* name, const char* signature, const T& arg) const;
 };
 
-/// \brief Class holding a local reference to a Java null pointer of type Class.
+/// \brief Represents the null value of an ezJniClass.
+/// Passing null / nullptr directly to ezJni results in type information being lost,
+/// without which ezJni can't make the appropriate JNI calls.
+/// create an ezJniClass instance instead, and wrap it in an ezJniNullPtr instance.
+/// You may then pass that ezJniNullPtr instance to any ezJni calls you make.
 class EZ_FOUNDATION_DLL ezJniNullPtr
 {
   ezJniClass m_class;
@@ -565,8 +569,8 @@ public:
   /// \param clazz The ezJniClass.
   explicit ezJniNullPtr(ezJniClass& clazz);
 
-  /// \brief Returns the fully qualified name of the ezJniClass that was passed into the constructor.
-  const char* GetTypeSignature();
+  /// \brief Returns the fully qualified name of the ezJniClass that was passed into the constructor, e.g. "java/lang/String"
+  const ezJniString GetTypeSignature() const;
 };
 
 #  include <Foundation/Basics/Platform/Android/AndroidJni.inl>

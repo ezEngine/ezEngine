@@ -763,9 +763,12 @@ ezJniNullPtr::ezJniNullPtr(ezJniClass& clazz)
   m_class = clazz;
 }
 
-const char* ezJniNullPtr::GetTypeSignature()
+const ezJniString ezJniNullPtr::GetTypeSignature() const
 {
-  return m_class.UnsafeCall<ezJniString>("getName", "()Ljava/lang/String;").GetData();
+  ezJniString jSignature = m_class.UnsafeCall<ezJniString>("getName", "()Ljava/lang/String;");
+  ezStringBuilder signature{jSignature.GetData()};
+  signature.ReplaceAll(".", "/");
+  return ezJniString{signature.GetData()};
 }
 
 #endif
