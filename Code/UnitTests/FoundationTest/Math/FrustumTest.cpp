@@ -303,4 +303,30 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
       }
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromCorners")
+  {
+    const ezFrustum fOrg = ezFrustum::MakeFromFOV(ezVec3(1, 2, 3), ezVec3(1, 1, 0).GetNormalized(), ezVec3(0, 0, 1).GetNormalized(), ezAngle::MakeFromDegree(110), ezAngle::MakeFromDegree(70), 0.1f, 100.0f);
+
+    ezVec3 corners[8];
+    fOrg.ComputeCornerPoints(corners).AssertSuccess();
+
+    const ezFrustum fNew = ezFrustum::MakeFromCorners(corners);
+
+    for (ezUInt32 i = 0; i < 6; ++i)
+    {
+      ezPlane p1 = fOrg.GetPlane(i);
+      ezPlane p2 = fNew.GetPlane(i);
+
+      EZ_TEST_BOOL(p1.IsEqual(p2));
+    }
+
+    ezVec3 corners2[8];
+    fNew.ComputeCornerPoints(corners2).AssertSuccess();
+
+    for (ezUInt32 i = 0; i < 8; ++i)
+    {
+      EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], 0.001f));
+    }
+  }
 }
