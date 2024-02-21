@@ -431,7 +431,7 @@ void ezLodAnimatedMeshComponent::InitializeAnimationPose()
 {
   m_MaxBounds = ezBoundingBox::MakeInvalid();
 
-  if (!m_Meshes[0].m_hMesh.IsValid())
+  if (m_Meshes.IsEmpty() || !m_Meshes[0].m_hMesh.IsValid())
     return;
 
   ezResourceLock<ezMeshResource> pMesh(m_Meshes[0].m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
