@@ -8,6 +8,12 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
+#include <ozz/animation/runtime/local_to_model_job.h>
+#include <ozz/animation/runtime/skeleton.h>
+#include <ozz/base/containers/vector.h>
+#include <ozz/base/maths/simd_math.h>
+#include <ozz/base/maths/soa_transform.h>
+#include <ozz/base/span.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodAnimatedMeshLod, ezNoBase, 1, ezRTTIDefaultAllocator<ezLodAnimatedMeshLod>)
