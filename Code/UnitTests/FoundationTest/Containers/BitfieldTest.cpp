@@ -214,12 +214,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
         }
         for (ezUInt32 uiBit : bitfield)
         {
-          EZ_REPORT_FAILURE("No bit should be set");
+          EZ_TEST_BOOL_MSG(false, "No bit should be set");
         }
 
         for (auto it = bitfield.GetIterator(); it.IsValid(); it.Next())
         {
-          EZ_REPORT_FAILURE("No bit should be set");
+          EZ_TEST_BOOL_MSG(false, "No bit should be set");
         }
         EZ_TEST_BOOL(bitfield.GetIterator() == bitfield.GetEndIterator());
         EZ_TEST_BOOL(!bitfield.GetIterator().IsValid());
@@ -460,11 +460,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
       ezStaticBitfield32 bitfield = ezStaticBitfield32::MakeFromMask(0u);
       for (ezUInt32 uiBit : bitfield)
       {
-        EZ_REPORT_FAILURE("No bit should be set");
+        EZ_TEST_BOOL_MSG(false, "No bit should be set");
       }
       for (auto it = bitfield.GetIterator(); it.IsValid(); it.Next())
       {
-        EZ_REPORT_FAILURE("No bit should be set");
+        EZ_TEST_BOOL_MSG(false, "No bit should be set");
       }
       EZ_TEST_BOOL(bitfield.GetIterator() == bitfield.GetEndIterator());
       EZ_TEST_BOOL(!bitfield.GetIterator().IsValid());
@@ -473,11 +473,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
       ezStaticBitfield64 bitfield64 = ezStaticBitfield64::MakeFromMask(0u);
       for (ezUInt32 uiBit : bitfield64)
       {
-        EZ_REPORT_FAILURE("No bit should be set");
+        EZ_TEST_BOOL_MSG(false, "No bit should be set");
       }
       for (auto it = bitfield64.GetIterator(); it.IsValid(); it.Next())
       {
-        EZ_REPORT_FAILURE("No bit should be set");
+        EZ_TEST_BOOL_MSG(false, "No bit should be set");
       }
       EZ_TEST_BOOL(bitfield64.GetIterator() == bitfield64.GetEndIterator());
       EZ_TEST_BOOL(!bitfield64.GetIterator().IsValid());

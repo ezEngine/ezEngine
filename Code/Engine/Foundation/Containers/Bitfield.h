@@ -91,7 +91,7 @@ public:
     bool operator==(const ConstIterator& other) const; // [tested]
     bool operator!=(const ConstIterator& other) const; // [tested]
 
-    /// \brief Returns '*this' to enable foreach.
+    /// \brief Returns 'Value()' to enable foreach.
     ezUInt32 operator*() const; // [tested]
 
     /// \brief Shorthand for 'Next'.

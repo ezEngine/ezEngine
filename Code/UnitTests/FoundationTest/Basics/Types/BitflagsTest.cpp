@@ -117,7 +117,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)
 
       for (AutoFlags::Enum flag : f)
       {
-        EZ_REPORT_FAILURE("No bit should be set");
+        EZ_TEST_BOOL_MSG(false, "No bit should be set");
       }
     }
 

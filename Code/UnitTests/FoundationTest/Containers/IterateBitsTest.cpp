@@ -10,7 +10,7 @@ namespace
     ezUInt32 uiNextBit = 1;
     for (auto bit : ezIterateBitValues(static_cast<T>(0)))
     {
-      EZ_REPORT_FAILURE("No bit should be present");
+      EZ_TEST_BOOL_MSG(false, "No bit should be present");
     }
   }
 
@@ -35,7 +35,7 @@ namespace
     ezUInt32 uiNextBit = 1;
     for (auto bit : ezIterateBitIndices(static_cast<T>(0)))
     {
-      EZ_REPORT_FAILURE("No bit should be present");
+      EZ_TEST_BOOL_MSG(false, "No bit should be present");
     }
   }
 
