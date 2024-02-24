@@ -30,7 +30,7 @@ private:
     }
     explicit ListElement(const T& data);
 
-    T m_Data;
+    T m_Data = {};
   };
 
   /// \brief base-class for all iterators
@@ -149,8 +149,8 @@ public:
   /// \brief Returns the very last element in the list.
   T& PeekBack(); // [tested]
 
-  /// \brief Appends a default-constructed element to the list.
-  void PushBack(); // [tested]
+  /// \brief Appends a default-constructed element to the list and returns a reference to it.
+  T& PushBack(); // [tested]
 
   /// \brief Appends a copy of the given element to the list.
   void PushBack(const T& element); // [tested]
@@ -158,8 +158,8 @@ public:
   /// \brief Removes the very last element from the list.
   void PopBack(); // [tested]
 
-  /// \brief Appends a default-constructed element to the front of the list.
-  void PushFront(); // [tested]
+  /// \brief Appends a default-constructed element to the front of the list and returns a reference to it.
+  T& PushFront(); // [tested]
 
   /// \brief Appends a copy of the given element to the front of the list.
   void PushFront(const T& element); // [tested]
@@ -175,6 +175,9 @@ public:
 
   /// \brief Inserts the range defined by [first;last) after pos.
   void Insert(const Iterator& pos, ConstIterator first, const ConstIterator& last);
+
+  /// \brief Inserts a default constructed element before the position defined by the iterator.
+  Iterator Insert(const Iterator& pos);
 
   /// \brief Erases the element pointed to by the iterator.
   Iterator Remove(const Iterator& pos); // [tested]
@@ -217,8 +220,8 @@ private:
   /// \brief The number of active elements in the list.
   ezUInt32 m_uiCount;
 
-  /// \brief Acquires and initializes one node.
-  ListElement* AcquireNode(const T& data);
+  /// \brief Acquires and initializes one default constructed node.
+  ListElement* AcquireNode();
 
   /// \brief Destructs one node and puts it into the free-list.
   void ReleaseNode(ListElement* pNode);
