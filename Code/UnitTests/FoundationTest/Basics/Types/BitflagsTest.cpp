@@ -6,7 +6,7 @@ namespace
 {
   // declare bitflags using macro magic
   EZ_DECLARE_FLAGS(ezUInt32, AutoFlags, Bit1, Bit2, Bit3, Bit4);
-  EZ_DEFINE_AS_POD_TYPE(AutoFlags::Enum);
+
   // declare bitflags manually
   struct ManualFlags
   {
@@ -34,8 +34,8 @@ namespace
   EZ_DECLARE_FLAGS_OPERATORS(ManualFlags);
 } // namespace
 
+EZ_DEFINE_AS_POD_TYPE(AutoFlags::Enum);
 EZ_CHECK_AT_COMPILETIME(sizeof(ezBitflags<AutoFlags>) == 4);
-
 
 
 EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)

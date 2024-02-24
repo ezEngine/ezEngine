@@ -4,11 +4,18 @@
 
 /// Chooses either ezUInt32 or ezUInt64 as the storage type for a given type T depending on its size. Required as ezMath::FirstBitLow only supports ezUInt32 or ezUInt64.
 /// \tparam T Type for which the storage should be inferred.
-template<typename T, typename = std::void_t<>> struct ezBitIteratorStorage;
-template<typename T>
-struct ezBitIteratorStorage<T, std::enable_if_t<sizeof(T) <= 4>> { typedef ezUInt32 Type; };
-template<typename T>
-struct ezBitIteratorStorage<T, std::enable_if_t<sizeof(T) >= 5>> { typedef ezUInt64 Type; };
+template <typename T, typename = std::void_t<>>
+struct ezBitIteratorStorage;
+template <typename T>
+struct ezBitIteratorStorage<T, std::enable_if_t<sizeof(T) <= 4>>
+{
+  using Type = ezUInt32;
+};
+template <typename T>
+struct ezBitIteratorStorage<T, std::enable_if_t<sizeof(T) >= 5>>
+{
+  using Type = ezUInt64;
+};
 
 /// Configurable bit iterator. Allows for iterating over the bits in an integer, returning either the bit index or value.
 /// \tparam DataType The type of data that is being iterated over.
