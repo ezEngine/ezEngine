@@ -133,7 +133,7 @@ void ezQtEditorApp::SetStyleSheet()
 
 static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& sQMsg)
 {
-  QByteArray localMsg = sQMsg.toLocal8Bit();
+  QByteArray localMsg = sQMsg.toUtf8();
   ezStringBuilder sMsg = localMsg.constData();
 
   switch (type)
