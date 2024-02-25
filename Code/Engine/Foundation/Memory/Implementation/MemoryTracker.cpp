@@ -433,3 +433,5 @@ ezMemoryTracker::Iterator ezMemoryTracker::GetIterator()
   auto pInnerIt = EZ_NEW(s_pTrackerDataAllocator, TrackerData::AllocatorTable::Iterator, s_pTrackerData->m_AllocatorData.GetIterator());
   return Iterator(pInnerIt);
 }
+
+

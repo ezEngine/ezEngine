@@ -555,3 +555,7 @@ void ezLodAnimatedMeshComponentManager::AddToUpdateList(ezLodAnimatedMeshCompone
     m_ComponentsToUpdate.PushBack(hComponent);
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_LodAnimatedMeshComponent);
+

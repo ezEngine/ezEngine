@@ -360,3 +360,5 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInter
 
   return hShaderPermutation;
 }
+
+

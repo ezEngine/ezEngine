@@ -375,4 +375,4 @@ ezFrustum ezFrustum::MakeFromCorners(const ezVec3 pCorners[FrustumCorner::CORNER
   return res;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Frustum);
+

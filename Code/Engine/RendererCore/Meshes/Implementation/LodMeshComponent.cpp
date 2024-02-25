@@ -324,3 +324,7 @@ void ezLodMeshComponent::UpdateSelectedLod(const ezView& view) const
     ezDebugRenderer::Draw3DText(view.GetHandle(), sb, GetOwner()->GetGlobalPosition(), ezColor::White);
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_LodMeshComponent);
+
