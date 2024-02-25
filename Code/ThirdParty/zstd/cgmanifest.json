@@ -6,7 +6,7 @@
         "git": {
           "Version": "1.5.2",
           "repositoryUrl": "https://github.com/facebook/zstd",
-          "commitHash": "e47e674cd09583ff0503f0f6defd6d23d8b718d3"
+          "commitHash": "63779c798237346c2b245c546c40b72a5a5913fe"
         }
       }
     }
