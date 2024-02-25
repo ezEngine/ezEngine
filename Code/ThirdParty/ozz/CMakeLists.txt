@@ -30,3 +30,5 @@ if(EZ_CMAKE_PLATFORM_WINDOWS)
     target_compile_definitions(${PROJECT_NAME} PUBLIC OZZ_USE_DYNAMIC_LINKING)
   endif()
 endif()
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
