@@ -399,7 +399,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 				if (dx*dx + dz*dz > maxEdgeLen*maxEdgeLen)
 				{
 					// Round based on the segments in lexilogical order so that the
-					// max tesselation is consistent regardles in which direction
+					// max tesselation is consistent regardless in which direction
 					// segments are traversed.
 					const int n = bi < ai ? (bi+pn - ai) : (bi - ai);
 					if (n > 1)
@@ -512,7 +512,7 @@ static bool intersectProp(const int* a, const int* b, const int* c, const int* d
 }
 
 // Returns T iff (a,b,c) are collinear and point c lies
-// on the closed segement ab.
+// on the closed segment ab.
 static bool between(const int* a, const int* b, const int* c)
 {
 	if (!collinear(a, b, c))
@@ -749,7 +749,7 @@ static void mergeRegionHoles(rcContext* ctx, rcContourRegion& region)
 		for (int iter = 0; iter < hole->nverts; iter++)
 		{
 			// Find potential diagonals.
-			// The 'best' vertex must be in the cone described by 3 cosequtive vertices of the outline.
+			// The 'best' vertex must be in the cone described by 3 consecutive vertices of the outline.
 			// ..o j-1
 			//   |
 			//   |   * best
@@ -777,7 +777,7 @@ static void mergeRegionHoles(rcContext* ctx, rcContourRegion& region)
 			for (int j = 0; j < ndiags; j++)
 			{
 				const int* pt = &outline->verts[diags[j].vert*4];
-				bool intersect = intersectSegContour(pt, corner, diags[j].vert, outline->nverts, outline->verts);
+				bool intersect = intersectSegContour(pt, corner, diags[i].vert, outline->nverts, outline->verts);
 				for (int k = i; k < region.nholes && !intersect; k++)
 					intersect |= intersectSegContour(pt, corner, -1, region.holes[k].contour->nverts, region.holes[k].contour->verts);
 				if (!intersect)
