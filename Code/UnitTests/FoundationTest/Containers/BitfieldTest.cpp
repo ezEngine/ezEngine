@@ -3,6 +3,7 @@
 #include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Math/Random.h>
 
 EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
 {
@@ -198,6 +199,92 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
     EZ_TEST_BOOL(bf.IsNoBitSet() == false);
     EZ_TEST_BOOL(bf.AreAllBitsSet() == true);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Iterator")
+  {
+    {
+      // Check empty bitfields of varying sizes.
+      for (ezUInt32 uiNumBits = 0; uiNumBits <= 65; ++uiNumBits)
+      {
+        ezHybridBitfield<128> bitfield;
+        bitfield.SetCount(uiNumBits, true);
+        for (ezUInt32 b = 0; b < uiNumBits; ++b)
+        {
+          bitfield.ClearBit(b);
+        }
+        for (ezUInt32 uiBit : bitfield)
+        {
+          EZ_TEST_BOOL_MSG(false, "No bit should be set");
+        }
+
+        for (auto it = bitfield.GetIterator(); it.IsValid(); it.Next())
+        {
+          EZ_TEST_BOOL_MSG(false, "No bit should be set");
+        }
+        EZ_TEST_BOOL(bitfield.GetIterator() == bitfield.GetEndIterator());
+        EZ_TEST_BOOL(!bitfield.GetIterator().IsValid());
+        EZ_TEST_BOOL(!bitfield.GetEndIterator().IsValid());
+      }
+    }
+
+    {
+      // Full bits.
+      for (ezUInt32 uiNumBits = 0; uiNumBits <= 65; ++uiNumBits)
+      {
+        ezHybridBitfield<128> bitfield;
+        bitfield.SetCount(uiNumBits, true);
+        ezUInt32 uiNextBit = 0;
+        for (ezUInt32 uiBit : bitfield)
+        {
+          EZ_TEST_INT(uiBit, uiNextBit);
+          uiNextBit++;
+        }
+        EZ_TEST_INT(uiNumBits, uiNextBit);
+
+        uiNextBit = 0;
+        for (auto it = bitfield.GetIterator(); it.IsValid(); ++it)
+        {
+          EZ_TEST_INT(it.Value(), uiNextBit);
+          EZ_TEST_INT(*it, uiNextBit);
+          EZ_TEST_BOOL(it.IsValid());
+          uiNextBit++;
+        }
+        EZ_TEST_INT(uiNumBits, uiNextBit);
+      }
+    }
+
+    {
+      // Partial bits set.
+      ezRandom rnd;
+      rnd.Initialize(42);
+      
+      for (ezUInt32 uiNumBits = 2; uiNumBits <= 65; ++uiNumBits)
+      {
+        ezHybridBitfield<128> bitfield;
+        bitfield.SetCount(uiNumBits, false);
+
+        // Add some random bits and ensure they appear in the iterator in order.
+        ezHybridArray<ezUInt32, 3> bits;
+        for (int i = 0; i < uiNumBits / 2; ++i)
+        {
+          ezUInt32 bit = (ezUInt32)rnd.IntMinMax(0, uiNumBits - 1);
+          if (!bitfield.IsBitSet(bit))
+          {
+            bits.PushBack(bit);
+            bitfield.SetBit(bit);
+          }
+        }
+        bits.Sort();
+
+        for (ezUInt32 uiBit : bitfield)
+        {
+          EZ_TEST_INT(uiBit, bits[0]);
+          bits.RemoveAtAndCopy(0);
+        }
+        EZ_TEST_BOOL(bits.IsEmpty());
+      }
+    }
+  }
 }
 
 
@@ -364,5 +451,145 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
     EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0x80000000u).GetHighestBitSet(), 31);
     EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xffffffffu).GetHighestBitSet(), 31);
     EZ_TEST_INT(ezStaticBitfield64::MakeFromMask(0xffffffffffffffffull).GetHighestBitSet(), 63);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Iterator")
+  {
+    {
+      // Empty bitfield
+      ezStaticBitfield32 bitfield = ezStaticBitfield32::MakeFromMask(0u);
+      for (ezUInt32 uiBit : bitfield)
+      {
+        EZ_TEST_BOOL_MSG(false, "No bit should be set");
+      }
+      for (auto it = bitfield.GetIterator(); it.IsValid(); it.Next())
+      {
+        EZ_TEST_BOOL_MSG(false, "No bit should be set");
+      }
+      EZ_TEST_BOOL(bitfield.GetIterator() == bitfield.GetEndIterator());
+      EZ_TEST_BOOL(!bitfield.GetIterator().IsValid());
+      EZ_TEST_BOOL(!bitfield.GetEndIterator().IsValid());
+
+      ezStaticBitfield64 bitfield64 = ezStaticBitfield64::MakeFromMask(0u);
+      for (ezUInt32 uiBit : bitfield64)
+      {
+        EZ_TEST_BOOL_MSG(false, "No bit should be set");
+      }
+      for (auto it = bitfield64.GetIterator(); it.IsValid(); it.Next())
+      {
+        EZ_TEST_BOOL_MSG(false, "No bit should be set");
+      }
+      EZ_TEST_BOOL(bitfield64.GetIterator() == bitfield64.GetEndIterator());
+      EZ_TEST_BOOL(!bitfield64.GetIterator().IsValid());
+      EZ_TEST_BOOL(!bitfield64.GetEndIterator().IsValid());
+    }
+
+    {
+      // Full 32 bits
+      ezStaticBitfield32 bitfield = ezStaticBitfield32::MakeFromMask(0xffffffffu);
+      ezUInt32 uiNextBit = 0;
+      for (ezUInt32 uiBit : bitfield)
+      {
+        EZ_TEST_INT(uiBit, uiNextBit);
+        uiNextBit++;
+      }
+      EZ_TEST_INT(32, uiNextBit);
+
+      uiNextBit = 0;
+      for (auto it = bitfield.GetIterator(); it.IsValid(); ++it)
+      {
+        EZ_TEST_INT(it.Value(), uiNextBit);
+        EZ_TEST_INT(*it, uiNextBit);
+        EZ_TEST_BOOL(it.IsValid());
+        uiNextBit++;
+      }
+      EZ_TEST_INT(32, uiNextBit);
+    }
+
+    {
+      // Full 64 bits
+      ezStaticBitfield64 bitfield = ezStaticBitfield64::MakeFromMask(0xffffffffffffffffull);
+      ezUInt32 uiNextBit = 0;
+      for (ezUInt32 uiBit : bitfield)
+      {
+        EZ_TEST_INT(uiBit, uiNextBit);
+        uiNextBit++;
+      }
+      EZ_TEST_INT(64, uiNextBit);
+
+      uiNextBit = 0;
+      for (auto it = bitfield.GetIterator(); it.IsValid(); ++it)
+      {
+        EZ_TEST_INT(it.Value(), uiNextBit);
+        EZ_TEST_INT(*it, uiNextBit);
+        EZ_TEST_BOOL(it.IsValid());
+        uiNextBit++;
+      }
+      EZ_TEST_INT(64, uiNextBit);
+    }
+
+    {
+      // Partial bits set 32 bit.
+      ezRandom rnd;
+      rnd.Initialize(42);
+
+      for (ezUInt32 uiNumBits = 2; uiNumBits <= 32; ++uiNumBits)
+      {
+        // Add some random bits and ensure they appear in the iterator in order.
+        ezHybridArray<ezUInt32, 3> bits;
+        ezUInt32 uiBits = 0;
+        for (int i = 0; i < uiNumBits; ++i)
+        {
+          const ezUInt32 bit = (ezUInt32)rnd.IntMinMax(0, 31);
+          if (!bits.Contains(bit))
+          {
+            bits.PushBack(bit);
+            uiBits |= EZ_BIT(bit);
+          }
+        }
+        bits.Sort();
+
+        ezStaticBitfield32 bitfield = ezStaticBitfield32::MakeFromMask(uiBits);
+
+        for (ezUInt32 uiBit : bitfield)
+        {
+          EZ_TEST_INT(uiBit, bits[0]);
+          bits.RemoveAtAndCopy(0);
+        }
+        EZ_TEST_BOOL(bits.IsEmpty());
+      }
+    }
+
+    {
+      // Partial bits set 64 bit.
+      ezRandom rnd;
+      rnd.Initialize(42);
+
+      for (ezUInt32 uiNumBits = 2; uiNumBits <= 63; ++uiNumBits)
+      {
+        // Add some random bits and ensure they appear in the iterator in order.
+        ezHybridArray<ezUInt32, 3> bits;
+        ezUInt64 uiBits = 0;
+        for (int i = 0; i < uiNumBits; ++i)
+        {
+          const ezUInt32 bit = (ezUInt32)rnd.IntMinMax(0, 63);
+          if (!bits.Contains(bit))
+          {
+            bits.PushBack(bit);
+            uiBits |= EZ_BIT(bit);
+          }
+        }
+        bits.Sort();
+
+        ezStaticBitfield64 bitfield = ezStaticBitfield64::MakeFromMask(uiBits);
+
+        for (ezUInt32 uiBit : bitfield)
+        {
+          EZ_TEST_INT(uiBit, bits[0]);
+          bits.RemoveAtAndCopy(0);
+        }
+        EZ_TEST_BOOL(bits.IsEmpty());
+      }
+    }
   }
 }

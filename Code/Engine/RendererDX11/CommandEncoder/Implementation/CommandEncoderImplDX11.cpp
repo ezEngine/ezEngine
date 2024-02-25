@@ -12,6 +12,7 @@
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
+#include <Foundation/Containers/IterateBits.h>
 
 #include <d3d11_1.h>
 
@@ -111,16 +112,12 @@ void ezGALCommandEncoderImplDX11::SetSamplerStatePlatform(const ezShaderResource
 
   ID3D11SamplerState* pSamplerStateDX11 = pSamplerState != nullptr ? static_cast<const ezGALSamplerStateDX11*>(pSamplerState)->GetDXSamplerState() : nullptr;
 
-  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (ezGALShaderStage::Enum stage : ezIterateBitIndices<ezUInt16, ezGALShaderStage::Enum>(binding.m_Stages.GetValue()))
   {
-    const ezGALShaderStageFlags::Enum flag = ezGALShaderStageFlags::MakeFromShaderStage((ezGALShaderStage::Enum)stage);
-    if (binding.m_Stages.IsSet(flag))
+    if (m_pBoundSamplerStates[stage][binding.m_iSlot] != pSamplerStateDX11)
     {
-      if (m_pBoundSamplerStates[stage][binding.m_iSlot] != pSamplerStateDX11)
-      {
-        m_pBoundSamplerStates[stage][binding.m_iSlot] = pSamplerStateDX11;
-        m_BoundSamplerStatesRange[stage].SetToIncludeValue(binding.m_iSlot);
-      }
+      m_pBoundSamplerStates[stage][binding.m_iSlot] = pSamplerStateDX11;
+      m_BoundSamplerStatesRange[stage].SetToIncludeValue(binding.m_iSlot);
     }
   }
 }
@@ -134,21 +131,17 @@ void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResource
 
   ID3D11ShaderResourceView* pResourceViewDX11 = pResourceView != nullptr ? static_cast<const ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
 
-    for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (ezGALShaderStage::Enum stage : ezIterateBitIndices<ezUInt16, ezGALShaderStage::Enum>(binding.m_Stages.GetValue()))
   {
-    const ezGALShaderStageFlags::Enum flag = ezGALShaderStageFlags::MakeFromShaderStage((ezGALShaderStage::Enum)stage);
-    if (binding.m_Stages.IsSet(flag))
+    auto& boundShaderResourceViews = m_pBoundShaderResourceViews[stage];
+    boundShaderResourceViews.EnsureCount(binding.m_iSlot + 1);
+    auto& resourcesForResourceViews = m_ResourcesForResourceViews[stage];
+    resourcesForResourceViews.EnsureCount(binding.m_iSlot + 1);
+    if (boundShaderResourceViews[binding.m_iSlot] != pResourceViewDX11)
     {
-      auto& boundShaderResourceViews = m_pBoundShaderResourceViews[stage];
-      boundShaderResourceViews.EnsureCount(binding.m_iSlot + 1);
-      auto& resourcesForResourceViews = m_ResourcesForResourceViews[stage];
-      resourcesForResourceViews.EnsureCount(binding.m_iSlot + 1);
-      if (boundShaderResourceViews[binding.m_iSlot] != pResourceViewDX11)
-      {
-        boundShaderResourceViews[binding.m_iSlot] = pResourceViewDX11;
-        resourcesForResourceViews[binding.m_iSlot] = pResourceView != nullptr ? pResourceView->GetResource() : nullptr;
-        m_BoundShaderResourceViewsRange[stage].SetToIncludeValue(binding.m_iSlot);
-      }
+      boundShaderResourceViews[binding.m_iSlot] = pResourceViewDX11;
+      resourcesForResourceViews[binding.m_iSlot] = pResourceView != nullptr ? pResourceView->GetResource() : nullptr;
+      m_BoundShaderResourceViewsRange[stage].SetToIncludeValue(binding.m_iSlot);
     }
   }
 }
