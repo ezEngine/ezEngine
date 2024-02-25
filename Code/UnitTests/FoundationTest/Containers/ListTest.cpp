@@ -12,8 +12,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack() / PeekBack")
   {
     ezList<ezInt32> l;
-    l.PushBack();
+    ezInt32& val = l.PushBack();
 
+    EZ_TEST_INT(val, 0);
     EZ_TEST_INT(l.GetCount(), 1);
     EZ_TEST_INT(l.PeekBack(), 0);
   }
@@ -62,8 +63,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushFront() / PeekFront")
   {
     ezList<ezInt32> l;
-    l.PushFront();
+    ezInt32& val = l.PushFront();
 
+    EZ_TEST_INT(val, 0);
     EZ_TEST_INT(l.GetCount(), 1);
     EZ_TEST_INT(l.PeekFront(), 0);
   }
@@ -253,7 +255,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     i = 1;
 
     // now remove every second element and only keep the larger values
-    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it.IsValid(); )
+    for (ezList<ezInt32>::Iterator it = l.GetIterator(); it.IsValid();)
     {
       EZ_TEST_INT(*it, i + 10000);
 
@@ -298,13 +300,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
 
     l.PushBack();
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1));
+    EZ_TEST_BOOL(ezConstructionCounter::HasDone(1, 0));
 
     l.PushBack(ezConstructionCounter(1));
     EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1));
 
     l.SetCount(4);
-    EZ_TEST_BOOL(ezConstructionCounter::HasDone(4, 2));
+    EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 0));
 
     l.Clear();
     EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 4));
