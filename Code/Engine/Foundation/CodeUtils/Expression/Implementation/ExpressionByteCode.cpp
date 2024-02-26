@@ -563,3 +563,7 @@ void ezExpressionByteCode::Init(ezArrayPtr<const StorageType> byteCode, ezArrayP
   m_uiNumTempRegisters = static_cast<ezUInt16>(uiNumTempRegisters);
   m_uiNumInstructions = uiNumInstructions;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionByteCode);
+

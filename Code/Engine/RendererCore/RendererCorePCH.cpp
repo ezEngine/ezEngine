@@ -45,6 +45,7 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_FogComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_LensFlareComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_LensFlareRenderer);
+  EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_LodComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_OccluderComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_RenderComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Components_Implementation_RenderTargetActivatorComponent);
@@ -79,6 +80,7 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_CustomMeshComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_DynamicMeshBufferResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_InstancedMeshComponent);
+  EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_LodMeshComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshBufferResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshBufferUtils);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshComponent);
@@ -129,5 +131,6 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_Texture3DResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureCubeResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureLoader);
+  EZ_STATICLINK_REFERENCE(RendererCore_Utils_Implementation_CoreRenderProfile);
   EZ_STATICLINK_REFERENCE(RendererCore_Utils_Implementation_WorldGeoExtractionUtil);
 }

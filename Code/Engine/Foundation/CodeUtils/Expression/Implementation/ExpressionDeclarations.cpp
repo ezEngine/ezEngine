@@ -205,3 +205,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExpressionWidgetAttribute, 1, ezRTTIDefaultAll
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionDeclarations);
+

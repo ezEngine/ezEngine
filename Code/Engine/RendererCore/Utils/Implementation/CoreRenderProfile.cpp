@@ -39,3 +39,7 @@ void ezCoreRenderProfileConfig::LoadRuntimeData(ezChunkStreamReader& inout_strea
     inout_stream >> m_uiMinShadowMapSize;
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Utils_Implementation_CoreRenderProfile);
+

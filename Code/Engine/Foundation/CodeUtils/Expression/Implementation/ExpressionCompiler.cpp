@@ -692,3 +692,5 @@ void ezExpressionCompiler::DumpAST(const ezExpressionAST& ast, ezStringView sOut
     ezLog::Error("Failed to dump AST to: {}", sFullPath);
   }
 }
+
+

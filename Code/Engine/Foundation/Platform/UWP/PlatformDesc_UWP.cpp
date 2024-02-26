@@ -7,3 +7,5 @@ ezPlatformDesc g_PlatformDescUWP("UWP");
 const ezPlatformDesc* ezPlatformDesc::s_pThisPlatform = &g_PlatformDescUWP;
 
 #endif
+
+

@@ -34,3 +34,5 @@ void ezLogWriter::ETW::LogMessageHandler(const ezLoggingEventData& eventData) {}
 void ezLogWriter::ETW::LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, ezStringView sText) {}
 
 #endif
+
+

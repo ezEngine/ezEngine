@@ -88,3 +88,5 @@ ezAllocator* ezFoundation::GetStaticsAllocator()
 
   return pStaticAllocator;
 }
+
+

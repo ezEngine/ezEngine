@@ -461,3 +461,5 @@ ezUInt32 ezColor::ToABGR8() const
 {
   return ezColorLinearUB(*this).ToABGR8();
 }
+
+
