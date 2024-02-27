@@ -5,6 +5,7 @@
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <assimp/anim.h>
 #include <assimp/scene.h>
+#include <ozz/animation/offline/additive_animation_builder.h>
 #include <ozz/animation/offline/raw_animation.h>
 #include <ozz/animation/offline/raw_animation_utils.h>
 
@@ -66,7 +67,7 @@ namespace ezModelImporter2
 
     ezHashedString hs;
 
-    ozz::animation::offline::RawAnimation orgRawAnim, sampledRawAnim;
+    ozz::animation::offline::RawAnimation orgRawAnim, sampledRawAnim, additiveAnim;
     ozz::animation::offline::RawAnimation* pFinalRawAnim = &orgRawAnim;
 
     for (ezUInt32 animIdx = 0; animIdx < m_pScene->mNumAnimations; ++animIdx)
@@ -120,37 +121,15 @@ namespace ezModelImporter2
           orgRawAnim.tracks[channelIdx].scales[i].time = (float)(pChannel->mScalingKeys[i].mTime * fOneDivTicksPerSec);
           ai2ozz(pChannel->mScalingKeys[i].mValue, orgRawAnim.tracks[channelIdx].scales[i].value);
         }
+      }
 
-        if (m_Options.m_bAdditiveAnimation)
+      if (m_Options.m_bAdditiveAnimation)
+      {
+        ozz::animation::offline::AdditiveAnimationBuilder builder;
+
+        if (builder(*pFinalRawAnim, &additiveAnim))
         {
-          auto refPos = orgRawAnim.tracks[channelIdx].translations[0].value;
-          auto refRot = Conjugate(orgRawAnim.tracks[channelIdx].rotations[0].value);
-          auto refScale = orgRawAnim.tracks[channelIdx].scales[0].value;
-          refScale.x = 1.0f / refScale.x;
-          refScale.y = 1.0f / refScale.y;
-          refScale.z = 1.0f / refScale.z;
-
-          for (ezUInt32 i = 0; i < pChannel->mNumPositionKeys; ++i)
-          {
-            auto& val = orgRawAnim.tracks[channelIdx].translations[i].value;
-            val.x -= refPos.x;
-            val.y -= refPos.y;
-            val.z -= refPos.z;
-          }
-
-          for (ezUInt32 i = 0; i < pChannel->mNumRotationKeys; ++i)
-          {
-            auto& val = orgRawAnim.tracks[channelIdx].rotations[i].value;
-            val = refRot * val;
-          }
-
-          for (ezUInt32 i = 0; i < pChannel->mNumScalingKeys; ++i)
-          {
-            auto& val = orgRawAnim.tracks[channelIdx].scales[i].value;
-            val.x *= refScale.x;
-            val.y *= refScale.y;
-            val.z *= refScale.z;
-          }
+          pFinalRawAnim = &additiveAnim;
         }
       }
 
@@ -180,7 +159,7 @@ namespace ezModelImporter2
           {
             const float fCurTime = (float)fOneDivTicksPerSec * kf;
             ;
-            ozz::animation::offline::SampleTrack(orgRawAnim.tracks[channelIdx], (float)(fLowerTimestamp + fOneDivTicksPerSec * kf), &tmpTransform);
+            ozz::animation::offline::SampleTrack(pFinalRawAnim->tracks[channelIdx], (float)(fLowerTimestamp + fOneDivTicksPerSec * kf), &tmpTransform);
 
             track.translations[kf].time = fCurTime;
             track.translations[kf].value = tmpTransform.translation;
