@@ -22,6 +22,9 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
+protected:
+  virtual void OnSimulationStarted() override;
+
   //////////////////////////////////////////////////////////////////////////
   //  ezAiNavMeshPathTestComponent
 
@@ -65,6 +68,8 @@ protected:
   ezAiNavigation m_Navigation;
   float m_fFallSpeed = 0.0f;
   bool m_bAllowPartialPath = false;
+
+
 
 private:
   const char* DummyGetter() const { return nullptr; }

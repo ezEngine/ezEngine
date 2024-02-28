@@ -530,7 +530,7 @@ void ezAiNavigation::DebugDrawState(const ezDebugRendererContext& context, const
       ezDebugRenderer::Draw3DText(context, "Idle", vPosition, ezColor::Grey);
       break;
     case ezAiNavigation::State::StartNewSearch:
-      ezDebugRenderer::Draw3DText(context, "Starting...", vPosition, ezColor::Yellow);
+      ezDebugRenderer::Draw3DText(context, "Starting Search...", vPosition, ezColor::Yellow);
       break;
     case ezAiNavigation::State::InvalidCurrentPosition:
       ezDebugRenderer::Draw3DText(context, "Invalid Start Position", vPosition, ezColor::Black);

@@ -44,6 +44,14 @@ EZ_END_COMPONENT_TYPE
 ezAiNavigationComponent::ezAiNavigationComponent() = default;
 ezAiNavigationComponent::~ezAiNavigationComponent() = default;
 
+void ezAiNavigationComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  m_Steering.m_vPosition = GetOwner()->GetGlobalPosition();
+  m_Steering.m_qRotation = GetOwner()->GetGlobalRotation();
+}
+
 void ezAiNavigationComponent::SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath)
 {
   m_Navigation.SetTargetPosition(vGlobalPos);
@@ -94,10 +102,6 @@ void ezAiNavigationComponent::Update()
   Steer(transform);
   PlaceOnGround(transform);
 
-  // TODO: add debug flags
-  // - target position
-  // - next corner / steering
-
   GetOwner()->SetGlobalPosition(transform.m_vPosition);
   GetOwner()->SetGlobalRotation(transform.m_qRotation);
 
@@ -115,7 +119,28 @@ void ezAiNavigationComponent::Update()
 
     if (m_DebugFlags.IsSet(ezAiNavigationDebugFlags::PrintState))
     {
-      m_Navigation.DebugDrawState(GetWorld(), GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1));
+      const ezVec3 vPosition = GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1.5f);
+
+      switch (m_State)
+      {
+        case ezAiNavigationComponent::Idle:
+          ezDebugRenderer::Draw3DText(GetWorld(), "Idle", vPosition, ezColor::Grey);
+          break;
+        case ezAiNavigationComponent::Moving:
+          ezDebugRenderer::Draw3DText(GetWorld(), "Moving", vPosition, ezColor::Yellow);
+          m_Navigation.DebugDrawState(GetWorld(), vPosition - ezVec3(0, 0, 0.5f));
+          break;
+        case ezAiNavigationComponent::Falling:
+          ezDebugRenderer::Draw3DText(GetWorld(), "Falling...", vPosition, ezColor::IndianRed);
+          break;
+        case ezAiNavigationComponent::Fallen:
+          ezDebugRenderer::Draw3DText(GetWorld(), "Fallen", vPosition, ezColor::IndianRed);
+          break;
+        case ezAiNavigationComponent::Failed:
+          ezDebugRenderer::Draw3DText(GetWorld(), "Failed", vPosition, ezColor::Red);
+          m_Navigation.DebugDrawState(GetWorld(), vPosition - ezVec3(0, 0, 0.5f));
+          break;
+      }
     }
 
     if (m_DebugFlags.IsSet(ezAiNavigationDebugFlags::VisTarget))
@@ -218,7 +243,6 @@ void ezAiNavigationComponent::PlaceOnGround(ezTransform& transform)
   const float fDistUp = 1.0f;
   const float fDistDown = m_fFallHeight;
   const ezVec3 vStartPos = transform.m_vPosition - fDistUp * vDown;
-  const ezVec3 vEndPos = transform.m_vPosition + fDistDown * vDown;
 
   float fMoveUp = 0.0f;
   bool bHadCollision = false;
