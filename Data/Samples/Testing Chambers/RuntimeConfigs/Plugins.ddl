@@ -1,5 +1,10 @@
 Plugin
 {
+	string %Path{"ezAiPlugin"}
+	bool %LoadCopy{false}
+}
+Plugin
+{
 	string %Path{"ezFmodPlugin"}
 	bool %LoadCopy{false}
 }

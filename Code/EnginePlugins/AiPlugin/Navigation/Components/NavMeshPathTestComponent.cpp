@@ -1,5 +1,5 @@
 #include <AiPlugin/AiPluginPCH.h>
-#include <AiPlugin/Components/NavMeshPathTestComponent.h>
+#include <AiPlugin/Navigation/Components/NavMeshPathTestComponent.h>
 #include <AiPlugin/Navigation/NavMesh.h>
 #include <AiPlugin/Navigation/NavMeshWorldModule.h>
 #include <AiPlugin/Navigation/Navigation.h>
@@ -95,42 +95,19 @@ void ezAiNavMeshPathTestComponent::Update()
 
   m_Navigation.Update();
 
-  if (m_bVisualizePathCorridor || m_bVisualizePathLine)
+  if (m_bVisualizePathCorridor)
   {
-    m_Navigation.DebugDraw(GetWorld(), m_bVisualizePathCorridor ? ezColor::Aquamarine.WithAlpha(0.2f) : ezColor::MakeZero(), m_bVisualizePathLine ? ezColor::Lime : ezColor::MakeZero());
+    m_Navigation.DebugDrawPathCorridor(GetWorld(), ezColor::Aquamarine.WithAlpha(0.2f));
+  }
+
+  if (m_bVisualizePathLine)
+  {
+    m_Navigation.DebugDrawPathLine(GetWorld(), ezColor::Lime);
   }
 
   if (m_bVisualizePathState)
   {
-    const ezAiNavigation::State state = m_Navigation.GetState();
-
-    switch (state)
-    {
-      case ezAiNavigation::State::Idle:
-        ezDebugRenderer::Draw3DText(GetWorld(), "Idle", GetOwner()->GetGlobalPosition(), ezColor::Grey);
-        break;
-      case ezAiNavigation::State::StartNewSearch:
-        ezDebugRenderer::Draw3DText(GetWorld(), "Starting...", GetOwner()->GetGlobalPosition(), ezColor::Yellow);
-        break;
-      case ezAiNavigation::State::InvalidCurrentPosition:
-        ezDebugRenderer::Draw3DText(GetWorld(), "Invalid Start Position", GetOwner()->GetGlobalPosition(), ezColor::Black);
-        break;
-      case ezAiNavigation::State::InvalidTargetPosition:
-        ezDebugRenderer::Draw3DText(GetWorld(), "Invalid Target Position", GetOwner()->GetGlobalPosition(), ezColor::IndianRed);
-        break;
-      case ezAiNavigation::State::NoPathFound:
-        ezDebugRenderer::Draw3DText(GetWorld(), "No Path Found", GetOwner()->GetGlobalPosition(), ezColor::White);
-        break;
-      case ezAiNavigation::State::PartialPathFound:
-        ezDebugRenderer::Draw3DText(GetWorld(), "Partial Path Found", GetOwner()->GetGlobalPosition(), ezColor::Turquoise);
-        break;
-      case ezAiNavigation::State::FullPathFound:
-        ezDebugRenderer::Draw3DText(GetWorld(), "Full Path Found", GetOwner()->GetGlobalPosition(), ezColor::LawnGreen);
-        break;
-      case ezAiNavigation::State::Searching:
-        ezDebugRenderer::Draw3DText(GetWorld(), "Searching...", GetOwner()->GetGlobalPosition(), ezColor::Yellow);
-        break;
-    }
+    m_Navigation.DebugDrawState(GetWorld(), GetOwner()->GetGlobalPosition());
   }
 
   // if (m_fSpeed <= 0)

@@ -67,7 +67,7 @@ o
 		u3 %FirstFrame{0}
 		u3 %NumFrames{0}
 		s %PreviewMesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
-		s %RootMotion{"ezRootMotionSource::Constant"}
+		s %RootMotion{"ezRootMotionSource::None"}
 		s %UseAnimationClip{"Wave"}
 	}
 }
