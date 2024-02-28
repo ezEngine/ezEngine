@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9787685060025488154,10081810663128121436}}
-		u4 %Hash{4073212390908027060}
+		u4 %Hash{17106915709790783383}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2303340321395474942,4382405691360237669}}
@@ -47,7 +47,22 @@ Objects
 {
 o
 {
-	Uuid %id{u4{1780533764823616392,4663550833429748321}}
+	Uuid %id{u4{4777834722862491778,4926955868661303155}}
+	s %t{"ezSimpleAnimationComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		s %AnimationClip{"{ 96be15b7-35b6-4bdb-9209-89e6685b7263 }"}
+		s %AnimationMode{"ezPropertyAnimMode::Loop"}
+		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
+		s %RootMotionMode{"ezRootMotionMode::Ignore"}
+		f %Speed{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{3335446949891702196,4974011841928805171}}
 	s %t{"ezAnimatedMeshComponent"}
 	u3 %v{13}
 	p
@@ -56,33 +71,6 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
-	}
-}
-o
-{
-	Uuid %id{u4{8195268047381476285,4949348251863576073}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{1780533764823616392,4663550833429748321}}
-			Uuid{u4{11035603724946444439,5554571542164761710}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
 	}
 }
 o
@@ -120,35 +108,19 @@ o
 }
 o
 {
-	Uuid %id{u4{11035603724946444439,5554571542164761710}}
-	s %t{"ezSimpleAnimationComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		s %AnimationClip{"{ 96be15b7-35b6-4bdb-9209-89e6685b7263 }"}
-		s %AnimationMode{"ezPropertyAnimMode::Loop"}
-		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
-		s %RootMotionMode{"ezRootMotionMode::Ignore"}
-		f %Speed{0x0000803F}
-	}
-}
-o
-{
 	Uuid %id{u4{10968803896989223296,5593668079984947726}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		VarArray %Children
-		{
-			Uuid{u4{8195268047381476285,4949348251863576073}}
-		}
+		VarArray %Children{}
 		VarArray %Components
 		{
 			Uuid{u4{4385843839047953303,5155291048245979396}}
 			Uuid{u4{14616610648898017969,5400252939712643313}}
+			Uuid{u4{4777834722862491778,4926955868661303155}}
+			Uuid{u4{3335446949891702196,4974011841928805171}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}

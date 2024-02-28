@@ -171,13 +171,13 @@ void ezAiNavigationComponent::Steer(ezTransform& transform)
 
   // TODO: add public function to query distance to target
 
-  if ((m_Navigation.GetTargetPosition() - m_Steering.m_vPosition).GetLengthSquared() < ezMath::Square(m_fReachedDistance))
-  {
-    // reached the goal
-    CancelNavigation();
-    m_State = State::Idle;
-    return;
-  }
+  //if ((m_Navigation.GetTargetPosition() - m_Steering.m_vPosition).GetLengthSquared() < ezMath::Square(m_fReachedDistance))
+  //{
+  //  // reached the goal
+  //  CancelNavigation();
+  //  m_State = State::Idle;
+  //  return;
+  //}
 
   if (ezAiNavMeshWorldModule* pNavMeshModule = GetWorld()->GetOrCreateModule<ezAiNavMeshWorldModule>())
   {
@@ -226,9 +226,11 @@ void ezAiNavigationComponent::Steer(ezTransform& transform)
   m_Steering.m_vPosition = GetOwner()->GetGlobalPosition();
   m_Steering.m_qRotation = GetOwner()->GetGlobalRotation();
   m_Steering.m_vVelocity = GetOwner()->GetLinearVelocity();
+
+  // TODO: hard-coded values
   m_Steering.m_MinTurnSpeed = ezAngle::MakeFromDegree(180);
-  m_Steering.m_fAcceleration = 5;
-  m_Steering.m_fDecceleration = 10;
+  m_Steering.m_fAcceleration = 1;
+  m_Steering.m_fDecceleration = 1;
 
   const float fBrakingDistance = 1.2f * (ezMath::Square(m_Steering.m_fMaxSpeed) / (2.0f * m_Steering.m_fDecceleration));
 

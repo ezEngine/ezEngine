@@ -11,17 +11,20 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14156501856797205539,10398819186738443508}}
-		u4 %Hash{18267320410315630985}
+		u4 %Hash{2783709367883906130}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
+			s{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 			s{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
 		}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 			s{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
 		}
 		s %Tags{""}
@@ -32,6 +35,196 @@ Objects
 {
 o
 {
+	Uuid %id{u4{5536537470010951768,56094060722520322}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15519060785021082683,200270861385412816}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5097779022862988876,14013141094746873801}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xE5F13242,0x59A90AC2,0x1850A63E}}
+		Quat %LocalRotation{f{0xD017223F,0x020246BF,0x40CEF0BB,0x4206E5BC}}
+		Vec3 %LocalScaling{f{0x0080AF40,0x00007740,0x00002940}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16032745562101071280,1401423484801799930}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5611463799942977473,15214293718163260915}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xF6BD1342,0xDD6070C1,0x3055923E}}
+		Quat %LocalRotation{f{0x88CE0C3F,0xB49955BF,0xD54778BC,0x233105BD}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11435480362744702312,1633909374138773984}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{3952765317694197099,1847401672744416992}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{1882436549452136090,1994612792655627818}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{6381035832267519651,2016817730540468772}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7008349675094804166,15193507270065375897}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD475AD41,0x54ACF0C0,0}}
+		Quat %LocalRotation{f{0xCBDD01BF,0x78B7EE3E,0x0EA2083F,0x530BFB3E}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8100973154906072182,2053741014011145064}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15898819738376524735,2075069184774164564}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13605229206694206759,11023403876886273918}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x70924FC1,0xDA58A841,0x468FC5BE}}
+		Quat %LocalRotation{f{0xF2D5C8BD,0x407AFCB9,0x81F1B439,0x1CC47E3F}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x5D8FDE3F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{17240811548967986307,2124086475449289465}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1882436549452136090,1994612792655627818}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000C0C1,0x00009041,0x00004040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{13532141539591617939,2137206297194946326}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -40,6 +233,110 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15536514452006208923,2138880282487840554}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5115232689848115116,15951750515849301539}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x3D6C1042,0x7144B0C1,0x6297E7BF}}
+		Quat %LocalRotation{f{0xC1F99EBD,0x681AA7BD,0x6784BABE,0xC8A86C3F}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0xB81EE53F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{18226630294255670950,2172448652667287247}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7805348532097577143,15985318886028748232}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x4DBF3642,0xB97476C1,0}}
+		Quat %LocalRotation{f{0x037DD93E,0x693C0A3F,0xA31FE33E,0xB953133F}}
+		Vec3 %LocalScaling{f{0x00005840,0x52B88240,0x0000D03F}}
+		f %LocalUniformScaling{0x0000403F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5012604080712370783,2183214696804806711}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{8100973154906072182,2053741014011145064}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000A041,0x0000E041,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10316980951020253102,2255470512786945369}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6825339650253686684,5234698721425892878}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD1F839C1,0x28614C41,0xF8E7EBBF}}
+		Quat %LocalRotation{f{0xEE9B273E,0xDA0A023E,0x4527ADBC,0x3E637A3F}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -70,6 +367,244 @@ o
 }
 o
 {
+	Uuid %id{u4{155951358525359951,2448249944437676160}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15876643883066291010,2773146639864932024}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{6749531100056778099,2979403294270547230}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{5406542994262073677,3102182683843013922}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4707346046060569446,3161208842892499924}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4408822650411532393,3492427762176168104}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12434284961962990202,17305297995537629089}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xB5DDF241,0xEF2528C2,0x2F55923E}}
+		Quat %LocalRotation{f{0x580D6C3F,0xFA7AC5BE,0x4250F23C,0x40063ABC}}
+		Vec3 %LocalScaling{f{0x0080AF40,0x00007740,0x00002940}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{18080132064594750547,3572771559856967787}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7658850302436656740,17385641793218428772}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xF61E3342,0x06B9E2C1,0xF0FA913F}}
+		Quat %LocalRotation{f{0xE7837E3F,0x761FBD3D,0x3070553D,0xA997933C}}
+		Vec3 %LocalScaling{f{0x0080AF40,0x00007740,0x00002940}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1981353634640516137,3608376058477515774}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{14561020640813995052,3756698565980914226}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15188334483641279567,16933388105505821351}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD9D22142,0xAE08ABC0,0x4EF24740}}
+		Quat %LocalRotation{f{0x83EAC9BE,0xE107243F,0x5B73EC3E,0xDF82F03E}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0xD7A30040}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{14012026271947895287,3870467788129173077}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{10323998990686429251,4026598741146893199}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10951312833513713766,17203288280671800324}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x21B4A241,0x2FF82DC1,0x0418C33D}}
+		Quat %LocalRotation{f{0xB1F0243F,0xB62E96BE,0x8BD615BF,0x9465CABE}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7971999572236682251,4438614628693842162}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{17722540023962171962,4639555583724336719}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{18349853866789456477,17816245123249243844}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x7B8BE041,0x2833CFBF,0xB0F5C9BE}}
+		Quat %LocalRotation{f{0x60946D3E,0xCC0F3D3F,0x145FCCBD,0x4809203F}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11116155524025997442,4646164387222585614}}
+	s %t{"ezPlayerStartPointComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %PlayerPrefab{"{ 8044a36f-e313-4204-973d-796231798973 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{6929615146142074782,4672899150395343686}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -78,6 +613,58 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15957819232169045575,4689967901070610953}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5536537470010951768,56094060722520322}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x78B81F42,0x86D913C2,0x564FFEB4}}
+		Quat %LocalRotation{f{0x1CFFF13E,0x6C34183F,0xC14EE53E,0x8A86F13E}}
+		Vec3 %LocalScaling{f{0x66668C40,0x3E578740,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15703251890817791565,4796477630239310253}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13409661359135473589,13744812322351419607}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x1DF6B3C0,0xDD65D141,0xCA0B963E}}
+		Quat %LocalRotation{f{0x843574BD,0x03E94EBF,0x169315BF,0xF0472EBD}}
+		Vec3 %LocalScaling{f{0x00005840,0x00000540,0xA5EC9240}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -94,7 +681,7 @@ o
 			Uuid{u4{6929615146142074782,4672899150395343686}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000B041,0x0000C0C1,0}}
+		Vec3 %LocalPosition{f{0x00009841,0x0000C8C1,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -104,6 +691,30 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{7734739675392559522,4849907433199979143}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{9486426551304083088,4854697161245088005}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 	}
 }
 o
@@ -118,20 +729,78 @@ o
 }
 o
 {
-	Uuid %id{u4{5292338323749365391,5268728394139950021}}
-	s %t{"ezSpawnComponent"}
-	u3 %v{3}
+	Uuid %id{u4{17728925407039127962,5122061591379631650}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		b %AttachAsChild{0}
-		Time %DelayRange{d{0}}
-		Angle %Deviation{f{0}}
-		Time %MinDelay{d{0x000000000000F03F}}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11116155524025997442,4646164387222585614}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000000C0,0x000088C1,0x00004040}}
+		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15372475866941263800,5183072808998669953}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9486426551304083088,4854697161245088005}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00008841,0xE0D02E3F,0xF4FDC03E}}
+		Quat %LocalRotation{f{0xEA46773F,0,0,0xF18384BE}}
+		Vec3 %LocalScaling{f{0x0000E03F,0x0000A03F,0x00000840}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6825339650253686684,5234698721425892878}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
 		VarDict %Parameters{}
-		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
-		b %SpawnAtStart{1}
-		b %SpawnContinuously{0}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{875312883785784720,5276805950380214356}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 	}
 }
 o
@@ -146,28 +815,26 @@ o
 }
 o
 {
-	Uuid %id{u4{2056167386181083793,5714562658548582368}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
+	Uuid %id{u4{12975304639209909141,5458120641842785754}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{5292338323749365391,5268728394139950021}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00000040,0x00000041,0xBC3D2B3F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{12140965258976785799,5467608663541877796}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 	}
 }
 o
@@ -208,7 +875,6 @@ o
 		{
 			Uuid{u4{14943042534284909337,9745496007376604205}}
 			Uuid{u4{9406117620999888005,5755420176756122798}}
-			Uuid{u4{2056167386181083793,5714562658548582368}}
 			Uuid{u4{3841246071948373383,4802372833189005333}}
 			Uuid{u4{4022354329849077566,9745093557865431229}}
 			Uuid{u4{17318515191699516976,10095832485765651804}}
@@ -220,8 +886,124 @@ o
 			Uuid{u4{10762756653034569434,15378103626055447371}}
 			Uuid{u4{10443772465397916540,2266679979988607973}}
 			Uuid{u4{15446853586959802109,6971484955389870593}}
+			Uuid{u4{3723120994643689128,15032007631564010291}}
+			Uuid{u4{15372475866941263800,5183072808998669953}}
+			Uuid{u4{247999040958500205,10546860484564858847}}
+			Uuid{u4{8654526565772453621,16090211032768973032}}
+			Uuid{u4{4115502947425327990,10101482503889968427}}
+			Uuid{u4{5012604080712370783,2183214696804806711}}
+			Uuid{u4{15268895170892227117,14956530023440228016}}
+			Uuid{u4{10316980951020253102,2255470512786945369}}
+			Uuid{u4{15898819738376524735,2075069184774164564}}
+			Uuid{u4{17240811548967986307,2124086475449289465}}
+			Uuid{u4{2599388952875221320,7823664972101614866}}
+			Uuid{u4{7000936577742887422,12659618224489942186}}
+			Uuid{u4{15123742709712851624,18352627801152737782}}
+			Uuid{u4{15703251890817791565,4796477630239310253}}
+			Uuid{u4{10918913457286256193,10459677808378038892}}
+			Uuid{u4{6949820848019109372,15633148978945811560}}
+			Uuid{u4{8650893174443285027,15403362715148946827}}
+			Uuid{u4{13349134748689687597,14866851743269506000}}
+			Uuid{u4{16115812004400565501,15823247100767047192}}
+			Uuid{u4{5659352488257411596,15788917676658565971}}
+			Uuid{u4{12374754948450501674,14736054286481370591}}
+			Uuid{u4{7308865529121221624,15736631065524505302}}
+			Uuid{u4{16032745562101071280,1401423484801799930}}
+			Uuid{u4{14374047079852290906,6481275513092507623}}
+			Uuid{u4{8239820608239281688,11152496293347665077}}
+			Uuid{u4{18226630294255670950,2172448652667287247}}
+			Uuid{u4{15827824756420167484,7736056524191104553}}
+			Uuid{u4{7851181571514833201,7407020480213022655}}
+			Uuid{u4{3264956599126705384,12427804530388220677}}
+			Uuid{u4{10070995132310436548,16561017987622209279}}
+			Uuid{u4{15760419886186616271,16094075642601105863}}
+			Uuid{u4{15536514452006208923,2138880282487840554}}
+			Uuid{u4{14678123959593384109,16792587781190776527}}
+			Uuid{u4{18080132064594750547,3572771559856967787}}
+			Uuid{u4{7338725571449555438,12640167744732872808}}
+			Uuid{u4{8345092560455988627,17696266857216007823}}
+			Uuid{u4{10577233120683453758,7082123784785766791}}
+			Uuid{u4{15957819232169045575,4689967901070610953}}
+			Uuid{u4{4408822650411532393,3492427762176168104}}
+			Uuid{u4{12402635396798609944,8242249898825606405}}
+			Uuid{u4{17170812862214871906,7613277134618637861}}
+			Uuid{u4{13932390214470356648,13027891046360063469}}
+			Uuid{u4{15519060785021082683,200270861385412816}}
+			Uuid{u4{4026223512822659738,12691729243646841881}}
+			Uuid{u4{17961924110321953929,11890865523538685536}}
+			Uuid{u4{13127190163363119540,11979500908331586973}}
+			Uuid{u4{499710383023844510,12527717726678515191}}
+			Uuid{u4{14137653586781675407,11739169919337448586}}
+			Uuid{u4{5496470514527611439,17413822714377421458}}
+			Uuid{u4{310783333180116108,12593284662757047650}}
+			Uuid{u4{3563356808434526111,11752311836984647826}}
+			Uuid{u4{1908204014887724322,15527932524065755604}}
+			Uuid{u4{6381035832267519651,2016817730540468772}}
+			Uuid{u4{10808166519917417797,6903963908323418475}}
+			Uuid{u4{9631858308224033517,12287787664656321817}}
+			Uuid{u4{6652545046947002002,17969858086387915271}}
+			Uuid{u4{3431417423223036141,12020405479369391539}}
+			Uuid{u4{2255109211529651861,17404229235702294881}}
+			Uuid{u4{17722540023962171962,4639555583724336719}}
+			Uuid{u4{11500307202379813531,17089519058523541473}}
+			Uuid{u4{10323998990686429251,4026598741146893199}}
+			Uuid{u4{7344685729409397736,9708669162878486653}}
+			Uuid{u4{14561020640813995052,3756698565980914226}}
+			Uuid{u4{13384712429120610772,9140522322313817568}}
+			Uuid{u4{10405399167843579257,14822592744045411022}}
+			Uuid{u4{17728925407039127962,5122061591379631650}}
 		}
 		Uuid %Settings{u4{10066782770234364729,9927680789464699617}}
+	}
+}
+o
+{
+	Uuid %id{u4{14374047079852290906,6481275513092507623}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3952765317694197099,1847401672744416992}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xE9902742,0xC29B81C1,0x3055923E}}
+		Quat %LocalRotation{f{0x3B32603F,0x1D7AF63E,0xBDBC09BD,0xD5CA4C3C}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16265282919790739497,6518622452999574446}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4058731266050320656,6750350945184747048}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 	}
 }
 o
@@ -234,6 +1016,32 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{10808166519917417797,6903963908323418475}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11435480362744702312,1633909374138773984}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x1B47C241,0x9AF023C1,0x26618DBD}}
+		Quat %LocalRotation{f{0x82820FBF,0x0E01D33E,0xE172F43E,0xA95F093F}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -260,6 +1068,260 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{10259172151051318032,7017733130471677326}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{10577233120683453758,7082123784785766791}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{155951358525359951,2448249944437676160}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xB690FE41,0x7107FAC1,0xF29113C0}}
+		Quat %LocalRotation{f{0x0E81B5BD,0x1A508E3D,0xA67974BF,0xD0858CBE}}
+		Vec3 %LocalScaling{f{0xC8536A40,0x3D0A8840,0xF6283A40}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7851181571514833201,7407020480213022655}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15876643883066291010,2773146639864932024}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x4DBF3A42,0x5C3A8BC1,0}}
+		Quat %LocalRotation{f{0x4D21E83E,0x2C26043F,0xB7D8D23E,0x9841193F}}
+		Vec3 %LocalScaling{f{0x3233B240,0x3CEC9940,0x00009C3F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{17170812862214871906,7613277134618637861}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6749531100056778099,2979403294270547230}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x30AEF941,0x6AB912C2,0xA469B13F}}
+		Quat %LocalRotation{f{0x5D682E3F,0xB8CDB5BD,0xFDFF88BE,0x6AF12C3F}}
+		Vec3 %LocalScaling{f{0x00005840,0x52B88240,0xCDCC1640}}
+		f %LocalUniformScaling{0x0000403F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15827824756420167484,7736056524191104553}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5406542994262073677,3102182683843013922}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x9D0E2E42,0xAF9B55C1,0xF09C733F}}
+		Quat %LocalRotation{f{0x8C48BF3E,0x7007493E,0xAFAA463F,0x14F4EF3E}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11290418910678163193,7793930690040130046}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{2599388952875221320,7823664972101614866}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{305798421192903344,16771999664213724220}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xC9FBEDC0,0x3F3ED441,0x6F94A7BD}}
+		Quat %LocalRotation{f{0x96E64CBF,0x6F42023E,0xD4F0F2BE,0x23E9AFBE}}
+		Vec3 %LocalScaling{f{0x00005840,0x00000540,0xA5EC9240}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15364187883001013247,8006293904384782177}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{12402635396798609944,8242249898825606405}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1981353634640516137,3608376058477515774}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xBE1E1E42,0x0A2F2BC2,0x3355923E}}
+		Quat %LocalRotation{f{0xBE8BD6BE,0x804C68BF,0x8E3F283C,0x6B8AF53C}}
+		Vec3 %LocalScaling{f{0x0080AF40,0x00007740,0x00002940}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3511108452312262841,8394017206011972838}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{12830152178030533648,8854218419555295520}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{13384712429120610772,9140522322313817568}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14012026271947895287,3870467788129173077}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xE43F2442,0x71EEAEC0,0xE2083140}}
+		Quat %LocalRotation{f{0x96F9183F,0x084FF73D,0xC6D147BF,0x3C910D3E}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0xD7A30040}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11032713010670863772,9552538209860766531}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 	}
 }
 o
@@ -332,6 +1394,32 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{7344685729409397736,9708669162878486653}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7971999572236682251,4438614628693842162}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xAC76A741,0x70EC28C1,0x0749A6BE}}
+		Quat %LocalRotation{f{0xE780313F,0x8C569F3E,0x6A7413BF,0x80219A3E}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -561,7 +1649,7 @@ o
 			Uuid{u4{15299242462161623855,9915157421918689557}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000A041,0x00008841,0}}
+		Vec3 %LocalPosition{f{0x0000A041,0x0000E040,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -597,6 +1685,44 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{4115502947425327990,10101482503889968427}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12140965258976785799,5467608663541877796}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00009841,0x00000040,0}}
+		Quat %LocalRotation{f{0x3E05353F,0xB80416BA,0x12CA20B9,0xA504353F}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1953473186292407867,10102180446133279960}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 	}
 }
 o
@@ -655,6 +1781,18 @@ o
 }
 o
 {
+	Uuid %id{u4{5032864141649075481,10131302160624456944}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{17475334646762784041,10211429250151562700}}
 	s %t{"ezSphereReflectionProbeComponent"}
 	u3 %v{2}
@@ -679,6 +1817,18 @@ o
 }
 o
 {
+	Uuid %id{u4{2927852986531593790,10232977902921415369}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{2518058348280827421,10256710470020414609}}
 	s %t{"ezSkyLightComponent"}
 	u3 %v{3}
@@ -698,6 +1848,70 @@ o
 		f %Saturation{0x0000803F}
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
+	}
+}
+o
+{
+	Uuid %id{u4{2535517857715008837,10257877989881111113}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{10918913457286256193,10459677808378038892}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5032864141649075481,10131302160624456944}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xC3E6A541,0xA2219D41,0xC544833F}}
+		Quat %LocalRotation{f{0x3EEA463F,0xF27B1DBE,0x9043553E,0x64E3123F}}
+		Vec3 %LocalScaling{f{0x0000E03F,0x0000A03F,0x00000840}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{247999040958500205,10546860484564858847}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{875312883785784720,5276805950380214356}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00002041,0x0000803F,0}}
+		Quat %LocalRotation{f{0x24F4343F,0xC0D5243B,0x3615353F,0x40C81ABB}}
+		Vec3 %LocalScaling{f{0x05A85040,0xC5A5C13F,0x0000003F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -726,6 +1940,622 @@ o
 }
 o
 {
+	Uuid %id{u4{16676355485994742836,10769488874800856196}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{13605229206694206759,11023403876886273918}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15334327840672679433,11102757225176414671}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{8239820608239281688,11152496293347665077}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16265282919790739497,6518622452999574446}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x55802542,0x0052A2C1,0x3055923E}}
+		Quat %LocalRotation{f{0x4023E83D,0x302F7E3F,0x015417BC,0xC6FD0D3D}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0xD7A3903F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13684814799808869405,11155043836310475340}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{5694530242242471694,11189373260418956561}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{5339138124028522464,11460201802253015232}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{17226022660975376806,11609696236543786939}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{6651725882628227510,11622838154190986179}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{14137653586781675407,11739169919337448586}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{17226022660975376806,11609696236543786939}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00002C42,0x0000A8C1,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3563356808434526111,11752311836984647826}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6651725882628227510,11622838154190986179}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000024C2,0x000008C2,0x00004040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2603549110806103712,11761391840745023889}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{12127621045207098046,11819464524338896982}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{16215559237556820939,11850027225537925326}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{17961924110321953929,11890865523538685536}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2603549110806103712,11761391840745023889}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00008041,0x000038C2,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{18096457443861894357,11927144147274118648}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{13127190163363119540,11979500908331586973}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16215559237556820939,11850027225537925326}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00002842,0x00004040,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3431417423223036141,12020405479369391539}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4058731266050320656,6750350945184747048}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x47C7DE41,0xAE8018C0,0x2449593E}}
+		Quat %LocalRotation{f{0x48C9E2BE,0xD4B1DE3E,0x12EA1A3F,0x7A32FF3E}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2882423054356936376,12134174701517650390}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4256842197435290302,12158713940842685896}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{9631858308224033517,12287787664656321817}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10259172151051318032,7017733130471677326}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x39DDC741,0x52AC21C1,0xBAA3FFBD}}
+		Quat %LocalRotation{f{0xFC893B3F,0x8226743E,0xA87A15BF,0x5C15833E}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3588079457217545909,12398244043884853544}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{3264956599126705384,12427804530388220677}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11290418910678163193,7793930690040130046}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x391A3D42,0xFF199EC1,0}}
+		Quat %LocalRotation{f{0xF128153F,0x2D65BABE,0x903706BF,0xB2CA003F}}
+		Vec3 %LocalScaling{f{0x3233B240,0x3CEC9940,0x00009C3F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3399152407373817507,12463810979963386003}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{499710383023844510,12527717726678515191}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3588079457217545909,12398244043884853544}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000C040,0x0000D0C1,0x00004040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7114592587016361137,12562255560853180234}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{310783333180116108,12593284662757047650}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3399152407373817507,12463810979963386003}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00001CC2,0x0000F8C1,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7338725571449555438,12640167744732872808}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15364187883001013247,8006293904384782177}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x14A52442,0x3EE3FDC1,0}}
+		Quat %LocalRotation{f{0xE645CD3E,0x1EE1083F,0x46DD033F,0x5065093F}}
+		Vec3 %LocalScaling{f{0x66668C40,0x3E578740,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7000936577742887422,12659618224489942186}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4707346046060569446,3161208842892499924}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xBFC4F4C0,0x8A1FDE41,0xC80B963E}}
+		Quat %LocalRotation{f{0x8DAC3FBF,0x9FD19EBE,0x791F66BE,0x397F0ABF}}
+		Vec3 %LocalScaling{f{0x00005840,0x00000540,0xA5EC9240}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4026223512822659738,12691729243646841881}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7114592587016361137,12562255560853180234}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00001442,0x000008C2,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7279858889774286517,12699803552203270780}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{13932390214470356648,13027891046360063469}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3511108452312262841,8394017206011972838}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xE5F13242,0x59A91EC2,0x30158B3E}}
+		Quat %LocalRotation{f{0xBE8BD6BE,0x804C68BF,0x8E3F283C,0x6B8AF53C}}
+		Vec3 %LocalScaling{f{0x0080AF40,0x00007740,0x00002940}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16370554872007446436,13062393016867917192}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{13409661359135473589,13744812322351419607}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{5097779022862988876,14013141094746873801}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{282009443107851002,14226647461547681526}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -750,7 +2580,7 @@ o
 			Uuid{u4{282009443107851002,14226647461547681526}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000E040,0x0000A040,0x00008040}}
+		Vec3 %LocalPosition{f{0x0000A041,0x0000F041,0x00004040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -760,6 +2590,172 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{12374754948450501674,14736054286481370591}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1953473186292407867,10102180446133279960}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00002042,0x000040C1,0}}
+		Quat %LocalRotation{f{0xC47A4FBE,0x605FB13E,0x46374ABF,0xE364EDBE}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10405399167843579257,14822592744045411022}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11032713010670863772,9552538209860766531}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x7A052342,0x50F99DC0,0x52BA1040}}
+		Quat %LocalRotation{f{0x91026B3E,0xF169353F,0x2194B2BE,0xFA9B113F}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0xD7A30040}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13349134748689687597,14866851743269506000}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2927852986531593790,10232977902921415369}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x1F980942,0x67D842C1,0x3155923E}}
+		Quat %LocalRotation{f{0xA275703E,0x17AC78BF,0xCA6954BB,0x0C5812BD}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6811490068837390527,14902533948770348644}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15268895170892227117,14956530023440228016}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12975304639209909141,5458120641842785754}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000060C1,0x00004041,0x1913F7BF}}
+		Quat %LocalRotation{f{0x2E00293E,0x697911BA,0x64925939,0x4A7D7C3F}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3723120994643689128,15032007631564010291}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6811490068837390527,14902533948770348644}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000F041,0x0000B841,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7008349675094804166,15193507270065375897}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{5611463799942977473,15214293718163260915}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 	}
 }
 o
@@ -784,6 +2780,18 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{1063771532381928660,15304773331192229612}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 	}
 }
 o
@@ -829,6 +2837,530 @@ o
 		Vec3 %LocalPosition{f{0x000088C1,0x0000E0C0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8650893174443285027,15403362715148946827}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16676355485994742836,10769488874800856196}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00000842,0x000088C1,0x706BB6BF}}
+		Quat %LocalRotation{f{0xD5CA35BE,0x5161853E,0x7BBA483F,0x7BDC083F}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1908204014887724322,15527932524065755604}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2535517857715008837,10257877989881111113}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xA2CBAF41,0xD95CEFC0,0xE0FA823A}}
+		Quat %LocalRotation{f{0x76AE2BBF,0xFBD629BE,0x379D343F,0x07DA21BE}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6949820848019109372,15633148978945811560}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1063771532381928660,15304773331192229612}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x77F0D641,0x68E49141,0x5C88353F}}
+		Quat %LocalRotation{f{0xFA35453F,0x04EB69BE,0xEC2BA9BD,0x89EB163F}}
+		Vec3 %LocalScaling{f{0x0000E03F,0x0000A03F,0x00000840}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7308865529121221624,15736631065524505302}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15334327840672679433,11102757225176414671}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x9D0E1242,0xAF9B15C1,0}}
+		Quat %LocalRotation{f{0xEB24D03E,0xAC27E8BD,0xF22F793E,0x08915F3F}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5659352488257411596,15788917676658565971}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13684814799808869405,11155043836310475340}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xDB1F1442,0x969D98C1,0xD00B62BF}}
+		Quat %LocalRotation{f{0xFCDF603C,0xC0ECE4BD,0xA325F73E,0xA4565E3F}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16115812004400565501,15823247100767047192}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5694530242242471694,11189373260418956561}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xB9AEFF41,0x5847A4C1,0}}
+		Quat %LocalRotation{f{0xFA75663F,0x6E12D0BE,0xBED782BD,0xDB0712BE}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5115232689848115116,15951750515849301539}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{7805348532097577143,15985318886028748232}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{8654526565772453621,16090211032768973032}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7734739675392559522,4849907433199979143}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xA42C6941,0xFAE465C0,0xACCC64BF}}
+		Quat %LocalRotation{f{0x4D7D61BE,0x521E693E,0x2A882EBF,0xFBD1283F}}
+		Vec3 %LocalScaling{f{0x4CDAD23F,0x9321AC3F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15760419886186616271,16094075642601105863}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5339138124028522464,11460201802253015232}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x55803542,0x0052AAC1,0x3055923E}}
+		Quat %LocalRotation{f{0x4023E83D,0x302F7E3F,0x015417BC,0xC6FD0D3D}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10070995132310436548,16561017987622209279}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{18096457443861894357,11927144147274118648}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x40623142,0x5DDA8BC1,0x3055923E}}
+		Quat %LocalRotation{f{0x080BD9BE,0x98AD673F,0x97D4283C,0xAEC00C3D}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{305798421192903344,16771999664213724220}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{14678123959593384109,16792587781190776527}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4256842197435290302,12158713940842685896}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xAF852342,0x0CEED2C1,0x3055923E}}
+		Quat %LocalRotation{f{0x2C3D2B3E,0xCE437C3F,0x786491BC,0xE001D7BC}}
+		Vec3 %LocalScaling{f{0x00005840,0x00001840,0x0000D03F}}
+		f %LocalUniformScaling{0x0000D03F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15188334483641279567,16933388105505821351}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{11500307202379813531,17089519058523541473}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12127621045207098046,11819464524338896982}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xA346A241,0xE05423C1,0xF335B43E}}
+		Quat %LocalRotation{f{0x383F753D,0xF298273F,0xC08E8A3B,0x0CE7403F}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10951312833513713766,17203288280671800324}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{8584839588721312838,17284349031583759811}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{12434284961962990202,17305297995537629089}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{7658850302436656740,17385641793218428772}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{2255109211529651861,17404229235702294881}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2882423054356936376,12134174701517650390}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xA9EBE341,0x339D0BC0,0xD04DDBBC}}
+		Quat %LocalRotation{f{0x4F29253F,0xC607AF3E,0xC88529BF,0xFC8F2C3E}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5496470514527611439,17413822714377421458}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{8584839588721312838,17284349031583759811}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0x000034C2,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8345092560455988627,17696266857216007823}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16370554872007446436,13062393016867917192}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x640D2642,0xF19E01C2,0}}
+		Quat %LocalRotation{f{0x729A07BF,0x1FA2D03E,0xEA020B3F,0xF82802BF}}
+		Vec3 %LocalScaling{f{0x66668C40,0x3E578740,0x0000D03F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{18349853866789456477,17816245123249243844}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{6652545046947002002,17969858086387915271}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7279858889774286517,12699803552203270780}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x63E3C541,0x0FA819C1,0x924830BF}}
+		Quat %LocalRotation{f{0x8585573E,0xC6741D3F,0xB8F40EBE,0x40373F3F}}
+		Vec3 %LocalScaling{f{0x408A8540,0xEEC9BB3E,0xB81E253F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15123742709712851624,18352627801152737782}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12830152178030533648,8854218419555295520}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x5EE1FFC0,0x9413EF41,0xC80B963E}}
+		Quat %LocalRotation{f{0xF90545BF,0x5EAE74BE,0x6FA46CBE,0x768E0BBF}}
+		Vec3 %LocalScaling{f{0x00005840,0x00000540,0xA5EC9240}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
@@ -962,6 +3494,23 @@ o
 }
 o
 {
+	Uuid %id{u4{13894603276136100658,3300807776711650119}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPlayerStartPointComponent"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
 	Uuid %id{u4{1168477127324465164,3417260966341483024}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -992,23 +3541,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCategoryAttribute"}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{9274987833270370026,4800691691683468795}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSpawnComponent"}
-		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1159,23 +3691,6 @@ o
 }
 o
 {
-	Uuid %id{u4{8760458049236453716,8881392678316352754}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezVisualizerAttribute"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezConeVisualizerAttribute"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{3251891958765718680,9159887340540620231}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1273,23 +3788,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTransformManipulatorAttribute"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{5175953824557395014,10566581888453829842}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezManipulatorAttribute"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezConeAngleManipulatorAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
