@@ -21,7 +21,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13493649606011026312,5409130921265450971}}
-		u4 %Hash{8472859819789564383}
+		u4 %Hash{15282861051564363913}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2083725652050700754,4531870529209767784}}
@@ -91,7 +91,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %AllowPartialPaths{0}
+		b %AllowPartialPaths{1}
 		Vec3 %Destination{f{0,0,0x0000803E}}
 		Vec2 %Node::Pos{f{0x8E862E44,0x76428143}}
 	}

@@ -48,21 +48,27 @@ void ezAiNavigationComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
+  m_uibSkipNextFrames = 3; // 2 are needed to have colliders set up at the start of the scene simulation, 3 just to be save
   m_Steering.m_vPosition = GetOwner()->GetGlobalPosition();
   m_Steering.m_qRotation = GetOwner()->GetGlobalRotation();
 }
 
 void ezAiNavigationComponent::SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath)
 {
+  m_bAllowPartialPath = bAllowPartialPath;
   m_Navigation.SetTargetPosition(vGlobalPos);
   m_State = State::Moving;
-  m_bAllowPartialPath = bAllowPartialPath;
 }
 
 void ezAiNavigationComponent::CancelNavigation()
 {
   m_Navigation.CancelNavigation();
-  m_State = State::Idle;
+
+  if (m_State != State::Falling)
+  {
+    // if it is still falling, don't reset the state
+    m_State = State::Idle;
+  }
 }
 
 void ezAiNavigationComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -98,6 +104,14 @@ void ezAiNavigationComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezAiNavigationComponent::Update()
 {
+  if (m_uibSkipNextFrames > 0)
+  {
+    // in the very first frame, physics may not be available yet (colliders are not yet set up)
+    // so skip that frame to prevent not finding a ground and entering the 'falling' state
+    m_uibSkipNextFrames--;
+    return;
+  }
+
   ezTransform transform = GetOwner()->GetGlobalTransform();
   Steer(transform);
   PlaceOnGround(transform);
@@ -269,6 +283,7 @@ void ezAiNavigationComponent::PlaceOnGround(ezTransform& transform)
   {
     // did not find an intersection -> falling down
     fMoveUp = -fDistDown; // will be clamped by gravity
+    CancelNavigation();
     m_State = State::Falling;
   }
 

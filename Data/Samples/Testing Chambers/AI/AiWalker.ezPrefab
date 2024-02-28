@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9787685060025488154,10081810663128121436}}
-		u4 %Hash{10400660460335501094}
+		u4 %Hash{4073212390908027060}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2303340321395474942,4382405691360237669}}
@@ -100,7 +100,7 @@ o
 		HashedString %NavmeshConfig{s{"Default"}}
 		HashedString %PathSearchConfig{s{"Default"}}
 		f %ReachedDistance{0x0000803F}
-		f %Speed{0x0000A040}
+		f %Speed{0x00004040}
 	}
 }
 o

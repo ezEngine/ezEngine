@@ -219,13 +219,14 @@ void ezAiNavigation::SetCurrentPosition(const ezVec3& vPosition)
   m_uiCurrentPositionChangedBit = 1;
 }
 
-void ezAiNavigation::SetTargetPosition(const ezVec3& vPosition)
+bool ezAiNavigation::SetTargetPosition(const ezVec3& vPosition)
 {
   if (m_vTargetPosition == vPosition)
-    return;
+    return false;
 
   m_vTargetPosition = vPosition;
   m_uiTargetPositionChangedBit = 1;
+  return true;
 }
 
 const ezVec3& ezAiNavigation::GetTargetPosition() const

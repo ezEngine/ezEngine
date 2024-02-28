@@ -32,7 +32,7 @@ public:
   ezAiNavigationComponent();
   ~ezAiNavigationComponent();
 
-  enum State
+  enum State : ezUInt8
   {
     Idle,
     Moving,
@@ -68,8 +68,7 @@ protected:
   ezAiNavigation m_Navigation;
   float m_fFallSpeed = 0.0f;
   bool m_bAllowPartialPath = false;
-
-
+  ezUInt8 m_uibSkipNextFrames = 0;
 
 private:
   const char* DummyGetter() const { return nullptr; }
