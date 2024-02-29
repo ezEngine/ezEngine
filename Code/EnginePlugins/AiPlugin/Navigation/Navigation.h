@@ -65,7 +65,7 @@ public:
   void CancelNavigation();
 
   void SetCurrentPosition(const ezVec3& vPosition);
-  bool SetTargetPosition(const ezVec3& vPosition);
+  void SetTargetPosition(const ezVec3& vPosition);
   const ezVec3& GetTargetPosition() const;
   void SetNavmesh(ezAiNavMesh& ref_navmesh);
   void SetQueryFilter(const dtQueryFilter& filter);

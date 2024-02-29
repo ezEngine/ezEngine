@@ -9,6 +9,24 @@
 EZ_DECLARE_FLAGS(ezUInt32, ezAiNavigationDebugFlags, PrintState, VisPathCorridor, VisPathLine, VisTarget);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_AIPLUGIN_DLL, ezAiNavigationDebugFlags);
 
+struct ezAiNavigationComponentState
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Idle,
+    Moving,
+    Falling,
+    Fallen,
+    Failed,
+
+    Default = Idle
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_AIPLUGIN_DLL, ezAiNavigationComponentState);
+
 using ezAiNavigationComponentManager = ezComponentManagerSimple<class ezAiNavigationComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_AIPLUGIN_DLL ezAiNavigationComponent : public ezComponent
@@ -32,15 +50,6 @@ public:
   ezAiNavigationComponent();
   ~ezAiNavigationComponent();
 
-  enum State : ezUInt8
-  {
-    Idle,
-    Moving,
-    Falling,
-    Fallen,
-    Failed,
-  };
-
   void SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath);
   void CancelNavigation();
 
@@ -56,14 +65,14 @@ public:
   /// What aspects of the navigation to visualize.
   ezBitflags<ezAiNavigationDebugFlags> m_DebugFlags; // [ property ]
 
-  State GetState() const { return m_State; }
+  ezEnum<ezAiNavigationComponentState> GetState() const { return m_State; }
 
 protected:
   void Update();
-  void Steer(ezTransform& transform);
-  void PlaceOnGround(ezTransform& transform);
+  void Steer(ezTransform& transform, float tDiff);
+  void PlaceOnGround(ezTransform& transform, float tDiff);
 
-  State m_State = State::Idle;
+  ezEnum<ezAiNavigationComponentState> m_State;
   ezAiSteering m_Steering;
   ezAiNavigation m_Navigation;
   float m_fFallSpeed = 0.0f;
