@@ -70,8 +70,10 @@ namespace ezExpression
   /// \brief Describes an expression function and its signature, e.g. how many input parameter it has and their type
   struct FunctionDesc
   {
+    using TypeList = ezSmallArray<ezEnum<ezExpression::RegisterType>, 8>;
+
     ezHashedString m_sName;
-    ezSmallArray<ezEnum<ezExpression::RegisterType>, 8> m_InputTypes;
+    TypeList m_InputTypes;
     ezUInt8 m_uiNumRequiredInputs = 0;
     ezEnum<ezExpression::RegisterType> m_OutputType;
 
