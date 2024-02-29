@@ -166,6 +166,11 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVec3, ezNoBase, 1, ezRTTINoAllocator)
   {
     EZ_CONSTRUCTOR_PROPERTY(float),
     EZ_CONSTRUCTOR_PROPERTY(float, float, float),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetLength<float>),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetLengthSquared),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetNormalized<float>),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Dot, In, "v"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(CrossRH, In, "v"),
   }
   EZ_END_FUNCTIONS;
 }
