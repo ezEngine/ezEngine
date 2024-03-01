@@ -99,7 +99,7 @@ protected:
   ezAiNavigation m_Navigation;
   float m_fFallSpeed = 0.0f;
   bool m_bAllowPartialPath = false;
-  ezUInt8 m_uibSkipNextFrames = 0;
+  ezUInt8 m_uiSkipNextFrames = 0;
 
 private:
   const char* DummyGetter() const { return nullptr; }

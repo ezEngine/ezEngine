@@ -56,7 +56,7 @@ void ezAiNavigationComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  m_uibSkipNextFrames = 3; // 2 are needed to have colliders set up at the start of the scene simulation, 3 just to be save
+  m_uiSkipNextFrames = 3; // 2 are needed to have colliders set up at the start of the scene simulation, 3 just to be save
   m_Steering.m_vPosition = GetOwner()->GetGlobalPosition();
   m_Steering.m_qRotation = GetOwner()->GetGlobalRotation();
 }
@@ -116,11 +116,11 @@ void ezAiNavigationComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezAiNavigationComponent::Update()
 {
-  if (m_uibSkipNextFrames > 0)
+  if (m_uiSkipNextFrames > 0)
   {
     // in the very first frame, physics may not be available yet (colliders are not yet set up)
     // so skip that frame to prevent not finding a ground and entering the 'falling' state
-    m_uibSkipNextFrames--;
+    m_uiSkipNextFrames--;
     return;
   }
 
