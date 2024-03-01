@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12599491310324011194,4884188338489321025}}
-		u4 %Hash{10290672938112063597}
+		u4 %Hash{11533391075183114737}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -4440,7 +4440,6 @@ o
 			Uuid{u4{11629280080348716608,4305996158126985379}}
 			Uuid{u4{12367283975064211902,17336212290161933460}}
 			Uuid{u4{12168937125174489978,4584060448899130618}}
-			Uuid{u4{7659786164389266567,6652173416837288727}}
 			Uuid{u4{4966746898232614061,6484615815395019164}}
 			Uuid{u4{13615344154060033821,9270630059437546652}}
 			Uuid{u4{3355568898522510034,9148345437685448208}}
@@ -4539,6 +4538,9 @@ o
 			Uuid{u4{16391245249934202290,1174301512831670101}}
 			Uuid{u4{11439331030062228275,6919986075887939070}}
 			Uuid{u4{17021169817418499908,6739584747875158265}}
+			Uuid{u4{1441025953644902622,9465065657408237688}}
+			Uuid{u4{5055952417237301326,11824439470808128276}}
+			Uuid{u4{9284879187116971343,12065667049439873944}}
 		}
 		Uuid %Settings{u4{466169294287248017,4680201071252384050}}
 	}
@@ -4715,32 +4717,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7659786164389266567,6652173416837288727}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{11113657391432129429,6853530264313930446}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000010C2,0x0000D8C1,0}}
-		Quat %LocalRotation{f{0,0,0xFFFF7FBF,0x000080B3}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{191433875428859919,6663790358717724380}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -4892,33 +4868,6 @@ o
 		f %SizeNegZ{0}
 		f %SizePosX{0x00000040}
 		f %SizePosY{0x00000040}
-		f %SizePosZ{0x00004040}
-		b %SlopedBottom{0}
-		b %SlopedTop{0}
-		f %Thickness{0x0000003F}
-		b %UseAsOccluder{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11113657391432129429,6853530264313930446}}
-	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
-	p
-	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %Curvature{f{0}}
-		u3 %Detail{16}
-		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
-		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsY"}
-		f %SizeNegX{0x0000803F}
-		f %SizeNegY{0x00008040}
-		f %SizeNegZ{0}
-		f %SizePosX{0x00000040}
-		f %SizePosY{0x0000803F}
 		f %SizePosZ{0x00004040}
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
@@ -5150,7 +5099,7 @@ o
 			Uuid{u4{14486644211614584023,7326584452298351978}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xC16D20C2,0x5A4B18C2,0}}
+		Vec3 %LocalPosition{f{0xC16D24C2,0x5A4B18C2,0}}
 		Quat %LocalRotation{f{0,0,0xB11DE7BE,0x406F643F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -6277,6 +6226,32 @@ o
 }
 o
 {
+	Uuid %id{u4{1441025953644902622,9465065657408237688}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4894897180687765484,9666422504884879407}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000B8C1,0x000010C2,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{17069215381102896683,9471986906914188371}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{5}
@@ -6480,6 +6455,33 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4418b713-806d-4d73-8bd2-c99707280561 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4894897180687765484,9666422504884879407}}
+	s %t{"ezGreyBoxComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
+		s %Material{""}
+		s %Shape{"ezGreyBoxShape::Box"}
+		f %SizeNegX{0x000000C0}
+		f %SizeNegY{0x00000041}
+		f %SizeNegZ{0}
+		f %SizePosX{0x0000A040}
+		f %SizePosY{0x00000041}
+		f %SizePosZ{0x00004040}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -7979,7 +7981,7 @@ o
 			Uuid{u4{2899429486730356072,11979781444871764406}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x82ED24C2,0x35841CC2,0}}
+		Vec3 %LocalPosition{f{0x82ED1CC2,0x358420C2,0}}
 		Quat %LocalRotation{f{0,0,0xB11DE7BE,0x406F643F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -8033,6 +8035,32 @@ o
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x000040C0,0x000000C2,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5055952417237301326,11824439470808128276}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{8509823644280164188,12025796318284769995}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000010C2,0x0000D8C1,0}}
+		Quat %LocalRotation{f{0,0,0xFFFF7F3F,0x75C84C33}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -8335,6 +8363,33 @@ o
 }
 o
 {
+	Uuid %id{u4{8509823644280164188,12025796318284769995}}
+	s %t{"ezGreyBoxComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
+		s %Material{""}
+		s %Shape{"ezGreyBoxShape::StairsY"}
+		f %SizeNegX{0x0000803F}
+		f %SizeNegY{0x00008040}
+		f %SizeNegZ{0}
+		f %SizePosX{0x00000040}
+		f %SizePosY{0x0000803F}
+		f %SizePosZ{0x00004040}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
+	}
+}
+o
+{
 	Uuid %id{u4{12835972571545692707,12054756043651781668}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -8349,6 +8404,32 @@ o
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x0000E0C0,0x00000CC2,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9284879187116971343,12065667049439873944}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12738750414159834205,12267023896916515663}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xC16D30C2,0x5A4B20C2,0}}
+		Quat %LocalRotation{f{0,0,0xB11DE7BE,0x406F643F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -8614,6 +8695,33 @@ o
 		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
+		f %SizeNegX{0x0000803F}
+		f %SizeNegY{0x0000803F}
+		f %SizeNegZ{0}
+		f %SizePosX{0x0000803F}
+		f %SizePosY{0x0000803F}
+		f %SizePosZ{0x00004040}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12738750414159834205,12267023896916515663}}
+	s %t{"ezGreyBoxComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
+		s %Material{""}
+		s %Shape{"ezGreyBoxShape::Column"}
 		f %SizeNegX{0x0000803F}
 		f %SizeNegY{0x0000803F}
 		f %SizeNegZ{0}
@@ -10023,7 +10131,7 @@ o
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
 		f %SizeNegY{0x00004040}
-		f %SizeNegZ{0x000030C0}
+		f %SizeNegZ{0x0000803E}
 		f %SizePosX{0x0000803F}
 		f %SizePosY{0x00000040}
 		f %SizePosZ{0x00004040}
@@ -12078,7 +12186,7 @@ o
 		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
-		f %SizeNegX{0x0000803F}
+		f %SizeNegX{0x00004040}
 		f %SizeNegY{0x0000803F}
 		f %SizeNegZ{0}
 		f %SizePosX{0x0000A040}

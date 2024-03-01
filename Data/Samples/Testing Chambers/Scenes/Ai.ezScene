@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14156501856797205539,10398819186738443508}}
-		u4 %Hash{5245070647007991522}
+		u4 %Hash{3987245486579417935}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -396,7 +396,7 @@ o
 	p
 	{
 		b %Active{1}
-		Time %Duration{d{0x0000000000003440}}
+		Time %Duration{d{0x0000000000001040}}
 		Vec3 %HalfExtents{f{0x00002041,0x00002041,0x0000803E}}
 		Angle %MaxRotationZ{f{0}}
 		Angle %MaxTiltZ{f{0}}

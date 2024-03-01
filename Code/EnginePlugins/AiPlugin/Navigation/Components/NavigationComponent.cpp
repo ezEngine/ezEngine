@@ -23,6 +23,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiNavigationComponent, 1, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("NavmeshConfig", m_sNavmeshConfig)->AddAttributes(new ezDynamicStringEnumAttribute("AiNavmeshConfig")),
     EZ_MEMBER_PROPERTY("PathSearchConfig", m_sPathSearchConfig)->AddAttributes(new ezDynamicStringEnumAttribute("AiPathSearchConfig")),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(5.0f)),
+    EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
+    EZ_MEMBER_PROPERTY("Deceleration", m_fDecceleration)->AddAttributes(new ezDefaultValueAttribute(8.0f)),
     EZ_MEMBER_PROPERTY("FootRadius", m_fFootRadius)->AddAttributes(new ezDefaultValueAttribute(0.15f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("ReachedDistance", m_fReachedDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
@@ -85,6 +87,8 @@ void ezAiNavigationComponent::SerializeComponent(ezWorldWriter& inout_stream) co
   s << m_sNavmeshConfig;
   s << m_fReachedDistance;
   s << m_fSpeed;
+  s << m_fAcceleration;
+  s << m_fDecceleration;
   s << m_fFootRadius;
   s << m_uiCollisionLayer;
   s << m_fFallHeight;
@@ -101,6 +105,8 @@ void ezAiNavigationComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_sNavmeshConfig;
   s >> m_fReachedDistance;
   s >> m_fSpeed;
+  s >> m_fAcceleration;
+  s >> m_fDecceleration;
   s >> m_fFootRadius;
   s >> m_uiCollisionLayer;
   s >> m_fFallHeight;
@@ -176,8 +182,6 @@ void ezAiNavigationComponent::Steer(ezTransform& transform, float tDiff)
   if (m_State != ezAiNavigationComponentState::Moving)
     return;
 
-  // TODO: add public function to query distance to target
-
   if (ezAiNavMeshWorldModule* pNavMeshModule = GetWorld()->GetOrCreateModule<ezAiNavMeshWorldModule>())
   {
     m_Navigation.SetNavmesh(*pNavMeshModule->GetNavMesh(m_sNavmeshConfig));
@@ -225,11 +229,11 @@ void ezAiNavigationComponent::Steer(ezTransform& transform, float tDiff)
   m_Steering.m_vPosition = GetOwner()->GetGlobalPosition();
   m_Steering.m_qRotation = GetOwner()->GetGlobalRotation();
   m_Steering.m_vVelocity = GetOwner()->GetLinearVelocity();
+  m_Steering.m_fAcceleration = m_fAcceleration;
+  m_Steering.m_fDecceleration = m_fDecceleration;
 
   // TODO: hard-coded values
   m_Steering.m_MinTurnSpeed = ezAngle::MakeFromDegree(180);
-  m_Steering.m_fAcceleration = 1;
-  m_Steering.m_fDecceleration = 1;
 
   const float fBrakingDistance = 1.2f * (ezMath::Square(m_Steering.m_fMaxSpeed) / (2.0f * m_Steering.m_fDecceleration));
 
