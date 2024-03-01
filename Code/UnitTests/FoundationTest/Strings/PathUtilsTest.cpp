@@ -194,9 +194,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(ezPathUtils::GetRootedPathRootName(":MyRoot\\folder\\file.txt") == root);
     EZ_TEST_BOOL(root == "MyRoot");
     EZ_TEST_BOOL(relPath == "folder\\file.txt");
+
     ezPathUtils::GetRootedPathParts("folder\\file2.txt", root, relPath);
     EZ_TEST_BOOL(root.IsEmpty());
     EZ_TEST_BOOL(relPath == "folder\\file2.txt");
+
+    ezPathUtils::GetRootedPathParts(":root", root, relPath);
+    EZ_TEST_BOOL(root == "root");
+    EZ_TEST_BOOL(relPath == "");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsSubPath")
