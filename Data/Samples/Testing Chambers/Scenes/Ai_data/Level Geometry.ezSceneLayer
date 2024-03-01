@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12599491310324011194,4884188338489321025}}
-		u4 %Hash{11533391075183114737}
+		u4 %Hash{10556483104610327062}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -2382,6 +2382,32 @@ o
 }
 o
 {
+	Uuid %id{u4{1078029125496186951,3940403581019116076}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4531900352539049813,4141760428495757795}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000070C1,0x0000F8C1,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{12089936237136869492,4021032990849468267}}
 	s %t{"ezHeightfieldComponent"}
 	u3 %v{2}
@@ -2542,6 +2568,33 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4531900352539049813,4141760428495757795}}
+	s %t{"ezGreyBoxComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
+		s %Material{""}
+		s %Shape{"ezGreyBoxShape::Box"}
+		f %SizeNegX{0x0000803F}
+		f %SizeNegY{0x0000803F}
+		f %SizeNegZ{0}
+		f %SizePosX{0x0000803F}
+		f %SizePosY{0x0000803F}
+		f %SizePosZ{0x00004040}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -4458,7 +4511,6 @@ o
 			Uuid{u4{1216108658379798798,11385490826318639152}}
 			Uuid{u4{8498757948279740535,791857882442441222}}
 			Uuid{u4{11712642897597215969,16591173263008967655}}
-			Uuid{u4{16620937239238696648,15428493680899905556}}
 			Uuid{u4{13996687011619397854,15746701586262670340}}
 			Uuid{u4{13683562409315623911,15293211822821681022}}
 			Uuid{u4{9341254784140288167,2316274843329111871}}
@@ -4541,6 +4593,8 @@ o
 			Uuid{u4{1441025953644902622,9465065657408237688}}
 			Uuid{u4{5055952417237301326,11824439470808128276}}
 			Uuid{u4{9284879187116971343,12065667049439873944}}
+			Uuid{u4{11530449986128984751,17410452291302319271}}
+			Uuid{u4{1078029125496186951,3940403581019116076}}
 		}
 		Uuid %Settings{u4{466169294287248017,4680201071252384050}}
 	}
@@ -5751,7 +5805,7 @@ o
 			Uuid{u4{14967289474565953390,8375668321538955572}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000020C1,0x0000F8C1,0}}
+		Vec3 %LocalPosition{f{0x000020C1,0x0000F0C1,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -6473,7 +6527,7 @@ o
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x000000C0}
-		f %SizeNegY{0x00000041}
+		f %SizeNegY{0x00004040}
 		f %SizeNegZ{0}
 		f %SizePosX{0x0000A040}
 		f %SizePosY{0x00000041}
@@ -9431,7 +9485,7 @@ o
 			Uuid{u4{11131017525399738682,12830661127090991985}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000040C1,0x000004C2,0}}
+		Vec3 %LocalPosition{f{0x000050C1,0x000004C2,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -10336,18 +10390,6 @@ o
 }
 o
 {
-	Uuid %id{u4{12086340643785596855,14975495768761033393}}
-	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		VarDict %Parameters{}
-		s %Prefab{"{ ffba4e7c-2acf-45a1-bf78-1d7bf95cc15e }"}
-	}
-}
-o
-{
 	Uuid %id{u4{14431092708647004053,15012256338256152503}}
 	s %t{"ezHeightfieldComponent"}
 	u3 %v{2}
@@ -10845,32 +10887,6 @@ o
 }
 o
 {
-	Uuid %id{u4{16620937239238696648,15428493680899905556}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{12086340643785596855,14975495768761033393}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xF7E2A5C1,0x49FA00C2,0xC6C5B53B}}
-		Quat %LocalRotation{f{0,0,0xDF716E3F,0x7E55BABE}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{13109472104577005304,15443811882194256429}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -11097,7 +11113,7 @@ o
 			Uuid{u4{5446444347497762537,15074771562324203930}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x992CA0C1,0xB15E18C2,0x7859DA3E}}
+		Vec3 %LocalPosition{f{0x992C98C1,0xB15E28C2,0x7859DA3E}}
 		Quat %LocalRotation{f{0,0,0xB01C7DBF,0xAC60193E}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -12004,6 +12020,32 @@ o
 }
 o
 {
+	Uuid %id{u4{11530449986128984751,17410452291302319271}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14984321213171847613,17611809138778960990}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000088C1,0x000004C2,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{11693774959041238927,17411653153865776481}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{5}
@@ -12248,6 +12290,33 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{14984321213171847613,17611809138778960990}}
+	s %t{"ezGreyBoxComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
+		s %Material{""}
+		s %Shape{"ezGreyBoxShape::Box"}
+		f %SizeNegX{0x0000803F}
+		f %SizeNegY{0x0000803F}
+		f %SizeNegZ{0}
+		f %SizePosX{0x0000803F}
+		f %SizePosY{0x0000803F}
+		f %SizePosZ{0x00004040}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
