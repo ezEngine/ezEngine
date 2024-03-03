@@ -53,6 +53,9 @@ public:
   /// \brief The object filter ID can be used to ignore collisions specifically with this one object.
   ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; }
 
+  /// \brief Returns the internal ID used by Jolt to identify this actor/body.
+  ezUInt32 GetJoltBodyID() const { return m_uiJoltBodyID; }
+
 protected:
   const ezJoltUserData* GetUserData() const;
 

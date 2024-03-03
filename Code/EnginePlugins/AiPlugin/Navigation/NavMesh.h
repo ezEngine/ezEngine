@@ -95,7 +95,8 @@ public:
   /// Returns true, if all the sectors are already available, false when any of them needs to be built first.
   bool RequestSector(const ezVec2& vCenter, const ezVec2& vHalfExtents);
 
-  // void InvalidateSector(SectorID sectorID);
+  void InvalidateSector(const ezVec2& vCenter, const ezVec2& vHalfExtents);
+  void InvalidateSector(SectorID sectorID);
 
   void FinalizeSectorUpdates();
 
@@ -105,6 +106,8 @@ public:
   const dtNavMesh* GetDetourNavMesh() const { return m_pNavMesh; }
 
   void DebugDraw(ezDebugRendererContext context, const ezAiNavigationConfig& config);
+
+  const ezAiNavmeshConfig& GetConfig() const { return m_NavmeshConfig; }
 
 private:
   void DebugDrawSector(ezDebugRendererContext context, const ezAiNavigationConfig& config, int iTileIdx);
@@ -119,7 +122,6 @@ private:
   dtNavMesh* m_pNavMesh = nullptr;
   ezMap<SectorID, ezAiNavMeshSector> m_Sectors;
   ezDeque<SectorID> m_RequestedSectors;
-  // ezHybridArray<SectorID, 32> m_InvalidatedSectors;
 
   ezMutex m_Mutex;
   ezDynamicArray<SectorID> m_UpdatingSectors;

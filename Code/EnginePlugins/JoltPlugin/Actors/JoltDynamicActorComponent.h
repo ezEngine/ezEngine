@@ -53,9 +53,6 @@ public:
   ezJoltDynamicActorComponent();
   ~ezJoltDynamicActorComponent();
 
-  /// \brief Returns the internal ID used by Jolt to identify this actor/body.
-  ezUInt32 GetJoltBodyID() const { return m_uiJoltBodyID; }
-
   /// \brief Adds a physics impulse to this body at the given location.
   ///
   /// An impulse is a force that is applied only once, e.g. a sudden push.
