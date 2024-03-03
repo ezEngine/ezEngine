@@ -31,6 +31,7 @@ public:
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   void SetScrubberPosition(double fPosition);
+  double GetScrubberPosition() const { return m_fScrubberPosition; }
 
   void FrameCurve();
 
@@ -151,4 +152,3 @@ private:
   ezHybridArray<PointCategory, 8> m_Categories;
   ezHybridArray<SelectedPoint, 32> m_SelectedPoints;
 };
-
