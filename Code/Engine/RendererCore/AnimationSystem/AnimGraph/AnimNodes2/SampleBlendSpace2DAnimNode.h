@@ -63,6 +63,7 @@ private:
 
     ezUInt32 m_uiIndex;
     float m_fWeight = 1.0f;
+    const ezAnimController::AnimClipInfo* m_pClipInfo = nullptr;
   };
 
   struct InstanceState
@@ -76,5 +77,5 @@ private:
 
   void UpdateCenterClipPlaybackTime(const ezAnimController::AnimClipInfo& centerInfo, InstanceState* pState, ezAnimGraphInstance& ref_graph, ezTime tDiff, ezAnimPoseEventTrackSampleMode& out_eventSamplingCenter) const;
   void PlayClips(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, InstanceState* pState, ezAnimGraphInstance& ref_graph, ezTime tDiff, ezArrayPtr<ClipToPlay> clips, ezUInt32 uiMaxWeightClip) const;
-  void ComputeClipsAndWeights(const ezAnimController::AnimClipInfo& centerInfo, const ezVec2& p, ezDynamicArray<ClipToPlay>& out_Clips, ezUInt32& out_uiMaxWeightClip) const;
+  void ComputeClipsAndWeights(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, const ezVec2& p, ezDynamicArray<ClipToPlay>& out_Clips, ezUInt32& out_uiMaxWeightClip) const;
 };
