@@ -1,5 +1,6 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
