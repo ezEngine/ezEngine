@@ -18,6 +18,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltShapeConvexHullComponent, 1, ezComponentMode::Stat
     EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Convex", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+  }
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -58,6 +63,15 @@ const char* ezJoltShapeConvexHullComponent::GetMeshFile() const
     return "";
 
   return m_hCollisionMesh.GetResourceID();
+}
+
+void ezJoltShapeConvexHullComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+{
+  if (m_hCollisionMesh.IsValid())
+  {
+    ezResourceLock<ezJoltMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
+    msg.AddBounds(pMesh->GetBounds(), ezInvalidSpatialDataCategory);
+  }
 }
 
 void ezJoltShapeConvexHullComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)

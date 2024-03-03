@@ -42,5 +42,7 @@ public:
   ezJoltMeshResourceHandle GetMesh() const { return m_hCollisionMesh; }
 
 protected:
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+
   ezJoltMeshResourceHandle m_hCollisionMesh;
 };
