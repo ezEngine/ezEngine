@@ -243,6 +243,87 @@ void ezBoolToNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphI
   m_OutNumber.SetNumber(ref_graph, m_InValue.GetBool(ref_graph) ? m_fTrueValue : m_fFalseValue);
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoolToTriggerAnimNode, 1, ezRTTIDefaultAllocator<ezBoolToTriggerAnimNode>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("InValue", m_InValue)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutOnTrue", m_OutOnTrue)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutOnFalse", m_OutOnFalse)->AddAttributes(new ezHiddenAttribute),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Logic"),
+    new ezTitleAttribute("Bool To Event"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezBoolToTriggerAnimNode::ezBoolToTriggerAnimNode() = default;
+ezBoolToTriggerAnimNode::~ezBoolToTriggerAnimNode() = default;
+
+ezResult ezBoolToTriggerAnimNode::SerializeNode(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+
+  EZ_SUCCEED_OR_RETURN(m_InValue.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnTrue.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnFalse.Serialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezBoolToTriggerAnimNode::DeserializeNode(ezStreamReader& stream)
+{
+  stream.ReadVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+
+  EZ_SUCCEED_OR_RETURN(m_InValue.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnTrue.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnFalse.Deserialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+bool ezBoolToTriggerAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+{
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
+
+void ezBoolToTriggerAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+{
+  InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
+
+  const bool bIsTrueNow = m_InValue.GetBool(ref_graph);
+  const ezInt8 iIsTrueNow = bIsTrueNow ? 1 : 0;
+
+  // we use a tri-state bool here to ensure that OnTrue or OnFalse get fired right away
+  if (pInstance->m_iIsTrue != iIsTrueNow)
+  {
+    pInstance->m_iIsTrue = iIsTrueNow;
+
+    if (bIsTrueNow)
+    {
+      m_OutOnTrue.SetTriggered(ref_graph);
+    }
+    else
+    {
+      m_OutOnFalse.SetTriggered(ref_graph);
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_MathAnimNodes);
