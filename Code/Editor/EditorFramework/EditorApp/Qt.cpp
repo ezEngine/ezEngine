@@ -66,7 +66,7 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::Window, QColor(42, 42, 42));                 // window borders, toolbars
   palette.setColor(QPalette::Shadow, QColor(70, 70, 70));                 // background color for arrays in property grids
   palette.setColor(QPalette::Highlight, ezToQtColor(highlightColor));     // selected items
-  palette.setColor(QPalette::HighlightedText, QColor(0, 0, 0));           // text of selected items
+  palette.setColor(QPalette::HighlightedText, QColor(255, 255, 255));     // text of selected items
   palette.setColor(QPalette::Link, QColor(104, 205, 254));                // manipulator links in property grid
   palette.setColor(QPalette::LinkVisited, ezToQtColor(linkVisitedColor)); // manipulator links in property grid when active
   palette.setColor(QPalette::AlternateBase, QColor(49, 49, 49));          // second base color, mainly used for alternate row colors

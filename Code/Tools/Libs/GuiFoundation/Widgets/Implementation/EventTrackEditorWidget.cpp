@@ -17,6 +17,9 @@ ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
 
   EventTrackEdit->SetGridBarWidget(GridBarWidget);
 
+  // make sure the track is visible and not completely squashed
+  EventTrackEdit->setMinimumHeight(50);
+
   connect(EventTrackEdit, &ezQtEventTrackWidget::DeleteControlPointsEvent, this, &ezQtEventTrackEditorWidget::onDeleteControlPoints);
   connect(EventTrackEdit, &ezQtEventTrackWidget::DoubleClickEvent, this, &ezQtEventTrackEditorWidget::onDoubleClick);
   connect(EventTrackEdit, &ezQtEventTrackWidget::MoveControlPointsEvent, this, &ezQtEventTrackEditorWidget::onMoveControlPoints);
