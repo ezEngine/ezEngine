@@ -142,7 +142,7 @@ ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailI
     }
   }
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   {
     ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
