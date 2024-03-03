@@ -217,9 +217,16 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
 
     if (pState->m_uiState == 2)
     {
+      if (m_Clips.IsEmpty())
+      {
+        pState->m_uiState = 3;
+        m_OutOnEndStarted.SetTriggered(ref_graph);
+        continue;
+      }
+
       const auto& clipInfo = ref_controller.GetAnimationClipInfo(m_Clips[pState->m_uiMiddleClipIdx]);
 
-      if (m_Clips.IsEmpty() || !clipInfo.m_hClip.IsValid())
+      if (!clipInfo.m_hClip.IsValid())
       {
         pState->m_uiState = 3;
         m_OutOnEndStarted.SetTriggered(ref_graph);
