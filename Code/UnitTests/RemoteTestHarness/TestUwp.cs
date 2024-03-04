@@ -98,7 +98,7 @@ namespace ezUwpTestHarness
     private string GetFileserverPath()
     {
       string absBinDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-      string absFSPath = System.IO.Path.Combine(absBinDir, "Fileserve.exe");
+      string absFSPath = System.IO.Path.Combine(absBinDir, "ezFileserve.exe");
       if (!File.Exists(absFSPath))
       {
         throw new Exception(string.Format("FileServe '{0}' does not exist.", absFSPath));

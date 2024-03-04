@@ -236,9 +236,9 @@ ezResult ezProcessTask::StartProcess()
   args << ezGameApplication::GetActiveRenderer().GetData(tmp);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  const char* EditorProcessorExecutable = "EditorProcessor.exe";
+  const char* EditorProcessorExecutable = "ezEditorProcessor.exe";
 #else
-  const char* EditorProcessorExecutable = "EditorProcessor";
+  const char* EditorProcessorExecutable = "ezEditorProcessor";
 #endif
 
   if (m_pIPC->StartClientProcess(EditorProcessorExecutable, args, false, pFirstAllowedMessageType).Failed())

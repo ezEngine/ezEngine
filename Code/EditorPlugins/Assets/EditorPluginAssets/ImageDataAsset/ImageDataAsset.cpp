@@ -117,7 +117,7 @@ ezStatus ezImageDataAssetDocument::RunTexConv(const char* szTargetFile, const ez
   arguments << "-rgba";
   arguments << "in0.rgba";
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {

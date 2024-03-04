@@ -839,7 +839,7 @@ ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, co
     arguments << "0.5";
   }
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   if (sThumbnailFile.IsEmpty() == false)
   {

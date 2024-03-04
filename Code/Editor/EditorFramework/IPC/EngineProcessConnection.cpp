@@ -140,9 +140,9 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  const char* EditorEngineProcessExecutableName = "EditorEngineProcess.exe";
+  const char* EditorEngineProcessExecutableName = "ezEditorEngineProcess.exe";
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  const char* EditorEngineProcessExecutableName = "EditorEngineProcess";
+  const char* EditorEngineProcessExecutableName = "ezEditorEngineProcess";
 #else
 #  error Platform not supported
 #endif
