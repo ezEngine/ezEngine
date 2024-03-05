@@ -75,7 +75,8 @@ EZ_DECLARE_FLAGS_WITH_DEFAULT(ezUInt32, ezPhysicsShapeType, 0xFFFFFFFF,
   Trigger,   ///< Trigger shapes
   Character, ///< Shapes associated with character controllers.
   Ragdoll,   ///< All shapes belonging to ragdolls.
-  Rope       ///< All shapes belonging to ropes.
+  Rope,       ///< All shapes belonging to ropes.
+  Cloth      ///< Soft-body shapes. Mainly for decorative purposes.
 );
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezPhysicsShapeType);
