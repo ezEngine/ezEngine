@@ -8,6 +8,12 @@
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezNavMeshObstacleComponent, 1, ezComponentMode::Static)
 {
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(InvalidateSectors),
+  }
+  EZ_END_FUNCTIONS;
+
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("AI/Navigation"),
@@ -65,7 +71,7 @@ void ezNavMeshObstacleComponent::InvalidateSectors()
     auto bounds = pPhysics->GetWorldSpaceBounds(GetOwner(), uiCollisionLayer, ezPhysicsShapeType::Static, true);
     if (bounds.IsValid())
     {
-      pNavMesh->InvalidateSector(bounds.GetBox().GetCenter().GetAsVec2(), bounds.GetBox().GetHalfExtents().GetAsVec2());
+      pNavMesh->InvalidateSector(bounds.GetBox().GetCenter().GetAsVec2(), bounds.GetBox().GetHalfExtents().GetAsVec2(), false);
     }
   }
 }

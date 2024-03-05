@@ -95,8 +95,19 @@ public:
   /// Returns true, if all the sectors are already available, false when any of them needs to be built first.
   bool RequestSector(const ezVec2& vCenter, const ezVec2& vHalfExtents);
 
-  void InvalidateSector(const ezVec2& vCenter, const ezVec2& vHalfExtents);
-  void InvalidateSector(SectorID sectorID);
+  /// \brief Marks the sector as invalidated.
+  ///
+  /// Invalidated sectors are considered out of date and must be rebuilt before they can be used again.
+  /// If bRebuildAsSoonAsPossible is true, the sector is queued to be rebuilt as soon as possible.
+  /// Otherwise, it will be unloaded and will not be rebuilt until it is requested again.
+  void InvalidateSector(SectorID sectorID, bool bRebuildAsSoonAsPossible);
+
+  /// \brief Marks all sectors within the given rectangle as invalidated.
+  ///
+  /// Invalidated sectors are considered out of date and must be rebuilt before they can be used again.
+  /// If bRebuildAsSoonAsPossible is true, the sector is queued to be rebuilt as soon as possible.
+  /// Otherwise, it will be unloaded and will not be rebuilt until it is requested again.
+  void InvalidateSector(const ezVec2& vCenter, const ezVec2& vHalfExtents, bool bRebuildAsSoonAsPossible);
 
   void FinalizeSectorUpdates();
 
@@ -125,4 +136,6 @@ private:
 
   ezMutex m_Mutex;
   ezDynamicArray<SectorID> m_UpdatingSectors;
+
+  ezDynamicArray<SectorID> m_UnloadingSectors;
 };

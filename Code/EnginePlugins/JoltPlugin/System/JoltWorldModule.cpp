@@ -412,7 +412,7 @@ void ezJoltWorldModule::AddFixedJointComponent(ezGameObject* pOwner, const ezPhy
   pConstraint->SetActors(cfg.m_hActorA, cfg.m_LocalFrameA, cfg.m_hActorB, cfg.m_LocalFrameB);
 }
 
-ezBoundingBoxSphere ezJoltWorldModule::GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bRecursive) const
+ezBoundingBoxSphere ezJoltWorldModule::GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const
 {
   ezBoundingBoxSphere result = ezBoundingBoxSphere::MakeInvalid();
 
@@ -434,11 +434,11 @@ ezBoundingBoxSphere ezJoltWorldModule::GetWorldSpaceBounds(ezGameObject* pOwner,
     }
   }
 
-  if (bRecursive)
+  if (bIncludeChildObjects)
   {
     for (auto it = pOwner->GetChildren(); it.IsValid(); it.Next())
     {
-      ezBoundingBoxSphere childBounds = GetWorldSpaceBounds(it, uiCollisionLayer, shapeTypes, bRecursive);
+      ezBoundingBoxSphere childBounds = GetWorldSpaceBounds(it, uiCollisionLayer, shapeTypes, bIncludeChildObjects);
       if (!childBounds.IsValid())
         continue;
 

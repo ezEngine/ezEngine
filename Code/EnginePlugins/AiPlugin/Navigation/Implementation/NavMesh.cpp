@@ -115,7 +115,7 @@ bool ezAiNavMesh::RequestSector(const ezVec2& vCenter, const ezVec2& vHalfExtent
   return res;
 }
 
-void ezAiNavMesh::InvalidateSector(const ezVec2& vCenter, const ezVec2& vHalfExtents)
+void ezAiNavMesh::InvalidateSector(const ezVec2& vCenter, const ezVec2& vHalfExtents, bool bRebuildAsSoonAsPossible)
 {
   ezVec2I32 coordMin = CalculateSectorCoord(vCenter.x - vHalfExtents.x, vCenter.y - vHalfExtents.y);
   ezVec2I32 coordMax = CalculateSectorCoord(vCenter.x + vHalfExtents.x, vCenter.y + vHalfExtents.y);
@@ -129,12 +129,12 @@ void ezAiNavMesh::InvalidateSector(const ezVec2& vCenter, const ezVec2& vHalfExt
   {
     for (ezInt32 x = coordMin.x; x <= coordMax.x; ++x)
     {
-      InvalidateSector(CalculateSectorID(ezVec2I32(x, y)));
+      InvalidateSector(CalculateSectorID(ezVec2I32(x, y)), bRebuildAsSoonAsPossible);
     }
   }
 }
 
-void ezAiNavMesh::InvalidateSector(SectorID sectorID)
+void ezAiNavMesh::InvalidateSector(SectorID sectorID, bool bRebuildAsSoonAsPossible)
 {
   auto it = m_Sectors.Find(sectorID);
   if (!it.IsValid())
@@ -144,8 +144,16 @@ void ezAiNavMesh::InvalidateSector(SectorID sectorID)
 
   if (sector.m_FlagInvalidate == 0 && (sector.m_FlagUsable == 1 || sector.m_FlagUpdateAvailable == 1))
   {
-    sector.m_FlagInvalidate = 1;
-    m_RequestedSectors.PushBack(sectorID);
+    if (bRebuildAsSoonAsPossible)
+    {
+      sector.m_FlagInvalidate = 1;
+      m_RequestedSectors.PushBack(sectorID);
+    }
+    else
+    {
+      sector.m_FlagRequested = 0;
+      m_UnloadingSectors.PushBack(sectorID);
+    }
   }
 }
 
@@ -203,6 +211,35 @@ void ezAiNavMesh::FinalizeSectorUpdates()
   }
 
   m_UpdatingSectors.Clear();
+
+  for (auto sectorID : m_UnloadingSectors)
+  {
+    auto& sector = m_Sectors[sectorID];
+
+    // Sector has been requested since then, don't unload it.
+    if (sector.m_FlagRequested == 1)
+      continue;
+
+    if (!sector.m_NavmeshDataCur.IsEmpty())
+    {
+      const auto res = m_pNavMesh->removeTile(sector.m_TileRef, nullptr, nullptr);
+
+      if (res != DT_SUCCESS)
+      {
+        ezLog::Error("NavMesh removeTile error: {}", res);
+      }
+
+      sector.m_NavmeshDataCur.Clear();
+      sector.m_NavmeshDataCur.Compact();
+    }
+
+    sector.m_FlagRequested = 0;
+    sector.m_FlagInvalidate = 0;
+    sector.m_FlagUpdateAvailable = 0;
+    sector.m_FlagUsable = 0;
+  }
+
+  m_UnloadingSectors.Clear();
 }
 
 ezAiNavMesh::SectorID ezAiNavMesh::RetrieveRequestedSector()
