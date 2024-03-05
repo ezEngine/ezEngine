@@ -556,7 +556,7 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
 
   ezStringBuilder app;
   app = ezOSFile::GetApplicationDirectory();
-  app.AppendPath("Editor");
+  app.AppendPath("ezEditor");
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   app.Append(".exe");
 #endif
