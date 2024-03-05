@@ -210,7 +210,8 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
       bAnyFailed = false;
 
       ezInt32 iHelpExecTasksRounds = 1;
-      ezTaskSystem::WaitForCondition([&iHelpExecTasksRounds]() { return iHelpExecTasksRounds-- <= 0; });
+      ezTaskSystem::WaitForCondition([&iHelpExecTasksRounds]()
+        { return iHelpExecTasksRounds-- <= 0; });
     }
 
   } while (bFreeAllUnused && bUnloadedAny);
@@ -344,7 +345,8 @@ bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ez
 
     for (const ezRTTI* pRtti : info.m_NestedTypes)
     {
-      ezRTTI::ForEachDerivedType(pRtti, [&](const ezRTTI* pDerived) { todo.Insert(pDerived); });
+      ezRTTI::ForEachDerivedType(pRtti, [&](const ezRTTI* pDerived)
+        { todo.Insert(pDerived); });
     }
 
     while (!todo.IsEmpty())
@@ -363,7 +365,8 @@ bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ez
       {
         if (!visited.Contains(pNestedRtti))
         {
-          ezRTTI::ForEachDerivedType(pNestedRtti, [&](const ezRTTI* pDerived) { todo.Insert(pDerived); });
+          ezRTTI::ForEachDerivedType(pNestedRtti, [&](const ezRTTI* pDerived)
+            { todo.Insert(pDerived); });
         }
       }
     }
@@ -381,7 +384,7 @@ bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ez
 
 ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
 {
-  //EZ_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
+  // EZ_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
 
   if (RemoveFromLoadingQueue(pResource).Failed())
   {
@@ -682,6 +685,13 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sRe
   pRtti = FindResourceTypeOverride(pRtti, sResourceID);
 
   EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
+
+  if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+  {
+    // this can happen for assets that use a resource type override (such as scripts) shortly after they have been created
+    return nullptr;
+  }
+
   EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(), "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
 
   ezResource* pResource = nullptr;
