@@ -274,6 +274,15 @@ void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
   const ezTransform trans = GetOwner()->GetGlobalTransform();
 
   const ezUInt32 uiTriOffset = pDesc->m_Vertices.GetCount();
+  pDesc->m_Vertices.Reserve(uiTriOffset + geom.GetVertices().GetCount());
+
+  ezUInt32 uiTrisNeeded = 0;
+  for (const auto& polys : geom.GetPolygons())
+  {
+    uiTrisNeeded += polys.m_Vertices.GetCount() - 2;
+  }
+
+  pDesc->m_Triangles.Reserve(pDesc->m_Triangles.GetCount() + uiTrisNeeded);
 
   for (const auto& verts : geom.GetVertices())
   {

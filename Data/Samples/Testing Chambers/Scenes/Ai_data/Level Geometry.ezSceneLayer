@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12599491310324011194,4884188338489321025}}
-		u4 %Hash{10556483104610327062}
+		u4 %Hash{16984221931941519717}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -100,7 +100,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x00004040,0x00004040}}
 		f %Height{0x00000041}
@@ -1097,7 +1097,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{32,32}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x00000040}
@@ -1481,7 +1481,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{32,32}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x00004040}
@@ -1540,7 +1540,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x0000A040}
@@ -1754,7 +1754,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{32,32}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000E040,0x0000E040}}
 		f %Height{0x0000803F}
@@ -2414,7 +2414,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x0000C040}
@@ -4176,7 +4176,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x00004040,0x00004040}}
 		f %Height{0x00000041}
@@ -5355,7 +5355,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x0000A040}
@@ -5703,7 +5703,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x00004040,0x00004040}}
 		f %Height{0x0000C040}
@@ -6610,7 +6610,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x0000A040}
@@ -7270,7 +7270,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000C040,0x0000A040}}
 		f %Height{0x00000041}
@@ -7456,7 +7456,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x00004040,0x00004040}}
 		f %Height{0x00000041}
@@ -7682,7 +7682,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{32,32}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x0000803F}
@@ -9648,7 +9648,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{32,32}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x0000C040}
@@ -10039,7 +10039,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x00004040,0x00004040}}
 		f %Height{0x0000C040}
@@ -10396,7 +10396,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000C040,0x0000A040}}
 		f %Height{0x00000041}
@@ -11087,7 +11087,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{32,32}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x00004040}
@@ -11171,7 +11171,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{32,32}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x00000040}
@@ -11422,7 +11422,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{32,32}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000E040,0x0000E040}}
 		f %Height{0x0000803F}
@@ -11481,7 +11481,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{16,16}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x00004040,0x00004040}}
 		f %Height{0x00000041}
@@ -12433,7 +12433,7 @@ o
 	p
 	{
 		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{64,64}}
+		Vec2u %ColMeshTesselation{u3{32,32}}
 		b %GenerateCollision{1}
 		Vec2 %HalfExtents{f{0x0000A040,0x0000A040}}
 		f %Height{0x0000C040}
