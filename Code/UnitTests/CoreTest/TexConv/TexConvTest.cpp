@@ -68,9 +68,9 @@ private:
   void RunTexConv(ezProcessOptions& options, const char* szOutName)
   {
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    const char* szTexConvExecutableName = "TexConv.exe";
+    const char* szTexConvExecutableName = "ezTexConv.exe";
 #  else
-    const char* szTexConvExecutableName = "TexConv";
+    const char* szTexConvExecutableName = "ezTexConv";
 #  endif
     ezStringBuilder sTexConvExe = ezOSFile::GetApplicationDirectory();
     sTexConvExe.AppendPath(szTexConvExecutableName);

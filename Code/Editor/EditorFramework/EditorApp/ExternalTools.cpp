@@ -189,7 +189,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
 
 ezString ezQtEditorApp::BuildFileserveCommandLine() const
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("ezFileserve");
   const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
   ezStringBuilder params;
 
@@ -201,7 +201,7 @@ ezString ezQtEditorApp::BuildFileserveCommandLine() const
 
 void ezQtEditorApp::RunFileserve()
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("ezFileserve");
   const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
 
   QStringList args;
@@ -213,7 +213,7 @@ void ezQtEditorApp::RunFileserve()
 
 void ezQtEditorApp::RunInspector()
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Inspector");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("ezInspector");
   QStringList args;
 
   QProcess::startDetached(sToolPath.GetData(), args);
