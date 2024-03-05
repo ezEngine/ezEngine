@@ -67,7 +67,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
           uiNumbersSum += numbers[uiIndex];
         }
       },
-      "ParallelForIndexed Test", parallelForParams);
+      "ParallelForIndexed Test", ezTaskNesting::Never, parallelForParams);
 
     // check results
     EZ_TEST_INT(uiRangesEncounteredCheck, 0b1111);

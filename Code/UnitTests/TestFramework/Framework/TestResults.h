@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-struct ezTestOutput
+struct EZ_TEST_DLL ezTestOutput
 {
   /// \brief Defines the type of output message for ezTestOutputMessage.
   enum Enum
@@ -33,7 +33,7 @@ struct ezTestOutput
 };
 
 /// \brief A message of type ezTestOutput::Enum, stored in ezResult.
-struct ezTestErrorMessage
+struct EZ_TEST_DLL ezTestErrorMessage
 {
   ezTestErrorMessage() = default;
 
@@ -46,7 +46,7 @@ struct ezTestErrorMessage
 };
 
 /// \brief A message of type ezTestOutput::Enum, stored in ezResult.
-struct ezTestOutputMessage
+struct EZ_TEST_DLL ezTestOutputMessage
 {
   ezTestOutputMessage() = default;
 
@@ -55,7 +55,7 @@ struct ezTestOutputMessage
   ezInt32 m_iErrorIndex = -1;
 };
 
-struct ezTestResultQuery
+struct EZ_TEST_DLL ezTestResultQuery
 {
   /// \brief Defines what information should be accumulated over the sub-tests in ezTestEntry::GetSubTestCount.
   enum Enum
@@ -68,7 +68,7 @@ struct ezTestResultQuery
 };
 
 /// \brief Stores the results of a test run. Used by both ezTestEntry and ezSubTestEntry.
-struct ezTestResultData
+struct EZ_TEST_DLL ezTestResultData
 {
   ezTestResultData() = default;
 
@@ -86,7 +86,7 @@ struct ezTestResultData
   std::string m_sCustomStatus;  ///< If this is not empty, the UI will display this instead of "Pending"
 };
 
-struct ezTestConfiguration
+struct EZ_TEST_DLL ezTestConfiguration
 {
   ezTestConfiguration();
 
@@ -102,7 +102,7 @@ struct ezTestConfiguration
   std::string m_sHostName;
 };
 
-class ezTestFrameworkResult
+class EZ_TEST_DLL ezTestFrameworkResult
 {
 public:
   ezTestFrameworkResult() = default;

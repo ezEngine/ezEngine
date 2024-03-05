@@ -107,6 +107,10 @@ public:
   /// \brief Returns the entry index for the given file or ezInvalidIndex, if not found.
   ezUInt32 FindEntry(ezStringView sFile) const;
 
+  ezUInt32 AddPathString(ezStringView sPathString);
+
+  void RebuildPathToEntryHashes();
+
   ezStringView GetEntryPathString(ezUInt32 uiEntryIdx) const;
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;

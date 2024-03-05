@@ -163,6 +163,29 @@ public:
   }
 
   virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) = 0;
+
+  /// \brief Helper method to skip a number of bytes (implementations of the directory reader may implement this more efficiently for example)
+  virtual ezUInt64 Skip(ezUInt64 uiBytes)
+  {
+    ezUInt8 uiTempBuffer[1024];
+
+    ezUInt64 uiBytesSkipped = 0;
+
+    while (uiBytesSkipped < uiBytes)
+    {
+      ezUInt64 uiBytesToRead = ezMath::Min<ezUInt64>(uiBytes - uiBytesSkipped, 1024);
+
+      ezUInt64 uiBytesRead = Read(uiTempBuffer, uiBytesToRead);
+
+      uiBytesSkipped += uiBytesRead;
+
+      // Terminate early if the stream didn't read as many bytes as we requested (EOF for example)
+      if (uiBytesRead < uiBytesToRead)
+        break;
+    }
+
+    return uiBytesSkipped;
+  }
 };
 
 /// \brief A base class for writers that handle writing to a (virtual) file inside a data directory.

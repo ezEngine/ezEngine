@@ -338,6 +338,9 @@ public:
   /// \brief Deallocates the memory allocated by this instance.
   void Clear();
 
+  /// \bried Is data blob empty
+  bool IsEmpty() const;
+
   /// \brief Allocates uiCount bytes for storage in this object. The bytes will have undefined content.
   void SetCountUninitialized(ezUInt64 uiCount);
 

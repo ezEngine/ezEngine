@@ -299,6 +299,13 @@ void ezBitfield<Container>::ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBit
 }
 
 template <class Container>
+void ezBitfield<Container>::Swap(ezBitfield<Container>& other)
+{
+  ezMath::Swap(m_uiCount, other.m_uiCount);
+  m_Container.Swap(other.m_Container);
+}
+
+template <class Container>
 EZ_ALWAYS_INLINE typename ezBitfield<Container>::ConstIterator ezBitfield<Container>::GetIterator() const
 {
   return ConstIterator(*this);
@@ -530,4 +537,10 @@ template <typename T>
 EZ_ALWAYS_INLINE T ezStaticBitfield<T>::GetValue() const
 {
   return m_Storage;
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE void ezStaticBitfield<T>::Swap(ezStaticBitfield<T>& other)
+{
+  ezMath::Swap(m_Storage, other.m_Storage);
 }

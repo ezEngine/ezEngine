@@ -22,5 +22,6 @@ else()
 	message(STATUS "Detected Platform is '${EZ_CMAKE_PLATFORM_NAME}'")
 endif()
 
+get_property(EZ_CMAKE_RELPATH GLOBAL PROPERTY EZ_CMAKE_RELPATH)
 set(PLATFORM_CFG_FILE "${EZ_ROOT}/${EZ_CMAKE_RELPATH}/Platforms/Configure_${EZ_CMAKE_PLATFORM_POSTFIX}.cmake")
 include("${PLATFORM_CFG_FILE}")

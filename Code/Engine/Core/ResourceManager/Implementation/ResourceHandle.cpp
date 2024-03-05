@@ -91,7 +91,13 @@ void ezResourceHandleStreamOperations::ReadHandle(ezStreamReader& Stream, ezType
     return;
   }
 
-  const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTemp);
+  const ezRTTI* pRtti = ezResourceManager::FindResourceForAssetType(sTemp);
+
+  if (pRtti == nullptr)
+  {
+    pRtti = ezRTTI::FindTypeByName(sTemp);
+  }
+
   if (pRtti == nullptr)
   {
     ezLog::Error("Unknown resource type '{0}'", sTemp);

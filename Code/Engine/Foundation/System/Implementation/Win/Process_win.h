@@ -382,10 +382,13 @@ ezResult ezProcess::ResumeSuspended()
   if (m_pImpl->m_ProcessHandle == nullptr || m_pImpl->m_MainThreadHandle == nullptr)
     return EZ_FAILURE;
 
-  ResumeThread(m_pImpl->m_MainThreadHandle);
+  const DWORD prevSuspendCount = ResumeThread(m_pImpl->m_MainThreadHandle);
+  if (prevSuspendCount != 1)
+    ezLog::Warning("ezProcess::ResumeSuspended: Unexpected ResumeThread result ({})", ezUInt64(prevSuspendCount));
 
   // invalidate the thread handle, so that we cannot resume the process twice
-  CloseHandle(m_pImpl->m_MainThreadHandle);
+  if (!CloseHandle(m_pImpl->m_MainThreadHandle))
+    ezLog::Warning("ezProcess::ResumeSuspended: Failed to close handle");
   m_pImpl->m_MainThreadHandle = nullptr;
 
   return EZ_SUCCESS;

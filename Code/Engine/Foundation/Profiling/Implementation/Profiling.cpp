@@ -30,6 +30,20 @@ private:
 
 static ezProfileCaptureDataTransfer s_ProfileCaptureDataTransfer;
 
+namespace
+{
+  static ezEventSubscriptionID s_PluginEventSubscription = 0;
+  void PluginEvent(const ezPluginEvent& e)
+  {
+    if (e.m_EventType == ezPluginEvent::AfterUnloading)
+    {
+      // When a plugin is unloaded we need to clear all profiling data
+      // since they can contain pointers to function names that don't exist anymore.
+      ezProfilingSystem::Clear();
+    }
+  }
+}
+
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
 
@@ -38,11 +52,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
   ON_BASESYSTEMS_STARTUP
   {
     ezProfilingSystem::Initialize();
+  }
+  ON_CORESYSTEMS_STARTUP
+  { 
+    s_PluginEventSubscription = ezPlugin::Events().AddEventHandler(&PluginEvent);
     s_ProfileCaptureDataTransfer.EnableDataTransfer("Profiling Capture");
   }
   ON_CORESYSTEMS_SHUTDOWN
   {
     s_ProfileCaptureDataTransfer.DisableDataTransfer();
+    ezPlugin::Events().RemoveEventHandler(s_PluginEventSubscription);
     ezProfilingSystem::Reset();
   }
 
@@ -112,17 +131,6 @@ namespace
   static ezProfilingSystem::ScopeTimeoutDelegate s_ScopeTimeoutCallback;
 
   static ezDynamicArray<ezUniquePtr<GPUScopesBuffer>> s_GPUScopes;
-
-  static ezEventSubscriptionID s_PluginEventSubscription = 0;
-  void PluginEvent(const ezPluginEvent& e)
-  {
-    if (e.m_EventType == ezPluginEvent::AfterUnloading)
-    {
-      // When a plugin is unloaded we need to clear all profiling data
-      // since they can contain pointers to function names that don't exist anymore.
-      ezProfilingSystem::Clear();
-    }
-  }
 } // namespace
 
 void ezProfilingSystem::ProfilingData::Clear()
@@ -744,8 +752,6 @@ void ezProfilingSystem::Initialize()
   SetThreadName("Main Thread");
 
   s_MainThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
-
-  s_PluginEventSubscription = ezPlugin::Events().AddEventHandler(&PluginEvent);
 }
 
 // static
@@ -779,8 +785,6 @@ void ezProfilingSystem::Reset()
     }
   }
   s_DeadThreadIDs.Clear();
-
-  ezPlugin::Events().RemoveEventHandler(s_PluginEventSubscription);
 }
 
 // static

@@ -1630,7 +1630,7 @@ void ezTestFramework::SetSubTestStatus(ezUInt32 uiSubTestIndex, const char* szSt
     ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args); \
     EZ_TEST_DEBUG_BREAK                                                          \
     va_end(args);                                                                \
-    return EZ_FAILURE;                                                           \
+    return false;                                                                \
   }
 
 #define OUTPUT_TEST_ERROR_NO_BREAK                                               \
@@ -1639,7 +1639,7 @@ void ezTestFramework::SetSubTestStatus(ezUInt32 uiSubTestIndex, const char* szSt
     va_start(args, szMsg);                                                       \
     ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args); \
     va_end(args);                                                                \
-    return EZ_FAILURE;                                                           \
+    return false;                                                           \
   }
 
 bool ezTestBool(bool bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1652,7 +1652,7 @@ bool ezTestBool(bool bCondition, const char* szErrorText, const char* szFile, ez
     OUTPUT_TEST_ERROR
   }
 
-  return EZ_SUCCESS;
+  return true;
 }
 
 bool ezTestResult(ezResult condition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1665,7 +1665,7 @@ bool ezTestResult(ezResult condition, const char* szErrorText, const char* szFil
     OUTPUT_TEST_ERROR
   }
 
-  return EZ_SUCCESS;
+  return true;
 }
 
 bool ezTestDouble(double f1, double f2, double fEps, const char* szF1, const char* szF2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1682,7 +1682,7 @@ bool ezTestDouble(double f1, double f2, double fEps, const char* szF1, const cha
     OUTPUT_TEST_ERROR
   }
 
-  return EZ_SUCCESS;
+  return true;
 }
 
 bool ezTestInt(ezInt64 i1, ezInt64 i2, const char* szI1, const char* szI2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1697,7 +1697,7 @@ bool ezTestInt(ezInt64 i1, ezInt64 i2, const char* szI1, const char* szI2, const
     OUTPUT_TEST_ERROR
   }
 
-  return EZ_SUCCESS;
+  return true;
 }
 
 bool ezTestWString(std::wstring s1, std::wstring s2, const char* szWString1, const char* szWString2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1712,7 +1712,7 @@ bool ezTestWString(std::wstring s1, std::wstring s2, const char* szWString1, con
     OUTPUT_TEST_ERROR
   }
 
-  return EZ_SUCCESS;
+  return true;
 }
 
 bool ezTestString(ezStringView s1, ezStringView s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1730,7 +1730,7 @@ bool ezTestString(ezStringView s1, ezStringView s2, const char* szString1, const
     OUTPUT_TEST_ERROR
   }
 
-  return EZ_SUCCESS;
+  return true;
 }
 
 bool ezTestVector(ezVec4d v1, ezVec4d v2, double fEps, const char* szCondition, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1767,7 +1767,7 @@ bool ezTestVector(ezVec4d v1, ezVec4d v2, double fEps, const char* szCondition, 
     OUTPUT_TEST_ERROR
   }
 
-  return EZ_SUCCESS;
+  return true;
 }
 
 bool ezTestFiles(const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1828,7 +1828,7 @@ bool ezTestFiles(const char* szFile1, const char* szFile2, const char* szFile, e
     }
   }
 
-  return EZ_SUCCESS;
+  return true;
 }
 
 bool ezTestTextFiles(const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1870,7 +1870,7 @@ bool ezTestTextFiles(const char* szFile1, const char* szFile2, const char* szFil
     }
   }
 
-  return EZ_SUCCESS;
+  return true;
 }
 
 bool ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage, bool bIsLineImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1882,7 +1882,7 @@ bool ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage
     OUTPUT_TEST_ERROR_NO_BREAK
   }
 
-  return EZ_SUCCESS;
+  return true;
 }
 
 

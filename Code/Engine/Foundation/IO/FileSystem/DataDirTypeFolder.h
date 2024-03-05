@@ -83,6 +83,7 @@ namespace ezDataDirectory
       m_bIsInUse = false;
     }
 
+    virtual ezUInt64 Skip(ezUInt64 uiBytes) override;
     virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
     virtual ezUInt64 GetFileSize() const override;
 
