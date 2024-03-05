@@ -160,7 +160,7 @@ namespace ezRmlUiInternal
       ezTexture2DResourceDescriptor desc;
       desc.m_DescGAL.m_uiWidth = uiWidth;
       desc.m_DescGAL.m_uiHeight = uiHeight;
-      desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+      desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
       desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
 
       hTexture = ezResourceManager::GetOrCreateResource<ezTexture2DResource>(sTextureName, std::move(desc));
