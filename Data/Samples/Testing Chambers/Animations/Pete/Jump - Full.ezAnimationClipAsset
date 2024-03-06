@@ -14,7 +14,7 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{11270978542936790191,4958671059497467665}}
-		u4 %Hash{3680238887498657747}
+		u4 %Hash{6607536919370731926}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -22,11 +22,44 @@ o
 		{
 			s{"Animations/Pete/Pete.glb"}
 		}
+		s %Tags{""}
 	}
 }
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{15632846373288551840,4731486206115998773}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Linear"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Linear"}
+		i4 %Tick{3360}
+		d %Value{0x000000000000F03F}
+	}
+}
+o
+{
+	Uuid %id{u4{3760982917476421818,4768145985435033815}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4560}
+		d %Value{0}
+	}
+}
 o
 {
 	Uuid %id{u4{158361107724065924,5150823797122641501}}
@@ -47,6 +80,22 @@ o
 	{
 		s %Event{"jump.land"}
 		i4 %Tick{4320}
+	}
+}
+o
+{
+	Uuid %id{u4{1986477391959998599,5394232833552686716}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{1440}
+		d %Value{0}
 	}
 }
 o
@@ -74,6 +123,10 @@ o
 			s{"Wave"}
 		}
 		Vec3 %ConstantRootMotion{f{0,0,0}}
+		VarArray %Curves
+		{
+			Uuid{u4{13161842766578859424,5701212858407803085}}
+		}
 		Uuid %EventTrack{u4{9381955415680334594,11165572789597540480}}
 		s %File{"Animations/Pete/Pete.glb"}
 		u3 %FirstFrame{0}
@@ -81,6 +134,39 @@ o
 		s %PreviewMesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 		s %RootMotion{"ezRootMotionSource::None"}
 		s %UseAnimationClip{"Jump"}
+	}
+}
+o
+{
+	Uuid %id{u4{17194987478553639349,5577148405960882917}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Linear"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Linear"}
+		i4 %Tick{2640}
+		d %Value{0xF05FF7388586F03F}
+	}
+}
+o
+{
+	Uuid %id{u4{13161842766578859424,5701212858407803085}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{3760982917476421818,4768145985435033815}}
+			Uuid{u4{1986477391959998599,5394232833552686716}}
+			Uuid{u4{15632846373288551840,4731486206115998773}}
+			Uuid{u4{17194987478553639349,5577148405960882917}}
+		}
 	}
 }
 o
@@ -114,6 +200,57 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{14722461902623688675,2098269905474166124}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSingleCurveData"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{4976983466369834828,2223514201630482789}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveControlPointData"}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{13216943865831982294,3766144591255929939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveTangentMode"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
