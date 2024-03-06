@@ -161,6 +161,10 @@ void ezGameObjectGizmoEditTool::SelectionManagerEventHandler(const ezSelectionMa
       UpdateGizmoVisibleState();
       break;
 
+    case ezSelectionManagerEvent::Type::ObjectRemoved:
+      UpdateGizmoVisibleState();
+      break;
+
     default:
       break;
   }

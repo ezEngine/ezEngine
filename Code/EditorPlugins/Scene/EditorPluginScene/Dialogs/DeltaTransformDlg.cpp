@@ -194,7 +194,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 
   auto history = m_pSceneDocument->GetCommandHistory();
   auto selman = m_pSceneDocument->GetSelectionManager();
-  const auto& selection = selman->GetTopLevelSelection();
+  const auto& selection = selman->GetTopLevelSelection(false);
 
   if (selection.IsEmpty())
     return;

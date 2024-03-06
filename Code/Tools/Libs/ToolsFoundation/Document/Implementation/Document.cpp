@@ -147,7 +147,8 @@ ezStatus ezDocument::SaveDocument(bool bForce)
     m_ActiveSaveTask.Invalidate();
   }
   ezStatus result;
-  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* pDoc, ezStatus res) { result = res; });
+  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* pDoc, ezStatus res)
+    { result = res; });
   ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   m_ActiveSaveTask.Invalidate();
   return result;
@@ -401,7 +402,7 @@ void ezDocument::BroadcastInterDocumentMessage(ezReflectedClass* pMessage, ezDoc
 
 void ezDocument::DeleteSelectedObjects() const
 {
-  auto objects = GetSelectionManager()->GetTopLevelSelection();
+  auto objects = GetSelectionManager()->GetTopLevelSelection(false);
 
   // make sure the whole selection is cleared, otherwise each delete command would reduce the selection one by one
   GetSelectionManager()->Clear();

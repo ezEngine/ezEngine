@@ -224,7 +224,9 @@ ezSharedPtr<ezSelectionManager::Storage> ezSelectionManager::SwapStorage(ezShare
   m_pSelectionStorage = pNewStorage;
 
   m_pSelectionStorage->m_pObjectManager->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSelectionManager::TreeEventHandler, this), m_ObjectStructureUnsubscriber);
-  m_pSelectionStorage->m_Events.AddEventHandler([this](const ezSelectionManagerEvent& e) { m_Events.Broadcast(e); }, m_EventsUnsubscriber);
+  m_pSelectionStorage->m_Events.AddEventHandler([this](const ezSelectionManagerEvent& e)
+    { m_Events.Broadcast(e); },
+    m_EventsUnsubscriber);
 
   return retVal;
 }
@@ -271,7 +273,7 @@ struct ezObjectHierarchyComparor
   ezMap<const ezDocumentObject*, Tree> lookup;
 };
 
-const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection() const
+const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection(bool bInOrderOfSceneTree) const
 {
   ezDeque<const ezDocumentObject*> items;
 
@@ -283,13 +285,16 @@ const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection(
     }
   }
 
-  ezObjectHierarchyComparor c(items);
-  items.Sort(c);
+  if (bInOrderOfSceneTree)
+  {
+    ezObjectHierarchyComparor c(items);
+    items.Sort(c);
+  }
 
   return items;
 }
 
-const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection(const ezRTTI* pBase) const
+const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection(const ezRTTI* pBase, bool bInOrderOfSceneTree) const
 {
   ezDeque<const ezDocumentObject*> items;
 
@@ -304,8 +309,11 @@ const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection(
     }
   }
 
-  ezObjectHierarchyComparor c(items);
-  items.Sort(c);
+  if (bInOrderOfSceneTree)
+  {
+    ezObjectHierarchyComparor c(items);
+    items.Sort(c);
+  }
 
   return items;
 }

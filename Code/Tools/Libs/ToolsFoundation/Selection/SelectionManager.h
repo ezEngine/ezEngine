@@ -56,11 +56,15 @@ public:
 
   bool IsSelectionEmpty() const { return m_pSelectionStorage->m_SelectionList.IsEmpty(); }
 
-  /// \brief Returns the subset of selected items which have no parent selected. I.e. if an object is selected and one of its ancestors is selected, it is culled from the list. Items are returned in the order of appearance in an expanded scene tree.
-  const ezDeque<const ezDocumentObject*> GetTopLevelSelection() const;
+  /// \brief Returns the subset of selected items which have no parent selected.
+  ///
+  /// I.e. if an object is selected and one of its ancestors is selected, it is culled from the list.
+  /// if bInOrderOfSceneTree is true, items are returned in the order of appearance in an expanded scene tree.
+  /// Otherwise they are returned in the order that they were selected.
+  const ezDeque<const ezDocumentObject*> GetTopLevelSelection(bool bInOrderOfSceneTree) const;
 
   /// \brief Same as GetTopLevelSelection() but additionally requires that all objects are derived from type pBase.
-  const ezDeque<const ezDocumentObject*> GetTopLevelSelection(const ezRTTI* pBase) const;
+  const ezDeque<const ezDocumentObject*> GetTopLevelSelection(const ezRTTI* pBase, bool bInOrderOfSceneTree) const;
 
   bool IsSelected(const ezDocumentObject* pObject) const;
   bool IsParentSelected(const ezDocumentObject* pObject) const;

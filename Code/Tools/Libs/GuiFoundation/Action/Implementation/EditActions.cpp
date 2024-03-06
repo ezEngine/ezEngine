@@ -198,12 +198,21 @@ void ezEditAction::Execute(const ezVariant& value)
       QByteArray ba = mimedata->data(MimeTypes[iFormat].GetData());
       cmd.m_sGraphTextFormat = ba.data();
 
-      if (m_ButtonType == ButtonType::PasteAsChild)
+      const ezDocumentObject* pNewParent = m_Context.m_pDocument->GetSelectionManager()->GetCurrentObject();
+      if (pNewParent && m_ButtonType != ButtonType::PasteAsChild)
       {
-        if (!m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty())
-          cmd.m_Parent = m_Context.m_pDocument->GetSelectionManager()->GetSelection().PeekBack()->GetGuid();
+        // default behavior copied from Unity: paste as a sibling of the currently selected item
+        // this way if you just select and object and copy/paste it, the new object has the same parent (the clone becomes a sibling of the original)
+        // but you can also select any other object as the reference, and clone as a sibling to that one
+        pNewParent = pNewParent->GetParent();
       }
-      else if (m_ButtonType == ButtonType::PasteAtOriginalLocation)
+
+      if (pNewParent)
+      {
+        cmd.m_Parent = pNewParent->GetGuid();
+      }
+
+      if (m_ButtonType == ButtonType::PasteAtOriginalLocation)
       {
         cmd.m_bAllowPickedPosition = false;
       }
