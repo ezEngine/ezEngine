@@ -22,6 +22,7 @@ public:
 
   void ShowColorPicker() { on_ButtonColor_clicked(); }
   void SetScrubberPosition(ezUInt64 uiTick);
+  void SetScrubberPosition(ezTime time);
 
   void FrameGradient();
 

@@ -20,6 +20,7 @@ public:
 
   void SetCurves(const ezCurveGroupData& curveData);
   void SetScrubberPosition(ezUInt64 uiTick);
+  void SetScrubberPosition(ezTime time);
   void ClearSelection();
 
   void FrameCurve();

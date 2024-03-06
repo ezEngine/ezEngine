@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 
 class ezAnimationClipAssetDocument;
@@ -43,6 +44,10 @@ public:
   ezVec3 m_vConstantRootMotion;
 
   ezEventTrackData m_EventTrack;
+  ezDynamicArray<ezSingleCurveData> m_Curves;
+  //ezSingleCurveData m_RootMotionX;
+  //ezSingleCurveData m_RootMotionY;
+  //ezSingleCurveData m_RootMotionZ;
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 };

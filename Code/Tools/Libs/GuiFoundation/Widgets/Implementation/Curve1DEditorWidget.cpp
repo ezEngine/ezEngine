@@ -78,6 +78,10 @@ void ezQtCurve1DEditorWidget::SetScrubberPosition(ezUInt64 uiTick)
   CurveEdit->SetScrubberPosition(uiTick / 4800.0);
 }
 
+void ezQtCurve1DEditorWidget::SetScrubberPosition(ezTime time)
+{
+  CurveEdit->SetScrubberPosition(time.GetSeconds());
+}
 
 void ezQtCurve1DEditorWidget::ClearSelection()
 {

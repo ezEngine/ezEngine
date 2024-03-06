@@ -29,6 +29,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
     EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionSource, m_RootMotionMode),
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
     EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack)->AddAttributes(new ezHiddenAttribute()),
+    EZ_ARRAY_MEMBER_PROPERTY("Curves", m_Curves)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
 }

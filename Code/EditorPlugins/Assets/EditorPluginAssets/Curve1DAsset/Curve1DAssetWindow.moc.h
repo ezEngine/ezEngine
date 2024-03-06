@@ -38,5 +38,5 @@ private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
 
-  ezQtCurve1DEditorWidget* m_pCurveEditor;
+  ezQtCurve1DEditorWidget* m_pCurveEditor = nullptr;
 };

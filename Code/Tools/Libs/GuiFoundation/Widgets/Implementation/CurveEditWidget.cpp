@@ -1205,6 +1205,12 @@ void ezQtCurveEditWidget::RenderVerticalGrid(QPainter* painter, const QRectF& vi
 
 void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect)
 {
+  if (ezMath::IsNaN(viewportSceneRect.x()) || ezMath::IsNaN(viewportSceneRect.y()) || ezMath::IsNaN(viewportSceneRect.width()) || ezMath::IsNaN(viewportSceneRect.height()))
+  {
+    // can happen when zoomed out quite far
+    return;
+  }
+
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
   ezWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().height(), ezMath::Abs(viewportSceneRect.height()), 20);

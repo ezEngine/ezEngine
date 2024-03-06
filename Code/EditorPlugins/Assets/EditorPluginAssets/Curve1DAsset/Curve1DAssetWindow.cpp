@@ -317,7 +317,15 @@ void ezQtCurve1DAssetDocumentWindow::PropertyEventHandler(const ezDocumentObject
 
 void ezQtCurve1DAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
-  UpdatePreview();
+  switch (e.m_EventType)
+  {
+    case ezDocumentObjectStructureEvent::Type::AfterReset:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+      UpdatePreview();
+      break;
+  }
 }
 
 void ezQtCurve1DAssetDocumentWindow::SendLiveResourcePreview()
