@@ -477,9 +477,9 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     // Copy & paste should retain the order in the tree view, not the selection array so we push the elements in a random order here.
     ezDeque<const ezDocumentObject*> assets;
-    assets.PushBack(pPrefab3);
     assets.PushBack(pPrefab1);
     assets.PushBack(pPrefab2);
+    assets.PushBack(pPrefab3);
     ezDeque<const ezDocumentObject*> newObjects;
 
     MoveObjectsToLayer(m_pDoc, assets, m_LayerGuid, newObjects);
