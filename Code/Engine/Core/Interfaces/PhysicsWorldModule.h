@@ -69,6 +69,9 @@ public:
 
   /// \brief Adds a fixed joint to pOwner.
   virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg) {}
+
+  /// \brief Gets world space bounds of a physics object if its shape type is included in shapeTypes and its collision layer interacts with uiCollisionLayer.
+  virtual ezBoundingBoxSphere GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const { return ezBoundingBoxSphere::MakeInvalid(); }
 };
 
 /// \brief Used to apply a physical impulse on the object

@@ -412,6 +412,50 @@ void ezJoltWorldModule::AddFixedJointComponent(ezGameObject* pOwner, const ezPhy
   pConstraint->SetActors(cfg.m_hActorA, cfg.m_LocalFrameA, cfg.m_hActorB, cfg.m_LocalFrameB);
 }
 
+ezBoundingBoxSphere ezJoltWorldModule::GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const
+{
+  ezBoundingBoxSphere result = ezBoundingBoxSphere::MakeInvalid();
+
+  ezJoltActorComponent* pActor = nullptr;
+  if (pOwner->TryGetComponentOfBaseType(pActor))
+  {
+    ezUInt32 uiBodyID = pActor->GetJoltBodyID();
+    auto& lockInterface = m_pSystem->GetBodyLockInterfaceNoLock();
+    JPH::BodyLockRead bodyLock(lockInterface, JPH::BodyID(uiBodyID));
+    if (bodyLock.Succeeded())
+    {
+      const auto& body = bodyLock.GetBody();
+
+      if ((shapeTypes.GetValue() & EZ_BIT(body.GetBroadPhaseLayer().GetValue())) != 0 && ezJoltObjectLayerFilter(uiCollisionLayer).ShouldCollide(body.GetObjectLayer()))
+      {
+        const auto& aabb = body.GetWorldSpaceBounds();
+        result = ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(ezJoltConversionUtils::ToVec3(aabb.mMin), ezJoltConversionUtils::ToVec3(aabb.mMax)));
+      }
+    }
+  }
+
+  if (bIncludeChildObjects)
+  {
+    for (auto it = pOwner->GetChildren(); it.IsValid(); it.Next())
+    {
+      ezBoundingBoxSphere childBounds = GetWorldSpaceBounds(it, uiCollisionLayer, shapeTypes, bIncludeChildObjects);
+      if (!childBounds.IsValid())
+        continue;
+
+      if (result.IsValid())
+      {
+        result.ExpandToInclude(childBounds);
+      }
+      else
+      {
+        result = childBounds;
+      }
+    }
+  }
+
+  return result;
+}
+
 ezUInt32 ezJoltWorldModule::QueueBodyToAdd(JPH::Body* pBody, bool bAwake)
 {
   if (bAwake)

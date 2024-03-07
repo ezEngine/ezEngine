@@ -28,6 +28,8 @@ public:
 
   const dtQueryFilter& GetPathSearchFilter(ezStringView sName) const;
 
+  const ezAiNavigationConfig& GetConfig() const { return m_Config; }
+
 private:
   void Update(const UpdateContext& ctxt);
 
