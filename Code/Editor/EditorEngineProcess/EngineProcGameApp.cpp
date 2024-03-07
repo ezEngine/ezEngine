@@ -3,6 +3,7 @@
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Logging/ETWWriter.h>
 #include <Foundation/System/SystemInformation.h>
+#include <Foundation/System/CrashHandler.h>
 
 #include <Core/Console/QuakeConsole.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
@@ -73,6 +74,8 @@ void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
 #endif
 
   WaitForDebugger();
+
+  ezCrashHandler::SetCrashHandler(&ezCrashHandler_WriteMiniDump::g_Instance);
 
   DisableErrorReport();
 
