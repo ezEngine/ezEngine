@@ -576,12 +576,13 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
 
 ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /* = {} */, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
 {
-  auto Selection = GetSelectionManager()->GetTopLevelSelectionOfType(pRootType, true);
+  ezHybridArray<ezSelectionEntry, 32> Selection;
+  GetSelectionManager()->GetTopLevelSelectionOfType(pRootType, Selection);
 
   if (Selection.IsEmpty())
     return ezStatus("To create a prefab, the selection must not be empty");
 
-  const ezTransform tReference = QueryLocalTransform(Selection.PeekBack());
+  const ezTransform tReference = QueryLocalTransform(Selection.PeekBack().m_pObject);
 
   ezVariantArray varChildren;
 
@@ -791,26 +792,28 @@ bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMa
     return false;
 
   // Serialize selection to graph
-  auto Selection = GetSelectionManager()->GetTopLevelSelection(false);
+  ezHybridArray<ezSelectionEntry, 64> selection;
+  GetSelectionManager()->GetTopLevelSelection(selection);
 
   ezDocumentObjectConverterWriter writer(&ref_graph, GetObjectManager());
 
-  // TODO: objects are required to be named root but this is not enforced or obvious by the interface.
-  for (ezUInt32 i = 0; i < Selection.GetCount(); i++)
+  // objects are required to be named root but this is not enforced or obvious by the interface.
+  for (ezUInt32 i = 0; i < selection.GetCount(); i++)
   {
-    auto item = Selection[i];
-    ezAbstractObjectNode* pNode = writer.AddObjectToGraph(item, "root");
-    pNode->AddProperty("__GlobalTransform", GetGlobalTransform(item));
+    const auto& item = selection[i];
+    ezAbstractObjectNode* pNode = writer.AddObjectToGraph(item.m_pObject, "root");
+    pNode->AddProperty("__GlobalTransform", GetGlobalTransform(item.m_pObject));
     pNode->AddProperty("__Order", i);
+    pNode->AddProperty("__SelectionOrder", item.m_uiSelectionOrder);
   }
 
   if (out_pParents != nullptr)
   {
     out_pParents->Clear();
 
-    for (auto item : Selection)
+    for (const auto& item : selection)
     {
-      (*out_pParents)[item->GetGuid()] = item->GetParent()->GetGuid();
+      (*out_pParents)[item.m_pObject->GetGuid()] = item.m_pObject->GetParent()->GetGuid();
     }
   }
 
@@ -822,6 +825,7 @@ bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMa
 bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec3& vPasteAt)
 {
   ezTransform refTransform = ezTransform::MakeIdentity();
+  ezUInt32 uiHighestSelectionOrder = 0;
 
   ezHybridArray<ezTransform, 16> globalTransforms;
   globalTransforms.SetCount(info.GetCount(), ezTransform::MakeIdentity());
@@ -837,8 +841,19 @@ bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstrac
     {
       if (auto* pProperty = pNode->FindProperty("__GlobalTransform"))
       {
-        refTransform = pProperty->m_Value.Get<ezTransform>();
-        globalTransforms[i] = refTransform;
+        globalTransforms[i] = pProperty->m_Value.Get<ezTransform>();
+
+        if (auto* pProperty = pNode->FindProperty("__SelectionOrder"))
+        {
+          // find the last selected element, and use it as the reference point for the paste position
+
+          const ezUInt32 uiSelOrder = pProperty->m_Value.ConvertTo<ezUInt32>();
+          if (uiSelOrder >= uiHighestSelectionOrder)
+          {
+            uiHighestSelectionOrder = uiSelOrder;
+            refTransform = globalTransforms[i];
+          }
+        }
       }
     }
   }
@@ -920,10 +935,22 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
     auto pSelMan = GetSelectionManager();
 
     ezDeque<const ezDocumentObject*> NewSelection;
+    NewSelection.SetCount(info.GetCount());
 
-    for (const PasteInfo& pi : info)
+    for (ezUInt32 i = 0; i < info.GetCount(); ++i)
     {
-      NewSelection.PushBack(pi.m_pObject);
+      const PasteInfo& pi = info[i];
+
+      ezUInt32 order = i;
+      if (auto* pNode = objectGraph.GetNode(pi.m_pObject->GetGuid()))
+      {
+        if (auto* pProperty = pNode->FindProperty("__SelectionOrder"))
+        {
+          order = pProperty->m_Value.ConvertTo<ezUInt32>();
+        }
+      }
+
+      NewSelection[order] = pi.m_pObject;
     }
 
     pSelMan->SetSelection(NewSelection);

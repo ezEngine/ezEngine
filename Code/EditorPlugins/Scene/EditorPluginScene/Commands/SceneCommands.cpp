@@ -189,23 +189,8 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
 
         if (guidParent.IsValid())
           ref.m_pParent = pDocument->GetObjectManager()->GetObject(guidParent);
-
-        if (auto* pProperty = pNode->FindProperty("__Order"))
-        {
-          // we use m_Index for sorting, but then should clear it again, so it doesn't have an effect later
-          ref.m_Index = pProperty->m_Value.ConvertTo<ezInt32>();
-        }
       }
     }
-  }
-
-  ToBePasted.Sort([](const auto& lhs, const auto& rhs)
-    { return lhs.m_Index < rhs.m_Index; });
-
-  for (ezDocument::PasteInfo& item : ToBePasted)
-  {
-    // we don't want the index to have an effect later
-    item.m_Index = -1;
   }
 
   if (pDocument->DuplicateSelectedObjects(ToBePasted, graph, false))

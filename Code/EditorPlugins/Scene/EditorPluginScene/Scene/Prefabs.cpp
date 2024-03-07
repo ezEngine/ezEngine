@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 
 
-void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection)
+void ezSceneDocument::UnlinkPrefabs(ezArrayPtr<const ezDocumentObject*> selection)
 {
   SUPER::UnlinkPrefabs(selection);
 
@@ -161,7 +161,7 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   }
 }
 
-void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& selection)
+void ezSceneDocument::ConvertToEditorPrefab(ezArrayPtr<const ezDocumentObject*> selection)
 {
   ezDeque<const ezDocumentObject*> newSelection;
 
@@ -198,7 +198,7 @@ void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject
   GetSelectionManager()->SetSelection(newSelection);
 }
 
-void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& selection)
+void ezSceneDocument::ConvertToEnginePrefab(ezArrayPtr<const ezDocumentObject*> selection)
 {
   ezDeque<const ezDocumentObject*> newSelection;
 
