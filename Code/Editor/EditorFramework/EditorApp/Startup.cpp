@@ -11,9 +11,11 @@
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorFramework/CodeGen/CompilerPreferencesWidget.moc.h>
+#include <EditorFramework/CodeGen/CodeEditorPreferencesWidget.moc.h>
 #include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/StackTraceLogParser.h>
 #include <EditorFramework/GUI/DynamicDefaultStateProvider.h>
 #include <EditorFramework/GUI/ExposedParametersDefaultStateProvider.h>
 #include <EditorFramework/Manipulators/BoneManipulatorAdapter.h>
@@ -110,6 +112,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezGameObjectReferenceAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtGameObjectReferencePropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExposedBone>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtExposedBoneWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCompilerPreferences>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtCompilerPreferencesWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCodeEditorPreferences>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtCodeEditorPreferencesWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezImageSliderUiAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtPropertyEditorSliderWidget(); });
 
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSphereManipulatorAdapter); });
@@ -156,6 +159,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExposedParametersAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExposedBone>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCompilerPreferences>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCodeEditorPreferences>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezImageSliderUiAttribute>());
 
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>());
@@ -409,10 +413,14 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   {
     GuiOpenDashboard();
   }
+
+  ezStackTraceLogParser::Register();
 }
 
 void ezQtEditorApp::ShutdownEditor()
 {
+  ezStackTraceLogParser::Unregister();
+
   ezToolsProject::SaveProjectState();
 
   m_pTimer->stop();

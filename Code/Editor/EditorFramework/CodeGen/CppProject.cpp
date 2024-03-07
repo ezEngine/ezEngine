@@ -58,12 +58,25 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezCompilerPreferences, ezNoBase, 1, ezRTTIDefault
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezCodeEditorPreferences, ezNoBase, 1, ezRTTIDefaultAllocator<ezCodeEditorPreferences>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("CodeEditorPath", m_sEditorPath),
+    EZ_MEMBER_PROPERTY("CodeEditorArgs", m_sEditorArgs)->AddAttributes(new ezDefaultValueAttribute("{file} {line}")),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCppProject, 1, ezRTTIDefaultAllocator<ezCppProject>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("CppIDE", ezIDE, m_Ide),
     EZ_MEMBER_PROPERTY("CompilerPreferences", m_CompilerPreferences),
+    EZ_MEMBER_PROPERTY("CodeEditorPreferences", m_CodeEditorPreferences),
   }
   EZ_END_PROPERTIES;
 }
@@ -280,6 +293,37 @@ ezStatus ezCppProject::OpenSolution(const ezCppSettings& cfg)
     break;
   }
 
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezCppProject::OpenInCodeEditor(const ezStringView& sFileName, ezInt32 iLineNumber)
+{
+  if (!ezOSFile::ExistsFile(sFileName))
+  {
+    return ezStatus("Failed finding filename");
+  }
+
+  ezStringBuilder sLineNumber;
+  ezConversionUtils::ToString(iLineNumber, sLineNumber);
+
+  const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
+  ezStringBuilder sFormatString = preferences->m_CodeEditorPreferences.m_sEditorArgs;
+  if(sFormatString.IsEmpty())
+  {
+    return ezStatus("Code editor is not configured");
+  }
+
+  sFormatString.ReplaceAll("{line}",sLineNumber);
+  sFormatString.ReplaceAll("{file}", sFileName);
+
+  const QStringList args = QProcess::splitCommand(QString::fromUtf8(sFormatString.GetData()));
+  const QString sProgramPath = QString::fromUtf8(preferences->m_CodeEditorPreferences.m_sEditorPath.GetData());
+
+  QProcess proc;
+  if (proc.startDetached(sProgramPath, args) == false)
+  {
+    return ezStatus("Failed to launch code editor");
+  }
   return ezStatus(EZ_SUCCESS);
 }
 
