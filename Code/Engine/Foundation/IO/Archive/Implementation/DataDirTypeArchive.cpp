@@ -49,7 +49,7 @@ ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(ezStringView
 
   const ezArchiveEntry* pEntry = &toc.m_Entries[uiEntryIndex];
 
-  ArchiveReaderUncompressed* pReader = nullptr;
+  ArchiveReaderCommon* pReader = nullptr;
 
   {
     EZ_LOCK(m_ReaderMutex);
@@ -229,21 +229,31 @@ void ezDataDirectory::ArchiveType::OnReaderWriterClose(ezDataDirectoryReaderWrit
 
 //////////////////////////////////////////////////////////////////////////
 
-ezDataDirectory::ArchiveReaderUncompressed::ArchiveReaderUncompressed(ezInt32 iDataDirUserData)
+ezDataDirectory::ArchiveReaderCommon::ArchiveReaderCommon(ezInt32 iDataDirUserData)
   : ezDataDirectoryReader(iDataDirUserData)
 {
 }
 
-ezDataDirectory::ArchiveReaderUncompressed::~ArchiveReaderUncompressed() = default;
+ezUInt64 ezDataDirectory::ArchiveReaderCommon::GetFileSize() const
+{
+  return m_uiUncompressedSize;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezDataDirectory::ArchiveReaderUncompressed::ArchiveReaderUncompressed(ezInt32 iDataDirUserData)
+  : ArchiveReaderCommon(iDataDirUserData)
+{
+}
+
+ezUInt64 ezDataDirectory::ArchiveReaderUncompressed::Skip(ezUInt64 uiBytes)
+{
+  return m_MemStreamReader.SkipBytes(uiBytes);
+}
 
 ezUInt64 ezDataDirectory::ArchiveReaderUncompressed::Read(void* pBuffer, ezUInt64 uiBytes)
 {
   return m_MemStreamReader.ReadBytes(pBuffer, uiBytes);
-}
-
-ezUInt64 ezDataDirectory::ArchiveReaderUncompressed::GetFileSize() const
-{
-  return m_uiUncompressedSize;
 }
 
 ezResult ezDataDirectory::ArchiveReaderUncompressed::InternalOpen(ezFileShareMode::Enum FileShareMode)
@@ -264,11 +274,9 @@ void ezDataDirectory::ArchiveReaderUncompressed::InternalClose()
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 
 ezDataDirectory::ArchiveReaderZstd::ArchiveReaderZstd(ezInt32 iDataDirUserData)
-  : ArchiveReaderUncompressed(iDataDirUserData)
+  : ArchiveReaderCommon(iDataDirUserData)
 {
 }
-
-ezDataDirectory::ArchiveReaderZstd::~ArchiveReaderZstd() = default;
 
 ezUInt64 ezDataDirectory::ArchiveReaderZstd::Read(void* pBuffer, ezUInt64 uiBytes)
 {
@@ -283,6 +291,10 @@ ezResult ezDataDirectory::ArchiveReaderZstd::InternalOpen(ezFileShareMode::Enum 
   return EZ_SUCCESS;
 }
 
+void ezDataDirectory::ArchiveReaderZstd::InternalClose()
+{
+  // nothing to do
+}
 #endif
 
 //////////////////////////////////////////////////////////////////////////

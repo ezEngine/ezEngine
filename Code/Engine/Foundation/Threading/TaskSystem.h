@@ -240,11 +240,11 @@ private:
 public:
   /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
   static void ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction32 taskCallback,
-    const char* szTaskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+    const char* szTaskName = nullptr, ezTaskNesting taskNesting = ezTaskNesting::Never, const ezParallelForParams& params = ezParallelForParams());
 
   /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
   static void ParallelForIndexed(ezUInt64 uiStartIndex, ezUInt64 uiNumItems, ezParallelForIndexedFunction64 taskCallback,
-    const char* szTaskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+    const char* szTaskName = nullptr, ezTaskNesting taskNesting = ezTaskNesting::Never, const ezParallelForParams& params = ezParallelForParams());
 
   /// A helper function to process task items in a parallel fashion by generating per-worker sub-ranges
   /// from an initial item array pointer.

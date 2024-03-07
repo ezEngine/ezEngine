@@ -37,6 +37,25 @@ namespace ezDataDirectory
     m_File.Close();
   }
 
+  ezUInt64 FolderReader::Skip(ezUInt64 uiBytes)
+  {
+    if (uiBytes == 0)
+    {
+      return 0;
+    }
+
+    const ezUInt64 fileSize = m_File.GetFileSize();
+    const ezUInt64 origFilePosition = m_File.GetFilePosition();
+    EZ_ASSERT_DEBUG(origFilePosition <= fileSize, "");
+
+    const ezUInt64 newFilePosition = ezMath::Min(fileSize, origFilePosition + uiBytes);
+    m_File.SetFilePosition(newFilePosition, ezFileSeekMode::FromStart);
+    EZ_ASSERT_DEBUG(newFilePosition == m_File.GetFilePosition(), "");
+
+    EZ_ASSERT_DEBUG(newFilePosition >= origFilePosition, "");
+    return newFilePosition - origFilePosition;
+  }
+
   ezUInt64 FolderReader::Read(void* pBuffer, ezUInt64 uiBytes)
   {
     return m_File.Read(pBuffer, uiBytes);

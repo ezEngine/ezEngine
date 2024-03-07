@@ -68,9 +68,9 @@ public:
       EZ_LOCK(m_Mutex);
       if (m_ReceivedMessages.GetCount() > 0)
       {
-        auto res = m_ReceivedMessages.PeekFront();
+        auto res2 = m_ReceivedMessages.PeekFront();
         m_ReceivedMessages.PopFront();
-        return res;
+        return res2;
       }
     }
     return {};

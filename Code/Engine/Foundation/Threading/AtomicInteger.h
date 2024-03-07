@@ -10,13 +10,25 @@ struct ezAtomicStorageType
 };
 
 template <>
-struct ezAtomicStorageType<0>
+struct ezAtomicStorageType<1>
 {
   using Type = ezInt32;
 };
 
 template <>
-struct ezAtomicStorageType<1>
+struct ezAtomicStorageType<2>
+{
+  using Type = ezInt32;
+};
+
+template <>
+struct ezAtomicStorageType<4>
+{
+  using Type = ezInt32;
+};
+
+template <>
+struct ezAtomicStorageType<8>
 {
   using Type = ezInt64;
 };
@@ -25,7 +37,7 @@ struct ezAtomicStorageType<1>
 template <typename T>
 class ezAtomicInteger
 {
-  using UnderlyingType = typename ezAtomicStorageType<sizeof(T) / 32>::Type;
+  using UnderlyingType = typename ezAtomicStorageType<sizeof(T)>::Type;
 
 public:
   EZ_DECLARE_POD_TYPE();
@@ -122,3 +134,5 @@ private:
 
 using ezAtomicInteger32 = ezAtomicInteger<ezInt32>; // [tested]
 using ezAtomicInteger64 = ezAtomicInteger<ezInt64>; // [tested]
+static_assert(sizeof(ezAtomicInteger32) == sizeof(ezInt32));
+static_assert(sizeof(ezAtomicInteger64) == sizeof(ezInt64));

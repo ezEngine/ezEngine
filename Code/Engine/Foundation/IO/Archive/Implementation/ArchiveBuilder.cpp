@@ -111,8 +111,7 @@ ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& inout_stream) const
   {
     const SourceEntry& e = m_Entries[i];
 
-    const ezUInt32 uiPathStringOffset = toc.m_AllPathStrings.GetCount();
-    toc.m_AllPathStrings.PushBackRange(ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(e.m_sRelTargetPath.GetData()), e.m_sRelTargetPath.GetElementCount() + 1));
+    const ezUInt32 uiPathStringOffset = toc.AddPathString(e.m_sRelTargetPath);
 
     sHashablePath = e.m_sRelTargetPath;
     sHashablePath.ToLower();

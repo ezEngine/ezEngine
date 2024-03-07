@@ -67,6 +67,13 @@ void ezFrustum::TransformFrustum(const ezMat4& mTransform)
   }
 }
 
+ezFrustum ezFrustum::GetTransformedFrustum(const ezMat4& mTransform) const
+{
+  ezFrustum result = *this;
+  result.TransformFrustum(mTransform);
+  return result;
+}
+
 ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices) const
 {
   /// \test Not yet tested

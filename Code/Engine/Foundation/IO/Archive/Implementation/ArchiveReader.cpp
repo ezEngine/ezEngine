@@ -29,7 +29,7 @@ ezResult ezArchiveReader::OpenArchive(ezStringView sPath)
     {
       EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ReadHeader(reader, m_uiArchiveVersion));
 
-      m_pDataStart = m_MemFile.GetReadPointer(16, ezMemoryMappedFile::OffsetBase::Start);
+      m_pDataStart = m_MemFile.GetReadPointer(ezArchiveUtils::ArchiveHeaderSize, ezMemoryMappedFile::OffsetBase::Start);
 
       EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ExtractTOC(m_MemFile, m_ArchiveTOC, m_uiArchiveVersion));
     }

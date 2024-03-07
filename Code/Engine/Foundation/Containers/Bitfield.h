@@ -67,6 +67,8 @@ public:
   /// \brief Clears the range starting at uiFirstBit up to (and including) uiLastBit to 0.
   void ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
 
+  /// \brief Swaps two bitfields
+  void Swap(ezBitfield<Container>& other); // [tested]
   struct ConstIterator
   {
     using iterator_category = std::forward_iterator_tag;
@@ -221,6 +223,9 @@ public:
 
   /// \brief Sets the raw uint that stores all bits.
   void SetValue(T value); // [tested]
+
+  /// \brief Swaps two bitfields
+  void Swap(ezStaticBitfield<T>& other); // [tested]
 
   /// \brief Modifies \a this to also contain the bits from \a rhs.
   EZ_ALWAYS_INLINE void operator|=(const ezStaticBitfield<T>& rhs) { m_Storage |= rhs.m_Storage; }

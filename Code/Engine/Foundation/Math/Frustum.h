@@ -97,6 +97,9 @@ public:
   /// when it is necessary to cull from a different position.
   void TransformFrustum(const ezMat4& mTransform); // [tested]
 
+  /// \brief Returns frustum transformed by given matrix
+  ezFrustum GetTransformedFrustum(const ezMat4& mTransform) const; // [tested]
+
   /// \brief Flips all frustum planes around. Might be necessary after creating the frustum from a mirror projection matrix.
   void InvertFrustum(); // [tested]
 

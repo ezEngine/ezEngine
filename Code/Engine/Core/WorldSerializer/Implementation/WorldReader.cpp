@@ -129,6 +129,11 @@ ezUInt32 ezWorldReader::GetComponentTypeVersion(const ezRTTI* pRtti) const
   return uiVersion;
 }
 
+bool ezWorldReader::HasComponentOfType(const ezRTTI* pRtti) const
+{
+  return m_ComponentTypeVersions.Contains(pRtti);
+}
+
 void ezWorldReader::ClearAndCompact()
 {
   m_IndexToGameObjectHandle.Clear();
