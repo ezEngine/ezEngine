@@ -64,7 +64,7 @@ public:
   const ezDeque<const ezDocumentObject*> GetTopLevelSelection(bool bInOrderOfSceneTree) const;
 
   /// \brief Same as GetTopLevelSelection() but additionally requires that all objects are derived from type pBase.
-  const ezDeque<const ezDocumentObject*> GetTopLevelSelection(const ezRTTI* pBase, bool bInOrderOfSceneTree) const;
+  const ezDeque<const ezDocumentObject*> GetTopLevelSelectionOfType(const ezRTTI* pBase, bool bInOrderOfSceneTree) const;
 
   bool IsSelected(const ezDocumentObject* pObject) const;
   bool IsParentSelected(const ezDocumentObject* pObject) const;

@@ -57,7 +57,7 @@ void ezDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection
 
 ezStatus ezDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB)
 {
-  auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
+  auto Selection = GetSelectionManager()->GetTopLevelSelectionOfType(pRootType, true);
 
   if (Selection.IsEmpty())
     return ezStatus("To create a prefab, the selection must not be empty");

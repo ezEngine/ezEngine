@@ -294,7 +294,7 @@ const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection(
   return items;
 }
 
-const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection(const ezRTTI* pBase, bool bInOrderOfSceneTree) const
+const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelectionOfType(const ezRTTI* pBase, bool bInOrderOfSceneTree) const
 {
   ezDeque<const ezDocumentObject*> items;
 
