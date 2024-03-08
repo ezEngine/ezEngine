@@ -25,9 +25,18 @@ ezPlane& ezFrustum::AccessPlane(ezUInt8 uiPlane)
 
 bool ezFrustum::IsValid() const
 {
+  // For frustums with infinite farplanes we test a finite frustum slice for validity, as the
+  // computations below don't work when 4 of the corner points are at infinity.
+  if (ezMath::Abs(m_Planes[FarPlane].m_fNegDistance) == ezMath::Infinity<float>())
+  {
+    ezFrustum finiteSlice = *this;
+    finiteSlice.m_Planes[FarPlane].m_fNegDistance = -2.f * ezMath::Abs(m_Planes[NearPlane].m_fNegDistance);
+    return finiteSlice.IsValid();
+  }
+
   for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
   {
-    if (!m_Planes[i].IsValid())
+    if (!m_Planes[i].IsValid() || (i != FarPlane && !ezMath::IsFinite(m_Planes[i].m_fNegDistance)))
       return false;
   }
 

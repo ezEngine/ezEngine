@@ -335,4 +335,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
       EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], 0.01f));
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromMVPInfiniteFarPlane")
+  {
+    ezMat4 perspective = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(90), 1.0f, ezMath::Infinity<float>(), 100.0f, ezClipSpaceDepthRange::ZeroToOne, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
+
+    auto frustum = ezFrustum::MakeFromMVP(perspective);
+    EZ_TEST_BOOL(frustum.IsValid());
+  }
 }
