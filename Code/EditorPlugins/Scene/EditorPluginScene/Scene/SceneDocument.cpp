@@ -82,9 +82,11 @@ void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   // (Local mirror only mirrors settings)
-  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool { return pManager->IsUnderRootProperty("Settings", pObject, sProperty); });
+  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
+    { return pManager->IsUnderRootProperty("Settings", pObject, sProperty); });
   // (Remote IPC mirror only sends scene)
-  m_pMirror->SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool { return pManager->IsUnderRootProperty("Children", pObject, sProperty); });
+  m_pMirror->SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
+    { return pManager->IsUnderRootProperty("Children", pObject, sProperty); });
 
   EnsureSettingsObjectExist();
 
@@ -574,12 +576,13 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
 
 ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /* = {} */, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
 {
-  auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
+  ezHybridArray<ezSelectionEntry, 32> Selection;
+  GetSelectionManager()->GetTopLevelSelectionOfType(pRootType, Selection);
 
   if (Selection.IsEmpty())
     return ezStatus("To create a prefab, the selection must not be empty");
 
-  const ezTransform tReference = QueryLocalTransform(Selection.PeekBack());
+  const ezTransform tReference = QueryLocalTransform(Selection.PeekBack().m_pObject);
 
   ezVariantArray varChildren;
 
@@ -620,7 +623,8 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, 
     GetCommandHistory()->AddCommand(cmd).AssertSuccess();
   };
 
-  auto finalizeGraph = [this, &varChildren](ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& ref_graphRootNodes) {
+  auto finalizeGraph = [this, &varChildren](ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& ref_graphRootNodes)
+  {
     if (ref_graphRootNodes.GetCount() == 1)
     {
       ref_graphRootNodes[0]->ChangeProperty("Name", "<Prefab-Root>");
@@ -788,26 +792,28 @@ bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMa
     return false;
 
   // Serialize selection to graph
-  auto Selection = GetSelectionManager()->GetTopLevelSelection();
+  ezHybridArray<ezSelectionEntry, 64> selection;
+  GetSelectionManager()->GetTopLevelSelection(selection);
 
   ezDocumentObjectConverterWriter writer(&ref_graph, GetObjectManager());
 
-  // TODO: objects are required to be named root but this is not enforced or obvious by the interface.
-  for (ezUInt32 i = 0; i < Selection.GetCount(); i++)
+  // objects are required to be named root but this is not enforced or obvious by the interface.
+  for (ezUInt32 i = 0; i < selection.GetCount(); i++)
   {
-    auto item = Selection[i];
-    ezAbstractObjectNode* pNode = writer.AddObjectToGraph(item, "root");
-    pNode->AddProperty("__GlobalTransform", GetGlobalTransform(item));
+    const auto& item = selection[i];
+    ezAbstractObjectNode* pNode = writer.AddObjectToGraph(item.m_pObject, "root");
+    pNode->AddProperty("__GlobalTransform", GetGlobalTransform(item.m_pObject));
     pNode->AddProperty("__Order", i);
+    pNode->AddProperty("__SelectionOrder", item.m_uiSelectionOrder);
   }
 
   if (out_pParents != nullptr)
   {
     out_pParents->Clear();
 
-    for (auto item : Selection)
+    for (const auto& item : selection)
     {
-      (*out_pParents)[item->GetGuid()] = item->GetParent()->GetGuid();
+      (*out_pParents)[item.m_pObject->GetGuid()] = item.m_pObject->GetParent()->GetGuid();
     }
   }
 
@@ -816,24 +822,45 @@ bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMa
   return true;
 }
 
-bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPasteAt)
+bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec3& vPasteAt)
 {
-  ezVec3 vAvgPos(0.0f);
+  ezTransform refTransform = ezTransform::MakeIdentity();
+  ezUInt32 uiHighestSelectionOrder = 0;
 
-  for (const PasteInfo& pi : info)
+  ezHybridArray<ezTransform, 16> globalTransforms;
+  globalTransforms.SetCount(info.GetCount(), ezTransform::MakeIdentity());
+
+  for (ezUInt32 i = 0; i < info.GetCount(); ++i)
   {
+    const PasteInfo& pi = info[i];
+
     if (pi.m_pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
       return false;
 
-    vAvgPos += pi.m_pObject->GetTypeAccessor().GetValue("LocalPosition").Get<ezVec3>();
+    if (auto* pNode = objectGraph.GetNode(pi.m_pObject->GetGuid()))
+    {
+      if (auto* pProperty = pNode->FindProperty("__GlobalTransform"))
+      {
+        globalTransforms[i] = pProperty->m_Value.Get<ezTransform>();
+
+        if (auto* pProperty = pNode->FindProperty("__SelectionOrder"))
+        {
+          // find the last selected element, and use it as the reference point for the paste position
+
+          const ezUInt32 uiSelOrder = pProperty->m_Value.ConvertTo<ezUInt32>();
+          if (uiSelOrder >= uiHighestSelectionOrder)
+          {
+            uiHighestSelectionOrder = uiSelOrder;
+            refTransform = globalTransforms[i];
+          }
+        }
+      }
+    }
   }
 
-  vAvgPos /= info.GetCount();
-
-  for (const PasteInfo& pi : info)
+  for (ezUInt32 i = 0; i < info.GetCount(); ++i)
   {
-    const ezVec3 vLocalPos = pi.m_pObject->GetTypeAccessor().GetValue("LocalPosition").Get<ezVec3>();
-    pi.m_pObject->GetTypeAccessor().SetValue("LocalPosition", vLocalPos - vAvgPos + vPasteAt);
+    const PasteInfo& pi = info[i];
 
     if (pi.m_pParent == nullptr || pi.m_pParent == GetObjectManager()->GetRootObject())
     {
@@ -843,6 +870,12 @@ bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& v
     {
       GetObjectManager()->AddObject(pi.m_pObject, pi.m_pParent, "Children", pi.m_Index);
     }
+
+    ezTransform tNew = globalTransforms[i];
+    tNew.m_vPosition -= refTransform.m_vPosition;
+    tNew.m_vPosition += vPasteAt;
+
+    SetGlobalTransform(pi.m_pObject, tNew, TransformationChanges::All);
   }
 
   return true;
@@ -860,6 +893,7 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info, 
     {
       GetObjectManager()->AddObject(pi.m_pObject, pi.m_pParent, "Children", pi.m_Index);
     }
+
     if (auto* pNode = objectGraph.GetNode(pi.m_pObject->GetGuid()))
     {
       if (auto* pProperty = pNode->FindProperty("__GlobalTransform"))
@@ -884,7 +918,7 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
     ezVec3 pos = ctxt.m_pLastPickingResult->m_vPickedPosition;
     ezSnapProvider::SnapTranslation(pos);
 
-    if (!PasteAt(info, pos))
+    if (!PasteAt(info, objectGraph, pos))
       return false;
   }
   else
@@ -901,10 +935,22 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
     auto pSelMan = GetSelectionManager();
 
     ezDeque<const ezDocumentObject*> NewSelection;
+    NewSelection.SetCount(info.GetCount());
 
-    for (const PasteInfo& pi : info)
+    for (ezUInt32 i = 0; i < info.GetCount(); ++i)
     {
-      NewSelection.PushBack(pi.m_pObject);
+      const PasteInfo& pi = info[i];
+
+      ezUInt32 order = i;
+      if (auto* pNode = objectGraph.GetNode(pi.m_pObject->GetGuid()))
+      {
+        if (auto* pProperty = pNode->FindProperty("__SelectionOrder"))
+        {
+          order = pProperty->m_Value.ConvertTo<ezUInt32>();
+        }
+      }
+
+      NewSelection[order] = pi.m_pObject;
     }
 
     pSelMan->SetSelection(NewSelection);

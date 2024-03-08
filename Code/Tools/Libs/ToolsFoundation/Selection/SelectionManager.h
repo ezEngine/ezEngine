@@ -21,6 +21,12 @@ struct ezSelectionManagerEvent
   const ezDocumentObject* m_pObject;
 };
 
+struct ezSelectionEntry
+{
+  const ezDocumentObject* m_pObject;
+  ezUInt32 m_uiSelectionOrder = 0; // the index at which this item was in the selection
+};
+
 /// \brief Selection Manager stores a set of selected document objects.
 class EZ_TOOLSFOUNDATION_DLL ezSelectionManager
 {
@@ -56,11 +62,17 @@ public:
 
   bool IsSelectionEmpty() const { return m_pSelectionStorage->m_SelectionList.IsEmpty(); }
 
-  /// \brief Returns the subset of selected items which have no parent selected. I.e. if an object is selected and one of its ancestors is selected, it is culled from the list. Items are returned in the order of appearance in an expanded scene tree.
-  const ezDeque<const ezDocumentObject*> GetTopLevelSelection() const;
+
+
+  /// \brief Returns the subset of selected items which have no parent selected.
+  ///
+  /// I.e. if an object is selected and one of its ancestors is selected, it is culled from the list.
+  /// Items are returned in the order of appearance in an expanded scene tree.
+  /// Their order in the selection is returned through ezSelectionEntry.
+  void GetTopLevelSelection(ezDynamicArray<ezSelectionEntry>& out_entries) const;
 
   /// \brief Same as GetTopLevelSelection() but additionally requires that all objects are derived from type pBase.
-  const ezDeque<const ezDocumentObject*> GetTopLevelSelection(const ezRTTI* pBase) const;
+  void GetTopLevelSelectionOfType(const ezRTTI* pBase, ezDynamicArray<ezSelectionEntry>& out_entries) const;
 
   bool IsSelected(const ezDocumentObject* pObject) const;
   bool IsParentSelected(const ezDocumentObject* pObject) const;

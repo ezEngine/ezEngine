@@ -505,7 +505,7 @@ void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
   auto pAssetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szBaseMaterial);
   if (pAssetInfo == nullptr)
   {
-    ezDeque<const ezDocumentObject*> sel;
+    ezHybridArray<const ezDocumentObject*, 2> sel;
     sel.PushBack(pObject);
     UnlinkPrefabs(sel);
   }

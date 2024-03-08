@@ -89,24 +89,23 @@ public:
     const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
   bool DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected);
   bool CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMap<ezUuid, ezUuid>* out_pParents) const;
-  bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
+  bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec3& vPos);
   bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph);
 
   virtual void UpdatePrefabs() override;
 
   /// \brief Removes the link to the prefab template, making the editor prefab a simple object
-  virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection) override;
+  virtual void UnlinkPrefabs(ezArrayPtr<const ezDocumentObject*> selection) override;
 
-  virtual ezUuid ReplaceByPrefab(
-    const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab) override;
+  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab) override;
 
   /// \brief Reverts all selected editor prefabs to their original template state
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject) override;
 
   /// \brief Converts all objects in the selection that are engine prefabs to their respective editor prefab representation
-  virtual void ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& selection);
+  virtual void ConvertToEditorPrefab(ezArrayPtr<const ezDocumentObject*> selection);
   /// \brief Converts all objects in the selection that are editor prefabs to their respective engine prefab representation
-  virtual void ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& selection);
+  virtual void ConvertToEnginePrefab(ezArrayPtr<const ezDocumentObject*> selection);
 
   virtual ezStatus CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = {}, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {}) override;
 
