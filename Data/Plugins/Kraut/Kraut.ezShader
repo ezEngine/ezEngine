@@ -14,12 +14,16 @@ SHADING_QUALITY
 FORWARD_PASS_WRITE_DEPTH
 MATERIAL_PREVIEW
 VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+BRDF_SHADING_MODEL
+BRDF_DIFFUSE
 
 [MATERIALPARAMETER]
 
 Permutation BLEND_MODE;
 Permutation SHADING_MODE;
 Permutation TWO_SIDED;
+Permutation BRDF_SHADING_MODEL;
+Permutation BRDF_DIFFUSE;
 
 Texture2D BaseTexture;
 
@@ -393,6 +397,11 @@ float GetRoughness()
   {
     return RoughnessValue;
   }
+}
+
+float GetMetallic()
+{
+  return 0.0f;
 }
 
 float GetOpacity()

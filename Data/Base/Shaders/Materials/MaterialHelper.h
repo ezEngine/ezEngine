@@ -11,7 +11,6 @@ float3 GetNormal();
 
 #if defined(USE_SIMPLE_MATERIAL_MODEL)
   float3 GetBaseColor();
-  float GetMetallic();
   float GetReflectance();
 #else
   float3 GetDiffuseColor();
@@ -28,6 +27,7 @@ float3 GetNormal();
 
 // Note that this function actually returns perceptualRoughness.
 float GetRoughness();
+float GetMetallic();
 float GetOpacity();
 
 #if defined(USE_MATERIAL_OCCLUSION)
@@ -41,6 +41,19 @@ float GetOpacity();
 #if defined(USE_MATERIAL_SUBSURFACE_PARAMS)
   void GetSubsurfaceParams(out float scatterPower, out float shadowFalloff);
 #endif
+
+#if defined(USE_MATERIAL_SPECULAR_CLEARCOAT)
+  void GetSpecularClearCoatParams(out float clearcoat, out float clearcoatRoughness, out float3 normal);
+#endif
+
+#if defined(USE_MATERIAL_SPECULAR_ANISOTROPIC)
+  void GetSpecularAnisotopicParams(out float anisotropic, out float rotation);
+#endif
+
+#if defined(USE_MATERIAL_SPECULAR_SHEEN)
+  void GetSpecularSheenParams(out float sheen, out float tintFactor);
+#endif
+
 
 struct PS_GLOBALS
 {
@@ -153,6 +166,7 @@ ezMaterialData FillMaterialData()
 #endif
 
     matData.roughness = RoughnessFromPerceptualRoughness(matData.perceptualRoughness);
+    matData.metalness = GetMetallic();
 
 #if defined(USE_MATERIAL_OCCLUSION)
 #  if defined(USE_NORMAL)
@@ -183,6 +197,18 @@ ezMaterialData FillMaterialData()
   #else
     matData.subsurfaceScatterPower = 9.0;
     matData.subsurfaceShadowFalloff = 0.0;
+  #endif
+
+  #if defined(USE_MATERIAL_SPECULAR_CLEARCOAT)
+    GetSpecularClearCoatParams(matData.clearcoat, matData.clearcoatRoughness, matData.clearcoatNormal);
+  #endif
+
+  #if defined(USE_MATERIAL_SPECULAR_ANISOTROPIC)
+    GetSpecularAnisotopicParams(matData.anisotropic, matData.anisotropicRotation);
+  #endif
+
+  #if defined(USE_MATERIAL_SPECULAR_SHEEN)
+    GetSpecularSheenParams(matData.sheen, matData.sheenTintFactor);
   #endif
 
   return matData;
