@@ -69,10 +69,10 @@ public:
   /// I.e. if an object is selected and one of its ancestors is selected, it is culled from the list.
   /// Items are returned in the order of appearance in an expanded scene tree.
   /// Their order in the selection is returned through ezSelectionEntry.
-  void GetTopLevelSelection(ezDynamicArray<ezSelectionEntry>& out_Entries) const;
+  void GetTopLevelSelection(ezDynamicArray<ezSelectionEntry>& out_entries) const;
 
   /// \brief Same as GetTopLevelSelection() but additionally requires that all objects are derived from type pBase.
-  void GetTopLevelSelectionOfType(const ezRTTI* pBase, ezDynamicArray<ezSelectionEntry>& out_Entries) const;
+  void GetTopLevelSelectionOfType(const ezRTTI* pBase, ezDynamicArray<ezSelectionEntry>& out_entries) const;
 
   bool IsSelected(const ezDocumentObject* pObject) const;
   bool IsParentSelected(const ezDocumentObject* pObject) const;
