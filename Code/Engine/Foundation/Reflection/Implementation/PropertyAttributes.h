@@ -452,6 +452,30 @@ private:
   ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 
+/// \brief Indicates that the string property should allow to browse for an file (or programs) outside the project directories.
+///
+/// Allows to specify the title for the browse dialog and the allowed file types.
+/// Usage: EZ_MEMBER_PROPERTY("File", m_sFilePath)->AddAttributes(new ezFileBrowserAttribute("Choose a File", "*.exe")),
+class EZ_FOUNDATION_DLL ezExternalFileBrowserAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezExternalFileBrowserAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezExternalFileBrowserAttribute() = default;
+  ezExternalFileBrowserAttribute(ezStringView sDialogTitle, ezStringView sTypeFilter)
+    : m_sDialogTitle(sDialogTitle)
+    , m_sTypeFilter(sTypeFilter)
+  {
+  }
+
+  ezStringView GetDialogTitle() const { return m_sDialogTitle; }
+  ezStringView GetTypeFilter() const { return m_sTypeFilter; }
+
+private:
+  ezUntrackedString m_sDialogTitle;
+  ezUntrackedString m_sTypeFilter;
+};
+
 /// \brief A property attribute that indicates that the string property is actually an asset reference.
 ///
 /// Allows to specify the allowed asset types, separated with ;

@@ -62,7 +62,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezCodeEditorPreferences, ezNoBase, 1, ezRTTIDefau
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("CodeEditorPath", m_sEditorPath),
+    EZ_MEMBER_PROPERTY("CodeEditorPath", m_sEditorPath)->AddAttributes(new ezExternalFileBrowserAttribute("Select Editor", "*.exe"_ezsv)),
     EZ_MEMBER_PROPERTY("CodeEditorArgs", m_sEditorArgs)->AddAttributes(new ezDefaultValueAttribute("{file} {line}")),
   }
   EZ_END_PROPERTIES;
@@ -308,12 +308,12 @@ ezStatus ezCppProject::OpenInCodeEditor(const ezStringView& sFileName, ezInt32 i
 
   const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
   ezStringBuilder sFormatString = preferences->m_CodeEditorPreferences.m_sEditorArgs;
-  if(sFormatString.IsEmpty())
+  if (sFormatString.IsEmpty())
   {
     return ezStatus("Code editor is not configured");
   }
 
-  sFormatString.ReplaceAll("{line}",sLineNumber);
+  sFormatString.ReplaceAll("{line}", sLineNumber);
   sFormatString.ReplaceAll("{file}", sFileName);
 
   const QStringList args = QProcess::splitCommand(QString::fromUtf8(sFormatString.GetData()));
