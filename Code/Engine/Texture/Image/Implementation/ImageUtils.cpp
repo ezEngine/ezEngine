@@ -324,7 +324,8 @@ static void FindMinMax(const ezImageView& image, ezUInt8& out_uiMinRgb, ezUInt8&
   out_uiMaxRgb = 0u;
   out_uiMaxAlpha = 0u;
 
-  auto minMax = [&](const ezUInt8* pPixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c) {
+  auto minMax = [&](const ezUInt8* pPixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c)
+  {
     ezUInt8 val = *pPixel;
 
     if (c < 3)
@@ -365,7 +366,8 @@ void ezImageUtils::Normalize(ezImage& inout_image, ezUInt8& out_uiMinRgb, ezUInt
   ezUInt8 uiRangeRgb = out_uiMaxRgb - out_uiMinRgb;
   ezUInt8 uiRangeAlpha = out_uiMaxAlpha - out_uiMinAlpha;
 
-  auto normalize = [&](ezUInt8* pPixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c) {
+  auto normalize = [&](ezUInt8* pPixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c)
+  {
     ezUInt8 val = *pPixel;
     if (c < 3)
     {
@@ -549,7 +551,7 @@ void ezImageUtils::RotateSubImage180(ezImage& inout_image, ezUInt32 uiMipLevel /
 
 ezResult ezImageUtils::Copy(const ezImageView& srcImg, const ezRectU32& srcRect, ezImage& inout_dstImg, const ezVec3U32& vDstOffset, ezUInt32 uiDstMipLevel /*= 0*/, ezUInt32 uiDstFace /*= 0*/, ezUInt32 uiDstArrayIndex /*= 0*/)
 {
-  if (inout_dstImg.GetImageFormat() != srcImg.GetImageFormat()) // Can only copy when the image formats are identical
+  if (inout_dstImg.GetImageFormat() != srcImg.GetImageFormat())   // Can only copy when the image formats are identical
     return EZ_FAILURE;
 
   if (ezImageFormat::IsCompressed(inout_dstImg.GetImageFormat())) // Compressed formats are not supported
@@ -2004,5 +2006,3 @@ void ezImageUtils::CreateImageDiffHtml(ezStringBuilder& out_sHtml, ezStringView 
                 "</div>\n"
                 "</BODY> </HTML>");
 }
-
-

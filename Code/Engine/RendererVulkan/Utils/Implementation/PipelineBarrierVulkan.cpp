@@ -401,7 +401,7 @@ void ezPipelineBarrierVulkan::BufferDestroyed(const ezGALBufferVulkan* pBuffer)
   auto it = m_bufferState.Find(pBuffer->GetVkBuffer());
   if (it.IsValid())
   {
-    //#TODO_VULKAN do we need to flush here in case the resource is dirty?
+    // #TODO_VULKAN do we need to flush here in case the resource is dirty?
     m_bufferState.Remove(it);
   }
 }

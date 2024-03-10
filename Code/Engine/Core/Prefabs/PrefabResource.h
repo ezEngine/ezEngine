@@ -16,9 +16,9 @@ struct EZ_CORE_DLL ezExposedPrefabParameterDesc
   ezHashedString m_sExposeName;
   ezUInt32 m_uiWorldReaderChildObject : 1; // 0 -> use root object array, 1 -> use child object array
   ezUInt32 m_uiWorldReaderObjectIndex : 31;
-  ezHashedString m_sComponentType;     // ezRTTI type name to identify which component is meant, empty string -> affects game object
-  ezHashedString m_sProperty;          // which property to override
-  ezPropertyPath m_CachedPropertyPath; // cached ezPropertyPath to apply a value to the specified property
+  ezHashedString m_sComponentType;         // ezRTTI type name to identify which component is meant, empty string -> affects game object
+  ezHashedString m_sProperty;              // which property to override
+  ezPropertyPath m_CachedPropertyPath;     // cached ezPropertyPath to apply a value to the specified property
 
   void Save(ezStreamWriter& inout_stream) const;
   void Load(ezStreamReader& inout_stream);

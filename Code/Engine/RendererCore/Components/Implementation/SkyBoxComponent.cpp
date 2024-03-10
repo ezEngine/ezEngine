@@ -233,8 +233,8 @@ void ezSkyBoxComponent::UpdateMaterials()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezSkyBoxComponentPatch_1_2 : public ezGraphPatch
 {

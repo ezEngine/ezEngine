@@ -566,4 +566,3 @@ void ezExpressionByteCode::Init(ezArrayPtr<const StorageType> byteCode, ezArrayP
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionByteCode);
-

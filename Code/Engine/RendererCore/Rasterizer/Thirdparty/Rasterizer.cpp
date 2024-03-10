@@ -1548,5 +1548,3 @@ template void Rasterizer::rasterize<true>(const Occluder& occluder);
 template void Rasterizer::rasterize<false>(const Occluder& occluder);
 
 #endif
-
-

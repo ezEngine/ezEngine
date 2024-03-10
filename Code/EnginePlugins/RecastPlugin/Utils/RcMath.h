@@ -17,7 +17,7 @@ struct EZ_RECASTPLUGIN_DLL ezRcPos
   void operator=(const ezVec3& v);
   void operator=(const float* pPos);
 
-  operator const float *() const;
+  operator const float*() const;
   operator float*();
   operator ezVec3() const;
 };

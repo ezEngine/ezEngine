@@ -140,4 +140,3 @@ const char* ezSampleFrameAnimNode::GetClip() const
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SampleFrameAnimNode);
-

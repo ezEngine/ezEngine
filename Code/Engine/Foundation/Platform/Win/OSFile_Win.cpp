@@ -704,5 +704,3 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
 }
 
 #endif
-
-

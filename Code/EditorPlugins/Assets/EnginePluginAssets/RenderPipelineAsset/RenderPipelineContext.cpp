@@ -2,10 +2,10 @@
 
 #include <EnginePluginAssets/RenderPipelineAsset/RenderPipelineContext.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/IO/TypeVersionContext.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>

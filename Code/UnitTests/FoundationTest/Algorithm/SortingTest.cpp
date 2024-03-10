@@ -45,7 +45,8 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Sorting)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "QuickSort - Lambda")
   {
     ezDynamicArray<ezInt32> a2 = a1;
-    ezSorting::QuickSort(a2, [](const auto& a, const auto& b) { return a > b; });
+    ezSorting::QuickSort(a2, [](const auto& a, const auto& b)
+      { return a > b; });
 
     for (ezUInt32 i = 1; i < a2.GetCount(); ++i)
     {

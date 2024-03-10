@@ -256,8 +256,8 @@ ezEditorInput ezCameraMoveContext::DoKeyPressEvent(QKeyEvent* e)
   if (m_pCamera == nullptr)
     return ezEditorInput::MayBeHandledByOthers;
 
-  //if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
-  //  return ezEditorInput::MayBeHandledByOthers;
+  // if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
+  //   return ezEditorInput::MayBeHandledByOthers;
 
   m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
 

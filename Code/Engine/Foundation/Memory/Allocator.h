@@ -26,9 +26,9 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezUInt64 m_uiNumAllocations = 0;   ///< total number of allocations
-    ezUInt64 m_uiNumDeallocations = 0; ///< total number of deallocations
-    ezUInt64 m_uiAllocationSize = 0;   ///< total allocation size in bytes
+    ezUInt64 m_uiNumAllocations = 0;         ///< total number of allocations
+    ezUInt64 m_uiNumDeallocations = 0;       ///< total number of deallocations
+    ezUInt64 m_uiAllocationSize = 0;         ///< total allocation size in bytes
 
     ezUInt64 m_uiPerFrameAllocationSize = 0; ///< allocation size in bytes in this frame
     ezTime m_PerFrameAllocationTime;         ///< time spend on allocations in this frame
@@ -43,7 +43,7 @@ public:
   virtual void* Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign);
 
   /// \brief Returns the number of bytes allocated at this address.
-  /// 
+  ///
   /// \note Careful! This information is only available, if allocation tracking is enabled!
   /// Otherwise 0 is returned.
   /// See ezAllocatorTrackingMode and EZ_ALLOC_TRACKING_DEFAULT.

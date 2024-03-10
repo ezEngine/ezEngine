@@ -322,5 +322,3 @@ ezStringView::operator std::string_view() const
   return GetAsStdView();
 }
 #endif
-
-

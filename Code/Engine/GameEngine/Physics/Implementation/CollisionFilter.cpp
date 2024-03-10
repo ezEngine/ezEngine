@@ -147,5 +147,3 @@ void ezCollisionFilterConfig::Load(ezStreamReader& inout_stream)
   inout_stream.ReadBytes(m_GroupMasks, sizeof(ezUInt32) * 32);
   inout_stream.ReadBytes(m_GroupNames, sizeof(char) * 32 * 32);
 }
-
-

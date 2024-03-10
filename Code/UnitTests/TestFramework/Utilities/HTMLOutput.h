@@ -26,7 +26,8 @@ struct ezOutputToHTML
     static std::string sDuration;
     static std::ostringstream details;
 
-    auto FlushDetails = [&]() {
+    auto FlushDetails = [&]()
+    {
       if (bDetails)
       {
         bDetails = false;

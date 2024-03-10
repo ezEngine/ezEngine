@@ -36,4 +36,3 @@ private:
   bool m_bUpdateSubsystems;
   ezMap<ezString, SubsystemData> m_Subsystems;
 };
-

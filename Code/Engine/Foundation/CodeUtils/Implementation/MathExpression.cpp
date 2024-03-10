@@ -73,5 +73,3 @@ float ezMathExpression::Evaluate(ezArrayPtr<Input> inputs)
 
   return fOutput;
 }
-
-

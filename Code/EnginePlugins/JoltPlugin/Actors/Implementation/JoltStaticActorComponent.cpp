@@ -293,4 +293,3 @@ const char* ezJoltStaticActorComponent::GetSurfaceFile() const
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltStaticActorComponent);
-

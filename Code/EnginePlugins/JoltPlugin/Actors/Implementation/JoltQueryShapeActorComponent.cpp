@@ -166,4 +166,3 @@ const ezJoltMaterial* ezJoltQueryShapeActorComponent::GetJoltMaterial() const
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltQueryShapeActorComponent);
-

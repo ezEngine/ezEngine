@@ -3,7 +3,6 @@
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Interfaces/SoundInterface.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/EventMessageHandlerComponent.h>
@@ -12,6 +11,7 @@
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 #include <EnginePluginScene/SceneContext/LayerContext.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -890,7 +890,8 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 
-  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
+  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+    { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
 
   file << exposedParams.GetCount();
 

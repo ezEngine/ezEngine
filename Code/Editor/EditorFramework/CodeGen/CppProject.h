@@ -4,8 +4,8 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Communication/Event.h>
-#include <Foundation/Types/VariantType.h>
 #include <Foundation/Types/Status.h>
+#include <Foundation/Types/VariantType.h>
 
 // Only saved in editor preferences, does not have to work cross-platform
 struct EZ_EDITORFRAMEWORK_DLL ezIDE
@@ -159,4 +159,3 @@ private:
 
   static ezDynamicArray<MachineSpecificCompilerPaths> s_MachineSpecificCompilers;
 };
-

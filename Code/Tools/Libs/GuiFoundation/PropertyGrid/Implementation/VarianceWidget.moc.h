@@ -33,4 +33,3 @@ protected:
   const ezAbstractMemberProperty* m_pValueProp = nullptr;
   const ezAbstractMemberProperty* m_pVarianceProp = nullptr;
 };
-

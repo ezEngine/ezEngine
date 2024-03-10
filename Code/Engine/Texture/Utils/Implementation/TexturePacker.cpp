@@ -46,7 +46,8 @@ ezResult ezTexturePacker::PackTextures()
     sorted[i].m_Priority = m_Textures[i].m_Priority;
   }
 
-  sorted.Sort([](const sortdata& lhs, const sortdata& rhs) -> bool { return lhs.m_Priority > rhs.m_Priority; });
+  sorted.Sort([](const sortdata& lhs, const sortdata& rhs) -> bool
+    { return lhs.m_Priority > rhs.m_Priority; });
 
   for (ezUInt32 idx = 0; idx < sorted.GetCount(); ++idx)
   {
@@ -115,5 +116,3 @@ bool ezTexturePacker::TryPlaceAt(ezVec2U32 pos, ezVec2U32 size)
 
   return true;
 }
-
-

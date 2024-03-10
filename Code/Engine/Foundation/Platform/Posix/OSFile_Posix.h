@@ -261,7 +261,7 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum P
 
 // this might not be defined on Windows
 #ifndef S_ISDIR
-#  define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
+#  define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
 
 bool ezOSFile::InternalExistsFile(ezStringView sFile)

@@ -104,5 +104,3 @@ ezUInt32 ezTypeVersionReadContext::GetTypeVersion(const ezRTTI* pRtti) const
 
   return uiVersion;
 }
-
-

@@ -130,7 +130,7 @@ void ezControllerInputGlfw::InitializeDevice()
   // Check for errors during the previous call
   const char* desc;
   int errorCode = glfwGetError(&desc);
-  if(errorCode != GLFW_NO_ERROR)
+  if (errorCode != GLFW_NO_ERROR)
   {
     ezLog::Warning("glfw joystick and gamepad input not avaiable: {} - {}", errorCode, desc);
     return;
@@ -140,7 +140,7 @@ void ezControllerInputGlfw::InitializeDevice()
 
 void ezControllerInputGlfw::UpdateInputSlotValues()
 {
-  if(!m_bInitialized)
+  if (!m_bInitialized)
   {
     return;
   }
@@ -195,7 +195,7 @@ void ezControllerInputGlfw::ResetInputSlotValues()
 
 void ezControllerInputGlfw::RegisterInputSlots()
 {
-  if(!m_bInitialized)
+  if (!m_bInitialized)
   {
     return;
   }
@@ -241,7 +241,7 @@ void ezControllerInputGlfw::RegisterInputSlots()
 
 bool ezControllerInputGlfw::IsControllerConnected(ezUInt8 uiPhysical) const
 {
-  if(!m_bInitialized)
+  if (!m_bInitialized)
   {
     return false;
   }

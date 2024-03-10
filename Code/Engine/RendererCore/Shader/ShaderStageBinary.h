@@ -38,7 +38,7 @@ private:
   friend class ezShaderCompiler;
   friend class ezShaderPermutationResource;
   friend class ezShaderPermutationResourceLoader;
-   
+
   ezResult WriteStageBinary(ezLogInterface* pLog) const;
   ezResult Write(ezStreamWriter& inout_stream) const;
   ezResult Read(ezStreamReader& inout_stream);

@@ -48,9 +48,15 @@ void TakeEnum2(ezTestEnum value) {}
 
 EZ_CREATE_SIMPLE_TEST(Basics, Enum)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default initialized enum") { ezTestEnum e1; }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default initialized enum")
+  {
+    ezTestEnum e1;
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enum with explicit initialization") { ezTestEnum e2(ezTestEnum::Yes); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enum with explicit initialization")
+  {
+    ezTestEnum e2(ezTestEnum::Yes);
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "This tests if the default initialization works and if the implicit conversion works")
   {

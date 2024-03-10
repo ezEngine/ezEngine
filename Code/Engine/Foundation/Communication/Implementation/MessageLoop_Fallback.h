@@ -1,7 +1,7 @@
 #pragma once
 
-#  include <Foundation/Basics.h>
-#  include <Foundation/Communication/Implementation/MessageLoop.h>
+#include <Foundation/Basics.h>
+#include <Foundation/Communication/Implementation/MessageLoop.h>
 
 class EZ_FOUNDATION_DLL ezMessageLoop_Fallback : public ezMessageLoop
 {
@@ -15,4 +15,3 @@ protected:
 
 private:
 };
-

@@ -45,5 +45,3 @@ void ezTaskGroup::DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex)
   EZ_ASSERT_DEV(pGroup->m_iNumActiveDependencies == 0, "Invalid active dependenices");
 }
 #endif
-
-

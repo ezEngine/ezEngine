@@ -95,7 +95,7 @@ bool ezIntersectionUtils::Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& 
     const float fPlaneSide = vPlaneNormal.Dot(vRayStartPos) + fPlaneNegDist;
     const float fCosAlpha = vPlaneNormal.Dot(vRayDir);
 
-    if (fCosAlpha == 0) // ray is orthogonal to plane
+    if (fCosAlpha == 0)                                      // ray is orthogonal to plane
       return false;
 
     if (ezMath::Sign(fPlaneSide) == ezMath::Sign(fCosAlpha)) // ray points away from the plane
@@ -132,5 +132,3 @@ bool ezIntersectionUtils::IsPointOnLine(const ezVec3& vLineStart, const ezVec3& 
 
   return (fClosestDistSqr <= fMaxDist * fMaxDist);
 }
-
-

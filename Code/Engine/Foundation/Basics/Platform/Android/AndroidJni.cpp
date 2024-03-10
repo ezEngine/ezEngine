@@ -735,5 +735,3 @@ bool ezJniClass::IsPrimitive()
   return UnsafeCall<bool>("isPrimitive", "()Z");
 }
 #endif
-
-

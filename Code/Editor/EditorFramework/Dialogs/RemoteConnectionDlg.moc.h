@@ -45,4 +45,3 @@ private:
   void SetCurrentIP(const Address& addr);
   void SetCurrentFsIP(const Address& addr);
 };
-

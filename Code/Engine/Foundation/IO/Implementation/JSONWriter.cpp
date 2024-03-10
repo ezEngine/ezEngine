@@ -355,7 +355,7 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
 
       const auto& dict = value.Get<ezVariantDictionary>();
 
-      for(auto& kv : dict)
+      for (auto& kv : dict)
       {
         AddVariableVariant(kv.Key(), kv.Value());
       }
@@ -380,5 +380,3 @@ void ezJSONWriter::SetWriteErrorState()
 {
   m_bHadWriteError = true;
 }
-
-

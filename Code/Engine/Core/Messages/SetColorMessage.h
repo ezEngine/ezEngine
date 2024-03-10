@@ -10,9 +10,9 @@ struct ezSetColorMode
 
   enum Enum
   {
-    SetRGBA,  ///< Overrides all four RGBA values.
-    SetRGB,   ///< Overrides the RGB values but leaves Alpha untouched.
-    SetAlpha, ///< Overrides Alpha, leaves RGB untouched.
+    SetRGBA,    ///< Overrides all four RGBA values.
+    SetRGB,     ///< Overrides the RGB values but leaves Alpha untouched.
+    SetAlpha,   ///< Overrides Alpha, leaves RGB untouched.
 
     AlphaBlend, ///< Modifies the target RGBA values by interpolating from the previous color towards the incoming color using the incoming alpha value.
     Additive,   ///< Adds to the RGBA values.

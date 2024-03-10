@@ -179,4 +179,3 @@ void ezJoltCore::SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e)
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltCore);
-

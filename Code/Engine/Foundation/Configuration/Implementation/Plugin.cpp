@@ -168,7 +168,7 @@ static ezResult UnloadPluginInternal(ezStringView sPluginFile)
   }
 
   // delete the plugin copy that we had loaded
-  if(ezPlugin::PlatformNeedsPluginCopy())
+  if (ezPlugin::PlatformNeedsPluginCopy())
   {
     ezStringBuilder sOriginalFile, sCopiedFile;
     ezPlugin::GetPluginPaths(sPluginFile, sOriginalFile, sCopiedFile, g_LoadedModules[sPluginFile].m_uiFileNumber);
@@ -375,5 +375,3 @@ ezPlugin::Init::Init(const char* szAddPluginDependency)
 
   pMD->m_sPluginDependencies.PushBack(szAddPluginDependency);
 }
-
-

@@ -112,5 +112,3 @@ ezInt32 ezDuktapeFunction::ReturnCustom()
 }
 
 #endif
-
-

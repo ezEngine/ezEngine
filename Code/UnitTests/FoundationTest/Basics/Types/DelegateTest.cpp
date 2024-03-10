@@ -70,7 +70,10 @@ namespace
     ezDelegate<void()> m_dtorDel;
   };
 
-  static ezInt32 Function(ezInt32 b) { return b + 2; }
+  static ezInt32 Function(ezInt32 b)
+  {
+    return b + 2;
+  }
 } // namespace
 
 EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
@@ -159,7 +162,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - no capture")
   {
-    d = [](ezInt32 i) { return i * 4; };
+    d = [](ezInt32 i)
+    { return i * 4; };
     EZ_TEST_BOOL(d.IsComparable());
     EZ_TEST_INT(d(2), 8);
 
@@ -170,7 +174,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value")
   {
     ezInt32 c = 20;
-    d = [c](ezInt32) { return c; };
+    d = [c](ezInt32)
+    { return c; };
     EZ_TEST_BOOL(!d.IsComparable());
     EZ_TEST_INT(d(3), 20);
     c = 10;
@@ -180,13 +185,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value, mutable")
   {
     ezInt32 c = 20;
-    d = [c](ezInt32) mutable { return c; };
+    d = [c](ezInt32) mutable
+    { return c; };
     EZ_TEST_BOOL(!d.IsComparable());
     EZ_TEST_INT(d(3), 20);
     c = 10;
     EZ_TEST_INT(d(3), 20);
 
-    d = [c](ezInt32 b) mutable -> decltype(b + c) {
+    d = [c](ezInt32 b) mutable -> decltype(b + c)
+    {
       auto result = b + c;
       c = 1;
       return result;
@@ -199,7 +206,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by reference")
   {
     ezInt32 c = 20;
-    d = [&c](ezInt32 i) -> decltype(i) {
+    d = [&c](ezInt32 i) -> decltype(i)
+    {
       c = 5;
       return i;
     };
@@ -223,7 +231,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     ezSharedPtr<RefCountedInt> shared = EZ_DEFAULT_NEW(RefCountedInt, 1);
     EZ_TEST_INT(shared->GetRefCount(), 1);
     {
-      TestDelegate deleteMe = [shared](ezInt32 i) -> decltype(i) { return 0; };
+      TestDelegate deleteMe = [shared](ezInt32 i) -> decltype(i)
+      { return 0; };
       EZ_TEST_BOOL(!deleteMe.IsComparable());
       EZ_TEST_INT(shared->GetRefCount(), 2);
     }
@@ -235,7 +244,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     ezInt64 a = 10;
     ezInt64 b = 20;
     ezInt64 c = 30;
-    d = [a, b, c](ezInt32 i) -> ezInt32 { return static_cast<ezInt32>(a + b + c + i); };
+    d = [a, b, c](ezInt32 i) -> ezInt32
+    { return static_cast<ezInt32>(a + b + c + i); };
     EZ_TEST_INT(d(6), 66);
     EZ_TEST_BOOL(!d.IsComparable());
   }
@@ -245,7 +255,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     ezInt64 a = 10;
     ezInt64 b = 20;
     ezInt64 c = 30;
-    d = TestDelegate([a, b, c](ezInt32 i) -> ezInt32 { return static_cast<ezInt32>(a + b + c + i); }, ezFoundation::GetAlignedAllocator());
+    d = TestDelegate([a, b, c](ezInt32 i) -> ezInt32
+      { return static_cast<ezInt32>(a + b + c + i); }, ezFoundation::GetAlignedAllocator());
     EZ_TEST_INT(d(6), 66);
     EZ_TEST_BOOL(!d.IsComparable());
 
@@ -273,7 +284,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
       value.m_iData = 666;
       EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 1);
       EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 0);
-      TestDelegate d2 = [value](ezInt32 i) -> ezInt32 { return value.m_iData; };
+      TestDelegate d2 = [value](ezInt32 i) -> ezInt32
+      { return value.m_iData; };
       EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 3); // Capture plus moving the lambda.
       EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1);  // Move of lambda
       d = std::move(d2);
@@ -300,7 +312,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
       value.m_iData = 666;
       EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 1);
       EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 0);
-      TestDelegate d2 = TestDelegate([value](ezInt32 i) -> ezInt32 { return value.m_iData; }, ezFoundation::GetAlignedAllocator());
+      TestDelegate d2 = TestDelegate([value](ezInt32 i) -> ezInt32
+        { return value.m_iData; }, ezFoundation::GetAlignedAllocator());
       EZ_TEST_INT(ezConstructionCounter::s_iConstructions, 3); // Capture plus moving the lambda.
       EZ_TEST_INT(ezConstructionCounter::s_iDestructions, 1);  // Move of lambda
       d = d2;
@@ -323,7 +336,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   {
     ezUniquePtr<ezConstructionCounter> data(EZ_DEFAULT_NEW(ezConstructionCounter));
     data->m_iData = 666;
-    TestDelegate d2 = [data = std::move(data)](ezInt32 i) -> ezInt32 { return data->m_iData; };
+    TestDelegate d2 = [data = std::move(data)](ezInt32 i) -> ezInt32
+    { return data->m_iData; };
     EZ_TEST_INT(d2(0), 666);
     d = std::move(d2);
     EZ_TEST_BOOL(d.IsValid());

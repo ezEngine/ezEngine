@@ -6,7 +6,7 @@ struct EZ_SHADER_STRUCT ezBaseParticleShaderData
 {
   PACKEDCOLOR4H(Color);
   PACKEDHALF2(Life, Size, LifeAndSize); // Life: 1 to 0
-  UINT1(Variation); // only lower 8 bit
+  UINT1(Variation);                     // only lower 8 bit
 };
 
 // this is only defined during shader compilation
@@ -19,4 +19,3 @@ StructuredBuffer<ezBaseParticleShaderData> particleBaseData;
 EZ_CHECK_AT_COMPILETIME(sizeof(ezBaseParticleShaderData) == 16);
 
 #endif
-

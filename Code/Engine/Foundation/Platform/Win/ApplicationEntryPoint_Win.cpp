@@ -20,5 +20,3 @@ namespace ezApplicationDetails
 
 } // namespace ezApplicationDetails
 #endif
-
-

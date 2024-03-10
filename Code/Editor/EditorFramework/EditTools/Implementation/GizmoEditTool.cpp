@@ -254,7 +254,7 @@ void ezGameObjectGizmoEditTool::TransformationGizmoEventHandler(const ezGizmoEve
       m_GizmoSelection.Clear();
 
       if (m_bMergeTransactions)
-        GetDocument()->GetCommandHistory()->MergeLastTwoTransactions(); //#TODO: this should be interleaved transactions
+        GetDocument()->GetCommandHistory()->MergeLastTwoTransactions(); // #TODO: this should be interleaved transactions
     }
     break;
 

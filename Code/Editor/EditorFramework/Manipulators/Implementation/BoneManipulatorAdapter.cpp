@@ -177,7 +177,7 @@ void ezBoneManipulatorAdapter::RetrieveBones()
     }
     else
     {
-      //EZ_REPORT_FAILURE("Property is not an ezExposedBone");
+      // EZ_REPORT_FAILURE("Property is not an ezExposedBone");
       m_Bones.Clear();
       return;
     }

@@ -129,27 +129,27 @@ void ezPxBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHand
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 
-  //ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  // ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
 
-  //const auto& desc = pSkeleton->GetDescriptor();
+  // const auto& desc = pSkeleton->GetDescriptor();
 
-  //EZ_ASSERT_DEV(m_Shapes.IsEmpty(), "");
-  //m_Shapes.Reserve(desc.m_Geometry.GetCount());
+  // EZ_ASSERT_DEV(m_Shapes.IsEmpty(), "");
+  // m_Shapes.Reserve(desc.m_Geometry.GetCount());
 
-  //ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-  //m_uiShapeID = pModule->CreateShapeId();
+  // ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+  // m_uiShapeID = pModule->CreateShapeId();
 
-  //const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
-  //const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
+  // const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
+  // const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
 
-  //const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
+  // const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
 
-  //ezQuat qRotZtoX; // the capsule should extend along X, but the capsule shape goes along Z
-  //qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  // ezQuat qRotZtoX; // the capsule should extend along X, but the capsule shape goes along Z
+  // qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
 
-  //for (ezUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
+  // for (ezUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
   //{
-  //  const auto& geo = desc.m_Geometry[idx];
+  //   const auto& geo = desc.m_Geometry[idx];
 
   //  if (geo.m_Type == ezSkeletonJointGeometryType::None)
   //    continue;

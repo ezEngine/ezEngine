@@ -323,6 +323,4 @@ bool ezExrFileFormat::CanWriteFileType(ezStringView sExtension) const
 
 
 
-
 EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_ExrFileFormat);
-

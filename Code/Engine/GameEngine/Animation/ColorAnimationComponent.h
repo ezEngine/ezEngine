@@ -33,7 +33,7 @@ public:
   ezColorAnimationComponent();
 
   /// \brief How long it takes to sample the entire color gradient.
-  ezTime m_Duration; // [ property ]
+  ezTime m_Duration;                             // [ property ]
 
   void SetColorGradientFile(const char* szFile); // [ property ]
   const char* GetColorGradientFile() const;      // [ property ]
@@ -45,10 +45,10 @@ public:
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
 
   /// \brief How the color should be applied to the target.
-  ezEnum<ezSetColorMode> m_SetColorMode;      // [ property ]
+  ezEnum<ezSetColorMode> m_SetColorMode; // [ property ]
 
-  bool GetApplyRecursive() const;     // [ property ]
-  void SetApplyRecursive(bool value); // [ property ]
+  bool GetApplyRecursive() const;        // [ property ]
+  void SetApplyRecursive(bool value);    // [ property ]
 
   bool GetRandomStartOffset() const;     // [ property ]
   void SetRandomStartOffset(bool value); // [ property ]

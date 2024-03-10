@@ -51,7 +51,8 @@ namespace
       if (ezWorld* pWorld = m_pStateMachineInstance->GetOwnerWorld())
       {
         pWorld->AddResourceReloadFunction(m_hScriptClass, ezComponentHandle(), this,
-          [](ezWorld::ResourceReloadContext& context) {
+          [](ezWorld::ResourceReloadContext& context)
+          {
             static_cast<ScriptInstanceData*>(context.m_pUserData)->ReloadScript();
           });
       }
@@ -241,10 +242,14 @@ const char* ezStateMachineState_Script::GetScriptClassFile() const
 
 const ezRangeView<const char*, ezUInt32> ezStateMachineState_Script::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
-    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
+    { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezStateMachineState_Script::SetParameter(const char* szKey, const ezVariant& value)
@@ -279,4 +284,3 @@ bool ezStateMachineState_Script::GetParameter(const char* szKey, ezVariant& out_
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineState_Script);
-

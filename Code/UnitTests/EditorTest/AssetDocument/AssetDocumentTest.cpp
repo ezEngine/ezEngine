@@ -78,7 +78,8 @@ void ezEditorAssetDocumentTest::AsyncSave()
     ezObjectAccessorBase* pAcc = pDoc->GetObjectAccessor();
     ezInt32 iOrder = 0;
     ezTaskGroupID id = pDoc->SaveDocumentAsync(
-      [&iOrder](ezDocument* pDoc, ezStatus res) {
+      [&iOrder](ezDocument* pDoc, ezStatus res)
+      {
         EZ_TEST_INT(iOrder, 0);
         iOrder = 1;
       },
@@ -90,7 +91,8 @@ void ezEditorAssetDocumentTest::AsyncSave()
 
     // Saving while another save is in progress should block. This ensures the correct state on disk.
     ezString sFile = pAcc->Get<ezString>(pMeshAsset, "MeshFile");
-    ezTaskGroupID id2 = pDoc->SaveDocumentAsync([&iOrder](ezDocument* pDoc, ezStatus res) {
+    ezTaskGroupID id2 = pDoc->SaveDocumentAsync([&iOrder](ezDocument* pDoc, ezStatus res)
+      {
       EZ_TEST_INT(iOrder, 1);
       iOrder = 2; });
 
@@ -187,7 +189,8 @@ void ezEditorAssetDocumentTest::FileOperations()
     void Init(const ezSharedPtr<EventHandler>& pStrongThis)
     {
       // Multi-threaded event subscription can outlive the target lifetime if we don't capture a string reference to it.
-      m_FileID = ezFileSystemModel::GetSingleton()->m_FileChangedEvents.AddEventHandler([pStrongThis](const ezFileChangedEvent& e) { pStrongThis->OnAssetFilesEvent(e); });
+      m_FileID = ezFileSystemModel::GetSingleton()->m_FileChangedEvents.AddEventHandler([pStrongThis](const ezFileChangedEvent& e)
+        { pStrongThis->OnAssetFilesEvent(e); });
       m_AssetID = ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&EventHandler::OnAssetEvent, this));
     }
 
@@ -229,7 +232,8 @@ void ezEditorAssetDocumentTest::FileOperations()
   events->Init(events);
   EZ_SCOPE_EXIT(events->DeInit());
 
-  auto CompareFiles = [&](ezArrayPtr<ezFileChangedEvent> expectedFiles, ezArrayPtr<AssetEvent> expectedAssets) {
+  auto CompareFiles = [&](ezArrayPtr<ezFileChangedEvent> expectedFiles, ezArrayPtr<AssetEvent> expectedAssets)
+  {
     EZ_LOCK(events->m_EventMutex);
     if (EZ_TEST_INT(expectedFiles.GetCount(), events->m_FileEvents.GetCount()))
     {
@@ -255,7 +259,8 @@ void ezEditorAssetDocumentTest::FileOperations()
     events->m_AssetEvents.Clear();
   };
 
-  auto WaitForFileEvents = [&](ezUInt32 uiFileEventCount, ezUInt32 uiAssetEventCount) {
+  auto WaitForFileEvents = [&](ezUInt32 uiFileEventCount, ezUInt32 uiAssetEventCount)
+  {
     constexpr ezUInt32 WAIT_LOOPS = 500;
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
@@ -268,7 +273,8 @@ void ezEditorAssetDocumentTest::FileOperations()
     }
   };
 
-  auto FlushEvents = [&]() {
+  auto FlushEvents = [&]()
+  {
     constexpr ezUInt32 WAIT_LOOPS = 60;
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
@@ -285,7 +291,8 @@ void ezEditorAssetDocumentTest::FileOperations()
     }
   };
 
-  auto CheckSubAsset = [](const ezAssetCurator::ezLockedSubAsset& subAsset, ezUuid documentGuid, ezString sAbsAssetPath) {
+  auto CheckSubAsset = [](const ezAssetCurator::ezLockedSubAsset& subAsset, ezUuid documentGuid, ezString sAbsAssetPath)
+  {
     if (EZ_TEST_BOOL(subAsset))
     {
       EZ_TEST_BOOL(subAsset->m_ExistanceState == ezAssetExistanceState::FileUnchanged);
@@ -301,7 +308,8 @@ void ezEditorAssetDocumentTest::FileOperations()
   };
 
   ezHybridArray<ezString, 4> rootFolders(ezFileSystemModel::GetSingleton()->GetDataDirectoryRoots());
-  auto MakePath = [&](ezStringView sPath) {
+  auto MakePath = [&](ezStringView sPath)
+  {
     return ezDataDirPath(sPath, rootFolders);
   };
 

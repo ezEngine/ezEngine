@@ -99,4 +99,3 @@ const ezGALImmutableSamplers::ImmutableSamplers& ezGALImmutableSamplers::GetImmu
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_ImmutableSamplers);
-

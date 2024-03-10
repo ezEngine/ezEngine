@@ -3,13 +3,13 @@
 #include <RendererVulkan/Resources/FallbackResourcesVulkan.h>
 
 #include <Foundation/Algorithm/HashStream.h>
+#include <Foundation/Configuration/Startup.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
-#include <Foundation/Configuration/Startup.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererVulkan, FallbackResourcesVulkan)
@@ -56,7 +56,8 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
     case ezGALDeviceEvent::AfterInit:
     {
       s_pDevice = e.m_pDevice;
-      auto CreateTexture = [](ezGALTextureType::Enum type, ezGALMSAASampleCount::Enum samples, bool bDepth) -> ezGALResourceViewHandle {
+      auto CreateTexture = [](ezGALTextureType::Enum type, ezGALMSAASampleCount::Enum samples, bool bDepth) -> ezGALResourceViewHandle
+      {
         ezGALTextureCreationDescription desc;
         desc.m_uiWidth = 4;
         desc.m_uiHeight = 4;

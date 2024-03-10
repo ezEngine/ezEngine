@@ -148,8 +148,8 @@ void ezAmbientLightComponent::UpdateSkyIrradiance()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezAmbientLightComponentPatch_1_2 : public ezGraphPatch
 {

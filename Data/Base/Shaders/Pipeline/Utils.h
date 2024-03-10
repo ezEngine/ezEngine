@@ -11,8 +11,8 @@
 float3 FastScreenCoordToViewSpace(float2 normalizedScreenCor, float depthFromZBuffer)
 {
   // float4 viewPos = mul(GetScreenToCameraMatrix(), float4(normalizedScreenCor, depthFromZBuffer, 1.0f));
-  //viewPos.xyz /= viewPos.w;
-  //return viewPos.xyz;
+  // viewPos.xyz /= viewPos.w;
+  // return viewPos.xyz;
 
   float linearZ = LinearizeZBufferDepth(depthFromZBuffer);
   return float3(float2(GetScreenToCameraMatrix()._11, GetScreenToCameraMatrix()._22) * normalizedScreenCor * linearZ, linearZ);
@@ -45,8 +45,8 @@ float3 ReconstructViewSpaceNormal(float2 normalizedCoords, float centerDepth, fl
   float zDDY = SmallerAbsDelta(topDepth, centerDepth, bottomDepth);
 
   float3 centerPos = FastScreenCoordToViewSpace(normalizedCoords, centerDepth);
-  float3 rightDir =	FastScreenCoordToViewSpace(normalizedCoords + float2(texelSize.x * 2, 0), centerDepth + zDDX) - centerPos;
-  float3 downDir =  FastScreenCoordToViewSpace(normalizedCoords + float2(0, texelSize.y * 2), centerDepth + zDDY) - centerPos;
+  float3 rightDir = FastScreenCoordToViewSpace(normalizedCoords + float2(texelSize.x * 2, 0), centerDepth + zDDX) - centerPos;
+  float3 downDir = FastScreenCoordToViewSpace(normalizedCoords + float2(0, texelSize.y * 2), centerDepth + zDDY) - centerPos;
 
   return normalize(cross(downDir, rightDir));
 }

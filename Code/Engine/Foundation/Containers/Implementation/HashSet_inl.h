@@ -202,7 +202,7 @@ template <typename K, typename H>
 void ezHashSetBase<K, H>::Reserve(ezUInt32 uiCapacity)
 {
   const ezUInt64 uiCap64 = static_cast<ezUInt64>(uiCapacity);
-  ezUInt64 uiNewCapacity64 = uiCap64 + (uiCap64 * 2 / 3); // ensure a maximum load of 60%
+  ezUInt64 uiNewCapacity64 = uiCap64 + (uiCap64 * 2 / 3);                  // ensure a maximum load of 60%
 
   uiNewCapacity64 = ezMath::Min<ezUInt64>(uiNewCapacity64, 0x80000000llu); // the largest power-of-two in 32 bit
 

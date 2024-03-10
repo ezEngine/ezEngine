@@ -23,9 +23,9 @@ struct ezTypeFlags
     Bitflags = EZ_BIT(2),     ///< bitflags struct used for ezBitflags.
     Class = EZ_BIT(3),        ///< A class or struct. The above flags are mutually exclusive.
 
-    Abstract = EZ_BIT(4), ///< Type is abstract.
-    Phantom = EZ_BIT(5),  ///< De-serialized type information that cannot be created on this process.
-    Minimal = EZ_BIT(6),  ///< Does not contain any property, function or attribute information. Used only for versioning.
+    Abstract = EZ_BIT(4),     ///< Type is abstract.
+    Phantom = EZ_BIT(5),      ///< De-serialized type information that cannot be created on this process.
+    Minimal = EZ_BIT(6),      ///< Does not contain any property, function or attribute information. Used only for versioning.
     Default = 0
   };
 
@@ -650,7 +650,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   The name of the member variable that should get exposed as a message sender.
 ///
 /// \note A message sender must be derived from ezMessageSenderBase.
-#define EZ_MESSAGE_SENDER(MemberName)                                                  \
-  {                                                                                    \
-#    MemberName, ezGetStaticRTTI < EZ_MEMBER_TYPE(OwnType, MemberName)::MessageType>() \
+#define EZ_MESSAGE_SENDER(MemberName)                                                \
+  {                                                                                  \
+    #MemberName, ezGetStaticRTTI<EZ_MEMBER_TYPE(OwnType, MemberName)::MessageType>() \
   }

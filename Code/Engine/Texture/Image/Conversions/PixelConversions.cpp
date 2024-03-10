@@ -1549,8 +1549,8 @@ public:
 };
 
 
-#define ADD_16BPP_CONVERSION(format)                                                                                                                 \
-  static ezImageConversionStep_Decompress16bpp<ezDecompress##format, ezImageFormat::format##_UNORM> s_conversion_ezDecompress##format;               \
+#define ADD_16BPP_CONVERSION(format)                                                                                                   \
+  static ezImageConversionStep_Decompress16bpp<ezDecompress##format, ezImageFormat::format##_UNORM> s_conversion_ezDecompress##format; \
   static ezImageConversionStep_Compress16bpp<ezCompress##format, ezImageFormat::format##_UNORM> s_conversion_ezCompress##format
 
 ADD_16BPP_CONVERSION(A4B4G4R4);
@@ -1592,6 +1592,4 @@ static ezImageConversion_FLOAT_to_R11G11B10 s_conversion_FLOAT_to_R11G11B10;
 
 
 
-
 EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_PixelConversions);
-

@@ -143,7 +143,7 @@ ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtt
   {
     EZ_ASSERT_DEV(s_uiNextTypeId < EZ_MAX_WORLD_MODULE_TYPES - 1, "World module id overflow!");
 
-  uiTypeId = s_uiNextTypeId++;
+    uiTypeId = s_uiNextTypeId++;
   }
   else
   {
@@ -192,7 +192,8 @@ void ezWorldModuleFactory::AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezR
   ezDynamicArray<ezPlugin::PluginInfo> infos;
   ezPlugin::GetAllPluginInfos(infos);
 
-  auto HasManualDependency = [&](ezStringView sPluginName) -> bool {
+  auto HasManualDependency = [&](ezStringView sPluginName) -> bool
+  {
     for (const auto& p : infos)
     {
       if (p.m_sName == sPluginName)
@@ -298,7 +299,8 @@ void ezWorldModuleFactory::FillBaseTypeIds()
 void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
 {
   ezSet<const ezRTTI*> allRttis;
-  ezRTTI::ForEachType([&](const ezRTTI* pRtti) { allRttis.Insert(pRtti); });
+  ezRTTI::ForEachType([&](const ezRTTI* pRtti)
+    { allRttis.Insert(pRtti); });
 
   ezSet<ezWorldModuleTypeId> mappedIdsToRemove;
 

@@ -17,11 +17,11 @@ struct EZ_RENDERERCORE_DLL ezShaderBindFlags
     ForceRebind = EZ_BIT(0), ///< Executes shader binding (and state setting), even if the shader hasn't changed. Use this, when the same shader was
                              ///< previously used with custom bound states
     NoRasterizerState =
-      EZ_BIT(1), ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer
+      EZ_BIT(1),             ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer
     NoDepthStencilState = EZ_BIT(
-      2), ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil
+      2),                    ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil
     NoBlendState =
-      EZ_BIT(3), ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend
+      EZ_BIT(3),             ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend
     NoStateBinding = NoRasterizerState | NoDepthStencilState | NoBlendState,
 
     Default = None

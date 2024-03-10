@@ -369,5 +369,3 @@ void ezGALCommandEncoder::InvalidateState()
 {
   m_State.InvalidateState();
 }
-
-

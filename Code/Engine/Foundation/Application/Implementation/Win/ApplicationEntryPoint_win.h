@@ -33,7 +33,8 @@ namespace ezApplicationDetails
 
     // This handler overrides the default handler
     // (which would call ExitProcess, which leads to disorderly engine shutdowns)
-    const auto consoleHandler = [](ezMinWindows::DWORD ctrlType) -> ezMinWindows::BOOL {
+    const auto consoleHandler = [](ezMinWindows::DWORD ctrlType) -> ezMinWindows::BOOL
+    {
       // We have to wait until the application has shut down orderly
       // since Windows will kill everything after this handler returns
       pApp->SetReturnCode(ctrlType);
@@ -103,8 +104,11 @@ namespace ezApplicationDetails
     _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                  \
     _declspec(dllexport) ezMinWindows::DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; \
   }                                                                                             \
-  EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                     \
-  int main(int argc, const char** argv) { return ezApplicationDetails::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__); }
+  EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                     \
+  int main(int argc, const char** argv)                                                         \
+  {                                                                                             \
+    return ezApplicationDetails::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__);               \
+  }
 
 // If windows.h is already included use the native types, otherwise use types from ezMinWindows
 //

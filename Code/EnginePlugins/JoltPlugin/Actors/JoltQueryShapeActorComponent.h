@@ -51,7 +51,7 @@ public:
   void SetSurfaceFile(const char* szFile); // [ property ]
   const char* GetSurfaceFile() const;      // [ property ]
 
-  ezSurfaceResourceHandle m_hSurface; // [ property ]
+  ezSurfaceResourceHandle m_hSurface;      // [ property ]
 
 protected:
   const ezJoltMaterial* GetJoltMaterial() const;

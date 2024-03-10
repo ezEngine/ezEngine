@@ -67,9 +67,9 @@ public:
   ezEnum<ezComparisonOperator> m_Comparison; // [ property ]
 
 private:
-  ezAnimGraphNumberInputPin m_InNumber;    // [ property ]
-  ezAnimGraphNumberInputPin m_InReference; // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsTrue;    // [ property ]
+  ezAnimGraphNumberInputPin m_InNumber;      // [ property ]
+  ezAnimGraphNumberInputPin m_InReference;   // [ property ]
+  ezAnimGraphBoolOutputPin m_OutIsTrue;      // [ property ]
 };
 
 

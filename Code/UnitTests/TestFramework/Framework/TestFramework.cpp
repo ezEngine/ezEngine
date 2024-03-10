@@ -1639,7 +1639,7 @@ void ezTestFramework::SetSubTestStatus(ezUInt32 uiSubTestIndex, const char* szSt
     va_start(args, szMsg);                                                       \
     ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args); \
     va_end(args);                                                                \
-    return false;                                                           \
+    return false;                                                                \
   }
 
 bool ezTestBool(bool bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1884,5 +1884,3 @@ bool ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage
 
   return true;
 }
-
-

@@ -62,7 +62,8 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
   ezDocument* pDocument = GetDocument();
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
 
-  auto RemoveConnections = [&](const ezPin& pin) {
+  auto RemoveConnections = [&](const ezPin& pin)
+  {
     while (true)
     {
       auto connections = pManager->GetConnections(pin);

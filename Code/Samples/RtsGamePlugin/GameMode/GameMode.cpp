@@ -156,8 +156,10 @@ void RtsGameMode::SetupSelectModeUI()
 
   ezRmlUiContext* pRmlContext = pUiComponent->GetOrCreateRmlContext();
 
-  pRmlContext->RegisterEventHandler("switchToImGui", [](Rml::Event& e) { s_bUseRmlUi = false; });
-  pRmlContext->RegisterEventHandler("switchMode", [](Rml::Event& e) {
+  pRmlContext->RegisterEventHandler("switchToImGui", [](Rml::Event& e)
+    { s_bUseRmlUi = false; });
+  pRmlContext->RegisterEventHandler("switchMode", [](Rml::Event& e)
+    {
     auto& sValue = e.GetTargetElement()->GetId();
     if (sValue == "battle")
     {
@@ -170,8 +172,7 @@ void RtsGameMode::SetupSelectModeUI()
     else if (sValue == "mainmenu")
     {
       RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
-    }
-  });
+    } });
 
   m_hSelectModeUIComponent = pUiComponent->GetHandle();
 }

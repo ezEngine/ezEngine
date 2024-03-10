@@ -42,4 +42,3 @@ private:
   bool m_bUpdateConsole = false;
   ezStringBuilder m_sCommandResult;
 };
-

@@ -194,7 +194,7 @@ void ezProjectileComponent::Update()
         if (interaction.m_Reaction == ezProjectileReaction::Absorb)
         {
           SpawnDeathPrefab();
-          
+
 
           GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
           vNewPosition = castResult.m_vPosition;

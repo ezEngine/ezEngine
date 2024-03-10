@@ -1,6 +1,5 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
@@ -9,6 +8,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <GuiFoundation/PropertyGrid/PrefabDefaultStateProvider.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
@@ -124,24 +124,25 @@ void ezAssetDocument::InternalAfterSaveDocument()
     {
       ezUuid docGuid = GetGuid();
 
-      ezSharedPtr<ezDelegateTask<void>> pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "TransformAfterSaveDocument", ezTaskNesting::Never, [docGuid]() {
-        ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(docGuid);
-        if (pDoc == nullptr)
-          return;
-
-        /// \todo Should only be done for platform agnostic assets
-        ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(docGuid, ezTransformFlags::TriggeredManually);
-
-        if (ret.Failed())
+      ezSharedPtr<ezDelegateTask<void>> pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "TransformAfterSaveDocument", ezTaskNesting::Never, [docGuid]()
         {
-          ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, pDoc->GetDocumentPath());
-        }
-        else
-        {
-          ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
-        }
-        //
-      });
+          ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(docGuid);
+          if (pDoc == nullptr)
+            return;
+
+          /// \todo Should only be done for platform agnostic assets
+          ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(docGuid, ezTransformFlags::TriggeredManually);
+
+          if (ret.Failed())
+          {
+            ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, pDoc->GetDocumentPath());
+          }
+          else
+          {
+            ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
+          }
+          //
+        });
 
       pTask->ConfigureTask("TransformAfterSaveDocument", ezTaskNesting::Maybe);
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::ThisFrameMainThread);
@@ -418,7 +419,8 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
     typesSorted.PushBack(pType);
   }
 
-  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b) { return a->GetTypeName().Compare(b->GetTypeName()) < 0; });
+  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b)
+    { return a->GetTypeName().Compare(b->GetTypeName()) < 0; });
 
   for (const ezRTTI* pType : typesSorted)
   {
@@ -936,7 +938,7 @@ void ezAssetDocument::SendDocumentOpenMessage(bool bOpen)
   m.m_sDocumentType = GetDocumentTypeDescriptor()->m_sDocumentTypeName;
   m.m_DocumentMetaData = GetCreateEngineMetaData();
 
-  if(!ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&m))
+  if (!ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&m))
   {
     ezLog::Error("Failed to send DocumentOpenMessage");
   }

@@ -9,5 +9,3 @@ ezGALQuery::ezGALQuery(const ezGALQueryCreationDescription& Description)
 }
 
 ezGALQuery::~ezGALQuery() = default;
-
-

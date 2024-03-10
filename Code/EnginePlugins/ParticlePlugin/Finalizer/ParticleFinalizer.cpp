@@ -32,4 +32,3 @@ ezParticleFinalizer::ezParticleFinalizer()
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer);
-

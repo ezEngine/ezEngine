@@ -37,5 +37,3 @@ ezResult ezGALProxyTexture::DeInitPlatform(ezGALDevice* pDevice)
 }
 
 void ezGALProxyTexture::SetDebugNamePlatform(const char* szName) const {}
-
-

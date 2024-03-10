@@ -155,5 +155,3 @@ bool ezArchiveReader::ExtractFileProgressCallback(ezUInt64 bytesWritten, ezUInt6
 {
   return true;
 }
-
-

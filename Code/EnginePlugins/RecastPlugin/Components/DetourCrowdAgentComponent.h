@@ -89,14 +89,14 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Properties
 protected:
-  float m_fRadius = 0.3f; // [ property ]
-  float m_fHeight = 1.8f; // [ property ]
-  float m_fMaxSpeed = 3.5f; // [ property ]
-  float m_fMaxAcceleration = 3.5f; // [property]
-  float m_fStoppingDistance = 1.0f; // [property]
+  float m_fRadius = 0.3f;                                      // [ property ]
+  float m_fHeight = 1.8f;                                      // [ property ]
+  float m_fMaxSpeed = 3.5f;                                    // [ property ]
+  float m_fMaxAcceleration = 3.5f;                             // [property]
+  float m_fStoppingDistance = 1.0f;                            // [property]
   ezAngle m_MaxAngularSpeed = ezAngle::MakeFromDegree(360.0f); // [property]
-  ezEnum<ezDetourCrowdAgentRotationMode> m_RotationMode; // [property]
-  float m_fPushiness = 2.0f; // [property]
+  ezEnum<ezDetourCrowdAgentRotationMode> m_RotationMode;       // [property]
+  float m_fPushiness = 2.0f;                                   // [property]
 
 public:
   float GetRadius() const { return m_fRadius; }

@@ -17,35 +17,36 @@ void OnLoadPlugin()
     {
       const char* szMenuBar = "SubstanceAssetMenuBar";
 
-  ezActionMapManager::RegisterActionMap(szMenuBar).IgnoreResult();
-  ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
-  ezProjectActions::MapActions(szMenuBar);
-  ezDocumentActions::MapMenuActions(szMenuBar);
-  ezAssetActions::MapMenuActions(szMenuBar);
-  ezCommandHistoryActions::MapActions(szMenuBar);
+      ezActionMapManager::RegisterActionMap(szMenuBar).IgnoreResult();
+      ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
+      ezProjectActions::MapActions(szMenuBar);
+      ezDocumentActions::MapMenuActions(szMenuBar);
+      ezAssetActions::MapMenuActions(szMenuBar);
+      ezCommandHistoryActions::MapActions(szMenuBar);
 
-  ezEditActions::MapActions("SubstanceAssetMenuBar", false, false);
-}
+      ezEditActions::MapActions("SubstanceAssetMenuBar", false, false);
+    }
 
-// Tool Bar
-{
-  const char* szToolBar = "SubstanceAssetToolBar";
-  ezActionMapManager::RegisterActionMap(szToolBar).IgnoreResult();
-  ezDocumentActions::MapToolbarActions(szToolBar);
-  ezCommandHistoryActions::MapActions(szToolBar, "");
-  ezAssetActions::MapToolBarActions(szToolBar, true);
-}
-}
-
-// Scene
-{
-  // Menu Bar
-  {}
-
-  // Tool Bar
-  {
+    // Tool Bar
+    {
+      const char* szToolBar = "SubstanceAssetToolBar";
+      ezActionMapManager::RegisterActionMap(szToolBar).IgnoreResult();
+      ezDocumentActions::MapToolbarActions(szToolBar);
+      ezCommandHistoryActions::MapActions(szToolBar, "");
+      ezAssetActions::MapToolBarActions(szToolBar, true);
+    }
   }
-}
+
+  // Scene
+  {
+    // Menu Bar
+    {
+    }
+
+    // Tool Bar
+    {
+    }
+  }
 }
 
 void OnUnloadPlugin()

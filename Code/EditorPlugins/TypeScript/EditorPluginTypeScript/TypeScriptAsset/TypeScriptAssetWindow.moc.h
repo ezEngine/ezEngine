@@ -70,4 +70,3 @@ private:
   QSet<QString> m_BuiltIn;
   QColor m_Colors[JSEdit::Count];
 };
-

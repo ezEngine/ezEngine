@@ -3,7 +3,7 @@
 #include "StandardMacros.h"
 
 #ifndef PLATFORM_SHADER
-#define PLATFORM_SHADER EZ_OFF
+#  define PLATFORM_SHADER EZ_OFF
 #endif
 
 #define PLATFORM_DX11 EZ_OFF
@@ -11,11 +11,11 @@
 
 #if defined(DX11_SM40_93) || defined(DX11_SM40) || defined(DX11_SM41) || defined(DX11_SM50)
 
-  #undef PLATFORM_SHADER
-  #define PLATFORM_SHADER EZ_ON
+#  undef PLATFORM_SHADER
+#  define PLATFORM_SHADER EZ_ON
 
-  #undef PLATFORM_DX11
-  #define PLATFORM_DX11 EZ_ON
+#  undef PLATFORM_DX11
+#  define PLATFORM_DX11 EZ_ON
 
 // DX11 does not support push constants, so we just emulate them via a normal constant buffer.
 
@@ -61,14 +61,16 @@ float4 select(bool4 condition, float4 yes, float4 no)
 
 #if defined(VULKAN)
 
-  #undef PLATFORM_SHADER
-  #define PLATFORM_SHADER EZ_ON
+#  undef PLATFORM_SHADER
+#  define PLATFORM_SHADER EZ_ON
 
-  #undef PLATFORM_VULKAN
-  #define PLATFORM_VULKAN EZ_ON
+#  undef PLATFORM_VULKAN
+#  define PLATFORM_VULKAN EZ_ON
 
 #  define BEGIN_PUSH_CONSTANTS(Name) struct EZ_SHADER_STRUCT EZ_CONCAT(Name, _PushConstants)
-#  define END_PUSH_CONSTANTS(Name) ; [[vk::push_constant]] EZ_CONCAT(Name, _PushConstants) Name;
+#  define END_PUSH_CONSTANTS(Name) \
+    ;                              \
+    [[vk::push_constant]] EZ_CONCAT(Name, _PushConstants) Name;
 #  define GET_PUSH_CONSTANT(Name, Constant) Name.Constant
 
 // GetRenderTargetSamplePosition does not have an equivalent function in Vulkan so these values are hard-coded.

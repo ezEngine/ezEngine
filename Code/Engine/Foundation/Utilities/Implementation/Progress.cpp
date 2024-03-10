@@ -255,5 +255,3 @@ bool ezProgressRange::WasCanceled() const
 
   return true;
 }
-
-

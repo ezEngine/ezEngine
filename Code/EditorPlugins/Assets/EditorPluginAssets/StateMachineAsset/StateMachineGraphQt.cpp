@@ -141,7 +141,8 @@ void ezQtStateMachineNode::ExtendContextMenu(QMenu& ref_menu)
   QAction* pAction = new QAction("Set as Initial State", &ref_menu);
   pAction->setEnabled(IsInitialState() == false);
   pAction->connect(pAction, &QAction::triggered,
-    [this]() {
+    [this]()
+    {
       auto pScene = static_cast<ezQtStateMachineAssetScene*>(scene());
       pScene->SetInitialState(this);
     });

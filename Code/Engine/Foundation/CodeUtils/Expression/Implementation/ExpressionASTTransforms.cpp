@@ -463,7 +463,7 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
     auto pXX = CreateBinaryOperator(NodeType::Multiply, pX, pX);
 
     if (nodeType == NodeType::SmoothStep)
-    {      
+    {
       auto p2X = CreateBinaryOperator(NodeType::Multiply, pX, CreateConstant(2));
       auto p3Minus2X = CreateBinaryOperator(NodeType::Subtract, CreateConstant(3), p2X);
       return CreateBinaryOperator(NodeType::Multiply, pXX, p3Minus2X);
@@ -1071,5 +1071,3 @@ ezResult ezExpressionAST::ScalarizeOutputs()
 
   return EZ_SUCCESS;
 }
-
-

@@ -31,7 +31,8 @@ struct ezBakedProbesComponent::RenderDebugViewTask : public ezTask
     EZ_ASSERT_DEV(m_PixelData.GetCount() == m_uiWidth * m_uiHeight, "Pixel data must be pre-allocated");
 
     ezProgress progress;
-    progress.m_Events.AddEventHandler([this](const ezProgressEvent& e) {
+    progress.m_Events.AddEventHandler([this](const ezProgressEvent& e)
+      {
       if (e.m_Type != ezProgressEvent::Type::CancelClicked)
       {
         if (HasBeenCanceled())
@@ -39,8 +40,7 @@ struct ezBakedProbesComponent::RenderDebugViewTask : public ezTask
           e.m_pProgressbar->UserClickedCancel();
         }
         m_bHasNewData = true;
-      }
-    });
+      } });
 
     if (m_pBakingInterface->RenderDebugView(*m_pWorld, m_InverseViewProjection, m_uiWidth, m_uiHeight, m_PixelData, progress).Succeeded())
     {
@@ -299,7 +299,8 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
   const ezGameObject* pOwner = GetOwner();
   auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
 
-  auto addProbeRenderData = [&](const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching) {
+  auto addProbeRenderData = [&](const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching)
+  {
     ezTransform transform = ezTransform::MakeIdentity();
     transform.m_vPosition = vPosition;
 

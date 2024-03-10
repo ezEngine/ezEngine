@@ -75,5 +75,3 @@ void ezCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)
 }
 
 #endif
-
-

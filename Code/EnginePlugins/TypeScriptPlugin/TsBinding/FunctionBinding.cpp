@@ -28,7 +28,8 @@ void ezTypeScriptBinding::SetupRttiFunctionBindings()
     return;
 
   ezRTTI::ForEachDerivedType<ezComponent>(
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       for (const ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
       {
         // TODO: static members ?

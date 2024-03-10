@@ -85,5 +85,3 @@ void ezGlobalEvent::PrintGlobalEventStatistics()
     ++it;
   }
 }
-
-

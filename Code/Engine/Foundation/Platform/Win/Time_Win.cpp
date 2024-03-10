@@ -36,5 +36,3 @@ ezTime ezTime::Now()
 }
 
 #endif
-
-

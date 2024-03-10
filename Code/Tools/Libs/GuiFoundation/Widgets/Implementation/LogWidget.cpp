@@ -14,7 +14,8 @@ ezQtLogWidget::ezQtLogWidget(QWidget* pParent)
   ListViewLog->setModel(m_pLog);
   ListViewLog->setUniformItemSizes(true);
   ListViewLog->installEventFilter(this);
-  connect(m_pLog, &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex& parent, int iFirst, int iLast) { ScrollToBottomIfAtEnd(iFirst); });
+  connect(m_pLog, &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex& parent, int iFirst, int iLast)
+    { ScrollToBottomIfAtEnd(iFirst); });
 
   const int logIndex = ((int)ezLogMsgType::All - (int)ezLogMsgType::InfoMsg);
   ComboFilter->setCurrentIndex(logIndex);

@@ -55,7 +55,7 @@ void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRend
         tri.m_position[vtxIdx].Set(vtxPos[0], vtxPos[2], vtxPos[1] + 0.05f); // swap Y and Z and move it up slightly
       }
 
-      ezMath::Swap(tri.m_position[1], tri.m_position[2]); // fix the triangle winding
+      ezMath::Swap(tri.m_position[1], tri.m_position[2]);                    // fix the triangle winding
     }
   }
 }
@@ -91,7 +91,7 @@ void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInner
       {
         if (p->neis[vtxIdx] & DT_EXT_LINK) // Border between tiles.
         {
-          bool bIsConnected = false; // Connected to solid edge.
+          bool bIsConnected = false;       // Connected to solid edge.
 
           for (ezUInt32 linkIdx = p->firstLink; linkIdx != DT_NULL_LINK; linkIdx = meshTile.links[linkIdx].next)
           {
@@ -105,12 +105,12 @@ void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInner
           if (bIsConnected)
             edgeColor = ezColor::Blue; // border with a neighboring tile that is loaded
           else
-            edgeColor = ezColor::Red; // border with a neighboring tile that is not loaded
+            edgeColor = ezColor::Red;  // border with a neighboring tile that is not loaded
         }
         else
         {
           if (!bInnerDetailEdges)
-            continue; // Skip inner detail edges.
+            continue;                    // Skip inner detail edges.
 
           edgeColor = ezColor::DarkGrey; // inner detail region boundary
         }

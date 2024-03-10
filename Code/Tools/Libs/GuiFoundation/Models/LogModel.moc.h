@@ -60,4 +60,3 @@ private:
   ezUInt32 m_uiNumSeriousWarnings = 0;
   ezUInt32 m_uiNumWarnings = 0;
 };
-

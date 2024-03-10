@@ -15,7 +15,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor / Reset")
   {
-    ezClock c("Test"); // calls 'Reset' internally
+    ezClock c("Test");                                 // calls 'Reset' internally
 
     EZ_TEST_BOOL(c.GetTimeStepSmoothing() == nullptr); // after constructor
 

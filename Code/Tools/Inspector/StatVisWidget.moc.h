@@ -62,4 +62,3 @@ private:
 
   ezMap<ezString, StatsData> m_Stats;
 };
-

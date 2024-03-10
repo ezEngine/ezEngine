@@ -245,5 +245,3 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
 }
 
 #endif
-
-

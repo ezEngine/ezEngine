@@ -1,8 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>

@@ -64,5 +64,3 @@ ezUInt64 ezHashStreamWriter64::GetHashValue() const
 {
   return XXH64_digest((XXH64_state_t*)m_pState);
 }
-
-

@@ -8,5 +8,3 @@ ezGALBuffer::ezGALBuffer(const ezGALBufferCreationDescription& Description)
 }
 
 ezGALBuffer::~ezGALBuffer() = default;
-
-

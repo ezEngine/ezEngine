@@ -1,8 +1,8 @@
 #include <Core/CorePCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Collection/CollectionResource.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionResource, 1, ezRTTIDefaultAllocator<ezCollectionResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

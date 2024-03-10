@@ -38,5 +38,3 @@ ezResult ezTexConvProcessor::AssembleCubemap(ezImage& dst) const
 
   return EZ_SUCCESS;
 }
-
-

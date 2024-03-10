@@ -237,5 +237,3 @@ void ezTaskSystem::DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_Fir
     }
   }
 }
-
-

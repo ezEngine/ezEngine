@@ -73,16 +73,16 @@ public:
   /// \brief Can be called at any time to stop moving.
   void CancelNavigation();
 
-  ezHashedString m_sNavmeshConfig;    ///< [ property ] Which navmesh to walk on.
-  ezHashedString m_sPathSearchConfig; ///< [ property ] What constraints there are for walking on the navmesh.
+  ezHashedString m_sNavmeshConfig;                   ///< [ property ] Which navmesh to walk on.
+  ezHashedString m_sPathSearchConfig;                ///< [ property ] What constraints there are for walking on the navmesh.
 
-  float m_fReachedDistance = 1.0f; ///< [ property ] The distance at which the destination is considered to be reached.
-  float m_fSpeed = 5.0f;           ///< [ property ] The target speed to reach.
-  float m_fFootRadius = 0.15f;     ///< [ property ] The footprint to determine whether the character is standing on solid ground.
-  ezUInt32 m_uiCollisionLayer = 0; ///< [ property ] The physics collision layer for determining what ground one can stand on.
-  float m_fFallHeight = 0.7f;      ///< [ property ] If there is more distance below the character than this, it is considered to be falling.
-  float m_fAcceleration = 3.0f;    ///< [ property ] How fast to gain speed.
-  float m_fDecceleration = 8.0f;   ///< [ property ] How fast to brake.
+  float m_fReachedDistance = 1.0f;                   ///< [ property ] The distance at which the destination is considered to be reached.
+  float m_fSpeed = 5.0f;                             ///< [ property ] The target speed to reach.
+  float m_fFootRadius = 0.15f;                       ///< [ property ] The footprint to determine whether the character is standing on solid ground.
+  ezUInt32 m_uiCollisionLayer = 0;                   ///< [ property ] The physics collision layer for determining what ground one can stand on.
+  float m_fFallHeight = 0.7f;                        ///< [ property ] If there is more distance below the character than this, it is considered to be falling.
+  float m_fAcceleration = 3.0f;                      ///< [ property ] How fast to gain speed.
+  float m_fDecceleration = 8.0f;                     ///< [ property ] How fast to brake.
 
   ezBitflags<ezAiNavigationDebugFlags> m_DebugFlags; ///< [ property ] What aspects of the navigation to visualize.
 

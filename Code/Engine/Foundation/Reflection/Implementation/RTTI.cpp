@@ -20,7 +20,8 @@ ezTypeData* GetTypeData()
 {
   // Prevent static initialization hazard between first ezRTTI instance
   // and type data and also make sure it is sufficiently sized before first use.
-  auto CreateData = []() -> ezTypeData* {
+  auto CreateData = []() -> ezTypeData*
+  {
     ezTypeData* pData = new ezTypeData();
     pData->m_TypeNameHashToType.Reserve(512);
     pData->m_AllTypes.Reserve(512);
@@ -195,7 +196,8 @@ void ezRTTI::VerifyCorrectness() const
 
 void ezRTTI::VerifyCorrectnessForAllTypes()
 {
-  ezRTTI::ForEachType([](const ezRTTI* pRtti) { pRtti->VerifyCorrectness(); });
+  ezRTTI::ForEachType([](const ezRTTI* pRtti)
+    { pRtti->VerifyCorrectness(); });
 }
 
 
@@ -269,7 +271,8 @@ const ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt64 uiNameHash)
 
 const ezRTTI* ezRTTI::FindTypeByNameHash32(ezUInt32 uiNameHash)
 {
-  return FindTypeIf([=](const ezRTTI* pRtti) { return (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiNameHash); });
+  return FindTypeIf([=](const ezRTTI* pRtti)
+    { return (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiNameHash); });
 }
 
 const ezRTTI* ezRTTI::FindTypeIf(PredicateFunc func)
@@ -362,7 +365,7 @@ void ezRTTI::ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options /*
 
   pData->m_bIterating = true;
   // Can't use ranged based for loop here since we might add new types while iterating and the m_AllTypes array might re-allocate.
-  for (ezUInt32 i = 0; i < pData->m_AllTypes.GetCount(); ++i) 
+  for (ezUInt32 i = 0; i < pData->m_AllTypes.GetCount(); ++i)
   {
     auto pRtti = pData->m_AllTypes.GetData()[i];
     if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && (pRtti->GetAllocator() == nullptr || pRtti->GetAllocator()->CanAllocate() == false))

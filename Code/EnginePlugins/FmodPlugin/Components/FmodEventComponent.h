@@ -91,34 +91,34 @@ public:
   ezFmodEventComponent();
   ~ezFmodEventComponent();
 
-  void SetPaused(bool b);                      // [ property ]
-  bool GetPaused() const { return m_bPaused; } // [ property ]
+  void SetPaused(bool b);                                                            // [ property ]
+  bool GetPaused() const { return m_bPaused; }                                       // [ property ]
 
-  void SetUseOcclusion(bool b);                            // [ property ]
-  bool GetUseOcclusion() const { return m_bUseOcclusion; } // [ property ]
+  void SetUseOcclusion(bool b);                                                      // [ property ]
+  bool GetUseOcclusion() const { return m_bUseOcclusion; }                           // [ property ]
 
   void SetOcclusionCollisionLayer(ezUInt8 uiCollisionLayer);                         // [ property ]
   ezUInt8 GetOcclusionCollisionLayer() const { return m_uiOcclusionCollisionLayer; } // [ property ]
 
-  void SetOcclusionThreshold(float fThreshold); // [ property ]
-  float GetOcclusionThreshold() const;          // [ property ]
+  void SetOcclusionThreshold(float fThreshold);                                      // [ property ]
+  float GetOcclusionThreshold() const;                                               // [ property ]
 
-  void SetPitch(float f);                     // [ property ]
-  float GetPitch() const { return m_fPitch; } // [ property ]
+  void SetPitch(float f);                                                            // [ property ]
+  float GetPitch() const { return m_fPitch; }                                        // [ property ]
 
-  void SetVolume(float f);                      // [ property ]
-  float GetVolume() const { return m_fVolume; } // [ property ]
+  void SetVolume(float f);                                                           // [ property ]
+  float GetVolume() const { return m_fVolume; }                                      // [ property ]
 
-  void SetSoundEventFile(const char* szFile); // [ property ]
-  const char* GetSoundEventFile() const;      // [ property ]
+  void SetSoundEventFile(const char* szFile);                                        // [ property ]
+  const char* GetSoundEventFile() const;                                             // [ property ]
 
   void SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent);
   const ezFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; }
 
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
 
-  void SetShowDebugInfo(bool bShow); // [ property ]
-  bool GetShowDebugInfo() const;     // [ property ]
+  void SetShowDebugInfo(bool bShow);                      // [ property ]
+  bool GetShowDebugInfo() const;                          // [ property ]
 
   /// \brief Will start the sound, if it was not playing. Will restart the sound, if it was already playing.
   /// If the sound was paused so far, this will change the paused state to playing.
@@ -156,7 +156,7 @@ public:
   void OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg); // [ msg handler ]
 
 protected:
-  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg); // [ msg handler ]
+  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);       // [ msg handler ]
 
   void Update();
   void UpdateParameters(FMOD::Studio::EventInstance* pInstance);

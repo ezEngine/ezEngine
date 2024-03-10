@@ -11,8 +11,8 @@
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Shader/Types.h>
 
 ezCVarBool cvar_FeatureRopesVisBones("Feature.Ropes.VisBones", false, ezCVarFlags::Default, "Enables debug visualization of rope bones");
 
@@ -310,7 +310,8 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
   const ezAngle fDegStep = ezAngle::MakeFromDegree(360.0f / m_uiDetail);
   const float fVStep = 1.0f / m_uiDetail;
 
-  auto addCap = [&](float x, const ezVec3& vNormal, ezUInt16 uiBoneIndex, bool bFlipWinding) {
+  auto addCap = [&](float x, const ezVec3& vNormal, ezUInt16 uiBoneIndex, bool bFlipWinding)
+  {
     ezVec4U16 boneIndices(uiBoneIndex, 0, 0, 0);
 
     ezUInt32 centerIndex = geom.AddVertex(ezVec3(x, 0, 0), vNormal, ezVec2(0.5f, 0.5f), ezColor::White, boneIndices);
@@ -337,7 +338,8 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
     }
   };
 
-  auto addPiece = [&](float x, const ezVec4U16& vBoneIndices, const ezColorLinearUB& boneWeights, bool bCreatePolygons) {
+  auto addPiece = [&](float x, const ezVec4U16& vBoneIndices, const ezColorLinearUB& boneWeights, bool bCreatePolygons)
+  {
     ezAngle deg = ezAngle::MakeFromRadian(0);
     float fU = x * m_fUScale;
     float fV = 0;

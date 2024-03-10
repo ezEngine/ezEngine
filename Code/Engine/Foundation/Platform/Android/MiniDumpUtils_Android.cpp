@@ -5,5 +5,3 @@
 #  include <Foundation/Platform/Posix/MiniDumpUtils_Posix.h>
 
 #endif
-
-

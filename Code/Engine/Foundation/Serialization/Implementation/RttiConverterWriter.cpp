@@ -157,7 +157,8 @@ ezRttiConverterWriter::ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRt
   m_pGraph = pGraph;
   m_pContext = pContext;
 
-  m_Filter = [bSerializeReadOnly, bSerializeOwnerPtrs](const void* pObject, const ezAbstractProperty* pProp) {
+  m_Filter = [bSerializeReadOnly, bSerializeOwnerPtrs](const void* pObject, const ezAbstractProperty* pProp)
+  {
     if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly) && !bSerializeReadOnly)
       return false;
 
@@ -449,5 +450,3 @@ void ezRttiConverterWriter::AddProperties(ezAbstractObjectNode* pNode, const ezR
     AddProperty(pNode, pProp, pObject);
   }
 }
-
-

@@ -40,7 +40,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     EZ_TEST_INT(s.GetHash(), 0x890e0a4c7111eb87llu);
 
     ezTempHashedString ts("dummy");
-    ts = "test"; // compile time hashing
+    ts = "test";       // compile time hashing
     EZ_TEST_INT(ts.GetHash(), 0x4fdcca5ddb678139llu);
 
     ts = sb.GetData(); // runtime hashing

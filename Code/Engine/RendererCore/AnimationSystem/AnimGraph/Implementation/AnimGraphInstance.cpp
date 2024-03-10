@@ -56,5 +56,3 @@ void ezAnimGraphInstance::Update(ezAnimController& ref_controller, ezTime diff, 
     pNode->Step(ref_controller, *this, diff, pSekeltonResource, pTarget);
   }
 }
-
-

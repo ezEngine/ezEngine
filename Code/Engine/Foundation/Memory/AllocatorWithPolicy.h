@@ -15,7 +15,7 @@ EZ_MAKE_MEMBERFUNCTION_CHECKER(Reallocate, ezHasReallocate);
 /// TrackingFlags defines how stats about allocations are tracked.\n
 template <typename AllocationPolicy, ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default>
 class ezAllocatorWithPolicy : public ezInternal::ezAllocatorMixinReallocate<AllocationPolicy, TrackingMode,
-                      ezHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>
+                                ezHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>
 {
 public:
   ezAllocatorWithPolicy(ezStringView sName, ezAllocator* pParent = nullptr)

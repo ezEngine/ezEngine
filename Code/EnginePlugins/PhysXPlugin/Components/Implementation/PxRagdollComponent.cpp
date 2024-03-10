@@ -724,43 +724,43 @@ void ezPxRagdollComponent::AddLimbGeometry(ezBasisAxis::Enum srcBoneDir, physx::
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 
-  //PxFilterData pxFilterData = ezPhysX::CreateFilterData(geo.m_uiCollisionLayer, m_uiPxShapeID);
+  // PxFilterData pxFilterData = ezPhysX::CreateFilterData(geo.m_uiCollisionLayer, m_uiPxShapeID);
 
-  //physx::PxMaterial* pxMaterial = nullptr;
-  //if (geo.m_hSurface.IsValid())
+  // physx::PxMaterial* pxMaterial = nullptr;
+  // if (geo.m_hSurface.IsValid())
   //{
-  //  ezResourceLock<ezSurfaceResource> pSurface(geo.m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
+  //   ezResourceLock<ezSurfaceResource> pSurface(geo.m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
 
   //  if (pSurface->m_pPhysicsMaterialPhysX != nullptr)
   //  {
   //    pxMaterial = static_cast<physx::PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
   //  }
   //}
-  //else
+  // else
   //  pxMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
 
-  //PxShape* pShape = nullptr;
+  // PxShape* pShape = nullptr;
 
-  //const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
+  // const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
 
-  //const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
+  // const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
 
-  //ezTransform st;
-  //st.SetIdentity();
-  //st.m_vPosition = /*boneTrans.GetTranslationVector() +*/ qFinalBoneRot * geo.m_Transform.m_vPosition;
-  //st.m_qRotation = qFinalBoneRot * geo.m_Transform.m_qRotation;
+  // ezTransform st;
+  // st.SetIdentity();
+  // st.m_vPosition = /*boneTrans.GetTranslationVector() +*/ qFinalBoneRot * geo.m_Transform.m_vPosition;
+  // st.m_qRotation = qFinalBoneRot * geo.m_Transform.m_qRotation;
 
-  //if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
+  // if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
   //{
-  //  PxSphereGeometry shape(geo.m_Transform.m_vScale.z);
-  //  pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
-  //}
-  //else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
+  //   PxSphereGeometry shape(geo.m_Transform.m_vScale.z);
+  //   pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
+  // }
+  // else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
   //{
-  //  ezVec3 ext;
-  //  ext.x = geo.m_Transform.m_vScale.x * 0.5f;
-  //  ext.y = geo.m_Transform.m_vScale.y * 0.5f;
-  //  ext.z = geo.m_Transform.m_vScale.z * 0.5f;
+  //   ezVec3 ext;
+  //   ext.x = geo.m_Transform.m_vScale.x * 0.5f;
+  //   ext.y = geo.m_Transform.m_vScale.y * 0.5f;
+  //   ext.z = geo.m_Transform.m_vScale.z * 0.5f;
 
   //  // TODO: if offset desired
   //  st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
@@ -768,7 +768,7 @@ void ezPxRagdollComponent::AddLimbGeometry(ezBasisAxis::Enum srcBoneDir, physx::
   //  PxBoxGeometry shape(ext.x, ext.y, ext.z);
   //  pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
   //}
-  //else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
+  // else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
   //{
   //  PxCapsuleGeometry shape(geo.m_Transform.m_vScale.z, geo.m_Transform.m_vScale.x * 0.5f);
   //  pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
@@ -776,13 +776,13 @@ void ezPxRagdollComponent::AddLimbGeometry(ezBasisAxis::Enum srcBoneDir, physx::
   //  // TODO: if offset desired
   //  st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
   //}
-  //else
+  // else
   //{
   //  EZ_ASSERT_NOT_IMPLEMENTED;
   //}
 
-  //pShape->setLocalPose(ezPxConversionUtils::ToTransform(st));
-  //pShape->setSimulationFilterData(pxFilterData);
-  //pShape->setQueryFilterData(pxFilterData);
-  //pShape->userData = m_pPxUserData;
+  // pShape->setLocalPose(ezPxConversionUtils::ToTransform(st));
+  // pShape->setSimulationFilterData(pxFilterData);
+  // pShape->setQueryFilterData(pxFilterData);
+  // pShape->userData = m_pPxUserData;
 }

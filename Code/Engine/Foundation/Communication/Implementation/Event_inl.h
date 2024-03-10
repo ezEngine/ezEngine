@@ -202,9 +202,8 @@ void ezEventBase<EventData, MutexType, EventType>::Broadcast(EventData eventData
     m_uiRecursionDepth++;
 
     // RAII to ensure correctness in case exceptions are used
-    auto scopeExit = ezMakeScopeExit([&]() {
-      m_uiRecursionDepth--;
-    });
+    auto scopeExit = ezMakeScopeExit([&]()
+      { m_uiRecursionDepth--; });
 
     // don't execute handlers that are added while we are broadcasting
     ezUInt32 uiMaxHandlers = m_EventHandlers.GetCount();
@@ -255,20 +254,21 @@ void ezEventBase<EventData, MutexType, EventType>::Broadcast(EventData eventData
     }
 
     // RAII to ensure correctness in case exceptions are used
-    auto scopeExit = ezMakeScopeExit([&]() {
+    auto scopeExit = ezMakeScopeExit([&]()
+      {
     // Bug in MSVC 2017. Can't use if constexpr.
 #if EZ_ENABLED(EZ_COMPILER_MSVC) && _MSC_VER < 1920
-      if (RecursionDepthSupported)
-      {
-        m_uiRecursionDepth--;
-      }
+        if (RecursionDepthSupported)
+        {
+          m_uiRecursionDepth--;
+        }
 #else
-      if constexpr (RecursionDepthSupported)
-      {
-        m_uiRecursionDepth--;
-      }
+        if constexpr (RecursionDepthSupported)
+        {
+          m_uiRecursionDepth--;
+        }
 #endif
-    });
+      });
 
     const ezUInt32 uiHandlerCount = eventHandlers.GetCount();
     for (ezUInt32 ui = 0; ui < uiHandlerCount; ++ui)

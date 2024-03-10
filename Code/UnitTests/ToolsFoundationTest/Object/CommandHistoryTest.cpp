@@ -9,7 +9,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
   doc.InitializeAfterLoading(false);
   ezObjectAccessorBase* pAccessor = doc.GetObjectAccessor();
 
-  auto CreateObject = [&doc, &pAccessor](const ezRTTI* pType) -> const ezDocumentObject* {
+  auto CreateObject = [&doc, &pAccessor](const ezRTTI* pType) -> const ezDocumentObject*
+  {
     ezUuid objGuid;
     pAccessor->StartTransaction("Add Object");
     EZ_TEST_STATUS(pAccessor->AddObject(nullptr, (const ezAbstractProperty*)nullptr, -1, pType, objGuid));
@@ -17,14 +18,18 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     return pAccessor->GetObject(objGuid);
   };
 
-  auto StoreOriginalState = [&doc](ezAbstractObjectGraph& ref_graph, const ezDocumentObject* pRoot) {
-    ezDocumentObjectConverterWriter writer(&ref_graph, doc.GetObjectManager(), [](const ezDocumentObject*, const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
+  auto StoreOriginalState = [&doc](ezAbstractObjectGraph& ref_graph, const ezDocumentObject* pRoot)
+  {
+    ezDocumentObjectConverterWriter writer(&ref_graph, doc.GetObjectManager(), [](const ezDocumentObject*, const ezAbstractProperty* p)
+      { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
     ezAbstractObjectNode* pAbstractObj = writer.AddObjectToGraph(pRoot);
   };
 
-  auto CompareAgainstOriginalState = [&doc](ezAbstractObjectGraph& ref_original, const ezDocumentObject* pRoot) {
+  auto CompareAgainstOriginalState = [&doc](ezAbstractObjectGraph& ref_original, const ezDocumentObject* pRoot)
+  {
     ezAbstractObjectGraph graph;
-    ezDocumentObjectConverterWriter writer2(&graph, doc.GetObjectManager(), [](const ezDocumentObject*, const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
+    ezDocumentObjectConverterWriter writer2(&graph, doc.GetObjectManager(), [](const ezDocumentObject*, const ezAbstractProperty* p)
+      { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
     ezAbstractObjectNode* pAbstractObj2 = writer2.AddObjectToGraph(pRoot);
 
     ezDeque<ezAbstractGraphDiffOperation> diff;
@@ -45,7 +50,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
 
     EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), 1);
 
-    auto TestSetValue = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant value) {
+    auto TestSetValue = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant value)
+    {
       ezAbstractObjectGraph graph;
       StoreOriginalState(graph, pObject);
 
@@ -153,7 +159,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "InsertValue")
   {
-    auto TestInsertValue = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant value, ezVariant index) {
+    auto TestInsertValue = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant value, ezVariant index)
+    {
       ezAbstractObjectGraph graph;
       StoreOriginalState(graph, pObject);
 
@@ -199,7 +206,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MoveValue")
   {
-    auto TestMoveValue = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant oldIndex, ezVariant newIndex, ezArrayPtr<ezVariant> expectedOutcome) {
+    auto TestMoveValue = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant oldIndex, ezVariant newIndex, ezArrayPtr<ezVariant> expectedOutcome)
+    {
       ezAbstractObjectGraph graph;
       StoreOriginalState(graph, pObject);
 
@@ -307,7 +315,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveValue")
   {
-    auto TestRemoveValue = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant index, ezArrayPtr<ezVariant> expectedOutcome) {
+    auto TestRemoveValue = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant index, ezArrayPtr<ezVariant> expectedOutcome)
+    {
       ezAbstractObjectGraph graph;
       StoreOriginalState(graph, pObject);
 
@@ -430,7 +439,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     }
   }
 
-  auto CreateGuid = [](const char* szType, ezInt32 iIndex) -> ezUuid {
+  auto CreateGuid = [](const char* szType, ezInt32 iIndex) -> ezUuid
+  {
     ezUuid A = ezUuid::MakeStableUuidFromString(szType);
     ezUuid B = ezUuid::MakeStableUuidFromInt(iIndex);
     A.CombineWithSeed(B);
@@ -439,7 +449,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddObject")
   {
-    auto TestAddObject = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant index, const ezRTTI* pType, ezUuid& inout_object) {
+    auto TestAddObject = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant index, const ezRTTI* pType, ezUuid& inout_object)
+    {
       ezAbstractObjectGraph graph;
       StoreOriginalState(graph, pObject);
 
@@ -514,13 +525,15 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MoveObject")
   {
-    auto TestMoveObjectFailure = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant newIndex) {
+    auto TestMoveObjectFailure = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant newIndex)
+    {
       pAccessor->StartTransaction("MoveObject");
       EZ_TEST_BOOL(pAccessor->MoveObject(pObject, pObject->GetParent(), szProperty, newIndex).Failed());
       pAccessor->CancelTransaction();
     };
 
-    auto TestMoveObject = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant newIndex, ezArrayPtr<ezUuid> expectedOutcome) {
+    auto TestMoveObject = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant newIndex, ezArrayPtr<ezUuid> expectedOutcome)
+    {
       ezAbstractObjectGraph graph;
       StoreOriginalState(graph, pObject->GetParent());
 
@@ -604,7 +617,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObject")
   {
-    auto TestRemoveObject = [&](const ezDocumentObject* pObject, ezArrayPtr<ezUuid> expectedOutcome) {
+    auto TestRemoveObject = [&](const ezDocumentObject* pObject, ezArrayPtr<ezUuid> expectedOutcome)
+    {
       auto pParent = pObject->GetParent();
       ezString sProperty = pObject->GetParentProperty();
 
@@ -692,7 +706,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       }
     };
 
-    auto ClearContainer = [&](const char* szContainer) {
+    auto ClearContainer = [&](const char* szContainer)
+    {
       ezUuid A = CreateGuid(szContainer, 0);
       ezUuid B = CreateGuid(szContainer, 1);
       ezUuid C = CreateGuid(szContainer, 2);

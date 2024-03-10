@@ -139,5 +139,3 @@ void ezHashedString::Clear()
   m_Data = s_pHSData->m_Empty;
 #endif
 }
-
-

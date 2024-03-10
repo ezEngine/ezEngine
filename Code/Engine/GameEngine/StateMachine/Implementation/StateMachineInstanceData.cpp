@@ -6,5 +6,3 @@ namespace ezStateMachineInternal
 {
 
 } // namespace ezStateMachineInternal
-
-

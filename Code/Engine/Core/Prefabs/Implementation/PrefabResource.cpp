@@ -1,9 +1,9 @@
 #include <Core/CorePCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/Reflection/PropertyPath.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabResource, 1, ezRTTIDefaultAllocator<ezPrefabResource>)
@@ -197,7 +197,8 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
     }
 
     // sort exposed parameter descriptions by name hash for quicker access
-    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
+    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+      { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
   }
 
   res.m_State = ezResourceState::Loaded;

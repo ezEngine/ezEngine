@@ -34,21 +34,21 @@ public:
   ezBoxReflectionProbeComponent();
   ~ezBoxReflectionProbeComponent();
 
-  const ezVec3& GetExtents() const;       // [ property ]
-  void SetExtents(const ezVec3& vExtents); // [ property ]
+  const ezVec3& GetExtents() const;                                       // [ property ]
+  void SetExtents(const ezVec3& vExtents);                                // [ property ]
 
-  const ezVec3& GetInfluenceScale() const;               // [ property ]
-  void SetInfluenceScale(const ezVec3& vInfluenceScale); // [ property ]
-  const ezVec3& GetInfluenceShift() const;               // [ property ]
-  void SetInfluenceShift(const ezVec3& vInfluenceShift); // [ property ]
+  const ezVec3& GetInfluenceScale() const;                                // [ property ]
+  void SetInfluenceScale(const ezVec3& vInfluenceScale);                  // [ property ]
+  const ezVec3& GetInfluenceShift() const;                                // [ property ]
+  void SetInfluenceShift(const ezVec3& vInfluenceShift);                  // [ property ]
 
   void SetPositiveFalloff(const ezVec3& vFalloff);                        // [ property ]
   const ezVec3& GetPositiveFalloff() const { return m_vPositiveFalloff; } // [ property ]
   void SetNegativeFalloff(const ezVec3& vFalloff);                        // [ property ]
   const ezVec3& GetNegativeFalloff() const { return m_vNegativeFalloff; } // [ property ]
 
-  void SetBoxProjection(bool bBoxProjection);                // [ property ]
-  bool GetBoxProjection() const { return m_bBoxProjection; } // [ property ]
+  void SetBoxProjection(bool bBoxProjection);                             // [ property ]
+  bool GetBoxProjection() const { return m_bBoxProjection; }              // [ property ]
 
 protected:
   //////////////////////////////////////////////////////////////////////////

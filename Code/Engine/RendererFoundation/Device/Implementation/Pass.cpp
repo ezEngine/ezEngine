@@ -70,5 +70,3 @@ ezGALPass::ezGALPass(ezGALDevice& device)
 }
 
 ezGALPass::~ezGALPass() = default;
-
-

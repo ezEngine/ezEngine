@@ -78,7 +78,7 @@ private:
     ezUInt16 m_uiParentBranchNodeID = 0; // at which node of the parent, this branch is attached
     ezUInt8 m_uiBranchLevel = 0;
     ezDynamicArray<BranchNodeExtraData> m_Nodes;
-    float m_fDistanceToAnchor = 0; // this will be zero for level 0 (trunk) and 1 (main branches) and only > 0 starting at level 2 (twigs)
+    float m_fDistanceToAnchor = 0;       // this will be zero for level 0 (trunk) and 1 (main branches) and only > 0 starting at level 2 (twigs)
     float m_fBendinessToAnchor = 0;
     ezUInt32 m_uiRandomNumber = 0;
   };

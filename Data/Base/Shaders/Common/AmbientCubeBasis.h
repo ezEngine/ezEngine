@@ -28,8 +28,7 @@ void AddSampleToAmbientCube(inout AmbientCubeFloat3 ac, float3 value, float3 dir
 
 void AddAmbientCube(inout AmbientCubeFloat3 a, AmbientCubeFloat3 b)
 {
-  [unroll]
-  for (uint i = 0; i < AMBIENT_CUBE_NUM_DIRS; ++i)
+  [unroll] for (uint i = 0; i < AMBIENT_CUBE_NUM_DIRS; ++i)
   {
     a.m_Values[i] += b.m_Values[i];
   }

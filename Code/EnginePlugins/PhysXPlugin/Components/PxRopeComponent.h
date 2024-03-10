@@ -58,19 +58,19 @@ public:
   bool GetDisableGravity() const { return m_bDisableGravity; } // [ property ]
   void SetDisableGravity(bool b);                              // [ property ]
 
-  void SetSurfaceFile(const char* szFile); // [ property ]
-  const char* GetSurfaceFile() const;      // [ property ]
+  void SetSurfaceFile(const char* szFile);                     // [ property ]
+  const char* GetSurfaceFile() const;                          // [ property ]
 
-  ezUInt8 m_uiCollisionLayer = 0;           // [ property ]
-  ezUInt16 m_uiPieces = 16;                 // [ property ]
-  float m_fThickness = 0.05f;               // [ property ]
-  float m_fSlack = 0.3f;                    // [ property ]
-  bool m_bAttachToOrigin = true;            // [ property ]
-  bool m_bAttachToAnchor = true;            // [ property ]
-  ezAngle m_MaxBend = ezAngle::MakeFromDegree(30);  // [ property ]
-  ezAngle m_MaxTwist = ezAngle::MakeFromDegree(15); // [ property ]
+  ezUInt8 m_uiCollisionLayer = 0;                              // [ property ]
+  ezUInt16 m_uiPieces = 16;                                    // [ property ]
+  float m_fThickness = 0.05f;                                  // [ property ]
+  float m_fSlack = 0.3f;                                       // [ property ]
+  bool m_bAttachToOrigin = true;                               // [ property ]
+  bool m_bAttachToAnchor = true;                               // [ property ]
+  ezAngle m_MaxBend = ezAngle::MakeFromDegree(30);             // [ property ]
+  ezAngle m_MaxTwist = ezAngle::MakeFromDegree(15);            // [ property ]
 
-  void SetAnchorReference(const char* szReference); // [ property ]
+  void SetAnchorReference(const char* szReference);            // [ property ]
   void SetAnchor(ezGameObjectHandle hActor);
 
   void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);

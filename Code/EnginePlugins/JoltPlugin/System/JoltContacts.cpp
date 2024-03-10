@@ -606,4 +606,3 @@ void ezJoltContactEvents::OnContact_SlideAndRollReaction(const JPH::Body& body0,
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltContacts);
-

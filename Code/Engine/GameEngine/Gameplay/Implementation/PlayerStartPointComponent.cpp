@@ -87,7 +87,11 @@ const ezPrefabResourceHandle& ezPlayerStartPointComponent::GetPlayerPrefab() con
 
 const ezRangeView<const char*, ezUInt32> ezPlayerStartPointComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& ref_uiIt) { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; }, [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); }, [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char*
+    { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezPlayerStartPointComponent::SetParameter(const char* szKey, const ezVariant& value)

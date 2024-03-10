@@ -21,7 +21,7 @@ class ezSkyLightComponent;
 class EZ_RENDERERCORE_DLL ezReflectionPool
 {
 public:
-  //Probes
+  // Probes
   static ezReflectionProbeId RegisterReflectionProbe(const ezWorld* pWorld, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent);
   static void DeregisterReflectionProbe(const ezWorld* pWorld, ezReflectionProbeId id);
   static void UpdateReflectionProbe(const ezWorld* pWorld, ezReflectionProbeId id, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent);

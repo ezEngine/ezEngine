@@ -89,8 +89,8 @@ public:
   /// closest distance to the original point.
   [[nodiscard]] ezSimdVec4f GetClampedPoint(const ezSimdVec4f& vPoint); // [tested]
 
-  [[nodiscard]] bool operator==(const ezSimdBSphere& rhs) const; // [tested]
-  [[nodiscard]] bool operator!=(const ezSimdBSphere& rhs) const; // [tested]
+  [[nodiscard]] bool operator==(const ezSimdBSphere& rhs) const;        // [tested]
+  [[nodiscard]] bool operator!=(const ezSimdBSphere& rhs) const;        // [tested]
 
 public:
   ezSimdVec4f m_CenterAndRadius;

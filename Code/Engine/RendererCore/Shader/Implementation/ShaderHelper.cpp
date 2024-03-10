@@ -10,7 +10,10 @@ namespace ezShaderHelper
     m_sText.Clear();
   }
 
-  void ezTextSectionizer::AddSection(const char* szName) { m_Sections.PushBack(ezTextSection(szName)); }
+  void ezTextSectionizer::AddSection(const char* szName)
+  {
+    m_Sections.PushBack(ezTextSection(szName));
+  }
 
   void ezTextSectionizer::Process(const char* szText)
   {
@@ -105,5 +108,3 @@ namespace ezShaderHelper
     return ezHashingUtils::xxHash32(bytes.GetPtr(), bytes.GetCount());
   }
 } // namespace ezShaderHelper
-
-

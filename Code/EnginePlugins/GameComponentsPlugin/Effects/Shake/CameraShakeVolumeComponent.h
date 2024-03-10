@@ -42,7 +42,7 @@ public:
   ezTime m_BurstDuration; // [ property ]
 
   /// \brief How strong the shake should be at the strongest point. Typically a value between one and zero.
-  float m_fStrength;      // [ property ]
+  float m_fStrength; // [ property ]
 
   /// \brief Calculates the shake strength at the given global position.
   float ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const;

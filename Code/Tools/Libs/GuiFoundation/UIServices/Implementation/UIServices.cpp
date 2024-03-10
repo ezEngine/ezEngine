@@ -408,10 +408,10 @@ ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
   }
 #endif
 
-  if(sVsCodeExe.isEmpty() || !QFile().exists(sVsCodeExe))
+  if (sVsCodeExe.isEmpty() || !QFile().exists(sVsCodeExe))
   {
     // Try code executable in PATH
-    if(QProcess::execute("code", {"--version"}) == 0)
+    if (QProcess::execute("code", {"--version"}) == 0)
     {
       sVsCodeExe = "code";
     }

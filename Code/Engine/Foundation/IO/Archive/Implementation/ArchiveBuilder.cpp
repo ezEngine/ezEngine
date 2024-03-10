@@ -142,5 +142,3 @@ bool ezArchiveBuilder::WriteFileProgressCallback(ezUInt64 bytesWritten, ezUInt64
 {
   return true;
 }
-
-

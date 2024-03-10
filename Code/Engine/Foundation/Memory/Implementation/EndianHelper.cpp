@@ -62,5 +62,3 @@ void ezEndianHelper::SwitchStructs(void* pDataPointer, const char* szFormat, ezU
     pDataPointer = ezMemoryUtils::AddByteOffset(pDataPointer, uiStride);
   }
 }
-
-

@@ -33,5 +33,3 @@ ezTelemetryMessage::~ezTelemetryMessage()
   m_Reader.SetStorage(nullptr);
   m_Writer.SetStorage(nullptr);
 }
-
-

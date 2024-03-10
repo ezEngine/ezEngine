@@ -53,9 +53,8 @@ ezReflectionProbeId ezReflectionPool::Data::AddProbe(const ezWorld* pWorld, Prob
   if (s_pData->m_WorldReflectionData[uiWorldIndex] == nullptr)
   {
     s_pData->m_WorldReflectionData[uiWorldIndex] = EZ_DEFAULT_NEW(WorldReflectionData);
-    s_pData->m_WorldReflectionData[uiWorldIndex]->m_mappingSubscriptionId = s_pData->m_WorldReflectionData[uiWorldIndex]->m_mapping.m_Events.AddEventHandler([uiWorldIndex, this](const ezReflectionProbeMappingEvent& e) {
-      OnReflectionProbeMappingEvent(uiWorldIndex, e);
-    });
+    s_pData->m_WorldReflectionData[uiWorldIndex]->m_mappingSubscriptionId = s_pData->m_WorldReflectionData[uiWorldIndex]->m_mapping.m_Events.AddEventHandler([uiWorldIndex, this](const ezReflectionProbeMappingEvent& e)
+      { OnReflectionProbeMappingEvent(uiWorldIndex, e); });
   }
 
   ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[uiWorldIndex];
@@ -134,7 +133,7 @@ bool ezReflectionPool::Data::UpdateSkyLightData(ProbeData& ref_probeData, const 
   bool bProbeTypeChanged = false;
   if (ref_probeData.m_desc.m_Mode != desc.m_Mode)
   {
-    //#TODO any other reason to unmap a probe.
+    // #TODO any other reason to unmap a probe.
     bProbeTypeChanged = true;
   }
 
@@ -415,5 +414,3 @@ void ezReflectionPool::Data::CreateSkyIrradianceTexture()
     pDevice->GetTexture(m_hSkyIrradianceTexture)->SetDebugName("Sky Irradiance Texture");
   }
 }
-
-

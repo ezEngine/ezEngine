@@ -18,8 +18,9 @@ namespace ezApplicationDetails
     return EZ_SUCCESS;
   }
 
-  void UninitializeWinrt() { RoUninitialize(); }
+  void UninitializeWinrt()
+  {
+    RoUninitialize();
+  }
 } // namespace ezApplicationDetails
 #endif
-
-

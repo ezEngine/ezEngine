@@ -10,5 +10,3 @@ ezGALUnorderedAccessView::ezGALUnorderedAccessView(ezGALResourceBase* pResource,
 }
 
 ezGALUnorderedAccessView::~ezGALUnorderedAccessView() = default;
-
-

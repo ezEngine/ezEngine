@@ -89,16 +89,16 @@ public:
   void SetTextureFile(const char* szFile); // [ property ]
   const char* GetTextureFile() const;      // [ property ]
 
-  void SetColor(ezColor color); // [ property ]
-  ezColor GetColor() const;     // [ property ]
+  void SetColor(ezColor color);            // [ property ]
+  ezColor GetColor() const;                // [ property ]
 
   /// \brief Sets the size of the sprite in world-space units. This determines how large the sprite will be at certain distances.
   void SetSize(float fSize); // [ property ]
   float GetSize() const;     // [ property ]
 
   /// \brief Sets the maximum screen-space size in pixels. Once a sprite is close enough to have reached this size, it will not grow larger.
-  void SetMaxScreenSize(float fSize); // [ property ]
-  float GetMaxScreenSize() const;     // [ property ]
+  void SetMaxScreenSize(float fSize);         // [ property ]
+  float GetMaxScreenSize() const;             // [ property ]
 
   void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ property ]
 

@@ -25,13 +25,13 @@ public:
   /// \brief Default constructor does not do any initialization.
   EZ_ALWAYS_INLINE ezFixedPoint() = default; // [tested]
 
-  /// \brief Construct from an integer.
+                                             /// \brief Construct from an integer.
   /* implicit */ ezFixedPoint(ezInt32 iIntVal) { *this = iIntVal; } // [tested]
 
-  /// \brief Construct from a float.
+                                                                    /// \brief Construct from a float.
   /* implicit */ ezFixedPoint(float fVal) { *this = fVal; } // [tested]
 
-  /// \brief Construct from a double.
+                                                            /// \brief Construct from a double.
   /* implicit */ ezFixedPoint(double fVal) { *this = fVal; } // [tested]
 
   /// \brief Assignment from an integer.

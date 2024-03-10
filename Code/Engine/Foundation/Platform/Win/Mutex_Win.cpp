@@ -32,5 +32,3 @@ ezMutex::~ezMutex()
   DeleteCriticalSection((CRITICAL_SECTION*)&m_hHandle);
 }
 #endif
-
-

@@ -101,5 +101,3 @@ void ezMemoryUtils::ReserveLower4GBAddressSpace()
   OutputDebugStringA(buffer);
 #endif
 }
-
-

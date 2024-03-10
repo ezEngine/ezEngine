@@ -5,8 +5,8 @@
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
-#include <Foundation/Types/Variant.h>
 #include <Foundation/Types/Interval.h>
+#include <Foundation/Types/Variant.h>
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezEnumBase);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezBitflagsBase);

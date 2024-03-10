@@ -298,7 +298,8 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
 void ezEngineProcessDocumentContext::AddSyncObject(ezEditorEngineSyncObject* pSync)
 {
-  pSync->Configure(m_DocumentGuid, [this](ezEditorEngineSyncObject* pSync) { RemoveSyncObject(pSync); });
+  pSync->Configure(m_DocumentGuid, [this](ezEditorEngineSyncObject* pSync)
+    { RemoveSyncObject(pSync); });
 
   m_SyncObjects[pSync->GetGuid()] = pSync;
 }

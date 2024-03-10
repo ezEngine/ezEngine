@@ -81,4 +81,3 @@ void ezHeadBoneComponent::ChangeVerticalRotation(float fRadians)
 {
   m_NewVerticalRotation += ezAngle::MakeFromRadian(fRadians);
 }
-

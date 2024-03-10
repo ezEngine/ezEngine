@@ -149,5 +149,3 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
   // return how much was read
   return uiBufferPosition;
 }
-
-

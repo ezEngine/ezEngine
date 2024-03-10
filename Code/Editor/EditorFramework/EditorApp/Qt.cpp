@@ -72,10 +72,10 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::AlternateBase, QColor(49, 49, 49));          // second base color, mainly used for alternate row colors
   palette.setColor(QPalette::PlaceholderText, QColor(142, 142, 142));     // text in search fields
 
-  palette.setColor(QPalette::Midlight, QColor(58, 58, 58));       // unused ?
-  palette.setColor(QPalette::BrightText, QColor(221, 221, 221));  // unused ?
-  palette.setColor(QPalette::ToolTipBase, QColor(52, 52, 52));    // unused / not working ?
-  palette.setColor(QPalette::ToolTipText, QColor(221, 221, 221)); // unused / not working ?
+  palette.setColor(QPalette::Midlight, QColor(58, 58, 58));               // unused ?
+  palette.setColor(QPalette::BrightText, QColor(221, 221, 221));          // unused ?
+  palette.setColor(QPalette::ToolTipBase, QColor(52, 52, 52));            // unused / not working ?
+  palette.setColor(QPalette::ToolTipText, QColor(221, 221, 221));         // unused / not working ?
 
   palette.setColor(QPalette::Disabled, QPalette::Window, QColor(25, 25, 25));
   palette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(128, 128, 128));

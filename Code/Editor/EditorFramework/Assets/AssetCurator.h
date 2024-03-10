@@ -82,8 +82,8 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
   ezUInt8 m_LastStateUpdate = 0; ///< Changes every time m_TransformState is modified. Used to detect stale computations done outside the lock.
   ezAssetExistanceState::Enum m_ExistanceState = ezAssetExistanceState::FileAdded;
   TransformState m_TransformState = TransformState::Unknown;
-  ezUInt64 m_AssetHash = 0; ///< Valid if m_TransformState != Unknown and asset not in Curator's m_TransformStateStale list.
-  ezUInt64 m_ThumbHash = 0; ///< Valid if m_TransformState != Unknown and asset not in Curator's m_TransformStateStale list.
+  ezUInt64 m_AssetHash = 0;      ///< Valid if m_TransformState != Unknown and asset not in Curator's m_TransformStateStale list.
+  ezUInt64 m_ThumbHash = 0;      ///< Valid if m_TransformState != Unknown and asset not in Curator's m_TransformStateStale list.
 
   ezDynamicArray<ezLogEntry> m_LogEntries;
 

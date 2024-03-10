@@ -367,7 +367,7 @@ private:
     ezHybridArray<vk::Fence, 2> m_CommandBufferFences;
 
     vk::CommandBuffer m_currentCommandBuffer;
-    //ID3D11Query* m_pDisjointTimerQuery = nullptr;
+    // ID3D11Query* m_pDisjointTimerQuery = nullptr;
     double m_fInvTicksPerSecond = -1.0;
     ezUInt64 m_uiFrame = -1;
 

@@ -63,7 +63,7 @@ struct ezSubstanceGraph
 
   ezString m_sName;
 
-  ezUInt8 m_uiOutputWidth = 0; ///< In base 2, e.g. 8 = 2^8 = 256
+  ezUInt8 m_uiOutputWidth = 0;  ///< In base 2, e.g. 8 = 2^8 = 256
   ezUInt8 m_uiOutputHeight = 0; ///< In base 2
 
   ezHybridArray<ezSubstanceGraphOutput, 8> m_Outputs;

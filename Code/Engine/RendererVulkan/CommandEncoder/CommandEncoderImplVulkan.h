@@ -153,8 +153,8 @@ private:
   bool m_bDescriptorsDirty = false;
   ezGAL::ModifiedRange m_BoundVertexBuffersRange;
   bool m_bRenderPassActive = false; ///< #TODO_VULKAN Disabling and re-enabling the render pass is buggy as we might execute a clear twice.
-  bool m_bClearSubmitted = false; ///< Start render pass is lazy so if no draw call is executed we need to make sure the clear is executed anyways.
-  bool m_bInsideCompute = false;  ///< Within BeginCompute / EndCompute block.
+  bool m_bClearSubmitted = false;   ///< Start render pass is lazy so if no draw call is executed we need to make sure the clear is executed anyways.
+  bool m_bInsideCompute = false;    ///< Within BeginCompute / EndCompute block.
   bool m_bPushConstantsDirty = false;
 
   // Bound objects for deferred state flushes

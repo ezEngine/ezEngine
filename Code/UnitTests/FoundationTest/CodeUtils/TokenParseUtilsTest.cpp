@@ -1,7 +1,7 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
-#include <Foundation/CodeUtils/Tokenizer.h>
 #include <Foundation/CodeUtils/TokenParseUtils.h>
+#include <Foundation/CodeUtils/Tokenizer.h>
 
 EZ_CREATE_SIMPLE_TEST(CodeUtils, TokenParseUtils)
 {
@@ -157,7 +157,6 @@ Identifier
     EZ_TEST_INT(acceptedTokens[4], 5);
     EZ_TEST_STRING(tokens2[acceptedTokens[2]]->m_DataView, "2.2");
     EZ_TEST_STRING(tokens2[acceptedTokens[4]]->m_DataView, "1.1");
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CombineTokensToString")

@@ -152,12 +152,12 @@ bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)
 
   ezDuktapeHelper duk(binding.GetDukTapeContext());
 
-  binding.DukPutComponentObject(this); // [ comp ]
+  binding.DukPutComponentObject(this);               // [ comp ]
 
   if (duk.PrepareMethodCall(szFuncName).Succeeded()) // [ comp func comp ]
   {
-    duk.CallPreparedMethod().IgnoreResult(); // [ comp result ]
-    duk.PopStack(2);                         // [ ]
+    duk.CallPreparedMethod().IgnoreResult();         // [ comp result ]
+    duk.PopStack(2);                                 // [ ]
 
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);
   }
@@ -185,7 +185,7 @@ void ezTypeScriptComponent::SetExposedVariables()
     ezTypeScriptBinding::SetVariantProperty(duk, pair.key.GetString(), -1, pair.value); // [ comp ]
   }
 
-  duk.PopStack(); // [ ]
+  duk.PopStack();                                                                       // [ ]
 
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
@@ -300,12 +300,12 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 
   ezDuktapeHelper duk(binding.GetDukTapeContext());
 
-  binding.DukPutComponentObject(this); // [ comp ]
+  binding.DukPutComponentObject(this);           // [ comp ]
 
   if (duk.PrepareMethodCall("Tick").Succeeded()) // [ comp func comp ]
   {
-    duk.CallPreparedMethod().IgnoreResult(); // [ comp result ]
-    duk.PopStack(2);                         // [ ]
+    duk.CallPreparedMethod().IgnoreResult();     // [ comp result ]
+    duk.PopStack(2);                             // [ ]
   }
   else
   {
@@ -363,10 +363,14 @@ void ezTypeScriptComponent::OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg
 
 const ezRangeView<const char*, ezUInt32> ezTypeScriptComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
-    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
+    { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezTypeScriptComponent::SetParameter(const char* szKey, const ezVariant& value)

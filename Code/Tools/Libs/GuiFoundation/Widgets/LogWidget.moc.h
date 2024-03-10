@@ -36,4 +36,3 @@ private:
   ezQtLogModel* m_pLog;
   void ScrollToBottomIfAtEnd(int iNumElements);
 };
-

@@ -159,8 +159,8 @@ void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& inout_stre
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezDirectionalLightComponentPatch_1_2 : public ezGraphPatch
 {

@@ -165,7 +165,8 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
 
     if (pw.GetCount() > m_uiMaxPoses)
     {
-      pw.Sort([](const PinWeight& lhs, const PinWeight& rhs) { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
+      pw.Sort([](const PinWeight& lhs, const PinWeight& rhs)
+        { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
       pw.SetCount(m_uiMaxPoses);
     }
 
@@ -353,5 +354,3 @@ const ezAnimController::AnimClipInfo& ezAnimController::GetAnimationClipInfo(ezT
 
   return it.Value();
 }
-
-

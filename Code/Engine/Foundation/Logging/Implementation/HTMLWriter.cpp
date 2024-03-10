@@ -104,7 +104,7 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
 
     case ezLogMsgType::BeginGroup:
       sText.SetFormat("<br><font color=\"#8080FF\"><b> <<< <u>{0}</u> >>> </b> ({1}) </font><br><table width=100%% border=0><tr width=100%%><td "
-                   "width=10></td><td width=*>\n",
+                      "width=10></td><td width=*>\n",
         sOriginalText, sTag);
       break;
 
@@ -171,5 +171,3 @@ void ezLogWriter::HTML::WriteString(ezStringView sText, ezUInt32 uiColor)
 
   m_File.WriteBytes(sTemp.GetData(), sizeof(char) * sTemp.GetElementCount()).IgnoreResult();
 }
-
-

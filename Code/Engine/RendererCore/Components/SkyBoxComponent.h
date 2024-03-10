@@ -57,8 +57,8 @@ public:
   void SetVirtualDistance(float fVirtualDistance);                // [ property ]
   float GetVirtualDistance() const { return m_fVirtualDistance; } // [ property ]
 
-  void SetCubeMapFile(const char* szFile); // [ property ]
-  const char* GetCubeMapFile() const;      // [ property ]
+  void SetCubeMapFile(const char* szFile);                        // [ property ]
+  const char* GetCubeMapFile() const;                             // [ property ]
 
   void SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap);
   const ezTextureCubeResourceHandle& GetCubeMap() const;

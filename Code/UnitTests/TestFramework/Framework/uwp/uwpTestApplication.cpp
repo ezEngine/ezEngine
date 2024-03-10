@@ -110,7 +110,8 @@ HRESULT ezUwpTestApplication::OnActivated(ICoreApplicationView* applicationView,
     ComPtr<__FIAsyncOperation_1_Windows__CApplicationModel__CExtendedExecution__CExtendedExecutionResult> pAsyncOp;
     if (SUCCEEDED(m_extendedExecutionSession->RequestExtensionAsync(&pAsyncOp)))
     {
-      ezUwpUtils::ezWinRtPutCompleted<ExtendedExecutionResult, ExtendedExecutionResult>(pAsyncOp, [this](const ExtendedExecutionResult& pResult) {
+      ezUwpUtils::ezWinRtPutCompleted<ExtendedExecutionResult, ExtendedExecutionResult>(pAsyncOp, [this](const ExtendedExecutionResult& pResult)
+        {
         switch (pResult)
         {
           case ExtendedExecutionResult::ExtendedExecutionResult_Allowed:
@@ -119,8 +120,7 @@ HRESULT ezUwpTestApplication::OnActivated(ICoreApplicationView* applicationView,
           case ExtendedExecutionResult::ExtendedExecutionResult_Denied:
             ezLog::Error("Extended session is denied.");
             break;
-        }
-      });
+        } });
     }
   }
 
@@ -134,5 +134,3 @@ HRESULT ezUwpTestApplication::OnSessionRevoked(IInspectable* sender, IExtendedEx
 }
 
 #endif
-
-

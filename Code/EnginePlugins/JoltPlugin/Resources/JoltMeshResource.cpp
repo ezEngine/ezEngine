@@ -1,9 +1,9 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Jolt/Core/StreamIn.h>
 #include <Jolt/Physics/Collision/Shape/CompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>

@@ -261,5 +261,3 @@ ezResult ezExpressionVM::MapFunctions(ezArrayPtr<const ezExpression::FunctionDes
 
   return EZ_SUCCESS;
 }
-
-

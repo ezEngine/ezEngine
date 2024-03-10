@@ -54,7 +54,7 @@ public:
   bool IsValid() const; // [tested]
 
   /// \brief Checks whether any component is NaN.
-  bool IsNaN() const; // [tested]
+  bool IsNaN() const;                                                                                                   // [tested]
 
 public:
   void SetRows(const ezSimdVec4f& vRow0, const ezSimdVec4f& vRow1, const ezSimdVec4f& vRow2, const ezSimdVec4f& vRow3); // [tested]
@@ -67,11 +67,11 @@ public:
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only.
   [[nodiscard]] ezSimdVec4f TransformDirection(const ezSimdVec4f& v) const; // [tested]
 
-  [[nodiscard]] ezSimdMat4f operator*(const ezSimdMat4f& rhs) const; // [tested]
+  [[nodiscard]] ezSimdMat4f operator*(const ezSimdMat4f& rhs) const;        // [tested]
   void operator*=(const ezSimdMat4f& rhs);
 
-  [[nodiscard]] bool operator==(const ezSimdMat4f& rhs) const; // [tested]
-  [[nodiscard]] bool operator!=(const ezSimdMat4f& rhs) const; // [tested]
+  [[nodiscard]] bool operator==(const ezSimdMat4f& rhs) const;              // [tested]
+  [[nodiscard]] bool operator!=(const ezSimdMat4f& rhs) const;              // [tested]
 
 public:
   ezSimdVec4f m_col0;

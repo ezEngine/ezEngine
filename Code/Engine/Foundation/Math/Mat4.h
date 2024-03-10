@@ -108,7 +108,6 @@ public:
 
   // *** Common Matrix Operations ***
 public:
-
   /// \brief Transposes this matrix.
   void Transpose(); // [tested]
 

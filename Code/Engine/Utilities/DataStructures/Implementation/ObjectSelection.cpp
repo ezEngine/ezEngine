@@ -62,5 +62,3 @@ void ezObjectSelection::ToggleSelection(ezGameObjectHandle hObject)
   // ensures invalid objects don't get added
   AddObject(hObject);
 }
-
-

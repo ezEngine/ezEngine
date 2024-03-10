@@ -364,10 +364,10 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
   ezHybridArray<ezExpression::FunctionDesc, 4> functions;
 
   m_ByteCode.Clear();
-  
+
   ezUInt32 uiMaxRegisterIndex = 0;
 
-  m_InputToIndex.Clear();  
+  m_InputToIndex.Clear();
   for (ezUInt32 i = 0; i < ast.m_InputNodes.GetCount(); ++i)
   {
     auto& desc = ast.m_InputNodes[i]->m_Desc;
@@ -376,7 +376,7 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     inputs.PushBack(desc);
   }
 
-  m_OutputToIndex.Clear();  
+  m_OutputToIndex.Clear();
   for (ezUInt32 i = 0; i < ast.m_OutputNodes.GetCount(); ++i)
   {
     auto& desc = ast.m_OutputNodes[i]->m_Desc;
@@ -692,5 +692,3 @@ void ezExpressionCompiler::DumpAST(const ezExpressionAST& ast, ezStringView sOut
     ezLog::Error("Failed to dump AST to: {}", sFullPath);
   }
 }
-
-

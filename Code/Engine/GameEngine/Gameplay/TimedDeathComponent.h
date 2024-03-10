@@ -41,8 +41,8 @@ public:
   ezTime m_MinDelay = ezTime::MakeFromSeconds(1.0);   // [ property ]
   ezTime m_DelayRange = ezTime::MakeFromSeconds(0.0); // [ property ]
 
-  void SetTimeoutPrefab(const char* szPrefab); // [ property ]
-  const char* GetTimeoutPrefab() const;        // [ property ]
+  void SetTimeoutPrefab(const char* szPrefab);        // [ property ]
+  const char* GetTimeoutPrefab() const;               // [ property ]
 
 protected:
   void OnTriggered(ezMsgComponentInternalTrigger& msg);

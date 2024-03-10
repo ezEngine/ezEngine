@@ -65,12 +65,22 @@ namespace ezTokenParseUtils
   struct TokenMatch
   {
     /// \brief This matches a token string of any type.
-    TokenMatch(ezStringView sToken) : m_sToken(sToken) {}
+    TokenMatch(ezStringView sToken)
+      : m_sToken(sToken)
+    {
+    }
     /// \brief This matches a token type of any string value.
-    TokenMatch(ezTokenType::Enum type) : m_Type(type) {}
+    TokenMatch(ezTokenType::Enum type)
+      : m_Type(type)
+    {
+    }
 
     /// \brief For internal use. Use one of the other constructors instead.
-    TokenMatch(ezTokenType::Enum type, ezStringView sToken) : m_Type(type), m_sToken(sToken) {}
+    TokenMatch(ezTokenType::Enum type, ezStringView sToken)
+      : m_Type(type)
+      , m_sToken(sToken)
+    {
+    }
 
     ezTokenType::Enum m_Type = ezTokenType::Unknown;
     ezStringView m_sToken;

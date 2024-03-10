@@ -33,4 +33,3 @@ private:
   ezDynamicArray<ezString> m_Values;
   ezInt32 m_iSelectedItem = -1;
 };
-

@@ -28,7 +28,8 @@ bool ezGameEngineTestSubstance::HasSubstanceDesignerInstalled()
     return *s_Cache;
   }
 
-  auto CheckPath = [&](ezStringView sPath) {
+  auto CheckPath = [&](ezStringView sPath)
+  {
     ezStringBuilder path = sPath;
     path.AppendPath("sbscooker.exe");
 

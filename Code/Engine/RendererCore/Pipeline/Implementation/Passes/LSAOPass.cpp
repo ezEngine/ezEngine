@@ -371,7 +371,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       samplingDir[i * 4 + 3] = -samplingDir[i * 4 + 2];                                                  // Left
     }
 
-    // todo: Ddd debug test to check whether any direction is duplicated. Mistakes in the equations above can easily happen!
+                                                                                                         // todo: Ddd debug test to check whether any direction is duplicated. Mistakes in the equations above can easily happen!
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     for (int i = 0; i < numSweepDirs - 1; ++i)
     {

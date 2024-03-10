@@ -147,6 +147,4 @@ static ezImageConversion_sRGB_NV12 s_conversion_sRGB_NV12;
 
 
 
-
 EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_PlanarConversions);
-

@@ -362,4 +362,3 @@ bool ezSampleAnimClipSequenceAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& o
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SampleAnimClipSequenceAnimNode);
-

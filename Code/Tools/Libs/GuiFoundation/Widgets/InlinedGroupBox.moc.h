@@ -27,4 +27,3 @@ protected:
   QWidget* m_pContent;
   QWidget* m_pHeader;
 };
-

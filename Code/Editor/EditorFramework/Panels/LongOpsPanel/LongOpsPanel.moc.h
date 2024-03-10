@@ -37,4 +37,3 @@ private Q_SLOTS:
   void OnClickButton(bool);
   void OnCellDoubleClicked(int row, int column);
 };
-

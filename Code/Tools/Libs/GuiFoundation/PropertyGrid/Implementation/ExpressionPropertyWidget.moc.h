@@ -52,4 +52,3 @@ protected:
 private:
   QColor m_Colors[ExpressionTokenType::Count];
 };
-

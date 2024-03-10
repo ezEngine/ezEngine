@@ -32,7 +32,8 @@ public:
 
   /// \brief Returns a vector with all components set to Not-a-Number (NaN).
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static ezVec3Template<Type> MakeNaN() { return ezVec3Template<Type>(ezMath::NaN<Type>()); }
+  [[nodiscard]] static ezVec3Template<Type>
+  MakeNaN() { return ezVec3Template<Type>(ezMath::NaN<Type>()); }
 
   /// \brief Returns a vector with all components set to zero.
   [[nodiscard]] static ezVec3Template<Type> MakeZero() { return ezVec3Template<Type>(0); } // [tested]
@@ -225,32 +226,38 @@ public:
 
   /// \brief Returns a random point inside a unit sphere (radius 1).
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static ezVec3Template<Type> MakeRandomPointInSphere(ezRandom& inout_rng); // [tested]
+  [[nodiscard]] static ezVec3Template<Type>
+  MakeRandomPointInSphere(ezRandom& inout_rng); // [tested]
 
   /// \brief Creates a random direction vector. The vector is normalized.
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static ezVec3Template<Type> MakeRandomDirection(ezRandom& inout_rng); // [tested]
+  [[nodiscard]] static ezVec3Template<Type>
+  MakeRandomDirection(ezRandom& inout_rng); // [tested]
 
   /// \brief Creates a random vector around the x axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  [[nodiscard]] static ezVec3Template<Type>
+  MakeRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the y axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  [[nodiscard]] static ezVec3Template<Type>
+  MakeRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the z axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  [[nodiscard]] static ezVec3Template<Type>
+  MakeRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the given normal with a maximum deviation.
   /// \note If you are going to do this many times with the same axis, rather than calling this function, instead manually
   /// do what this function does (see inline code) and only compute the quaternion once.
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal); // [tested]
+  [[nodiscard]] static ezVec3Template<Type>
+  MakeRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal); // [tested]
 };
 
 // *** Operators ***

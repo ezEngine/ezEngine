@@ -446,7 +446,8 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
     return;
   }
   propPath.WriteToLeafObject(
-            object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& type) { ApplyOp(ezRttiConverterObject(&type, pLeaf), change); })
+            object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& type)
+            { ApplyOp(ezRttiConverterObject(&type, pLeaf), change); })
     .IgnoreResult();
 }
 

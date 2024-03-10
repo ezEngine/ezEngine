@@ -499,7 +499,7 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezRemoteMessage& msg)
   ezUInt16 uiFoundInDataDir = 0;
   msg.GetReader() >> uiFoundInDataDir;
 
-  if (uiFoundInDataDir == 0xffff) // file does not exist on server in any data dir
+  if (uiFoundInDataDir == 0xffff)         // file does not exist on server in any data dir
   {
     m_FileDataDir[m_sCurFileRequest] = 0; // placeholder
 
@@ -762,7 +762,8 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
     return EZ_FAILURE;
 
   bool bServerFound = false;
-  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& ref_msg) {
+  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& ref_msg)
+    {
     switch (ref_msg.GetMessageID())
     {
       case ' YES':

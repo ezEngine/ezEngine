@@ -162,5 +162,3 @@ void ezOSThread::Join()
 }
 
 #endif
-
-

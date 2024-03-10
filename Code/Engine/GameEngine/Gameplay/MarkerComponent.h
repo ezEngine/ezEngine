@@ -46,15 +46,15 @@ public:
   /// \brief The size of the marker.
   ///
   /// Often this can be very small to just mark a point, but it may be larger to represent the size of the marked object.
-  void SetRadius(float fRadius); // [ property ]
-  float GetRadius() const;       // [ property ]
+  void SetRadius(float fRadius);                                  // [ property ]
+  float GetRadius() const;                                        // [ property ]
 
 protected:
   void OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const; // [ msg handler ]
   void UpdateMarker();
 
-  float m_fRadius = 0.1f;       // [ property ]
-  ezHashedString m_sMarkerType; // [ property ]
+  float m_fRadius = 0.1f;                                         // [ property ]
+  ezHashedString m_sMarkerType;                                   // [ property ]
 
   ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;
 };

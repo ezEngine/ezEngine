@@ -212,7 +212,12 @@ class ezTestClass2 : public ezTestClass1
   EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2, ezTestClass1);
 
 public:
-  ezTestClass2() { m_sCharPtr = "AAA"; m_sString = "BBB"; m_sStringView = "CCC"; }
+  ezTestClass2()
+  {
+    m_sCharPtr = "AAA";
+    m_sString = "BBB";
+    m_sStringView = "CCC";
+  }
 
   bool operator==(const ezTestClass2& rhs) const { return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array && m_Variant == rhs.m_Variant && m_sCharPtr == rhs.m_sCharPtr && m_sString == rhs.m_sString && m_sStringView == rhs.m_sStringView; }
 

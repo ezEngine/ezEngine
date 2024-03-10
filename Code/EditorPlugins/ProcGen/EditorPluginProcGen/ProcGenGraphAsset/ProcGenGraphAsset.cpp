@@ -123,7 +123,8 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
 
   ezExpressionCompiler compiler;
 
-  auto WriteByteCode = [&](const ezDocumentObject* pOutputNode)->ezStatus {
+  auto WriteByteCode = [&](const ezDocumentObject* pOutputNode) -> ezStatus
+  {
     context.m_GraphContext.m_VolumeTagSetIndices.Clear();
 
     if (pOutputNode->GetType()->IsDerivedFrom<ezProcGen_PlacementOutput>())

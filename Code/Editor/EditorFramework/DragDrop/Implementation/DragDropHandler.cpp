@@ -16,7 +16,8 @@ ezDragDropHandler* ezDragDropHandler::FindDragDropHandler(const ezDragDropInfo* 
   ezDragDropHandler* pBestDnD = nullptr;
 
   ezRTTI::ForEachDerivedType<ezDragDropHandler>(
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       ezDragDropHandler* pDnD = pRtti->GetAllocator()->Allocate<ezDragDropHandler>();
 
       const float fValue = pDnD->CanHandle(pInfo);

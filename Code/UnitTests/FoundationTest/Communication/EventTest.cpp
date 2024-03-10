@@ -148,20 +148,22 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
 
     ezEventSubscriptionID subscriptions[4] = {};
 
-    subscriptions[0] = e.AddEventHandler(TestEvent::Handler([&](int i) { callMap |= EZ_BIT(0); }));
+    subscriptions[0] = e.AddEventHandler(TestEvent::Handler([&](int i)
+      { callMap |= EZ_BIT(0); }));
 
-    subscriptions[1] = e.AddEventHandler(TestEvent::Handler([&](int i) {
+    subscriptions[1] = e.AddEventHandler(TestEvent::Handler([&](int i)
+      {
       callMap |= EZ_BIT(1);
-      e.RemoveEventHandler(subscriptions[1]);
-    }));
+      e.RemoveEventHandler(subscriptions[1]); }));
 
-    subscriptions[2] = e.AddEventHandler(TestEvent::Handler([&](int i) {
+    subscriptions[2] = e.AddEventHandler(TestEvent::Handler([&](int i)
+      {
       callMap |= EZ_BIT(2);
       e.RemoveEventHandler(subscriptions[2]);
-      e.RemoveEventHandler(subscriptions[3]);
-    }));
+      e.RemoveEventHandler(subscriptions[3]); }));
 
-    subscriptions[3] = e.AddEventHandler(TestEvent::Handler([&](int i) { callMap |= EZ_BIT(3); }));
+    subscriptions[3] = e.AddEventHandler(TestEvent::Handler([&](int i)
+      { callMap |= EZ_BIT(3); }));
 
     e.Broadcast(0);
 

@@ -442,13 +442,13 @@ void ezStandardInputDevice::WindowMessage(
       // see https://docs.microsoft.com/windows/win32/inputdev/wm-lbuttondblclk
       // this would add lag and hide single clicks when the user double clicks
       // therefore it is not used
-      //case WM_LBUTTONDBLCLK:
+      // case WM_LBUTTONDBLCLK:
       //  m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
       //  return;
-      //case WM_RBUTTONDBLCLK:
+      // case WM_RBUTTONDBLCLK:
       //  m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
       //  return;
-      //case WM_MBUTTONDBLCLK:
+      // case WM_MBUTTONDBLCLK:
       //  m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
       //  return;
 
@@ -813,17 +813,17 @@ void ezStandardInputDevice::LocalizeButtonDisplayNames()
   SetKeyNameForScanCode(67, false, ezInputSlot_KeyF9);
   SetKeyNameForScanCode(68, false, ezInputSlot_KeyF10);
 
-  SetKeyNameForScanCode(69, true, ezInputSlot_KeyNumLock); // Prints 'Pause' if it is not 'extended'
-  SetKeyNameForScanCode(70, false, ezInputSlot_KeyScroll); // This overlaps with Pause
+  SetKeyNameForScanCode(69, true, ezInputSlot_KeyNumLock);       // Prints 'Pause' if it is not 'extended'
+  SetKeyNameForScanCode(70, false, ezInputSlot_KeyScroll);       // This overlaps with Pause
 
-  SetKeyNameForScanCode(71, false, ezInputSlot_KeyNumpad7); // This overlaps with Home
-  SetKeyNameForScanCode(72, false, ezInputSlot_KeyNumpad8); // This overlaps with Arrow Up
-  SetKeyNameForScanCode(73, false, ezInputSlot_KeyNumpad9); // This overlaps with Page Up
+  SetKeyNameForScanCode(71, false, ezInputSlot_KeyNumpad7);      // This overlaps with Home
+  SetKeyNameForScanCode(72, false, ezInputSlot_KeyNumpad8);      // This overlaps with Arrow Up
+  SetKeyNameForScanCode(73, false, ezInputSlot_KeyNumpad9);      // This overlaps with Page Up
   SetKeyNameForScanCode(74, false, ezInputSlot_KeyNumpadMinus);
 
-  SetKeyNameForScanCode(75, false, ezInputSlot_KeyNumpad4); // This overlaps with Arrow Left
+  SetKeyNameForScanCode(75, false, ezInputSlot_KeyNumpad4);      // This overlaps with Arrow Left
   SetKeyNameForScanCode(76, false, ezInputSlot_KeyNumpad5);
-  SetKeyNameForScanCode(77, false, ezInputSlot_KeyNumpad6); // This overlaps with Arrow Right
+  SetKeyNameForScanCode(77, false, ezInputSlot_KeyNumpad6);      // This overlaps with Arrow Right
   SetKeyNameForScanCode(78, false, ezInputSlot_KeyNumpadPlus);
 
   SetKeyNameForScanCode(79, false, ezInputSlot_KeyNumpad1);      // This overlaps with End

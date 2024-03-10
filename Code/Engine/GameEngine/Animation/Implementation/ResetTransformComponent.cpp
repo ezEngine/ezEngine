@@ -95,4 +95,3 @@ void ezResetTransformComponent::DeserializeComponent(ezWorldReader& inout_stream
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_ResetTransformComponent);
-

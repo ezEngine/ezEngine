@@ -57,7 +57,10 @@ namespace ResourceManagerDetail
     ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
   }
 
-  static void SendAllResourceTelemetry() { ezResourceManager::BroadcastExistsEvent(); }
+  static void SendAllResourceTelemetry()
+  {
+    ezResourceManager::BroadcastExistsEvent();
+  }
 
   static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
   {

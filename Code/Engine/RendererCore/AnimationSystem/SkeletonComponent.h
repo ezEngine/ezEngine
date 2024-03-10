@@ -57,11 +57,11 @@ public:
   void SetBonesToHighlight(const char* szFilter); // [ property ]
   const char* GetBonesToHighlight() const;        // [ property ]
 
-  bool m_bVisualizeBones = true;        // [ property ]
-  bool m_bVisualizeColliders = false;   // [ property ]
-  bool m_bVisualizeJoints = false;      // [ property ]
-  bool m_bVisualizeSwingLimits = false; // [ property ]
-  bool m_bVisualizeTwistLimits = false; // [ property ]
+  bool m_bVisualizeBones = true;                  // [ property ]
+  bool m_bVisualizeColliders = false;             // [ property ]
+  bool m_bVisualizeJoints = false;                // [ property ]
+  bool m_bVisualizeSwingLimits = false;           // [ property ]
+  bool m_bVisualizeTwistLimits = false;           // [ property ]
 
 protected:
   void Update();

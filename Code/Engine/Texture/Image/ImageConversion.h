@@ -161,7 +161,7 @@ private:
   static ezResult ConvertSingleStepCompress(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
 
-    static ezResult ConvertSingleStepDeplanarize(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
+  static ezResult ConvertSingleStepDeplanarize(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
 
   static ezResult ConvertSingleStepPlanarize(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,

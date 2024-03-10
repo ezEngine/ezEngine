@@ -33,7 +33,7 @@ public:
   /// or, if none is provided, the default allocator for the type is used.
   ///
   /// All properties are set to the values as described in the DDL data, as long as the properties can be matched to the runtime type.
-  static void* ReadObjectFromDDL(ezStreamReader& inout_stream, const ezRTTI*& ref_pRtti); // [tested]
+  static void* ReadObjectFromDDL(ezStreamReader& inout_stream, const ezRTTI*& ref_pRtti);               // [tested]
 
   static void* ReadObjectFromDDL(const ezOpenDdlReaderElement* pRootElement, const ezRTTI*& ref_pRtti); // [tested]
 

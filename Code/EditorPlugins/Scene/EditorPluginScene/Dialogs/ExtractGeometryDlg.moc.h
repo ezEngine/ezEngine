@@ -29,4 +29,3 @@ private:
 
   static int s_iCoordinateSystem;
 };
-

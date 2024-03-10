@@ -28,4 +28,3 @@ ID3D11ComputeShader* ezGALShaderDX11::GetDXComputeShader() const
 {
   return m_pComputeShader;
 }
-

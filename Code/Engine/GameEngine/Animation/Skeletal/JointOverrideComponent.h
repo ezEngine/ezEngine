@@ -44,7 +44,7 @@ public:
   bool m_bOverrideRotation = true; // [ property ]
 
   /// \brief If true, the scale of the bone will be overridden.
-  bool m_bOverrideScale = false; // [ property ]
+  bool m_bOverrideScale = false;                                         // [ property ]
 
 protected:
   void OnAnimationPosePreparing(ezMsgAnimationPosePreparing& msg) const; // [ msg handler ]

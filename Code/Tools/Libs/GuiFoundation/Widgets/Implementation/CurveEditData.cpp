@@ -161,7 +161,7 @@ double ezSingleCurveData::Evaluate(ezInt64 iTick) const
   if (rrhs)
     ConvertControlPoint(*rrhs, temp);
 
-  //#TODO: This is rather slow as we eval lots of points but only need one
+  // #TODO: This is rather slow as we eval lots of points but only need one
   temp.CreateLinearApproximation();
   return temp.Evaluate(iTick / 4800.0);
 }
@@ -175,8 +175,8 @@ void ezCurveGroupData::ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezCurve1DControlPoint_2_3 : public ezGraphPatch
 {

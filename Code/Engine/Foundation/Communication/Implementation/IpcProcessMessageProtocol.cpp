@@ -1,9 +1,9 @@
 #include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Communication/IpcProcessMessageProtocol.h>
-//#include <Foundation/Communication/Implementation/MessageLoop.h>
+// #include <Foundation/Communication/Implementation/MessageLoop.h>
 #include <Foundation/Communication/IpcChannel.h>
-//#include <Foundation/Communication/RemoteMessage.h>
+// #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
@@ -91,5 +91,3 @@ void ezIpcProcessMessageProtocol::SwapWorkQueue(ezDeque<ezUniquePtr<ezProcessMes
     return;
   messages.Swap(m_IncomingQueue);
 }
-
-

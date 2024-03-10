@@ -12,13 +12,13 @@
 #endif
 
 static float2 QuadTexCoords[6] =
-{
-  float2(0.0, 0.0),
-  float2(1.0, 0.0),
-  float2(1.0, 1.0),
-  float2(0.0, 0.0),
-  float2(1.0, 1.0),
-  float2(0.0, 1.0),
+  {
+    float2(0.0, 0.0),
+    float2(1.0, 0.0),
+    float2(1.0, 1.0),
+    float2(0.0, 0.0),
+    float2(1.0, 1.0),
+    float2(0.0, 1.0),
 };
 
 uint CalcQuadParticleDataIndex(uint VertexID)
@@ -57,7 +57,7 @@ float4 CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition
   float4 orthoDir = float4(normalize(cross(inTangentX, GetCameraDirForwards())), 0);
 
   float4 offsetRight = orthoDir * (QuadTexCoords[vertexIndex].x - 0.5) * inSize;
-  //float4 offsetUp = axisDir * (0.5 - (QuadTexCoords[vertexIndex].y - 0.5)) * inSize * stretch;
+  // float4 offsetUp = axisDir * (0.5 - (QuadTexCoords[vertexIndex].y - 0.5)) * inSize * stretch;
   float4 offsetUp = axisDir * (1.0 - QuadTexCoords[vertexIndex].y) * inSize * stretch;
 
   float4 worldPosition = mul(ObjectToWorldMatrix, position + offsetRight + offsetUp);
@@ -76,9 +76,9 @@ float3x3 CreateRotationMatrixY(float radians)
 
 float4 CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 centerPosition, float rotationOffset, float rotationSpeed, float inSize)
 {
-  //float4 position = TransformToPosition(inTransform);
+  // float4 position = TransformToPosition(inTransform);
   float4 position = float4(centerPosition, 1);
-  //float3x3 rotation = TransformToRotation(inTransform);
+  // float3x3 rotation = TransformToRotation(inTransform);
   float3x3 rotation = CreateRotationMatrixY(rotationOffset + rotationSpeed * TotalEffectLifeTime);
 
   float3 offsetRight = GetCameraDirRight() * (QuadTexCoords[vertexIndex].x - 0.5) * inSize;
@@ -129,4 +129,3 @@ float2 ComputeAtlasTexCoordRandomAnimated(float2 baseTexCoord, uint numVarsX, ui
 
   return texCoordOffsetAndSize.xy + baseTexCoord * texCoordOffsetAndSize.zw;
 }
-

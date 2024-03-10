@@ -8,5 +8,3 @@ ezGALTexture::ezGALTexture(const ezGALTextureCreationDescription& Description)
 }
 
 ezGALTexture::~ezGALTexture() = default;
-
-

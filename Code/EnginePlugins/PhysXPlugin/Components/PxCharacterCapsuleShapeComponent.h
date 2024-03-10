@@ -35,8 +35,8 @@ public:
 
   virtual float GetCurrentTotalHeight() override;
 
-  float m_fCapsuleHeight = 1.0f;  ///< [ property ] real character height is m_fCapsuleHeight + 2 * m_fCapsuleRadius
-  float m_fCapsuleRadius = 0.25f; ///< [ property ] real character height is m_fCapsuleHeight + 2 * m_fCapsuleRadius
+  float m_fCapsuleHeight = 1.0f;                               ///< [ property ] real character height is m_fCapsuleHeight + 2 * m_fCapsuleRadius
+  float m_fCapsuleRadius = 0.25f;                              ///< [ property ] real character height is m_fCapsuleHeight + 2 * m_fCapsuleRadius
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const; // [ msg handler ]

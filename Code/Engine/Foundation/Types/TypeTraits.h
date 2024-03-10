@@ -123,21 +123,30 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 
 /// \brief Embed this into a class to mark it as a POD type.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
-#  define EZ_DECLARE_POD_TYPE() \
-    ezCompileTimeTrueType operator%(const ezTypeIsPod&) const { return {}; }
+#  define EZ_DECLARE_POD_TYPE()                               \
+    ezCompileTimeTrueType operator%(const ezTypeIsPod&) const \
+    {                                                         \
+      return {};                                              \
+    }
 
 /// \brief Embed this into a class to mark it as memory relocatable.
 /// Memory relocatable types will get special treatment from allocators and container classes, such that they are faster to construct and
 /// copy. A type is memory relocatable if it does not have any internal references. e.g: struct example { char[16] buffer; char* pCur;
 /// example() pCur(buffer) {} }; A memory relocatable type also must not give out any pointers to its own location. If these two conditions
 /// are met, a type is memory relocatable.
-#  define EZ_DECLARE_MEM_RELOCATABLE_TYPE() \
-    ezCompileTimeTrueType operator%(const ezTypeIsMemRelocatable&) const { return {}; }
+#  define EZ_DECLARE_MEM_RELOCATABLE_TYPE()                              \
+    ezCompileTimeTrueType operator%(const ezTypeIsMemRelocatable&) const \
+    {                                                                    \
+      return {};                                                         \
+    }
 
 /// \brief mark a class as memory relocatable if the passed type is relocatable or pod.
 #  define EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T)                                                                                       \
     typename ezConditionToCompileTimeBool<ezGetTypeClass<T>::value == ezTypeIsMemRelocatable::value || ezIsPodType<T>::value>::type operator%( \
-      const ezTypeIsMemRelocatable&) const { return {}; }
+      const ezTypeIsMemRelocatable&) const                                                                                                     \
+    {                                                                                                                                          \
+      return {};                                                                                                                               \
+    }
 
 #  define EZ_DETECT_TYPE_CLASS_1(T1) ezGetTypeClass<T1>
 #  define EZ_DETECT_TYPE_CLASS_2(T1, T2) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_1(T1), EZ_DETECT_TYPE_CLASS_1(T2)>
@@ -150,9 +159,12 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 // \brief embed this into a class to automatically detect which type class it belongs to
 // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
 // As arguments you have to list the types of all the members of the class / struct.
-#  define EZ_DETECT_TYPE_CLASS(...)  \
-    ezCompileTimeTrueType operator%( \
-      const ezTraitInt<EZ_CALL_MACRO(EZ_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const { return {}; }
+#  define EZ_DETECT_TYPE_CLASS(...)                                                                                                \
+    ezCompileTimeTrueType operator%(                                                                                               \
+      const ezTraitInt<EZ_CALL_MACRO(EZ_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const \
+    {                                                                                                                              \
+      return {};                                                                                                                   \
+    }
 #endif
 
 /// \brief Defines a type T as Pod.

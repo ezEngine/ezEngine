@@ -61,10 +61,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Id)
   EZ_TEST_BOOL(id2 != id3);
   EZ_TEST_BOOL(id2.IsIndexAndGenerationEqual(id3));
 
-  id2.m_Generation = 94; // overflow
+  id2.m_Generation = 94;    // overflow
   EZ_TEST_INT(id2.m_Generation, 30);
 
-  id2.m_SystemIndex = 94; // overflow
+  id2.m_SystemIndex = 94;   // overflow
   EZ_TEST_INT(id2.m_SystemIndex, 30);
 
   LargeTestId id4(1, 1224); // overflow

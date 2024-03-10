@@ -93,13 +93,13 @@ private:
         return false;
 
       // not supported in Qt 5.15 anymore, but doesn't look like it's vital
-      //if (m_UserData1 < rhs.m_UserData1)
+      // if (m_UserData1 < rhs.m_UserData1)
       //  return true;
-      //if (rhs.m_UserData1 < m_UserData1)
+      // if (rhs.m_UserData1 < m_UserData1)
       //  return false;
-      //if (m_UserData2 < rhs.m_UserData2)
+      // if (m_UserData2 < rhs.m_UserData2)
       //  return true;
-      //if (rhs.m_UserData2 < m_UserData2)
+      // if (rhs.m_UserData2 < m_UserData2)
       //  return false;
 
       return false;

@@ -431,7 +431,8 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const ezDataDirPath& absFilePath,
 
   // try to read the asset file
   ezStatus infoStatus;
-  ezResult res = pFiles->ReadDocument(absFilePath, [&out_assetInfo, &infoStatus](const ezFileStatus& stat, ezStreamReader& ref_reader) { infoStatus = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, ref_reader); });
+  ezResult res = pFiles->ReadDocument(absFilePath, [&out_assetInfo, &infoStatus](const ezFileStatus& stat, ezStreamReader& ref_reader)
+    { infoStatus = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, ref_reader); });
 
   if (infoStatus.Failed())
   {
@@ -652,7 +653,8 @@ void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExist
 
   // Only the main thread tick function is allowed to change from FileAdded / FileRenamed to FileModified to inform views.
   // A modified 'added' file is still added until the added state was addressed.
-  auto IsModifiedAfterAddOrRename = [](ezAssetExistanceState::Enum oldState, ezAssetExistanceState::Enum newState) -> bool {
+  auto IsModifiedAfterAddOrRename = [](ezAssetExistanceState::Enum oldState, ezAssetExistanceState::Enum newState) -> bool
+  {
     return oldState == ezAssetExistanceState::FileAdded && newState == ezAssetExistanceState::FileModified ||
            oldState == ezAssetExistanceState::FileMoved && newState == ezAssetExistanceState::FileModified;
   };

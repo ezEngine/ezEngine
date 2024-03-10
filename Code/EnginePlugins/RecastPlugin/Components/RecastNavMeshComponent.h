@@ -67,7 +67,7 @@ public:
   ezRcNavMeshComponent();
   ~ezRcNavMeshComponent();
 
-  bool m_bShowNavMesh = false; // [ property ]
+  bool m_bShowNavMesh = false;    // [ property ]
 
   ezRecastConfig m_NavMeshConfig; // [ property ]
 

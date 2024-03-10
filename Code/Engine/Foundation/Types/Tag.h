@@ -25,7 +25,7 @@ public:
 
   EZ_ALWAYS_INLINE const ezString& GetTagString() const; // [tested]
 
-  EZ_ALWAYS_INLINE bool IsValid() const; // [tested]
+  EZ_ALWAYS_INLINE bool IsValid() const;                 // [tested]
 
 private:
   template <typename BlockStorageAllocator>

@@ -355,5 +355,3 @@ void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGAL
       break;
   }
 }
-
-

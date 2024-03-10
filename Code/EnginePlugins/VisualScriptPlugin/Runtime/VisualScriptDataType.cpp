@@ -34,7 +34,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 namespace
 {
   static ezVariantType::Enum s_ScriptDataTypeVariantTypes[] = {
-    ezVariantType::Invalid, // Invalid,
+    ezVariantType::Invalid,           // Invalid,
 
     ezVariantType::Bool,              // Bool,
     ezVariantType::UInt8,             // Byte,
@@ -61,7 +61,7 @@ namespace
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeVariantTypes) == (size_t)ezVisualScriptDataType::Count);
 
   static ezUInt32 s_ScriptDataTypeSizes[] = {
-    0, // Invalid,
+    0,                                      // Invalid,
 
     sizeof(bool),                           // Bool,
     sizeof(ezUInt8),                        // Byte,
@@ -88,7 +88,7 @@ namespace
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeSizes) == (size_t)ezVisualScriptDataType::Count);
 
   static ezUInt32 s_ScriptDataTypeAlignments[] = {
-    0, // Invalid,
+    0,                                               // Invalid,
 
     EZ_ALIGNMENT_OF(bool),                           // Bool,
     EZ_ALIGNMENT_OF(ezUInt8),                        // Byte,
@@ -232,7 +232,7 @@ const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
 {
   // Define table here to prevent issues with static initialization order
   static const ezRTTI* s_Rttis[] = {
-    nullptr, // Invalid,
+    nullptr,                                    // Invalid,
 
     ezGetStaticRTTI<bool>(),                    // Bool,
     ezGetStaticRTTI<ezUInt8>(),                 // Byte,

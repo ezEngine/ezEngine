@@ -63,10 +63,10 @@ struct ezGALShaderResourceCategory
   static constexpr int ENUM_COUNT = 4;
   enum Enum : ezUInt8
   {
-    Sampler = EZ_BIT(0), //< Sampler (ezGALSamplerStateHandle).
+    Sampler = EZ_BIT(0),        //< Sampler (ezGALSamplerStateHandle).
     ConstantBuffer = EZ_BIT(1), //< Constant Buffer (ezGALBufferHandle)
-    SRV = EZ_BIT(2), //< Shader Resource Views (ezGALResourceViewHandle).
-    UAV = EZ_BIT(3), //< Unordered Access Views (ezGALUnorderedAccessViewHandle).
+    SRV = EZ_BIT(2),            //< Shader Resource Views (ezGALResourceViewHandle).
+    UAV = EZ_BIT(3),            //< Unordered Access Views (ezGALUnorderedAccessViewHandle).
     Default = 0
   };
 

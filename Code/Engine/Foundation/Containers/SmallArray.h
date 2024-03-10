@@ -19,12 +19,12 @@ public:
   // Only if the stored type is either POD or relocatable the hybrid array itself is also relocatable.
   EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T);
 
-  ezSmallArrayBase();                                                                    // [tested]
+  ezSmallArrayBase();                                                                // [tested]
   ezSmallArrayBase(const ezSmallArrayBase<T, Size>& other, ezAllocator* pAllocator); // [tested]
   ezSmallArrayBase(const ezArrayPtr<const T>& other, ezAllocator* pAllocator);       // [tested]
   ezSmallArrayBase(ezSmallArrayBase<T, Size>&& other, ezAllocator* pAllocator);      // [tested]
 
-  ~ezSmallArrayBase(); // [tested]
+  ~ezSmallArrayBase();                                                               // [tested]
 
   // Can't use regular assignment operators since we need to pass an allocator. Use CopyFrom or MoveFrom methods instead.
   void operator=(const ezSmallArrayBase<T, Size>& rhs) = delete;
@@ -63,7 +63,7 @@ public:
   void SetCount(ezUInt16 uiCount, const T& fillValue, ezAllocator* pAllocator); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
-  template <typename = void>                                                 // Template is used to only conditionally compile this function in when it is actually used.
+  template <typename = void>                                             // Template is used to only conditionally compile this function in when it is actually used.
   void SetCountUninitialized(ezUInt16 uiCount, ezAllocator* pAllocator); // [tested]
 
   /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
@@ -180,7 +180,7 @@ public:
   const U& GetUserData() const; // [tested]
 
   template <typename U>
-  U& GetUserData(); // [tested]
+  U& GetUserData();             // [tested]
 
 protected:
   enum
@@ -233,15 +233,15 @@ public:
   void operator=(const ezArrayPtr<const T>& rhs);
   void operator=(ezSmallArray<T, Size, AllocatorWrapper>&& rhs) noexcept;
 
-  void SetCount(ezUInt16 uiCount);                     // [tested]
-  void SetCount(ezUInt16 uiCount, const T& fillValue); // [tested]
-  void EnsureCount(ezUInt16 uiCount);                  // [tested]
+  void SetCount(ezUInt16 uiCount);                      // [tested]
+  void SetCount(ezUInt16 uiCount, const T& fillValue);  // [tested]
+  void EnsureCount(ezUInt16 uiCount);                   // [tested]
 
   template <typename = void>
-  void SetCountUninitialized(ezUInt16 uiCount); // [tested]
+  void SetCountUninitialized(ezUInt16 uiCount);         // [tested]
 
-  void Insert(const T& value, ezUInt32 uiIndex); // [tested]
-  void Insert(T&& value, ezUInt32 uiIndex);      // [tested]
+  void Insert(const T& value, ezUInt32 uiIndex);        // [tested]
+  void Insert(T&& value, ezUInt32 uiIndex);             // [tested]
 
   T& ExpandAndGetRef();                                 // [tested]
   void PushBack(const T& value);                        // [tested]

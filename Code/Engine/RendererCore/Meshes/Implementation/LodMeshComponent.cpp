@@ -327,4 +327,3 @@ void ezLodMeshComponent::UpdateSelectedLod(const ezView& view) const
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_LodMeshComponent);
-

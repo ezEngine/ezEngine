@@ -84,7 +84,7 @@ public:
   /// If 0, the projectile is not affected by gravity.
   float m_fGravityMultiplier; // [ property ]
 
-  // If true the death prefab will be spawned when the velocity gones under the threshold to be considered static 
+  // If true the death prefab will be spawned when the velocity gones under the threshold to be considered static
   bool m_bSpawnPrefabOnStatic; // [ property ]
 
   /// Defines which other physics objects the projectile will collide with.
@@ -103,8 +103,8 @@ public:
   ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; // [ property ]
 
   /// \brief If the projectile reaches its maximum lifetime it can spawn this prefab.
-  void SetDeathPrefab(const char* szPrefab); // [ property ]
-  const char* GetDeathPrefab() const;             // [ property ]
+  void SetDeathPrefab(const char* szPrefab);       // [ property ]
+  const char* GetDeathPrefab() const;              // [ property ]
 
   void SetFallbackSurfaceFile(const char* szFile); // [ property ]
   const char* GetFallbackSurfaceFile() const;      // [ property ]

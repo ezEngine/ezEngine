@@ -41,21 +41,21 @@ public:
   const char* GetCenterClipFile() const;
 
 private:
-  ezHashedString m_sCenterClip;                       // [ property ]
-  ezHybridArray<ezAnimationClip2D, 8> m_Clips;        // [ property ]
+  ezHashedString m_sCenterClip;                               // [ property ]
+  ezHybridArray<ezAnimationClip2D, 8> m_Clips;                // [ property ]
   ezTime m_InputResponse = ezTime::MakeFromMilliseconds(100); // [ property ]
-  bool m_bLoop = true;                                // [ property ]
-  bool m_bApplyRootMotion = false;                    // [ property ]
-  float m_fPlaybackSpeed = 1.0f;                      // [ property ]
+  bool m_bLoop = true;                                        // [ property ]
+  bool m_bApplyRootMotion = false;                            // [ property ]
+  float m_fPlaybackSpeed = 1.0f;                              // [ property ]
 
-  ezAnimGraphTriggerInputPin m_InStart;        // [ property ]
-  ezAnimGraphBoolInputPin m_InLoop;            // [ property ]
-  ezAnimGraphNumberInputPin m_InSpeed;         // [ property ]
-  ezAnimGraphNumberInputPin m_InCoordX;        // [ property ]
-  ezAnimGraphNumberInputPin m_InCoordY;        // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_OutPose;     // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnStarted;  // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFinished; // [ property ]
+  ezAnimGraphTriggerInputPin m_InStart;                       // [ property ]
+  ezAnimGraphBoolInputPin m_InLoop;                           // [ property ]
+  ezAnimGraphNumberInputPin m_InSpeed;                        // [ property ]
+  ezAnimGraphNumberInputPin m_InCoordX;                       // [ property ]
+  ezAnimGraphNumberInputPin m_InCoordY;                       // [ property ]
+  ezAnimGraphLocalPoseOutputPin m_OutPose;                    // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnStarted;                 // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFinished;                // [ property ]
 
   struct ClipToPlay
   {

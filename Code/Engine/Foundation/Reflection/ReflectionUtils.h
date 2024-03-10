@@ -26,10 +26,10 @@ public:
   ///
   /// vector's type needs to be in between ezVariant::Type::Vector2 and ezVariant::Type::Vector4U.
   static ezUInt32 GetComponentCount(ezVariantType::Enum type);
-  static void SetComponent(ezVariant& ref_vector, ezUInt32 uiComponent, double fValue); // [tested]
+  static void SetComponent(ezVariant& ref_vector, ezUInt32 uiComponent, double fValue);                             // [tested]
   static double GetComponent(const ezVariant& vector, ezUInt32 uiComponent);
 
-  static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject);        // [tested] via ToolsFoundation
+  static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject);              // [tested] via ToolsFoundation
   static void SetMemberPropertyValue(const ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation
 
   static ezVariant GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex);

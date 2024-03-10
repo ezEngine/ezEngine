@@ -76,11 +76,11 @@ public:
   const ezSharedPtr<ezBlackboard>& GetBoard();
   ezSharedPtr<const ezBlackboard> GetBoard() const;
 
-  void SetShowDebugInfo(bool bShow); // [ property ]
-  bool GetShowDebugInfo() const;     // [ property ]
+  void SetShowDebugInfo(bool bShow);                              // [ property ]
+  bool GetShowDebugInfo() const;                                  // [ property ]
 
-  void SetTemplateFile(const char* szName); // [ property ]
-  const char* GetTemplateFile() const;      // [ property ]
+  void SetTemplateFile(const char* szName);                       // [ property ]
+  const char* GetTemplateFile() const;                            // [ property ]
 
   void SetEntryValue(const char* szName, const ezVariant& value); // [ scriptable ]
   ezVariant GetEntryValue(const char* szName) const;              // [ scriptable ]
@@ -131,8 +131,8 @@ public:
   void SetSendEntryChangedMessage(bool bSend); // [ property ]
   bool GetSendEntryChangedMessage() const;     // [ property ]
 
-  void SetBlackboardName(const char* szName); // [ property ]
-  const char* GetBlackboardName() const;      // [ property ]
+  void SetBlackboardName(const char* szName);  // [ property ]
+  const char* GetBlackboardName() const;       // [ property ]
 
 private:
   ezUInt32 Entries_GetCount() const;
@@ -202,8 +202,8 @@ public:
 
   ezGlobalBlackboardComponent& operator=(ezGlobalBlackboardComponent&& other);
 
-  void SetBlackboardName(const char* szName); // [ property ]
-  const char* GetBlackboardName() const;      // [ property ]
+  void SetBlackboardName(const char* szName);    // [ property ]
+  const char* GetBlackboardName() const;         // [ property ]
 
   ezEnum<ezGlobalBlackboardInitMode> m_InitMode; // [ property ]
 

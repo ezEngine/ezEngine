@@ -82,4 +82,3 @@ void ezJoltShapeSphereComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeSphereComponent);
-

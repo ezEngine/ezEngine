@@ -40,5 +40,3 @@ void ezQtTestFramework::SetSubTestStatusImpl(ezUInt32 uiSubTestIndex, const char
 }
 
 #endif
-
-

@@ -22,7 +22,7 @@ public:
   ezLerpPosesAnimNode();
   ~ezLerpPosesAnimNode();
 
-  float m_fLerp = 0.5f; // [ property ]
+  float m_fLerp = 0.5f;                                     // [ property ]
 
 private:
   ezUInt8 m_uiPosesCount = 0;                               // [ property ]

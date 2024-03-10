@@ -11,13 +11,13 @@ void ezQuakeConsole::ExecuteCommand(ezStringView sInput)
   if (bBind || bUnbind)
   {
     ezStringBuilder tmp;
-    const char* szAfterCmd = ezStringUtils::FindWordEnd(sInput.GetData(tmp), ezStringUtils::IsWhiteSpace); // skip the word 'bind' or 'unbind'
+    const char* szAfterCmd = ezStringUtils::FindWordEnd(sInput.GetData(tmp), ezStringUtils::IsWhiteSpace);              // skip the word 'bind' or 'unbind'
 
     const char* szKeyNameStart = ezStringUtils::SkipCharacters(szAfterCmd, ezStringUtils::IsWhiteSpace);                // go to the next word
     const char* szKeyNameEnd = ezStringUtils::FindWordEnd(szKeyNameStart, ezStringUtils::IsIdentifierDelimiter_C_Code); // find its end
 
     ezStringView sKey(szKeyNameStart, szKeyNameEnd);
-    tmp = sKey; // copy the word into a zero terminated string
+    tmp = sKey;                                                                                                         // copy the word into a zero terminated string
 
     const char* szCommandToBind = ezStringUtils::SkipCharacters(szKeyNameEnd, ezStringUtils::IsWhiteSpace);
 
@@ -61,5 +61,3 @@ void ezQuakeConsole::ExecuteBoundKey(ezStringView sKey)
     ExecuteCommand(it.Value());
   }
 }
-
-

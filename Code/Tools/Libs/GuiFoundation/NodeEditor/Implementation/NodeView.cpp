@@ -140,7 +140,7 @@ void ezQtNodeView::drawBackground(QPainter* painter, const QRectF& r)
 {
   QGraphicsView::drawBackground(painter, r);
 
-  if(m_ViewScale.manhattanLength() > 1.0)
+  if (m_ViewScale.manhattanLength() > 1.0)
   {
     QPen pfine(ezToQtColor(ezColorScheme::GetColor(ezColorScheme::Gray, 0)), 1.0);
 
@@ -148,7 +148,7 @@ void ezQtNodeView::drawBackground(QPainter* painter, const QRectF& r)
     DrawGrid(painter, 15);
   }
 
-  if(m_ViewScale.manhattanLength() > 0.1)
+  if (m_ViewScale.manhattanLength() > 0.1)
   {
     double scale = m_ViewScale.manhattanLength() < 0.25 ? 150.0 : 300.0;
 
@@ -157,7 +157,7 @@ void ezQtNodeView::drawBackground(QPainter* painter, const QRectF& r)
     painter->setPen(p);
     DrawGrid(painter, scale);
   }
-  
+
   // Only force constant redraws when doing the debug animation.
   if (GetScene()->GetConnectionDecorationFlags().IsSet(ezQtNodeScene::ConnectionDecorationFlags::DrawDebugging))
   {

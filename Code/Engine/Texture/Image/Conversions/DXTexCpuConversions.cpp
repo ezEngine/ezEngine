@@ -34,7 +34,8 @@ public:
       const ezUInt32 srcStride = numBlocksX * 4 * 4;
       const ezUInt32 targetStride = numBlocksX * 16;
 
-      ezTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](ezUInt32 startIndex, ezUInt32 endIndex) {
+      ezTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](ezUInt32 startIndex, ezUInt32 endIndex)
+        {
         const ezUInt8* srcIt = source.GetPtr() + srcStride * startIndex * 4;
         ezUInt8* targetIt = target.GetPtr() + targetStride * startIndex;
         for (ezUInt32 blockY = startIndex; blockY < endIndex; ++blockY)
@@ -56,8 +57,7 @@ public:
             targetIt += 16;
           }
           srcIt += 3 * srcStride;
-        }
-      });
+        } });
 
       return EZ_SUCCESS;
     }
@@ -66,7 +66,8 @@ public:
       const ezUInt32 srcStride = numBlocksX * 4 * 4;
       const ezUInt32 targetStride = numBlocksX * 8;
 
-      ezTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](ezUInt32 startIndex, ezUInt32 endIndex) {
+      ezTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](ezUInt32 startIndex, ezUInt32 endIndex)
+        {
         const ezUInt8* srcIt = source.GetPtr() + srcStride * startIndex * 4;
         ezUInt8* targetIt = target.GetPtr() + targetStride * startIndex;
         for (ezUInt32 blockY = startIndex; blockY < endIndex; ++blockY)
@@ -88,8 +89,7 @@ public:
             targetIt += 8;
           }
           srcIt += 3 * srcStride;
-        }
-      });
+        } });
 
       return EZ_SUCCESS;
     }
@@ -98,7 +98,8 @@ public:
       const ezUInt32 srcStride = numBlocksX * 4 * 4 * sizeof(float);
       const ezUInt32 targetStride = numBlocksX * 16;
 
-      ezTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](ezUInt32 startIndex, ezUInt32 endIndex) {
+      ezTaskSystem::ParallelForIndexed(0, numBlocksY, [srcStride, targetStride, source, target, numBlocksX](ezUInt32 startIndex, ezUInt32 endIndex)
+        {
         const ezUInt8* srcIt = source.GetPtr() + srcStride * startIndex * 4;
         ezUInt8* targetIt = target.GetPtr() + targetStride * startIndex;
         for (ezUInt32 blockY = startIndex; blockY < endIndex; ++blockY)
@@ -120,8 +121,7 @@ public:
             targetIt += 16;
           }
           srcIt += 3 * srcStride;
-        }
-      });
+        } });
 
       return EZ_SUCCESS;
     }
@@ -137,6 +137,4 @@ static ezImageConversion_CompressDxTexCpu s_conversion_compressDxTexCpu;
 
 
 
-
 EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTexCpuConversions);
-

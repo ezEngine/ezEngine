@@ -16,7 +16,7 @@ public:
   ~ezDeferredFileWriter() { Close().IgnoreResult(); }
 
   /// \brief This must be configured before anything is written to the file.
-  void SetOutput(ezStringView sFileToWriteTo, bool bOnlyWriteIfDifferent = false); // [tested]
+  void SetOutput(ezStringView sFileToWriteTo, bool bOnlyWriteIfDifferent = false);         // [tested]
 
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
 

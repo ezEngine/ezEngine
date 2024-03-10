@@ -19,7 +19,7 @@ public:
   ezHashableStruct();                                       // [tested]
   ezHashableStruct(const ezHashableStruct<DERIVED>& other); // [tested]
 
-  void operator=(const ezHashableStruct<DERIVED>& other); // [tested]
+  void operator=(const ezHashableStruct<DERIVED>& other);   // [tested]
 
   /// \brief Calculates the 32 bit hash of the struct and returns it
   ezUInt32 CalculateHash() const; // [tested]

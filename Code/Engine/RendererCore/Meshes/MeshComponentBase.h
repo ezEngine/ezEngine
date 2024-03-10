@@ -105,8 +105,8 @@ public:
   /// \brief The sorting depth offset allows to tweak the order in which this mesh is rendered relative to other meshes.
   ///
   /// This is mainly useful for transparent objects to render them before or after other meshes.
-  void SetSortingDepthOffset(float fOffset); // [ property ]
-  float GetSortingDepthOffset() const;       // [ property ]
+  void SetSortingDepthOffset(float fOffset);                // [ property ]
+  float GetSortingDepthOffset() const;                      // [ property ]
 
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]

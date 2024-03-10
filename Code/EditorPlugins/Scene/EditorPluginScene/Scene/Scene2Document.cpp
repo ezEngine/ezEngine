@@ -470,7 +470,7 @@ void ezScene2Document::LayerAdded(const ezUuid& layerGuid, const ezUuid& layerOb
   e.m_layerGuid = layerGuid;
   m_LayerEvents.Broadcast(e);
 
-  //#TODO Decide whether to load a layer or not (persist as meta data? / user preferences?)
+  // #TODO Decide whether to load a layer or not (persist as meta data? / user preferences?)
   SetLayerLoaded(layerGuid, true).LogFailure();
 }
 

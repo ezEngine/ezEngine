@@ -253,7 +253,7 @@ ezStatus ezDocumentObjectManager::MoveValue(ezDocumentObject* pObject, ezStringV
     e.m_sProperty = sProperty;
     e.m_NewValue = accessor.GetValue(sProperty, e.getInsertIndex());
     // NewValue can be invalid if an invalid variant in a variant array is moved
-    //EZ_ASSERT_DEV(e.m_NewValue.IsValid(), "Value at new pos should be valid now, index missmatch?");
+    // EZ_ASSERT_DEV(e.m_NewValue.IsValid(), "Value at new pos should be valid now, index missmatch?");
     m_pObjectStorage->m_PropertyEvents.Broadcast(e);
   }
 
@@ -548,9 +548,12 @@ ezSharedPtr<ezDocumentObjectManager::Storage> ezDocumentObjectManager::SwapStora
 
   m_pObjectStorage = pNewStorage;
 
-  m_pObjectStorage->m_StructureEvents.AddEventHandler([this](const ezDocumentObjectStructureEvent& e) { m_StructureEvents.Broadcast(e); }, m_StructureEventsUnsubscriber);
-  m_pObjectStorage->m_PropertyEvents.AddEventHandler([this](const ezDocumentObjectPropertyEvent& e) { m_PropertyEvents.Broadcast(e, 2); }, m_PropertyEventsUnsubscriber);
-  m_pObjectStorage->m_ObjectEvents.AddEventHandler([this](const ezDocumentObjectEvent& e) { m_ObjectEvents.Broadcast(e); }, m_ObjectEventsUnsubscriber);
+  m_pObjectStorage->m_StructureEvents.AddEventHandler([this](const ezDocumentObjectStructureEvent& e)
+    { m_StructureEvents.Broadcast(e); }, m_StructureEventsUnsubscriber);
+  m_pObjectStorage->m_PropertyEvents.AddEventHandler([this](const ezDocumentObjectPropertyEvent& e)
+    { m_PropertyEvents.Broadcast(e, 2); }, m_PropertyEventsUnsubscriber);
+  m_pObjectStorage->m_ObjectEvents.AddEventHandler([this](const ezDocumentObjectEvent& e)
+    { m_ObjectEvents.Broadcast(e); }, m_ObjectEventsUnsubscriber);
 
   return retVal;
 }

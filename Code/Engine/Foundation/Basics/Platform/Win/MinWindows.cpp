@@ -43,5 +43,3 @@ void ezCheckWindowsTypeSizes()
 #  endif
 }
 #endif
-
-

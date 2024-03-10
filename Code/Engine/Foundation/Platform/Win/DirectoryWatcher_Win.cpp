@@ -410,5 +410,3 @@ void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watche
 }
 
 #endif
-
-

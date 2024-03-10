@@ -16,5 +16,3 @@ const char* ezGALShaderStage::Names[ENUM_COUNT] = {
   "PixelShader",
   "ComputeShader",
 };
-
-

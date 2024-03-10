@@ -14,5 +14,3 @@ ezAllocatorId ezPageAllocator::GetId()
 
   return id;
 }
-
-

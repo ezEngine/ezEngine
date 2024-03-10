@@ -76,8 +76,8 @@ protected:
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  float m_fWidth = 0.1f;               // [ property ]
-  float m_fUVUnitsPerWorldUnit = 1.0f; // [ property ]
+  float m_fWidth = 0.1f;                // [ property ]
+  float m_fUVUnitsPerWorldUnit = 1.0f;  // [ property ]
 
   ezMaterialResourceHandle m_hMaterial; // [ property ]
 

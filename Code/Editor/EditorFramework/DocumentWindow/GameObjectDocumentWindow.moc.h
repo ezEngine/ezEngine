@@ -31,4 +31,3 @@ private:
 
   void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtGameObjectViewWidget* pSceneView);
 };
-

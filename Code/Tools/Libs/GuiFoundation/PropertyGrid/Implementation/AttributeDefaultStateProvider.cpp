@@ -35,7 +35,8 @@ ezVariant ezAttributeDefaultStateProvider::GetDefaultValue(SuperArray superPtr, 
 
 ezStatus ezAttributeDefaultStateProvider::CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff)
 {
-  auto RemoveObject = [&](const ezUuid& object) {
+  auto RemoveObject = [&](const ezUuid& object)
+  {
     auto& op = out_diff.ExpandAndGetRef();
     op.m_Node = object;
     op.m_Operation = ezAbstractGraphDiffOperation::Op::NodeRemoved;
@@ -43,7 +44,8 @@ ezStatus ezAttributeDefaultStateProvider::CreateRevertContainerDiff(SuperArray s
     op.m_sProperty = pAccessor->GetObject(object)->GetType()->GetTypeName();
   };
 
-  auto SetProperty = [&](const ezVariant& newValue) {
+  auto SetProperty = [&](const ezVariant& newValue)
+  {
     auto& op = out_diff.ExpandAndGetRef();
     op.m_Node = pObject->GetGuid();
     op.m_Operation = ezAbstractGraphDiffOperation::Op::PropertyChanged;

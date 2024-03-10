@@ -85,8 +85,8 @@ public:
   float GetMass() const { return m_fMass; } // [ property ]
 
   /// \brief The strength with which the character will push against objects that it is running into.
-  void SetStrength(float fStrength);                // [ property ]
-  float GetStrength() const { return m_fStrength; } // [ property ]
+  void SetStrength(float fStrength);                        // [ property ]
+  float GetStrength() const { return m_fStrength; }         // [ property ]
 
 private:
   ezAngle m_MaxClimbingSlope = ezAngle::MakeFromDegree(45); // [ property ]

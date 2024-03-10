@@ -68,4 +68,3 @@ ezScriptCoroutine::Result ezScriptCoroutine_MoveTo::Update(ezTime deltaTimeSince
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_MoveTo);
-

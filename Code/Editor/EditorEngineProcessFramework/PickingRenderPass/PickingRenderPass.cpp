@@ -99,7 +99,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   }
 
   // filter out all selected objects
-  ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData) { return m_SelectionSet.Contains(pRenderData->m_hOwner); });
+  ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData)
+    { return m_SelectionSet.Contains(pRenderData->m_hOwner); });
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);

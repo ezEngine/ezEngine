@@ -48,7 +48,7 @@ private:
     AddSubTest("09 - GenerateMipMaps", SubTests::ST_GenerateMipMaps);
     AddSubTest("10 - PushConstants", SubTests::ST_PushConstants);
     AddSubTest("11 - SetsSlots", SubTests::ST_SetsSlots);
-    //AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
+    // AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
   }
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
@@ -71,7 +71,6 @@ private:
   void Timestamps();
 
 private:
-
   ezShaderResourceHandle m_hMostBasicTriangleShader;
   ezShaderResourceHandle m_hNDCPositionOnlyShader;
   ezShaderResourceHandle m_hConstantBufferShader;

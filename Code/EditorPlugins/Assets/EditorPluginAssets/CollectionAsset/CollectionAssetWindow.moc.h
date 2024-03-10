@@ -14,4 +14,3 @@ public:
 
   virtual const char* GetWindowLayoutGroupName() const override { return "CollectionAsset"; }
 };
-

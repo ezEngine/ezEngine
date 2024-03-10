@@ -222,4 +222,3 @@ void ezInputDeviceXBox360::ApplyVibration(ezUInt8 uiPhysicalController, Motor::E
     XInputSetState(uiPhysicalController, &v[uiPhysicalController]);
   }
 }
-

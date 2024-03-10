@@ -39,13 +39,13 @@ public:
   bool m_bVisualizePathCorridor = true; // [ property ]
 
   /// \brief Render a line for the shortest path through the corridor.
-  bool m_bVisualizePathLine = true;   // [ property ]
+  bool m_bVisualizePathLine = true; // [ property ]
 
   /// \brief Render text describing what went wrong during path search.
-  bool m_bVisualizePathState = true;  // [ property ]
+  bool m_bVisualizePathState = true; // [ property ]
 
   /// \brief Name of the ezAiNavmeshConfig to use. See ezAiNavigationConfig.
-  ezHashedString m_sNavmeshConfig;    // [ property ]
+  ezHashedString m_sNavmeshConfig; // [ property ]
 
   /// \brief Name of the ezAiPathSearchConfig to use. See ezAiNavigationConfig.
   ezHashedString m_sPathSearchConfig; // [ property ]

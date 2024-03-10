@@ -872,7 +872,7 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
       {
         ezDocumentNodeManagerEvent e2(ezDocumentNodeManagerEvent::Type::BeforeNodeRemoved, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
-      }      
+      }
     }
     break;
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:

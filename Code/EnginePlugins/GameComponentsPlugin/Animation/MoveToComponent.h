@@ -61,8 +61,8 @@ public:
   ~ezMoveToComponent();
 
   /// \brief If set to false, the animation stops immediately.
-  void SetRunning(bool bRunning); // [ property ]
-  bool IsRunning() const;         // [ property ]
+  void SetRunning(bool bRunning);             // [ property ]
+  bool IsRunning() const;                     // [ property ]
 
   void SetTargetPosition(const ezVec3& vPos); // [ scriptable ]
 
@@ -72,9 +72,9 @@ protected:
   ezEventMessageSender<ezMsgAnimationReachedEnd> m_ReachedEndMsgSender; // [ event ]
 
   float m_fCurTranslationSpeed = 0;
-  float m_fMaxTranslationSpeed = 1;     // [ property ]
-  float m_fTranslationAcceleration = 0; // [ property ]
-  float m_fTranslationDeceleration = 0; // [ property ]
+  float m_fMaxTranslationSpeed = 1;                                     // [ property ]
+  float m_fTranslationAcceleration = 0;                                 // [ property ]
+  float m_fTranslationDeceleration = 0;                                 // [ property ]
 
   ezVec3 m_vTargetPosition;
   ezBitflags<ezMoveToComponentFlags> m_Flags;

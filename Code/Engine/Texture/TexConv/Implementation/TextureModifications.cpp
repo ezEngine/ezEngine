@@ -445,5 +445,3 @@ ezResult ezTexConvProcessor::InvertNormalMap(ezImage& image)
 
   return EZ_SUCCESS;
 }
-
-

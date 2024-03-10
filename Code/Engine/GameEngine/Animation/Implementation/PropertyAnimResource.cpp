@@ -1,8 +1,8 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Curves/ColorGradientResource.h>
 #include <Core/Curves/Curve1DResource.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 
 // clang-format off

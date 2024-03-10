@@ -237,8 +237,8 @@ void ezSpriteComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezSpriteComponentPatch_1_2 : public ezGraphPatch
 {
