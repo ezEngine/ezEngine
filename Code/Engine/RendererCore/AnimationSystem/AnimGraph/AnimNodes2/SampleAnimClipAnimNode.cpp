@@ -129,9 +129,12 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
     m_OutOnStarted.SetTriggered(ref_graph);
   }
 
+  const float fPrevNormPos = ezMath::Clamp(tPrevSamplePos.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+  const float fCurNormPos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+
   cmd.m_hAnimationClip = clipInfo.m_hClip;
-  cmd.m_fPreviousNormalizedSamplePos = ezMath::Clamp(tPrevSamplePos.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
-  cmd.m_fNormalizedSamplePos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+  cmd.m_fPreviousNormalizedSamplePos = fPrevNormPos;
+  cmd.m_fNormalizedSamplePos = fCurNormPos;
 
   {
     ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
@@ -139,13 +142,13 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
     pLocalTransforms->m_pWeights = nullptr;
     pLocalTransforms->m_bUseRootMotion = m_bApplyRootMotion;
     pLocalTransforms->m_fOverallWeight = 1.0f;
-    pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * fPlaySpeed;
+    pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().GetRootMotionAtNormalizedPos(fCurNormPos) * tDiff.AsFloatInSeconds() * fPlaySpeed;
     pLocalTransforms->m_CommandID = cmd.GetCommandID();
 
     m_OutPose.SetPose(ref_graph, pLocalTransforms);
   }
 
-  if (cmd.m_fNormalizedSamplePos >= 1.0f && !bLoop)
+  if (fCurNormPos >= 1.0f && !bLoop)
   {
     m_OutOnFinished.SetTriggered(ref_graph);
     pState->m_bPlaying = false;

@@ -130,7 +130,7 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
   {
     if (pProp->m_RootMotionMode == ezRootMotionSource::Constant)
     {
-      desc.m_vConstantRootMotion = pProp->m_vConstantRootMotion;
+      desc.SetConstantRootMotion(pProp->m_vConstantRootMotion);
     }
 
     range.BeginNextStep("Writing Result");

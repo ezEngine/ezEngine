@@ -132,7 +132,7 @@ void ezAnimationClipResourceDescriptor::operator=(ezAnimationClipResourceDescrip
 
 ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(9);
+  inout_stream.WriteVersion(10);
 
   const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_JointInfos.GetCount());
   inout_stream << uiNumJoints;
@@ -156,7 +156,14 @@ ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& inout_stre
 
   EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_Transforms));
 
-  inout_stream << m_vConstantRootMotion;
+  ezVec3 vConstantRootMotion(0);
+  inout_stream << vConstantRootMotion;
+
+  const ezUInt8 uiCurves = 3;
+  inout_stream << uiCurves;
+  m_RootMotionCurves[0].Save(inout_stream);
+  m_RootMotionCurves[1].Save(inout_stream);
+  m_RootMotionCurves[2].Save(inout_stream);
 
   m_EventTrack.Save(inout_stream);
 
@@ -167,7 +174,7 @@ ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& inout_stre
 
 ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion uiVersion = inout_stream.ReadVersion(9);
+  const ezTypeVersion uiVersion = inout_stream.ReadVersion(10);
 
   if (uiVersion < 6)
     return EZ_FAILURE;
@@ -203,9 +210,11 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& inout_st
 
   EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Transforms));
 
+  ezVec3 vConstantRootMotion = ezVec3::MakeZero();
+
   if (uiVersion >= 7)
   {
-    inout_stream >> m_vConstantRootMotion;
+    inout_stream >> vConstantRootMotion;
   }
 
   if (uiVersion >= 8)
@@ -216,6 +225,22 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& inout_st
   if (uiVersion >= 9)
   {
     inout_stream >> m_bAdditive;
+  }
+
+  if (uiVersion <= 9)
+  {
+    SetConstantRootMotion(vConstantRootMotion);
+  }
+
+  if (uiVersion >= 10)
+  {
+    m_RootMotionCurves[0].Load(inout_stream);
+    m_RootMotionCurves[1].Load(inout_stream);
+    m_RootMotionCurves[2].Load(inout_stream);
+
+    m_RootMotionCurves[0].CreateLinearApproximation();
+    m_RootMotionCurves[1].CreateLinearApproximation();
+    m_RootMotionCurves[2].CreateLinearApproximation();
   }
 
   return EZ_SUCCESS;
@@ -239,6 +264,21 @@ ezTime ezAnimationClipResourceDescriptor::GetDuration() const
 void ezAnimationClipResourceDescriptor::SetDuration(ezTime duration)
 {
   m_Duration = duration;
+}
+
+void ezAnimationClipResourceDescriptor::SetConstantRootMotion(const ezVec3& vMotion)
+{
+  m_RootMotionCurves[0].Clear();
+  m_RootMotionCurves[1].Clear();
+  m_RootMotionCurves[2].Clear();
+
+  m_RootMotionCurves[0].AddControlPoint(0).m_Position.y = vMotion.x;
+  m_RootMotionCurves[1].AddControlPoint(0).m_Position.y = vMotion.y;
+  m_RootMotionCurves[2].AddControlPoint(0).m_Position.y = vMotion.z;
+
+  m_RootMotionCurves[0].CreateLinearApproximation();
+  m_RootMotionCurves[1].CreateLinearApproximation();
+  m_RootMotionCurves[2].CreateLinearApproximation();
 }
 
 EZ_FORCE_INLINE void ez2ozz(const ezVec3& vIn, ozz::math::Float3& ref_out)
@@ -433,6 +473,25 @@ ezArrayPtr<ezAnimationClipResourceDescriptor::KeyframeVec3> ezAnimationClipResou
   uiByteOffsetStart += sizeof(KeyframeVec3) * jointInfo.m_uiScaleIdx;
 
   return ezArrayPtr<KeyframeVec3>(reinterpret_cast<KeyframeVec3*>(m_Transforms.GetData() + uiByteOffsetStart), jointInfo.m_uiScaleCount);
+}
+
+ezVec3 ezAnimationClipResourceDescriptor::GetRootMotion(ezTime sampleTime) const
+{
+  ezVec3 val(0);
+
+  if (!m_RootMotionCurves[0].IsEmpty())
+    val.x = m_RootMotionCurves[0].Evaluate(sampleTime.GetSeconds());
+  if (!m_RootMotionCurves[1].IsEmpty())
+    val.y = m_RootMotionCurves[1].Evaluate(sampleTime.GetSeconds());
+  if (!m_RootMotionCurves[2].IsEmpty())
+    val.z = m_RootMotionCurves[2].Evaluate(sampleTime.GetSeconds());
+
+  return val;
+}
+
+ezVec3 ezAnimationClipResourceDescriptor::GetRootMotionAtNormalizedPos(float fNormalizedTime) const
+{
+  return GetRootMotion(fNormalizedTime * m_Duration);
 }
 
 ezArrayPtr<const ezAnimationClipResourceDescriptor::KeyframeVec3> ezAnimationClipResourceDescriptor::GetPositionKeyframes(const JointInfo& jointInfo) const

@@ -315,6 +315,9 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
   ezVec3 vRootMotion = ezVec3::MakeZero();
   ezUInt32 uiNumAvgClips = 0;
 
+  ezHybridArray<const ezAnimationClipResourceDescriptor*, 24> pDescs;
+  pDescs.SetCount(clips.GetCount());
+
   for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
   {
     const auto& c = clips[i];
@@ -337,7 +340,10 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     cmd.m_fNormalizedSamplePos = pClip->GetDescriptor().GetDuration().AsFloatInSeconds(); // will be combined with actual pos below
 
     pSampleTrack[i] = &cmd;
-    vRootMotion += pClip->GetDescriptor().m_vConstantRootMotion * c.m_fWeight;
+
+
+    // need this later to look up the root motion
+    pDescs[i] = &pClip->GetDescriptor();
   }
 
   if (uiNumAvgClips > 0)
@@ -390,6 +396,11 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
       pSampleTrack[i]->m_fPreviousNormalizedSamplePos = fPrevPlaybackPosNorm;
       pSampleTrack[i]->m_fNormalizedSamplePos = pState->m_fOtherPlaybackPosNorm;
       pSampleTrack[i]->m_EventSampling = uiMaxWeightClip == i ? eventSampling : ezAnimPoseEventTrackSampleMode::None;
+
+      if (pDescs[i])
+      {
+        vRootMotion += pDescs[i]->GetRootMotionAtNormalizedPos(pState->m_fOtherPlaybackPosNorm) * clips[i].m_fWeight;
+      }
     }
   }
 

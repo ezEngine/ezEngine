@@ -210,7 +210,7 @@ void ezSimpleAnimationComponent::Update()
 
   if (m_RootMotionMode != ezRootMotionMode::Ignore)
   {
-    ezVec3 vRootMotion = tDiff.AsFloatInSeconds() * m_fSpeed * animDesc.m_vConstantRootMotion;
+    ezVec3 vRootMotion = tDiff.AsFloatInSeconds() * m_fSpeed * animDesc.GetRootMotionAtNormalizedPos(m_fNormalizedPlaybackPosition);
 
     const bool bReverse = GetUserFlag(0);
     if (bReverse)

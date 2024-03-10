@@ -246,13 +246,16 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
 
   auto& poseGen = ref_controller.GetPoseGenerator();
 
+  const float fPrevPosNorm = tPrevPlayback.AsFloatInSeconds() * fInvDuration;
+  const float fCurPosNorm = pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration;
+
   if (clip1.m_hClip == clip2.m_hClip)
   {
     const void* pThis = this;
     auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
     cmd.m_hAnimationClip = clip1.m_hClip;
-    cmd.m_fPreviousNormalizedSamplePos = tPrevPlayback.AsFloatInSeconds() * fInvDuration;
-    cmd.m_fNormalizedSamplePos = pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration;
+    cmd.m_fPreviousNormalizedSamplePos = fPrevPosNorm;
+    cmd.m_fNormalizedSamplePos = fCurPosNorm;
     cmd.m_EventSampling = eventSampling;
 
     pOutputTransform->m_CommandID = cmd.GetCommandID();
@@ -267,8 +270,8 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
       const void* pThis = this;
       auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
       cmd.m_hAnimationClip = clip1.m_hClip;
-      cmd.m_fPreviousNormalizedSamplePos = tPrevPlayback.AsFloatInSeconds() * fInvDuration;
-      cmd.m_fNormalizedSamplePos = pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration;
+      cmd.m_fPreviousNormalizedSamplePos = fPrevPosNorm;
+      cmd.m_fNormalizedSamplePos = fCurPosNorm;
       cmd.m_EventSampling = fLerpFactor <= 0.5f ? eventSampling : ezAnimPoseEventTrackSampleMode::None; // only the stronger influence will trigger events
 
       cmdCmb.m_Inputs.PushBack(cmd.GetCommandID());
@@ -280,8 +283,8 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
       const void* pThis = this;
       auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 1));
       cmd.m_hAnimationClip = clip2.m_hClip;
-      cmd.m_fPreviousNormalizedSamplePos = tPrevPlayback.AsFloatInSeconds() * fInvDuration;
-      cmd.m_fNormalizedSamplePos = pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration;
+      cmd.m_fPreviousNormalizedSamplePos = fPrevPosNorm;
+      cmd.m_fNormalizedSamplePos = fCurPosNorm;
       cmd.m_EventSampling = fLerpFactor > 0.5f ? eventSampling : ezAnimPoseEventTrackSampleMode::None; // only the stronger influence will trigger events
 
       cmdCmb.m_Inputs.PushBack(cmd.GetCommandID());
@@ -295,7 +298,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
     {
       pOutputTransform->m_bUseRootMotion = true;
 
-      pOutputTransform->m_vRootMotion = ezMath::Lerp(animDesc1.m_vConstantRootMotion, animDesc2.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds() * fSpeed;
+      pOutputTransform->m_vRootMotion = ezMath::Lerp(animDesc1.GetRootMotionAtNormalizedPos(fCurPosNorm), animDesc2.GetRootMotionAtNormalizedPos(fCurPosNorm), fLerpFactor) * tDiff.AsFloatInSeconds() * fSpeed;
     }
 
     m_OutPose.SetPose(ref_graph, pOutputTransform);

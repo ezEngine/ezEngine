@@ -5,6 +5,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Tracks/Curve1D.h>
 #include <Foundation/Tracks/EventTrack.h>
 
 class ezSkeletonResource;
@@ -31,6 +32,8 @@ public:
   ezUInt16 GetNumJoints() const;
   ezTime GetDuration() const;
   void SetDuration(ezTime duration);
+
+  void SetConstantRootMotion(const ezVec3& vMotion);
 
   const ozz::animation::Animation& GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const;
 
@@ -68,7 +71,10 @@ public:
   ezArrayPtr<const KeyframeQuat> GetRotationKeyframes(const JointInfo& jointInfo) const;
   ezArrayPtr<const KeyframeVec3> GetScaleKeyframes(const JointInfo& jointInfo) const;
 
-  ezVec3 m_vConstantRootMotion = ezVec3::MakeZero();
+  ezVec3 GetRootMotion(ezTime sampleTime) const;
+  ezVec3 GetRootMotionAtNormalizedPos(float fNormalizedTime) const;
+
+  ezCurve1D m_RootMotionCurves[3];
 
   ezEventTrack m_EventTrack;
 

@@ -414,11 +414,11 @@ void ezQtAnimationClipAssetDocumentWindow::onCurveInsertCpAt(ezUInt32 uiCurveIdx
 
     ezAddObjectCommand cmdAddCurve;
     cmdAddCurve.m_Parent = pDoc->GetPropertyObject()->GetGuid();
-    cmdAddCurve.m_NewObjectGuid = ezUuid::MakeUuid();
     cmdAddCurve.m_sParentProperty = "Curves";
     cmdAddCurve.m_pType = ezGetStaticRTTI<ezSingleCurveData>();
     cmdAddCurve.m_Index = -1;
 
+    cmdAddCurve.m_NewObjectGuid = ezUuid::MakeUuid();
     history->AddCommand(cmdAddCurve).AssertSuccess();
   }
 
