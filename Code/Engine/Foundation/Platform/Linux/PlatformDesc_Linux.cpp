@@ -7,5 +7,3 @@ ezPlatformDesc g_PlatformDescLinux("Linux");
 const ezPlatformDesc* ezPlatformDesc::s_pThisPlatform = &g_PlatformDescLinux;
 
 #endif
-
-

@@ -132,7 +132,7 @@ ezStringView ezHybridStringBase<Size>::GetSubString(ezUInt32 uiFirstCharacter, e
 {
   const char* szStart = GetData();
   if (ezUnicodeUtils::MoveToNextUtf8(szStart, uiFirstCharacter).Failed())
-    return {}; // szStart was moved too far, the result is just an empty string
+    return {};                                                           // szStart was moved too far, the result is just an empty string
 
   const char* szEnd = szStart;
   ezUnicodeUtils::MoveToNextUtf8(szEnd, uiNumCharacters).IgnoreResult(); // if it fails, szEnd just points to the end of this string

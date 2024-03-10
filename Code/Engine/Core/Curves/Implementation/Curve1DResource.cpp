@@ -1,7 +1,7 @@
 #include <Core/CorePCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Curves/Curve1DResource.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DResource, 1, ezRTTIDefaultAllocator<ezCurve1DResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

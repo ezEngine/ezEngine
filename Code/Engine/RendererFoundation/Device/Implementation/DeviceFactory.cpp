@@ -61,5 +61,3 @@ void ezGALDeviceFactory::UnregisterCreatorFunc(const char* szRendererName)
 {
   EZ_VERIFY(s_CreatorFuncs.Remove(szRendererName), "Creator func not registered");
 }
-
-

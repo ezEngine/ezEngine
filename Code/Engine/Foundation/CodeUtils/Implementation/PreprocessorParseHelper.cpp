@@ -69,5 +69,3 @@ ezResult ezPreprocessor::ExpectEndOfLine(const TokenStream& Tokens, ezUInt32 uiC
 
   return EZ_SUCCESS;
 }
-
-

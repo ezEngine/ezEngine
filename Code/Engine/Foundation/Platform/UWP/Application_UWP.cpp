@@ -85,5 +85,3 @@ EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp)
 }
 
 #endif
-
-

@@ -25,7 +25,7 @@
 //  Small values (bytes / shorts) don't get any larger by this, I don't see anything that could be done
 //  differently knowing these values are supposed to be bytes or shorts.
 
-//#define USE_STRICT_SPECIFICATION
+// #define USE_STRICT_SPECIFICATION
 
 struct sprintfFlags
 {
@@ -1089,5 +1089,3 @@ void ezStringUtils::OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBuffer
   OutputFloat(szOutputBuffer, uiBufferSize, ref_uiWritePos, value, uiWidth, ezMath::Max<int>(-1, iPrecision), bPadZeros ? sprintfFlags::PadZeros : 0,
     false, bScientific, bRemoveTrailingZeroes);
 }
-
-

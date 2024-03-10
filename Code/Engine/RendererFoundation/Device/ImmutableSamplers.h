@@ -39,5 +39,3 @@ private:
   static ImmutableSamplers s_ImmutableSamplers;
   static ezHashTable<ezHashedString, ezGALSamplerStateCreationDescription> s_ImmutableSamplerDesc;
 };
-
-

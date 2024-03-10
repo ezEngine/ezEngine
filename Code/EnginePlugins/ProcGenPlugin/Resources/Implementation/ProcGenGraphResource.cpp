@@ -1,12 +1,12 @@
 #include <ProcGenPlugin/ProcGenPluginPCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Curves/ColorGradientResource.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
 
@@ -180,7 +180,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
           {
             chunk >> pattern;
           }
-          
+
           pOutput->m_pPattern = ezProcGenInternal::GetPattern(pattern);
 
           m_PlacementOutputs.PushBack(pOutput);

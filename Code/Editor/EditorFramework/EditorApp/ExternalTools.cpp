@@ -24,7 +24,7 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 
   if (pPref->m_bUsePrecompiledTools)
   {
-    if(!pPref->m_sCustomPrecompiledToolsFolder.IsEmpty() && ezOSFile::ExistsDirectory(pPref->m_sCustomPrecompiledToolsFolder))
+    if (!pPref->m_sCustomPrecompiledToolsFolder.IsEmpty() && ezOSFile::ExistsDirectory(pPref->m_sCustomPrecompiledToolsFolder))
     {
       ezStringBuilder customToolsFolder = pPref->m_sCustomPrecompiledToolsFolder;
       customToolsFolder.MakeCleanPath();
@@ -38,7 +38,7 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
   }
 
   ezStringBuilder sTool;
-  for(auto& folder : sFolders)
+  for (auto& folder : sFolders)
   {
     sTool = folder;
     sTool.AppendPath(szToolName);

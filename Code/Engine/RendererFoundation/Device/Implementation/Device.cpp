@@ -1593,5 +1593,3 @@ const ezGALSwapChain* ezGALDevice::GetSwapChainInternal(ezGALSwapChainHandle hSw
   }
   return pSwapChain;
 }
-
-

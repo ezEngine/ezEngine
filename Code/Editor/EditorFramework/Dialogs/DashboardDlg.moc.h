@@ -21,7 +21,6 @@ public:
   ezQtDashboardDlg(QWidget* pParent, DashboardTab activeTab = DashboardTab::Projects);
 
 private:
-
   void SetActiveTab(DashboardTab tab);
   void FillRecentProjectsList();
   void FindSampleProjects(ezDynamicArray<ezString>& out_Projects);
@@ -49,4 +48,3 @@ private Q_SLOTS:
 protected:
   bool eventFilter(QObject*, QEvent*) override;
 };
-

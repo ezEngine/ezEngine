@@ -335,7 +335,8 @@ ezGameObject* RtsGameState::PickSelectableObject() const
   if (PickGroundPlanePosition(pl.vGroundPos).Failed())
     return nullptr;
 
-  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) {
+  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject)
+  {
     RtsSelectableComponent* pSelectable = nullptr;
     if (pObject->TryGetComponentOfBaseType(pSelectable))
     {

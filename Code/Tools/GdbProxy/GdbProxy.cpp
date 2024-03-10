@@ -10,7 +10,7 @@
 #include <thread>
 
 // Enable the below define for debugging
-//#define OUTPUT_STREAMS_TO_FILE
+// #define OUTPUT_STREAMS_TO_FILE
 #define BUFSIZE 4096
 
 HANDLE g_hChildStd_IN_Rd = NULL;
@@ -76,9 +76,12 @@ int _tmain(int iArgc, TCHAR* pArgv[])
   HANDLE parentStdout = GetStdHandle(STD_OUTPUT_HANDLE);
   HANDLE parentStderr = GetStdHandle(STD_ERROR_HANDLE);
 
-  std::thread stdinThread([&]() { ForwardStdin(parentStdin, g_hChildStd_IN_Wr, parentStdout); });
-  std::thread stdoutThread([&]() { ForwardThread(g_hChildStd_OUT_Rd, parentStdout, "H:\\temp\\stdout.log", "wb"); });
-  std::thread stderrThread([&]() { ForwardThread(g_hChildStd_ERR_Rd, parentStderr, "H:\\temp\\stderr.log", "wb"); });
+  std::thread stdinThread([&]()
+    { ForwardStdin(parentStdin, g_hChildStd_IN_Wr, parentStdout); });
+  std::thread stdoutThread([&]()
+    { ForwardThread(g_hChildStd_OUT_Rd, parentStdout, "H:\\temp\\stdout.log", "wb"); });
+  std::thread stderrThread([&]()
+    { ForwardThread(g_hChildStd_ERR_Rd, parentStderr, "H:\\temp\\stderr.log", "wb"); });
 
   WaitForSingleObject(childProcess.hProcess, INFINITE);
   g_runThreads = false;

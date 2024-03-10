@@ -185,7 +185,8 @@ namespace
     const __m128i pal0 = _mm_loadu_si128(pPaletteAndCopy);
     const __m128i src = _mm_loadu_si128((__m128i*)pSourceData);
 
-    auto makeDiff = [&](__m128i pal) {
+    auto makeDiff = [&](__m128i pal)
+    {
       // Absolute difference is a difference between max and min of two numbers.
       const __m128i max8 = _mm_max_epu8(src, pal);
       const __m128i min8 = _mm_min_epu8(src, pal);
@@ -221,7 +222,8 @@ namespace
     const __m128i diff16Lo = _mm_unpacklo_epi8(minDiff, zero);
     const __m128i diff16Hi = _mm_unpackhi_epi8(minDiff, zero);
 
-    auto square = [](__m128i input) { return _mm_mullo_epi32(input, input); };
+    auto square = [](__m128i input)
+    { return _mm_mullo_epi32(input, input); };
 
     const __m128i square0 = square(_mm_unpacklo_epi16(diff16Lo, zero));
     const __m128i square1 = square(_mm_unpackhi_epi16(diff16Lo, zero));
@@ -1852,15 +1854,15 @@ namespace
     {0x12, 1, true, 3, {{ezColorBaseUB(8, 8, 8, 0), ezColorBaseUB(6, 5, 5, 0)}, {ezColorBaseUB(6, 5, 5, 0), ezColorBaseUB(6, 5, 5, 0)}}},    // Mode 7
     {0x16, 1, true, 3, {{ezColorBaseUB(8, 8, 8, 0), ezColorBaseUB(5, 6, 5, 0)}, {ezColorBaseUB(5, 6, 5, 0), ezColorBaseUB(5, 6, 5, 0)}}},    // Mode 8
     {0x1a, 1, true, 3, {{ezColorBaseUB(8, 8, 8, 0), ezColorBaseUB(5, 5, 6, 0)}, {ezColorBaseUB(5, 5, 6, 0), ezColorBaseUB(5, 5, 6, 0)}}},    // Mode 9
-    {0x1e, 1, false, 3, {{ezColorBaseUB(6, 6, 6, 0), ezColorBaseUB(6, 6, 6, 0)}, {ezColorBaseUB(6, 6, 6, 0), ezColorBaseUB(6, 6, 6, 0)}}}, // Mode 10
+    {0x1e, 1, false, 3, {{ezColorBaseUB(6, 6, 6, 0), ezColorBaseUB(6, 6, 6, 0)}, {ezColorBaseUB(6, 6, 6, 0), ezColorBaseUB(6, 6, 6, 0)}}},   // Mode 10
     {0x03, 0, false, 4,
-      {{ezColorBaseUB(10, 10, 10, 0), ezColorBaseUB(10, 10, 10, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}}, // Mode 11
+      {{ezColorBaseUB(10, 10, 10, 0), ezColorBaseUB(10, 10, 10, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}},               // Mode 11
     {0x07, 0, true, 4,
-      {{ezColorBaseUB(11, 11, 11, 0), ezColorBaseUB(9, 9, 9, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}}, // Mode 12
+      {{ezColorBaseUB(11, 11, 11, 0), ezColorBaseUB(9, 9, 9, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}},                  // Mode 12
     {0x0b, 0, true, 4,
-      {{ezColorBaseUB(12, 12, 12, 0), ezColorBaseUB(8, 8, 8, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}}, // Mode 13
+      {{ezColorBaseUB(12, 12, 12, 0), ezColorBaseUB(8, 8, 8, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}},                  // Mode 13
     {0x0f, 0, true, 4,
-      {{ezColorBaseUB(16, 16, 16, 0), ezColorBaseUB(4, 4, 4, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}}, // Mode 14
+      {{ezColorBaseUB(16, 16, 16, 0), ezColorBaseUB(4, 4, 4, 0)}, {ezColorBaseUB(0, 0, 0, 0), ezColorBaseUB(0, 0, 0, 0)}}},                  // Mode 14
   };
 
   static const ezInt32 s_bc6ModeToInfo[] = {
@@ -3068,6 +3070,4 @@ static ezImageConversion_BC7_RGBA s_conversion_BC7_RGBA;
 
 
 
-
 EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTConversions);
-

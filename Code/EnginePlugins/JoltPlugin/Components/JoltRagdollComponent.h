@@ -174,8 +174,8 @@ public:
   void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const; // [ msg handler ]
 
 protected:
-  ezEnum<ezJoltRagdollStartMode> m_StartMode; // [ property ]
-  float m_fGravityFactor = 1.0f;              // [ property ]
+  ezEnum<ezJoltRagdollStartMode> m_StartMode;                      // [ property ]
+  float m_fGravityFactor = 1.0f;                                   // [ property ]
 
   struct Limb
   {

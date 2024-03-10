@@ -4,8 +4,8 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Shader/Types.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkinnedMeshRenderData, 1, ezRTTIDefaultAllocator<ezSkinnedMeshRenderData>)

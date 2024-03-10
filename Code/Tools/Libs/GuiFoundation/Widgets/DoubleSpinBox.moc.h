@@ -53,4 +53,3 @@ private:
   QPoint m_LastDragPos;
   ezInt32 m_iDragDelta;
 };
-

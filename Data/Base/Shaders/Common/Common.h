@@ -14,7 +14,7 @@ float4 RGBA8ToFloat4(uint x)
 {
   float4 result;
   result.r = x & 0xFF;
-  result.g = (x >> 8)  & 0xFF;
+  result.g = (x >> 8) & 0xFF;
   result.b = (x >> 16) & 0xFF;
   result.a = (x >> 24) & 0xFF;
 
@@ -31,7 +31,7 @@ float3 RGB8ToFloat3(uint x)
 {
   float3 result;
   result.r = x & 0xFF;
-  result.g = (x >> 8)  & 0xFF;
+  result.g = (x >> 8) & 0xFF;
   result.b = (x >> 16) & 0xFF;
 
   return result / 255.0;

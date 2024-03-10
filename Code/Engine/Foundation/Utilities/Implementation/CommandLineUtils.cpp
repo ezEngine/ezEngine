@@ -227,7 +227,7 @@ bool ezCommandLineUtils::GetBoolOption(ezStringView sOption, bool bDefault, bool
   if (iIndex < 0)
     return bDefault;
 
-  if (iIndex + 1 == m_Commands.GetCount()) // last command, treat this as 'on'
+  if (iIndex + 1 == m_Commands.GetCount())    // last command, treat this as 'on'
     return true;
 
   if (m_Commands[iIndex + 1].StartsWith("-")) // next command is the next option -> treat this as 'on' as well
@@ -295,5 +295,3 @@ void ezCommandLineUtils::InjectCustomArgument(ezStringView sArgument)
 {
   m_Commands.PushBack(sArgument);
 }
-
-

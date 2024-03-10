@@ -15,4 +15,3 @@ public:
   ezQtScenegraphModel(const ezDocumentObjectManager* pObjectManager, const ezUuid& root = ezUuid());
   ~ezQtScenegraphModel();
 };
-

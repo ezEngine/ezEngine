@@ -8,16 +8,19 @@
 
 #  if defined(TOPOLOGY)
 #    if TOPOLOGY == TOPOLOGY_LINES
-[maxvertexcount(2)] void main(line VS_OUT input[2], inout LineStream<GS_OUT> outStream) {
+[maxvertexcount(2)] void main(line VS_OUT input[2], inout LineStream<GS_OUT> outStream)
+{
   GS_OUT output;
   [unroll(3)] for (int i = 0; i < 2; ++i)
 #    else
-[maxvertexcount(3)] void main(triangle VS_OUT input[3], inout TriangleStream<GS_OUT> outStream) {
+[maxvertexcount(3)] void main(triangle VS_OUT input[3], inout TriangleStream<GS_OUT> outStream)
+{
   GS_OUT output;
   [unroll(3)] for (int i = 0; i < 3; ++i)
 #    endif
 #  else
-[maxvertexcount(3)] void main(triangle VS_OUT input[3], inout TriangleStream<GS_OUT> outStream) {
+[maxvertexcount(3)] void main(triangle VS_OUT input[3], inout TriangleStream<GS_OUT> outStream)
+{
   GS_OUT output;
   [unroll(3)] for (int i = 0; i < 3; ++i)
 #  endif

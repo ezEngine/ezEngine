@@ -35,5 +35,3 @@ ezGALSamplerState::ezGALSamplerState(const ezGALSamplerStateCreationDescription&
 }
 
 ezGALSamplerState::~ezGALSamplerState() = default;
-
-

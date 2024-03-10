@@ -375,5 +375,3 @@ void ezWorldWriter::WriteComponentSerializationData(const ezDeque<const ezCompon
     storage.CopyToStream(s).IgnoreResult();
   }
 }
-
-

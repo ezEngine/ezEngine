@@ -444,110 +444,110 @@ namespace
   }
 
   static constexpr OpFunc s_Simd4Funcs[] = {
-    nullptr, // Nop,
+    nullptr,         // Nop,
 
-    nullptr, // FirstUnary,
+    nullptr,         // FirstUnary,
 
-    &AbsF_4,  // AbsF_R,
-    &AbsI_4,  // AbsI_R,
-    &SqrtF_4, // SqrtF_R,
+    &AbsF_4,         // AbsF_R,
+    &AbsI_4,         // AbsI_R,
+    &SqrtF_4,        // SqrtF_R,
 
-    &ExpF_4,   // ExpF_R,
-    &LnF_4,    // LnF_R,
-    &Log2F_4,  // Log2F_R,
-    &Log2I_4,  // Log2I_R,
-    &Log10F_4, // Log10F_R,
-    &Pow2F_4,  // Pow2F_R,
+    &ExpF_4,         // ExpF_R,
+    &LnF_4,          // LnF_R,
+    &Log2F_4,        // Log2F_R,
+    &Log2I_4,        // Log2I_R,
+    &Log10F_4,       // Log10F_R,
+    &Pow2F_4,        // Pow2F_R,
 
-    &SinF_4, // SinF_R,
-    &CosF_4, // CosF_R,
-    &TanF_4, // TanF_R,
+    &SinF_4,         // SinF_R,
+    &CosF_4,         // CosF_R,
+    &TanF_4,         // TanF_R,
 
-    &ASinF_4, // ASinF_R,
-    &ACosF_4, // ACosF_R,
-    &ATanF_4, // ATanF_R,
+    &ASinF_4,        // ASinF_R,
+    &ACosF_4,        // ACosF_R,
+    &ATanF_4,        // ATanF_R,
 
-    &RoundF_4, // RoundF_R,
-    &FloorF_4, // FloorF_R,
-    &CeilF_4,  // CeilF_R,
-    &TruncF_4, // TruncF_R,
+    &RoundF_4,       // RoundF_R,
+    &FloorF_4,       // FloorF_R,
+    &CeilF_4,        // CeilF_R,
+    &TruncF_4,       // TruncF_R,
 
-    &NotI_4, // NotI_R,
-    &NotB_4, // NotB_R,
+    &NotI_4,         // NotI_R,
+    &NotB_4,         // NotB_R,
 
-    &IToF_4, // IToF_R,
-    &FToI_4, // FToI_R,
+    &IToF_4,         // IToF_R,
+    &FToI_4,         // FToI_R,
 
-    nullptr, // LastUnary,
-    nullptr, // FirstBinary,
+    nullptr,         // LastUnary,
+    nullptr,         // FirstBinary,
 
-    &AddF_4<false>, // AddF_RR,
-    &AddI_4<false>, // AddI_RR,
+    &AddF_4<false>,  // AddF_RR,
+    &AddI_4<false>,  // AddI_RR,
 
-    &SubF_4<false>, // SubF_RR,
-    &SubI_4<false>, // SubI_RR,
+    &SubF_4<false>,  // SubF_RR,
+    &SubI_4<false>,  // SubI_RR,
 
-    &MulF_4<false>, // MulF_RR,
-    &MulI_4<false>, // MulI_RR,
+    &MulF_4<false>,  // MulF_RR,
+    &MulI_4<false>,  // MulI_RR,
 
-    &DivF_4<false>, // DivF_RR,
-    &DivI_4<false>, // DivI_RR,
+    &DivF_4<false>,  // DivF_RR,
+    &DivI_4<false>,  // DivI_RR,
 
-    &MinF_4<false>, // MinF_RR,
-    &MinI_4<false>, // MinI_RR,
+    &MinF_4<false>,  // MinF_RR,
+    &MinI_4<false>,  // MinI_RR,
 
-    &MaxF_4<false>, // MaxF_RR,
-    &MaxI_4<false>, // MaxI_RR,
+    &MaxF_4<false>,  // MaxF_RR,
+    &MaxI_4<false>,  // MaxI_RR,
 
-    &ShlI_4<false>, // ShlI_RR,
-    &ShrI_4<false>, // ShrI_RR,
-    &AndI_4<false>, // AndI_RR,
-    &XorI_4<false>, // XorI_RR,
-    &OrI_4<false>,  // OrI_RR,
+    &ShlI_4<false>,  // ShlI_RR,
+    &ShrI_4<false>,  // ShrI_RR,
+    &AndI_4<false>,  // AndI_RR,
+    &XorI_4<false>,  // XorI_RR,
+    &OrI_4<false>,   // OrI_RR,
 
-    &EqF_4<false>, // EqF_RR,
-    &EqI_4<false>, // EqI_RR,
-    &EqB_4<false>, // EqB_RR,
+    &EqF_4<false>,   // EqF_RR,
+    &EqI_4<false>,   // EqI_RR,
+    &EqB_4<false>,   // EqB_RR,
 
-    &NEqF_4<false>, // NEqF_RR,
-    &NEqI_4<false>, // NEqI_RR,
-    &NEqB_4<false>, // NEqB_RR,
+    &NEqF_4<false>,  // NEqF_RR,
+    &NEqI_4<false>,  // NEqI_RR,
+    &NEqB_4<false>,  // NEqB_RR,
 
-    &LtF_4<false>, // LtF_RR,
-    &LtI_4<false>, // LtI_RR,
+    &LtF_4<false>,   // LtF_RR,
+    &LtI_4<false>,   // LtI_RR,
 
-    &LEqF_4<false>, // LEqF_RR,
-    &LEqI_4<false>, // LEqI_RR,
+    &LEqF_4<false>,  // LEqF_RR,
+    &LEqI_4<false>,  // LEqI_RR,
 
-    &GtF_4<false>, // GtF_RR,
-    &GtI_4<false>, // GtI_RR,
+    &GtF_4<false>,   // GtF_RR,
+    &GtI_4<false>,   // GtI_RR,
 
-    &GEqF_4<false>, // GEqF_RR,
-    &GEqI_4<false>, // GEqI_RR,
+    &GEqF_4<false>,  // GEqF_RR,
+    &GEqI_4<false>,  // GEqI_RR,
 
-    &AndB_4<false>, // AndB_RR,
-    &OrB_4<false>,  // OrB_RR,
+    &AndB_4<false>,  // AndB_RR,
+    &OrB_4<false>,   // OrB_RR,
 
-    nullptr, // LastBinary,
-    nullptr, // FirstBinaryWithConstant,
+    nullptr,         // LastBinary,
+    nullptr,         // FirstBinaryWithConstant,
 
-    &AddF_4<true>, // AddF_RC,
-    &AddI_4<true>, // AddI_RC,
+    &AddF_4<true>,   // AddF_RC,
+    &AddI_4<true>,   // AddI_RC,
 
-    &SubF_4<true>, // SubF_RC,
-    &SubI_4<true>, // SubI_RC,
+    &SubF_4<true>,   // SubF_RC,
+    &SubI_4<true>,   // SubI_RC,
 
-    &MulF_4<true>, // MulF_RC,
-    &MulI_4<true>, // MulI_RC,
+    &MulF_4<true>,   // MulF_RC,
+    &MulI_4<true>,   // MulI_RC,
 
-    &DivF_4<true>, // DivF_RC,
-    &DivI_4<true>, // DivI_RC,
+    &DivF_4<true>,   // DivF_RC,
+    &DivI_4<true>,   // DivI_RC,
 
-    &MinF_4<true>, // MinF_RC,
-    &MinI_4<true>, // MinI_RC,
+    &MinF_4<true>,   // MinF_RC,
+    &MinI_4<true>,   // MinI_RC,
 
-    &MaxF_4<true>, // MaxF_RC,
-    &MaxI_4<true>, // MaxI_RC,
+    &MaxF_4<true>,   // MaxF_RC,
+    &MaxI_4<true>,   // MaxI_RC,
 
     &ShlI_C_4<true>, // ShlI_RC,
     &ShrI_C_4<true>, // ShrI_RC,
@@ -555,49 +555,49 @@ namespace
     &XorI_4<true>,   // XorI_RC,
     &OrI_4<true>,    // OrI_RC,
 
-    &EqF_4<true>, // EqF_RC,
-    &EqI_4<true>, // EqI_RC,
-    &EqB_4<true>, // EqB_RC
+    &EqF_4<true>,    // EqF_RC,
+    &EqI_4<true>,    // EqI_RC,
+    &EqB_4<true>,    // EqB_RC
 
-    &NEqF_4<true>, // NEqF_RC,
-    &NEqI_4<true>, // NEqI_RC,
-    &NEqB_4<true>, // NEqB_RC
+    &NEqF_4<true>,   // NEqF_RC,
+    &NEqI_4<true>,   // NEqI_RC,
+    &NEqB_4<true>,   // NEqB_RC
 
-    &LtF_4<true>, // LtF_RC,
-    &LtI_4<true>, // LtI_RC
+    &LtF_4<true>,    // LtF_RC,
+    &LtI_4<true>,    // LtI_RC
 
-    &LEqF_4<true>, // LEqF_RC,
-    &LEqI_4<true>, // LEqI_RC
+    &LEqF_4<true>,   // LEqF_RC,
+    &LEqI_4<true>,   // LEqI_RC
 
-    &GtF_4<true>, // GtF_RC,
-    &GtI_4<true>, // GtI_RC
+    &GtF_4<true>,    // GtF_RC,
+    &GtI_4<true>,    // GtI_RC
 
-    &GEqF_4<true>, // GEqF_RC,
-    &GEqI_4<true>, // GEqI_RC
+    &GEqF_4<true>,   // GEqF_RC,
+    &GEqI_4<true>,   // GEqI_RC
 
-    &AndB_4<true>, // AndB_RC,
-    &OrB_4<true>,  // OrB_RC,
+    &AndB_4<true>,   // AndB_RC,
+    &OrB_4<true>,    // OrB_RC,
 
-    nullptr, // LastBinaryWithConstant,
-    nullptr, // FirstTernary,
+    nullptr,         // LastBinaryWithConstant,
+    nullptr,         // FirstTernary,
 
-    &SelF_4, // SelF_RRR,
-    &SelI_4, // SelI_RRR,
-    &SelB_4, // SelB_RRR,
+    &SelF_4,         // SelF_RRR,
+    &SelI_4,         // SelI_RRR,
+    &SelB_4,         // SelB_RRR,
 
-    nullptr, // LastTernary,
-    nullptr, // FirstSpecial,
+    nullptr,         // LastTernary,
+    nullptr,         // FirstSpecial,
 
-    &VM_MovX_R_4, // MovX_R,
-    &VM_MovX_C_4, // MovX_C,
-    &VM_LoadF_4,  // LoadF,
-    &VM_LoadI_4,  // LoadI,
-    &VM_StoreF_4, // StoreF,
-    &VM_StoreI_4, // StoreI,
+    &VM_MovX_R_4,    // MovX_R,
+    &VM_MovX_C_4,    // MovX_C,
+    &VM_LoadF_4,     // LoadF,
+    &VM_LoadI_4,     // LoadI,
+    &VM_StoreF_4,    // StoreF,
+    &VM_StoreI_4,    // StoreI,
 
-    &VM_Call, // Call,
+    &VM_Call,        // Call,
 
-    nullptr, // LastSpecial,
+    nullptr,         // LastSpecial,
   };
 
   static_assert(EZ_ARRAY_SIZE(s_Simd4Funcs) == ezExpressionByteCode::OpCode::Count);

@@ -37,4 +37,3 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Startup);
-

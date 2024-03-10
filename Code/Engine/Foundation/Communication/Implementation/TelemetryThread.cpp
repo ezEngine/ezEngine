@@ -71,5 +71,3 @@ void ezTelemetry::StopTelemetryThread()
     EZ_DEFAULT_DELETE(g_pBroadcastThread);
   }
 }
-
-

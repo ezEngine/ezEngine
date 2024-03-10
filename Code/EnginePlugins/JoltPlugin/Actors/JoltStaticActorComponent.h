@@ -49,8 +49,8 @@ public:
   void SetMesh(const ezJoltMeshResourceHandle& hMesh);
   EZ_ALWAYS_INLINE const ezJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
 
-  void SetSurfaceFile(const char* szFile); // [ property ]
-  const char* GetSurfaceFile() const;      // [ property ]
+  void SetSurfaceFile(const char* szFile);      // [ property ]
+  const char* GetSurfaceFile() const;           // [ property ]
 
   bool m_bIncludeInNavmesh = true;              // [ property ]
   bool m_bPullSurfacesFromGraphicsMesh = false; // [ property ]

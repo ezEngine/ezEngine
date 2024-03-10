@@ -21,10 +21,10 @@ protected:
 
 private:
   ezTime m_TransitionDuration = ezTime::MakeFromMilliseconds(200); // [ property ]
-  ezUInt8 m_uiPosesCount = 0;                               // [ property ]
-  ezHybridArray<ezAnimGraphLocalPoseInputPin, 4> m_InPoses; // [ property ]
-  ezAnimGraphNumberInputPin m_InIndex;                      // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_OutPose;                  // [ property ]
+  ezUInt8 m_uiPosesCount = 0;                                      // [ property ]
+  ezHybridArray<ezAnimGraphLocalPoseInputPin, 4> m_InPoses;        // [ property ]
+  ezAnimGraphNumberInputPin m_InIndex;                             // [ property ]
+  ezAnimGraphLocalPoseOutputPin m_OutPose;                         // [ property ]
 
   struct InstanceData
   {

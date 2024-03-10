@@ -159,5 +159,3 @@ void ezResourceManagerWorkerUpdateContent::Execute()
   m_pLoader = nullptr;
   m_pResourceToLoad = nullptr;
 }
-
-

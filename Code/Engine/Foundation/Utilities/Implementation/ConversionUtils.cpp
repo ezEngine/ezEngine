@@ -146,7 +146,7 @@ namespace ezConversionUtils
       if ((iCurRes < iMin / 10) || (iCurRes == iMin / 10 && iLastDigit > 8)) // going to underflow
         return EZ_FAILURE;
 
-      iCurRes = iCurRes * 10 + iLastDigit * iSign; // shift all previously read digits to the left and add the last digit
+      iCurRes = iCurRes * 10 + iLastDigit * iSign;                           // shift all previously read digits to the left and add the last digit
 
       sText.ChopAwayFirstCharacterAscii();
     }
@@ -669,8 +669,8 @@ namespace ezConversionUtils
   const ezStringBuilder& ToString(const ezMat3& value, ezStringBuilder& out_sResult)
   {
     out_sResult.SetPrintf("{ c1r1=%f, c2r1=%f, c3r1=%f, "
-                       "c1r2=%f, c2r2=%f, c3r2=%f, "
-                       "c1r3=%f, c2r3=%f, c3r3=%f }",
+                          "c1r2=%f, c2r2=%f, c3r2=%f, "
+                          "c1r3=%f, c2r3=%f, c3r3=%f }",
       value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(0, 1), value.Element(1, 1), value.Element(2, 1),
       value.Element(0, 2), value.Element(1, 2), value.Element(2, 2));
     return out_sResult;
@@ -679,9 +679,9 @@ namespace ezConversionUtils
   const ezStringBuilder& ToString(const ezMat4& value, ezStringBuilder& out_sResult)
   {
     out_sResult.SetPrintf("{ c1r1=%f, c2r1=%f, c3r1=%f, c4r1=%f, "
-                       "c1r2=%f, c2r2=%f, c3r2=%f, c4r2=%f, "
-                       "c1r3=%f, c2r3=%f, c3r3=%f, c4r3=%f, "
-                       "c1r4=%f, c2r4=%f, c3r4=%f, c4r4=%f }",
+                          "c1r2=%f, c2r2=%f, c3r2=%f, c4r2=%f, "
+                          "c1r3=%f, c2r3=%f, c3r3=%f, c4r3=%f, "
+                          "c1r4=%f, c2r4=%f, c3r4=%f, c4r4=%f }",
       value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(3, 0), value.Element(0, 1), value.Element(1, 1),
       value.Element(2, 1), value.Element(3, 1), value.Element(0, 2), value.Element(1, 2), value.Element(2, 2), value.Element(3, 2),
       value.Element(0, 3), value.Element(1, 3), value.Element(2, 3), value.Element(3, 3));
@@ -878,7 +878,8 @@ namespace ezConversionUtils
 
     const ezUInt32 uiLen = sColorName.GetElementCount();
 
-    auto twoCharsToByte = [](const char* szColorChars, ezUInt8& out_uiByte) -> ezResult {
+    auto twoCharsToByte = [](const char* szColorChars, ezUInt8& out_uiByte) -> ezResult
+    {
       ezInt8 firstChar = HexCharacterToIntValue(szColorChars[0]);
       ezInt8 secondChar = HexCharacterToIntValue(szColorChars[1]);
       if (firstChar < 0 || secondChar < 0)
@@ -1249,5 +1250,3 @@ namespace ezConversionUtils
 #undef Check
 
 } // namespace ezConversionUtils
-
-

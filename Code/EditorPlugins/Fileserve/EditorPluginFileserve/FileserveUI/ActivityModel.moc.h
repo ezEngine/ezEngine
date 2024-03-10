@@ -50,4 +50,3 @@ private:
   ezUInt32 m_uiAddedItems = 0;
   ezDeque<ezQtFileserveActivityItem> m_Items;
 };
-

@@ -407,41 +407,41 @@ const char* GetProfileName(ezStringView sPlatform, ezGALShaderStage::Enum stage)
 
 ezResult ezShaderCompilerHLSL::ModifyShaderSource(ezShaderProgramData& inout_data, ezLogInterface* pLog)
 {
- for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
- {
-   ezShaderParser::ParseShaderResources(inout_data.m_sShaderSource[stage], inout_data.m_Resources[stage]);
- }
+  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    ezShaderParser::ParseShaderResources(inout_data.m_sShaderSource[stage], inout_data.m_Resources[stage]);
+  }
 
- ezHashTable<ezHashedString, ezShaderResourceBinding> bindings;
- EZ_SUCCEED_OR_RETURN(ezShaderParser::MergeShaderResourceBindings(inout_data, bindings, pLog));
- EZ_SUCCEED_OR_RETURN(DefineShaderResourceBindings(inout_data, bindings, pLog));
- EZ_SUCCEED_OR_RETURN(ezShaderParser::SanityCheckShaderResourceBindings(bindings, pLog));
+  ezHashTable<ezHashedString, ezShaderResourceBinding> bindings;
+  EZ_SUCCEED_OR_RETURN(ezShaderParser::MergeShaderResourceBindings(inout_data, bindings, pLog));
+  EZ_SUCCEED_OR_RETURN(DefineShaderResourceBindings(inout_data, bindings, pLog));
+  EZ_SUCCEED_OR_RETURN(ezShaderParser::SanityCheckShaderResourceBindings(bindings, pLog));
 
- for (auto it : bindings)
- {
-   if (it.Value().m_ResourceType == ezGALShaderResourceType::ConstantBuffer && it.Value().m_iSlot >= EZ_GAL_MAX_CONSTANT_BUFFER_COUNT)
-   {
+  for (auto it : bindings)
+  {
+    if (it.Value().m_ResourceType == ezGALShaderResourceType::ConstantBuffer && it.Value().m_iSlot >= EZ_GAL_MAX_CONSTANT_BUFFER_COUNT)
+    {
       ezLog::Error(pLog, "Shader constant buffer resource '{}' has slot index {}. EZ only supports up to {} slots.", it.Key(), it.Value().m_iSlot, EZ_GAL_MAX_CONSTANT_BUFFER_COUNT);
       return EZ_FAILURE;
-   }
-   if (it.Value().m_ResourceType == ezGALShaderResourceType::Sampler && it.Value().m_iSlot >= EZ_GAL_MAX_SAMPLER_COUNT)
-   {
+    }
+    if (it.Value().m_ResourceType == ezGALShaderResourceType::Sampler && it.Value().m_iSlot >= EZ_GAL_MAX_SAMPLER_COUNT)
+    {
       ezLog::Error(pLog, "Shader sampler resource '{}' has slot index {}. EZ only supports up to {} slots.", it.Key(), it.Value().m_iSlot, EZ_GAL_MAX_SAMPLER_COUNT);
       return EZ_FAILURE;
-   }
- }
+    }
+  }
 
- // Apply shader resource bindings
- ezStringBuilder sNewShaderCode;
- for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
- {
-   if (inout_data.m_sShaderSource[stage].IsEmpty())
-     continue;
-   ezShaderParser::ApplyShaderResourceBindings(inout_data.m_sPlatform, inout_data.m_sShaderSource[stage], inout_data.m_Resources[stage], bindings, ezMakeDelegate(&ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration, this), sNewShaderCode);
-   inout_data.m_sShaderSource[stage] = sNewShaderCode;
-   inout_data.m_Resources[stage].Clear();
- }
- return EZ_SUCCESS;
+  // Apply shader resource bindings
+  ezStringBuilder sNewShaderCode;
+  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    if (inout_data.m_sShaderSource[stage].IsEmpty())
+      continue;
+    ezShaderParser::ApplyShaderResourceBindings(inout_data.m_sPlatform, inout_data.m_sShaderSource[stage], inout_data.m_Resources[stage], bindings, ezMakeDelegate(&ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration, this), sNewShaderCode);
+    inout_data.m_sShaderSource[stage] = sNewShaderCode;
+    inout_data.m_Resources[stage].Clear();
+  }
+  return EZ_SUCCESS;
 }
 
 ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_data, ezLogInterface* pLog)

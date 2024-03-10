@@ -90,8 +90,10 @@ static void CreateMessageTypeList(ezDynamicArray<const ezRTTI*>& out_sorted)
   out_sorted.Reserve(100);
 
   ezHybridArray<const ezRTTI*, 64> alphabetical;
-  ezRTTI::ForEachDerivedType<ezMessage>([&](const ezRTTI* pRtti) { alphabetical.PushBack(pRtti); });
-  alphabetical.Sort([](const ezRTTI* p1, const ezRTTI* p2) -> bool { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
+  ezRTTI::ForEachDerivedType<ezMessage>([&](const ezRTTI* pRtti)
+    { alphabetical.PushBack(pRtti); });
+  alphabetical.Sort([](const ezRTTI* p1, const ezRTTI* p2) -> bool
+    { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
 
   for (auto pRtti : alphabetical)
   {
@@ -183,7 +185,8 @@ static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& 
 
   if (!MessageTypes.TryGetValue(uiTypeHash, ref_pRtti))
   {
-    ref_pRtti = ezRTTI::FindTypeIf([=](const ezRTTI* pRtti) { return ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiTypeHash; });
+    ref_pRtti = ezRTTI::FindTypeIf([=](const ezRTTI* pRtti)
+      { return ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiTypeHash; });
     MessageTypes[uiTypeHash] = ref_pRtti;
   }
 
@@ -275,24 +278,24 @@ void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* sz
 
   const ezStringBuilder sCompModule("__", szComponent);
 
-  duk.PushGlobalObject();                           // [ global ]
-  if (duk.PushLocalObject(sCompModule).Succeeded()) // [ global __CompModule ]
+  duk.PushGlobalObject();                                                       // [ global ]
+  if (duk.PushLocalObject(sCompModule).Succeeded())                             // [ global __CompModule ]
   {
-    if (duk.PushLocalObject(szComponent).Succeeded()) // [ global __CompModule obj ]
+    if (duk.PushLocalObject(szComponent).Succeeded())                           // [ global __CompModule obj ]
     {
       if (duk.PrepareObjectFunctionCall("RegisterMessageHandlers").Succeeded()) // [ global __CompModule obj func ]
       {
-        duk.CallPreparedFunction().IgnoreResult(); // [ global __CompModule obj result ]
-        duk.PopStack();                            // [ global __CompModule obj ]
+        duk.CallPreparedFunction().IgnoreResult();                              // [ global __CompModule obj result ]
+        duk.PopStack();                                                         // [ global __CompModule obj ]
       }
 
-      duk.PopStack(); // [ global __CompModule ]
+      duk.PopStack();                                                           // [ global __CompModule ]
     }
 
-    duk.PopStack(); // [ global ]
+    duk.PopStack();                                                             // [ global ]
   }
 
-  duk.PopStack(); // [ ]
+  duk.PopStack();                                                               // [ ]
 
   m_CurrentTsMsgHandlerRegistrator = ezUuid::MakeInvalid();
 
@@ -368,11 +371,11 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
     {
       ezDuktapeHelper duk(m_Duk);
 
-      DukPutComponentObject(pComponent); // [ comp ]
+      DukPutComponentObject(pComponent);                        // [ comp ]
 
       if (duk.PrepareMethodCall(mh.m_sHandlerFunc).Succeeded()) // [ comp func comp ]
       {
-        ezTypeScriptBinding::DukPutMessage(duk, ref_msg); // [ comp func comp msg ]
+        ezTypeScriptBinding::DukPutMessage(duk, ref_msg);       // [ comp func comp msg ]
 
         if (bSynchronizeAfterwards)
         {
@@ -384,9 +387,9 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
           duk_pop(duk);                                // [ ... ]
         }
 
-        duk.PushCustom();                        // [ comp func comp msg ]
-        duk.CallPreparedMethod().IgnoreResult(); // [ comp result ]
-        duk.PopStack(2);                         // [ ]
+        duk.PushCustom();                              // [ comp func comp msg ]
+        duk.CallPreparedMethod().IgnoreResult();       // [ comp result ]
+        duk.PopStack(2);                               // [ ]
 
         if (bSynchronizeAfterwards)
         {
@@ -432,14 +435,14 @@ bool ezTypeScriptBinding::DeliverTsMessage(const TsComponentTypeInfo& typeInfo, 
     {
       ezDuktapeHelper duk(m_Duk);
 
-      DukPutComponentObject(pComponent); // [ comp ]
+      DukPutComponentObject(pComponent);                        // [ comp ]
 
       if (duk.PrepareMethodCall(mh.m_sHandlerFunc).Succeeded()) // [ comp func comp ]
       {
-        DukPushStashObject(duk, msg.m_uiStashIndex); // [ comp func comp msg ]
-        duk.PushCustom();                            // [ comp func comp msg ]
-        duk.CallPreparedMethod().IgnoreResult();     // [ comp result ]
-        duk.PopStack(2);                             // [ ]
+        DukPushStashObject(duk, msg.m_uiStashIndex);            // [ comp func comp msg ]
+        duk.PushCustom();                                       // [ comp func comp msg ]
+        duk.CallPreparedMethod().IgnoreResult();                // [ comp result ]
+        duk.PopStack(2);                                        // [ ]
 
         EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);
       }

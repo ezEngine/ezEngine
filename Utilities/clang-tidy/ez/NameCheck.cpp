@@ -598,25 +598,28 @@ namespace clang
         {
           return DiagInfo{
             "class / struct member '%0' does not follow the naming convention",
-            [&](DiagnosticBuilder& Diag) { Diag << ID.second; }};
+            [&](DiagnosticBuilder& Diag)
+            { Diag << ID.second; }};
         }
         else if (Failure.Info.KindName == "param")
         {
           return DiagInfo{
             "parameter '%0' does not follow the naming convention (%1)",
-            [&](DiagnosticBuilder& Diag) { Diag << ID.second << Failure.Info.Fixup; }};
+            [&](DiagnosticBuilder& Diag)
+            { Diag << ID.second << Failure.Info.Fixup; }};
         }
         else if (Failure.Info.KindName == "paramRef")
         {
           return DiagInfo{
             "non const reference parameter '%0' does not follow the naming convention. non-const reference parameters should start with 'in_', 'out_' or 'inout_'.",
-            [&](DiagnosticBuilder& Diag) { Diag << ID.second; }};
+            [&](DiagnosticBuilder& Diag)
+            { Diag << ID.second; }};
         }
         return {};
       }
 
     } // namespace ez
-  }   // namespace tidy
+  } // namespace tidy
 } // namespace clang
 
 // * Do we really want to apply prefixes to arrays? Where to stop? bool

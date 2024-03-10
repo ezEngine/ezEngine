@@ -534,7 +534,7 @@ ezResult ezOSFile::GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& ou
 
 #  endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
-#endif // EZ_SUPPORTS_FILE_STATS
+#endif   // EZ_SUPPORTS_FILE_STATS
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
@@ -717,5 +717,3 @@ void ezFileSystemIterator::SkipFolder()
 }
 
 #endif
-
-

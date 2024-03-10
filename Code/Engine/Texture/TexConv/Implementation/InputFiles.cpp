@@ -105,5 +105,3 @@ ezResult ezTexConvProcessor::ConvertAndScaleInputImages(ezUInt32 uiResolutionX, 
 
   return EZ_SUCCESS;
 }
-
-

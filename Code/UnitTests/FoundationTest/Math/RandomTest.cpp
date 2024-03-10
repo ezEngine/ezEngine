@@ -7,7 +7,7 @@
 #include <Foundation/Math/Random.h>
 
 // only works when also linking against CoreUtils
-//#define USE_EZIMAGE
+// #define USE_EZIMAGE
 
 #ifdef USE_EZIMAGE
 #  include <Texture/Image/Image.h>

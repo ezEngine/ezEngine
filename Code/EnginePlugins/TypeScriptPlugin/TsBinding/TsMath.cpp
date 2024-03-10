@@ -167,9 +167,9 @@ void ezTypeScriptBinding::PushMat3(duk_context* pDuk, const ezMat3& value)
     duk_push_number(duk, rm[i]); // [ global __Mat3 Mat3 9params ]
   }
 
-  duk_new(duk, 9);     // [ global __Mat3 result ]
-  duk_remove(duk, -2); // [ global result ]
-  duk_remove(duk, -2); // [ result ]
+  duk_new(duk, 9);               // [ global __Mat3 result ]
+  duk_remove(duk, -2);           // [ global result ]
+  duk_remove(duk, -2);           // [ result ]
 
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, +1);
 }
@@ -264,9 +264,9 @@ void ezTypeScriptBinding::PushMat4(duk_context* pDuk, const ezMat4& value)
     duk_push_number(duk, rm[i]); // [ global __Mat4 Mat4 16params ]
   }
 
-  duk_new(duk, 16);    // [ global __Mat4 result ]
-  duk_remove(duk, -2); // [ global result ]
-  duk_remove(duk, -2); // [ result ]
+  duk_new(duk, 16);              // [ global __Mat4 result ]
+  duk_remove(duk, -2);           // [ global result ]
+  duk_remove(duk, -2);           // [ result ]
 
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, +1);
 }

@@ -63,4 +63,3 @@ void ezParticleFinalizer_LastPosition::Process(ezUInt64 uiNumElements)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer_LastPosition);
-

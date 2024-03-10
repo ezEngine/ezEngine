@@ -2,11 +2,11 @@
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <RendererCore/Shader/ShaderPermutationResource.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererFoundation/RendererReflection.h>
 #include <RendererTest/Basics/ShaderCompilerTest.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererCore/Shader/ShaderPermutationResource.h>
 
 void ezRendererTestShaderCompiler::SetupSubTests()
 {
@@ -16,7 +16,7 @@ void ezRendererTestShaderCompiler::SetupSubTests()
 ezResult ezRendererTestShaderCompiler::InitializeSubTest(ezInt32 iIdentifier)
 {
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
- 
+
   m_hUVColorShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ShaderCompilerTest.ezShader");
 
   return EZ_SUCCESS;
@@ -24,7 +24,7 @@ ezResult ezRendererTestShaderCompiler::InitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezRendererTestShaderCompiler::DeInitializeSubTest(ezInt32 iIdentifier)
 {
-  //m_hShader.Invalidate();
+  // m_hShader.Invalidate();
   m_hUVColorShader.Invalidate();
 
   if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
@@ -121,7 +121,7 @@ ezTestAppRun ezRendererTestShaderCompiler::RunSubTest(ezInt32 iIdentifier, ezUIn
       CheckBinding("RES_ConsumeStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
     }
   }
- 
+
   return ezTestAppRun::Quit;
 }
 

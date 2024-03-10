@@ -1,11 +1,11 @@
 #pragma once
 
+#include <EditorFramework/Assets/AssetBrowserFolderView.moc.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/Widgets/ItemView.moc.h>
 #include <QItemDelegate>
 #include <QListView>
-#include <EditorFramework/Assets/AssetBrowserFolderView.moc.h>
 
 class ezQtIconViewDelegate;
 

@@ -198,7 +198,8 @@ void ezQtEditorApp::DetectAvailablePluginBundles(ezStringView sSearchDirectory)
 
     ezStringBuilder sPlugin;
 
-    auto isUsedInBundle = [this](const ezStringBuilder& sPlugin) -> bool {
+    auto isUsedInBundle = [this](const ezStringBuilder& sPlugin) -> bool
+    {
       for (auto pit : m_PluginBundles.m_Plugins)
       {
         if (pit.Key().IsEqual_NoCase(sPlugin))

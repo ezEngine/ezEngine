@@ -873,5 +873,3 @@ namespace ezMath
     return result;
   }
 } // namespace ezMath
-
-

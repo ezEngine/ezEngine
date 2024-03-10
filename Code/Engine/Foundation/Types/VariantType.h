@@ -73,7 +73,7 @@ struct ezVariantType
     LastExtendedType,  ///< Number of values for ezVariant::Type.
 
     MAX_ENUM_VALUE = LastExtendedType,
-    Default = Invalid ///< Default value used by ezEnum.
+    Default = Invalid  ///< Default value used by ezEnum.
   };
 };
 

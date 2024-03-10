@@ -4,7 +4,7 @@
 
 namespace
 {
-  template<typename T>
+  template <typename T>
   void TestEmptyIntegerBitValues()
   {
     ezUInt32 uiNextBit = 1;
@@ -14,7 +14,7 @@ namespace
     }
   }
 
-  template<typename T>
+  template <typename T>
   void TestFullIntegerBitValues()
   {
     constexpr ezUInt64 uiBitCount = sizeof(T) * 8;
@@ -29,7 +29,7 @@ namespace
     EZ_TEST_INT(uiBitCount, uiCount);
   }
 
-  template<typename T>
+  template <typename T>
   void TestEmptyIntegerBitIndices()
   {
     ezUInt32 uiNextBit = 1;
@@ -39,7 +39,7 @@ namespace
     }
   }
 
-  template<typename T>
+  template <typename T>
   void TestFullIntegerBitIndices()
   {
     constexpr ezUInt64 uiBitCount = sizeof(T) * 8;
@@ -51,7 +51,7 @@ namespace
     }
     EZ_TEST_INT(uiBitCount, uiNextBitIndex);
   }
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(Containers, IterateBits)
 {

@@ -74,7 +74,7 @@ ezResult ezTypeScriptBinding::RegisterComponent(ezStringView sTypeName0, ezCompo
 
   if (!duk_get_prop_string(duk, -1, sTypeName)) // [ global __CompModule sTypeName ]
   {
-    duk.PopStack(3); // [ ]
+    duk.PopStack(3);                            // [ ]
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, EZ_FAILURE, 0);
   }
 
@@ -86,7 +86,7 @@ ezResult ezTypeScriptBinding::RegisterComponent(ezStringView sTypeName0, ezCompo
     ezComponentHandle* pBuffer =
       reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __CompModule object buffer ]
     *pBuffer = hHandle;
-    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __CompModule object ]
+    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle);                // [ global __CompModule object ]
   }
 
   EZ_DUK_VERIFY_STACK(duk, +3);
@@ -94,7 +94,7 @@ ezResult ezTypeScriptBinding::RegisterComponent(ezStringView sTypeName0, ezCompo
   StoreReferenceInStash(duk, uiStashIdx); // [ global __CompModule object ]
   EZ_DUK_VERIFY_STACK(duk, +3);
 
-  duk.PopStack(3); // [ ]
+  duk.PopStack(3);                        // [ ]
   EZ_DUK_VERIFY_STACK(duk, 0);
 
   out_uiStashIdx = uiStashIdx;

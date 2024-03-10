@@ -883,7 +883,7 @@ namespace
       const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
       auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
 
-      inputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject),uiDataSize), streamDataType));
+      inputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
     }
 
     ezHybridArray<ezProcessingStream, 8> outputStreams;
@@ -1425,48 +1425,48 @@ namespace
   };
 
   static ExecuteFunctionContext s_TypeToExecuteFunctions[] = {
-    {},                                                   // Invalid,
-    {},                                                   // EntryCall,
-    {},                                                   // EntryCall_Coroutine,
-    {},                                                   // MessageHandler,
-    {},                                                   // MessageHandler_Coroutine,
-    {&NodeFunction_ReflectedFunction},                    // ReflectedFunction,
-    {nullptr, &NodeFunction_GetReflectedProperty_Getter}, // GetReflectedProperty,
-    {nullptr, &NodeFunction_SetReflectedProperty_Getter}, // SetReflectedProperty,
-    {&NodeFunction_InplaceCoroutine},                     // InplaceCoroutine,
-    {&NodeFunction_GetScriptOwner},                       // GetScriptOwner,
-    {&NodeFunction_SendMessage},                          // SendMessage,
+    {},                                                        // Invalid,
+    {},                                                        // EntryCall,
+    {},                                                        // EntryCall_Coroutine,
+    {},                                                        // MessageHandler,
+    {},                                                        // MessageHandler_Coroutine,
+    {&NodeFunction_ReflectedFunction},                         // ReflectedFunction,
+    {nullptr, &NodeFunction_GetReflectedProperty_Getter},      // GetReflectedProperty,
+    {nullptr, &NodeFunction_SetReflectedProperty_Getter},      // SetReflectedProperty,
+    {&NodeFunction_InplaceCoroutine},                          // InplaceCoroutine,
+    {&NodeFunction_GetScriptOwner},                            // GetScriptOwner,
+    {&NodeFunction_SendMessage},                               // SendMessage,
 
-    {}, // FirstBuiltin,
+    {},                                                        // FirstBuiltin,
 
-    {},                                                  // Builtin_Constant,
-    {},                                                  // Builtin_GetVariable,
-    {nullptr, &NodeFunction_Builtin_SetVariable_Getter}, // Builtin_SetVariable,
-    {nullptr, &NodeFunction_Builtin_IncVariable_Getter}, // Builtin_IncVariable,
-    {nullptr, &NodeFunction_Builtin_DecVariable_Getter}, // Builtin_DecVariable,
+    {},                                                        // Builtin_Constant,
+    {},                                                        // Builtin_GetVariable,
+    {nullptr, &NodeFunction_Builtin_SetVariable_Getter},       // Builtin_SetVariable,
+    {nullptr, &NodeFunction_Builtin_IncVariable_Getter},       // Builtin_IncVariable,
+    {nullptr, &NodeFunction_Builtin_DecVariable_Getter},       // Builtin_DecVariable,
 
-    {&NodeFunction_Builtin_Branch},                 // Builtin_Branch,
-    {nullptr, &NodeFunction_Builtin_Switch_Getter}, // Builtin_Switch,
-    {},                                             // Builtin_WhileLoop,
-    {},                                             // Builtin_ForLoop,
-    {},                                             // Builtin_ForEachLoop,
-    {},                                             // Builtin_ReverseForEachLoop,
-    {},                                             // Builtin_Break,
-    {},                                             // Builtin_Jump,
+    {&NodeFunction_Builtin_Branch},                            // Builtin_Branch,
+    {nullptr, &NodeFunction_Builtin_Switch_Getter},            // Builtin_Switch,
+    {},                                                        // Builtin_WhileLoop,
+    {},                                                        // Builtin_ForLoop,
+    {},                                                        // Builtin_ForEachLoop,
+    {},                                                        // Builtin_ReverseForEachLoop,
+    {},                                                        // Builtin_Break,
+    {},                                                        // Builtin_Jump,
 
-    {&NodeFunction_Builtin_And},                     // Builtin_And,
-    {&NodeFunction_Builtin_Or},                      // Builtin_Or,
-    {&NodeFunction_Builtin_Not},                     // Builtin_Not,
-    {nullptr, &NodeFunction_Builtin_Compare_Getter}, // Builtin_Compare,
-    {},                                              // Builtin_CompareExec,
-    {nullptr, &NodeFunction_Builtin_IsValid_Getter}, // Builtin_IsValid,
-    {nullptr, &NodeFunction_Builtin_Select_Getter},  // Builtin_Select,
+    {&NodeFunction_Builtin_And},                               // Builtin_And,
+    {&NodeFunction_Builtin_Or},                                // Builtin_Or,
+    {&NodeFunction_Builtin_Not},                               // Builtin_Not,
+    {nullptr, &NodeFunction_Builtin_Compare_Getter},           // Builtin_Compare,
+    {},                                                        // Builtin_CompareExec,
+    {nullptr, &NodeFunction_Builtin_IsValid_Getter},           // Builtin_IsValid,
+    {nullptr, &NodeFunction_Builtin_Select_Getter},            // Builtin_Select,
 
-    {nullptr, &NodeFunction_Builtin_Add_Getter}, // Builtin_Add,
-    {nullptr, &NodeFunction_Builtin_Sub_Getter}, // Builtin_Subtract,
-    {nullptr, &NodeFunction_Builtin_Mul_Getter}, // Builtin_Multiply,
-    {nullptr, &NodeFunction_Builtin_Div_Getter}, // Builtin_Divide,
-    {&NodeFunction_Builtin_Expression},          // Builtin_Expression,
+    {nullptr, &NodeFunction_Builtin_Add_Getter},               // Builtin_Add,
+    {nullptr, &NodeFunction_Builtin_Sub_Getter},               // Builtin_Subtract,
+    {nullptr, &NodeFunction_Builtin_Mul_Getter},               // Builtin_Multiply,
+    {nullptr, &NodeFunction_Builtin_Div_Getter},               // Builtin_Divide,
+    {&NodeFunction_Builtin_Expression},                        // Builtin_Expression,
 
     {nullptr, &NodeFunction_Builtin_ToBool_Getter},            // Builtin_ToBool,
     {nullptr, &NodeFunction_Builtin_ToByte_Getter},            // Builtin_ToByte,
@@ -1480,29 +1480,29 @@ namespace
     {nullptr, &NodeFunction_Builtin_ToVariant_Getter},         // Builtin_ToVariant,
     {nullptr, &NodeFunction_Builtin_Variant_ConvertTo_Getter}, // Builtin_Variant_ConvertTo,
 
-    {&NodeFunction_Builtin_MakeArray},        // Builtin_MakeArray
-    {&NodeFunction_Builtin_Array_GetElement}, // Builtin_Array_GetElement,
-    {&NodeFunction_Builtin_Array_SetElement}, // Builtin_Array_SetElement,
-    {&NodeFunction_Builtin_Array_GetCount},   // Builtin_Array_GetCount,
-    {&NodeFunction_Builtin_Array_IsEmpty},    // Builtin_Array_IsEmpty,
-    {&NodeFunction_Builtin_Array_Clear},      // Builtin_Array_Clear,
-    {&NodeFunction_Builtin_Array_Contains},   // Builtin_Array_Contains,
-    {&NodeFunction_Builtin_Array_IndexOf},    // Builtin_Array_IndexOf,
-    {&NodeFunction_Builtin_Array_Insert},     // Builtin_Array_Insert,
-    {&NodeFunction_Builtin_Array_PushBack},   // Builtin_Array_PushBack,
-    {&NodeFunction_Builtin_Array_Remove},     // Builtin_Array_Remove,
-    {&NodeFunction_Builtin_Array_RemoveAt},   // Builtin_Array_RemoveAt,
+    {&NodeFunction_Builtin_MakeArray},                         // Builtin_MakeArray
+    {&NodeFunction_Builtin_Array_GetElement},                  // Builtin_Array_GetElement,
+    {&NodeFunction_Builtin_Array_SetElement},                  // Builtin_Array_SetElement,
+    {&NodeFunction_Builtin_Array_GetCount},                    // Builtin_Array_GetCount,
+    {&NodeFunction_Builtin_Array_IsEmpty},                     // Builtin_Array_IsEmpty,
+    {&NodeFunction_Builtin_Array_Clear},                       // Builtin_Array_Clear,
+    {&NodeFunction_Builtin_Array_Contains},                    // Builtin_Array_Contains,
+    {&NodeFunction_Builtin_Array_IndexOf},                     // Builtin_Array_IndexOf,
+    {&NodeFunction_Builtin_Array_Insert},                      // Builtin_Array_Insert,
+    {&NodeFunction_Builtin_Array_PushBack},                    // Builtin_Array_PushBack,
+    {&NodeFunction_Builtin_Array_Remove},                      // Builtin_Array_Remove,
+    {&NodeFunction_Builtin_Array_RemoveAt},                    // Builtin_Array_RemoveAt,
 
-    {&NodeFunction_Builtin_TryGetComponentOfBaseType}, // Builtin_TryGetComponentOfBaseType
+    {&NodeFunction_Builtin_TryGetComponentOfBaseType},         // Builtin_TryGetComponentOfBaseType
 
-    {&NodeFunction_Builtin_StartCoroutine},    // Builtin_StartCoroutine,
-    {&NodeFunction_Builtin_StopCoroutine},     // Builtin_StopCoroutine,
-    {&NodeFunction_Builtin_StopAllCoroutines}, // Builtin_StopAllCoroutines,
-    {&NodeFunction_Builtin_WaitForX<true>},    // Builtin_WaitForAll,
-    {&NodeFunction_Builtin_WaitForX<false>},   // Builtin_WaitForAny,
-    {&NodeFunction_Builtin_Yield},             // Builtin_Yield,
+    {&NodeFunction_Builtin_StartCoroutine},                    // Builtin_StartCoroutine,
+    {&NodeFunction_Builtin_StopCoroutine},                     // Builtin_StopCoroutine,
+    {&NodeFunction_Builtin_StopAllCoroutines},                 // Builtin_StopAllCoroutines,
+    {&NodeFunction_Builtin_WaitForX<true>},                    // Builtin_WaitForAll,
+    {&NodeFunction_Builtin_WaitForX<false>},                   // Builtin_WaitForAny,
+    {&NodeFunction_Builtin_Yield},                             // Builtin_Yield,
 
-    {}, // LastBuiltin,
+    {},                                                        // LastBuiltin,
   };
 
   static_assert(EZ_ARRAY_SIZE(s_TypeToExecuteFunctions) == ezVisualScriptNodeDescription::Type::Count);

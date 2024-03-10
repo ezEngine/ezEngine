@@ -115,15 +115,16 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
   {
     for (const ezDocumentObject* pObj : input)
     {
-      visitor.Visit(pObj, false, [&output, &sName](const ezDocumentObject* pObject) -> bool {
-        const auto& sObjectName = pObject->GetTypeAccessor().GetValue("Name").Get<ezString>();
-        if (sObjectName == sName)
+      visitor.Visit(pObj, false, [&output, &sName](const ezDocumentObject* pObject) -> bool
         {
-          output.PushBack(pObject);
-          return false;
-        }
-        return true; //
-      });
+          const auto& sObjectName = pObject->GetTypeAccessor().GetValue("Name").Get<ezString>();
+          if (sObjectName == sName)
+          {
+            output.PushBack(pObject);
+            return false;
+          }
+          return true; //
+        });
     }
     input.Clear();
     input.Swap(output);

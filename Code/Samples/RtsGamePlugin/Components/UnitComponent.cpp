@@ -277,7 +277,8 @@ ezGameObject* RtsUnitComponent::FindClosestEnemy(float fMaxRadius) const
   pl.m_vOwnPosition = GetOwner()->GetGlobalPosition();
   pl.m_uiOwnTeamID = GetOwner()->GetTeamID();
 
-  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) -> ezVisitorExecution::Enum {
+  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) -> ezVisitorExecution::Enum
+  {
     if (pObject->GetTeamID() == pl.m_uiOwnTeamID)
       return ezVisitorExecution::Skip;
 

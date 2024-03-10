@@ -7,8 +7,6 @@
 
 
 
-
-
 //////////////////////////////////////////////////////////////////////////
 
 ezMap<ezUInt32, ezShaderStageBinary> ezShaderStageBinary::s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
@@ -262,5 +260,3 @@ void ezShaderStageBinary::OnEngineShutdown()
     s_ShaderStageBinaries[stage].Clear();
   }
 }
-
-

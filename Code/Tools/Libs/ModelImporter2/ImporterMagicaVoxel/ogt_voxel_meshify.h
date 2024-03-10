@@ -2,7 +2,7 @@
     opengametools voxel meshifier - v0.9 - MIT license - Justin Paver, April 2020
 
     This is a single-header-file library that provides easy-to-use
-    support for converting paletted voxel grid data into an indexed triangle mesh. 
+    support for converting paletted voxel grid data into an indexed triangle mesh.
 
     Please see the MIT license information at the end of this file.
 
@@ -19,11 +19,11 @@
     2. convert into a mesh
 
         ogt_mesh* mesh = ogt_mesh_from_paletted_voxels_simple( voxel_data, size_x, size_y, size_z, voxel_palette );
-    
+
     3. use the indexed triangle list in the mesh to construct renderable geometry, collision geometry.
 
         // This is old sceen OpenGL immediate mode rendering for demonstration purposes only.
-        // Ideally you'd use more modern practices for rendering, including converting ogt_mesh data to 
+        // Ideally you'd use more modern practices for rendering, including converting ogt_mesh data to
         // your own engine's layout.
 
         glBegin(GL_TRIANGLES);
@@ -58,7 +58,7 @@
         For this reason, palette[0] will never be used.
 
         Voxel data is laid out in x, then y, then z order. In other words, given
-        a coordinate (x,y,z) within your grid, you can compute where it is in your voxel 
+        a coordinate (x,y,z) within your grid, you can compute where it is in your voxel
         array using the following logic:
 
             voxel_index = x + (y * size_x) + (z * size_x * size_y);
@@ -832,8 +832,8 @@ void _greedy_meshify_voxels_in_face_direction(
 
   ogt_mesh_vec3 normal = _transform_vector(transform, _make_vec3(0.0f, 0.0f, 1.0f));
 
-#  define VOXELDATA_INDEX(_x, _y, _z) ((_x)*k_stride_x) + ((_y)*k_stride_y) + ((_z)*k_stride_z)
-#  define LOCALDATA_INDEX(_x, _y) ((_x) + ((_y)*size_x))
+#  define VOXELDATA_INDEX(_x, _y, _z) ((_x) * k_stride_x) + ((_y) * k_stride_y) + ((_z) * k_stride_z)
+#  define LOCALDATA_INDEX(_x, _y) ((_x) + ((_y) * size_x))
 
   // use this to remap parity where necessary.
   uint32_t base_index_start = out_pMesh->index_count;
@@ -1145,7 +1145,8 @@ ogt_mesh_vec2i get_cardinal_unit_vector(const ogt_mesh_vec2i& vec)
 int32_t get_cardinal_vector_length(const ogt_mesh_vec2i& vec)
 {
   assert((vec.x == 0 && vec.y != 0) || (vec.y == 0 && vec.x != 0));
-  return vec.x == 0 ? abs(vec.y) : vec.y == 0 ? abs(vec.x) : 0;
+  return vec.x == 0 ? abs(vec.y) : vec.y == 0 ? abs(vec.x)
+                                              : 0;
 }
 
 // gets the signed area of the triangle
@@ -1729,7 +1730,7 @@ void _polygon_meshify_voxels_in_face_direction(
         // we always start polygon rasterization with any lower-left corner in (i,j)
         // space and fill outward from there. So skip any coords that don't match this
         // criteria.
-        //if ((i > 0 && slice_colors[index_in_slice-1] == color_index) ||
+        // if ((i > 0 && slice_colors[index_in_slice-1] == color_index) ||
         //	(j > 0 && slice_colors[index_in_slice-size_x] == color_index))
         //	continue;
 

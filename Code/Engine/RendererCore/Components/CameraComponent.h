@@ -118,23 +118,23 @@ public:
   ezViewHandle GetRenderTargetView() const;
 
   /// \brief Sets the name of the render pipeline to use.
-  void SetRenderPipelineEnum(const char* szFile); // [ property ]
-  const char* GetRenderPipelineEnum() const;      // [ property ]
+  void SetRenderPipelineEnum(const char* szFile);                           // [ property ]
+  const char* GetRenderPipelineEnum() const;                                // [ property ]
 
-  void SetAperture(float fAperture);                // [ property ]
-  float GetAperture() const { return m_fAperture; } // [ property ]
+  void SetAperture(float fAperture);                                        // [ property ]
+  float GetAperture() const { return m_fAperture; }                         // [ property ]
 
-  void SetShutterTime(ezTime shutterTime);                // [ property ]
-  ezTime GetShutterTime() const { return m_ShutterTime; } // [ property ]
+  void SetShutterTime(ezTime shutterTime);                                  // [ property ]
+  ezTime GetShutterTime() const { return m_ShutterTime; }                   // [ property ]
 
-  void SetISO(float fISO);                // [ property ]
-  float GetISO() const { return m_fISO; } // [ property ]
+  void SetISO(float fISO);                                                  // [ property ]
+  float GetISO() const { return m_fISO; }                                   // [ property ]
 
   void SetExposureCompensation(float fEC);                                  // [ property ]
   float GetExposureCompensation() const { return m_fExposureCompensation; } // [ property ]
 
-  float GetEV100() const;    // [ property ]
-  float GetExposure() const; // [ property ]
+  float GetEV100() const;                                                   // [ property ]
+  float GetExposure() const;                                                // [ property ]
 
   /// \brief If non-empty, only objects with these tags will be included in this camera's output.
   ezTagSet m_IncludeTags; // [ property ]

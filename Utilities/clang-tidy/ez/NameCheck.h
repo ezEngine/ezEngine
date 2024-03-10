@@ -40,7 +40,7 @@ namespace clang
       };
 
     } // namespace ez
-  }   // namespace tidy
+  } // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EZ_MEMBERVARCHECKCHECK_H

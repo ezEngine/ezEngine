@@ -91,7 +91,7 @@ public:
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
 
   /// If non-zero, the player can pick up objects that have no ezGrabbableItemComponent, if their bounding box extents are below this value.
-  float m_fAllowGrabAnyObjectWithSize = 0.75f; // [ property ]
+  float m_fAllowGrabAnyObjectWithSize = 0.75f;        // [ property ]
 
   void SetAttachToReference(const char* szReference); // [ property ]
 

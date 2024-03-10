@@ -189,7 +189,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
     {
       const auto& vs = m_MeshBufferDescriptor.GetVertexDeclaration().m_VertexStreams[idx];
 
-      chunk << idx; // Vertex stream index
+      chunk << idx;                // Vertex stream index
       chunk << (ezInt32)vs.m_Format;
       chunk << (ezInt32)vs.m_Semantic;
       chunk << vs.m_uiElementSize; // not needed, but can be used to check that memory layout has not changed
@@ -214,13 +214,13 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
   {
     chunk.BeginChunk("VertexBuffer", 1);
 
-      // size in bytes
-      chunk << m_MeshBufferDescriptor.GetVertexBufferData().GetCount();
+    // size in bytes
+    chunk << m_MeshBufferDescriptor.GetVertexBufferData().GetCount();
 
-      if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
-      {
-        chunk.WriteBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount()).IgnoreResult();
-      }
+    if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
+    {
+      chunk.WriteBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount()).IgnoreResult();
+    }
 
     chunk.EndChunk();
   }
@@ -229,13 +229,13 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
   {
     chunk.BeginChunk("IndexBuffer", 1);
 
-      // size in bytes
-      chunk << m_MeshBufferDescriptor.GetIndexBufferData().GetCount();
+    // size in bytes
+    chunk << m_MeshBufferDescriptor.GetIndexBufferData().GetCount();
 
-      if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
-      {
-        chunk.WriteBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount()).IgnoreResult();
-      }
+    if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
+    {
+      chunk.WriteBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount()).IgnoreResult();
+    }
 
     chunk.EndChunk();
   }
@@ -472,11 +472,11 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
 
       // size in bytes
       chunk >> count;
-        m_MeshBufferDescriptor.GetVertexBufferData().SetCountUninitialized(count);
+      m_MeshBufferDescriptor.GetVertexBufferData().SetCountUninitialized(count);
 
-        if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
-          chunk.ReadBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount());
-      }
+      if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
+        chunk.ReadBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount());
+    }
 
     if (ci.m_sChunkName == "IndexBuffer")
     {
@@ -488,11 +488,11 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
 
       // size in bytes
       chunk >> count;
-        m_MeshBufferDescriptor.GetIndexBufferData().SetCountUninitialized(count);
+      m_MeshBufferDescriptor.GetIndexBufferData().SetCountUninitialized(count);
 
-        if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
-          chunk.ReadBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount());
-      }
+      if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
+        chunk.ReadBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount());
+    }
 
     if (ci.m_sChunkName == "BindPose")
     {
@@ -553,5 +553,3 @@ ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& inout_s
 
   return EZ_SUCCESS;
 }
-
-

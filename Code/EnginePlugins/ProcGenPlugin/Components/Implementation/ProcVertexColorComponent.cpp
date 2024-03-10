@@ -292,7 +292,8 @@ void ezProcVertexColorComponentManager::OnAreaInvalidated(const ezProcGenInterna
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
 
-  GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, queryParams, [this](ezGameObject* pObject) {
+  GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, queryParams, [this](ezGameObject* pObject)
+    {
     ezHybridArray<ezProcVertexColorComponent*, 8> components;
     pObject->TryGetComponentsOfBaseType(components);
 
@@ -301,8 +302,7 @@ void ezProcVertexColorComponentManager::OnAreaInvalidated(const ezProcGenInterna
       EnqueueUpdate(pComponent);
     }
 
-    return ezVisitorExecution::Continue;
-  });
+    return ezVisitorExecution::Continue; });
 }
 
 //////////////////////////////////////////////////////////////////////////

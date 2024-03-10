@@ -7,5 +7,3 @@ ezPlatformDesc g_PlatformDescOSX("OSX");
 const ezPlatformDesc* ezPlatformDesc::s_pThisPlatform = &g_PlatformDescOSX;
 
 #endif
-
-

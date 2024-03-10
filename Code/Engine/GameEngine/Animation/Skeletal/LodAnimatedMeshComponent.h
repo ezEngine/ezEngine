@@ -75,8 +75,8 @@ public:
   bool GetShowDebugInfo() const;     // [ property ]
 
   /// \brief Disabling the LOD range overlap functionality can make it easier to determine the desired coverage thresholds.
-  void SetOverlapRanges(bool bOverlap); // [ property ]
-  bool GetOverlapRanges() const;        // [ property ]
+  void SetOverlapRanges(bool bOverlap);       // [ property ]
+  bool GetOverlapRanges() const;              // [ property ]
 
   void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ msg handler ]
 

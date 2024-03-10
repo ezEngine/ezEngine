@@ -35,4 +35,7 @@ namespace ezApplicationDetails
 #define EZ_APPLICATION_ENTRY_POINT(AppClass, ...)                                                                                \
   alignas(EZ_ALIGNMENT_OF(AppClass)) static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */ \
   EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                      \
-  extern "C" void android_main(struct android_app* app) { ::ezApplicationDetails::EntryFunc<AppClass>(app, ##__VA_ARGS__); }
+  extern "C" void android_main(struct android_app* app)                                                                          \
+  {                                                                                                                              \
+    ::ezApplicationDetails::EntryFunc<AppClass>(app, ##__VA_ARGS__);                                                             \
+  }

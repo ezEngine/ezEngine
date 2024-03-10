@@ -538,5 +538,3 @@ ezArrayPtr<ezMat4> ezAnimPoseGenerator::AcquireModelPoseTransforms(ezAnimPoseGen
 
   return m_UsedModelTransforms[id];
 }
-
-

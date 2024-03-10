@@ -55,20 +55,20 @@ public:
   ezPxCharacterShapeComponent();
   ~ezPxCharacterShapeComponent();
 
-  float m_fMass = 100.0f;                              ///< [ property ] mass is used to calculate pushing force from other rigid bodies
-  float m_fMaxStepHeight = 0.3f;                       ///< [ property ] how tall steps the character will climb automatically
-  ezAngle m_MaxClimbingSlope = ezAngle::MakeFromDegree(40.0f); ///< [ property ] Max slope angle that the character can climb before being stopped
-  bool m_bForceSlopeSliding = true;                    ///< [ property ] If standing on a steep slope, the character either can't walk up, or is even forced to slide down
-  bool m_bConstrainedClimbingMode = false;             ///< [ property ] no idea what this does, try out or ask NVIDIA
-  ezUInt8 m_uiCollisionLayer = 0;                      ///< [ property ] What other geometry the CC will collide with
+  float m_fMass = 100.0f;                                                                                      ///< [ property ] mass is used to calculate pushing force from other rigid bodies
+  float m_fMaxStepHeight = 0.3f;                                                                               ///< [ property ] how tall steps the character will climb automatically
+  ezAngle m_MaxClimbingSlope = ezAngle::MakeFromDegree(40.0f);                                                 ///< [ property ] Max slope angle that the character can climb before being stopped
+  bool m_bForceSlopeSliding = true;                                                                            ///< [ property ] If standing on a steep slope, the character either can't walk up, or is even forced to slide down
+  bool m_bConstrainedClimbingMode = false;                                                                     ///< [ property ] no idea what this does, try out or ask NVIDIA
+  ezUInt8 m_uiCollisionLayer = 0;                                                                              ///< [ property ] What other geometry the CC will collide with
 
-  ezUInt32 GetShapeId() const { return m_uiShapeId; }                     // [ scriptable ] The ID of the CC's shape/actor
-  ezBitflags<ezPxCharacterShapeCollisionFlags> GetCollisionFlags() const; // [ scriptable ]
+  ezUInt32 GetShapeId() const { return m_uiShapeId; }                                                          // [ scriptable ] The ID of the CC's shape/actor
+  ezBitflags<ezPxCharacterShapeCollisionFlags> GetCollisionFlags() const;                                      // [ scriptable ]
 
   bool IsTouchingGround() const { return GetCollisionFlags().IsSet(ezPxCharacterShapeCollisionFlags::Below); } // [ scriptable ]
 
-  ezGameObjectHandle GetStandingOnShape() const; // TODO: make scriptable
-  ezGameObjectHandle GetStandingOnActor() const; // TODO: make scriptable
+  ezGameObjectHandle GetStandingOnShape() const;                                                               // TODO: make scriptable
+  ezGameObjectHandle GetStandingOnActor() const;                                                               // TODO: make scriptable
 
   virtual ezBitflags<ezPxCharacterShapeCollisionFlags> MoveShape(const ezVec3& vMoveDelta) = 0;
   virtual void TeleportShape(const ezVec3& vGlobalFootPos);

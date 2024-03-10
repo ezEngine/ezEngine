@@ -138,5 +138,3 @@ void ezTaskSystem::ParallelForIndexed(ezUInt64 uiStartIndex, ezUInt64 uiNumItems
 {
   ParallelForIndexedInternal<ezUInt64, ezParallelForIndexedFunction64>(uiStartIndex, uiNumItems, std::move(taskCallback), szTaskName, params, taskNesting);
 }
-
-

@@ -383,8 +383,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(
             transform.m_vScale = vFullScale.CompMul(probeData.InfluenceScale.GetAsVec3());
             transform.m_vPosition += transform.m_qRotation * vFullScale.CompMul(probeData.InfluenceShift.GetAsVec3());
 
-            //const ezBoundingBox aabb(ezVec3(-1.0f), ezVec3(1.0f));
-            //ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, transform);
+            // const ezBoundingBox aabb(ezVec3(-1.0f), ezVec3(1.0f));
+            // ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, transform);
 
             RasterizeBox(transform, uiProbeIndex, viewProjectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
           }
@@ -426,9 +426,15 @@ ezResult ezClusteredDataExtractor::Deserialize(ezStreamReader& inout_stream)
 
 namespace
 {
-  ezUInt32 PackIndex(ezUInt32 uiLightIndex, ezUInt32 uiDecalIndex) { return uiDecalIndex << 10 | uiLightIndex; }
+  ezUInt32 PackIndex(ezUInt32 uiLightIndex, ezUInt32 uiDecalIndex)
+  {
+    return uiDecalIndex << 10 | uiLightIndex;
+  }
 
-  ezUInt32 PackReflectionProbeIndex(ezUInt32 uiData, ezUInt32 uiReflectionProbeIndex) { return uiReflectionProbeIndex << 20 | uiData; }
+  ezUInt32 PackReflectionProbeIndex(ezUInt32 uiData, ezUInt32 uiReflectionProbeIndex)
+  {
+    return uiReflectionProbeIndex << 20 | uiData;
+  }
 } // namespace
 
 void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pData)

@@ -623,7 +623,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
   float fPenumbraSize = ezMath::Max(pPointLight->GetPenumbraSize(), (0.5f / cvar_RenderingShadowsMinShadowMapSize)); // at least one texel for hardware pcf
   float fFov = AddSafeBorder(ezAngle::MakeFromDegree(90.0f), fPenumbraSize);
 
-  float fNearPlane = 0.1f; ///\todo expose somewhere
+  float fNearPlane = 0.1f;                                                                                           ///\todo expose somewhere
   float fFarPlane = pPointLight->GetEffectiveRange();
 
   for (ezUInt32 i = 0; i < 6; ++i)

@@ -28,4 +28,3 @@ protected:
 protected:
   bool m_bCollapsed = false;
 };
-

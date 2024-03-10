@@ -1,9 +1,9 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <VisualScriptPlugin/Resources/VisualScriptClassResource.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptCoroutine.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptFunctionProperty.h>

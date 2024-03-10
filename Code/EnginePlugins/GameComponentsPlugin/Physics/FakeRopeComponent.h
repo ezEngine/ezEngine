@@ -52,7 +52,7 @@ public:
   ~ezFakeRopeComponent();
 
   /// Of how many pieces the rope is made up.
-  ezUInt16 m_uiPieces = 16; // [ property ]
+  ezUInt16 m_uiPieces = 16;                          // [ property ]
 
   void SetAnchor1Reference(const char* szReference); // [ property ]
   void SetAnchor2Reference(const char* szReference); // [ property ]

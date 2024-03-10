@@ -72,7 +72,7 @@ public:
   void SetColor(const ezColor& color); // [ property ]
 
   /// \brief Returns the mesh instance color.
-  const ezColor& GetColor() const; // [ property ]
+  const ezColor& GetColor() const;                          // [ property ]
 
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]

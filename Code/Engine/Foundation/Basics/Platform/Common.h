@@ -60,7 +60,7 @@ EZ_WARNING_POP()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 /// \brief Macro helper to check alignment
-#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment)-1)) == 0, "Wrong alignment.")
+#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment) - 1)) == 0, "Wrong alignment.")
 #else
 /// \brief Macro helper to check alignment
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)
@@ -74,9 +74,9 @@ EZ_WARNING_POP()
 #define EZ_WINCHECK_1 1          // EZ_INCLUDED_WINDOWS_H defined to 1, _WINDOWS_ defined (stringyfied to nothing)
 #define EZ_WINCHECK_1_WINDOWS_ 1 // EZ_INCLUDED_WINDOWS_H defined to 1, _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
 #define EZ_WINCHECK_EZ_INCLUDED_WINDOWS_H \
-  0 // EZ_INCLUDED_WINDOWS_H undefined (stringyfied to "EZ_INCLUDED_WINDOWS_H", _WINDOWS_ defined (stringyfied to nothing)
+  0                              // EZ_INCLUDED_WINDOWS_H undefined (stringyfied to "EZ_INCLUDED_WINDOWS_H", _WINDOWS_ defined (stringyfied to nothing)
 #define EZ_WINCHECK_EZ_INCLUDED_WINDOWS_H_WINDOWS_ \
-  1 // EZ_INCLUDED_WINDOWS_H undefined (stringyfied to "EZ_INCLUDED_WINDOWS_H", _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
+  1                              // EZ_INCLUDED_WINDOWS_H undefined (stringyfied to "EZ_INCLUDED_WINDOWS_H", _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
 
 /// \brief Checks whether Windows.h has been included directly instead of through 'IncludeWindows.h'
 ///

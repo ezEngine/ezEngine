@@ -109,7 +109,7 @@ public:
   ezTime m_DelayRange; // [ property ]
 
   /// The spawned object's orientation may deviate by this amount around the X axis. 180° is completely random orientation.
-  ezAngle m_MaxDeviation; // [ property ]
+  ezAngle m_MaxDeviation;                                           // [ property ]
 
   const ezRangeView<const char*, ezUInt32> GetParameters() const;   // [ property ] (exposed parameter)
   void SetParameter(const char* szKey, const ezVariant& value);     // [ property ] (exposed parameter)

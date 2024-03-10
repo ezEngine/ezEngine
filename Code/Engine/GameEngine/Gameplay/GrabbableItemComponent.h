@@ -47,8 +47,8 @@ public:
   ezGrabbableItemComponent();
   ~ezGrabbableItemComponent();
 
-  void SetDebugShowPoints(bool bShow); // [ property ]
-  bool GetDebugShowPoints() const;     // [ property ]
+  void SetDebugShowPoints(bool bShow);                   // [ property ]
+  bool GetDebugShowPoints() const;                       // [ property ]
 
   ezDynamicArray<ezGrabbableItemGrabPoint> m_GrabPoints; // [ property ]
 

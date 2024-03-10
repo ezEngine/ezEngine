@@ -37,4 +37,3 @@ protected:
   QMenu* m_pMenu = nullptr;
   ezInt64 m_iCurrentBitflags = 0;
 };
-

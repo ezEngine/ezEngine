@@ -30,4 +30,3 @@ protected:
   ezUInt32 m_uiLastMarqueeActionID = 0;
   ezDeque<ezUuid> m_MarqueeBaseSelection;
 };
-

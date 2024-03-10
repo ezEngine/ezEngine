@@ -1624,8 +1624,8 @@ static bool _vox_file_read_dict(_vox_dictionary* pDict, _vox_file* pFp)
     char* key = &pDict->buffer[pDict->buffer_mem_used];
     pDict->buffer_mem_used += key_string_size + 1; // + 1 for zero terminator
     _vox_file_read(pFp, key, key_string_size);
-    key[key_string_size] = 0;                    // zero-terminate
-    assert(_vox_strlen(key) == key_string_size); // sanity check
+    key[key_string_size] = 0;                      // zero-terminate
+    assert(_vox_strlen(key) == key_string_size);   // sanity check
 
     // get the size of the value string
     uint32_t value_string_size = 0;
@@ -1775,7 +1775,7 @@ static void generate_instances_for_node(
       ogt_vox_transform new_transform = (bGenerate_groups) ? node->u.transform.transform                                      // don't multiply by the parent transform. caller wants the group-relative transform
                                                            : _vox_transform_multiply(node->u.transform.transform, transform); // flatten the transform if we're not generating groups: child transform * parent transform
       const char* new_transform_name = node->u.transform.name[0] ? node->u.transform.name : NULL;
-      szTransform_last_name = new_transform_name ? new_transform_name : szTransform_last_name; // if this node has a name, use it instead of our parent name
+      szTransform_last_name = new_transform_name ? new_transform_name : szTransform_last_name;                                // if this node has a name, use it instead of our parent name
       generate_instances_for_node(nodes, node->u.transform.child_node_id, child_id_array, node->u.transform.layer_id, new_transform, model_ptrs, szTransform_last_name, node->u.transform.hidden, ref_instances, ref_string_data, ref_groups, group_index, bGenerate_groups);
       break;
     }
@@ -1809,7 +1809,7 @@ static void generate_instances_for_node(
       if (node->u.shape.model_id < model_ptrs.size() && // model ID is valid
           model_ptrs[node->u.shape.model_id] != NULL)   // model is non-NULL.
       {
-        assert(bGenerate_groups || group_index == 0); // if we're not generating groups, group_index should be zero to map to the root group.
+        assert(bGenerate_groups || group_index == 0);   // if we're not generating groups, group_index should be zero to map to the root group.
         ogt_vox_instance new_instance;
         new_instance.model_index = node->u.shape.model_id;
         new_instance.transform = transform;
@@ -2433,7 +2433,7 @@ static bool _vox_get_vec3_rotation_bits(const vec3& vec, uint32_t& out_index)
       assert(f[i] == 0.0f); // must be zero
     }
   }
-  assert(out_index != 3); // if you hit this, you probably have all zeroes in the vector!
+  assert(out_index != 3);   // if you hit this, you probably have all zeroes in the vector!
   return is_negative;
 }
 
@@ -2553,7 +2553,7 @@ static void _vox_file_write_chunk_nTRN(_vox_file_writeable* pFp, uint32_t node_i
   _vox_file_write_uint32(pFp, child_node_id);
   _vox_file_write_uint32(pFp, UINT32_MAX); // reserved_id must have all bits set.
   _vox_file_write_uint32(pFp, layer_id);
-  _vox_file_write_uint32(pFp, 1); // num_frames must be 1
+  _vox_file_write_uint32(pFp, 1);          // num_frames must be 1
 
   // write the frame dictionary
   _vox_file_write_uint32(pFp, (r_string ? 1 : 0) + (t_string ? 1 : 0)); // num key values
@@ -2662,8 +2662,8 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* pScene, uint32_t* pBuffer_size
 
     // compute the chunk size.
     uint32_t chunk_size_ngrp =
-      sizeof(uint32_t) + // node_id
-      sizeof(uint32_t) + // num keyvalue pairs in node dictionary
+      sizeof(uint32_t) +                  // node_id
+      sizeof(uint32_t) +                  // num keyvalue pairs in node dictionary
       _vox_dict_key_value_size("_hidden", hidden_string) +
       sizeof(uint32_t) +                  // num_child_nodes field
       sizeof(uint32_t) * num_child_nodes; // uint32_t for each child node id.
@@ -2742,7 +2742,7 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* pScene, uint32_t* pBuffer_size
       sizeof(uint32_t) + // num key value pairs
       _vox_dict_key_value_size("_name", layer_name_string) +
       _vox_dict_key_value_size("_hidden", hidden_string) +
-      sizeof(int32_t); // reserved id, must be -1
+      sizeof(int32_t);   // reserved id, must be -1
     uint32_t layer_dict_keyvalue_count = (layer_name_string ? 1 : 0) + (hidden_string ? 1 : 0);
     // write the layer chunk header
     _vox_file_write_uint32(fp, CHUNK_ID_LAYR);
@@ -2753,7 +2753,7 @@ uint8_t* ogt_vox_write_scene(const ogt_vox_scene* pScene, uint32_t* pBuffer_size
     _vox_file_write_uint32(fp, layer_dict_keyvalue_count); // num keyvalue pairs in layer dictionary
     _vox_file_write_dict_key_value(fp, "_name", layer_name_string);
     _vox_file_write_dict_key_value(fp, "_hidden", hidden_string);
-    _vox_file_write_uint32(fp, UINT32_MAX); // reserved id
+    _vox_file_write_uint32(fp, UINT32_MAX);                // reserved id
   }
 
   // we deliberately don't free the fp->data field, just pass the buffer pointer and size out to the caller
@@ -2895,7 +2895,7 @@ static void update_master_palette_from_scene(ogt_vox_rgba* pMaster_palette, uint
   compute_scene_used_color_index_mask(scene_used_mask, pScene);
 
   // initialize the map that converts from scene color_index to master color_index
-  pScene_to_master_map[0] = 0; // zero/empty always maps to zero/empty in the master palette
+  pScene_to_master_map[0] = 0;            // zero/empty always maps to zero/empty in the master palette
   for (uint32_t i = 1; i < 256; i++)
     pScene_to_master_map[i] = UINT32_MAX; // UINT32_MAX means unassigned
 

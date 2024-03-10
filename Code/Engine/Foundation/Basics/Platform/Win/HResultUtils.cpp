@@ -29,5 +29,3 @@ EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
 }
 
 #endif
-
-

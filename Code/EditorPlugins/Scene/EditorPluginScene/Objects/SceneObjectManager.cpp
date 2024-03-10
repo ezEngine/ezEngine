@@ -48,7 +48,8 @@ void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
   ref_types.PushBack(ezGetStaticRTTI<ezGameObject>());
 
   ezRTTI::ForEachDerivedType<ezComponent>(
-    [&](const ezRTTI* pRtti) { ref_types.PushBack(pRtti); },
+    [&](const ezRTTI* pRtti)
+    { ref_types.PushBack(pRtti); },
     ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 

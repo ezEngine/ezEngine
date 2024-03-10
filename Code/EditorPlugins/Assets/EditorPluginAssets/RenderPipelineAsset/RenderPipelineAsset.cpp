@@ -208,7 +208,8 @@ void ezRenderPipelineObjectMirrorEditor::SendConnection(const ezConnection& conn
   ezString SourcePin = sourcePin.GetName();
   ezString TargetPin = targetPin.GetName();
 
-  auto SendMetaData = [this](const ezDocumentObject* pObject, const char* szProperty, ezVariant value) {
+  auto SendMetaData = [this](const ezDocumentObject* pObject, const char* szProperty, ezVariant value)
+  {
     ezObjectChange change;
     CreatePath(change, pObject, szProperty);
     change.m_Change.m_Operation = ezObjectChangeType::PropertySet;

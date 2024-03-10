@@ -197,5 +197,3 @@ ezUInt64 ezMemoryMappedFile::GetFileSize() const
 }
 
 #endif
-
-

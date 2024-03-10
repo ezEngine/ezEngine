@@ -26,7 +26,7 @@ ezAndroidApplication::ezAndroidApplication(struct android_app* pApp, ezApplicati
   pApp->userData = this;
   pApp->onAppCmd = ezAndroidHandleCmd;
   pApp->onInputEvent = ezAndroidHandleInput;
-  //#TODO: acquire sensors, set app->onAppCmd, set app->onInputEvent
+  // #TODO: acquire sensors, set app->onAppCmd, set app->onInputEvent
 }
 
 ezAndroidApplication::~ezAndroidApplication() {}
@@ -60,18 +60,18 @@ void ezAndroidApplication::AndroidRun()
 
 void ezAndroidApplication::HandleCmd(int32_t cmd)
 {
-  //#TODO:
+  // #TODO:
 }
 
 int32_t ezAndroidApplication::HandleInput(AInputEvent* pEvent)
 {
-  //#TODO:
+  // #TODO:
   return 0;
 }
 
 void ezAndroidApplication::HandleIdent(ezInt32 iIdent)
 {
-  //#TODO:
+  // #TODO:
 }
 
 EZ_FOUNDATION_DLL void ezAndroidRun(struct android_app* pApp, ezApplication* pEzApp)
@@ -94,5 +94,3 @@ EZ_FOUNDATION_DLL void ezAndroidRun(struct android_app* pApp, ezApplication* pEz
 }
 
 #endif
-
-

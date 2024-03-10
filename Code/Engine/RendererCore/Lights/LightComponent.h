@@ -44,16 +44,16 @@ public:
   bool GetUsingColorTemperature() const;
 
   void SetLightColor(ezColorGammaUB lightColor); // [ property ]
-  ezColorGammaUB GetBaseLightColor() const;          // [ property ]
+  ezColorGammaUB GetBaseLightColor() const;      // [ property ]
 
   ezColorGammaUB GetLightColor() const;
 
   void SetTemperature(ezUInt32 uiTemperature); // [ property ]
-  ezUInt32 GetTemperature() const;            // [ property ]
+  ezUInt32 GetTemperature() const;             // [ property ]
 
   /// \brief Sets the brightness of the lightsource.
-  void SetIntensity(float fIntensity); // [ property ]
-  float GetIntensity() const;          // [ property ]
+  void SetIntensity(float fIntensity);                   // [ property ]
+  float GetIntensity() const;                            // [ property ]
 
   void SetSpecularMultiplier(float fSpecularMultiplier); // [ property ]
   float GetSpecularMultiplier() const;                   // [ property ]
@@ -71,8 +71,8 @@ public:
   float GetSlopeBias() const;           // [ property ]
 
   /// \brief Allows to tweak how dynamic shadows are applied to reduce artifacts.
-  void SetConstantBias(float fShadowBias); // [ property ]
-  float GetConstantBias() const;           // [ property ]
+  void SetConstantBias(float fShadowBias);    // [ property ]
+  float GetConstantBias() const;              // [ property ]
 
   void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ msg handler ]
 

@@ -381,5 +381,3 @@ ezFrustum ezFrustum::MakeFromCorners(const ezVec3 pCorners[FrustumCorner::CORNER
 
   return res;
 }
-
-

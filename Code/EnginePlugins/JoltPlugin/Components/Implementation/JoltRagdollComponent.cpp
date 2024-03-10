@@ -257,7 +257,8 @@ void ezJoltRagdollComponent::CreateLimbsFromBindPose()
 
   m_CurrentLimbTransforms.SetCountUninitialized(desc.m_Skeleton.GetJointCount());
 
-  auto ComputeFullJointTransform = [&](ezUInt32 uiJointIdx, auto self) -> ezMat4 {
+  auto ComputeFullJointTransform = [&](ezUInt32 uiJointIdx, auto self) -> ezMat4
+  {
     const auto& joint = desc.m_Skeleton.GetJointByIndex(uiJointIdx);
     const ezMat4 jointTransform = joint.GetRestPoseLocalTransform().GetAsMat4();
 

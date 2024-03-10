@@ -193,9 +193,9 @@ ezResult ezSourcePass::Deserialize(ezStreamReader& inout_stream)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezSourcePassPatch_1_2 : public ezGraphPatch
 {

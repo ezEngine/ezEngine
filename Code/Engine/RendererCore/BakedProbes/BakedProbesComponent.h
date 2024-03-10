@@ -41,16 +41,16 @@ public:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  ezBakingSettings m_Settings; // [ property ]
+  ezBakingSettings m_Settings;                                      // [ property ]
 
-  void SetShowDebugOverlay(bool bShow);                            // [ property ]
-  bool GetShowDebugOverlay() const { return m_bShowDebugOverlay; } // [ property ]
+  void SetShowDebugOverlay(bool bShow);                             // [ property ]
+  bool GetShowDebugOverlay() const { return m_bShowDebugOverlay; }  // [ property ]
 
-  void SetShowDebugProbes(bool bShow);                           // [ property ]
-  bool GetShowDebugProbes() const { return m_bShowDebugProbes; } // [ property ]
+  void SetShowDebugProbes(bool bShow);                              // [ property ]
+  bool GetShowDebugProbes() const { return m_bShowDebugProbes; }    // [ property ]
 
-  void SetUseTestPosition(bool bUse);                            // [ property ]
-  bool GetUseTestPosition() const { return m_bUseTestPosition; } // [ property ]
+  void SetUseTestPosition(bool bUse);                               // [ property ]
+  bool GetUseTestPosition() const { return m_bUseTestPosition; }    // [ property ]
 
   void SetTestPosition(const ezVec3& vPos);                         // [ property ]
   const ezVec3& GetTestPosition() const { return m_vTestPosition; } // [ property ]

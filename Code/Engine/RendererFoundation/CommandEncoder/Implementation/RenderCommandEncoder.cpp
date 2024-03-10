@@ -220,5 +220,3 @@ void ezGALRenderCommandEncoder::ClearStatisticsCounters()
 
   m_uiDrawCalls = 0;
 }
-
-

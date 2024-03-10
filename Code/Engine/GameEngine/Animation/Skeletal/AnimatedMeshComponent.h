@@ -31,7 +31,7 @@ private:
 /// This component only creates an animated mesh for rendering. It does not animate the mesh in any way.
 /// The component handles messages of type ezMsgAnimationPoseUpdated. Using this message other systems can set a new pose
 /// for the animated mesh.
-/// 
+///
 /// For example the ezSkeletonPoseComponent, ezSimpleAnimationComponent and ezAnimationControllerComponent do this
 /// to change the pose of the animated mesh.
 class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezMeshComponentBase

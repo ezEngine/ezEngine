@@ -180,7 +180,7 @@ public:
 /// \brief Same as EZ_PROFILE_SCOPE but if the scope takes longer than 'Timeout', the ezProfilingSystem's timeout callback is executed.
 ///
 /// This can be used to log an error or save a callstack, etc. when a scope exceeds an expected amount of time.
-/// 
+///
 /// \sa ezProfilingSystem::SetScopeTimeoutCallback()
 #  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout) ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szScopeName, EZ_SOURCE_FUNCTION, Timeout)
 
@@ -206,12 +206,12 @@ public:
 
 #else
 
-#  define EZ_PROFILE_SCOPE(Name) /*empty*/
+#  define EZ_PROFILE_SCOPE(Name)                                /*empty*/
 
-#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout) /*empty*/
+#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout)   /*empty*/
 
 #  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) /*empty*/
 
-#  define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) /*empty*/
+#  define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName)       /*empty*/
 
 #endif

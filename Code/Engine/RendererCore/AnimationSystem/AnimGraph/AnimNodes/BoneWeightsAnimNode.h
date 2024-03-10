@@ -27,7 +27,7 @@ public:
   ezBoneWeightsAnimNode();
   ~ezBoneWeightsAnimNode();
 
-  float m_fWeight = 1.0f; // [ property ]
+  float m_fWeight = 1.0f;                                       // [ property ]
 
   ezUInt32 RootBones_GetCount() const;                          // [ property ]
   const char* RootBones_GetValue(ezUInt32 uiIndex) const;       // [ property ]
@@ -36,8 +36,8 @@ public:
   void RootBones_Remove(ezUInt32 uiIndex);                      // [ property ]
 
 private:
-  ezAnimGraphBoneWeightsOutputPin m_WeightsPin;        // [ property ]
-  ezAnimGraphBoneWeightsOutputPin m_InverseWeightsPin; // [ property ]
+  ezAnimGraphBoneWeightsOutputPin m_WeightsPin;                 // [ property ]
+  ezAnimGraphBoneWeightsOutputPin m_InverseWeightsPin;          // [ property ]
 
   ezHybridArray<ezHashedString, 2> m_RootBones;
 

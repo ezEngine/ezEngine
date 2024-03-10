@@ -99,8 +99,14 @@ namespace
   ezHashTable<ezUInt32, TableEntry> s_conversionTable;
   bool s_conversionTableValid = false;
 
-  constexpr ezUInt32 MakeKey(ezImageFormat::Enum a, ezImageFormat::Enum b) { return a * ezImageFormat::NUM_FORMATS + b; }
-  constexpr ezUInt32 MakeTypeKey(ezImageFormatType::Enum a, ezImageFormatType::Enum b) { return (a << 16) + b; }
+  constexpr ezUInt32 MakeKey(ezImageFormat::Enum a, ezImageFormat::Enum b)
+  {
+    return a * ezImageFormat::NUM_FORMATS + b;
+  }
+  constexpr ezUInt32 MakeTypeKey(ezImageFormatType::Enum a, ezImageFormatType::Enum b)
+  {
+    return (a << 16) + b;
+  }
 
   struct IntermediateBuffer
   {
@@ -796,5 +802,3 @@ ezImageFormat::Enum ezImageConversion::FindClosestCompatibleFormat(
 
   return bestFormat;
 }
-
-

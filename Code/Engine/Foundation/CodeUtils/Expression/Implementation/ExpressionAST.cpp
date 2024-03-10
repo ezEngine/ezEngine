@@ -268,13 +268,13 @@ namespace
     {SIG3(Float, Float, Float, Float)},                                                         // SmootherStep,
     {},                                                                                         // LastTernary,
 
-    {}, // Constant,
-    {}, // Swizzle,
-    {}, // Input,
-    {}, // Output,
+    {},                                                                                         // Constant,
+    {},                                                                                         // Swizzle,
+    {},                                                                                         // Input,
+    {},                                                                                         // Output,
 
-    {}, // FunctionCall,
-    {}, // ConstructorCall,
+    {},                                                                                         // FunctionCall,
+    {},                                                                                         // ConstructorCall,
   };
 
   static_assert(EZ_ARRAY_SIZE(s_NodeTypeOverloads) == ezExpressionAST::NodeType::Count);
@@ -296,25 +296,25 @@ const char* ezExpressionAST::NodeType::GetName(Enum nodeType)
 namespace
 {
   static ezVariantType::Enum s_DataTypeVariantTypes[] = {
-    ezVariantType::Invalid, // Unknown,
-    ezVariantType::Invalid, // Unknown2,
-    ezVariantType::Invalid, // Unknown3,
-    ezVariantType::Invalid, // Unknown4,
+    ezVariantType::Invalid,  // Unknown,
+    ezVariantType::Invalid,  // Unknown2,
+    ezVariantType::Invalid,  // Unknown3,
+    ezVariantType::Invalid,  // Unknown4,
 
-    ezVariantType::Bool,    // Bool,
-    ezVariantType::Invalid, // Bool2,
-    ezVariantType::Invalid, // Bool3,
-    ezVariantType::Invalid, // Bool4,
+    ezVariantType::Bool,     // Bool,
+    ezVariantType::Invalid,  // Bool2,
+    ezVariantType::Invalid,  // Bool3,
+    ezVariantType::Invalid,  // Bool4,
 
     ezVariantType::Int32,    // Int,
     ezVariantType::Vector2I, // Int2,
     ezVariantType::Vector3I, // Int3,
     ezVariantType::Vector4I, // Int4,
 
-    ezVariantType::Float,   // Float,
-    ezVariantType::Vector2, // Float2,
-    ezVariantType::Vector3, // Float3,
-    ezVariantType::Vector4, // Float4,
+    ezVariantType::Float,    // Float,
+    ezVariantType::Vector2,  // Float2,
+    ezVariantType::Vector3,  // Float3,
+    ezVariantType::Vector4,  // Float4,
   };
   static_assert(EZ_ARRAY_SIZE(s_DataTypeVariantTypes) == (size_t)ezExpressionAST::DataType::Count);
 
@@ -329,20 +329,20 @@ namespace
     ezExpressionAST::DataType::Float3, // Float3,
     ezExpressionAST::DataType::Float4, // Float4,
 
-    ezExpressionAST::DataType::Int,  // Byte,
-    ezExpressionAST::DataType::Int2, // Byte2,
-    ezExpressionAST::DataType::Int3, // Byte3,
-    ezExpressionAST::DataType::Int4, // Byte4,
+    ezExpressionAST::DataType::Int,    // Byte,
+    ezExpressionAST::DataType::Int2,   // Byte2,
+    ezExpressionAST::DataType::Int3,   // Byte3,
+    ezExpressionAST::DataType::Int4,   // Byte4,
 
-    ezExpressionAST::DataType::Int,  // Short,
-    ezExpressionAST::DataType::Int2, // Short2,
-    ezExpressionAST::DataType::Int3, // Short3,
-    ezExpressionAST::DataType::Int4, // Short4,
+    ezExpressionAST::DataType::Int,    // Short,
+    ezExpressionAST::DataType::Int2,   // Short2,
+    ezExpressionAST::DataType::Int3,   // Short3,
+    ezExpressionAST::DataType::Int4,   // Short4,
 
-    ezExpressionAST::DataType::Int,  // Int,
-    ezExpressionAST::DataType::Int2, // Int2,
-    ezExpressionAST::DataType::Int3, // Int3,
-    ezExpressionAST::DataType::Int4, // Int4,
+    ezExpressionAST::DataType::Int,    // Int,
+    ezExpressionAST::DataType::Int2,   // Int2,
+    ezExpressionAST::DataType::Int3,   // Int3,
+    ezExpressionAST::DataType::Int4,   // Int4,
   };
   static_assert(EZ_ARRAY_SIZE(s_DataTypeFromStreamType) == (size_t)ezProcessingStream::DataType::Count);
 
@@ -357,20 +357,20 @@ namespace
     "Unknown3", // Unknown3,
     "Unknown4", // Unknown4,
 
-    "Bool",  // Bool,
-    "Bool2", // Bool2,
-    "Bool3", // Bool3,
-    "Bool4", // Bool4,
+    "Bool",     // Bool,
+    "Bool2",    // Bool2,
+    "Bool3",    // Bool3,
+    "Bool4",    // Bool4,
 
-    "Int",  // Int,
-    "Int2", // Int2,
-    "Int3", // Int3,
-    "Int4", // Int4,
+    "Int",      // Int,
+    "Int2",     // Int2,
+    "Int3",     // Int3,
+    "Int4",     // Int4,
 
-    "Float",  // Float,
-    "Float2", // Float2,
-    "Float3", // Float3,
-    "Float4", // Float4,
+    "Float",    // Float,
+    "Float2",   // Float2,
+    "Float3",   // Float3,
+    "Float4",   // Float4,
   };
 
   static_assert(EZ_ARRAY_SIZE(s_szDataTypeNames) == ezExpressionAST::DataType::Count);
@@ -1267,5 +1267,3 @@ bool ezExpressionAST::IsEqual(const Node* pNodeA, const Node* pNodeB)
   EZ_ASSERT_NOT_IMPLEMENTED;
   return false;
 }
-
-

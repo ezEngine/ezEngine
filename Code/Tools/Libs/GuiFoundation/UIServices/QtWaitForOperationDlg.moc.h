@@ -22,4 +22,3 @@ private Q_SLOTS:
   void on_ButtonCancel_clicked();
   void onIdle();
 };
-

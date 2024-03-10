@@ -30,7 +30,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
   // write a couple of files for packaging
   const char* szFileList[] = {
     "File1.txt",
-    "FolderA/File2.jpg", // should get stored uncompressed
+    "FolderA/File2.jpg",         // should get stored uncompressed
     "FolderB/File3.txt",
     "FolderA/FolderC/File4.zip", // should get stored uncompressed
     "FolderA/FolderD/File5.txt",

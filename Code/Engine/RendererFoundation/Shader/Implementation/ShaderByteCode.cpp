@@ -100,7 +100,7 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
   {
     uiSize += resourcesPerStage[stage].GetCount();
   }
-  
+
   out_bindings.Clear();
   out_bindings.Reserve(uiSize);
 
@@ -170,5 +170,3 @@ ezGALShaderByteCode::~ezGALShaderByteCode()
     }
   }
 }
-
-

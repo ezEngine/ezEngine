@@ -42,4 +42,3 @@ void ezCoreRenderProfileConfig::LoadRuntimeData(ezChunkStreamReader& inout_strea
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Utils_Implementation_CoreRenderProfile);
-

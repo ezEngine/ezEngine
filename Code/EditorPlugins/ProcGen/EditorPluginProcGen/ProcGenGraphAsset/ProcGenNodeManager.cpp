@@ -83,7 +83,8 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
 void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
   ezRTTI::ForEachDerivedType<ezProcGenNodeBase>(
-    [&](const ezRTTI* pRtti) { ref_types.PushBack(pRtti); },
+    [&](const ezRTTI* pRtti)
+    { ref_types.PushBack(pRtti); },
     ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 

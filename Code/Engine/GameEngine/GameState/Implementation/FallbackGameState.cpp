@@ -1,10 +1,10 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Collection/CollectionResource.h>
 #include <Core/Input/InputManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <GameEngine/Configuration/InputConfig.h>
 #include <GameEngine/GameApplication/GameApplication.h>

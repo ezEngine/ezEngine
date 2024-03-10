@@ -33,4 +33,3 @@ protected:
   ezQtFileLineEdit* m_pWidget = nullptr;
   QToolButton* m_pButton = nullptr;
 };
-

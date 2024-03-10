@@ -103,8 +103,8 @@ public:
   float GetBreakTorque() const { return m_fBreakTorque; } // [ property ]
 
   /// \brief If disabled, the two joined actors pass through each other, rather than colliding.
-  void SetPairCollision(bool value);                         // [ property ]
-  bool GetPairCollision() const { return m_bPairCollision; } // [ property ]
+  void SetPairCollision(bool value);                          // [ property ]
+  bool GetPairCollision() const { return m_bPairCollision; }  // [ property ]
 
   void SetParentActorReference(const char* szReference);      // [ property ]
   void SetChildActorReference(const char* szReference);       // [ property ]

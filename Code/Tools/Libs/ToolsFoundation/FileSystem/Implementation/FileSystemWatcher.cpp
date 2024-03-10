@@ -47,19 +47,22 @@ void ezFileSystemWatcher::Initialize()
     m_Watchers.PushBack(pWatcher);
   }
 
-  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Changes", ezTaskNesting::Never, [this]() {
-    ezHybridArray<WatcherResult, 16> watcherResults;
-    for (ezDirectoryWatcher* pWatcher : m_Watchers)
+  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Changes", ezTaskNesting::Never, [this]()
     {
-      pWatcher->EnumerateChanges([pWatcher, &watcherResults](ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) { watcherResults.PushBack({sFilename, action, type}); });
-    }
-    for (const WatcherResult& res : watcherResults)
-    {
-      HandleWatcherChange(res);
-    } //
-  });
+      ezHybridArray<WatcherResult, 16> watcherResults;
+      for (ezDirectoryWatcher* pWatcher : m_Watchers)
+      {
+        pWatcher->EnumerateChanges([pWatcher, &watcherResults](ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+          { watcherResults.PushBack({sFilename, action, type}); });
+      }
+      for (const WatcherResult& res : watcherResults)
+      {
+        HandleWatcherChange(res);
+      } //
+    });
   // This is a separate task as these trigger callbacks which can potentially take a long time and we can't have the watcher changes task be blocked for so long or notifications might get lost.
-  m_pNotifyTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Notify", ezTaskNesting::Never, [this]() { NotifyChanges(); });
+  m_pNotifyTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Notify", ezTaskNesting::Never, [this]()
+    { NotifyChanges(); });
 }
 
 void ezFileSystemWatcher::Deinitialize()
@@ -103,7 +106,8 @@ void ezFileSystemWatcher::MainThreadTick()
 
 void ezFileSystemWatcher::NotifyChanges()
 {
-  auto NotifyChange = [this](const ezString& sAbsPath, ezFileSystemWatcherEvent::Type type) {
+  auto NotifyChange = [this](const ezString& sAbsPath, ezFileSystemWatcherEvent::Type type)
+  {
     ezFileSystemWatcherEvent e;
     e.m_sPath = sAbsPath;
     e.m_Type = type;

@@ -1,12 +1,12 @@
 #include <FmodPlugin/FmodPluginPCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <FmodPlugin/FmodIncludes.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 
 ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResource* pResource)
 {

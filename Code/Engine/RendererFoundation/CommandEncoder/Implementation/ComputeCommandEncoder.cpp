@@ -39,5 +39,3 @@ void ezGALComputeCommandEncoder::ClearStatisticsCounters()
 
   m_uiDispatchCalls = 0;
 }
-
-

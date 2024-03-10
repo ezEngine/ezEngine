@@ -135,4 +135,3 @@ void ezMoveToComponent::Update()
 
   pOwner->SetGlobalPosition(vCurPos + vDir * fTravelDist);
 }
-

@@ -558,4 +558,3 @@ void ezLodAnimatedMeshComponentManager::AddToUpdateList(ezLodAnimatedMeshCompone
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_LodAnimatedMeshComponent);
-

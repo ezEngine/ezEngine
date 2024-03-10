@@ -163,7 +163,7 @@ public:
   ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
   ~ezDefaultMemoryStreamStorage();
 
-  virtual void Reserve(ezUInt64 uiBytes) override; // [tested]
+  virtual void Reserve(ezUInt64 uiBytes) override;    // [tested]
 
   virtual ezUInt64 GetStorageSize64() const override; // [tested]
   virtual void Clear() override;
@@ -375,7 +375,7 @@ public:
   void Reset(const void* pData, ezUInt64 uiDataSize); // [tested]
 
   template <typename CONTAINER>
-  void Reset(const CONTAINER& container) // [tested]
+  void Reset(const CONTAINER& container)              // [tested]
   {
     Reset(static_cast<const ezUInt8*>(container.GetData()), container.GetCount());
   }
@@ -431,12 +431,12 @@ public:
     Reset(ref_container);
   }
 
-  ~ezRawMemoryStreamWriter(); // [tested]
+  ~ezRawMemoryStreamWriter();                   // [tested]
 
   void Reset(void* pData, ezUInt64 uiDataSize); // [tested]
 
   template <typename CONTAINER>
-  void Reset(CONTAINER& ref_container) // [tested]
+  void Reset(CONTAINER& ref_container)          // [tested]
   {
     Reset(static_cast<ezUInt8*>(ref_container.GetData()), ref_container.GetCount());
   }

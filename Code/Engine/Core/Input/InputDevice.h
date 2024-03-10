@@ -115,7 +115,7 @@ protected:
 
   /// \brief Override this, if you need to reset certain input slot values to zero, after the ezInputManager is finished with the current
   /// frame update.
-  virtual void ResetInputSlotValues(){}; // [tested]
+  virtual void ResetInputSlotValues() {}; // [tested]
 
   /// \brief Override this to register all the input slots that this device exposes.
   ///

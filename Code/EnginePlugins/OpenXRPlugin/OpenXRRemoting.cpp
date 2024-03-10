@@ -17,8 +17,7 @@ ezOpenXRRemoting::ezOpenXRRemoting(ezOpenXR* pOpenXR)
 {
 }
 
-ezOpenXRRemoting::~ezOpenXRRemoting()
-= default;
+ezOpenXRRemoting::~ezOpenXRRemoting() = default;
 
 ezResult ezOpenXRRemoting::Initialize()
 {

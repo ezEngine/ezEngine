@@ -1219,5 +1219,3 @@ ezUInt64 ezOpenDdlParser::ReadDecimalLiteral()
 
   return value;
 }
-
-

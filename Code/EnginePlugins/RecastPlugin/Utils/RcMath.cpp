@@ -22,7 +22,7 @@ ezRcPos::ezRcPos(const float* pPos)
   *this = pPos;
 }
 
-ezRcPos::operator const float *() const
+ezRcPos::operator const float*() const
 {
   return &m_Pos[0];
 }

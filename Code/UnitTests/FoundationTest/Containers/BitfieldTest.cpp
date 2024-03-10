@@ -2,8 +2,8 @@
 
 #include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Containers/Deque.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Math/Random.h>
+#include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
 {
@@ -170,10 +170,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAnyBitSet / IsNoBitSet / AreAllBitsSet")
   {
-    ezHybridBitfield<512> bf; // using a hybrid array
+    ezHybridBitfield<512> bf;                  // using a hybrid array
 
     EZ_TEST_BOOL(bf.IsEmpty() == true);
-    EZ_TEST_BOOL(bf.IsAnyBitSet() == false); // empty
+    EZ_TEST_BOOL(bf.IsAnyBitSet() == false);   // empty
     EZ_TEST_BOOL(bf.IsNoBitSet() == true);
     EZ_TEST_BOOL(bf.AreAllBitsSet() == false); // empty
 
@@ -301,7 +301,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
       // Partial bits set.
       ezRandom rnd;
       rnd.Initialize(42);
-      
+
       for (ezUInt32 uiNumBits = 2; uiNumBits <= 65; ++uiNumBits)
       {
         ezHybridBitfield<128> bitfield;
@@ -440,7 +440,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
   {
     ezStaticBitfield8 bf;
 
-    EZ_TEST_BOOL(bf.IsAnyBitSet() == false); // empty
+    EZ_TEST_BOOL(bf.IsAnyBitSet() == false);   // empty
     EZ_TEST_BOOL(bf.IsNoBitSet() == true);
     EZ_TEST_BOOL(bf.AreAllBitsSet() == false); // empty
 

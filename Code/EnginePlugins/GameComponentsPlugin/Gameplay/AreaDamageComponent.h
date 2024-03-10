@@ -27,7 +27,7 @@ private:
 /// For all objects found it sends the messages ezMsgPhysicsAddImpulse and ezMsgDamage.
 /// The former is used to apply a physical impulse, to push the objects away from the center of the explosion.
 /// The second message is used to apply damage to the objects. This only has an effect, if those objects
-/// handle that message type./// 
+/// handle that message type.///
 ///
 /// This component is mainly meant as an example how to make gameplay functionality, such as explosions.
 /// If its functionality is insufficient for your use-case, write your own and take its code as inspiration.
@@ -53,7 +53,7 @@ public:
   ezAreaDamageComponent();
   ~ezAreaDamageComponent();
 
-  void ApplyAreaDamage(); // [ scriptable ]
+  void ApplyAreaDamage();           // [ scriptable ]
 
   bool m_bTriggerOnCreation = true; // [ property ]
   ezUInt8 m_uiCollisionLayer = 0;   // [ property ]

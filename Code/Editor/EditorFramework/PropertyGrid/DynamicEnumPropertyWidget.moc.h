@@ -27,4 +27,3 @@ protected:
   QComboBox* m_pWidget;
   QHBoxLayout* m_pLayout;
 };
-

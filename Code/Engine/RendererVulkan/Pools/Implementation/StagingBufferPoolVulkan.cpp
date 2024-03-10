@@ -17,7 +17,7 @@ void ezStagingBufferPoolVulkan::DeInitialize()
 
 ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(vk::DeviceSize alignment, vk::DeviceSize size)
 {
-  //#TODO_VULKAN alignment
+  // #TODO_VULKAN alignment
   ezStagingBufferVulkan buffer;
 
   EZ_ASSERT_DEBUG(m_device, "ezStagingBufferPoolVulkan::Initialize not called");
@@ -43,6 +43,6 @@ void ezStagingBufferPoolVulkan::ReclaimBuffer(ezStagingBufferVulkan& buffer)
 {
   m_pDevice->DeleteLater(buffer.m_buffer, buffer.m_alloc);
 
-  //EZ_ASSERT_DEBUG(m_device, "ezStagingBufferPoolVulkan::Initialize not called");
-  //ezMemoryAllocatorVulkan::DestroyBuffer(buffer.m_buffer, buffer.m_alloc);
+  // EZ_ASSERT_DEBUG(m_device, "ezStagingBufferPoolVulkan::Initialize not called");
+  // ezMemoryAllocatorVulkan::DestroyBuffer(buffer.m_buffer, buffer.m_alloc);
 }

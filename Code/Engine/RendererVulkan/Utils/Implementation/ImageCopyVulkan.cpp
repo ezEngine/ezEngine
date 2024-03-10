@@ -228,7 +228,7 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
       vk::AttachmentDescription& vkAttachment = attachments.ExpandAndGetRef();
       vkAttachment.format = cacheEntry.targetFormat;
       vkAttachment.samples = cacheEntry.targetSamples;
-      vkAttachment.loadOp = vk::AttachmentLoadOp::eLoad; //#TODO_VULKAN we could replace this with don't care if we knew that all copy commands render to the entire sub-resource.
+      vkAttachment.loadOp = vk::AttachmentLoadOp::eLoad; // #TODO_VULKAN we could replace this with don't care if we knew that all copy commands render to the entire sub-resource.
       vkAttachment.storeOp = vk::AttachmentStoreOp::eStore;
       vkAttachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
       vkAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
@@ -484,9 +484,9 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
       {
         case ezGALShaderResourceType::ConstantBuffer:
         {
-          //#TODO_VULKAN constant buffer for offset in the shader to allow region copy
-          //const ezGALBufferVulkan* pBuffer = m_pBoundConstantBuffers[mapping.m_uiSource];
-          //write.pBufferInfo = &pBuffer->GetBufferInfo();
+          // #TODO_VULKAN constant buffer for offset in the shader to allow region copy
+          // const ezGALBufferVulkan* pBuffer = m_pBoundConstantBuffers[mapping.m_uiSource];
+          // write.pBufferInfo = &pBuffer->GetBufferInfo();
         }
         break;
         case ezGALShaderResourceType::Texture:

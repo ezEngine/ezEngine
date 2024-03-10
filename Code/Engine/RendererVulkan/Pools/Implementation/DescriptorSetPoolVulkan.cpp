@@ -12,11 +12,11 @@ ezHashTable<vk::DescriptorType, float> ezDescriptorSetPoolVulkan::s_descriptorWe
 void ezDescriptorSetPoolVulkan::Initialize(vk::Device device)
 {
   s_device = device;
-  s_descriptorWeights[vk::DescriptorType::eSampler] = 0.5f;       // Image sampler.
-  s_descriptorWeights[vk::DescriptorType::eSampledImage] = 2.0f;  // Read-only image view.
-  s_descriptorWeights[vk::DescriptorType::eStorageImage] = 1.0f;  // Read / write image view.
-  s_descriptorWeights[vk::DescriptorType::eUniformBuffer] = 1.0f; // Read-only struct (constant buffer)
-  s_descriptorWeights[vk::DescriptorType::eStorageBuffer] = 1.0f; // Read / write struct (UAV).
+  s_descriptorWeights[vk::DescriptorType::eSampler] = 0.5f;            // Image sampler.
+  s_descriptorWeights[vk::DescriptorType::eSampledImage] = 2.0f;       // Read-only image view.
+  s_descriptorWeights[vk::DescriptorType::eStorageImage] = 1.0f;       // Read / write image view.
+  s_descriptorWeights[vk::DescriptorType::eUniformBuffer] = 1.0f;      // Read-only struct (constant buffer)
+  s_descriptorWeights[vk::DescriptorType::eStorageBuffer] = 1.0f;      // Read / write struct (UAV).
   s_descriptorWeights[vk::DescriptorType::eUniformTexelBuffer] = 0.5f; // Read-only linear texel buffer with view.
 
   // Not used by EZ so far.
@@ -25,7 +25,7 @@ void ezDescriptorSetPoolVulkan::Initialize(vk::Device device)
   s_descriptorWeights[vk::DescriptorType::eStorageBufferDynamic] = 0.0f; // Same as eStorageBuffer but allows updating the memory offset into the buffer dynamically.
 
   // Not supported by EZ so far.
-  s_descriptorWeights[vk::DescriptorType::eInputAttachment] = 0.0f; //frame-buffer local read-only image view.
+  s_descriptorWeights[vk::DescriptorType::eInputAttachment] = 0.0f; // frame-buffer local read-only image view.
   s_descriptorWeights[vk::DescriptorType::eCombinedImageSampler] = 0.0f;
   s_descriptorWeights[vk::DescriptorType::eInlineUniformBlock] = 0.0f;
   s_descriptorWeights[vk::DescriptorType::eAccelerationStructureKHR] = 0.0f;

@@ -103,7 +103,7 @@ namespace ezMath
       returnCode = _BitScanForward(&uiIndex, upper);
       if (returnCode > 0) // Only can happen in Release build when EZ_ASSERT_DEBUG(value != 0) would fail.
       {
-        uiIndex += 32; // Add length of lower to index.
+        uiIndex += 32;    // Add length of lower to index.
       }
     }
 #  endif

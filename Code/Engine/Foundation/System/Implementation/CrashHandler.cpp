@@ -41,14 +41,14 @@ void ezCrashHandler_WriteMiniDump::SetDumpFilePath(ezStringView sAbsDirectoryPat
 {
   ezStringBuilder sOutputPath = sAbsDirectoryPath;
 
-  if(flags.IsSet(PathFlags::AppendSubFolder))
+  if (flags.IsSet(PathFlags::AppendSubFolder))
   {
     sOutputPath.AppendPath("CrashDumps");
   }
 
   sOutputPath.AppendPath(sAppName);
 
-  if(flags.IsSet(PathFlags::AppendDate))
+  if (flags.IsSet(PathFlags::AppendDate))
   {
     const ezDateTime date = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
     sOutputPath.AppendFormat("_{}", date);
@@ -104,5 +104,3 @@ void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
     ezLog::Printf("Application crashed. Crash-dump written to '%s'\n.", m_sDumpFilePath.GetData());
   }
 }
-
-

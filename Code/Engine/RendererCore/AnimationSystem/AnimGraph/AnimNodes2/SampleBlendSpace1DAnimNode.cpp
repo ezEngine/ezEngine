@@ -310,4 +310,3 @@ bool ezSampleBlendSpace1DAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_d
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SampleBlendSpace1DAnimNode);
-

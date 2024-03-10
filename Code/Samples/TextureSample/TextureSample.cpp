@@ -98,7 +98,7 @@ public:
     ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
     ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata",
       ezFileSystem::AllowWrites)
-      .IgnoreResult(); // app user data
+      .IgnoreResult();                                                                                                  // app user data
 
     ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").IgnoreResult();
     ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared").IgnoreResult();

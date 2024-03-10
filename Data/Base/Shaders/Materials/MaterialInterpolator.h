@@ -87,4 +87,4 @@ struct VS_IN
 #  undef STAGE_TEMPLATE
 #endif
 
-//typedef VS_OUT PS_IN;
+// typedef VS_OUT PS_IN;

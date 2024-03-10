@@ -95,4 +95,3 @@ ezResult ezBlackboardTemplateResourceDescriptor::Deserialize(ezStreamReader& ino
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Utils_Implementation_BlackboardTemplateResource);
-

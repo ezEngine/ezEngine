@@ -69,7 +69,7 @@ namespace ezArchiveUtils
   /// offset. Compression parameter indicate compression that the entry data already have applied.
   EZ_FOUNDATION_DLL ezResult WriteEntryPreprocessed(ezStreamWriter& inout_stream, ezConstByteArrayPtr entryData, ezUInt32 uiPathStringOffset,
     ezArchiveCompressionMode compression, ezUInt32 uiUncompressedEntryDataSize, ezArchiveEntry& ref_tocEntry, ezUInt64& inout_uiCurrentStreamPosition);
-	
+
   /// \brief Similar to WriteEntry, but if compression is enabled, checks that compression makes enough of a difference.
   /// If compression does not reduce file size enough, the file is stored uncompressed instead.
   EZ_FOUNDATION_DLL ezResult WriteEntryOptimal(ezStreamWriter& inout_stream, ezStringView sAbsSourcePath, ezUInt32 uiPathStringOffset,

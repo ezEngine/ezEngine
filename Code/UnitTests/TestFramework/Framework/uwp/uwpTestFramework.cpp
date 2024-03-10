@@ -35,5 +35,3 @@ void ezUwpTestFramework::Run()
 }
 
 #endif
-
-

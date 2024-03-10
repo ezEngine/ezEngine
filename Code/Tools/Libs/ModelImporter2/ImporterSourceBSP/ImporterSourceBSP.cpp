@@ -11,17 +11,17 @@ namespace SourceBSP
 {
   enum LumpTypes
   {
-    LUMP_ENTITIES = 0,   // *
-    LUMP_PLANES = 1,     // *
-    LUMP_TEXDATA = 2,    // *
-    LUMP_VERTEXES = 3,   // *
-    LUMP_VISIBILITY = 4, // *
-    LUMP_NODES = 5,      // *
-    LUMP_TEXINFO = 6,    // *
-    LUMP_FACES = 7,      // *
-    LUMP_LIGHTING = 8,   // *
+    LUMP_ENTITIES = 0,     // *
+    LUMP_PLANES = 1,       // *
+    LUMP_TEXDATA = 2,      // *
+    LUMP_VERTEXES = 3,     // *
+    LUMP_VISIBILITY = 4,   // *
+    LUMP_NODES = 5,        // *
+    LUMP_TEXINFO = 6,      // *
+    LUMP_FACES = 7,        // *
+    LUMP_LIGHTING = 8,     // *
     LUMP_OCCLUSION = 9,
-    LUMP_LEAFS = 10, // *
+    LUMP_LEAFS = 10,       // *
     LUMP_FACEIDS = 11,
     LUMP_EDGES = 12,       // *
     LUMP_SURFEDGES = 13,   // *
@@ -71,7 +71,7 @@ namespace SourceBSP
     LUMP_LEAFMINDISTTOWATER = 46,
     LUMP_FACE_MACRO_TEXTURE_INFO = 47,
     LUMP_DISP_TRIS = 48,
-    LUMP_PHYSCOLLIDESURFACE = 49, // deprecated.  We no longer use win32-specific Havok compression on terrain
+    LUMP_PHYSCOLLIDESURFACE = 49,     // deprecated.  We no longer use win32-specific Havok compression on terrain
     LUMP_WATEROVERLAYS = 50,
     LUMP_LEAF_AMBIENT_INDEX_HDR = 51, // index of LUMP_LEAF_AMBIENT_LIGHTING_HDR
     LUMP_LEAF_AMBIENT_INDEX = 52,     // index of LUMP_LEAF_AMBIENT_LIGHTING
@@ -82,10 +82,10 @@ namespace SourceBSP
     LUMP_LEAF_AMBIENT_LIGHTING_HDR = 55, // NOTE: this data overrides part of the data stored in LUMP_LEAFS.
     LUMP_LEAF_AMBIENT_LIGHTING = 56,     // NOTE: this data overrides part of the data stored in LUMP_LEAFS.
 
-    LUMP_XZIPPAKFILE = 57,   // deprecated. xbox 1: xzip version of pak file
-    LUMP_FACES_HDR = 58,     // HDR maps may have different face data.
-    LUMP_MAP_FLAGS = 59,     // extended level-wide flags. not present in all levels
-    LUMP_OVERLAY_FADES = 60, // Fade distances for overlays
+    LUMP_XZIPPAKFILE = 57,               // deprecated. xbox 1: xzip version of pak file
+    LUMP_FACES_HDR = 58,                 // HDR maps may have different face data.
+    LUMP_MAP_FLAGS = 59,                 // extended level-wide flags. not present in all levels
+    LUMP_OVERLAY_FADES = 60,             // Fade distances for overlays
   };
 
   const int VBSP_HEADER = (('P' << 24) + ('S' << 16) + ('B' << 8) + 'V');
@@ -112,10 +112,10 @@ namespace SourceBSP
 
   enum TexInfoFlags_e
   {
-    SURF_LIGHT = 0x0001, // value will hold the light strength
-    SURF_SKY2D = 0x0002, // don't draw, indicates we should skylight + draw 2d sky but not draw the 3D skybox
-    SURF_SKY = 0x0004,   // don't draw, but add to skybox
-    SURF_WARP = 0x0008,  // turbulent water warp
+    SURF_LIGHT = 0x0001,     // value will hold the light strength
+    SURF_SKY2D = 0x0002,     // don't draw, indicates we should skylight + draw 2d sky but not draw the 3D skybox
+    SURF_SKY = 0x0004,       // don't draw, but add to skybox
+    SURF_WARP = 0x0008,      // turbulent water warp
     SURF_TRANS = 0x0010,
     SURF_NOPORTAL = 0x0020,  // the surface can not have a portal placed on it
     SURF_TRIGGER = 0x0040,   // FIXME: This is an xbox hack to work around elimination of trigger surfaces, which breaks occluders
@@ -194,7 +194,7 @@ namespace SourceBSP
     ezInt32 origFace;                       // original face this was split from
     ezUInt16 numPrims;                      // primitives
     ezUInt16 firstPrimID;
-    ezUInt32 smoothingGroups; // lightmap smoothing group
+    ezUInt32 smoothingGroups;               // lightmap smoothing group
   };
 
   struct TexInfo_t
@@ -224,14 +224,14 @@ namespace SourceBSP
   {
     ezUInt16 planenum; // facing out of the leaf
     ezInt16 texinfo;
-    ezInt16 dispinfo; // displacement info (BSPVERSION 7)
-    ezInt16 bevel;    // is the side a bevel plane? (BSPVERSION 7)
+    ezInt16 dispinfo;  // displacement info (BSPVERSION 7)
+    ezInt16 bevel;     // is the side a bevel plane? (BSPVERSION 7)
   };
 
   struct CDispSubNeighbor
   {
-    ezUInt16 m_iNeighbor; // This indexes into ddispinfos.
-                          // 0xFFFF if there is no neighbor here.
+    ezUInt16 m_iNeighbor;          // This indexes into ddispinfos.
+                                   // 0xFFFF if there is no neighbor here.
 
     ezUInt8 m_NeighborOrientation; // (CCW) rotation of the neighbor wrt this displacement.
 

@@ -5,5 +5,3 @@
 #  include <Foundation/Platform/Posix/SystemInformation_Posix.h>
 
 #endif
-
-

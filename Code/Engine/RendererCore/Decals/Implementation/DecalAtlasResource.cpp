@@ -1,10 +1,10 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Math/Rect.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>

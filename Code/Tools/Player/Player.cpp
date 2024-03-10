@@ -1,6 +1,5 @@
 #include <Player/Player.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Input/InputManager.h>
 #include <Core/World/World.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -9,6 +8,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameEngine/Animation/RotorComponent.h>
 #include <GameEngine/Animation/SliderComponent.h>

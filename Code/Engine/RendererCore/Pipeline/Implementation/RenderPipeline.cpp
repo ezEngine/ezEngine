@@ -1011,7 +1011,8 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   {
     EZ_PROFILE_SCOPE("Occlusion::FindVisibleObjects");
 
-    auto IsOccluded = [=](const ezSimdBBox& aabb) {
+    auto IsOccluded = [=](const ezSimdBBox& aabb)
+    {
       // grow the bbox by some percent to counter the lower precision of the occlusion buffer
 
       const ezSimdVec4f c = aabb.GetCenter();

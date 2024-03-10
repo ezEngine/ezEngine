@@ -170,7 +170,8 @@ void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext
   }
 
   m_Scheduler.Update(deltaTime,
-    [this](const FunctionContext& context, ezTime deltaTime) {
+    [this](const FunctionContext& context, ezTime deltaTime)
+    {
       if (GetWorld()->GetWorldSimulationEnabled() || context.m_pFunctionAndFlags.GetFlags() == FunctionContext::Flags::None)
       {
         ezVariant args[] = {deltaTime};
@@ -200,4 +201,3 @@ void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptWorldModule);
-

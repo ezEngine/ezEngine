@@ -190,5 +190,3 @@ void Occluder::bake(const __m128* vertices, ezUInt32 numVertices, __m128 refMin,
 }
 
 #endif
-
-

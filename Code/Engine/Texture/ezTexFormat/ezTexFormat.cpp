@@ -72,5 +72,3 @@ void ezTexFormat::ReadHeader(ezStreamReader& inout_stream)
     inout_stream >> m_GalRenderTargetFormat;
   }
 }
-
-

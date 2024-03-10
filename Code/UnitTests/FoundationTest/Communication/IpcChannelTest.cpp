@@ -86,7 +86,8 @@ private:
 
 void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcChannel* pClient, ChannelTester* pClientTester)
 {
-  auto MessageMatches = [](const ezStringView& sReference, const ezDataBuffer& msg) -> bool {
+  auto MessageMatches = [](const ezStringView& sReference, const ezDataBuffer& msg) -> bool
+  {
     ezStringView sTemp(reinterpret_cast<const char*>(msg.GetData()), msg.GetCount());
     return sTemp == sReference;
   };

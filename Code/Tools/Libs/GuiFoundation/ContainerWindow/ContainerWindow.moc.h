@@ -99,4 +99,3 @@ private:
   static ezQtContainerWindow* s_pContainerWindow;
   static bool s_bForceClose;
 };
-

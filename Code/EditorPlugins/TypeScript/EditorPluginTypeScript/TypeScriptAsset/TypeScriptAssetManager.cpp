@@ -1,6 +1,5 @@
 #include <EditorPluginTypeScript/EditorPluginTypeScriptPCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAsset.h>
@@ -12,6 +11,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>

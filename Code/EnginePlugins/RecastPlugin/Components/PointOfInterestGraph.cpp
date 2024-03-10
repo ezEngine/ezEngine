@@ -18,5 +18,3 @@ void CompileDummy()
   ezDynamicArray<ezUInt32> points;
   graph.FindPointsOfInterest(ezVec3::MakeZero(), 0, points);
 }
-
-

@@ -117,7 +117,8 @@ void ezLongOpsAdapter::PhantomTypeRegistryEventHandler(const ezPhantomRttiManage
 void ezLongOpsAdapter::CheckAllTypes()
 {
   ezRTTI::ForEachType(
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       if (pRtti->GetAttributeByType<ezLongOpAttribute>() != nullptr)
       {
         m_TypesWithLongOps.Insert(pRtti);

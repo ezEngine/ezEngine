@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ParticleSystemConstants.h"
 #include "BaseParticleShaderData.h"
+#include "ParticleSystemConstants.h"
 
 struct EZ_SHADER_STRUCT ezTrailParticleShaderData
 {
@@ -34,23 +34,22 @@ struct EZ_SHADER_STRUCT ezTrailParticlePointsData64
 
 StructuredBuffer<ezTrailParticleShaderData> particleTrailData;
 
-#if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT8
-  StructuredBuffer<ezTrailParticlePointsData8> particlePointsData;
-#endif
+#  if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT8
+StructuredBuffer<ezTrailParticlePointsData8> particlePointsData;
+#  endif
 
-#if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT16
-  StructuredBuffer<ezTrailParticlePointsData16> particlePointsData;
-#endif
+#  if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT16
+StructuredBuffer<ezTrailParticlePointsData16> particlePointsData;
+#  endif
 
-#if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT32
-  StructuredBuffer<ezTrailParticlePointsData32> particlePointsData;
-#endif
+#  if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT32
+StructuredBuffer<ezTrailParticlePointsData32> particlePointsData;
+#  endif
 
-#if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT64
-  StructuredBuffer<ezTrailParticlePointsData64> particlePointsData;
-#endif
+#  if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT64
+StructuredBuffer<ezTrailParticlePointsData64> particlePointsData;
+#  endif
 
 #else // C++
 
 #endif
-

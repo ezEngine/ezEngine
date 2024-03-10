@@ -1,8 +1,8 @@
 #include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Scripting/DuktapeContext.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 #include <TypeScriptPlugin/Resources/TypeScriptResource.h>
 
@@ -33,10 +33,10 @@ namespace
       // TODO: this needs to be more generic to work with other things besides components
       binding.DukPutComponentObject(&pTypeScriptInstance->GetComponent()); // [ comp ]
 
-      if (duk.PrepareMethodCall(GetPropertyName()).Succeeded()) // [ comp func comp ]
+      if (duk.PrepareMethodCall(GetPropertyName()).Succeeded())            // [ comp func comp ]
       {
-        duk.CallPreparedMethod().IgnoreResult(); // [ comp result ]
-        duk.PopStack(2);                         // [ ]
+        duk.CallPreparedMethod().IgnoreResult();                           // [ comp result ]
+        duk.PopStack(2);                                                   // [ ]
 
         EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
       }
@@ -72,7 +72,7 @@ void ezTypeScriptInstance::SetInstanceVariables(const ezArrayMap<ezHashedString,
     ezTypeScriptBinding::SetVariantProperty(duk, pair.key.GetString(), -1, pair.value); // [ comp ]
   }
 
-  duk.PopStack(); // [ ]
+  duk.PopStack();                                                                       // [ ]
 
   EZ_DUK_VERIFY_STACK(duk, 0);
 }
@@ -81,11 +81,11 @@ void ezTypeScriptInstance::SetInstanceVariable(const ezHashedString& sName, cons
 {
   ezDuktapeHelper duk(m_Binding.GetDukTapeContext());
 
-  m_Binding.DukPutComponentObject(&GetComponent()); // [ comp ]
+  m_Binding.DukPutComponentObject(&GetComponent());               // [ comp ]
 
   ezTypeScriptBinding::SetVariantProperty(duk, sName, -1, value); // [ comp ]
-  
-  duk.PopStack(); // [ ]
+
+  duk.PopStack();                                                 // [ ]
 
   EZ_DUK_VERIFY_STACK(duk, 0);
 }
@@ -94,11 +94,11 @@ ezVariant ezTypeScriptInstance::GetInstanceVariable(const ezHashedString& sName)
 {
   ezDuktapeHelper duk(m_Binding.GetDukTapeContext());
 
-  m_Binding.DukPutComponentObject(&GetComponent()); // [ comp ]
+  m_Binding.DukPutComponentObject(&GetComponent());                                   // [ comp ]
 
   ezVariant value = ezTypeScriptBinding::GetVariantProperty(duk, sName, -1, nullptr); // [ comp ]
 
-  duk.PopStack(); // [ ]
+  duk.PopStack();                                                                     // [ ]
 
   EZ_DUK_VERIFY_STACK(duk, 0);
 

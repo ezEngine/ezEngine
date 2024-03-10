@@ -100,5 +100,3 @@ bool ezSimdQuat::IsEqualRotation(const ezSimdQuat& qOther, const ezSimdFloat& fE
 
   return false;
 }
-
-

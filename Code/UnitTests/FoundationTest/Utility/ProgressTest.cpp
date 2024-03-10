@@ -140,7 +140,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, Progress)
     ezUInt32 uiNumProgressUpdatedEvents = 0;
 
     ezProgress progress;
-    progress.m_Events.AddEventHandler([&](const ezProgressEvent& e) {
+    progress.m_Events.AddEventHandler([&](const ezProgressEvent& e)
+      {
       if (e.m_Type == ezProgressEvent::Type::ProgressChanged)
       {
         ++uiNumProgressUpdatedEvents;

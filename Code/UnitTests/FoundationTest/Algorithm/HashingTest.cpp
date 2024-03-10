@@ -201,7 +201,8 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     const char* szTestHalf1 = "This is a test";
     const char* szTestHalf2 = " string. 1234";
 
-    auto test = [szTest, szTestHalf1, szTestHalf2](bool bFlush, ezUInt32* pHash) {
+    auto test = [szTest, szTestHalf1, szTestHalf2](bool bFlush, ezUInt32* pHash)
+    {
       ezHashStreamWriter32 writer1;
       writer1.WriteBytes(szTest, std::strlen(szTest)).IgnoreResult();
       if (bFlush)
@@ -259,7 +260,8 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     const char* szTestHalf1 = "This is a test";
     const char* szTestHalf2 = " string. 1234";
 
-    auto test = [szTest, szTestHalf1, szTestHalf2](bool bFlush, ezUInt64* pHash) {
+    auto test = [szTest, szTestHalf1, szTestHalf2](bool bFlush, ezUInt64* pHash)
+    {
       ezHashStreamWriter64 writer1;
       writer1.WriteBytes(szTest, std::strlen(szTest)).IgnoreResult();
 

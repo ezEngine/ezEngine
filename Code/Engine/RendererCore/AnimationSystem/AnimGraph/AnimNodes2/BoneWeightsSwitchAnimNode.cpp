@@ -71,4 +71,3 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_BoneWeightsSwitchAnimNode);
-

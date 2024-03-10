@@ -160,5 +160,3 @@ ezFloat16Vec4::operator ezVec4() const
 {
   return ezVec4(x, y, z, w);
 }
-
-

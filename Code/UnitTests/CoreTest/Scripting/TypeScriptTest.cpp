@@ -104,7 +104,10 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
 
   duk.RegisterGlobalFunction("Print", Duk_Print, 1);
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compile TypeScriptServices") { EZ_TEST_RESULT(duk.ExecuteFile("Typescript/typescriptServices.js")); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compile TypeScriptServices")
+  {
+    EZ_TEST_RESULT(duk.ExecuteFile("Typescript/typescriptServices.js"));
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transpile Simple")
   {

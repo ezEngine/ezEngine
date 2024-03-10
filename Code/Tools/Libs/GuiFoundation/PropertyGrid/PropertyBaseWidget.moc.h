@@ -88,7 +88,7 @@ protected:
   bool m_bIsDefault; ///< Whether the variable that the widget represents is currently set to the default value or has been modified.
 
 private:
-  bool m_bUndead; ///< Widget is being destroyed
+  bool m_bUndead;    ///< Widget is being destroyed
 };
 
 

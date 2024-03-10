@@ -67,17 +67,17 @@ public:
   T PostIncrement(); // [tested]
 
   /// \brief Decrements the internal value and returns the value immediately before the decrement
-  T PostDecrement(); // [tested]
+  T PostDecrement();  // [tested]
 
   void Add(T x);      // [tested]
   void Subtract(T x); // [tested]
 
-  void And(T x); // [tested]
-  void Or(T x);  // [tested]
-  void Xor(T x); // [tested]
+  void And(T x);      // [tested]
+  void Or(T x);       // [tested]
+  void Xor(T x);      // [tested]
 
-  void Min(T x); // [tested]
-  void Max(T x); // [tested]
+  void Min(T x);      // [tested]
+  void Max(T x);      // [tested]
 
   /// \brief Sets the internal value to x and returns the original internal value.
   T Set(T x); // [tested]
@@ -89,7 +89,7 @@ public:
   /// the modification.
   T CompareAndSwap(T expected, T x); // [tested]
 
-  operator T() const; // [tested]
+  operator T() const;                // [tested]
 
 private:
   UnderlyingType m_Value;

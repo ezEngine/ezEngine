@@ -117,5 +117,3 @@ namespace ezCompressionUtils
     }
   }
 } // namespace ezCompressionUtils
-
-

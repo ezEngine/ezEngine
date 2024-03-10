@@ -42,7 +42,8 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
     for (ezUInt32 i = 0; i < uiNumIterations; ++i)
     {
       float fNumWorks = 0;
-      scheduler.Update(timeStep, [&](TestWork* pWork, ezTime deltaTime) {
+      scheduler.Update(timeStep, [&](TestWork* pWork, ezTime deltaTime)
+        {
         if (i > 10)
         {
           const double deltaMs = deltaTime.GetMilliseconds();
@@ -99,7 +100,8 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
     for (ezUInt32 i = 0; i < uiNumIterations; ++i)
     {
       float fNumWorks = 0;
-      scheduler.Update(timeStep, [&](TestWork* pWork, ezTime deltaTime) {
+      scheduler.Update(timeStep, [&](TestWork* pWork, ezTime deltaTime)
+        {
         if (i > 10)
         {
           const double deltaMs = deltaTime.GetMilliseconds();
@@ -149,7 +151,8 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
     for (ezUInt32 i = 0; i < 60; ++i)
     {
       float fNumWorks = 0;
-      scheduler.Update(ezTime::MakeFromMilliseconds(10), [&](TestWork* pWork, ezTime deltaTime) {
+      scheduler.Update(ezTime::MakeFromMilliseconds(10), [&](TestWork* pWork, ezTime deltaTime)
+        {
         pWork->Run();
         ++fNumWorks; });
 
@@ -166,7 +169,8 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
     for (ezUInt32 i = 0; i < 60; ++i)
     {
       float fNumWorks = 0.0f;
-      scheduler.Update(ezTime::MakeFromMilliseconds(10), [&](TestWork* pWork, ezTime deltaTime) {
+      scheduler.Update(ezTime::MakeFromMilliseconds(10), [&](TestWork* pWork, ezTime deltaTime)
+        {
         pWork->Run();
         ++fNumWorks; });
 
@@ -218,7 +222,8 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
 
     ezUInt32 uiNumWorks = 0;
     scheduler.Update(ezTime::MakeFromMilliseconds(33),
-      [&](TestWork* pWork, ezTime deltaTime) {
+      [&](TestWork* pWork, ezTime deltaTime)
+      {
         pWork->Run();
         ++uiNumWorks;
 
@@ -241,7 +246,8 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
 
     uiNumWorks = 0;
     scheduler.Update(ezTime::MakeFromMilliseconds(100),
-      [&](TestWork* pWork, ezTime deltaTime) {
+      [&](TestWork* pWork, ezTime deltaTime)
+      {
         EZ_TEST_FLOAT(pWork->m_IntervalMs, 1.0f, ezMath::DefaultEpsilon<float>());
 
         pWork->Run();

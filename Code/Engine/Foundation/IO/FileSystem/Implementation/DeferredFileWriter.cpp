@@ -83,5 +83,3 @@ void ezDeferredFileWriter::Discard()
 {
   m_sOutputFile.Clear();
 }
-
-

@@ -266,7 +266,8 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       }
     }
 
-    RootNodes.Sort([](const ezAbstractObjectNode* a, const ezAbstractObjectNode* b) {
+    RootNodes.Sort([](const ezAbstractObjectNode* a, const ezAbstractObjectNode* b)
+      {
       auto* pOrderA = a->FindProperty("__Order");
       auto* pOrderB = b->FindProperty("__Order");
       if (pOrderA && pOrderB && pOrderA->m_Value.CanConvertTo<ezUInt32>() && pOrderB->m_Value.CanConvertTo<ezUInt32>())

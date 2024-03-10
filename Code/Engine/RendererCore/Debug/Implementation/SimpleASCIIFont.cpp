@@ -970,19 +970,19 @@ static void CopyCharacter(ezUInt32* pImage, ezInt32 c, const char* szChar)
       switch (*szChar)
       {
         case 'o':
-          *pImage = 0xFFFFFFFF; // white
+          *pImage = 0xFFFFFFFF;         // white
           break;
         case '+':
           *pImage = 0xFFFFFFFF / 4 * 3; // 75% grey
           break;
         case '/':
-          *pImage = 0xFFFFFFFF / 2; // 50% grey
+          *pImage = 0xFFFFFFFF / 2;     // 50% grey
           break;
         case '-':
-          *pImage = 0xFFFFFFFF / 4; // 25% grey
+          *pImage = 0xFFFFFFFF / 4;     // 25% grey
           break;
         default:
-          *pImage = 0; // black
+          *pImage = 0;                  // black
           break;
       }
 
@@ -1195,5 +1195,3 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& ref_img, bool bSetEm
 
 #endif
 }
-
-

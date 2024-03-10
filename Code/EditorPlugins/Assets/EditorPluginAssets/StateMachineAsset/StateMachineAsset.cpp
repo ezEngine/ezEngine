@@ -29,7 +29,8 @@ ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWr
   ezHashTable<const ezDocumentObject*, ezUInt32> objectToStateIndex;
   ezSet<ezString> stateNames;
 
-  auto AddState = [&](const ezDocumentObject* pObject) {
+  auto AddState = [&](const ezDocumentObject* pObject)
+  {
     ezVariant nameVar = pObject->GetTypeAccessor().GetValue("Name");
     EZ_ASSERT_DEV(nameVar.IsA<ezString>(), "Implementation error");
 

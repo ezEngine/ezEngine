@@ -273,4 +273,3 @@ void ezPostProcessingComponent::SampleAndSetViewProperties()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Effects_PostProcessing_Implementation_PostProcessingComponent);
-

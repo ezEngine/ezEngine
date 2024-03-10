@@ -835,14 +835,16 @@ const ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTT
 void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pBaseRtti, ezSet<const ezRTTI*>& out_types)
 {
   ezRTTI::ForEachDerivedType(pBaseRtti,
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       out_types.Insert(pRtti);
     });
 }
 
 void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_typesAsSet, ezDynamicArray<const ezRTTI*>* out_pTypesAsStack /*= nullptr*/)
 {
-  auto AddType = [&](const ezRTTI* pNewRtti) {
+  auto AddType = [&](const ezRTTI* pNewRtti)
+  {
     if (pNewRtti != pRtti && pNewRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType) == false && inout_typesAsSet.Contains(pNewRtti) == false)
     {
       inout_typesAsSet.Insert(pNewRtti);
@@ -1720,5 +1722,3 @@ ezResult ezReflectionUtils::ClampValue(ezVariant& value, const ezClampValueAttri
   ClampVariantFunc func;
   return ezVariant::DispatchTo(func, type, value, pAttrib);
 }
-
-

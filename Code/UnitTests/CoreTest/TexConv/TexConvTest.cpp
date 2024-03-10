@@ -101,7 +101,7 @@ private:
     ezByteBlobPtr rawImgData = m_pState->m_image.GetByteBlobPtr();
     ezUInt64 rawDataHash = ezHashingUtils::xxHash64(rawImgData.GetPtr(), rawImgData.GetCount(), 1234);
     // The [test] tag tells the UnitTest to actually output this:
-    ezLog::Info("[test]Converted file '{0}' has raw data hash: 0x{1}", szOutName, ezArgU(rawDataHash, 16,true, 16, false));
+    ezLog::Info("[test]Converted file '{0}' has raw data hash: 0x{1}", szOutName, ezArgU(rawDataHash, 16, true, 16, false));
   }
 
   struct State

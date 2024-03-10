@@ -30,7 +30,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
   const ezStringView sFilePathView = "C:/Code/ezEngine/Data/Samples/Testing Chambers/Objects/Barrel.ezPrefab"_ezsv;
   const ezStringView sDataDirView = "C:/Code/ezEngine/Data/Samples/Testing Chambers"_ezsv;
 
-  auto CheckIsValid = [&](const ezDataDirPath& path) {
+  auto CheckIsValid = [&](const ezDataDirPath& path)
+  {
     EZ_TEST_BOOL(path.IsValid());
     ezStringView sAbs = path.GetAbsolutePath();
     EZ_TEST_STRING(sAbs, sFilePathView);
@@ -180,7 +181,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   ezHybridArray<ezFileChangedEvent, 2> fileEvents;
   ezHybridArray<ezTime, 2> fileEventTimestamps;
   ezMutex fileEventLock;
-  auto fileEvent = [&](const ezFileChangedEvent& e) {
+  auto fileEvent = [&](const ezFileChangedEvent& e)
+  {
     EZ_LOCK(fileEventLock);
     fileEvents.PushBack(e);
     fileEventTimestamps.PushBack(ezTime::Now());
@@ -208,7 +210,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   ezHybridArray<ezFolderChangedEvent, 2> folderEvents;
   ezHybridArray<ezTime, 2> folderEventTimestamps;
   ezMutex folderEventLock;
-  auto folderEvent = [&](const ezFolderChangedEvent& e) {
+  auto folderEvent = [&](const ezFolderChangedEvent& e)
+  {
     EZ_LOCK(folderEventLock);
     folderEvents.PushBack(e);
     folderEventTimestamps.PushBack(ezTime::Now());
@@ -229,7 +232,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   ezEventSubscriptionID folderId = ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.AddEventHandler(folderEvent);
 
   // Helper functions
-  auto CompareFiles = [&](ezArrayPtr<ezFileChangedEvent> expected) {
+  auto CompareFiles = [&](ezArrayPtr<ezFileChangedEvent> expected)
+  {
     EZ_LOCK(fileEventLock);
     if (EZ_TEST_INT(expected.GetCount(), fileEvents.GetCount()))
     {
@@ -243,13 +247,15 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     }
   };
 
-  auto ClearFiles = [&]() {
+  auto ClearFiles = [&]()
+  {
     EZ_LOCK(fileEventLock);
     fileEvents.Clear();
     fileEventTimestamps.Clear();
   };
 
-  auto CompareFolders = [&](ezArrayPtr<ezFolderChangedEvent> expected) {
+  auto CompareFolders = [&](ezArrayPtr<ezFolderChangedEvent> expected)
+  {
     EZ_LOCK(folderEventLock);
     if (EZ_TEST_INT(expected.GetCount(), folderEvents.GetCount()))
     {
@@ -262,13 +268,15 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     }
   };
 
-  auto ClearFolders = [&]() {
+  auto ClearFolders = [&]()
+  {
     EZ_LOCK(folderEventLock);
     folderEvents.Clear();
     folderEventTimestamps.Clear();
   };
 
-  auto MakePath = [&](ezStringView sPath) {
+  auto MakePath = [&](ezStringView sPath)
+  {
     return ezDataDirPath(sPath, rootFolders);
   };
 
@@ -796,7 +804,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     sFilePathNew.AppendPath("Folder12", "rootFile2.txt");
 
     ezUuid docGuid = ezUuid::MakeUuid();
-    auto callback = [&](const ezFileStatus& status, ezStreamReader& ref_reader) {
+    auto callback = [&](const ezFileStatus& status, ezStreamReader& ref_reader)
+    {
       EZ_TEST_INT((ezInt64)status.m_uiHash, (ezInt64)10983861097202158394u);
       ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, docGuid).IgnoreResult();
     };

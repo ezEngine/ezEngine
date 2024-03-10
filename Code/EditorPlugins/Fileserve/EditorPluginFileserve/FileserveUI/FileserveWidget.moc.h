@@ -70,4 +70,3 @@ private:
   void UpdateClientList();
   void ConfigureSpecialDirectories();
 };
-

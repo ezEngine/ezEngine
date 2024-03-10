@@ -286,5 +286,3 @@ void LoadTestSettings(const char* szFile, TestSettings& ref_testSettings)
 
   fclose(pFile);
 }
-
-

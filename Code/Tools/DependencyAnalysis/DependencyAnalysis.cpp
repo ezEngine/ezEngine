@@ -279,18 +279,18 @@ namespace
 } // namespace
 
 /*
-* This application finds all dependencies of a given compile setup.
-*
-* Currently requires a compile_commands.json generated with cmake targeting the clang compiler
-*
-* Basic flow
-* - Parse the compile_command.json to find all .cpp files (compilation units)
-* - Parse each compilation unit, and find all headers it includes
-* - Parse all found headers and note their dependencies (storing only the unresolved paths)
-* - For each compilation unit resolve all dependencies by doing a breadth first search in parallel
-*   + Whenever we encounter a header file we have not seen yet, we need to parse it
-* - Write out the results into a json file. For each compilation units all header dependencies will be listed.
-*/
+ * This application finds all dependencies of a given compile setup.
+ *
+ * Currently requires a compile_commands.json generated with cmake targeting the clang compiler
+ *
+ * Basic flow
+ * - Parse the compile_command.json to find all .cpp files (compilation units)
+ * - Parse each compilation unit, and find all headers it includes
+ * - Parse all found headers and note their dependencies (storing only the unresolved paths)
+ * - For each compilation unit resolve all dependencies by doing a breadth first search in parallel
+ *   + Whenever we encounter a header file we have not seen yet, we need to parse it
+ * - Write out the results into a json file. For each compilation units all header dependencies will be listed.
+ */
 class ezDependencyAnalysisApp : public ezApplication
 {
 private:
@@ -686,7 +686,8 @@ public:
     }
 
     ezTaskSystem::ParallelFor(
-      compilationUnits.GetArrayPtr(), [this](ezArrayPtr<CompUnit> compUnits) {
+      compilationUnits.GetArrayPtr(), [this](ezArrayPtr<CompUnit> compUnits)
+      {
         ezStringBuilder tmpPath;
         DependencyListType dependencies;
         for (auto& compUnit : compUnits)
@@ -713,8 +714,7 @@ public:
               }
             }
           }
-        }
-      },
+        } },
       "ParseCompilationUnit");
   }
 
@@ -819,7 +819,8 @@ public:
       json.Append("{\n");
       json.Append(" \"files\" : [\n");
 
-      auto processFile = [this, &json](CompilationUnitListType::Iterator& file) {
+      auto processFile = [this, &json](CompilationUnitListType::Iterator& file)
+      {
         json.Append("    {\n");
         json.AppendFormat("      \"name\" : \"{0}\",\n", file.Key());
         json.Append("      \"dependencies\" :\n");

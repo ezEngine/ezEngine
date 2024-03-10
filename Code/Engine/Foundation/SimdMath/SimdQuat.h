@@ -7,7 +7,7 @@ class EZ_FOUNDATION_DLL ezSimdQuat
 public:
   EZ_DECLARE_POD_TYPE();
 
-  ezSimdQuat(); // [tested]
+  ezSimdQuat();                              // [tested]
 
   explicit ezSimdQuat(const ezSimdVec4f& v); // [tested]
 
@@ -62,8 +62,8 @@ public:
   /// \brief Concatenates the rotations of q1 and q2
   [[nodiscard]] ezSimdQuat operator*(const ezSimdQuat& q2) const; // [tested]
 
-  bool operator==(const ezSimdQuat& q2) const; // [tested]
-  bool operator!=(const ezSimdQuat& q2) const; // [tested]
+  bool operator==(const ezSimdQuat& q2) const;                    // [tested]
+  bool operator!=(const ezSimdQuat& q2) const;                    // [tested]
 
 public:
   ezSimdVec4f m_v;

@@ -25,7 +25,7 @@ ezResult ezEditorTestGenerateCompile::InitializeTest()
   if (SUPER::OpenProject("Data/Samples/PacMan").Failed())
     return EZ_FAILURE;
 
-  if(ezCppProject::ForceSdkCompatibleCompiler().Failed())
+  if (ezCppProject::ForceSdkCompatibleCompiler().Failed())
   {
     ezLog::Error("Failed to autodetect SDK compatible compiler for testing");
     return EZ_FAILURE;

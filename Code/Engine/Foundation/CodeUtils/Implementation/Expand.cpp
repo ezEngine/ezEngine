@@ -586,5 +586,3 @@ ezResult ezPreprocessor::ExpandMacroParam(const ezToken& MacroToken, ezUInt32 ui
 
   return EZ_SUCCESS;
 }
-
-

@@ -39,7 +39,8 @@ public:
 
   /// \brief Returns a vector with all components set to Not-a-Number (NaN).
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static const ezVec2Template<Type> MakeNaN()
+  [[nodiscard]] static const ezVec2Template<Type>
+  MakeNaN()
   {
     return ezVec2Template<Type>(ezMath::NaN<Type>());
   }

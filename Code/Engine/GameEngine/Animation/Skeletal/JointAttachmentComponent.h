@@ -41,7 +41,7 @@ public:
   ezVec3 m_vLocalPositionOffset = ezVec3::MakeZero(); // [ property ]
 
   /// \brief An additional local offset to be added to the transform.
-  ezQuat m_vLocalRotationOffset = ezQuat::MakeIdentity(); // [ property ]
+  ezQuat m_vLocalRotationOffset = ezQuat::MakeIdentity();      // [ property ]
 
 protected:
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]

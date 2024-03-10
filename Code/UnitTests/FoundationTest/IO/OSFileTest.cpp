@@ -156,7 +156,7 @@ Only concrete and clocks.\n\
   }
 #  endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
-#endif // EZ_SUPPORTS_FILE_STATS
+#endif   // EZ_SUPPORTS_FILE_STATS
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
@@ -216,10 +216,10 @@ Only concrete and clocks.\n\
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete File")
   {
     EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS); // second time should still 'succeed'
+    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS);          // second time should still 'succeed'
 
     EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS); // second time should still 'succeed'
+    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS);         // second time should still 'succeed'
 
     ezOSFile f;
     EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Read) == EZ_FAILURE);  // file should not exist anymore

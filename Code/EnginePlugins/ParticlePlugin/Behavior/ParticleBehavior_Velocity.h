@@ -47,7 +47,7 @@ protected:
 
   // used to rise/fall along the gravity vector
   ezPhysicsWorldModuleInterface* m_pPhysicsModule = nullptr;
-  //ezWindWorldModuleInterface* m_pWindModule = nullptr;
+  // ezWindWorldModuleInterface* m_pWindModule = nullptr;
   ezInt32 m_iWindSampleIdx = -1;
 
   ezProcessingStream* m_pStreamPosition;

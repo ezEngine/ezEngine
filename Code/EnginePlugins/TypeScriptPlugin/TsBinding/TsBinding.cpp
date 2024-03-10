@@ -282,15 +282,15 @@ bool ezTypeScriptBinding::DukPushStashObject(duk_context* pDuk, ezUInt32 uiStash
   duk.PushGlobalStash();          // [ stash ]
   duk_push_uint(duk, uiStashIdx); // [ stash idx ]
 
-  if (!duk_get_prop(duk, -2)) // [ stash obj/undef ]
+  if (!duk_get_prop(duk, -2))     // [ stash obj/undef ]
   {
-    duk_pop_2(duk);     // [ ]
-    duk_push_null(duk); // [ null ]
+    duk_pop_2(duk);               // [ ]
+    duk_push_null(duk);           // [ null ]
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, false, +1);
   }
-  else // [ stash obj ]
+  else                            // [ stash obj ]
   {
-    duk_replace(duk, -2); // [ obj ]
+    duk_replace(duk, -2);         // [ obj ]
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, +1);
   }
 }

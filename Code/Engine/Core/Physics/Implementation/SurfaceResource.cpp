@@ -1,10 +1,10 @@
 #include <Core/CorePCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Core/Messages/ApplyOnlyToMessage.h>
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResource, 1, ezRTTIDefaultAllocator<ezSurfaceResource>)
@@ -85,7 +85,8 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
       item.m_pInteraction = &i;
     }
 
-    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool {
+    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool
+      {
       if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
         return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
 

@@ -69,14 +69,14 @@ public:
   void SetTexture(const ezTexture2DResourceHandle& hTexture);
   const ezTexture2DResourceHandle& GetTexture() const;
 
-  void SetTextureFile(const char* szFile); // [ property ]
-  const char* GetTextureFile(void) const;  // [ property ]
+  void SetTextureFile(const char* szFile);            // [ property ]
+  const char* GetTextureFile(void) const;             // [ property ]
 
   ezBitflags<DebugRenderComponentMask> m_RenderTypes; // [ property ]
 
-  void OnSetColor(ezMsgSetColor& ref_msg); // [ msg handler ]
+  void OnSetColor(ezMsgSetColor& ref_msg);            // [ msg handler ]
 
-  void SetRandomColor(); // [ scriptable ]
+  void SetRandomColor();                              // [ scriptable ]
 
   // BEGIN-DOCS-CODE-SNIPPET: customdata-interface
   SampleCustomDataResourceHandle m_hCustomData;

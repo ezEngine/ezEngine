@@ -6,10 +6,10 @@
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
-#include <RendererFoundation/Descriptors/Enumerations.h>
 #include <Texture/Image/ImageEnums.h>
 
 class ezWindowBase;
@@ -111,7 +111,7 @@ struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRa
   bool m_bFrontCounterClockwise = false;                  ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle
                                                           ///< is the one where the vertices appear in counter clockwise order. Default is false
   bool m_bScissorTest = false;
-  bool m_bConservativeRasterization = false; ///< Whether conservative rasterization is enabled
+  bool m_bConservativeRasterization = false;              ///< Whether conservative rasterization is enabled
 };
 
 struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSamplerStateCreationDescription>

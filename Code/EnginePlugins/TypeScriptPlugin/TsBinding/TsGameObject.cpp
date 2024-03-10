@@ -160,18 +160,18 @@ bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle hHandle, ezUInt3
   EZ_VERIFY(duk.PushLocalObject("__GameObject").Succeeded(), ""); // [ global __GameObject ]
   duk_get_prop_string(duk, -1, "GameObject");                     // [ global __GameObject GameObject ]
 
-  duk_new(duk, 0); // [ global __GameObject object ]
+  duk_new(duk, 0);                                                // [ global __GameObject object ]
 
   // set the ezGameObjectHandle property
   {
     ezGameObjectHandle* pHandleBuffer =
       reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle))); // [ global __GameObject object buffer ]
     *pHandleBuffer = hHandle;
-    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::GameObjectHandle); // [ global __GameObject object ]
+    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::GameObjectHandle);                 // [ global __GameObject object ]
   }
 
-  StoreReferenceInStash(duk, uiStashIdx); // [ global __GameObject object ]
-  duk.PopStack(3);                        // [ ]
+  StoreReferenceInStash(duk, uiStashIdx);                                                            // [ global __GameObject object ]
+  duk.PopStack(3);                                                                                   // [ ]
 
   out_uiStashIdx = uiStashIdx;
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);

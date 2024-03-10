@@ -1633,5 +1633,3 @@ EZ_FOUNDATION_DLL void ezOpenDdlUtils::StoreInvalid(ezOpenDdlWriter& ref_writer,
   ref_writer.BeginObject("Invalid", sName, bGlobalName, true);
   ref_writer.EndObject();
 }
-
-

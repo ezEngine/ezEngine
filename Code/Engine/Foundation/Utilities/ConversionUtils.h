@@ -285,7 +285,7 @@ namespace ezConversionUtils
 
   /// \brief The inverse of GetColorByName
   EZ_FOUNDATION_DLL ezString GetColorName(const ezColor& col); // [tested]
-};                                                             // namespace ezConversionUtils
+}; // namespace ezConversionUtils
 
 template <typename APPEND_CONTAINER_LAMBDA>
 inline void ezConversionUtils::ConvertBinaryToHex(const void* pBinaryData, ezUInt32 uiBytes, APPEND_CONTAINER_LAMBDA append) // [tested]

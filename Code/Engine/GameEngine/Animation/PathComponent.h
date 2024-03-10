@@ -77,8 +77,8 @@ public:
   void OnMsgPathChanged(ezMsgPathChanged& ref_msg); // [ message handler ]
 
   /// \brief Whether the path end connects to the beginning.
-  void SetClosed(bool bClosed);                // [ property ]
-  bool GetClosed() const { return m_bClosed; } // [ property ]
+  void SetClosed(bool bClosed);                                                 // [ property ]
+  bool GetClosed() const { return m_bClosed; }                                  // [ property ]
 
   void SetPathFlags(ezBitflags<ezPathComponentFlags> flags);                    // [ property ]
   ezBitflags<ezPathComponentFlags> GetPathFlags() const { return m_PathFlags; } // [ property ]
@@ -159,8 +159,8 @@ public:
   ///
   /// The error is a distance measure. Thus a value of 0.01 means that the linearized representation
   /// may at most deviate a centimeter from the real curve.
-  void SetLinearizationError(float fError);                             // [ property ]
-  float GetLinearizationError() const { return m_fLinearizationError; } // [ property ]
+  void SetLinearizationError(float fError);                              // [ property ]
+  float GetLinearizationError() const { return m_fLinearizationError; }  // [ property ]
 
 protected:
   ezUInt32 Nodes_GetCount() const { return m_Nodes.GetCount(); }         // [ property ]

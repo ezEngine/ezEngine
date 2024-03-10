@@ -141,10 +141,10 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   SwapChainDesc.BufferCount = m_WindowDesc.m_bDoubleBuffered ? 2 : 1;
   SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
   SwapChainDesc.SampleDesc.Count = m_WindowDesc.m_SampleCount;
-  SwapChainDesc.SampleDesc.Quality = 0; /// \todo Get from MSAA value of the m_WindowDesc
+  SwapChainDesc.SampleDesc.Quality = 0;                         /// \todo Get from MSAA value of the m_WindowDesc
   SwapChainDesc.OutputWindow = ezMinWindows::ToNative(m_WindowDesc.m_pWindow->GetNativeWindowHandle());
-  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // The FLIP models are more efficient but only supported in Win8+. See
-                                                       // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
+  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;          // The FLIP models are more efficient but only supported in Win8+. See
+                                                                // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
   SwapChainDesc.Windowed = m_WindowDesc.m_pWindow->IsFullscreenWindow(true) ? FALSE : TRUE;
 
   /// \todo Get from enumeration of available modes

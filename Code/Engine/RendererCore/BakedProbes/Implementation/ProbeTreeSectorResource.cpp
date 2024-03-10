@@ -1,7 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 
 ezProbeTreeSectorResourceDescriptor::ezProbeTreeSectorResourceDescriptor() = default;

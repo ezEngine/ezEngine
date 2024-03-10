@@ -41,7 +41,7 @@ public:
   /// \brief Adds or subtracts from the current rotation.
   ///
   /// The final rotation will be clamped to the maximum allowed value.
-  void ChangeVerticalRotation(float fRadians); // [ scriptable ]
+  void ChangeVerticalRotation(float fRadians);                 // [ scriptable ]
 
   ezAngle m_MaxVerticalRotation = ezAngle::MakeFromDegree(80); // [ property ]
 

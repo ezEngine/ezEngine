@@ -94,8 +94,8 @@ private:
 
   ezTypeScriptBinding::TsComponentTypeInfo m_ComponentTypeInfo;
 
-  void SetTypeScriptComponentFile(const char* szFile); // [ property ]
-  const char* GetTypeScriptComponentFile() const;      // [ property ]
+  void SetTypeScriptComponentFile(const char* szFile);        // [ property ]
+  const char* GetTypeScriptComponentFile() const;             // [ property ]
 
   void OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg); // [ message handler ]
 

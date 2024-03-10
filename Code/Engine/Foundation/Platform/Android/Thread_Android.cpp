@@ -5,5 +5,3 @@
 #  include <Foundation/Platform/Posix/Thread_Posix.h>
 
 #endif
-
-

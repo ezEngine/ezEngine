@@ -404,5 +404,3 @@ ezStringView ezInputManager::GetInputSlotTouchPointPositionY(ezUInt32 uiIndex)
       return "";
   }
 }
-
-

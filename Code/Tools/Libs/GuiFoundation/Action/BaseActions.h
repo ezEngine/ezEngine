@@ -47,7 +47,7 @@ public:
   {
   }
 
-  virtual void Execute(const ezVariant& value) override{};
+  virtual void Execute(const ezVariant& value) override {};
 };
 
 ///
@@ -61,7 +61,7 @@ public:
   {
   }
 
-  virtual void Execute(const ezVariant& value) override{};
+  virtual void Execute(const ezVariant& value) override {};
 };
 
 ///

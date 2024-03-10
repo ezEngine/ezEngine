@@ -471,7 +471,7 @@ struct ezVariantAdapter<T, ezStringView, 1, 0>
   {
   }
 
-  operator const ezStringView() { return m_value.IsA<ezStringView>() ? m_value.Get<ezStringView>() :  m_value.Get<ezString>().GetView(); }
+  operator const ezStringView() { return m_value.IsA<ezStringView>() ? m_value.Get<ezStringView>() : m_value.Get<ezString>().GetView(); }
 
   ezVariant& m_value;
 };

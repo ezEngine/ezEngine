@@ -26,7 +26,7 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
     PluginName->setText(m_CppSettings.m_sPluginName.GetData());
   }
 
-  if(ezStatus compilerTestResult = ezCppProject::TestCompiler(); compilerTestResult.Failed())
+  if (ezStatus compilerTestResult = ezCppProject::TestCompiler(); compilerTestResult.Failed())
   {
     // TODO: how do I color the ErrorText label in Red (or whatever error color is configured?)
     ezStringBuilder fmt;

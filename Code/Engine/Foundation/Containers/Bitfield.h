@@ -88,7 +88,7 @@ public:
     ezUInt32 Value() const; // [tested]
 
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
-    void Next(); // [tested]
+    void Next();                                       // [tested]
 
     bool operator==(const ConstIterator& other) const; // [tested]
     bool operator!=(const ConstIterator& other) const; // [tested]

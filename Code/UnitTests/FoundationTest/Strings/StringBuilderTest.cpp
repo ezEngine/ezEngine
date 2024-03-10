@@ -971,7 +971,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     p.ChangeFileName("toeff");
     EZ_TEST_BOOL(p == "test/test/tut/murpf/toeff"); // filename is EMPTY -> thus ADDS it
 
-    p = "test/test/tut/murpf/.file"; // files that start with a dot are considered to be filenames with no extension
+    p = "test/test/tut/murpf/.file";                // files that start with a dot are considered to be filenames with no extension
     p.ChangeFileName("toeff");
     EZ_TEST_BOOL(p == "test/test/tut/murpf/toeff");
 
@@ -1004,7 +1004,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     p.ChangeFileNameAndExtension("toeff.blo");
     EZ_TEST_BOOL(p == "test/test/tut/murpf/toeff.blo"); // filename is EMPTY -> thus ADDS it
 
-    p = "test/test/tut/murpf/.extension"; // folders that start with a dot must be considered to be empty filenames with an extension
+    p = "test/test/tut/murpf/.extension";               // folders that start with a dot must be considered to be empty filenames with an extension
     p.ChangeFileNameAndExtension("toeff.ext");
     EZ_TEST_BOOL(p == "test/test/tut/murpf/toeff.ext");
 

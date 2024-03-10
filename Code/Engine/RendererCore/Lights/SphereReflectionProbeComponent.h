@@ -37,11 +37,11 @@ public:
   ezSphereReflectionProbeComponent();
   ~ezSphereReflectionProbeComponent();
 
-  void SetRadius(float fRadius); // [ property ]
-  float GetRadius() const;       // [ property ]
+  void SetRadius(float fRadius);                                   // [ property ]
+  float GetRadius() const;                                         // [ property ]
 
-  void SetFalloff(float fFalloff);                // [ property ]
-  float GetFalloff() const { return m_fFalloff; } // [ property ]
+  void SetFalloff(float fFalloff);                                 // [ property ]
+  float GetFalloff() const { return m_fFalloff; }                  // [ property ]
 
   void SetSphereProjection(bool bSphereProjection);                // [ property ]
   bool GetSphereProjection() const { return m_bSphereProjection; } // [ property ]

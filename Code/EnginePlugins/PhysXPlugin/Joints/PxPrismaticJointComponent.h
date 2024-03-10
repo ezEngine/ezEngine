@@ -40,11 +40,11 @@ public:
   void SetUpperLimitDistance(float f);                                  // [ property ]
   float GetUpperLimitDistance() const { return m_fUpperLimitDistance; } // [ property ]
 
-  void SetSpringStiffness(float f);                               // [ property ]
-  float GetSpringStiffness() const { return m_fSpringStiffness; } // [ property ]
+  void SetSpringStiffness(float f);                                     // [ property ]
+  float GetSpringStiffness() const { return m_fSpringStiffness; }       // [ property ]
 
-  void SetSpringDamping(float f);                             // [ property ]
-  float GetSpringDamping() const { return m_fSpringDamping; } // [ property ]
+  void SetSpringDamping(float f);                                       // [ property ]
+  float GetSpringDamping() const { return m_fSpringDamping; }           // [ property ]
 
   virtual void ApplySettings() final override;
 

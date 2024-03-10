@@ -78,7 +78,7 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
 
   if (nsize == 0)
   {
-    delete[](ezUInt8*) ptr;
+    delete[] (ezUInt8*)ptr;
     return (nullptr);
   }
 
@@ -88,7 +88,7 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
   {
     ezMemoryUtils::Copy(ucPtr, (ezUInt8*)ptr, ezUInt32(osize < nsize ? osize : nsize));
 
-    delete[](ezUInt8*) ptr;
+    delete[] (ezUInt8*)ptr;
   }
 
   return ((void*)ucPtr);
@@ -96,5 +96,3 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
 
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
-

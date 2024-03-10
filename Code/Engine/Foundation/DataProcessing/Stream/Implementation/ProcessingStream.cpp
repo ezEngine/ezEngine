@@ -98,25 +98,25 @@ void ezProcessingStream::FreeData()
 }
 
 static ezUInt16 s_TypeSize[] = {
-  2, // Half,
-  4, // Half2,
-  6, // Half3,
-  8, // Half4,
+  2,  // Half,
+  4,  // Half2,
+  6,  // Half3,
+  8,  // Half4,
 
   4,  // Float,
   8,  // Float2,
   12, // Float3,
   16, // Float4,
 
-  1, // Byte,
-  2, // Byte2,
-  3, // Byte3,
-  4, // Byte4,
+  1,  // Byte,
+  2,  // Byte2,
+  3,  // Byte3,
+  4,  // Byte4,
 
-  2, // Short,
-  4, // Short2,
-  6, // Short3,
-  8, // Short4,
+  2,  // Short,
+  4,  // Short2,
+  6,  // Short3,
+  8,  // Short4,
 
   4,  // Int,
   8,  // Int2,
@@ -132,30 +132,30 @@ ezUInt16 ezProcessingStream::GetDataTypeSize(DataType type)
 }
 
 static ezStringView s_TypeName[] = {
-  "Half"_ezsv,  // Half,
-  "Half2"_ezsv, // Half2,
-  "Half3"_ezsv, // Half3,
-  "Half4"_ezsv, // Half4,
+  "Half"_ezsv,   // Half,
+  "Half2"_ezsv,  // Half2,
+  "Half3"_ezsv,  // Half3,
+  "Half4"_ezsv,  // Half4,
 
   "Float"_ezsv,  // Float,
   "Float2"_ezsv, // Float2,
   "Float3"_ezsv, // Float3,
   "Float4"_ezsv, // Float4,
 
-  "Byte"_ezsv,  // Byte,
-  "Byte2"_ezsv, // Byte2,
-  "Byte3"_ezsv, // Byte3,
-  "Byte4"_ezsv, // Byte4,
+  "Byte"_ezsv,   // Byte,
+  "Byte2"_ezsv,  // Byte2,
+  "Byte3"_ezsv,  // Byte3,
+  "Byte4"_ezsv,  // Byte4,
 
   "Short"_ezsv,  // Short,
   "Short2"_ezsv, // Short2,
   "Short3"_ezsv, // Short3,
   "Short4"_ezsv, // Short4,
 
-  "Int"_ezsv,  // Int,
-  "Int2"_ezsv, // Int2,
-  "Int3"_ezsv, // Int3,
-  "Int4"_ezsv, // Int4,
+  "Int"_ezsv,    // Int,
+  "Int2"_ezsv,   // Int2,
+  "Int3"_ezsv,   // Int3,
+  "Int4"_ezsv,   // Int4,
 };
 static_assert(EZ_ARRAY_SIZE(s_TypeName) == (size_t)ezProcessingStream::DataType::Count);
 
@@ -164,5 +164,3 @@ ezStringView ezProcessingStream::GetDataTypeName(DataType type)
 {
   return s_TypeName[(ezUInt32)type];
 }
-
-

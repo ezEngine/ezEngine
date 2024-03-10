@@ -48,7 +48,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     p[0].Transform(mTransform);
     p[1].Transform(mTransform);
 
-    for (int planeIndex=0; planeIndex<6; ++planeIndex)
+    for (int planeIndex = 0; planeIndex < 6; ++planeIndex)
     {
       EZ_TEST_BOOL(f.GetTransformedFrustum(mTransform).GetPlane(planeIndex) == tf.GetPlane(planeIndex));
     }

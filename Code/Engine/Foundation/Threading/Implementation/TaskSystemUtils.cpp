@@ -159,5 +159,3 @@ void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
   ezFileSystem::ResolvePath(sPath, &absPath, nullptr).IgnoreResult();
   ezLog::Info("Task graph snapshot saved to '{}'", absPath);
 }
-
-

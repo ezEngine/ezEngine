@@ -92,4 +92,3 @@ void ezParticleFinisherComponent::UpdateBounds()
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleFinisherComponent);
-

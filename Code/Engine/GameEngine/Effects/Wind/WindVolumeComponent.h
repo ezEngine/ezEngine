@@ -156,7 +156,7 @@ public:
   float GetLength() const { return m_fLength; } // [ property ]
   void SetLength(float fVal);                   // [ property ]
 
-  ezEnum<ezWindVolumeCylinderMode> m_Mode; // [ property ]
+  ezEnum<ezWindVolumeCylinderMode> m_Mode;      // [ property ]
 
 private:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
@@ -199,8 +199,8 @@ public:
   float GetLength() const { return m_fLength; } // [ property ]
   void SetLength(float fVal);                   // [ property ]
 
-  ezAngle GetAngle() const { return m_Angle; } // [ property ]
-  void SetAngle(ezAngle val);                  // [ property ]
+  ezAngle GetAngle() const { return m_Angle; }  // [ property ]
+  void SetAngle(ezAngle val);                   // [ property ]
 
 private:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);

@@ -11,5 +11,3 @@ ezGALResourceView::ezGALResourceView(ezGALResourceBase* pResource, const ezGALRe
 }
 
 ezGALResourceView::~ezGALResourceView() = default;
-
-

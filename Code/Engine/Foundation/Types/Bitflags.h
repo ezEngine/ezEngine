@@ -3,8 +3,8 @@
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Types/Enum.h>
 #include <Foundation/Containers/Implementation/BitIterator.h>
+#include <Foundation/Types/Enum.h>
 
 /// \brief The ezBitflags class allows you to work with type-safe bitflags.
 ///
@@ -305,7 +305,7 @@ typename ezBitflags<T>::ConstIterator cend(const ezBitflags<T>& container)
 #define EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, DefaultValue, ...) \
   struct BitflagsTypeName                                                                       \
   {                                                                                             \
-    static constexpr ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                  \
+    static constexpr ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                              \
     using StorageType = InternalStorageType;                                                    \
     enum Enum                                                                                   \
     {                                                                                           \

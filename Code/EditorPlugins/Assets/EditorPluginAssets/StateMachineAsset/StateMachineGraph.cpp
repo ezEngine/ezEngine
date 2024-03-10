@@ -101,7 +101,8 @@ void ezStateMachineNodeManager::SetInitialState(const ezDocumentObject* pObject)
 
   EZ_ASSERT_DEV(IsAnyState(pObject) == false, "'Any State' can't be initial state");
 
-  auto BroadcastEvent = [this](const ezDocumentObject* pObject) {
+  auto BroadcastEvent = [this](const ezDocumentObject* pObject)
+  {
     if (pObject != nullptr)
     {
       ezDocumentObjectPropertyEvent e;

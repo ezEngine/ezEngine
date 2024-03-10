@@ -104,7 +104,7 @@ EZ_CREATE_SIMPLE_TEST(World, DerivedComponents)
     EZ_TEST_BOOL(pComponentDerived1->GetHandle() == hComponentBase);
     EZ_TEST_BOOL(pComponentDerived1->GetOwningManager() == pManagerDerived1);
 
-    //Assignment test Derived -> Base
+    // Assignment test Derived -> Base
     hComponentBase = pTestDerived1->GetHandle();
     EZ_TEST_BOOL(world.TryGetComponent(hComponentBase, pTestDerived1));
     EZ_TEST_BOOL(pComponentDerived1->GetHandle() == hComponentBase);

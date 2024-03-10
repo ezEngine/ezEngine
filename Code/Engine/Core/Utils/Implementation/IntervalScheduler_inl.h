@@ -131,7 +131,8 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
 
     // schedule work
     {
-      auto RunWork = [&](typename DataMap::Iterator it, ezUInt32 uiIndex) {
+      auto RunWork = [&](typename DataMap::Iterator it, ezUInt32 uiIndex)
+      {
         auto& data = it.Value();
         if (data.IsValid())
         {

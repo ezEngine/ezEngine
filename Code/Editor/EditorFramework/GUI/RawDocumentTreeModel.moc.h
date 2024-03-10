@@ -137,4 +137,3 @@ protected:
   bool m_bAllowDragDrop = false;
   ezString m_sTargetContext = "scenetree";
 };
-

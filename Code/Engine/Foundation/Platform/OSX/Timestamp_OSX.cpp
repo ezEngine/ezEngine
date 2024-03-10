@@ -95,5 +95,3 @@ ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 }
 
 #endif
-
-

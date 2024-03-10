@@ -1,7 +1,7 @@
 
 /// \brief Used to guard ezGALDevice functions from multi-threaded access and to verify that executing them on non-main-threads is allowed
-#define EZ_GALDEVICE_LOCK_AND_CHECK()                                                                                                                \
-  EZ_LOCK(m_Mutex);                                                                                                                                  \
+#define EZ_GALDEVICE_LOCK_AND_CHECK() \
+  EZ_LOCK(m_Mutex);                   \
   VerifyMultithreadedAccess()
 
 EZ_ALWAYS_INLINE const ezGALDeviceCreationDescription* ezGALDevice::GetDescription() const

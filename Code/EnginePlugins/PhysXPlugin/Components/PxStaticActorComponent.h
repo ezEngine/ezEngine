@@ -38,9 +38,9 @@ public:
 
   ezUInt32 GetShapeId() const { return m_uiShapeId; } // [ scriptable ]
 
-  ezUInt8 m_uiCollisionLayer = 0;              // [ property ]
-  bool m_bIncludeInNavmesh = true;             // [ property ]
-  bool m_bPullSurfacesFromGraphicsMesh = true; // [ property ]
+  ezUInt8 m_uiCollisionLayer = 0;                     // [ property ]
+  bool m_bIncludeInNavmesh = true;                    // [ property ]
+  bool m_bPullSurfacesFromGraphicsMesh = true;        // [ property ]
 
 protected:
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;

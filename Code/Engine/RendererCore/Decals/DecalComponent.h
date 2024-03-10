@@ -110,8 +110,8 @@ public:
   float GetSortOrder() const;      // [ property ]
 
   /// \brief Whether the decal projection should use a kind of three-way texture mapping to wrap the image around curved geometry.
-  void SetWrapAround(bool bWrapAround); // [ property ]
-  bool GetWrapAround() const;           // [ property ]
+  void SetWrapAround(bool bWrapAround);         // [ property ]
+  bool GetWrapAround() const;                   // [ property ]
 
   void SetMapNormalToGeometry(bool bMapNormal); // [ property ]
   bool GetMapNormalToGeometry() const;          // [ property ]

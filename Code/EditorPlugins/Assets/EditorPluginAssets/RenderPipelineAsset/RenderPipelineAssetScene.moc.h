@@ -14,4 +14,3 @@ public:
   ezQtRenderPipelineAssetScene(QObject* pParent = nullptr);
   ~ezQtRenderPipelineAssetScene();
 };
-

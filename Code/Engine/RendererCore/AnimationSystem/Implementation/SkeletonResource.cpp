@@ -180,7 +180,8 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 
   // make sure the geometry is sorted by bones
   // this allows to make the algorithm for creating the bone geometry more efficient
-  m_Geometry.Sort([](const ezSkeletonResourceGeometry& lhs, const ezSkeletonResourceGeometry& rhs) -> bool { return lhs.m_uiAttachedToJoint < rhs.m_uiAttachedToJoint; });
+  m_Geometry.Sort([](const ezSkeletonResourceGeometry& lhs, const ezSkeletonResourceGeometry& rhs) -> bool
+    { return lhs.m_uiAttachedToJoint < rhs.m_uiAttachedToJoint; });
 
   return EZ_SUCCESS;
 }

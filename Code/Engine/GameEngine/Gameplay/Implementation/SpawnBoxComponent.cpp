@@ -273,4 +273,3 @@ void ezSpawnBoxComponent::Spawn(ezUInt32 uiCount)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_SpawnBoxComponent);
-

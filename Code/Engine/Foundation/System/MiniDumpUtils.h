@@ -19,8 +19,8 @@ struct EZ_FOUNDATION_DLL ezMiniDumpUtils
   /// \brief Specifies the dump mode that is written.
   enum class ezDumpType
   {
-    Auto, ///< Uses the setting specified globally through the command line.
-    MiniDump, ///< Saves a mini-dump without full memory, regardless of this application's command line flag '-fullcrashdumps'.
+    Auto,                  ///< Uses the setting specified globally through the command line.
+    MiniDump,              ///< Saves a mini-dump without full memory, regardless of this application's command line flag '-fullcrashdumps'.
     MiniDumpWithFullMemory ///< Saves a mini-dump with full memory, regardless of this application's command line flag '-fullcrashdumps'.
   };
 

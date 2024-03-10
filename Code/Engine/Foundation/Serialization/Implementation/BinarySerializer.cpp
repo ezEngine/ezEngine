@@ -102,5 +102,3 @@ void ezAbstractGraphBinarySerializer::Read(
     ezGraphVersioning::GetSingleton()->PatchGraph(pGraph, pTypesGraph);
   }
 }
-
-

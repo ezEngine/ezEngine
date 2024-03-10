@@ -1,5 +1,6 @@
 #include <RendererDX11/RendererDX11PCH.h>
 
+#include <Foundation/Containers/IterateBits.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
@@ -12,7 +13,6 @@
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
-#include <Foundation/Containers/IterateBits.h>
 
 #include <d3d11_1.h>
 

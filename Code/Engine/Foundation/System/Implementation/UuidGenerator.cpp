@@ -19,5 +19,3 @@ ezUuid ezUuid::MakeStableUuidFromInt(ezInt64 iInt)
 
   return NewUuid;
 }
-
-

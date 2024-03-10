@@ -37,8 +37,8 @@ public:
   void SetScriptClassFile(const char* szFile); // [ property ]
   const char* GetScriptClassFile() const;      // [ property ]
 
-  void SetUpdateInterval(ezTime interval); // [ property ]
-  ezTime GetUpdateInterval() const;        // [ property ]
+  void SetUpdateInterval(ezTime interval);     // [ property ]
+  ezTime GetUpdateInterval() const;            // [ property ]
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters

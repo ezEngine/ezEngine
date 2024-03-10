@@ -201,8 +201,8 @@ void ezAiNavMesh::FinalizeSectorUpdates()
     }
     else
     {
-        ezLog::Success("Loaded empty navmesh tile {}|{}", coord.x, coord.y);
-        sector.m_FlagUsable = 1;
+      ezLog::Success("Loaded empty navmesh tile {}|{}", coord.x, coord.y);
+      sector.m_FlagUsable = 1;
     }
 
     sector.m_FlagInvalidate = 0;

@@ -24,4 +24,3 @@ StructuredBuffer<ezTangentQuadParticleShaderData> particleTangentQuadData;
 EZ_CHECK_AT_COMPILETIME(sizeof(ezTangentQuadParticleShaderData) == 48);
 
 #endif
-

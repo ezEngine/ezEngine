@@ -162,11 +162,14 @@ private:
 };
 
 /// \brief Add this macro to the declaration of your module type.
-#define EZ_DECLARE_WORLD_MODULE()                                           \
-public:                                                                     \
-  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return s_TypeId; } \
-                                                                            \
-private:                                                                    \
+#define EZ_DECLARE_WORLD_MODULE()                      \
+public:                                                \
+  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() \
+  {                                                    \
+    return s_TypeId;                                   \
+  }                                                    \
+                                                       \
+private:                                               \
   static ezWorldModuleTypeId s_TypeId;
 
 /// \brief Implements the given module type. Add this macro to a cpp outside of the type declaration.

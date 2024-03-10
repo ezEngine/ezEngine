@@ -47,7 +47,7 @@ public:
   ezRopeRenderComponent();
   ~ezRopeRenderComponent();
 
-  ezColor m_Color = ezColor::White; // [ property ]
+  ezColor m_Color = ezColor::White;         // [ property ]
 
   void SetMaterialFile(const char* szFile); // [ property ]
   const char* GetMaterialFile() const;      // [ property ]
@@ -68,14 +68,14 @@ public:
   bool GetSubdivide() const { return m_bSubdivide; } // [ property ]
 
   /// \brief How often to repeat the U texture coordinate along the rope's length.
-  void SetUScale(float fUScale);                // [ property ]
-  float GetUScale() const { return m_fUScale; } // [ property ]
+  void SetUScale(float fUScale);                            // [ property ]
+  float GetUScale() const { return m_fUScale; }             // [ property ]
 
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
 
 private:
-  void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg); // [ msg handler ]
+  void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg);        // [ msg handler ]
   void GenerateRenderMesh(ezUInt32 uiNumRopePieces);
   void UpdateSkinningTransformBuffer(ezArrayPtr<const ezTransform> skinningTransforms);
 

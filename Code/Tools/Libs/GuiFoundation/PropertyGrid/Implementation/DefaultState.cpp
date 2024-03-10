@@ -54,7 +54,8 @@ ezDefaultObjectState::ezDefaultObjectState(ezObjectAccessorBase* pAccessor, cons
       {
         pProviders.PushBack(std::move(pProvider));
       }
-      pProviders.Sort([](const ezSharedPtr<ezDefaultStateProvider>& pA, const ezSharedPtr<ezDefaultStateProvider>& pB) -> bool { return pA->GetRootDepth() > pB->GetRootDepth(); });
+      pProviders.Sort([](const ezSharedPtr<ezDefaultStateProvider>& pA, const ezSharedPtr<ezDefaultStateProvider>& pB) -> bool
+        { return pA->GetRootDepth() > pB->GetRootDepth(); });
     }
   }
 }
@@ -160,7 +161,8 @@ ezDefaultContainerState::ezDefaultContainerState(ezObjectAccessorBase* pAccessor
       {
         pProviders.PushBack(std::move(pProvider));
       }
-      pProviders.Sort([](const ezSharedPtr<ezDefaultStateProvider>& pA, const ezSharedPtr<ezDefaultStateProvider>& pB) -> bool { return pA->GetRootDepth() > pB->GetRootDepth(); });
+      pProviders.Sort([](const ezSharedPtr<ezDefaultStateProvider>& pA, const ezSharedPtr<ezDefaultStateProvider>& pB) -> bool
+        { return pA->GetRootDepth() > pB->GetRootDepth(); });
     }
   }
 }
@@ -255,7 +257,7 @@ bool ezDefaultStateProvider::IsDefaultValue(SuperArray superPtr, ezObjectAccesso
   const bool bIsValueType = ezReflectionUtils::IsValueType(pProp) || pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags);
   if (index.IsValid() && !bIsValueType)
   {
-    //#TODO we do not support reverting entire objects just yet.
+    // #TODO we do not support reverting entire objects just yet.
     return true;
   }
 
@@ -336,7 +338,8 @@ bool ezDefaultStateProvider::DoesVariantMatchProperty(const ezVariant& value, co
   if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
     return true;
 
-  auto MatchesElementType = [&](const ezVariant& value2) -> bool {
+  auto MatchesElementType = [&](const ezVariant& value2) -> bool
+  {
     if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
       return value2.IsNumber() && !value2.IsFloatingPoint();
@@ -390,7 +393,8 @@ bool ezDefaultStateProvider::DoesVariantMatchProperty(const ezVariant& value, co
         if (value.IsA<ezVariantDictionary>())
         {
           const ezVariantDictionary& valueDict = value.Get<ezVariantDictionary>();
-          return std::all_of(cbegin(valueDict), cend(valueDict), [&](const auto& it) { return MatchesElementType(it.Value()); });
+          return std::all_of(cbegin(valueDict), cend(valueDict), [&](const auto& it)
+            { return MatchesElementType(it.Value()); });
         }
       }
     }

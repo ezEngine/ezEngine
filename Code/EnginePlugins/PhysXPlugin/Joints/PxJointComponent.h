@@ -59,14 +59,14 @@ public:
   ezPxJointComponent();
   ~ezPxJointComponent();
 
-  void SetBreakForce(float value);                      // [ property ]
-  float GetBreakForce() const { return m_fBreakForce; } // [ property ]
+  void SetBreakForce(float value);                            // [ property ]
+  float GetBreakForce() const { return m_fBreakForce; }       // [ property ]
 
-  void SetBreakTorque(float value);                       // [ property ]
-  float GetBreakTorque() const { return m_fBreakTorque; } // [ property ]
+  void SetBreakTorque(float value);                           // [ property ]
+  float GetBreakTorque() const { return m_fBreakTorque; }     // [ property ]
 
-  void SetPairCollision(bool value);                         // [ property ]
-  bool GetPairCollision() const { return m_bPairCollision; } // [ property ]
+  void SetPairCollision(bool value);                          // [ property ]
+  bool GetPairCollision() const { return m_bPairCollision; }  // [ property ]
 
   void SetParentActorReference(const char* szReference);      // [ property ]
   void SetChildActorReference(const char* szReference);       // [ property ]

@@ -7,7 +7,7 @@ class EZ_FOUNDATION_DLL ezRefCountingImpl
 {
 public:
   /// \brief Constructor
-  ezRefCountingImpl() = default; // [tested]
+  ezRefCountingImpl() = default;                  // [tested]
 
   ezRefCountingImpl(const ezRefCountingImpl& rhs) // [tested]
   {
