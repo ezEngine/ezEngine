@@ -159,15 +159,16 @@ ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& inout_stre
   ezVec3 vConstantRootMotion(0);
   inout_stream << vConstantRootMotion;
 
-  const ezUInt8 uiCurves = 3;
-  inout_stream << uiCurves;
-  m_RootMotionCurves[0].Save(inout_stream);
-  m_RootMotionCurves[1].Save(inout_stream);
-  m_RootMotionCurves[2].Save(inout_stream);
-
   m_EventTrack.Save(inout_stream);
 
   inout_stream << m_bAdditive;
+
+  const ezUInt8 uiCurves = 3;
+  inout_stream << uiCurves;
+
+  m_RootMotionCurves[0].Save(inout_stream);
+  m_RootMotionCurves[1].Save(inout_stream);
+  m_RootMotionCurves[2].Save(inout_stream);
 
   return EZ_SUCCESS;
 }
@@ -227,20 +228,26 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& inout_st
     inout_stream >> m_bAdditive;
   }
 
-  if (uiVersion <= 9)
-  {
-    SetConstantRootMotion(vConstantRootMotion);
-  }
-
   if (uiVersion >= 10)
   {
+    ezUInt8 uiNumCurves = 0;
+    inout_stream >> uiNumCurves;
+
     m_RootMotionCurves[0].Load(inout_stream);
     m_RootMotionCurves[1].Load(inout_stream);
     m_RootMotionCurves[2].Load(inout_stream);
 
+    m_RootMotionCurves[0].SortControlPoints();
+    m_RootMotionCurves[1].SortControlPoints();
+    m_RootMotionCurves[2].SortControlPoints();
+
     m_RootMotionCurves[0].CreateLinearApproximation();
     m_RootMotionCurves[1].CreateLinearApproximation();
     m_RootMotionCurves[2].CreateLinearApproximation();
+  }
+  else
+  {
+    SetConstantRootMotion(vConstantRootMotion);
   }
 
   return EZ_SUCCESS;

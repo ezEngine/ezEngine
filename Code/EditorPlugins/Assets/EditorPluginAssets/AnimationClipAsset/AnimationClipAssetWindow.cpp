@@ -418,8 +418,26 @@ void ezQtAnimationClipAssetDocumentWindow::onCurveInsertCpAt(ezUInt32 uiCurveIdx
     cmdAddCurve.m_pType = ezGetStaticRTTI<ezSingleCurveData>();
     cmdAddCurve.m_Index = -1;
 
+    ezSetObjectPropertyCommand cmdSet;
+    cmdSet.m_sProperty = "Color";
+
     cmdAddCurve.m_NewObjectGuid = ezUuid::MakeUuid();
     history->AddCommand(cmdAddCurve).AssertSuccess();
+    cmdSet.m_Object = cmdAddCurve.m_NewObjectGuid;
+    cmdSet.m_NewValue = ezColor::Red;
+    history->AddCommand(cmdSet).AssertSuccess();
+
+    cmdAddCurve.m_NewObjectGuid = ezUuid::MakeUuid();
+    history->AddCommand(cmdAddCurve).AssertSuccess();
+    cmdSet.m_Object = cmdAddCurve.m_NewObjectGuid;
+    cmdSet.m_NewValue = ezColor::Lime;
+    history->AddCommand(cmdSet).AssertSuccess();
+
+    cmdAddCurve.m_NewObjectGuid = ezUuid::MakeUuid();
+    history->AddCommand(cmdAddCurve).AssertSuccess();
+    cmdSet.m_Object = cmdAddCurve.m_NewObjectGuid;
+    cmdSet.m_NewValue = ezColor::Blue;
+    history->AddCommand(cmdSet).AssertSuccess();
   }
 
   const ezVariant curveGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Curves", uiCurveIdx);

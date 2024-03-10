@@ -7,6 +7,8 @@
 
 class ezAnimationClipAssetDocument;
 struct ezPropertyMetaStateEvent;
+class ezPlatformProfile;
+class ezSkeleton;
 
 struct ezRootMotionSource
 {
@@ -17,7 +19,7 @@ struct ezRootMotionSource
     None,
     Constant,
     Custom,
-    // FromFeet,
+    FromFeet,
     // AvgFromFeet,
 
     Default = None
@@ -72,7 +74,7 @@ protected:
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   // void ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const;
-  // void ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const;
+  //void ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const;
   // void MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const;
 
 private:

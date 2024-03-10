@@ -14,7 +14,7 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{7165890463202347410,5466021631073588663}}
-		u4 %Hash{16205144807915934114}
+		u4 %Hash{12137206940045870102}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -22,11 +22,44 @@ o
 		{
 			s{"Animations/Pete/Pete.glb"}
 		}
+		s %Tags{""}
 	}
 }
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{10789678842501379004,4657415868667179918}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{2400}
+		d %Value{0x0000000000000040}
+	}
+}
+o
+{
+	Uuid %id{u4{2734787567643801515,4696693649146039714}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{255,0,0,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{16911071322964707217,5626728136783053655}}
+			Uuid{u4{1839258557882147202,5086033773913353382}}
+			Uuid{u4{10789678842501379004,4657415868667179918}}
+		}
+	}
+}
 o
 {
 	Uuid %id{u4{15732942804827439757,4836072986988830476}}
@@ -36,6 +69,33 @@ o
 	{
 		s %Event{"walk.foot.l"}
 		i4 %Tick{2400}
+	}
+}
+o
+{
+	Uuid %id{u4{4837020097009753021,4948857749151848122}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{0,0,255,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{1839258557882147202,5086033773913353382}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4800}
+		d %Value{0}
 	}
 }
 o
@@ -74,13 +134,46 @@ o
 			s{"Wave"}
 		}
 		Vec3 %ConstantRootMotion{f{0x6666E63F,0,0}}
+		VarArray %Curves
+		{
+			Uuid{u4{2734787567643801515,4696693649146039714}}
+			Uuid{u4{16568096476733771184,5552088037293590267}}
+			Uuid{u4{4837020097009753021,4948857749151848122}}
+		}
 		Uuid %EventTrack{u4{9376912785412106638,10017582812090858428}}
 		s %File{"Animations/Pete/Pete.glb"}
 		u3 %FirstFrame{0}
 		u3 %NumFrames{0}
 		s %PreviewMesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
-		s %RootMotion{"ezRootMotionSource::Constant"}
+		s %RootMotion{"ezRootMotionSource::Custom"}
 		s %UseAnimationClip{"Walk"}
+	}
+}
+o
+{
+	Uuid %id{u4{16568096476733771184,5552088037293590267}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{0,255,0,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{16911071322964707217,5626728136783053655}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{480}
+		d %Value{0}
 	}
 }
 o
@@ -114,6 +207,57 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{14722461902623688675,2098269905474166124}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSingleCurveData"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{4976983466369834828,2223514201630482789}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveControlPointData"}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{13216943865831982294,3766144591255929939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveTangentMode"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
