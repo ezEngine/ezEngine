@@ -16,6 +16,7 @@ struct ezRootMotionSource
   {
     None,
     Constant,
+    Custom,
     // FromFeet,
     // AvgFromFeet,
 
@@ -45,9 +46,9 @@ public:
 
   ezEventTrackData m_EventTrack;
   ezDynamicArray<ezSingleCurveData> m_Curves;
-  //ezSingleCurveData m_RootMotionX;
-  //ezSingleCurveData m_RootMotionY;
-  //ezSingleCurveData m_RootMotionZ;
+  // ezSingleCurveData m_RootMotionX;
+  // ezSingleCurveData m_RootMotionY;
+  // ezSingleCurveData m_RootMotionZ;
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 };

@@ -12,7 +12,7 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionSource, 1)
-  EZ_ENUM_CONSTANTS(ezRootMotionSource::None, ezRootMotionSource::Constant)
+  EZ_ENUM_CONSTANTS(ezRootMotionSource::None, ezRootMotionSource::Constant, ezRootMotionSource::Custom)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefaultAllocator<ezAnimationClipAssetProperties>)
@@ -131,6 +131,17 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
     if (pProp->m_RootMotionMode == ezRootMotionSource::Constant)
     {
       desc.SetConstantRootMotion(pProp->m_vConstantRootMotion);
+    }
+    else if (pProp->m_RootMotionMode == ezRootMotionSource::Custom)
+    {
+      if (pProp->m_Curves.GetCount() >= 1)
+        pProp->m_Curves[0].ConvertToRuntimeData(desc.m_RootMotionCurves[0]);
+
+      if (pProp->m_Curves.GetCount() >= 2)
+        pProp->m_Curves[1].ConvertToRuntimeData(desc.m_RootMotionCurves[1]);
+
+      if (pProp->m_Curves.GetCount() >= 3)
+        pProp->m_Curves[2].ConvertToRuntimeData(desc.m_RootMotionCurves[2]);
     }
 
     range.BeginNextStep("Writing Result");
