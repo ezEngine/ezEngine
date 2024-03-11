@@ -295,7 +295,7 @@ void ezInstancedMeshComponent::Instances_SetValue(ezUInt32 uiIndex, ezMeshInstan
 
 void ezInstancedMeshComponent::Instances_Insert(ezUInt32 uiIndex, ezMeshInstanceData value)
 {
-  m_RawInstancedData.Insert(value, uiIndex);
+  m_RawInstancedData.InsertAt(uiIndex, value);
 
   TriggerLocalBoundsUpdate();
 }

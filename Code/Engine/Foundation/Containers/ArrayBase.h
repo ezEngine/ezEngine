@@ -78,10 +78,10 @@ public:
   bool Contains(const T& value) const; // [tested]
 
   /// \brief Inserts value at index by shifting all following elements.
-  void Insert(const T& value, ezUInt32 uiIndex); // [tested]
+  void InsertAt(ezUInt32 uiIndex, const T& value); // [tested]
 
   /// \brief Inserts value at index by shifting all following elements.
-  void Insert(T&& value, ezUInt32 uiIndex); // [tested]
+  void InsertAt(ezUInt32 uiIndex, T&& value); // [tested]
 
   /// \brief Inserts all elements in the range starting at the given index, shifting the elements after the index.
   void InsertRange(const ezArrayPtr<const T>& range, ezUInt32 uiIndex); // [tested]

@@ -650,7 +650,7 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
     {
       ezAbstractGraphDiffOperation op = newInstanceToCurrentInstance[i];
       newInstanceToCurrentInstance.RemoveAtAndCopy(i);
-      newInstanceToCurrentInstance.Insert(op, 0);
+      newInstanceToCurrentInstance.InsertAt(0, op);
       break;
     }
   }

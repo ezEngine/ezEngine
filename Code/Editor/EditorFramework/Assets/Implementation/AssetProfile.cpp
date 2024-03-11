@@ -209,7 +209,7 @@ ezResult ezAssetCurator::LoadAssetProfiles()
     pCfg->SetTargetPlatform("Windows");
 
     pCfg->AddMissingConfigs();
-    m_AssetProfiles.Insert(pCfg, 0);
+    m_AssetProfiles.InsertAt(0, pCfg);
   }
 
   return EZ_SUCCESS;

@@ -1326,7 +1326,7 @@ ezResult ezWorld::RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunc
     ++uiInsertionIndex;
   }
 
-  updateFunctions.Insert(newFunction, uiInsertionIndex);
+  updateFunctions.InsertAt(uiInsertionIndex, newFunction);
 
   return EZ_SUCCESS;
 }

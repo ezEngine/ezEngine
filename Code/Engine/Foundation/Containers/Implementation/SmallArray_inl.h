@@ -668,13 +668,13 @@ EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::SetCountUninitial
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::Insert(const T& value, ezUInt32 uiIndex)
+EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::InsertAt(ezUInt32 uiIndex, const T& value)
 {
   SUPER::Insert(value, uiIndex, AllocatorWrapper::GetAllocator());
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::Insert(T&& value, ezUInt32 uiIndex)
+EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::InsertAt(ezUInt32 uiIndex, T&& value)
 {
   SUPER::Insert(value, uiIndex, AllocatorWrapper::GetAllocator());
 }

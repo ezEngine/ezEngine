@@ -1266,7 +1266,7 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
     connect(pDeleteButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
   }
 
-  m_Elements.Insert(Element(pSubGroup, pNewWidget, pHelpButton), index);
+  m_Elements.InsertAt(index, Element(pSubGroup, pNewWidget, pHelpButton));
   return m_Elements[index];
 }
 

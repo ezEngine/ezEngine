@@ -331,7 +331,7 @@ bool ezReflectedTypeStorageAccessor::InsertValue(ezStringView sProperty, ezVaria
             ezVariantArray changedValues = values;
             if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
             {
-              changedValues.Insert(value, uiIndex);
+              changedValues.InsertAt(uiIndex, value);
               m_Data[storageInfo->m_uiIndex] = changedValues;
               return true;
             }
@@ -339,7 +339,7 @@ bool ezReflectedTypeStorageAccessor::InsertValue(ezStringView sProperty, ezVaria
             {
               // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
               // that may have a different type now as someone reloaded the type information and replaced a type.
-              changedValues.Insert(value.ConvertTo(SpecVarType), uiIndex);
+              changedValues.InsertAt(uiIndex, value.ConvertTo(SpecVarType));
               m_Data[storageInfo->m_uiIndex] = changedValues;
               return true;
             }
@@ -460,7 +460,7 @@ bool ezReflectedTypeStorageAccessor::MoveValue(ezStringView sProperty, ezVariant
             {
               uiNewIndex -= 1;
             }
-            changedValues.Insert(value, uiNewIndex);
+            changedValues.InsertAt(uiNewIndex, value);
 
             m_Data[storageInfo->m_uiIndex] = changedValues;
             return true;

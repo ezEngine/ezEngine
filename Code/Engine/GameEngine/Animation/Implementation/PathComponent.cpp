@@ -147,7 +147,7 @@ void ezPathComponent::Nodes_SetNode(ezUInt32 i, const ezString& node)
 
 void ezPathComponent::Nodes_Insert(ezUInt32 uiIndex, const ezString& node)
 {
-  m_Nodes.Insert(node, uiIndex);
+  m_Nodes.InsertAt(uiIndex, node);
   m_bControlPointsChanged = true;
   m_bLinearizedRepresentationChanged = true;
 }

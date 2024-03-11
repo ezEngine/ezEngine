@@ -53,7 +53,7 @@ void ezBoneWeightsAnimNode::RootBones_Insert(ezUInt32 uiIndex, const char* value
 {
   ezHashedString tmp;
   tmp.Assign(value);
-  m_RootBones.Insert(tmp, uiIndex);
+  m_RootBones.InsertAt(uiIndex, tmp);
 }
 
 void ezBoneWeightsAnimNode::RootBones_Remove(ezUInt32 uiIndex)

@@ -456,7 +456,7 @@ void ezLocalBlackboardComponent::Entries_SetValue(ezUInt32 uiIndex, const ezBlac
 
 void ezLocalBlackboardComponent::Entries_Insert(ezUInt32 uiIndex, const ezBlackboardEntry& entry)
 {
-  m_InitialEntries.Insert(entry, uiIndex);
+  m_InitialEntries.InsertAt(uiIndex, entry);
 
   m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
   m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();

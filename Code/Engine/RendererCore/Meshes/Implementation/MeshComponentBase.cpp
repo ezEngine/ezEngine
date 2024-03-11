@@ -336,7 +336,7 @@ void ezMeshComponentBase::Materials_Insert(ezUInt32 uiIndex, const char* value)
   if (!ezStringUtils::IsNullOrEmpty(value))
     hMat = ezResourceManager::LoadResource<ezMaterialResource>(value);
 
-  m_Materials.Insert(hMat, uiIndex);
+  m_Materials.InsertAt(uiIndex, hMat);
 
   InvalidateCachedRenderData();
 }
