@@ -1814,7 +1814,7 @@ void ezGALDeviceVulkan::AddWaitSemaphore(const SemaphoreInfo& waitSemaphore)
 {
   // #TODO_VULKAN Assert is in render pipeline, thread safety
   if (waitSemaphore.m_type == vk::SemaphoreType::eTimeline)
-    m_waitSemaphores.Insert(waitSemaphore, 0);
+    m_waitSemaphores.InsertAt(0, waitSemaphore);
   else
     m_waitSemaphores.PushBack(waitSemaphore);
 }
@@ -1823,7 +1823,7 @@ void ezGALDeviceVulkan::AddSignalSemaphore(const SemaphoreInfo& signalSemaphore)
 {
   // #TODO_VULKAN Assert is in render pipeline, thread safety
   if (signalSemaphore.m_type == vk::SemaphoreType::eTimeline)
-    m_signalSemaphores.Insert(signalSemaphore, 0);
+    m_signalSemaphores.InsertAt(0, signalSemaphore);
   else
     m_signalSemaphores.PushBack(signalSemaphore);
 }
