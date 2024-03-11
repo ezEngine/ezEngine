@@ -63,6 +63,15 @@ public:
     AllowWrites,
   };
 
+  struct DataDirectoryInfo
+  {
+    DataDirUsage m_Usage;
+
+    ezString m_sRootName;
+    ezString m_sGroup;
+    ezDataDirectoryType* m_pDataDirectory = nullptr;
+  };
+
   /// \name Data Directory Modifications
   ///
   /// All functions that add / remove data directories are not thread safe and require that this is done
@@ -119,6 +128,9 @@ public:
 
   /// \brief Returns the n-th currently active data directory.
   static ezDataDirectoryType* GetDataDirectory(ezUInt32 uiDataDirIndex); // [tested]
+
+  /// \brief Returns the info about the n-th currently active data directory.
+  static const DataDirectoryInfo& GetDataDirectoryInfo(ezUInt32 uiDataDirIndex);
 
   /// \brief Calls ezDataDirectoryType::ReloadExternalConfigs() on all active data directories.
   static void ReloadAllExternalDataDirectoryConfigs();
@@ -290,15 +302,6 @@ private:
   static void Shutdown();
 
 private:
-  struct DataDirectory
-  {
-    DataDirUsage m_Usage;
-
-    ezString m_sRootName;
-    ezString m_sGroup;
-    ezDataDirectoryType* m_pDataDirectory;
-  };
-
   struct Factory
   {
     EZ_DECLARE_POD_TYPE();
@@ -310,19 +313,19 @@ private:
   struct FileSystemData
   {
     ezHybridArray<Factory, 4> m_DataDirFactories;
-    ezHybridArray<DataDirectory, 16> m_DataDirectories;
+    ezHybridArray<DataDirectoryInfo, 16> m_DataDirectories;
 
     ezEvent<const FileEvent&, ezMutex> m_Event;
     ezMutex m_FsMutex;
   };
 
-  /// \brief Returns a list of data directory categories that were embedded in the path.
+  /// \brief Extracts the root name in a rooted path, e.g. for ":bin/stuff" it would extract "bin". Returns the relative path (here "stuff") or an empty string if it is a root only.
   static ezStringView ExtractRootName(ezStringView sFile, ezString& rootName);
 
   /// \brief Returns the given path relative to its data directory. The path must be inside the given data directory.
   static ezStringView GetDataDirRelativePath(ezStringView sFile, ezUInt32 uiDataDir);
 
-  static DataDirectory* GetDataDirForRoot(const ezString& sRoot);
+  static DataDirectoryInfo* GetDataDirForRoot(const ezString& sRoot);
 
   static void CleanUpRootName(ezStringBuilder& sRoot);
 

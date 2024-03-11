@@ -6,9 +6,8 @@
 
 #define STACK_SIZE 64
 
-template <typename KeyType, typename ValueType, typename Comparer>
-template <bool REVERSE>
-void ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>::Advance(const ezInt32 dir0, const ezInt32 dir1)
+template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+void ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>::Advance(const ezInt32 dir0, const ezInt32 dir1)
 {
   if (m_pElement == nullptr)
   {
@@ -55,9 +54,8 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>::Advanc
   return;
 }
 
-template <typename KeyType, typename ValueType, typename Comparer>
-template <bool REVERSE>
-void ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>::Next()
+template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+void ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>::Next()
 {
   if constexpr (REVERSE)
   {
@@ -69,9 +67,8 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>::Next()
   }
 }
 
-template <typename KeyType, typename ValueType, typename Comparer>
-template <bool REVERSE>
-void ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>::Prev()
+template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+void ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>::Prev()
 {
   if constexpr (REVERSE)
   {
@@ -82,6 +79,49 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIteratorBase<REVERSE>::Prev()
     Advance(1, 0);
   }
 }
+
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+
+// These functions are used for structured bindings.
+// They describe how many elements can be accessed in the binding and which type they are.
+namespace std
+{
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_size<ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>> : integral_constant<size_t, 2>
+  {
+  };
+
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_element<0, ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>>
+  {
+    using type = const KeyType&;
+  };
+
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_element<1, ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>>
+  {
+    using type = const ValueType&;
+  };
+
+
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_size<ezMapBaseIteratorBase<KeyType, ValueType, Comparer, REVERSE>> : integral_constant<size_t, 2>
+  {
+  };
+
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_element<0, ezMapBaseIteratorBase<KeyType, ValueType, Comparer, REVERSE>>
+  {
+    using type = const KeyType&;
+  };
+
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_element<1, ezMapBaseIteratorBase<KeyType, ValueType, Comparer, REVERSE>>
+  {
+    using type = ValueType&;
+  };
+} // namespace std
+#endif
 
 // ***** ezMapBase *****
 

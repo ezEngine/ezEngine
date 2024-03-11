@@ -4,6 +4,10 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Types/ArrayPtr.h>
 
+#if EZ_ENABLED(EZ_INTEROP_STL_SPAN)
+#  include <span>
+#endif
+
 /// \brief Value used by containers for indices to indicate an invalid index.
 #ifndef ezInvalidIndex
 #  define ezInvalidIndex 0xFFFFFFFF
@@ -166,6 +170,28 @@ public:
   using const_reverse_iterator = const_reverse_pointer_iterator<T>;
   using iterator = T*;
   using reverse_iterator = reverse_pointer_iterator<T>;
+
+#if EZ_ENABLED(EZ_INTEROP_STL_SPAN)
+  operator std::span<const T>() const
+  {
+    return std::span(GetData(), static_cast<size_t>(GetCount()));
+  }
+
+  operator std::span<T>()
+  {
+    return std::span(GetData(), static_cast<size_t>(GetCount()));
+  }
+
+  std::span<T> GetSpan()
+  {
+    return std::span(GetData(), static_cast<size_t>(GetCount()));
+  }
+
+  std::span<const T> GetSpan() const
+  {
+    return std::span(GetData(), static_cast<size_t>(GetCount()));
+  }
+#endif
 
 protected:
   void DoSwap(ezArrayBase<T, Derived>& other);

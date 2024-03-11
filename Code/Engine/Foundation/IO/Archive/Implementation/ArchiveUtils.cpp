@@ -118,6 +118,7 @@ ezResult ezArchiveUtils::WriteEntry(
 
   ezUInt8 buf[1024 * 32];
 
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   ezUInt32 uiWorkerThreadCount;
   if (uiMaxBytes > ezMath::MaxValue<ezUInt32>())
   {
@@ -128,6 +129,7 @@ ezResult ezArchiveUtils::WriteEntry(
     constexpr ezUInt32 uiBytesPerThread = 1024u * 1024u;
     uiWorkerThreadCount = ezMath::Clamp((ezUInt32)floor(uiMaxBytes / uiBytesPerThread), 1u, uiMaxNumWorkerThreads);
   }
+#endif
 
   inout_tocEntry.m_uiPathStringOffset = uiPathStringOffset;
   inout_tocEntry.m_uiDataStartOffset = inout_uiCurrentStreamPosition;

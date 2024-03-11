@@ -168,11 +168,22 @@ public:
   {
     return std::string_view(InternalGetData(), static_cast<size_t>(InternalGetElementCount()));
   }
+  /// \brief Returns a std::string copy of this string.
+  EZ_ALWAYS_INLINE std::string GetAsStdString() const
+  {
+    return std::string(GetAsStdView());
+  }
 
   /// \brief Returns a std::string_view to this string.
   EZ_ALWAYS_INLINE operator std::string_view() const
   {
     return GetAsStdView();
+  }
+
+  /// \brief Returns a std::string copy of this string.
+  EZ_ALWAYS_INLINE operator std::string() const
+  {
+    return std::string(GetAsStdView());
   }
 #endif
 

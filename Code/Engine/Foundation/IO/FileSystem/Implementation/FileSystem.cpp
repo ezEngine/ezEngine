@@ -109,7 +109,7 @@ ezResult ezFileSystem::AddDataDirectory(ezStringView sDataDirectory, ezStringVie
 
       if (pDataDir != nullptr)
       {
-        DataDirectory dd;
+        DataDirectoryInfo dd;
         dd.m_Usage = usage;
         dd.m_pDataDirectory = pDataDir;
         dd.m_sRootName = sCleanRootName;
@@ -272,6 +272,13 @@ ezDataDirectoryType* ezFileSystem::GetDataDirectory(ezUInt32 uiDataDirIndex)
   return s_pData->m_DataDirectories[uiDataDirIndex].m_pDataDirectory;
 }
 
+const ezFileSystem::DataDirectoryInfo& ezFileSystem::GetDataDirectoryInfo(ezUInt32 uiDataDirIndex)
+{
+  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+
+  return s_pData->m_DataDirectories[uiDataDirIndex];
+}
+
 ezStringView ezFileSystem::GetDataDirRelativePath(ezStringView sPath, ezUInt32 uiDataDir)
 {
   EZ_LOCK(s_pData->m_FsMutex);
@@ -318,7 +325,7 @@ ezStringView ezFileSystem::GetDataDirRelativePath(ezStringView sPath, ezUInt32 u
 }
 
 
-ezFileSystem::DataDirectory* ezFileSystem::GetDataDirForRoot(const ezString& sRoot)
+ezFileSystem::DataDirectoryInfo* ezFileSystem::GetDataDirForRoot(const ezString& sRoot)
 {
   EZ_LOCK(s_pData->m_FsMutex);
 
@@ -431,29 +438,13 @@ ezResult ezFileSystem::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out
 
 ezStringView ezFileSystem::ExtractRootName(ezStringView sPath, ezString& rootName)
 {
-  rootName.Clear();
+  ezStringView root, path;
+  ezPathUtils::GetRootedPathParts(sPath, root, path);
 
-  if (!sPath.StartsWith(":"))
-    return sPath;
-
-  ezStringBuilder sCur;
-  const ezStringView view = sPath;
-  ezStringIterator it = view.GetIteratorFront();
-  ++it;
-
-  while (it.IsValid() && (it.GetCharacter() != '/'))
-  {
-    sCur.Append(it.GetCharacter());
-    ++it;
-  }
-
-  EZ_ASSERT_DEV(it.IsValid(), "Cannot parse the path \"{0}\". The data-dir root name starts with a ':' but does not end with '/'.", sPath);
-
-  sCur.ToUpper();
-  rootName = sCur;
-  ++it;
-
-  return it.GetData(); // return the string after the data-dir filter declaration
+  ezStringBuilder rootUpr = root;
+  rootUpr.ToUpper();
+  rootName = rootUpr;
+  return path;
 }
 
 ezDataDirectoryReader* ezFileSystem::GetFileReader(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents)
@@ -614,7 +605,7 @@ ezResult ezFileSystem::ResolvePath(ezStringView sPath, ezStringBuilder* out_pAbs
     ezString sRootName;
     ExtractRootName(sPath, sRootName);
 
-    DataDirectory* pDataDir = GetDataDirForRoot(sRootName);
+    DataDirectoryInfo* pDataDir = GetDataDirForRoot(sRootName);
 
     if (pDataDir == nullptr)
       return EZ_FAILURE;
@@ -983,20 +974,62 @@ void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView 
   EZ_LOCK(s_pData->m_FsMutex);
 
   ezHybridArray<ezString, 16> folders;
-  ezStringBuilder sDdPath;
+  ezStringBuilder sDdPath, sRelPath;
 
-  for (const auto& dd : s_pData->m_DataDirectories)
+  if (sSearchTerm.IsRootedPath())
   {
+    const ezStringView root = sSearchTerm.GetRootedPathRootName();
+
+    ezDataDirectoryType* pDataDir = FindDataDirectoryWithRoot(root);
+    if (pDataDir == nullptr)
+      return;
+
+    sSearchTerm.SetStartPosition(root.GetEndPointer());
+
+    if (!sSearchTerm.IsEmpty())
+    {
+      // root name should be followed by a slash
+      sSearchTerm.ChopAwayFirstCharacterAscii();
+    }
+
+    folders.PushBack(pDataDir->GetRedirectedDataDirectoryPath().GetView());
+  }
+  else if (sSearchTerm.IsAbsolutePath())
+  {
+    for (ezUInt32 idx = s_pData->m_DataDirectories.GetCount(); idx > 0; --idx)
+  {
+      const auto& dd = s_pData->m_DataDirectories[idx - 1];
+
     sDdPath = dd.m_pDataDirectory->GetRedirectedDataDirectoryPath();
 
-    if (ResolvePath(sDdPath, &sDdPath, nullptr).Failed())
+      sRelPath = sSearchTerm;
+
+      if (!sDdPath.IsEmpty())
+      {
+        if (sRelPath.MakeRelativeTo(sDdPath).Failed())
       continue;
 
-    if (sDdPath.IsEmpty() || !ezOSFile::ExistsDirectory(sDdPath))
+        // this would use "../" if necessary, which we don't want
+        if (sRelPath.StartsWith(".."))
       continue;
+      }
 
+      sSearchTerm = sRelPath;
 
     folders.PushBack(sDdPath);
+      break;
+    }
+  }
+  else
+  {
+    for (ezUInt32 idx = s_pData->m_DataDirectories.GetCount(); idx > 0; --idx)
+    {
+      const auto& dd = s_pData->m_DataDirectories[idx - 1];
+
+      sDdPath = dd.m_pDataDirectory->GetRedirectedDataDirectoryPath();
+
+      folders.PushBack(sDdPath);
+    }
   }
 
   ref_iterator.StartMultiFolderSearch(folders, sSearchTerm, flags);

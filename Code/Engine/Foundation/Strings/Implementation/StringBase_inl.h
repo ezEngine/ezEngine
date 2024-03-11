@@ -229,6 +229,22 @@ EZ_ALWAYS_INLINE bool operator!=(const ezStringBase<DerivedLhs>& lhs, const char
 
 #endif
 
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+
+template <typename DerivedLhs, typename DerivedRhs>
+EZ_ALWAYS_INLINE std::strong_ordering operator<=>(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs)
+{
+  return lhs.Compare(rhs) <=> 0;
+}
+
+template <typename DerivedLhs, typename DerivedRhs>
+EZ_ALWAYS_INLINE std::strong_ordering operator<=>(const ezStringBase<DerivedLhs>& lhs, const char* rhs)
+{
+  return lhs.Compare(rhs) <=> 0;
+}
+
+#else
+
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_ALWAYS_INLINE bool operator<(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
@@ -300,6 +316,8 @@ EZ_ALWAYS_INLINE bool operator>=(const ezStringBase<DerivedLhs>& lhs, const char
 {
   return lhs.Compare(rhs) >= 0;
 }
+
+#endif
 
 template <typename DerivedLhs>
 EZ_ALWAYS_INLINE ezStringBase<DerivedLhs>::operator ezStringView() const

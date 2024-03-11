@@ -274,7 +274,10 @@ public:
 
 #endif
 
-  /// \brief Returns the path in which the applications binary file is located.
+  /// \brief Returns the full path to the application binary.
+  static ezStringView GetApplicationPath();
+
+  /// \brief Returns the path to the directory in which the application binary is located.
   static ezStringView GetApplicationDirectory();
 
   /// \brief Returns the folder into which user data may be safely written.

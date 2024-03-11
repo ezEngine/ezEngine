@@ -359,11 +359,9 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-ezStringView ezOSFile::GetApplicationDirectory()
+ezStringView ezOSFile::GetApplicationPath()
 {
-  static ezString256 s_Path;
-
-  if (s_Path.IsEmpty())
+  if (s_sApplicationPath.IsEmpty())
   {
 #  if EZ_ENABLED(EZ_PLATFORM_OSX)
 
@@ -380,7 +378,7 @@ ezStringView ezOSFile::GetApplicationDirectory()
 
       if (CFStringGetCString(bundlePath, temp.GetPtr(), maxSize, kCFStringEncodingUTF8))
       {
-        s_Path = temp.GetPtr();
+        s_sApplicationPath = temp.GetPtr();
       }
 
       EZ_DEFAULT_DELETE_ARRAY(temp);
@@ -397,19 +395,17 @@ ezStringView ezOSFile::GetApplicationDirectory()
       // By convention, android requires assets to be placed in the 'Assets' folder
       // inside the apk thus we use that as our SDK root.
       ezStringBuilder sTemp = packagePath.GetData();
-      sTemp.AppendPath("Assets");
-      s_Path = sTemp;
+      sTemp.AppendPath("Assets/ezDummyBin");
+      s_sApplicationPath = sTemp;
     }
 #  else
     char result[PATH_MAX];
     ssize_t length = readlink("/proc/self/exe", result, PATH_MAX);
-    ezStringBuilder path(ezStringView(result, result + length));
-    s_Path = path.GetFileDirectory();
+    s_sApplicationPath = ezStringView(result, result + length);
 #  endif
   }
 
-  EZ_ASSERT_ALWAYS(!s_Path.IsEmpty(), "Failed to retrieve application directory.");
-  return s_Path;
+  return s_sApplicationPath;
 }
 
 ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
