@@ -1245,7 +1245,7 @@ namespace
     int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(2));
     if (iIndex >= 0 && iIndex <= int(a.GetCount()))
     {
-      a.Insert(element, iIndex);
+      a.InsertAt(iIndex, element);
       return ExecResult::RunNext(0);
     }
 

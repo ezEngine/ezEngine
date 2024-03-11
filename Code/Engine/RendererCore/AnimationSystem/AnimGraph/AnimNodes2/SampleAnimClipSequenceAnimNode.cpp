@@ -115,7 +115,7 @@ void ezSampleAnimClipSequenceAnimNode::Clips_Insert(ezUInt32 uiIndex, const char
 {
   ezHashedString s;
   s.Assign(szValue);
-  m_Clips.Insert(s, uiIndex);
+  m_Clips.InsertAt(uiIndex, s);
 }
 
 void ezSampleAnimClipSequenceAnimNode::Clips_Remove(ezUInt32 uiIndex)

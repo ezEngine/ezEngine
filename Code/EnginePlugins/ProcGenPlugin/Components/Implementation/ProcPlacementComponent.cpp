@@ -754,7 +754,7 @@ void ezProcPlacementComponent::BoxExtents_SetValue(ezUInt32 uiIndex, const ezPro
 
 void ezProcPlacementComponent::BoxExtents_Insert(ezUInt32 uiIndex, const ezProcGenBoxExtents& value)
 {
-  m_BoxExtents.Insert(value, uiIndex);
+  m_BoxExtents.InsertAt(uiIndex, value);
 
   UpdateBoundsAndTiles();
 }

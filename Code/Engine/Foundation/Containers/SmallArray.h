@@ -240,8 +240,8 @@ public:
   template <typename = void>
   void SetCountUninitialized(ezUInt16 uiCount);         // [tested]
 
-  void Insert(const T& value, ezUInt32 uiIndex);        // [tested]
-  void Insert(T&& value, ezUInt32 uiIndex);             // [tested]
+  void InsertAt(ezUInt32 uiIndex, const T& value);      // [tested]
+  void InsertAt(ezUInt32 uiIndex, T&& value);           // [tested]
 
   T& ExpandAndGetRef();                                 // [tested]
   void PushBack(const T& value);                        // [tested]

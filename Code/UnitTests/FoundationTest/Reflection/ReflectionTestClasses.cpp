@@ -161,7 +161,7 @@ void ezTestArrays::SetValue(ezUInt32 uiIndex, double value)
 }
 void ezTestArrays::Insert(ezUInt32 uiIndex, double value)
 {
-  m_Hybrid.Insert(value, uiIndex);
+  m_Hybrid.InsertAt(uiIndex, value);
 }
 void ezTestArrays::Remove(ezUInt32 uiIndex)
 {
@@ -182,7 +182,7 @@ void ezTestArrays::SetValueChar(ezUInt32 uiIndex, const char* value)
 }
 void ezTestArrays::InsertChar(ezUInt32 uiIndex, const char* value)
 {
-  m_HybridChar.Insert(value, uiIndex);
+  m_HybridChar.InsertAt(uiIndex, value);
 }
 void ezTestArrays::RemoveChar(ezUInt32 uiIndex)
 {
@@ -203,7 +203,7 @@ void ezTestArrays::SetValueDyn(ezUInt32 uiIndex, const ezTestStruct3& value)
 }
 void ezTestArrays::InsertDyn(ezUInt32 uiIndex, const ezTestStruct3& value)
 {
-  m_Dynamic.Insert(value, uiIndex);
+  m_Dynamic.InsertAt(uiIndex, value);
 }
 void ezTestArrays::RemoveDyn(ezUInt32 uiIndex)
 {
@@ -224,7 +224,7 @@ void ezTestArrays::SetValueDeq(ezUInt32 uiIndex, const ezTestArrays& value)
 }
 void ezTestArrays::InsertDeq(ezUInt32 uiIndex, const ezTestArrays& value)
 {
-  m_Deque.Insert(value, uiIndex);
+  m_Deque.InsertAt(uiIndex, value);
 }
 void ezTestArrays::RemoveDeq(ezUInt32 uiIndex)
 {
@@ -245,7 +245,7 @@ void ezTestArrays::SetValueCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value)
 }
 void ezTestArrays::InsertCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value)
 {
-  m_CustomVariant.Insert(value, uiIndex);
+  m_CustomVariant.InsertAt(uiIndex, value);
 }
 void ezTestArrays::RemoveCustom(ezUInt32 uiIndex)
 {
@@ -444,9 +444,12 @@ void ezTestMaps::Remove2(const char* szKey)
 const ezRangeView<const char*, ezUInt32> ezTestMaps::GetKeys3() const
 {
   return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32
-    { return 0; }, [this]() -> ezUInt32
-    { return m_Accessor3.GetCount(); }, [this](ezUInt32& ref_uiIt)
-    { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char*
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Accessor3.GetCount(); },
+    [this](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
     { return m_Accessor3[uiIt].m_Key; });
 }
 

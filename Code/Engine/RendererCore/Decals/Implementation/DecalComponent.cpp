@@ -620,7 +620,7 @@ void ezDecalComponent::DecalFile_Set(ezUInt32 uiIndex, const char* szFile)
 
 void ezDecalComponent::DecalFile_Insert(ezUInt32 uiIndex, const char* szFile)
 {
-  m_Decals.Insert(ezDecalResourceHandle(), uiIndex);
+  m_Decals.InsertAt(uiIndex, ezDecalResourceHandle());
   DecalFile_Set(uiIndex, szFile);
 }
 

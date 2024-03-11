@@ -303,7 +303,7 @@ void ezQtAssetBrowserModel::HandleEntry(const VisibleEntry& entry, AssetOp op)
       return;
 
     beginInsertRows(QModelIndex(), uiInsertIndex, uiInsertIndex);
-    m_EntriesToDisplay.Insert(entry, uiInsertIndex);
+    m_EntriesToDisplay.InsertAt(uiInsertIndex, entry);
     if (entry.m_Guid.IsValid())
       m_DisplayedEntries.Insert(entry.m_Guid);
     endInsertRows();

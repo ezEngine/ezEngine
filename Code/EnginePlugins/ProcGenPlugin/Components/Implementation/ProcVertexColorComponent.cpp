@@ -502,7 +502,7 @@ ezUInt32 ezProcVertexColorComponent::OutputDescs_GetCount() const
 
 void ezProcVertexColorComponent::OutputDescs_Insert(ezUInt32 uiIndex, const ezProcVertexColorOutputDesc& outputDesc)
 {
-  m_OutputDescs.Insert(outputDesc, uiIndex);
+  m_OutputDescs.InsertAt(uiIndex, outputDesc);
 
   if (IsActiveAndInitialized())
   {

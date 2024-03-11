@@ -154,7 +154,7 @@ public:
   bool RemoveAndSwap(const T& value); // [tested]
 
   /// \brief Inserts value at index by shifting all following elements. Valid insert positions are [0; GetCount].
-  void Insert(const T& value, ezUInt32 uiIndex); // [tested]
+  void InsertAt(ezUInt32 uiIndex, const T& value); // [tested]
 
   /// \brief Sort with explicit comparer
   template <typename Comparer>

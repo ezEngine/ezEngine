@@ -934,7 +934,7 @@ bool ezDequeBase<T, Construct>::RemoveAndSwap(const T& value)
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::Insert(const T& value, ezUInt32 uiIndex)
+void ezDequeBase<T, Construct>::InsertAt(ezUInt32 uiIndex, const T& value)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 

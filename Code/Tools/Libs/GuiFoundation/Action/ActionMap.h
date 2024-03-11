@@ -45,7 +45,7 @@ public:
   {
     ezTreeNode<T>* pNode = EZ_DEFAULT_NEW(ezTreeNode<T>, data);
     pNode->m_Guid = ezUuid::MakeUuid();
-    m_Children.Insert(pNode, uiIndex);
+    m_Children.InsertAt(uiIndex, pNode);
     pNode->m_pParent = this;
     return pNode;
   }

@@ -252,7 +252,7 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
           allocateScratchBufferIndex(scratchBuffers, ezImageFormat::GetBitsPerBlock(ref_path_out[0].m_sourceFormat), ref_path_out[0].m_sourceBufferIndex);
         ref_path_out[0].m_sourceBufferIndex = copy.m_targetBufferIndex;
         copy.m_step = nullptr;
-        ref_path_out.Insert(copy, 0);
+        ref_path_out.InsertAt(0, copy);
       }
       else
       {

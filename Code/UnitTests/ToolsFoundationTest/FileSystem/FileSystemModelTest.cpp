@@ -139,7 +139,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
     CheckIsValid(path);
     EZ_TEST_INT(path.GetDataDirIndex(), 0);
 
-    newRootFolders.Insert("C:/Some/Other/DataDir2", 0);
+    newRootFolders.InsertAt(0, "C:/Some/Other/DataDir2");
     path.UpdateDataDirInfos(newRootFolders);
     CheckIsValid(path);
     EZ_TEST_INT(path.GetDataDirIndex(), 1);
@@ -558,8 +558,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       dataDir.m_sDataDirSpecialPath = sOutputFolder2;
       dataDir.m_sRootName = "output2";
 
-      rootFolders.Insert(sOutputFolder, 0);
-      fsConfig.m_DataDirs.Insert(dataDir, 0);
+      rootFolders.InsertAt(0, sOutputFolder);
+      fsConfig.m_DataDirs.InsertAt(0, dataDir);
     }
 
     ezFileSystemModel::GetSingleton()->Initialize(fsConfig, std::move(referencedFiles), std::move(referencedFolders));
