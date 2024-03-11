@@ -997,26 +997,26 @@ void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView 
   else if (sSearchTerm.IsAbsolutePath())
   {
     for (ezUInt32 idx = s_pData->m_DataDirectories.GetCount(); idx > 0; --idx)
-  {
+    {
       const auto& dd = s_pData->m_DataDirectories[idx - 1];
 
-    sDdPath = dd.m_pDataDirectory->GetRedirectedDataDirectoryPath();
+      sDdPath = dd.m_pDataDirectory->GetRedirectedDataDirectoryPath();
 
       sRelPath = sSearchTerm;
 
       if (!sDdPath.IsEmpty())
       {
         if (sRelPath.MakeRelativeTo(sDdPath).Failed())
-      continue;
+          continue;
 
         // this would use "../" if necessary, which we don't want
         if (sRelPath.StartsWith(".."))
-      continue;
+          continue;
       }
 
       sSearchTerm = sRelPath;
 
-    folders.PushBack(sDdPath);
+      folders.PushBack(sDdPath);
       break;
     }
   }
