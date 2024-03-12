@@ -272,8 +272,6 @@ void ezPathUtils::MakeValidFilename(ezStringView sFilename, ezUInt32 uiReplaceme
 
 bool ezPathUtils::IsSubPath(ezStringView sPrefixPath, ezStringView sFullPath)
 {
-  EZ_ASSERT_DEV(!sPrefixPath.IsEmpty(), "Prefixpath must not be empty.");
-
   ezStringBuilder tmp = sPrefixPath;
   tmp.MakeCleanPath();
   tmp.Trim("", "/");

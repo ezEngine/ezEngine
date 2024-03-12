@@ -25,6 +25,7 @@
 			"immintrin.h",
 			"array",
 			"tuple",
+			"span",
 			"corewrappers.h",
 			"future",
 			"stdexcept",

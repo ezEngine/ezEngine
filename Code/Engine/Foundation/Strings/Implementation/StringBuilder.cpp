@@ -858,8 +858,6 @@ ezResult ezStringBuilder::MakeRelativeTo(ezStringView sAbsolutePathToMakeThisRel
   ezStringBuilder sAbsThis = *this;
   sAbsThis.MakeCleanPath();
 
-  EZ_ASSERT_DEV(sAbsBase.IsAbsolutePath(), "The base path is not absolute.");
-
   if (sAbsBase.IsEqual_NoCase(sAbsThis.GetData()))
   {
     Clear();
