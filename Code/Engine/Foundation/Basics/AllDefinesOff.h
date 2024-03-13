@@ -98,3 +98,4 @@
 
 // Interoperability with other libraries
 #define EZ_INTEROP_STL_STRINGS EZ_OFF
+#define EZ_INTEROP_STL_SPAN EZ_OFF

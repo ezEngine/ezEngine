@@ -19,6 +19,12 @@ void ezStringBuilder::Set(ezStringView sData1, ezStringView sData2, ezStringView
   Append(sData1, sData2, sData3, sData4, sData5, sData6);
 }
 
+void ezStringBuilder::SetPath(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4)
+{
+  Clear();
+  AppendPath(sData1, sData2, sData3, sData4);
+}
+
 void ezStringBuilder::SetSubString_FromTo(const char* pStart, const char* pEnd)
 {
   EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart, pEnd), "Invalid substring, the start does not point to a valid Utf-8 character");
@@ -1026,7 +1032,7 @@ void ezStringBuilder::ReadAll(ezStreamReader& inout_stream)
 
 void ezStringBuilder::Trim(const char* szTrimChars)
 {
-  return Trim(szTrimChars, szTrimChars);
+  Trim(szTrimChars, szTrimChars);
 }
 
 void ezStringBuilder::Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd)
@@ -1035,6 +1041,16 @@ void ezStringBuilder::Trim(const char* szTrimCharsStart, const char* szTrimChars
   const char* szNewEnd = GetData() + GetElementCount();
   ezStringUtils::Trim(szNewStart, szNewEnd, szTrimCharsStart, szTrimCharsEnd);
   Shrink(ezStringUtils::GetCharacterCount(GetData(), szNewStart), ezStringUtils::GetCharacterCount(szNewEnd, GetData() + GetElementCount()));
+}
+
+void ezStringBuilder::TrimLeft(const char* szTrimChars /*= " \f\n\r\t\v"*/)
+{
+  Trim(szTrimChars, "");
+}
+
+void ezStringBuilder::TrimRight(const char* szTrimChars /*= " \f\n\r\t\v"*/)
+{
+  Trim("", szTrimChars);
 }
 
 bool ezStringBuilder::TrimWordStart(ezStringView sWord)
@@ -1151,4 +1167,5 @@ void ezStringBuilder::operator=(const std::string& rhs)
     *this = ezStringView(rhs.data(), rhs.data() + rhs.size());
   }
 }
+
 #endif

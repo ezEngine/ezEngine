@@ -7,13 +7,13 @@
 // ***** Const Iterator *****
 
 template <typename K, typename V, typename H>
-ezHashTableBase<K, V, H>::ConstIterator::ConstIterator(const ezHashTableBase<K, V, H>& hashTable)
+ezHashTableBaseConstIterator<K, V, H>::ezHashTableBaseConstIterator(const ezHashTableBase<K, V, H>& hashTable)
   : m_pHashTable(&hashTable)
 {
 }
 
 template <typename K, typename V, typename H>
-void ezHashTableBase<K, V, H>::ConstIterator::SetToBegin()
+void ezHashTableBaseConstIterator<K, V, H>::SetToBegin()
 {
   if (m_pHashTable->IsEmpty())
   {
@@ -27,7 +27,7 @@ void ezHashTableBase<K, V, H>::ConstIterator::SetToBegin()
 }
 
 template <typename K, typename V, typename H>
-inline void ezHashTableBase<K, V, H>::ConstIterator::SetToEnd()
+inline void ezHashTableBaseConstIterator<K, V, H>::SetToEnd()
 {
   m_uiCurrentCount = m_pHashTable->m_uiCount;
   m_uiCurrentIndex = m_pHashTable->m_uiCapacity;
@@ -35,31 +35,31 @@ inline void ezHashTableBase<K, V, H>::ConstIterator::SetToEnd()
 
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::IsValid() const
+EZ_FORCE_INLINE bool ezHashTableBaseConstIterator<K, V, H>::IsValid() const
 {
   return m_uiCurrentCount < m_pHashTable->m_uiCount;
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator==(const typename ezHashTableBase<K, V, H>::ConstIterator& rhs) const
+EZ_FORCE_INLINE bool ezHashTableBaseConstIterator<K, V, H>::operator==(const ezHashTableBaseConstIterator<K, V, H>& rhs) const
 {
   return m_uiCurrentIndex == rhs.m_uiCurrentIndex && m_pHashTable->m_pEntries == rhs.m_pHashTable->m_pEntries;
 }
 
 template <typename K, typename V, typename H>
-EZ_ALWAYS_INLINE const K& ezHashTableBase<K, V, H>::ConstIterator::Key() const
+EZ_ALWAYS_INLINE const K& ezHashTableBaseConstIterator<K, V, H>::Key() const
 {
   return m_pHashTable->m_pEntries[m_uiCurrentIndex].key;
 }
 
 template <typename K, typename V, typename H>
-EZ_ALWAYS_INLINE const V& ezHashTableBase<K, V, H>::ConstIterator::Value() const
+EZ_ALWAYS_INLINE const V& ezHashTableBaseConstIterator<K, V, H>::Value() const
 {
   return m_pHashTable->m_pEntries[m_uiCurrentIndex].value;
 }
 
 template <typename K, typename V, typename H>
-void ezHashTableBase<K, V, H>::ConstIterator::Next()
+void ezHashTableBaseConstIterator<K, V, H>::Next()
 {
   // if we already iterated over the amount of valid elements that the hash-table stores, early out
   if (m_uiCurrentCount >= m_pHashTable->m_uiCount)
@@ -85,30 +85,53 @@ void ezHashTableBase<K, V, H>::ConstIterator::Next()
 }
 
 template <typename K, typename V, typename H>
-EZ_ALWAYS_INLINE void ezHashTableBase<K, V, H>::ConstIterator::operator++()
+EZ_ALWAYS_INLINE void ezHashTableBaseConstIterator<K, V, H>::operator++()
 {
   Next();
 }
 
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+// These functions are used for structured bindings.
+// They describe how many elements can be accessed in the binding and which type they are.
+namespace std
+{
+  template <typename K, typename V, typename H>
+  struct tuple_size<ezHashTableBaseConstIterator<K, V, H>> : integral_constant<size_t, 2>
+  {
+  };
+
+  template <typename K, typename V, typename H>
+  struct tuple_element<0, ezHashTableBaseConstIterator<K, V, H>>
+  {
+    using type = const K&;
+  };
+
+  template <typename K, typename V, typename H>
+  struct tuple_element<1, ezHashTableBaseConstIterator<K, V, H>>
+  {
+    using type = const V&;
+  };
+} // namespace std
+#endif
 
 // ***** Iterator *****
 
 template <typename K, typename V, typename H>
-ezHashTableBase<K, V, H>::Iterator::Iterator(const ezHashTableBase<K, V, H>& hashTable)
-  : ConstIterator(hashTable)
+ezHashTableBaseIterator<K, V, H>::ezHashTableBaseIterator(const ezHashTableBase<K, V, H>& hashTable)
+  : ezHashTableBaseConstIterator<K, V, H>(hashTable)
 {
 }
 
 template <typename K, typename V, typename H>
-ezHashTableBase<K, V, H>::Iterator::Iterator(const typename ezHashTableBase<K, V, H>::Iterator& rhs)
-  : ConstIterator(*rhs.m_pHashTable)
+ezHashTableBaseIterator<K, V, H>::ezHashTableBaseIterator(const ezHashTableBaseIterator<K, V, H>& rhs)
+  : ezHashTableBaseConstIterator<K, V, H>(*rhs.m_pHashTable)
 {
   this->m_uiCurrentIndex = rhs.m_uiCurrentIndex;
   this->m_uiCurrentCount = rhs.m_uiCurrentCount;
 }
 
 template <typename K, typename V, typename H>
-EZ_ALWAYS_INLINE void ezHashTableBase<K, V, H>::Iterator::operator=(const Iterator& rhs) // [tested]
+EZ_ALWAYS_INLINE void ezHashTableBaseIterator<K, V, H>::operator=(const ezHashTableBaseIterator& rhs) // [tested]
 {
   this->m_pHashTable = rhs.m_pHashTable;
   this->m_uiCurrentIndex = rhs.m_uiCurrentIndex;
@@ -116,11 +139,41 @@ EZ_ALWAYS_INLINE void ezHashTableBase<K, V, H>::Iterator::operator=(const Iterat
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE V& ezHashTableBase<K, V, H>::Iterator::Value()
+EZ_FORCE_INLINE V& ezHashTableBaseIterator<K, V, H>::Value()
 {
   return this->m_pHashTable->m_pEntries[this->m_uiCurrentIndex].value;
 }
 
+template <typename K, typename V, typename H>
+EZ_FORCE_INLINE V& ezHashTableBaseIterator<K, V, H>::Value() const
+{
+  return this->m_pHashTable->m_pEntries[this->m_uiCurrentIndex].value;
+}
+
+
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+// These functions are used for structured bindings.
+// They describe how many elements can be accessed in the binding and which type they are.
+namespace std
+{
+  template <typename K, typename V, typename H>
+  struct tuple_size<ezHashTableBaseIterator<K, V, H>> : integral_constant<size_t, 2>
+  {
+  };
+
+  template <typename K, typename V, typename H>
+  struct tuple_element<0, ezHashTableBaseIterator<K, V, H>>
+  {
+    using type = const K&;
+  };
+
+  template <typename K, typename V, typename H>
+  struct tuple_element<1, ezHashTableBaseIterator<K, V, H>>
+  {
+    using type = V&;
+  };
+} // namespace std
+#endif
 
 // ***** ezHashTableBase *****
 

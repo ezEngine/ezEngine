@@ -521,7 +521,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
 
 #  endif
 
-ezStringView ezOSFile::GetApplicationDirectory()
+ezStringView ezOSFile::GetApplicationPath()
 {
   if (s_sApplicationPath.IsEmpty())
   {
@@ -553,7 +553,7 @@ ezStringView ezOSFile::GetApplicationDirectory()
       EZ_REPORT_FAILURE("GetModuleFileNameW failed: {0}", ezArgErrorCode(error));
     }
 
-    s_sApplicationPath = ezPathUtils::GetFileDirectory(ezStringUtf8(tmp.GetData()));
+    s_sApplicationPath = ezStringUtf8(tmp.GetData()).GetData();
   }
 
   return s_sApplicationPath;

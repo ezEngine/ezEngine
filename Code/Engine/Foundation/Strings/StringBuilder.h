@@ -167,6 +167,8 @@ public:
 
   /// \brief Sets the string by concatenating all given strings.
   void Set(ezStringView sData1, ezStringView sData2 = {}, ezStringView sData3 = {}, ezStringView sData4 = {}, ezStringView sData5 = {}, ezStringView sData6 = {});
+  /// \brief Sets the string by concatenating all given strings.
+  void SetPath(ezStringView sData1, ezStringView sData2 = {}, ezStringView sData3 = {}, ezStringView sData4 = {});
 
   /// \brief Copies the string starting at \a pStart up to \a pEnd (exclusive).
   void SetSubString_FromTo(const char* pStart, const char* pEnd);
@@ -371,10 +373,22 @@ public:
   ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); }
 
   /// \brief Removes all characters from the start and end that appear in the given strings.
-  void Trim(const char* szTrimChars); // [tested]
+  ///
+  /// The default string removes all standard whitespace characters.
+  void Trim(const char* szTrimChars = " \f\n\r\t\v"); // [tested]
 
   /// \brief Removes all characters from the start and/or end that appear in the given strings.
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
+
+  /// \brief Removes all characters from the start that appear in the given strings.
+  ///
+  /// The default string removes all standard whitespace characters.
+  void TrimLeft(const char* szTrimChars = " \f\n\r\t\v");
+
+  /// \brief Removes all characters from the end that appear in the given strings.
+  ///
+  /// The default string removes all standard whitespace characters.
+  void TrimRight(const char* szTrimChars = " \f\n\r\t\v");
 
   /// \brief If the string starts with the given word (case insensitive), it is removed and the function returns true.
   bool TrimWordStart(ezStringView sWord); // [tested]

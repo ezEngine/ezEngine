@@ -200,6 +200,15 @@ EZ_ALWAYS_INLINE bool operator!=(ezStringView lhs, ezStringView rhs)
 
 #endif
 
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+
+EZ_ALWAYS_INLINE std::strong_ordering operator<=>(ezStringView lhs, ezStringView rhs)
+{
+  return lhs.Compare(rhs) <=> 0;
+}
+
+#else
+
 EZ_ALWAYS_INLINE bool operator<(ezStringView lhs, ezStringView rhs)
 {
   return lhs.Compare(rhs) < 0;
@@ -219,3 +228,5 @@ EZ_ALWAYS_INLINE bool operator>=(ezStringView lhs, ezStringView rhs)
 {
   return lhs.Compare(rhs) >= 0;
 }
+
+#endif
