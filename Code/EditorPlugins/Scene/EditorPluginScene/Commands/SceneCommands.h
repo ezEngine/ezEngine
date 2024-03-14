@@ -51,6 +51,7 @@ private:
     ezDocumentObject* m_pParent;
     ezString m_sParentProperty;
     ezVariant m_Index;
+    ezUInt32 m_uiSelectionOrder = 0;
   };
 
   ezDeque<const ezDocumentObject*> m_OriginalSelection;
