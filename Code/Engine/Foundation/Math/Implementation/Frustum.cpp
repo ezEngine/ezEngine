@@ -59,13 +59,26 @@ bool ezFrustum::IsValid() const
 
 ezFrustum ezFrustum::MakeFromPlanes(const ezPlane* pPlanes)
 {
+  ezFrustum frustum;
+  const ezResult res = TryMakeFromPlanes(frustum, pPlanes);
+  EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
+  return frustum;
+}
+
+ezResult ezFrustum::TryMakeFromPlanes(ezFrustum& out_frustum , const ezPlane* pPlanes)
+{
   ezFrustum f;
 
   for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
     f.m_Planes[i] = pPlanes[i];
 
-  EZ_ASSERT_DEV(f.IsValid(), "Frustum is not valid after construction.");
-  return f;
+  if (f.IsValid())
+  {
+    out_frustum  = std::move(f);
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
 }
 
 void ezFrustum::TransformFrustum(const ezMat4& mTransform)
@@ -242,6 +255,14 @@ ezResult ezFrustum::ComputeCornerPoints(ezVec3 out_pPoints[FrustumCorner::CORNER
 
 ezFrustum ezFrustum::MakeFromMVP(const ezMat4& mModelViewProjection0, ezClipSpaceDepthRange::Enum depthRange, ezHandedness::Enum handedness)
 {
+  ezFrustum frustum;
+  const ezResult res = TryMakeFromMVP(frustum, mModelViewProjection0, depthRange, handedness);
+  EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
+  return frustum;
+}
+
+ezResult ezFrustum::TryMakeFromMVP(ezFrustum& out_frustum , const ezMat4& mModelViewProjection0, ezClipSpaceDepthRange::Enum depthRange, ezHandedness::Enum handedness)
+{
   ezMat4 ModelViewProjection = mModelViewProjection0;
   ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ModelViewProjection, depthRange, ezClipSpaceDepthRange::MinusOneToOne);
 
@@ -292,16 +313,26 @@ ezFrustum ezFrustum::MakeFromMVP(const ezMat4& mModelViewProjection0, ezClipSpac
     planes[FarPlane] = (-planes[NearPlane].GetAsVec3()).GetAsVec4(planes[FarPlane].w);
   }
 
-  static_assert(offsetof(ezPlane, m_vNormal) == offsetof(ezVec4, x) && offsetof(ezPlane, m_fNegDistance) == offsetof(ezVec4, w));
+  static_assert(sizeof(ezFrustum) == sizeof(planes));
+  if (reinterpret_cast<ezFrustum*>(planes)->IsValid())
+  {
+    static_assert(offsetof(ezPlane, m_vNormal) == offsetof(ezVec4, x) && offsetof(ezPlane, m_fNegDistance) == offsetof(ezVec4, w));
+    ezMemoryUtils::Copy(out_frustum .m_Planes, (ezPlane*)planes, 6);
+    return EZ_SUCCESS;
+  }
 
-  ezFrustum res;
-  ezMemoryUtils::Copy(res.m_Planes, (ezPlane*)planes, 6);
-
-  EZ_ASSERT_DEV(res.IsValid(), "Frustum is not valid after construction.");
-  return res;
+  return EZ_FAILURE;
 }
 
 ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane)
+{
+  ezFrustum frustum;
+  const ezResult res = TryMakeFromFOV(frustum, vPosition, vForwards, vUp, fovX, fovY, fNearPlane, fFarPlane);
+  EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
+  return frustum;
+}
+
+ezResult ezFrustum::TryMakeFromFOV(ezFrustum& out_frustum, const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane)
 {
   EZ_ASSERT_DEBUG(ezMath::Abs(vForwards.GetNormalized().Dot(vUp.GetNormalized())) < 0.999f, "Up dir must be different from forward direction");
 
@@ -366,11 +397,24 @@ ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForward
     res.m_Planes[TopPlane] = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, vPosition);
   }
 
-  EZ_ASSERT_DEV(res.IsValid(), "Frustum is not valid after construction.");
-  return res;
+  if (res.IsValid())
+  {
+    out_frustum = std::move(res);
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
 }
 
 ezFrustum ezFrustum::MakeFromCorners(const ezVec3 pCorners[FrustumCorner::CORNER_COUNT])
+{
+  ezFrustum frustum;
+  const ezResult res = TryMakeFromCorners(frustum, pCorners);
+  EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
+  return frustum;
+}
+
+ezResult ezFrustum::TryMakeFromCorners(ezFrustum& out_frustum , const ezVec3 pCorners[FrustumCorner::CORNER_COUNT])
 {
   ezFrustum res;
 
@@ -386,9 +430,13 @@ ezFrustum ezFrustum::MakeFromCorners(const ezVec3 pCorners[FrustumCorner::CORNER
 
   res.m_Planes[PlaneType::NearPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::NearTopLeft], pCorners[FrustumCorner::NearBottomRight], pCorners[FrustumCorner::NearTopRight]);
 
-  EZ_ASSERT_DEV(res.IsValid(), "Frustum is not valid after construction.");
+  if (res.IsValid())
+  {
+    out_frustum  = std::move(res);
+    return EZ_SUCCESS; 
+  }
 
-  return res;
+  return EZ_FAILURE;
 }
 
 
