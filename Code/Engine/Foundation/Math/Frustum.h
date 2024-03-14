@@ -66,6 +66,13 @@ public:
   /// \note Make sure to pass in the planes in the order of the PlaneType enum, otherwise ezFrustum may not always work as expected.
   [[nodiscard]] static ezFrustum MakeFromPlanes(const ezPlane* pPlanes); // [tested]
 
+  /// \brief Sets the frustum manually by specifying the planes directly.
+  ///
+  /// \note Make sure to pass in the planes in the order of the PlaneType enum, otherwise ezFrustum may not always work as expected.
+  ///
+  /// Returns EZ_SUCESS with a valid outFrustum if the operation was successful and EZ_FAILURE otherwise.
+  [[nodiscard]] static ezResult TryMakeFromPlanes(ezFrustum& out_frustum, const ezPlane* pPlanes);
+
   /// \brief Creates the frustum by extracting the planes from the given (model-view / projection) matrix.
   ///
   /// If the matrix is just the projection matrix, the frustum will be in local space. Pass the full ModelViewProjection
@@ -73,16 +80,38 @@ public:
   /// plane projection matrix, the resulting frustum will yield a far plane with infinite distance.
   [[nodiscard]] static ezFrustum MakeFromMVP(const ezMat4& mModelViewProjection, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
+  /// \brief Creates the frustum by extracting the planes from the given (model-view / projection) matrix.
+  ///
+  /// If the matrix is just the projection matrix, the frustum will be in local space. Pass the full ModelViewProjection
+  /// matrix to create the frustum in world-space. If the projection matrix contained in ModelViewProjection is an infinite
+  /// plane projection matrix, the resulting frustum will yield a far plane with infinite distance.
+  ///
+  /// Returns EZ_SUCESS with a valid outFrustum if the operation was successful and EZ_FAILURE otherwise.
+  [[nodiscard]] static ezResult TryMakeFromMVP(ezFrustum& out_frustum, const ezMat4& mModelViewProjection, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezHandedness::Enum handedness = ezHandedness::Default);
+
   /// \brief Creates a frustum from the given camera position, direction vectors and the field-of-view along X and Y.
   ///
   /// The up vector does not need to be exactly orthogonal to the forwards vector, it will get recomputed properly.
   /// FOV X and Y define the entire field-of-view, so a FOV of 180 degree would mean the entire half-space in front of the camera.
   [[nodiscard]] static ezFrustum MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane); // [tested]
 
+  /// \brief Creates a frustum from the given camera position, direction vectors and the field-of-view along X and Y.
+  ///
+  /// The up vector does not need to be exactly orthogonal to the forwards vector, it will get recomputed properly.
+  /// FOV X and Y define the entire field-of-view, so a FOV of 180 degree would mean the entire half-space in front of the camera.
+  ///
+  /// Returns EZ_SUCESS with a valid outFrustum if the operation was successful and EZ_FAILURE otherwise.
+  [[nodiscard]] static ezResult TryMakeFromFOV(ezFrustum& out_frustum, const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane);
+
   /// \brief Creates a frustum from 8 corner points.
   ///
   /// Asserts that the frustum is valid after construction. Thus the given points must form a proper frustum.
   [[nodiscard]] static ezFrustum MakeFromCorners(const ezVec3 pCorners[FrustumCorner::CORNER_COUNT]);
+
+  /// \brief Creates a frustum from 8 corner points.
+  ///
+  /// Returns EZ_SUCESS with a valid outFrustum if the operation was successful and EZ_FAILURE otherwise.
+  [[nodiscard]] static ezResult TryMakeFromCorners(ezFrustum& out_frustum, const ezVec3 pCorners[FrustumCorner::CORNER_COUNT]);
 
   /// \brief Returns the n-th plane of the frustum.
   const ezPlane& GetPlane(ezUInt8 uiPlane) const; // [tested]
