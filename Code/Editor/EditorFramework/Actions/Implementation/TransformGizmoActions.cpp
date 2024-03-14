@@ -97,7 +97,7 @@ void ezTransformGizmoActions::RegisterActions()
   s_hDragToPositionGizmo = EZ_REGISTER_ACTION_1(
     "Gizmo.Mode.DragToPosition", ezActionScope::Document, "Gizmo", "T", ezGizmoAction, ezGetStaticRTTI<ezDragToPositionGizmoEditTool>());
   s_hWorldSpace = EZ_REGISTER_ACTION_1(
-    "Gizmo.TransformSpace", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction, ezTransformGizmoAction::ActionType::GizmoToggleWorldSpace);
+    "Gizmo.TransformSpace", ezActionScope::Document, "Gizmo", "X", ezTransformGizmoAction, ezTransformGizmoAction::ActionType::GizmoToggleWorldSpace);
   s_hMoveParentOnly = EZ_REGISTER_ACTION_1("Gizmo.MoveParentOnly", ezActionScope::Document, "Gizmo", "", ezTransformGizmoAction,
     ezTransformGizmoAction::ActionType::GizmoToggleMoveParentOnly);
   s_SnapSettings = EZ_REGISTER_ACTION_1(
