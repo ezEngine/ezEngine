@@ -13,7 +13,7 @@ bool ezDataDirPath::UpdateDataDirInfos(ezArrayPtr<ezString> dataDirRoots, ezUInt
     {
       m_uiDataDirIndex = uiCurrentIndex;
       const char* szParentFolder = ezPathUtils::FindPreviousSeparator(m_sAbsolutePath.GetData(), m_sAbsolutePath.GetData() + dataDirRoots[uiCurrentIndex].GetElementCount());
-      m_uiDataDirParent = szParentFolder - m_sAbsolutePath.GetData();
+      m_uiDataDirParent = static_cast<ezUInt32>(szParentFolder - m_sAbsolutePath.GetData());
       m_uiDataDirLength = dataDirRoots[uiCurrentIndex].GetElementCount() - m_uiDataDirParent;
       return true;
     }
