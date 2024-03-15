@@ -6,7 +6,6 @@
 #include <ozz/base/maths/soa_transform.h>
 
 class ezSkeleton;
-class ezAnimationPose;
 struct ezSkeletonResourceDescriptor;
 class ezEditableSkeletonJoint;
 struct ezAnimationClipResourceDescriptor;
