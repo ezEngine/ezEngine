@@ -151,9 +151,6 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
 
     pProp->m_EventTrack.ConvertToRuntimeData(desc.m_EventTrack);
 
-    ezAnimationClipResourceDescriptor desc2 = desc;
-    ezAnimationClipResourceHandle hClip = ezResourceManager::CreateResource<ezAnimationClipResource>("temp", std::move(desc2));
-
     EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
   }
 
