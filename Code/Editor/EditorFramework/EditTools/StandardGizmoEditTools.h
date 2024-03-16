@@ -33,6 +33,14 @@ private:
   void OnPreferenceChange(ezPreferences* pref);
 
   ezTranslateGizmo m_TranslateGizmo;
+  enum GridPlane
+  {
+    X,
+    Y,
+    Z
+  };
+
+  GridPlane m_GridPlane = GridPlane::Z;
 };
 
 //////////////////////////////////////////////////////////////////////////
