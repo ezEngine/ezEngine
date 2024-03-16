@@ -132,6 +132,9 @@ private:
   ID3DUserDefinedAnnotation* m_pDXAnnotation = nullptr;
 
   // Bound objects for deferred state flushes
+  ezEnum<ezGALPrimitiveTopology> m_Topology;
+  ezUInt8 m_uiTessellationPatchControlPoints = 0;
+
   ID3D11Buffer* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT] = {};
   ezGAL::ModifiedRange m_BoundConstantBuffersRange[ezGALShaderStage::ENUM_COUNT];
 

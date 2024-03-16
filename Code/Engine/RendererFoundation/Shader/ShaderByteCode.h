@@ -120,6 +120,8 @@ public:
   ezDynamicArray<ezUInt8> m_ByteCode;
   ezHybridArray<ezShaderResourceBinding, 8> m_ShaderResourceBindings;
   ezHybridArray<ezShaderVertexInputAttribute, 8> m_ShaderVertexInput;
+  // Only set in the hull shader.
+  ezUInt8 m_uiTessellationPatchControlPoints = 0;
 
   // Filled out by compiler base library
   ezEnum<ezGALShaderStage> m_Stage = ezGALShaderStage::ENUM_COUNT;

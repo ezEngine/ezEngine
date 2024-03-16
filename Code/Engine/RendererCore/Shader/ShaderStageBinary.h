@@ -23,6 +23,7 @@ public:
     Version4, // Constant buffer layouts
     Version5, // Debug flag
     Version6, // Rewrite, no backwards compatibility. Moves all data into ezGALShaderByteCode.
+    Version7, // Added tessellation support (m_uiTessellationPatchControlPoints)
 
     ENUM_COUNT,
     VersionCurrent = ENUM_COUNT - 1

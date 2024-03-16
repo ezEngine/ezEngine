@@ -823,7 +823,7 @@ void ezGALDeviceVulkan::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
   m_pDefaultPass->Reset();
 }
 
-vk::Fence ezGALDeviceVulkan::Submit()
+vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphose)
 {
   m_pDefaultPass->SetCurrentCommandBuffer(nullptr, nullptr);
 
@@ -857,9 +857,11 @@ vk::Fence ezGALDeviceVulkan::Submit()
     ReclaimLater(m_lastCommandBufferFinished);
   }
 
-  m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
-  AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(m_lastCommandBufferFinished));
-
+  if (bAddSignalSemaphose)
+  {
+    m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
+    AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(m_lastCommandBufferFinished));
+  }
   vk::Fence renderFence = ezFencePoolVulkan::RequestFence();
 
   ezHybridArray<vk::Semaphore, 3> waitSemaphores;
@@ -1444,8 +1446,8 @@ void ezGALDeviceVulkan::FlushPlatform()
 
 void ezGALDeviceVulkan::WaitIdlePlatform()
 {
-  // Make sure command buffers get flushed.
-  Submit();
+  // Make sure command buffers get flushed. Also, no need to add a wait semaphore if we flush anyway, all commands will be done.
+  Submit(false);
   m_device.waitIdle();
   DestroyDeadObjects();
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)

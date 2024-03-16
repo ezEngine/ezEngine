@@ -26,6 +26,12 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   {
     AddSubTest("03 - SharedTexture", SubTests::ST_SharedTexture);
   }
+
+  if (caps.m_bShaderStageSupported[ezGALShaderStage::HullShader])
+  {
+    AddSubTest("04 - Tessellation", SubTests::ST_Tessellation);
+  }
+
   ShutdownRenderer();
   ezStartup::ShutdownCoreSystems();
 }
@@ -154,6 +160,23 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_pProtocol->Send(&msg);
   }
 
+  if (iIdentifier == ST_Tessellation)
+  {
+    {
+      ezGeometry geom;
+      geom.AddSphere(0.5f, 3, 2);
+
+      ezMeshBufferResourceDescriptor desc;
+      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
+      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+      m_hSphereMesh = ezResourceManager::CreateResource<ezMeshBufferResource>("UnitTest-SphereMesh", std::move(desc), "SphereMesh");
+    }
+
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Tessellation.ezShader");
+  }
+
   switch (iIdentifier)
   {
     case SubTests::ST_ReadRenderTarget:
@@ -165,6 +188,9 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     case SubTests::ST_SharedTexture:
       m_ImgCompFrames.PushBack(100000000);
       break;
+    case SubTests::ST_Tessellation:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
@@ -175,7 +201,11 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier)
 {
-  if (iIdentifier == ST_SharedTexture)
+  if (iIdentifier == ST_Tessellation)
+  {
+    m_hSphereMesh.Invalidate();
+  }
+  else if (iIdentifier == ST_SharedTexture)
   {
     EZ_TEST_BOOL(m_pOffscreenProcess->WaitToFinish(ezTime::MakeFromSeconds(5)).Succeeded());
     EZ_TEST_BOOL(m_pOffscreenProcess->GetState() == ezProcessState::Finished);
@@ -243,6 +273,9 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
       if (!m_pDevice->GetCapabilities().m_bVertexShaderRenderTargetArrayIndex)
         return ezTestAppRun::Quit;
       VertexShaderRenderTargetArrayIndex();
+      break;
+    case SubTests::ST_Tessellation:
+      TessellationTest();
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -348,6 +381,25 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
       EZ_TEST_IMAGE(m_iFrame, 100);
     }
 
+    EndRendering();
+  }
+  EndPass();
+}
+
+void ezRendererTestAdvancedFeatures::TessellationTest()
+{
+  const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+  const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+  const ezMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
+  BeginPass("Tessellation");
+  {
+    ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
+    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+    RenderObject(m_hSphereMesh, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+    if (m_ImgCompFrames.Contains(m_iFrame))
+    {
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
     EndRendering();
   }
   EndPass();

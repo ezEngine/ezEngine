@@ -123,6 +123,11 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
       attr.m_uiLocation = paramDesc.Register;
     }
   }
+  else if (Stage == ezGALShaderStage::HullShader)
+  {
+    pShader->m_uiTessellationPatchControlPoints = shaderDesc.cControlPoints;
+  }
+
   for (ezUInt32 r = 0; r < shaderDesc.BoundResources; ++r)
   {
     D3D11_SHADER_INPUT_BIND_DESC shaderInputBindDesc;
