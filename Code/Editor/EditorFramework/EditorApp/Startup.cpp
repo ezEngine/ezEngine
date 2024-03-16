@@ -70,6 +70,7 @@
 #include <ads/DockManager.h>
 
 void ezCompilerPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezCodeEditorPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
@@ -134,6 +135,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCameraVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCameraVisualizerAdapter); });
 
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCompilerPreferences_PropertyMetaStateEventHandler);
+    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCodeEditorPreferences_PropertyMetaStateEventHandler);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -182,6 +184,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCameraVisualizerAttribute>());
 
     ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCompilerPreferences_PropertyMetaStateEventHandler);
+    ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCodeEditorPreferences_PropertyMetaStateEventHandler);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

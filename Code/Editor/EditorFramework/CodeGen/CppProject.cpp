@@ -64,6 +64,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezCodeEditorPreferences, ezNoBase, 1, ezRTTIDefau
   {
     EZ_MEMBER_PROPERTY("CodeEditorPath", m_sEditorPath)->AddAttributes(new ezExternalFileBrowserAttribute("Select Editor", "*.exe"_ezsv)),
     EZ_MEMBER_PROPERTY("CodeEditorArgs", m_sEditorArgs)->AddAttributes(new ezDefaultValueAttribute("{file} {line}")),
+    EZ_MEMBER_PROPERTY("IsVisualStudio", m_bIsVisualStudio)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
 }
@@ -307,6 +308,38 @@ ezStatus ezCppProject::OpenInCodeEditor(const ezStringView& sFileName, ezInt32 i
   ezConversionUtils::ToString(iLineNumber, sLineNumber);
 
   const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
+
+  // Visual Studio does not expose a CLI command to open a file/line in all use-cases directly
+  // therefore run a custom .vbs script which controls VS and performs the needed actions for us. This avoids pulling COM interfacing into the project.
+  if (preferences->m_CodeEditorPreferences.m_bIsVisualStudio)
+  {
+    ezStringBuilder dir;
+    if (ezFileSystem::ResolveSpecialDirectory(">sdk/Utilities/Scripts/open-in-msvs.vbs", dir).Failed())
+    {
+      return ezStatus("Failed resolving path to \">sdk/Utilities/Scripts/open-in-msvs.vbs\"");
+    }
+
+    if (!ezOSFile::ExistsFile(dir))
+    {
+      return ezStatus(ezFmt("File does not exist '{0}'", dir));
+    }
+
+    QStringList args;
+    args.append("/B");
+    args.append(QString::fromUtf8(dir.GetData()));
+    args.append(QString::fromUtf8(sFileName.GetStartPointer(),sFileName.GetElementCount()));
+    args.append(QString::fromUtf8(sLineNumber.GetData()));
+
+    QProcess proc;
+    if (proc.startDetached("cscript", args) == false)
+    {
+      return ezStatus("Failed to launch code editor");
+    }
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
+
   ezStringBuilder sFormatString = preferences->m_CodeEditorPreferences.m_sEditorArgs;
   if (sFormatString.IsEmpty())
   {

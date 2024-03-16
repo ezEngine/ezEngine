@@ -66,6 +66,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezCompilerPreferences);
 
 struct EZ_EDITORFRAMEWORK_DLL ezCodeEditorPreferences
 {
+  bool m_bIsVisualStudio;
   ezString m_sEditorPath;
   ezString m_sEditorArgs;
 };
