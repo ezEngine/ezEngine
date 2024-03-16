@@ -10,7 +10,6 @@ EZ_CREATE_SIMPLE_TEST(Platform, StackTracer)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Parse StackTrace FileName & LineNumber")
   {
-    ezStringView stringView = "";
     ezStringView sFileName;
     ezInt32 lineNumber;
 
@@ -55,6 +54,33 @@ EZ_CREATE_SIMPLE_TEST(Platform, StackTracer)
       ezStringView sLogMessage;
       EZ_TEST_BOOL(ezStackTraceLogParser::ParseStackTraceFileNameAndLineNumber(sLogMessage, sFileName, lineNumber) == false);
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Parse Assert FileName & LineNumber")
+  {
+    ezStringView sFileName;
+    ezInt32 lineNumber;
+
+    // Happy path
+    {
+      ezStringView sLogMessage = "*** Assertion ***: File: \"C:\\dev\\ez engine\\Game\\GamePlugin\\Components\\TestComponent.cpp\", Line: \"136\", Function: \"TestComponent::Update\", Expression: \"false\", Message: \"Assert!\"";
+      EZ_TEST_BOOL(ezStackTraceLogParser::ParseAssertFileNameAndLineNumber(sLogMessage, sFileName, lineNumber) == true);
+      EZ_TEST_STRING(sFileName, "C:\\dev\\ez engine\\Game\\GamePlugin\\Components\\TestComponent.cpp");
+      EZ_TEST_INT(lineNumber, 136);
+    }
+
+    // Normal Log Message
+    {
+      ezStringView sLogMessage = "  ezInputManager::GetInputSlotState: Input Slot 'mouse_position_x' does not exist (yet):...";
+      EZ_TEST_BOOL(ezStackTraceLogParser::ParseAssertFileNameAndLineNumber(sLogMessage, sFileName, lineNumber) == false);
+    }
+
+    // Broken log message
+    {
+      ezStringView sLogMessage = "*** Assertion ***: File: \"C:\\dev\\ez engine\\Game\\GamePlugin\\Components\\TestComponent.cpp\", Line: \"12";
+      EZ_TEST_BOOL(ezStackTraceLogParser::ParseAssertFileNameAndLineNumber(sLogMessage, sFileName, lineNumber) == false);
+    }
+
   }
 }
 
