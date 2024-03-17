@@ -102,19 +102,6 @@ public:
   inline ezUInt32 GetSize() const;
   inline bool IsValid() const;
 
-  const ezShaderResourceBinding* GetShaderResourceBinding(const ezTempHashedString& sName) const
-  {
-    for (auto& binding : m_ShaderResourceBindings)
-    {
-      if (binding.m_sName == sName)
-      {
-        return &binding;
-      }
-    }
-
-    return nullptr;
-  }
-
 public:
   // Filled out by Shader Compiler platform implementation
   ezDynamicArray<ezUInt8> m_ByteCode;

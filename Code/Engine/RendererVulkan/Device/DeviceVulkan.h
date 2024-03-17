@@ -167,7 +167,7 @@ public:
 
   ezInt32 GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const;
 
-  vk::Fence Submit(bool bAddSignalSemaphose = true);
+  vk::Fence Submit(bool bAddSignalSemaphore = true);
 
   void DeleteLaterImpl(const PendingDeletion& deletion);
 

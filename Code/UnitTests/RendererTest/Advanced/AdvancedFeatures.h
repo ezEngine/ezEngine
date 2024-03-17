@@ -17,6 +17,7 @@ private:
     ST_VertexShaderRenderTargetArrayIndex,
     ST_SharedTexture,
     ST_Tessellation,
+    ST_Compute,
   };
 
   enum ImageCaptureFrames
@@ -33,7 +34,8 @@ private:
 
   void ReadRenderTarget();
   void VertexShaderRenderTargetArrayIndex();
-  void TessellationTest();
+  void Tessellation();
+  void Compute();
   ezTestAppRun SharedTexture();
   void OffscreenProcessMessageFunc(const ezProcessMessage* pMsg);
 

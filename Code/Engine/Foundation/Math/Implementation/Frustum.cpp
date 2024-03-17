@@ -62,7 +62,7 @@ ezFrustum ezFrustum::MakeFromPlanes(const ezPlane* pPlanes)
   ezFrustum frustum;
   const ezResult res = TryMakeFromPlanes(frustum, pPlanes);
   EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
-  (void)res;
+  EZ_IGNORE_UNUSED(res);
   return frustum;
 }
 
@@ -259,7 +259,7 @@ ezFrustum ezFrustum::MakeFromMVP(const ezMat4& mModelViewProjection0, ezClipSpac
   ezFrustum frustum;
   const ezResult res = TryMakeFromMVP(frustum, mModelViewProjection0, depthRange, handedness);
   EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
-  (void)res;
+  EZ_IGNORE_UNUSED(res);
   return frustum;
 }
 
@@ -331,7 +331,7 @@ ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForward
   ezFrustum frustum;
   const ezResult res = TryMakeFromFOV(frustum, vPosition, vForwards, vUp, fovX, fovY, fNearPlane, fFarPlane);
   EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
-  (void)res;
+  EZ_IGNORE_UNUSED(res);
   return frustum;
 }
 
@@ -414,7 +414,7 @@ ezFrustum ezFrustum::MakeFromCorners(const ezVec3 pCorners[FrustumCorner::CORNER
   ezFrustum frustum;
   const ezResult res = TryMakeFromCorners(frustum, pCorners);
   EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
-  (void)res;
+  EZ_IGNORE_UNUSED(res);
   return frustum;
 }
 
