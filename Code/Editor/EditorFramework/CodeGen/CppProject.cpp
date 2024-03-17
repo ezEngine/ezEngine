@@ -101,8 +101,7 @@ namespace
     ezProcessOptions po;
     po.AddArgument("--version");
     po.m_sProcess = sName;
-    po.m_onStdOut = [&sStdout](ezStringView out)
-    { sStdout.Append(out); };
+    po.m_onStdOut = [&sStdout](ezStringView out) { sStdout.Append(out); };
 
     if (ezProcess::Execute(po).Failed())
       return EZ_FAILURE;
@@ -811,13 +810,11 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
 #endif
   po.m_sWorkingDirectory = GetBuildDir(cfg);
   po.m_bHideConsoleWindow = true;
-  po.m_onStdOut = [&](ezStringView sText)
-  {
+  po.m_onStdOut = [&](ezStringView sText) {
     if (sText.FindSubString_NoCase("error") != nullptr)
       errors.PushBack(sText);
   };
-  po.m_onStdError = [&](ezStringView sText)
-  {
+  po.m_onStdError = [&](ezStringView sText) {
     if (sText.FindSubString_NoCase("error") != nullptr)
       errors.PushBack(sText);
   };
@@ -1121,8 +1118,7 @@ void ezCppProject::LoadPreferences()
           ezDynamicArray<ezFileStats> folders;
           ezOSFile::GatherAllItemsInFolder(folders, windowsSdkBinPath, ezFileSystemIteratorFlags::ReportFolders);
 
-          folders.Sort([](const ezFileStats& a, const ezFileStats& b)
-            { return a.m_sName > b.m_sName; });
+          folders.Sort([](const ezFileStats& a, const ezFileStats& b) { return a.m_sName > b.m_sName; });
 
           for (const ezFileStats& folder : folders)
           {

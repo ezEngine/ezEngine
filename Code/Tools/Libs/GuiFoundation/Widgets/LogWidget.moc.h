@@ -28,7 +28,7 @@ public:
   virtual bool eventFilter(QObject* pObject, QEvent* pEvent) override;
 
   using LogItemContextActionCallback = ezDelegate<void(const ezStringView& sLogText)>;
-  static bool AddLogItemContextActionCallback(const ezStringView& sName,const LogItemContextActionCallback& logCallback);
+  static bool AddLogItemContextActionCallback(const ezStringView& sName, const LogItemContextActionCallback& logCallback);
   static bool RemoveLogItemContextActionCallback(const ezStringView& sName);
 
 private Q_SLOTS:
@@ -42,5 +42,5 @@ private:
   void ScrollToBottomIfAtEnd(int iNumElements);
 
   /// \brief List of callbacks invoked when the user double clicks a log message
-  static ezMap<ezString,LogItemContextActionCallback> s_LogCallbacks;
+  static ezMap<ezString, LogItemContextActionCallback> s_LogCallbacks;
 };

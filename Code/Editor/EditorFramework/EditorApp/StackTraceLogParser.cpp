@@ -113,7 +113,7 @@ namespace ezStackTraceLogParser
     return true;
   }
 #else
-  static bool ParseStackTraceFileNameAndLineNumber(const ezStringView& sLine, ezStringView& ref_sFileName, ezInt32& ref_iLineNumber)
+  bool ParseStackTraceFileNameAndLineNumber(const ezStringView& sLine, ezStringView& ref_sFileName, ezInt32& ref_iLineNumber)
   {
     return false;
   }

@@ -2,8 +2,8 @@
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Logging/ETWWriter.h>
-#include <Foundation/System/SystemInformation.h>
 #include <Foundation/System/CrashHandler.h>
+#include <Foundation/System/SystemInformation.h>
 
 #include <Core/Console/QuakeConsole.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>

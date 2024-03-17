@@ -5,7 +5,7 @@
 #include <QClipboard>
 #include <QKeyEvent>
 
-ezMap<ezString,ezQtLogWidget::LogItemContextActionCallback> ezQtLogWidget::s_LogCallbacks;
+ezMap<ezString, ezQtLogWidget::LogItemContextActionCallback> ezQtLogWidget::s_LogCallbacks;
 
 ezQtLogWidget::ezQtLogWidget(QWidget* pParent)
   : QWidget(pParent)
@@ -95,12 +95,12 @@ bool ezQtLogWidget::eventFilter(QObject* pObject, QEvent* pEvent)
   return false;
 }
 
-bool ezQtLogWidget::AddLogItemContextActionCallback(const ezStringView& sName,const LogItemContextActionCallback& logCallback)
+bool ezQtLogWidget::AddLogItemContextActionCallback(const ezStringView& sName, const LogItemContextActionCallback& logCallback)
 {
-  if(sName.IsEmpty())
+  if (sName.IsEmpty())
     return false;
 
-  if(s_LogCallbacks.Contains(sName))
+  if (s_LogCallbacks.Contains(sName))
     return false;
 
   s_LogCallbacks[sName] = logCallback;
@@ -109,7 +109,7 @@ bool ezQtLogWidget::AddLogItemContextActionCallback(const ezStringView& sName,co
 
 bool ezQtLogWidget::RemoveLogItemContextActionCallback(const ezStringView& sName)
 {
-  if(sName.IsEmpty())
+  if (sName.IsEmpty())
     return false;
 
   return s_LogCallbacks.Remove(sName);
@@ -149,7 +149,7 @@ void ezQtLogWidget::OnItemDoubleClicked(QModelIndex idx)
 {
   const ezString sLine(m_pLog->data(idx, Qt::DisplayRole).toString().toUtf8().data());
 
-  for(auto const& callback : s_LogCallbacks)
+  for (auto const& callback : s_LogCallbacks)
   {
     callback.Value()(sLine);
   }
