@@ -896,7 +896,7 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
     return;
 
   ezTempHashedString sConstantBufferName("ezMaterialConstants");
-  
+
   const ezShaderResourceBinding* pBinding = pShader->GetShaderResourceBinding(sConstantBufferName);
   const ezShaderConstantBufferLayout* pLayout = pBinding != nullptr ? pBinding->m_pLayout : nullptr;
   if (pLayout == nullptr)
