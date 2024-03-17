@@ -48,7 +48,7 @@ public:
   /// \brief Takes an input stream as the source from which to read the compressed data.
   ezCompressedStreamReaderZlib(ezStreamReader* pInputStream); // [tested]
 
-  ~ezCompressedStreamReaderZlib(); // [tested]
+  ~ezCompressedStreamReaderZlib();                            // [tested]
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
