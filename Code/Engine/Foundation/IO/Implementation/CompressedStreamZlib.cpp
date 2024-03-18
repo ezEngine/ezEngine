@@ -20,7 +20,7 @@ static void zLibFree OF((voidpf opaque, voidpf address))
 
 EZ_DEFINE_AS_POD_TYPE(z_stream_s);
 
-ezCompressedStreamReaderZip::ezCompressedStreamReaderZip() {}
+ezCompressedStreamReaderZip::ezCompressedStreamReaderZip() = default;
 
 ezCompressedStreamReaderZip::~ezCompressedStreamReaderZip()
 {
@@ -231,7 +231,7 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
 }
 
 
-ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter* pOutputStream, Compression Ratio)
+ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter* pOutputStream, Compression ratio)
   : m_pOutputStream(pOutputStream)
 {
   m_CompressedCache.SetCountUninitialized(1024 * 4);
@@ -247,7 +247,7 @@ ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter* pOutp
   m_pZLibStream->avail_out = m_CompressedCache.GetCount();
   m_pZLibStream->total_out = 0;
 
-  EZ_VERIFY(deflateInit(m_pZLibStream, Ratio) == Z_OK, "Initializing the zlib stream for compression failed: '{0}'", m_pZLibStream->msg);
+  EZ_VERIFY(deflateInit(m_pZLibStream, ratio) == Z_OK, "Initializing the zlib stream for compression failed: '{0}'", m_pZLibStream->msg);
 }
 
 ezCompressedStreamWriterZlib::~ezCompressedStreamWriterZlib()

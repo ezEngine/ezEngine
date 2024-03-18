@@ -88,7 +88,7 @@ public:
   };
 
   /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
-  ezCompressedStreamWriterZlib(ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default); // [tested]
+  ezCompressedStreamWriterZlib(ezStreamWriter* pOutputStream, Compression ratio = Compression::Default); // [tested]
 
   /// \brief Calls CloseStream() internally.
   ~ezCompressedStreamWriterZlib(); // [tested]
