@@ -204,6 +204,8 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_ms
       case ezTranslateGizmo::HandleInteraction::PlaneZ:
         m_GridPlane = GridPlane::Z;
         break;
+      case ezTranslateGizmo::HandleInteraction::None:
+        break;
     }
 
     if (pSceneDoc->GetGizmoWorldSpace())
