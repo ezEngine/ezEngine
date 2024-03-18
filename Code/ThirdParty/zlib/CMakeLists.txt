@@ -14,11 +14,11 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_ZLIB_SUPPORT)
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32 _CRT_SECURE_NO_WARNINGS)
 
   if(NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP AND EZ_COMPILE_ENGINE_AS_DLL)
     target_compile_definitions(${PROJECT_NAME} PUBLIC ZLIB_DLL=1)
   endif()
 
-  target_compile_options(${PROJECT_NAME} PRIVATE /wd4131)
+  target_compile_options(${PROJECT_NAME} PRIVATE /wd4131 /wd4996)
 endif()
