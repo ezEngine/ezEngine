@@ -1,0 +1,111 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+[VERTEXSHADER]
+
+#include "Texture.h"
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  // MVP multiplication happens in the domain shader instead so only pass points through in local space.
+  RetVal.pos = float4(Input.pos.xyz, 1);
+  RetVal.texcoord0 = Input.texcoord0;
+  return RetVal;
+}
+
+
+[HULLSHADER]
+
+#include "Texture.h"
+
+struct TessellationFactors
+{
+    float edge[3] : SV_TessFactor;
+    float inside : SV_InsideTessFactor;
+};
+
+float tessellationEdgeFactor(VS_OUT vert0, VS_OUT vert1)
+{
+    return 9;
+}
+
+TessellationFactors patchConstantFunc(InputPatch<VS_OUT, 3> patch)
+{
+    TessellationFactors f;
+
+    f.edge[0] = tessellationEdgeFactor(patch[1], patch[2]);
+    f.edge[1] = tessellationEdgeFactor(patch[2], patch[0]);
+    f.edge[2] = tessellationEdgeFactor(patch[0], patch[1]);
+    f.inside = 9;
+
+    return f;
+}
+
+[domain("tri")]
+[outputcontrolpoints(3)]
+[outputtopology("triangle_cw")]
+[partitioning("integer")]
+[patchconstantfunc("patchConstantFunc")]
+VS_OUT main(InputPatch<VS_OUT, 3> patch, uint id : SV_OutputControlPointID)
+{
+    return patch[id];
+}
+
+[DOMAINSHADER]
+
+#include "Texture.h"
+
+struct TessellationFactors
+{
+    float edge[3] : SV_TessFactor;
+    float inside : SV_InsideTessFactor;
+};
+
+VS_OUT tessVert(VS_OUT v, float dist)
+{
+    VS_OUT o;
+    o.pos = v.pos;
+    // After the new points are created, we normalize the length to 0.5 unit scale, making it a smooth sphere.
+    o.pos.xyz = (normalize(o.pos.xyz) / 2.0);
+    // To make it more interesting, we extrude the tesselated points by their distance to the triangle's edges. 
+    o.pos.xyz *= (1 + dist);
+    // Finally, project the sphere, as we are taking over the role of the vertex shader here.
+    o.pos = mul(mvp, float4(o.pos));
+    // We misuse the UV as a way of visualizing the triangle borders in the pixel shader. 
+    float temp = dist * 2;
+    o.texcoord0 = float2(temp, temp);
+
+    return o;
+}
+
+[domain("tri")]
+VS_OUT main(TessellationFactors factors, OutputPatch<VS_OUT, 3> patch, float3 barycentricCoordinates : SV_DomainLocation)
+{
+    VS_OUT i;
+
+    #define INTERPOLATE(fieldname) i.fieldname = \
+    patch[0].fieldname * barycentricCoordinates.x + \
+    patch[1].fieldname * barycentricCoordinates.y + \
+    patch[2].fieldname * barycentricCoordinates.z;
+
+    INTERPOLATE(pos);
+    INTERPOLATE(texcoord0);
+
+    float dist = min(min(barycentricCoordinates.x, barycentricCoordinates.y), barycentricCoordinates.z);
+
+    return tessVert(i, dist);
+}
+
+[PIXELSHADER]
+
+#include "Texture.h"
+
+float4 main(PS_IN Input) : SV_Target
+{
+  return float4(round(Input.texcoord0.xxx * 5) / 5, 1.0);
+}

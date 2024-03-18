@@ -26,6 +26,16 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   {
     AddSubTest("03 - SharedTexture", SubTests::ST_SharedTexture);
   }
+
+  if (caps.m_bShaderStageSupported[ezGALShaderStage::HullShader])
+  {
+    AddSubTest("04 - Tessellation", SubTests::ST_Tessellation);
+  }
+  if (caps.m_bShaderStageSupported[ezGALShaderStage::ComputeShader])
+  {
+    AddSubTest("05 - Compute", SubTests::ST_Compute);
+  }
+
   ShutdownRenderer();
   ezStartup::ShutdownCoreSystems();
 }
@@ -52,6 +62,27 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     }
 
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+  }
+
+  if (iIdentifier == ST_Compute)
+  {
+    // Texture2D as compute RW target. Note that SRGB and depth formats are not supported by most graphics cards for this purpose.
+    ezGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalized, ezGALMSAASampleCount::None);
+    desc.m_bAllowUAV = true;
+    desc.m_bCreateRenderTarget = false;
+    desc.m_uiMipLevelCount = 1;
+    desc.m_ResourceAccess.m_bImmutable = false;
+    m_hTexture2D = m_pDevice->CreateTexture(desc);
+
+    ezGALResourceViewCreationDescription viewDesc;
+    viewDesc.m_hTexture = m_hTexture2D;
+    viewDesc.m_uiMipLevelsToUse = 1;
+    viewDesc.m_uiMostDetailedMipLevel = 0;
+    m_hTexture2DMips[0] = m_pDevice->CreateResourceView(viewDesc);
+
+    m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColorCompute.ezShader");
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
   }
 
@@ -154,6 +185,23 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_pProtocol->Send(&msg);
   }
 
+  if (iIdentifier == ST_Tessellation)
+  {
+    {
+      ezGeometry geom;
+      geom.AddSphere(0.5f, 3, 2);
+
+      ezMeshBufferResourceDescriptor desc;
+      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
+      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+      m_hSphereMesh = ezResourceManager::CreateResource<ezMeshBufferResource>("UnitTest-SphereMesh", std::move(desc), "SphereMesh");
+    }
+
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Tessellation.ezShader");
+  }
+
   switch (iIdentifier)
   {
     case SubTests::ST_ReadRenderTarget:
@@ -165,6 +213,12 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     case SubTests::ST_SharedTexture:
       m_ImgCompFrames.PushBack(100000000);
       break;
+    case SubTests::ST_Tessellation:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      break;
+    case SubTests::ST_Compute:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
@@ -175,7 +229,11 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier)
 {
-  if (iIdentifier == ST_SharedTexture)
+  if (iIdentifier == ST_Tessellation)
+  {
+    m_hSphereMesh.Invalidate();
+  }
+  else if (iIdentifier == ST_SharedTexture)
   {
     EZ_TEST_BOOL(m_pOffscreenProcess->WaitToFinish(ezTime::MakeFromSeconds(5)).Succeeded());
     EZ_TEST_BOOL(m_pOffscreenProcess->GetState() == ezProcessState::Finished);
@@ -217,6 +275,11 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
     m_hTexture2DArray.Invalidate();
   }
 
+  for (ezUInt32 i = 0; i < 4; i++)
+  {
+    m_hTexture2DMips[i].Invalidate();
+  }
+
   DestroyWindow();
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::DeInitializeSubTest(iIdentifier));
   return EZ_SUCCESS;
@@ -243,6 +306,12 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
       if (!m_pDevice->GetCapabilities().m_bVertexShaderRenderTargetArrayIndex)
         return ezTestAppRun::Quit;
       VertexShaderRenderTargetArrayIndex();
+      break;
+    case SubTests::ST_Tessellation:
+      Tessellation();
+      break;
+    case SubTests::ST_Compute:
+      Compute();
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -349,6 +418,76 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
     }
 
     EndRendering();
+  }
+  EndPass();
+}
+
+void ezRendererTestAdvancedFeatures::Tessellation()
+{
+  const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+  const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+  const ezMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
+  BeginPass("Tessellation");
+  {
+    ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
+    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+    RenderObject(m_hSphereMesh, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+    if (m_ImgCompFrames.Contains(m_iFrame))
+    {
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
+    EndRendering();
+  }
+  EndPass();
+}
+
+
+void ezRendererTestAdvancedFeatures::Compute()
+{
+  BeginPass("Compute");
+  {
+    ezUInt32 uiWidth = 8;
+    ezUInt32 uiHeight = 8;
+
+    auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginCompute(m_pPass, "Compute");
+    {
+      ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
+
+      ezGALUnorderedAccessViewHandle hFilterOutput;
+      {
+        ezGALUnorderedAccessViewCreationDescription desc;
+        desc.m_hTexture = m_hTexture2D;
+        desc.m_uiMipLevelToUse = 0;
+        desc.m_uiFirstArraySlice = 0;
+        desc.m_uiArraySize = 1;
+        hFilterOutput = m_pDevice->CreateUnorderedAccessView(desc);
+      }
+      ezRenderContext::GetDefaultInstance()->BindUAV("OutputTexture", hFilterOutput);
+
+      // The compute shader uses [numthreads(8, 8, 1)], so we need to compute how many of these groups we need to dispatch to fill the entire image.
+      constexpr ezUInt32 uiThreadsX = 8;
+      constexpr ezUInt32 uiThreadsY = 8;
+      const ezUInt32 uiDispatchX = (uiWidth + uiThreadsX - 1) / uiThreadsX;
+      const ezUInt32 uiDispatchY = (uiHeight + uiThreadsY - 1) / uiThreadsY;
+      // As the image is exactly as big as one of our groups, we need to dispatch exactly one group:
+      EZ_TEST_INT(uiDispatchX, 1);
+      EZ_TEST_INT(uiDispatchY, 1);
+      ezRenderContext::GetDefaultInstance()->Dispatch(uiDispatchX, uiDispatchY, 1).AssertSuccess();
+    }
+    ezRenderContext::GetDefaultInstance()->EndCompute();
+  }
+  EndPass();
+
+
+  const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+  const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+
+  const ezMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
+  BeginPass("Texture2D");
+  {
+    m_bCaptureImage = true;
+    ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DMips[0]);
   }
   EndPass();
 }

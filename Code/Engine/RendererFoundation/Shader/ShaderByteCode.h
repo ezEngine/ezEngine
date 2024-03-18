@@ -102,24 +102,13 @@ public:
   inline ezUInt32 GetSize() const;
   inline bool IsValid() const;
 
-  const ezShaderResourceBinding* GetShaderResourceBinding(const ezTempHashedString& sName) const
-  {
-    for (auto& binding : m_ShaderResourceBindings)
-    {
-      if (binding.m_sName == sName)
-      {
-        return &binding;
-      }
-    }
-
-    return nullptr;
-  }
-
 public:
   // Filled out by Shader Compiler platform implementation
   ezDynamicArray<ezUInt8> m_ByteCode;
   ezHybridArray<ezShaderResourceBinding, 8> m_ShaderResourceBindings;
   ezHybridArray<ezShaderVertexInputAttribute, 8> m_ShaderVertexInput;
+  // Only set in the hull shader.
+  ezUInt8 m_uiTessellationPatchControlPoints = 0;
 
   // Filled out by compiler base library
   ezEnum<ezGALShaderStage> m_Stage = ezGALShaderStage::ENUM_COUNT;

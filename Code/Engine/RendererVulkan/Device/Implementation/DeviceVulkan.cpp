@@ -823,7 +823,7 @@ void ezGALDeviceVulkan::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
   m_pDefaultPass->Reset();
 }
 
-vk::Fence ezGALDeviceVulkan::Submit()
+vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore)
 {
   m_pDefaultPass->SetCurrentCommandBuffer(nullptr, nullptr);
 
@@ -857,9 +857,11 @@ vk::Fence ezGALDeviceVulkan::Submit()
     ReclaimLater(m_lastCommandBufferFinished);
   }
 
-  m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
-  AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(m_lastCommandBufferFinished));
-
+  if (bAddSignalSemaphore)
+  {
+    m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
+    AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(m_lastCommandBufferFinished));
+  }
   vk::Fence renderFence = ezFencePoolVulkan::RequestFence();
 
   ezHybridArray<vk::Semaphore, 3> waitSemaphores;
@@ -1444,8 +1446,8 @@ void ezGALDeviceVulkan::FlushPlatform()
 
 void ezGALDeviceVulkan::WaitIdlePlatform()
 {
-  // Make sure command buffers get flushed.
-  Submit();
+  // Make sure command buffers get flushed. Also, no need to add a wait semaphore if we flush anyway, all commands will be done.
+  Submit(false);
   m_device.waitIdle();
   DestroyDeadObjects();
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
@@ -1785,6 +1787,7 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
       const bool bSampled = static_cast<bool>(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImage);
       const bool bColorAttachment = static_cast<bool>(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eColorAttachment);
       const bool bDepthAttachment = static_cast<bool>(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment);
+      const bool bStorageImage = static_cast<bool>(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eStorageImage);
 
       const bool bTexel = static_cast<bool>(formatProperties.bufferFeatures & vk::FormatFeatureFlagBits::eUniformTexelBuffer);
       const bool bStorageTexel = static_cast<bool>(formatProperties.bufferFeatures & vk::FormatFeatureFlagBits::eStorageTexelBuffer);
@@ -1793,7 +1796,7 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
       ezStringBuilder sTemp;
       ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), i, sTemp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
 
-      ezLog::Info("OptTiling S: {}, CA: {}, DA: {}. Buffer: T: {}, ST: {}, V: {}, Format {} -> {}", bSampled ? 1 : 0, bColorAttachment ? 1 : 0, bDepthAttachment ? 1 : 0, bTexel ? 1 : 0, bStorageTexel ? 1 : 0, bVertex ? 1 : 0, sTemp, vk::to_string(entry.m_format).c_str());
+      ezLog::Info("OptTiling S: {}, UAV: {}, CA: {}, DA: {}. Buffer: T: {}, ST: {}, V: {}, Format {} -> {}", bSampled ? 1 : 0, bStorageImage ? 1 : 0, bColorAttachment ? 1 : 0, bDepthAttachment ? 1 : 0, bTexel ? 1 : 0, bStorageTexel ? 1 : 0, bVertex ? 1 : 0, sTemp, vk::to_string(entry.m_format).c_str());
     }
   }
 }

@@ -569,6 +569,9 @@ ezGALShaderTextureType::Enum ezShaderCompilerDXC::GetTextureType(const SpvReflec
     case SpvDim::SpvDimMax:
       EZ_ASSERT_DEV(false, "Invalid enum value");
       break;
+
+    default:
+      break;
   }
   return ezGALShaderTextureType::Unknown;
 }
@@ -743,6 +746,10 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
         EZ_ASSERT_DEV(pVAS != nullptr, "Unknown vertex input format found: {}", pVar->format);
       }
     }
+  }
+  else if (Stage == ezGALShaderStage::HullShader)
+  {
+    pShader->m_uiTessellationPatchControlPoints = module.entry_points[0].output_vertices;
   }
 
   // descriptor bindings
