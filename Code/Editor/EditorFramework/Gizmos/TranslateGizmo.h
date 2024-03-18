@@ -22,11 +22,15 @@ public:
     MouseDiff
   };
 
-  enum class PlaneInteraction
+  enum class HandleInteraction
   {
+    None,
+    AxisX,
+    AxisY,
+    AxisZ,
     PlaneX,
     PlaneY,
-    PlaneZ
+    PlaneZ,
   };
 
   enum class TranslateMode
@@ -37,7 +41,7 @@ public:
   };
 
   void SetMovementMode(MovementMode mode);
-  PlaneInteraction GetLastPlaneInteraction() const { return m_LastPlaneInteraction; }
+  HandleInteraction GetLastHandleInteraction() const { return m_LastHandleInteraction; }
   TranslateMode GetTranslateMode() const { return m_Mode; }
 
   /// \brief Used when CTRL+drag moves the object AND the camera
@@ -75,7 +79,7 @@ private:
   ezEngineGizmoHandle m_hPlaneYZ;
 
   TranslateMode m_Mode;
-  PlaneInteraction m_LastPlaneInteraction;
+  HandleInteraction m_LastHandleInteraction;
 
   float m_fStartScale;
   float m_fCameraSpeed;
