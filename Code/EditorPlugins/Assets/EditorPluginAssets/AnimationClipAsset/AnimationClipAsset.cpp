@@ -6,6 +6,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -115,8 +116,11 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
   if (pImporter == nullptr)
     return ezStatus("No known importer for this file type.");
 
+  ezEditableSkeleton skeleton;
+
   ezModelImporter2::ImportOptions opt;
   opt.m_sSourceFile = sAbsFilename;
+  // opt.m_pSkeletonOutput = &skeleton; // TODO: may be needed later to optimize the clip
   opt.m_pAnimationOutput = &desc;
   opt.m_bAdditiveAnimation = pProp->m_bAdditive;
   opt.m_sAnimationToImport = pProp->m_sAnimationClipToExtract;
