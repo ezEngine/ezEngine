@@ -459,7 +459,7 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
     }
 
     it.Value().m_pWidget->setVisible(state != ezPropertyUiState::Invisible);
-    it.Value().m_pWidget->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
+    it.Value().m_pWidget->SetReadOnly(bReadOnly || state == ezPropertyUiState::Disabled);
     it.Value().m_pWidget->SetIsDefault(bIsDefaultValue);
   }
 }

@@ -52,8 +52,7 @@ ezQtPropertyWidget::ezQtPropertyWidget()
 
 ezQtPropertyWidget::~ezQtPropertyWidget() = default;
 
-void ezQtPropertyWidget::Init(
-  ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType, const ezAbstractProperty* pProp)
+void ezQtPropertyWidget::Init(ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType, const ezAbstractProperty* pProp)
 {
   m_pGrid = pGrid;
   m_pObjectAccessor = pObjectAccessor;
@@ -62,7 +61,9 @@ void ezQtPropertyWidget::Init(
   EZ_ASSERT_DEBUG(m_pGrid && m_pObjectAccessor && m_pType && m_pProp, "");
 
   if (pProp->GetAttributeByType<ezReadOnlyAttribute>() != nullptr || pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
-    setEnabled(false);
+  {
+    SetReadOnly();
+  }
 
   OnInit();
 }
@@ -432,6 +433,10 @@ void ezQtPropertyWidget::PrepareToDie()
   DoPrepareToDie();
 }
 
+void ezQtPropertyWidget::SetReadOnly(bool bReadOnly /*= true*/)
+{
+  setDisabled(bReadOnly);
+}
 
 void ezQtPropertyWidget::OnCustomContextMenu(const QPoint& pt)
 {
@@ -1395,7 +1400,7 @@ void ezQtPropertyContainerWidget::UpdatePropertyMetaState()
     if (element.m_pWidget)
     {
       element.m_pWidget->setVisible(state != ezPropertyUiState::Invisible);
-      element.m_pSubGroup->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
+      element.m_pWidget->SetReadOnly(bReadOnly || state == ezPropertyUiState::Disabled);
       element.m_pWidget->SetIsDefault(bIsDefault);
     }
   }

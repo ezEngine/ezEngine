@@ -13,6 +13,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtFilePropertyWidget : public ezQtStandardPropert
 public:
   ezQtFilePropertyWidget();
   bool IsValidFileReference(ezStringView sFile) const;
+  void SetReadOnly(bool bReadOnly = true) override;
 
 private Q_SLOTS:
   void on_BrowseFile_clicked();
