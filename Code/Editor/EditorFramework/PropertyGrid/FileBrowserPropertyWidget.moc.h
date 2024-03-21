@@ -33,3 +33,30 @@ protected:
   ezQtFileLineEdit* m_pWidget = nullptr;
   QToolButton* m_pButton = nullptr;
 };
+
+class EZ_EDITORFRAMEWORK_DLL ezQtExternalFilePropertyWidget : public ezQtStandardPropertyWidget
+{
+  Q_OBJECT
+
+public:
+  ezQtExternalFilePropertyWidget();
+  bool IsValidFileReference(ezStringView sFile) const;
+
+private Q_SLOTS:
+  void on_BrowseFile_clicked();
+
+protected slots:
+  void on_TextFinished_triggered();
+  void on_TextChanged_triggered(const QString& value);
+  void OnOpenExplorer();
+  void OnOpenFile();
+
+protected:
+  virtual void OnInit() override;
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+protected:
+  QHBoxLayout* m_pLayout = nullptr;
+  QLineEdit* m_pWidget = nullptr;
+  QToolButton* m_pButton = nullptr;
+};
