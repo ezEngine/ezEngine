@@ -61,6 +61,11 @@ bool ezQtFilePropertyWidget::IsValidFileReference(ezStringView sFile) const
   return false;
 }
 
+void ezQtFilePropertyWidget::SetReadOnly(bool bReadOnly /*= true*/)
+{
+  m_pWidget->setReadOnly(bReadOnly);
+}
+
 void ezQtFilePropertyWidget::OnInit()
 {
   auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();

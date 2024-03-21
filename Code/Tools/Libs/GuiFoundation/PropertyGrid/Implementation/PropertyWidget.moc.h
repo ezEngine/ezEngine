@@ -129,6 +129,8 @@ public:
   ezQtPropertyEditorIntSpinboxWidget(ezInt8 iNumComponents, ezInt32 iMinValue, ezInt32 iMaxValue);
   ~ezQtPropertyEditorIntSpinboxWidget();
 
+  void SetReadOnly(bool bReadOnly = true) override;
+
 private Q_SLOTS:
   void SlotValueChanged();
   void SlotSliderValueChanged(int value);
@@ -238,6 +240,8 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorLineEditWidget : public ezQtStandar
 
 public:
   ezQtPropertyEditorLineEditWidget();
+
+  void SetReadOnly(bool bReadOnly = true) override;
 
 protected Q_SLOTS:
   void on_TextChanged_triggered(const QString& value);

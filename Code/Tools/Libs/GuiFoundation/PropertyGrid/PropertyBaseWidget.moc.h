@@ -61,6 +61,9 @@ public:
   ezVariant GetCommonValue(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty);
   void PrepareToDie();
 
+  /// \brief By default disables the widget, but can be overridden to make a widget more interactable (for example to be able to copy text from it).
+  virtual void SetReadOnly(bool bReadOnly = true);
+
 public:
   static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertySelection, 8>& items);
   static QColor SetPaletteBackgroundColor(ezColorGammaUB inputColor, QPalette& ref_palette);
