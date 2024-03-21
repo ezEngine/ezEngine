@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14841776606954812814,5457590759842316574}}
-		u4 %Hash{518656886671527100}
+		u4 %Hash{18142600712325422558}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -21,6 +21,7 @@ o
 			s{"{ 4bdbade7-50be-4988-9d16-196164a5dbfb }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
 		}
 		VarArray %References
 		{
@@ -29,6 +30,7 @@ o
 			s{"{ 4bdbade7-50be-4988-9d16-196164a5dbfb }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
 		}
 		s %Tags{""}
 	}
@@ -210,25 +212,6 @@ o
 		{
 			s{"CastShadow"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{12059391336177505198,4912153753790562968}}
-	s %t{"ezSliderComponent"}
-	u3 %v{3}
-	p
-	{
-		f %Acceleration{0x00000040}
-		b %Active{1}
-		s %Axis{"ezBasisAxis::PositiveZ"}
-		f %Deceleration{0x00000040}
-		f %Distance{0x00004040}
-		Time %RandomStart{d{0}}
-		b %ReverseAtEnd{1}
-		b %ReverseAtStart{1}
-		b %Running{1}
-		f %Speed{0x00000040}
 	}
 }
 o
@@ -466,10 +449,9 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{10580514003214249606,5271208414669375093}}
-			Uuid{u4{12059391336177505198,4912153753790562968}}
 		}
-		s %GlobalKey{"Target"}
-		Vec3 %LocalPosition{f{0xC45266C0,0x2A2989BE,0xF270603F}}
+		s %GlobalKey{"Target.R"}
+		Vec3 %LocalPosition{f{0x7C7C60C0,0x9E70D0BF,0x4A3A0B40}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0xAE47E13D}
@@ -542,6 +524,7 @@ o
 			Uuid{u4{16521732564029609455,15015159200935821439}}
 			Uuid{u4{10609792509410936670,9872319222643913565}}
 			Uuid{u4{9865841419890495083,10074471882571535444}}
+			Uuid{u4{7025126466420816732,10268435801812015505}}
 		}
 		Uuid %Settings{u4{10752057520391972004,4986452362568572683}}
 	}
@@ -619,6 +602,23 @@ o
 }
 o
 {
+	Uuid %id{u4{12300375221590373693,10131084154916916133}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
+		}
+		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+		f %SortingDepthOffset{0}
+	}
+}
+o
+{
 	Uuid %id{u4{8465268309884115003,10221279263153356832}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -637,6 +637,32 @@ o
 		Quat %LocalRotation{f{0x489919B9,0xB62BD9B8,0x13507FBF,0x6EF695BD}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7025126466420816732,10268435801812015505}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12300375221590373693,10131084154916916133}}
+		}
+		s %GlobalKey{"Target.L"}
+		Vec3 %LocalPosition{f{0x26673CC0,0xEF8D2CC0,0x20472640}}
+		Quat %LocalRotation{f{0xCBA4EDBC,0x884A7ABB,0x039A053E,0x83B37D3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0xAE47E13D}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -784,11 +810,10 @@ o
 		{
 			Uuid{u4{9689165344217534681,15566084898692570421}}
 			Uuid{u4{3389517342163786480,15213319505343481011}}
-			Uuid{u4{273664868117480189,16082801356326864617}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x963A8ABF,0xCDE65DC0,0x6BB7193F}}
-		Quat %LocalRotation{f{0xEDA313B9,0x871DE9B8,0xC2F67DBF,0xB6E400BE}}
+		Vec3 %LocalPosition{f{0x7E5078C0,0x9AB32AC0,0x6BB7193F}}
+		Quat %LocalRotation{f{0xDE5C2FB9,0x531B8838,0xC243CABE,0x552D6BBF}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -825,25 +850,6 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
-	}
-}
-o
-{
-	Uuid %id{u4{273664868117480189,16082801356326864617}}
-	s %t{"ezSliderComponent"}
-	u3 %v{3}
-	p
-	{
-		f %Acceleration{0x0000803F}
-		b %Active{1}
-		s %Axis{"ezBasisAxis::PositiveX"}
-		f %Deceleration{0x0000803F}
-		f %Distance{0x00004040}
-		Time %RandomStart{d{0}}
-		b %ReverseAtEnd{1}
-		b %ReverseAtStart{1}
-		b %Running{1}
-		f %Speed{0x0000803F}
 	}
 }
 }

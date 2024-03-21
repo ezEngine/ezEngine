@@ -32,6 +32,7 @@ enum class ezAnimPoseGeneratorCommandType
   ModelPoseToOutput,
   SampleEventTrack,
   AimIK,
+  TwoBoneIK,
 };
 
 enum class ezAnimPoseEventTrackSampleMode : ezUInt8
@@ -178,7 +179,23 @@ private:
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandAimIK final : public ezAnimPoseGeneratorCommand
 {
   ezVec3 m_vTargetPosition;
-  ezTempHashedString m_sBoneName;
+  ezTempHashedString m_sJointName;
+  float m_fWeight = 1.0f;
+
+private:
+  friend class ezAnimPoseGenerator;
+
+  ezAnimPoseGeneratorModelPoseID m_ModelPoseOutput = ezInvalidIndex;
+  ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
+};
+
+struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandTwoBoneIK final : public ezAnimPoseGeneratorCommand
+{
+  ezVec3 m_vTargetPosition;
+  ezTempHashedString m_sJointNameStart;
+  ezTempHashedString m_sJointNameMiddle;
+  ezTempHashedString m_sJointNameEnd;
+  float m_fWeight = 1.0f;
 
 private:
   friend class ezAnimPoseGenerator;
@@ -202,6 +219,7 @@ public:
   ezAnimPoseGeneratorCommandModelPoseToOutput& AllocCommandModelPoseToOutput();
   ezAnimPoseGeneratorCommandSampleEventTrack& AllocCommandSampleEventTrack();
   ezAnimPoseGeneratorCommandAimIK& AllocCommandAimIK();
+  ezAnimPoseGeneratorCommandTwoBoneIK& AllocCommandTwoBoneIK();
 
   const ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id) const;
   ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id);
@@ -219,6 +237,7 @@ private:
   void ExecuteCmd(ezAnimPoseGeneratorCommandModelPoseToOutput& cmd);
   void ExecuteCmd(ezAnimPoseGeneratorCommandSampleEventTrack& cmd, const ezGameObject* pSendAnimationEventsTo);
   void ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd);
+  void ExecuteCmd(ezAnimPoseGeneratorCommandTwoBoneIK& cmd);
   void SampleEventTrack(const ezAnimationClipResource* pResource, ezAnimPoseEventTrackSampleMode mode, const ezGameObject* pSendAnimationEventsTo, float fPrevPos, float fCurPos);
 
   ezArrayPtr<ozz::math::SoaTransform> AcquireLocalPoseTransforms(ezAnimPoseGeneratorLocalPoseID id);
@@ -241,6 +260,7 @@ private:
   ezHybridArray<ezAnimPoseGeneratorCommandModelPoseToOutput, 1> m_CommandsModelPoseToOutput;
   ezHybridArray<ezAnimPoseGeneratorCommandSampleEventTrack, 2> m_CommandsSampleEventTrack;
   ezHybridArray<ezAnimPoseGeneratorCommandAimIK, 2> m_CommandsAimIK;
+  ezHybridArray<ezAnimPoseGeneratorCommandTwoBoneIK, 2> m_CommandsTwoBoneIK;
 
   ezArrayMap<ezUInt32, ozz::animation::SamplingJob::Context*> m_SamplingCaches;
 };

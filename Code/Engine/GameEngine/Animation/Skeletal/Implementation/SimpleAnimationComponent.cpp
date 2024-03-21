@@ -204,25 +204,40 @@ void ezSimpleAnimationComponent::Update()
 
     ezAnimPoseGeneratorCommandID prevCmdID = cmdL2M.GetCommandID();
 
-    ezGameObject* pTarget;
-    if (GetWorld()->TryGetObjectWithGlobalKey("Target", pTarget))
-    {
-      const ezMat4 rt = pSkeleton->GetDescriptor().m_RootTransform.GetAsMat4();
-      const ezMat4 mt = GetOwner()->GetGlobalTransform().GetAsMat4();
-      const ezMat4 t = mt * rt;
+    const ezMat4 rt = pSkeleton->GetDescriptor().m_RootTransform.GetAsMat4();
+    const ezMat4 mt = GetOwner()->GetGlobalTransform().GetAsMat4();
+    const ezMat4 t = mt * rt;
 
+    ezGameObject* pTarget;
+    if (GetWorld()->TryGetObjectWithGlobalKey("Target.R", pTarget))
+    {
       {
         auto& cmdIk = poseGen.AllocCommandAimIK();
-        cmdIk.m_sBoneName = "UpperArm.R";
+        cmdIk.m_sJointName = "UpperArm.R";
         cmdIk.m_Inputs.PushBack(prevCmdID);
         cmdIk.m_vTargetPosition = t.GetInverse() * pTarget->GetGlobalPosition();
+        cmdIk.m_fWeight = 0.5f;
 
         prevCmdID = cmdIk.GetCommandID();
       }
 
       {
         auto& cmdIk = poseGen.AllocCommandAimIK();
-        cmdIk.m_sBoneName = "LowerArm.R";
+        cmdIk.m_sJointName = "LowerArm.R";
+        cmdIk.m_Inputs.PushBack(prevCmdID);
+        cmdIk.m_vTargetPosition = t.GetInverse() * pTarget->GetGlobalPosition();
+
+        prevCmdID = cmdIk.GetCommandID();
+      }
+    }
+
+    if (GetWorld()->TryGetObjectWithGlobalKey("Target.L", pTarget))
+    {
+      {
+        auto& cmdIk = poseGen.AllocCommandTwoBoneIK();
+        cmdIk.m_sJointNameStart = "UpperArm.L";
+        cmdIk.m_sJointNameMiddle = "LowerArm.L";
+        cmdIk.m_sJointNameEnd = "Hand.L";
         cmdIk.m_Inputs.PushBack(prevCmdID);
         cmdIk.m_vTargetPosition = t.GetInverse() * pTarget->GetGlobalPosition();
 

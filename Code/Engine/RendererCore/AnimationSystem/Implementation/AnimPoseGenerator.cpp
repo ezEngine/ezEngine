@@ -122,6 +122,15 @@ ezAnimPoseGeneratorCommandAimIK& ezAnimPoseGenerator::AllocCommandAimIK()
   return cmd;
 }
 
+ezAnimPoseGeneratorCommandTwoBoneIK& ezAnimPoseGenerator::AllocCommandTwoBoneIK()
+{
+  auto& cmd = m_CommandsTwoBoneIK.ExpandAndGetRef();
+  cmd.m_Type = ezAnimPoseGeneratorCommandType::TwoBoneIK;
+  cmd.m_CommandID = CreateCommandID(cmd.m_Type, m_CommandsTwoBoneIK.GetCount() - 1);
+
+  return cmd;
+}
+
 ezAnimPoseGenerator::ezAnimPoseGenerator() = default;
 
 ezAnimPoseGenerator::~ezAnimPoseGenerator()
@@ -176,7 +185,7 @@ void ezAnimPoseGenerator::Validate() const
     for (auto id : cmd.m_Inputs)
     {
       auto type = GetCommand(id).GetType();
-      EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::LocalToModelPose || type == ezAnimPoseGeneratorCommandType::AimIK, "Unsupported input type");
+      EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::LocalToModelPose || type == ezAnimPoseGeneratorCommandType::AimIK || type == ezAnimPoseGeneratorCommandType::TwoBoneIK, "Unsupported input type");
     }
   }
 
@@ -187,7 +196,7 @@ void ezAnimPoseGenerator::Validate() const
     for (auto id : cmd.m_Inputs)
     {
       auto type = GetCommand(id).GetType();
-      EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::LocalToModelPose || type == ezAnimPoseGeneratorCommandType::AimIK, "Unsupported input type");
+      EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::LocalToModelPose || type == ezAnimPoseGeneratorCommandType::AimIK || type == ezAnimPoseGeneratorCommandType::TwoBoneIK, "Unsupported input type");
     }
   }
 
@@ -228,6 +237,9 @@ ezAnimPoseGeneratorCommand& ezAnimPoseGenerator::GetCommand(ezAnimPoseGeneratorC
 
     case ezAnimPoseGeneratorCommandType::AimIK:
       return m_CommandsAimIK[GetCommandIndex(id)];
+
+    case ezAnimPoseGeneratorCommandType::TwoBoneIK:
+      return m_CommandsTwoBoneIK[GetCommandIndex(id)];
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
@@ -295,6 +307,10 @@ void ezAnimPoseGenerator::Execute(ezAnimPoseGeneratorCommand& cmd, const ezGameO
 
     case ezAnimPoseGeneratorCommandType::AimIK:
       ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandAimIK&>(cmd));
+      break;
+
+    case ezAnimPoseGeneratorCommandType::TwoBoneIK:
+      ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandTwoBoneIK&>(cmd));
       break;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
@@ -486,6 +502,10 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandModelPoseToOutput
       m_OutputPose = AcquireModelPoseTransforms(static_cast<const ezAnimPoseGeneratorCommandAimIK&>(cmdIn).m_ModelPoseOutput);
       break;
 
+    case ezAnimPoseGeneratorCommandType::TwoBoneIK:
+      m_OutputPose = AcquireModelPoseTransforms(static_cast<const ezAnimPoseGeneratorCommandTwoBoneIK&>(cmdIn).m_ModelPoseOutput);
+      break;
+
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 }
@@ -542,10 +562,19 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
       break;
     }
 
+    case ezAnimPoseGeneratorCommandType::TwoBoneIK:
+    {
+      const ezAnimPoseGeneratorCommandTwoBoneIK& cmdIn2 = static_cast<const ezAnimPoseGeneratorCommandTwoBoneIK&>(cmdIn);
+      cmd.m_LocalPoseOutput = cmdIn2.m_LocalPoseOutput;
+      cmd.m_ModelPoseOutput = cmdIn2.m_ModelPoseOutput;
+      modelPose = AcquireModelPoseTransforms(cmd.m_ModelPoseOutput);
+      break;
+    }
+
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
-  const ezUInt32 uiJoint = m_pSkeleton->GetDescriptor().m_Skeleton.FindJointByName(cmd.m_sBoneName);
+  const ezUInt32 uiJoint = m_pSkeleton->GetDescriptor().m_Skeleton.FindJointByName(cmd.m_sJointName);
   if (uiJoint == ezInvalidJointIndex)
     return;
 
@@ -559,6 +588,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
   // patch the local poses
   {
     ozz::animation::IKAimJob job;
+    job.weight = cmd.m_fWeight;
     job.target = ozz::math::simd_float4::LoadPtrU(cmd.m_vTargetPosition.GetAsPositionVec4().GetData());
     job.forward = ozz::math::simd_float4::y_axis();
     job.up = ozz::math::simd_float4::z_axis();
@@ -575,6 +605,96 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
   // rebuild the model poses (TODO: only what's needed)
   {
     ozz::animation::LocalToModelJob job;
+    job.from = (int)uiJoint;
+    job.input = ozz::span<const ozz::math::SoaTransform>(transform.GetPtr(), transform.GetCount());
+    job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(modelPose.GetPtr()), modelPose.GetCount());
+    job.skeleton = &m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
+    EZ_ASSERT_DEBUG(job.Validate(), "");
+    job.Run();
+  }
+}
+
+void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandTwoBoneIK& cmd)
+{
+  const auto& cmdIn = GetCommand(cmd.m_Inputs[0]);
+
+  ezArrayPtr<ezMat4> modelPose;
+
+  switch (cmdIn.GetType())
+  {
+    case ezAnimPoseGeneratorCommandType::LocalToModelPose:
+    {
+      const ezAnimPoseGeneratorCommandLocalToModelPose& cmdIn2 = static_cast<const ezAnimPoseGeneratorCommandLocalToModelPose&>(cmdIn);
+      cmd.m_LocalPoseOutput = cmdIn2.m_LocalPoseOutput;
+      cmd.m_ModelPoseOutput = cmdIn2.m_ModelPoseOutput;
+      modelPose = AcquireModelPoseTransforms(cmd.m_ModelPoseOutput);
+      break;
+    }
+
+    case ezAnimPoseGeneratorCommandType::AimIK:
+    {
+      const ezAnimPoseGeneratorCommandAimIK& cmdIn2 = static_cast<const ezAnimPoseGeneratorCommandAimIK&>(cmdIn);
+      cmd.m_LocalPoseOutput = cmdIn2.m_LocalPoseOutput;
+      cmd.m_ModelPoseOutput = cmdIn2.m_ModelPoseOutput;
+      modelPose = AcquireModelPoseTransforms(cmd.m_ModelPoseOutput);
+      break;
+    }
+
+    case ezAnimPoseGeneratorCommandType::TwoBoneIK:
+    {
+      const ezAnimPoseGeneratorCommandTwoBoneIK& cmdIn2 = static_cast<const ezAnimPoseGeneratorCommandTwoBoneIK&>(cmdIn);
+      cmd.m_LocalPoseOutput = cmdIn2.m_LocalPoseOutput;
+      cmd.m_ModelPoseOutput = cmdIn2.m_ModelPoseOutput;
+      modelPose = AcquireModelPoseTransforms(cmd.m_ModelPoseOutput);
+      break;
+    }
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  const ezUInt32 uiJointStart = m_pSkeleton->GetDescriptor().m_Skeleton.FindJointByName(cmd.m_sJointNameStart);
+  if (uiJointStart == ezInvalidJointIndex)
+    return;
+  const ezUInt32 uiJointMiddle = m_pSkeleton->GetDescriptor().m_Skeleton.FindJointByName(cmd.m_sJointNameMiddle);
+  if (uiJointMiddle == ezInvalidJointIndex)
+    return;
+  const ezUInt32 uiJointEnd = m_pSkeleton->GetDescriptor().m_Skeleton.FindJointByName(cmd.m_sJointNameEnd);
+  if (uiJointEnd == ezInvalidJointIndex)
+    return;
+
+  auto transform = AcquireLocalPoseTransforms(cmd.m_LocalPoseOutput);
+
+  const ezMat4* pJointStart = &modelPose[uiJointStart];
+  const ezMat4* pJointMiddle = &modelPose[uiJointMiddle];
+  const ezMat4* pJointEnd = &modelPose[uiJointEnd];
+
+  ozz::math::SimdQuaternion correctionStart, correctionMiddle;
+  bool bReached = false;
+
+  // patch the local poses
+  {
+    ozz::animation::IKTwoBoneJob job;
+    job.reached = &bReached;
+    job.weight = cmd.m_fWeight;
+    job.target = ozz::math::simd_float4::LoadPtrU(cmd.m_vTargetPosition.GetAsPositionVec4().GetData());
+    job.start_joint = reinterpret_cast<const ozz::math::Float4x4*>(pJointStart);
+    job.mid_joint = reinterpret_cast<const ozz::math::Float4x4*>(pJointMiddle);
+    job.end_joint = reinterpret_cast<const ozz::math::Float4x4*>(pJointEnd);
+    job.start_joint_correction = &correctionStart;
+    job.mid_joint_correction = &correctionMiddle;
+
+    job.pole_vector = ozz::math::simd_float4::z_axis();
+    EZ_ASSERT_DEBUG(job.Validate(), "");
+    job.Run();
+
+    MultiplySoATransformQuaternion(uiJointStart, correctionStart, transform);
+    MultiplySoATransformQuaternion(uiJointMiddle, correctionMiddle, transform);
+  }
+
+  // rebuild the model poses (TODO: only what's needed)
+  {
+    ozz::animation::LocalToModelJob job;
+    job.from = (int)uiJointStart;
     job.input = ozz::span<const ozz::math::SoaTransform>(transform.GetPtr(), transform.GetCount());
     job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(modelPose.GetPtr()), modelPose.GetCount());
     job.skeleton = &m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
