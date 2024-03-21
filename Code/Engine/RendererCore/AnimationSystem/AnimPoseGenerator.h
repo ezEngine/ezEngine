@@ -140,6 +140,7 @@ private:
   friend class ezAnimPoseGenerator;
 
   ezAnimPoseGeneratorModelPoseID m_ModelPoseOutput = ezInvalidIndex;
+  ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
 };
 
 /// \brief Accepts a single input command that outputs a model space pose and forwards it to the ezGameObject for which the pose is generated.
@@ -176,10 +177,14 @@ private:
 
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandAimIK final : public ezAnimPoseGeneratorCommand
 {
+  ezVec3 m_vTargetPosition;
+  ezTempHashedString m_sBoneName;
+
 private:
   friend class ezAnimPoseGenerator;
 
   ezAnimPoseGeneratorModelPoseID m_ModelPoseOutput = ezInvalidIndex;
+  ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimPoseGenerator final
