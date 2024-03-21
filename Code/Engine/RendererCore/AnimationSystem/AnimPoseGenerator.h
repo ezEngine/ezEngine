@@ -31,6 +31,7 @@ enum class ezAnimPoseGeneratorCommandType
   LocalToModelPose,
   ModelPoseToOutput,
   SampleEventTrack,
+  AimIK,
 };
 
 enum class ezAnimPoseEventTrackSampleMode : ezUInt8
@@ -173,6 +174,14 @@ private:
   ezUInt32 m_uiUniqueID = 0;
 };
 
+struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandAimIK final : public ezAnimPoseGeneratorCommand
+{
+private:
+  friend class ezAnimPoseGenerator;
+
+  ezAnimPoseGeneratorModelPoseID m_ModelPoseOutput = ezInvalidIndex;
+};
+
 class EZ_RENDERERCORE_DLL ezAnimPoseGenerator final
 {
 public:
@@ -187,6 +196,7 @@ public:
   ezAnimPoseGeneratorCommandLocalToModelPose& AllocCommandLocalToModelPose();
   ezAnimPoseGeneratorCommandModelPoseToOutput& AllocCommandModelPoseToOutput();
   ezAnimPoseGeneratorCommandSampleEventTrack& AllocCommandSampleEventTrack();
+  ezAnimPoseGeneratorCommandAimIK& AllocCommandAimIK();
 
   const ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id) const;
   ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id);
@@ -203,6 +213,7 @@ private:
   void ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd, const ezGameObject* pSendAnimationEventsTo);
   void ExecuteCmd(ezAnimPoseGeneratorCommandModelPoseToOutput& cmd);
   void ExecuteCmd(ezAnimPoseGeneratorCommandSampleEventTrack& cmd, const ezGameObject* pSendAnimationEventsTo);
+  void ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd);
   void SampleEventTrack(const ezAnimationClipResource* pResource, ezAnimPoseEventTrackSampleMode mode, const ezGameObject* pSendAnimationEventsTo, float fPrevPos, float fCurPos);
 
   ezArrayPtr<ozz::math::SoaTransform> AcquireLocalPoseTransforms(ezAnimPoseGeneratorLocalPoseID id);
@@ -224,6 +235,7 @@ private:
   ezHybridArray<ezAnimPoseGeneratorCommandLocalToModelPose, 1> m_CommandsLocalToModelPose;
   ezHybridArray<ezAnimPoseGeneratorCommandModelPoseToOutput, 1> m_CommandsModelPoseToOutput;
   ezHybridArray<ezAnimPoseGeneratorCommandSampleEventTrack, 2> m_CommandsSampleEventTrack;
+  ezHybridArray<ezAnimPoseGeneratorCommandAimIK, 2> m_CommandsAimIK;
 
   ezArrayMap<ezUInt32, ozz::animation::SamplingJob::Context*> m_SamplingCaches;
 };

@@ -8,9 +8,12 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/blending_job.h>
+#include <ozz/animation/runtime/ik_aim_job.h>
+#include <ozz/animation/runtime/ik_two_bone_job.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/sampling_job.h>
 #include <ozz/animation/runtime/skeleton.h>
+#include <ozz/base/maths/simd_quaternion.h>
 #include <ozz/base/span.h>
 
 void ezAnimPoseGenerator::Reset(const ezSkeletonResource* pSkeleton)
@@ -24,6 +27,8 @@ void ezAnimPoseGenerator::Reset(const ezSkeletonResource* pSkeleton)
   m_CommandsCombinePoses.Clear();
   m_CommandsLocalToModelPose.Clear();
   m_CommandsModelPoseToOutput.Clear();
+  m_CommandsSampleEventTrack.Clear();
+  m_CommandsAimIK.Clear();
 
   m_UsedLocalTransforms.Clear();
 
@@ -108,6 +113,15 @@ ezAnimPoseGeneratorCommandSampleEventTrack& ezAnimPoseGenerator::AllocCommandSam
   return cmd;
 }
 
+ezAnimPoseGeneratorCommandAimIK& ezAnimPoseGenerator::AllocCommandAimIK()
+{
+  auto& cmd = m_CommandsAimIK.ExpandAndGetRef();
+  cmd.m_Type = ezAnimPoseGeneratorCommandType::AimIK;
+  cmd.m_CommandID = CreateCommandID(cmd.m_Type, m_CommandsAimIK.GetCount() - 1);
+
+  return cmd;
+}
+
 ezAnimPoseGenerator::ezAnimPoseGenerator() = default;
 
 ezAnimPoseGenerator::~ezAnimPoseGenerator()
@@ -162,6 +176,17 @@ void ezAnimPoseGenerator::Validate() const
     for (auto id : cmd.m_Inputs)
     {
       auto type = GetCommand(id).GetType();
+      EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::LocalToModelPose || type == ezAnimPoseGeneratorCommandType::AimIK, "Unsupported input type");
+    }
+  }
+
+  for (auto& cmd : m_CommandsAimIK)
+  {
+    EZ_ASSERT_DEV(cmd.m_Inputs.GetCount() == 1, "Exactly one input must be provided.");
+
+    for (auto id : cmd.m_Inputs)
+    {
+      auto type = GetCommand(id).GetType();
       EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::LocalToModelPose, "Unsupported input type");
     }
   }
@@ -200,6 +225,9 @@ ezAnimPoseGeneratorCommand& ezAnimPoseGenerator::GetCommand(ezAnimPoseGeneratorC
 
     case ezAnimPoseGeneratorCommandType::SampleEventTrack:
       return m_CommandsSampleEventTrack[GetCommandIndex(id)];
+
+    case ezAnimPoseGeneratorCommandType::AimIK:
+      return m_CommandsAimIK[GetCommandIndex(id)];
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
@@ -263,6 +291,10 @@ void ezAnimPoseGenerator::Execute(ezAnimPoseGeneratorCommand& cmd, const ezGameO
 
     case ezAnimPoseGeneratorCommandType::SampleEventTrack:
       ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandSampleEventTrack&>(cmd), pSendAnimationEventsTo);
+      break;
+
+    case ezAnimPoseGeneratorCommandType::AimIK:
+      ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandAimIK&>(cmd));
       break;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
@@ -450,6 +482,10 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandModelPoseToOutput
       m_OutputPose = AcquireModelPoseTransforms(static_cast<const ezAnimPoseGeneratorCommandLocalToModelPose&>(cmdIn).m_ModelPoseOutput);
       break;
 
+    case ezAnimPoseGeneratorCommandType::AimIK:
+      m_OutputPose = AcquireModelPoseTransforms(static_cast<const ezAnimPoseGeneratorCommandAimIK&>(cmdIn).m_ModelPoseOutput);
+      break;
+
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 }
@@ -459,6 +495,38 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleEventTrack&
   ezResourceLock<ezAnimationClipResource> pResource(cmd.m_hAnimationClip, ezResourceAcquireMode::BlockTillLoaded);
 
   SampleEventTrack(pResource.GetPointer(), cmd.m_EventSampling, pSendAnimationEventsTo, cmd.m_fPreviousNormalizedSamplePos, cmd.m_fNormalizedSamplePos);
+}
+
+void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
+{
+  const auto& cmdIn = GetCommand(cmd.m_Inputs[0]);
+
+  ezArrayPtr<ezMat4> modelPose;
+  ezMat4* pJoint = nullptr;
+
+  switch (cmdIn.GetType())
+  {
+    case ezAnimPoseGeneratorCommandType::LocalToModelPose:
+      cmd.m_ModelPoseOutput = static_cast<const ezAnimPoseGeneratorCommandLocalToModelPose&>(cmdIn).m_ModelPoseOutput;
+      modelPose = AcquireModelPoseTransforms(static_cast<const ezAnimPoseGeneratorCommandLocalToModelPose&>(cmdIn).m_ModelPoseOutput);
+      break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  ozz::math::SimdQuaternion correction;
+  bool bReached = false;
+
+  ozz::animation::IKAimJob job;
+  job.target = {0, 0, 2, 1};
+  job.forward = ozz::math::simd_float4::x_axis();
+  job.up = ozz::math::simd_float4::z_axis();
+  job.pole_vector = ozz::math::simd_float4::z_axis();
+  job.joint_correction = &correction;
+  job.joint = reinterpret_cast<ozz::math::Float4x4*>(pJoint);
+  job.reached = &bReached;
+  // EZ_ASSERT_DEBUG(job.Validate(), "");
+  // job.Run();
 }
 
 void ezAnimPoseGenerator::SampleEventTrack(const ezAnimationClipResource* pResource, ezAnimPoseEventTrackSampleMode mode, const ezGameObject* pSendAnimationEventsTo, float fPrevPos, float fCurPos)
