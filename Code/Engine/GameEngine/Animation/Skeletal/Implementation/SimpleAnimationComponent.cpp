@@ -202,8 +202,36 @@ void ezSimpleAnimationComponent::Update()
       cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
     }
 
+    ezAnimPoseGeneratorCommandID prevCmdID = cmdL2M.GetCommandID();
+
+    ezGameObject* pTarget;
+    if (GetWorld()->TryGetObjectWithGlobalKey("Target", pTarget))
+    {
+      const ezMat4 rt = pSkeleton->GetDescriptor().m_RootTransform.GetAsMat4();
+      const ezMat4 mt = GetOwner()->GetGlobalTransform().GetAsMat4();
+      const ezMat4 t = mt * rt;
+
+      {
+        auto& cmdIk = poseGen.AllocCommandAimIK();
+        cmdIk.m_sBoneName = "UpperArm.R";
+        cmdIk.m_Inputs.PushBack(prevCmdID);
+        cmdIk.m_vTargetPosition = t.GetInverse() * pTarget->GetGlobalPosition();
+
+        prevCmdID = cmdIk.GetCommandID();
+      }
+
+      {
+        auto& cmdIk = poseGen.AllocCommandAimIK();
+        cmdIk.m_sBoneName = "LowerArm.R";
+        cmdIk.m_Inputs.PushBack(prevCmdID);
+        cmdIk.m_vTargetPosition = t.GetInverse() * pTarget->GetGlobalPosition();
+
+        prevCmdID = cmdIk.GetCommandID();
+      }
+    }
+
     auto& cmdOut = poseGen.AllocCommandModelPoseToOutput();
-    cmdOut.m_Inputs.PushBack(cmdL2M.GetCommandID());
+    cmdOut.m_Inputs.PushBack(prevCmdID);
   }
 
   auto pose = poseGen.GeneratePose(GetOwner());
