@@ -59,17 +59,33 @@ void ezResourceCacheVulkan::DeInitialize()
   s_frameBuffers.Clear();
   s_frameBuffers.Compact();
 
-  for (auto it : s_graphicsPipelines)
+  // graphic
   {
-    s_device.destroyPipeline(it.Value(), nullptr);
+    for (auto it : s_graphicsPipelines)
+    {
+      s_device.destroyPipeline(it.Value(), nullptr);
+    }
+    s_graphicsPipelines.Clear();
+    GraphicsPipelineMap tmp;
+    s_graphicsPipelines.Swap(tmp);
+    s_graphicsPipelineUsedBy.Clear();
+    ezMap<const ezRefCounted*, ezHybridArray<GraphicsPipelineMap::Iterator, 1>> tmp2;
+    s_graphicsPipelineUsedBy.Swap(tmp2);
   }
-  s_graphicsPipelines.Clear();
-  GraphicsPipelineMap tmp;
-  s_graphicsPipelines.Swap(tmp);
-  s_graphicsPipelineUsedBy.Clear();
-  ezMap<const ezRefCounted*, ezHybridArray<GraphicsPipelineMap::Iterator, 1>> tmp2;
-  s_graphicsPipelineUsedBy.Swap(tmp2);
 
+  // compute
+  {
+    for (auto it : s_computePipelines)
+    {
+      s_device.destroyPipeline(it.Value(), nullptr);
+    }
+    s_computePipelines.Clear();
+    ComputePipelineMap tmp;
+    s_computePipelines.Swap(tmp);
+    s_computePipelineUsedBy.Clear();
+    ezMap<const ezRefCounted*, ezHybridArray<ComputePipelineMap::Iterator, 1>> tmp2;
+    s_computePipelineUsedBy.Swap(tmp2);
+  }
 
   for (auto it : s_pipelineLayouts)
   {
@@ -414,6 +430,12 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
 
   vk::PipelineInputAssemblyStateCreateInfo input_assembly;
   input_assembly.topology = ezConversionUtilsVulkan::GetPrimitiveTopology(desc.m_topology);
+  const bool bTessellation = desc.m_pCurrentShader->GetShader(ezGALShaderStage::HullShader) != nullptr;
+  if (bTessellation)
+  {
+    // Tessellation shaders always need to use patch list as the topology.
+    input_assembly.topology = vk::PrimitiveTopology::ePatchList;
+  }
 
   // Specify rasterization state.
   const vk::PipelineRasterizationStateCreateInfo* raster = desc.m_pCurrentRasterizerState->GetRasterizerState();
@@ -460,6 +482,12 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
     }
   }
 
+  vk::PipelineTessellationStateCreateInfo tessellationInfo;
+  if (bTessellation)
+  {
+    tessellationInfo.patchControlPoints = desc.m_pCurrentShader->GetDescription().m_ByteCodes[ezGALShaderStage::HullShader]->m_uiTessellationPatchControlPoints;
+  }
+
   vk::GraphicsPipelineCreateInfo pipe;
   pipe.renderPass = desc.m_renderPass;
   pipe.layout = desc.m_layout;
@@ -473,6 +501,8 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
   pipe.pViewportState = &viewport;
   pipe.pDepthStencilState = depth_stencil;
   pipe.pDynamicState = &dynamic;
+  if (bTessellation)
+    pipe.pTessellationState = &tessellationInfo;
 
   vk::Pipeline pipeline;
   vk::PipelineCache cache;
@@ -505,6 +535,7 @@ vk::Pipeline ezResourceCacheVulkan::RequestComputePipeline(const ComputePipeline
   pipe.layout = desc.m_layout;
   {
     vk::ShaderModule shader = desc.m_pCurrentShader->GetShader(ezGALShaderStage::ComputeShader);
+    EZ_ASSERT_DEV(shader != nullptr, "No compute shader stage present in the bound shader");
     pipe.stage.stage = ezConversionUtilsVulkan::GetShaderStage(ezGALShaderStage::ComputeShader);
     pipe.stage.module = shader;
     pipe.stage.pName = "main";

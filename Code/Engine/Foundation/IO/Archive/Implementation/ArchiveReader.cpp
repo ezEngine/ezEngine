@@ -33,7 +33,24 @@ ezResult ezArchiveReader::OpenArchive(ezStringView sPath)
 
       EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ExtractTOC(m_MemFile, m_ArchiveTOC, m_uiArchiveVersion));
     }
+#  ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+    else if (extension == "zip" || extension == "apk")
+    {
+      EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ReadZipHeader(reader, m_uiArchiveVersion));
+      if (m_uiArchiveVersion != 0)
+      {
+        ezLog::Error("Unknown zip version '{}'", m_uiArchiveVersion);
+        return EZ_FAILURE;
+      }
+      m_pDataStart = m_MemFile.GetReadPointer(0, ezMemoryMappedFile::OffsetBase::Start);
 
+      if (ezArchiveUtils::ExtractZipTOC(m_MemFile, m_ArchiveTOC).Failed())
+      {
+        ezLog::Error("Failed to deserialize zip TOC");
+        return EZ_FAILURE;
+      }
+    }
+#  endif
     else
     {
       ezLog::Error("Unknown archive file extension '{}'", extension);

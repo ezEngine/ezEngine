@@ -10,6 +10,9 @@ public:
 
   /// Returns the list of shader resources and their binding information. These must be bound before the shader can be used.
   ezArrayPtr<const ezShaderResourceBinding> GetBindingMapping() const;
+  /// Convenience function that finds 'sName' in GetBindingMapping and returns it if present.
+  const ezShaderResourceBinding* GetShaderResourceBinding(const ezTempHashedString& sName) const;
+
   /// Returns the list of vertex input attributes. Compute shaders return an empty array.
   ezArrayPtr<const ezShaderVertexInputAttribute> GetVertexInputAttributes() const;
 

@@ -64,6 +64,15 @@ struct EZ_EDITORFRAMEWORK_DLL ezCompilerPreferences
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezCompilerPreferences);
 
+struct EZ_EDITORFRAMEWORK_DLL ezCodeEditorPreferences
+{
+  bool m_bIsVisualStudio;
+  ezString m_sEditorPath;
+  ezString m_sEditorArgs;
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezCodeEditorPreferences);
+
 struct EZ_EDITORFRAMEWORK_DLL ezCppProject : public ezPreferences
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCppProject, ezPreferences);
@@ -101,6 +110,9 @@ struct EZ_EDITORFRAMEWORK_DLL ezCppProject : public ezPreferences
   static ezString GetSolutionPath(const ezCppSettings& cfg);
 
   static ezStatus OpenSolution(const ezCppSettings& cfg);
+
+  /// \brief Attempts to launch the configured code editor with the specified file and line number
+  static ezStatus OpenInCodeEditor(const ezStringView& sFileName, ezInt32 iLineNumber);
 
   static ezStringView CompilerToString(ezCompiler::Enum compiler);
 
@@ -155,7 +167,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezCppProject : public ezPreferences
 private:
   ezEnum<ezIDE> m_Ide;
   ezCompilerPreferences m_CompilerPreferences;
-
+  ezCodeEditorPreferences m_CodeEditorPreferences;
 
   static ezDynamicArray<MachineSpecificCompilerPaths> s_MachineSpecificCompilers;
 };

@@ -87,6 +87,22 @@ ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(ezStringView
         break;
       }
 #endif
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+      case ezArchiveCompressionMode::Compressed_zip:
+      {
+        if (!m_FreeReadersZip.IsEmpty())
+        {
+          pReader = m_FreeReadersZip.PeekBack();
+          m_FreeReadersZip.PopBack();
+        }
+        else
+        {
+          m_ReadersZip.PushBack(EZ_DEFAULT_NEW(ArchiveReaderZip, 2));
+          pReader = m_ReadersZip.PeekBack().Borrow();
+        }
+        break;
+      }
+#endif
 
       default:
         EZ_REPORT_FAILURE("Compression mode {} is unknown (or not compiled in)", (ezUInt8)pEntry->m_CompressionMode);
@@ -160,6 +176,10 @@ ezResult ezDataDirectory::ArchiveType::InternalInitializeDataDirectory(ezStringV
 
   ezHybridArray<ezString, 4, ezStaticsAllocatorWrapper> extensions = ezArchiveUtils::GetAcceptedArchiveFileExtensions();
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+  extensions.PushBack("zip");
+  extensions.PushBack("apk");
+#endif
 
   for (const auto& ext : extensions)
   {
@@ -223,6 +243,13 @@ void ezDataDirectory::ArchiveType::OnReaderWriterClose(ezDataDirectoryReaderWrit
   }
 #endif
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+  if (pClosed->GetDataDirUserData() == 2)
+  {
+    m_FreeReadersZip.PushBack(static_cast<ArchiveReaderZip*>(pClosed));
+    return;
+  }
+#endif
 
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
@@ -299,6 +326,28 @@ void ezDataDirectory::ArchiveReaderZstd::InternalClose()
 
 //////////////////////////////////////////////////////////////////////////
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
+ezDataDirectory::ArchiveReaderZip::ArchiveReaderZip(ezInt32 iDataDirUserData)
+  : ArchiveReaderUncompressed(iDataDirUserData)
+{
+}
+
+ezDataDirectory::ArchiveReaderZip::~ArchiveReaderZip() = default;
+
+ezUInt64 ezDataDirectory::ArchiveReaderZip::Read(void* pBuffer, ezUInt64 uiBytes)
+{
+  return m_CompressedStreamReader.ReadBytes(pBuffer, uiBytes);
+}
+
+ezResult ezDataDirectory::ArchiveReaderZip::InternalOpen(ezFileShareMode::Enum FileShareMode)
+{
+  EZ_ASSERT_DEBUG(FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
+
+  m_CompressedStreamReader.SetInputStream(&m_MemStreamReader, m_uiCompressedSize);
+  return EZ_SUCCESS;
+}
+
+#endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_DataDirTypeArchive);

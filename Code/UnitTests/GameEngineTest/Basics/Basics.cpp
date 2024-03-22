@@ -553,7 +553,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
   if (iCurFrame < 1)
     return ezTestAppRun::Continue;
 
-  EZ_TEST_IMAGE(0, 150);
+  EZ_TEST_LINE_IMAGE(0, 150);
 
   return ezTestAppRun::Quit;
 }
