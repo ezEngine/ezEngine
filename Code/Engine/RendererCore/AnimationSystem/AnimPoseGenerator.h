@@ -195,7 +195,11 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandTwoBoneIK final : public ez
   ezTempHashedString m_sJointNameStart;
   ezTempHashedString m_sJointNameMiddle;
   ezTempHashedString m_sJointNameEnd;
+  ezVec3 m_vMidAxis = ezVec3::MakeAxisZ();
+  ezVec3 m_vPoleVector = ezVec3::MakeAxisY();
   float m_fWeight = 1.0f;
+  float m_fSoften = 1.0f;
+  ezAngle m_TwistAngle;
 
 private:
   friend class ezAnimPoseGenerator;

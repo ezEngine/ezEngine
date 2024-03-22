@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14841776606954812814,5457590759842316574}}
-		u4 %Hash{18142600712325422558}
+		u4 %Hash{6904795565693993483}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -451,7 +451,7 @@ o
 			Uuid{u4{10580514003214249606,5271208414669375093}}
 		}
 		s %GlobalKey{"Target.R"}
-		Vec3 %LocalPosition{f{0x7C7C60C0,0x9E70D0BF,0x4A3A0B40}}
+		Vec3 %LocalPosition{f{0xFDFB52C0,0x3747ABBF,0x4A3A0B40}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0xAE47E13D}
@@ -659,8 +659,8 @@ o
 			Uuid{u4{12300375221590373693,10131084154916916133}}
 		}
 		s %GlobalKey{"Target.L"}
-		Vec3 %LocalPosition{f{0x26673CC0,0xEF8D2CC0,0x20472640}}
-		Quat %LocalRotation{f{0xCBA4EDBC,0x884A7ABB,0x039A053E,0x83B37D3F}}
+		Vec3 %LocalPosition{f{0x3D195CC0,0xADA210C0,0xC8B81340}}
+		Quat %LocalRotation{f{0x19FBD8BD,0x501EB7BE,0x933D8BBE,0x4817633F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0xAE47E13D}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -813,7 +813,7 @@ o
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x7E5078C0,0x9AB32AC0,0x6BB7193F}}
-		Quat %LocalRotation{f{0xDE5C2FB9,0x531B8838,0xC243CABE,0x552D6BBF}}
+		Quat %LocalRotation{f{0x9EF807B9,0x47FB0139,0xB66E37BF,0xD89232BF}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}

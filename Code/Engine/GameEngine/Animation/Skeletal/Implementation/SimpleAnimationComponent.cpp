@@ -204,19 +204,22 @@ void ezSimpleAnimationComponent::Update()
 
     ezAnimPoseGeneratorCommandID prevCmdID = cmdL2M.GetCommandID();
 
-    const ezMat4 rt = pSkeleton->GetDescriptor().m_RootTransform.GetAsMat4();
-    const ezMat4 mt = GetOwner()->GetGlobalTransform().GetAsMat4();
-    const ezMat4 t = mt * rt;
+    const ezTransform rt = pSkeleton->GetDescriptor().m_RootTransform;
+    const ezTransform mt = GetOwner()->GetGlobalTransform();
+    const ezTransform t = ezTransform::MakeGlobalTransform(mt, rt);
 
     ezGameObject* pTarget;
+
     if (GetWorld()->TryGetObjectWithGlobalKey("Target.R", pTarget))
     {
+      ezTransform localTarget = ezTransform::MakeLocalTransform(t, pTarget->GetGlobalTransform());
+
       {
         auto& cmdIk = poseGen.AllocCommandAimIK();
         cmdIk.m_sJointName = "UpperArm.R";
         cmdIk.m_Inputs.PushBack(prevCmdID);
-        cmdIk.m_vTargetPosition = t.GetInverse() * pTarget->GetGlobalPosition();
-        cmdIk.m_fWeight = 0.5f;
+        cmdIk.m_vTargetPosition = localTarget.m_vPosition;
+        cmdIk.m_fWeight = 0.8f;
 
         prevCmdID = cmdIk.GetCommandID();
       }
@@ -225,7 +228,7 @@ void ezSimpleAnimationComponent::Update()
         auto& cmdIk = poseGen.AllocCommandAimIK();
         cmdIk.m_sJointName = "LowerArm.R";
         cmdIk.m_Inputs.PushBack(prevCmdID);
-        cmdIk.m_vTargetPosition = t.GetInverse() * pTarget->GetGlobalPosition();
+        cmdIk.m_vTargetPosition = localTarget.m_vPosition;
 
         prevCmdID = cmdIk.GetCommandID();
       }
@@ -233,13 +236,17 @@ void ezSimpleAnimationComponent::Update()
 
     if (GetWorld()->TryGetObjectWithGlobalKey("Target.L", pTarget))
     {
+      ezTransform localTarget = ezTransform::MakeLocalTransform(t, pTarget->GetGlobalTransform());
+
       {
         auto& cmdIk = poseGen.AllocCommandTwoBoneIK();
         cmdIk.m_sJointNameStart = "UpperArm.L";
         cmdIk.m_sJointNameMiddle = "LowerArm.L";
         cmdIk.m_sJointNameEnd = "Hand.L";
         cmdIk.m_Inputs.PushBack(prevCmdID);
-        cmdIk.m_vTargetPosition = t.GetInverse() * pTarget->GetGlobalPosition();
+        cmdIk.m_vTargetPosition = localTarget.m_vPosition;
+        cmdIk.m_vPoleVector = localTarget.m_qRotation * ezVec3::MakeAxisX();
+        cmdIk.m_vMidAxis = ezVec3::MakeAxisZ(); // localTarget.m_qRotation* ezVec3::MakeAxisZ();
 
         prevCmdID = cmdIk.GetCommandID();
       }

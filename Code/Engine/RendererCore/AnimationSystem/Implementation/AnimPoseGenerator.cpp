@@ -676,14 +676,16 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandTwoBoneIK& cmd)
     ozz::animation::IKTwoBoneJob job;
     job.reached = &bReached;
     job.weight = cmd.m_fWeight;
-    job.target = ozz::math::simd_float4::LoadPtrU(cmd.m_vTargetPosition.GetAsPositionVec4().GetData());
+    job.target = ozz::math::simd_float4::Load3PtrU(cmd.m_vTargetPosition.GetData());
     job.start_joint = reinterpret_cast<const ozz::math::Float4x4*>(pJointStart);
     job.mid_joint = reinterpret_cast<const ozz::math::Float4x4*>(pJointMiddle);
     job.end_joint = reinterpret_cast<const ozz::math::Float4x4*>(pJointEnd);
     job.start_joint_correction = &correctionStart;
     job.mid_joint_correction = &correctionMiddle;
-
-    job.pole_vector = ozz::math::simd_float4::z_axis();
+    job.mid_axis = ozz::math::simd_float4::Load3PtrU(cmd.m_vMidAxis.GetData());
+    job.pole_vector = ozz::math::simd_float4::Load3PtrU(cmd.m_vPoleVector.GetData());
+    job.soften = cmd.m_fSoften;
+    job.twist_angle = cmd.m_TwistAngle.GetRadian();
     EZ_ASSERT_DEBUG(job.Validate(), "");
     job.Run();
 
@@ -692,6 +694,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandTwoBoneIK& cmd)
   }
 
   // rebuild the model poses (TODO: only what's needed)
+  // TODO: add enum: no-rebuild, only-chain (3 bones), all-affected (children)
   {
     ozz::animation::LocalToModelJob job;
     job.from = (int)uiJointStart;
