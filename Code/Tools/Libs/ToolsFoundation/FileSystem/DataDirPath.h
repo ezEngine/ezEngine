@@ -63,7 +63,7 @@ public:
   /// \brief Returns absolute path to the data directory this path belongs to, e.g.  "C:/ezEngine/Data/Samples/Testing Chambers".
   ezStringView GetDataDir() const;
   /// \brief Returns the index of the data directory the path belongs to.
-  ezUInt32 GetDataDirIndex() const;
+  ezUInt8 GetDataDirIndex() const;
 
   ///@}
   /// \name Data directory update
@@ -86,9 +86,9 @@ public:
 
 private:
   ezString m_sAbsolutePath;
-  mutable ezUInt32 m_uiDataDirParent = 0;
-  mutable ezUInt32 m_uiDataDirLength = 0;
-  mutable ezUInt32 m_uiDataDirIndex = 0;
+  mutable ezUInt16 m_uiDataDirParent = 0;
+  mutable ezUInt8 m_uiDataDirLength = 0;
+  mutable ezUInt8 m_uiDataDirIndex = 0;
 };
 
 ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezDataDirPath& value);

@@ -76,7 +76,7 @@ inline ezStringView ezDataDirPath::GetDataDir() const
   return ezStringView(m_sAbsolutePath.GetData(), m_uiDataDirParent + m_uiDataDirLength);
 }
 
-inline ezUInt32 ezDataDirPath::GetDataDirIndex() const
+inline ezUInt8 ezDataDirPath::GetDataDirIndex() const
 {
   EZ_ASSERT_DEBUG(IsValid(), "Path is not in a data directory, only GetAbsolutePath is allowed to be called.");
   return m_uiDataDirIndex;
