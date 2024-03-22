@@ -252,8 +252,7 @@ void ezSimpleAnimationComponent::Update()
       }
     }
 
-    auto& cmdOut = poseGen.AllocCommandModelPoseToOutput();
-    cmdOut.m_Inputs.PushBack(prevCmdID);
+    poseGen.SetFinalCommand(prevCmdID);
   }
 
   auto pose = poseGen.GeneratePose(GetOwner());

@@ -272,8 +272,7 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
     ezAngle rootRotationZ;
     GetRootMotion(rootMotion, rootRotationX, rootRotationY, rootRotationZ);
 
-    auto& cmd = GetPoseGenerator().AllocCommandModelPoseToOutput();
-    cmd.m_Inputs.PushBack(pModelTransform->m_CommandID);
+    GetPoseGenerator().SetFinalCommand(pModelTransform->m_CommandID);
 
     if (pModelTransform->m_bUseRootMotion)
     {
