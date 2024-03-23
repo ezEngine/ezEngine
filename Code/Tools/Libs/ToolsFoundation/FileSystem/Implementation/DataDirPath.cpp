@@ -11,10 +11,10 @@ bool ezDataDirPath::UpdateDataDirInfos(ezArrayPtr<ezString> dataDirRoots, ezUInt
     EZ_ASSERT_DEBUG(!dataDirRoots[uiCurrentIndex].EndsWith_NoCase("/"), "");
     if (m_sAbsolutePath.StartsWith_NoCase(dataDirRoots[uiCurrentIndex]) && !dataDirRoots[uiCurrentIndex].IsEmpty())
     {
-      m_uiDataDirIndex = uiCurrentIndex;
+      m_uiDataDirIndex = static_cast<ezUInt8>(uiCurrentIndex);
       const char* szParentFolder = ezPathUtils::FindPreviousSeparator(m_sAbsolutePath.GetData(), m_sAbsolutePath.GetData() + dataDirRoots[uiCurrentIndex].GetElementCount());
-      m_uiDataDirParent = szParentFolder - m_sAbsolutePath.GetData();
-      m_uiDataDirLength = dataDirRoots[uiCurrentIndex].GetElementCount() - m_uiDataDirParent;
+      m_uiDataDirParent = static_cast<ezUInt16>(szParentFolder - m_sAbsolutePath.GetData());
+      m_uiDataDirLength = static_cast<ezUInt8>(dataDirRoots[uiCurrentIndex].GetElementCount() - m_uiDataDirParent);
       return true;
     }
   }
