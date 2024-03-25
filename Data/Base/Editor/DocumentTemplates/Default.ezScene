@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14841776606954812814,5457590759842316574}}
-		u4 %Hash{6904795565693993483}
+		u4 %Hash{13054964468461821181}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -38,6 +38,16 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{14241310505194141335,4630093637770372149}}
+	s %t{"ezTwoBoneIKComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+	}
+}
 o
 {
 	Uuid %id{u4{11247801231039005356,4648620723527357442}}
@@ -439,6 +449,16 @@ o
 }
 o
 {
+	Uuid %id{u4{8539614308895268278,5334658916016222958}}
+	s %t{"ezAimIKComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5305265248044692645,5408560061564474465}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -449,10 +469,11 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{10580514003214249606,5271208414669375093}}
+			Uuid{u4{8539614308895268278,5334658916016222958}}
 		}
 		s %GlobalKey{"Target.R"}
-		Vec3 %LocalPosition{f{0xFDFB52C0,0x3747ABBF,0x4A3A0B40}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalPosition{f{0x00D35D3F,0x46EDC43E,0xA58EC93F}}
+		Quat %LocalRotation{f{0x9EF80739,0x47FB01B9,0xB66E373F,0xD89232BF}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0xAE47E13D}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -519,12 +540,10 @@ o
 			Uuid{u4{15628317284442516612,4804267580480477271}}
 			Uuid{u4{8941032325713740990,5024201859477955617}}
 			Uuid{u4{11247801231039005356,4648620723527357442}}
-			Uuid{u4{5305265248044692645,5408560061564474465}}
 			Uuid{u4{8465268309884115003,10221279263153356832}}
 			Uuid{u4{16521732564029609455,15015159200935821439}}
 			Uuid{u4{10609792509410936670,9872319222643913565}}
 			Uuid{u4{9865841419890495083,10074471882571535444}}
-			Uuid{u4{7025126466420816732,10268435801812015505}}
 		}
 		Uuid %Settings{u4{10752057520391972004,4986452362568572683}}
 	}
@@ -657,10 +676,11 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{12300375221590373693,10131084154916916133}}
+			Uuid{u4{14241310505194141335,4630093637770372149}}
 		}
 		s %GlobalKey{"Target.L"}
-		Vec3 %LocalPosition{f{0x3D195CC0,0xADA210C0,0xC8B81340}}
-		Quat %LocalRotation{f{0x19FBD8BD,0x501EB7BE,0x933D8BBE,0x4817633F}}
+		Vec3 %LocalPosition{f{0xA951063F,0xF74394BE,0xB48FDA3F}}
+		Quat %LocalRotation{f{0x1E20A93E,0xFCA7313E,0x4C44533F,0xAD0FD9BE}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0xAE47E13D}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -805,7 +825,11 @@ o
 	p
 	{
 		b %Active{1}
-		VarArray %Children{}
+		VarArray %Children
+		{
+			Uuid{u4{7025126466420816732,10268435801812015505}}
+			Uuid{u4{5305265248044692645,5408560061564474465}}
+		}
 		VarArray %Components
 		{
 			Uuid{u4{9689165344217534681,15566084898692570421}}
@@ -1469,6 +1493,23 @@ o
 }
 o
 {
+	Uuid %id{u4{9454196449171802840,12727627117234623380}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTwoBoneIKComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{9604010176759229512,12868035041842190965}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1651,6 +1692,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraUsageHint"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11347184943108555384,17910734244475928427}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAimIKComponent"}
 		u3 %TypeVersion{1}
 	}
 }

@@ -64,6 +64,14 @@ void ezAnimController::Update(ezTime diff, ezGameObject* pTarget)
 
   GenerateLocalResultProcessors(pSkeleton.GetPointer());
 
+  {
+    ezMsgAnimationPoseGeneration poseGenMsg;
+    poseGenMsg.m_SkeletonRootTransform = pSkeleton->GetDescriptor().m_RootTransform;
+    poseGenMsg.m_pOwner = pTarget;
+    poseGenMsg.m_pGenerator = &GetPoseGenerator();
+    pTarget->SendMessageRecursive(poseGenMsg);
+  }
+
   if (auto newPose = GetPoseGenerator().GeneratePose(pTarget); !newPose.IsEmpty())
   {
     ezMsgAnimationPoseUpdated msg;

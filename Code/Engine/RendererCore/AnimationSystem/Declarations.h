@@ -10,6 +10,8 @@ class ezAnimationPose;
 struct ezSkeletonResourceDescriptor;
 class ezEditableSkeletonJoint;
 struct ezAnimationClipResourceDescriptor;
+class ezAnimPoseGenerator;
+class ezGameObject;
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
@@ -47,6 +49,15 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPosePreparing : public ezMessage
 
   const ezSkeleton* m_pSkeleton = nullptr;
   ezArrayPtr<ozz::math::SoaTransform> m_LocalTransforms;
+};
+
+struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseGeneration : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseGeneration, ezMessage);
+
+  ezGameObject* m_pOwner;
+  ezTransform m_SkeletonRootTransform;
+  ezAnimPoseGenerator* m_pGenerator;
 };
 
 /// \brief Used by components that skin a mesh to inform children whenever a new pose has been computed.
