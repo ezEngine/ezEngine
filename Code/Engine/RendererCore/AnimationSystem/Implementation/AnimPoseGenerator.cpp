@@ -532,10 +532,10 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
   {
     ozz::animation::IKAimJob job;
     job.weight = cmd.m_fWeight;
-    job.target = ozz::math::simd_float4::LoadPtrU(cmd.m_vTargetPosition.GetAsPositionVec4().GetData());
-    job.forward = ozz::math::simd_float4::y_axis();
-    job.up = ozz::math::simd_float4::z_axis();
-    job.pole_vector = ozz::math::simd_float4::z_axis();
+    job.target = ozz::math::simd_float4::Load3PtrU(cmd.m_vTargetPosition.GetData());
+    job.forward = ozz::math::simd_float4::Load3PtrU(cmd.m_vForwardVector.GetData());
+    job.up = ozz::math::simd_float4::Load3PtrU(cmd.m_vUpVector.GetData());
+    job.pole_vector = ozz::math::simd_float4::Load3PtrU(cmd.m_vPoleVector.GetData());
     job.joint_correction = &correction;
     job.joint = reinterpret_cast<const ozz::math::Float4x4*>(pJoint);
     job.reached = &bReached;

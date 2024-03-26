@@ -172,6 +172,9 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandAimIK final : public ezAnim
   ezVec3 m_vTargetPosition;
   ezTempHashedString m_sJointName;
   float m_fWeight = 1.0f;
+  ezVec3 m_vForwardVector = ezVec3::MakeAxisX();
+  ezVec3 m_vUpVector = ezVec3::MakeAxisZ();
+  ezVec3 m_vPoleVector = ezVec3::MakeAxisY();
 };
 
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandTwoBoneIK final : public ezAnimPoseGeneratorCommandModelPose

@@ -6,6 +6,14 @@
 
 using ezAimIKComponentManager = ezComponentManager<class ezAimIKComponent, ezBlockStorageType::FreeList>;
 
+struct ezIkJointEntry
+{
+  ezHashedString m_sJointName;
+  float m_fWeight = 1.0f;
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezIkJointEntry);
+
 class EZ_GAMEENGINE_DLL ezAimIKComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezAimIKComponent, ezComponent, ezAimIKComponentManager);
@@ -23,6 +31,11 @@ public:
 public:
   ezAimIKComponent();
   ~ezAimIKComponent();
+
+  ezEnum<ezBasisAxis> m_ForwardVector = ezBasisAxis::PositiveX;
+  ezEnum<ezBasisAxis> m_UpVector = ezBasisAxis::PositiveZ;
+  float m_fWeight = 1.0f;
+  ezHybridArray<ezIkJointEntry, 2> m_Joints;
 
 protected:
   void OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const; // [ msg handler ]

@@ -24,6 +24,19 @@ public:
   ezTwoBoneIKComponent();
   ~ezTwoBoneIKComponent();
 
+  float m_fWeight = 1.0f;
+  float m_fSoften = 1.0f;
+  ezHashedString m_sJointStart;
+  ezHashedString m_sJointMiddle;
+  ezHashedString m_sJointEnd;
+  ezEnum<ezBasisAxis> m_MidAxis;
+  ezAngle m_TwistAngle;
+  ezVec3 m_vPoleTarget = ezVec3::MakeZero();
+
 protected:
   void OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const; // [ msg handler ]
+
+  //ezUInt16 m_uiJointIdxStart = 0;
+  //ezUInt16 m_uiJointIdxMiddle = 0;
+  //ezUInt16 m_uiJointIdxEnd = 0;
 };

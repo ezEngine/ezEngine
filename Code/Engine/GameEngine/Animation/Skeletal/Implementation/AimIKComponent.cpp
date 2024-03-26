@@ -7,13 +7,27 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIkJointEntry, ezNoBase, 1, ezRTTIDefaultAllocator<ezIkJointEntry>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Joint", m_sJointName),
+    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
 EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 1, ezComponentMode::Dynamic);
 {
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //  EZ_MEMBER_PROPERTY("OverrideScale", m_bOverrideScale)->AddAttributes(new ezDefaultValueAttribute(false)),
-  //}
-  //EZ_END_PROPERTIES;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("ForwardVector", ezBasisAxis, m_ForwardVector)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveX)),
+    EZ_ENUM_MEMBER_PROPERTY("UpVector", ezBasisAxis, m_UpVector)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveZ)),
+    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ARRAY_MEMBER_PROPERTY("Joints", m_Joints),
+  }
+  EZ_END_PROPERTIES;
 
   EZ_BEGIN_ATTRIBUTES
   {
@@ -37,6 +51,12 @@ void ezAimIKComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
+
+  s << m_fWeight;
+  s << m_ForwardVector;
+  s << m_UpVector;
+
+  // s.WriteArray(m_Joints).AssertSuccess();
 }
 
 void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -44,6 +64,12 @@ void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
   SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
+
+  s >> m_fWeight;
+  s >> m_ForwardVector;
+  s >> m_UpVector;
+
+  // s.ReadArray(m_Joints).AssertSuccess();
 }
 
 void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const
@@ -51,21 +77,15 @@ void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration
   const ezTransform ownerTransform = ezTransform::MakeGlobalTransform(msg.m_pOwner->GetGlobalTransform(), msg.m_SkeletonRootTransform);
   const ezTransform localTarget = ezTransform::MakeLocalTransform(ownerTransform, GetOwner()->GetGlobalTransform());
 
+  for (ezUInt32 i = 0; i < m_Joints.GetCount(); ++i)
   {
     auto& cmdIk = msg.m_pGenerator->AllocCommandAimIK();
-    cmdIk.m_sJointName = "UpperArm.R";
+    cmdIk.m_sJointName = m_Joints[i].m_sJointName;
     cmdIk.m_Inputs.PushBack(msg.m_pGenerator->GetFinalCommand());
     cmdIk.m_vTargetPosition = localTarget.m_vPosition;
-    cmdIk.m_fWeight = 0.8f;
-
-    msg.m_pGenerator->SetFinalCommand(cmdIk.GetCommandID());
-  }
-
-  {
-    auto& cmdIk = msg.m_pGenerator->AllocCommandAimIK();
-    cmdIk.m_sJointName = "LowerArm.R";
-    cmdIk.m_Inputs.PushBack(msg.m_pGenerator->GetFinalCommand());
-    cmdIk.m_vTargetPosition = localTarget.m_vPosition;
+    cmdIk.m_fWeight = m_fWeight * m_Joints[i].m_fWeight;
+    cmdIk.m_vForwardVector = ezBasisAxis::GetBasisVector(m_ForwardVector);
+    cmdIk.m_vUpVector = ezBasisAxis::GetBasisVector(m_UpVector);
 
     msg.m_pGenerator->SetFinalCommand(cmdIk.GetCommandID());
   }
