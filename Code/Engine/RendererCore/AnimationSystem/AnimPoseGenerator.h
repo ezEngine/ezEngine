@@ -214,6 +214,10 @@ public:
   void SetFinalCommand(ezAnimPoseGeneratorCommandID cmdId) { m_FinalCommand = cmdId; }
   ezAnimPoseGeneratorCommandID GetFinalCommand() const { return m_FinalCommand; }
 
+  ezArrayPtr<ezMat4> GetCurrentPose() const { return m_OutputPose; }
+
+  const ezSkeletonResource* GetSkeleton() const { return m_pSkeleton; }
+
 private:
   void Validate() const;
 

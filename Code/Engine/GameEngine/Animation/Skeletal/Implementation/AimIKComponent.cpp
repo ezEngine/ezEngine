@@ -5,6 +5,7 @@
 #include <GameEngine/Animation/Skeletal/AimIKComponent.h>
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIkJointEntry, ezNoBase, 1, ezRTTIDefaultAllocator<ezIkJointEntry>)
@@ -24,6 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 1, ezComponentMode::Dynamic);
   {
     EZ_ENUM_MEMBER_PROPERTY("ForwardVector", ezBasisAxis, m_ForwardVector)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpVector", ezBasisAxis, m_UpVector)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveZ)),
+    //EZ_MEMBER_PROPERTY("PoleTarget", m_vPoleTarget),
     EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ARRAY_MEMBER_PROPERTY("Joints", m_Joints),
   }
@@ -32,6 +34,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 1, ezComponentMode::Dynamic);
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
+      //new ezTransformManipulatorAttribute("PoleTarget"),
+      new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveZ, 0.5f),
   }
   EZ_END_ATTRIBUTES;
 
@@ -74,8 +78,14 @@ void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const
 {
+  const ezTransform selfTrans = GetOwner()->GetGlobalTransform();
+  const ezVec3 polePos = selfTrans * ezVec3(0, 0, 10);
+
   const ezTransform ownerTransform = ezTransform::MakeGlobalTransform(msg.m_pOwner->GetGlobalTransform(), msg.m_SkeletonRootTransform);
-  const ezTransform localTarget = ezTransform::MakeLocalTransform(ownerTransform, GetOwner()->GetGlobalTransform());
+  const ezTransform localTarget = ezTransform::MakeLocalTransform(ownerTransform, selfTrans);
+  const ezTransform poleTarget = ezTransform::MakeLocalTransform(ownerTransform, ezTransform(polePos));
+
+  ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(polePos, 0.1f), ezColor::Pink);
 
   for (ezUInt32 i = 0; i < m_Joints.GetCount(); ++i)
   {
@@ -86,6 +96,7 @@ void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration
     cmdIk.m_fWeight = m_fWeight * m_Joints[i].m_fWeight;
     cmdIk.m_vForwardVector = ezBasisAxis::GetBasisVector(m_ForwardVector);
     cmdIk.m_vUpVector = ezBasisAxis::GetBasisVector(m_UpVector);
+    cmdIk.m_vPoleVector = poleTarget.m_vPosition;
 
     msg.m_pGenerator->SetFinalCommand(cmdIk.GetCommandID());
   }

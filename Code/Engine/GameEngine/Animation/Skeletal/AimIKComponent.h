@@ -35,6 +35,7 @@ public:
   ezEnum<ezBasisAxis> m_ForwardVector = ezBasisAxis::PositiveX;
   ezEnum<ezBasisAxis> m_UpVector = ezBasisAxis::PositiveZ;
   float m_fWeight = 1.0f;
+  //ezVec3 m_vPoleTarget = ezVec3::MakeZero();
   ezHybridArray<ezIkJointEntry, 2> m_Joints;
 
 protected:

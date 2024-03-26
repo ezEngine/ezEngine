@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9787685060025488154,10081810663128121436}}
-		u4 %Hash{7054961839376205446}
+		u4 %Hash{14661833257185111784}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2303340321395474942,4382405691360237669}}
@@ -30,6 +30,8 @@ o
 		VarArray %PackageDeps
 		{
 			s{"{ 019bcfdb-17ea-4b11-887b-e001d31243bb }"}
+			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
+			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 			s{"{ 96be15b7-35b6-4bdb-9209-89e6685b7263 }"}
 			s{"{ 9ea3de8a-1154-8756-2982-352343613522 }"}
@@ -37,6 +39,8 @@ o
 		VarArray %References
 		{
 			s{"{ 019bcfdb-17ea-4b11-887b-e001d31243bb }"}
+			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
+			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 			s{"{ 96be15b7-35b6-4bdb-9209-89e6685b7263 }"}
 		}
@@ -81,9 +85,11 @@ o
 	u3 %v{1}
 	p
 	{
+		f %Acceleration{0x00004040}
 		b %Active{1}
 		u3 %CollisionLayer{0}
-		s %DebugFlags{"ezAiNavigationDebugFlags::PrintState|ezAiNavigationDebugFlags::VisPathCorridor|ezAiNavigationDebugFlags::VisPathLine|ezAiNavigationDebugFlags::VisTarget"}
+		s %DebugFlags{""}
+		f %Deceleration{0x00000041}
 		f %FallHeight{0x0000803F}
 		f %FootRadius{0x9A99193E}
 		HashedString %NavmeshConfig{s{"Default"}}
@@ -162,6 +168,8 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{2735649362819497099,5423765680958038070}}
+			Uuid{u4{12286583481791511744,15608951633380277529}}
+			Uuid{u4{15256720701276775387,8025014755511113308}}
 		}
 		VarArray %Components
 		{
@@ -201,12 +209,136 @@ o
 }
 o
 {
+	Uuid %id{u4{2085225382736780732,7887663108616013936}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{0}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
+		}
+		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+		f %SortingDepthOffset{0}
+	}
+}
+o
+{
+	Uuid %id{u4{15256720701276775387,8025014755511113308}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2085225382736780732,7887663108616013936}}
+			Uuid{u4{6407492039785751854,10605113431526839592}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xCDCCCC3E,0xCDCCCCBD,0xCDCCCC3E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0xCDCCCC3D}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9066903480334347036,9953208061020854470}}
+	s %t{"ezFootIKComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		HashedString %JointEnd{s{"Foot.R"}}
+		HashedString %JointMiddle{s{"LowerLeg.R"}}
+		HashedString %JointStart{s{"UpperLeg.R"}}
+		s %MidAxis{"ezBasisAxis::NegativeX"}
+		Vec3 %PoleTarget{f{0x00000040,0,0x00000040}}
+		f %Soften{0x0000803F}
+		Angle %TwistAngle{f{0}}
+		f %Weight{0x0000803F}
+	}
+}
+o
+{
 	Uuid %id{u4{283186696329147676,10108085336343607397}}
 	s %t{"ezPrefabDocumentSettings"}
 	u3 %v{1}
 	p
 	{
 		VarArray %ExposedProperties{}
+	}
+}
+o
+{
+	Uuid %id{u4{6407492039785751854,10605113431526839592}}
+	s %t{"ezFootIKComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		HashedString %JointEnd{s{"Foot.L"}}
+		HashedString %JointMiddle{s{"LowerLeg.L"}}
+		HashedString %JointStart{s{"UpperLeg.L"}}
+		s %MidAxis{"ezBasisAxis::NegativeX"}
+		Vec3 %PoleTarget{f{0x00000040,0,0x00000040}}
+		f %Soften{0x0000803F}
+		Angle %TwistAngle{f{0}}
+		f %Weight{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{17561832236961068705,15471599986485178157}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{0}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
+		}
+		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+		f %SortingDepthOffset{0}
+	}
+}
+o
+{
+	Uuid %id{u4{12286583481791511744,15608951633380277529}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{17561832236961068705,15471599986485178157}}
+			Uuid{u4{9066903480334347036,9953208061020854470}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xCDCCCC3E,0xCDCCCC3D,0xCDCCCC3E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0xAE47E13D}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 }
@@ -346,6 +478,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabDocumentSettings"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14633628111157529947,3328384510238863063}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezMeshComponentBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponent"}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -588,6 +737,23 @@ o
 }
 o
 {
+	Uuid %id{u4{455663516835322266,10016785433957589977}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTransformManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10022539470489817186,10504778302451670329}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -617,6 +783,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezConeAngleManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3240476462153710481,10751987016410692904}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezFootIKComponent"}
 		u3 %TypeVersion{1}
 	}
 }

@@ -178,6 +178,17 @@ void ezAnimPoseGenerator::Validate() const
     }
   }
 
+  for (auto& cmd : m_CommandsTwoBoneIK)
+  {
+    EZ_ASSERT_DEV(cmd.m_Inputs.GetCount() == 1, "Exactly one input must be provided.");
+
+    for (auto id : cmd.m_Inputs)
+    {
+      auto type = GetCommand(id).GetType();
+      EZ_ASSERT_DEV(type == ezAnimPoseGeneratorCommandType::LocalToModelPose || type == ezAnimPoseGeneratorCommandType::AimIK || type == ezAnimPoseGeneratorCommandType::TwoBoneIK, "Unsupported input type");
+    }
+  }
+
   for (auto& cmd : m_CommandsSampleEventTrack)
   {
     EZ_ASSERT_DEV(cmd.m_hAnimationClip.IsValid(), "Invalid animation clips are not allowed.");
