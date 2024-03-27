@@ -241,25 +241,100 @@ protected:
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#  include <TestFramework/Utilities/TestSetup.h>
 #  include <android/log.h>
 #  include <android/native_activity.h>
 #  include <android_native_app_glue.h>
 
+static void ezAndroidHandleCmd(struct android_app* pApp, int32_t cmd);
+int ezAndroidMain(int argc, char** argv);
 
-#  define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                   \
-    int ezAndroidMain(int argc, char** argv);                                                                              \
-    extern "C" void android_main(struct android_app* app)                                                                  \
-    {                                                                                                                      \
-      ezAndroidUtils::SetAndroidApp(app);                                                                                  \
-      /* TODO: do something with the return value of ezAndroidMain?  */                                                    \
-      /* TODO: can we get somehow get the command line arguments to the android app? Is there even something like that? */ \
-      int iReturnCode = ezAndroidMain(0, nullptr);                                                                         \
-      __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "Test framework exited with return code: '%d'", iReturnCode);     \
-    }                                                                                                                      \
-                                                                                                                           \
-    int ezAndroidMain(int argc, char** argv)                                                                               \
-    {                                                                                                                      \
-      ezTestSetup::InitTestFramework(szTestName, szNiceTestName, 0, nullptr);                                              \
+class ezAndroidTestApplication
+{
+public:
+  ezAndroidTestApplication(struct android_app* pApp)
+    : m_pApp(pApp)
+  {
+    pApp->userData = this;
+    pApp->onAppCmd = ezAndroidHandleCmd;
+    ezAndroidUtils::SetAndroidApp(pApp);
+  }
+
+  void HandleCmd(int32_t cmd)
+  {
+    switch (cmd)
+    {
+      case APP_CMD_INIT_WINDOW:
+        if (m_pApp->window != nullptr)
+        {
+          ezAndroidMain(0, nullptr);
+          m_bStarted = true;
+
+          int width = ANativeWindow_getWidth(m_pApp->window);
+          int height = ANativeWindow_getHeight(m_pApp->window);
+          ezLog::Info("Init Window: {}x{}", width, height);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  void AndroidRun()
+  {
+    bool bRun = true;
+    while (true)
+    {
+      struct android_poll_source* pSource = nullptr;
+      int iIdent = 0;
+      int iEvents = 0;
+      while ((iIdent = ALooper_pollAll(0, nullptr, &iEvents, (void**)&pSource)) >= 0)
+      {
+        if (pSource != nullptr)
+          pSource->process(m_pApp, pSource);
+      }
+
+      // APP_CMD_INIT_WINDOW has not triggered yet. Engine is not yet started.
+      if (!m_bStarted)
+        continue;
+
+      if (bRun && ezTestSetup::RunTests() != ezTestAppRun::Continue)
+      {
+        bRun = false;
+        ANativeActivity_finish(m_pApp->activity);
+      }
+      if (m_pApp->destroyRequested)
+      {
+        break;
+      }
+    }
+  }
+
+private:
+  struct android_app* m_pApp = nullptr;
+  bool m_bStarted = false;
+};
+
+static void ezAndroidHandleCmd(struct android_app* pApp, int32_t cmd)
+{
+  ezAndroidTestApplication* pAndroidApp = static_cast<ezAndroidTestApplication*>(pApp->userData);
+  pAndroidApp->HandleCmd(cmd);
+}
+
+#  define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                \
+    int ezAndroidMain(int argc, char** argv);                                                                           \
+    extern "C" void android_main(struct android_app* app)                                                               \
+    {                                                                                                                   \
+      ezAndroidTestApplication androidApp(app);                                                                         \
+      androidApp.AndroidRun();                                                                                          \
+      const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();                                                   \
+      ezTestSetup::DeInitTestFramework();                                                                               \
+      __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "Test framework exited with return code: '%d'", iFailedTests); \
+    }                                                                                                                   \
+                                                                                                                        \
+    int ezAndroidMain(int argc, char** argv)                                                                            \
+    {                                                                                                                   \
+      ezTestSetup::InitTestFramework(szTestName, szNiceTestName, 0, nullptr);                                           \
       /* Execute custom init code here by using the BEGIN/END macros directly */
 
 #else
@@ -276,32 +351,8 @@ protected:
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                                       \
-    /* TODO: This is too big for a macro now */                                    \
-    auto app = ezAndroidUtils::GetAndroidApp();                                    \
-    bool bRun = true;                                                              \
-    while (true)                                                                   \
-    {                                                                              \
-      struct android_poll_source* source = nullptr;                                \
-      int ident = 0;                                                               \
-      int events = 0;                                                              \
-      while ((ident = ALooper_pollAll(0, nullptr, &events, (void**)&source)) >= 0) \
-      {                                                                            \
-        if (source != nullptr)                                                     \
-          source->process(app, source);                                            \
-      }                                                                            \
-      if (bRun && ezTestSetup::RunTests() != ezTestAppRun::Continue)               \
-      {                                                                            \
-        bRun = false;                                                              \
-        ANativeActivity_finish(app->activity);                                     \
-      }                                                                            \
-      if (app->destroyRequested)                                                   \
-      {                                                                            \
-        const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();            \
-        ezTestSetup::DeInitTestFramework();                                        \
-        return iFailedTests;                                                       \
-      }                                                                            \
-    }                                                                              \
+#  define EZ_TESTFRAMEWORK_ENTRY_POINT_END() \
+    return 0;                                \
     }
 
 #else

@@ -384,6 +384,13 @@ macro(ez_requires_one_of)
 endmacro()
 
 # #####################################
+# ## ez_requires_desktop()
+# #####################################
+macro(ez_requires_desktop)
+	ez_requires_one_of(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP EZ_CMAKE_PLATFORM_LINUX)
+endmacro()
+
+# #####################################
 # ## ez_requires_editor()
 # #####################################
 macro(ez_requires_editor)

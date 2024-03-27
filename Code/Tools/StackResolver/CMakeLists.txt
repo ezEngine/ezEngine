@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-# currently the requirements are only met on Windows (ie. file iteration)
+# Stack resolver is implemented using DbgHelp.h and thus only supports windows right now.
 ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 
 # Get the name of this folder as the project name

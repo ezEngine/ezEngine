@@ -1,5 +1,6 @@
 ez_cmake_init()
 
+ez_requires_desktop()
 ez_requires_qt()
 
 ez_requires(EZ_3RDPARTY_ADS_SUPPORT)

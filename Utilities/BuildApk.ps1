@@ -29,6 +29,11 @@ $ErrorActionPreference = "Stop"
 $aapt = "$BuildToolsPath/aapt.exe"
 $apksigner = "$BuildToolsPath/apksigner.bat"
 $zipalign = "$BuildToolsPath/zipalign.exe"
+if ($IsLinux) {
+    $aapt = "$BuildToolsPath/aapt"
+    $apksigner = "$BuildToolsPath/apksigner"
+    $zipalign = "$BuildToolsPath/zipalign"
+}
 
 if(-not (Test-Path $aapt))
 {
@@ -66,9 +71,12 @@ if($lastexitcode -ne 0)
 }
 
 Write-Host "Signing apk $finalApkPath with key $SignKey ..."
+Write-Host "apksigner:`"$apksigner`", SignKey:`"$SignKey`", SignPassword: `"$SignPassword`""
+
 & $apksigner sign --ks $SignKey --ks-pass $SignPassword $finalApkPath
 if($lastexitcode -ne 0)
 {
+    Write-Host "FAILED with $lastexitcode"
 	exit $lastexitcode
 }
 Write-Host "Done building apk $finalApkPath"
