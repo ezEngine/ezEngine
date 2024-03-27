@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18057468653562690442,4916190091500798880}}
-		u4 %Hash{279553584919392884}
+		u4 %Hash{7268132925249065973}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -206,7 +206,7 @@ o
 {
 	Uuid %id{u4{650737114341324990,2831634198588605182}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -428,8 +428,8 @@ o
 		s %Mode{"ezWindVolumeCylinderMode::Vortex"}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		f %Radius{0x0000803F}
-		b %ReverseDirection{0}
 		s %Strength{"ezWindStrength::ModerateBreeze"}
+		f %StrengthFactor{0x0000803F}
 	}
 }
 o
@@ -466,19 +466,6 @@ o
 }
 o
 {
-	Uuid %id{u4{511575640144868756,4729767792427649860}}
-	s %t{"ezAmbientLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{0}
-		ColorGamma %BottomColor{u1{89,89,108,255}}
-		f %Intensity{0x00004040}
-		ColorGamma %TopColor{u1{124,124,149,255}}
-	}
-}
-o
-{
 	Uuid %id{u4{17757954048566211487,4794854888250285162}}
 	s %t{"ezKrautTreeComponent"}
 	u3 %v{3}
@@ -503,7 +490,7 @@ o
 			Uuid{u4{4688770816946463621,5530013473217249601}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x1AC7B13F,0x008E63BE,0xB0AA2ABE}}
+		Vec3 %LocalPosition{f{0x3333B33F,0xC0CC4CBE,0xCDCC4CBF}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -686,7 +673,7 @@ o
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xCB711C3F,0xC87114C1,0xACAA6A3F}}
+		Vec3 %LocalPosition{f{0x9A99193F,0xCDCC14C1,0x6766663F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -938,7 +925,7 @@ o
 {
 	Uuid %id{u4{13117916799710732217,5285323929729219367}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -1080,7 +1067,6 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{511575640144868756,4729767792427649860}}
 			Uuid{u4{4612128075834719938,4416940131973274392}}
 			Uuid{u4{11112061978945997207,5086723015717563688}}
 		}
@@ -1249,8 +1235,8 @@ o
 		Time %BurstDuration{d{0}}
 		f %Length{0x00000040}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
-		b %ReverseDirection{0}
 		s %Strength{"ezWindStrength::StrongBreeze"}
+		f %StrengthFactor{0x0000803F}
 	}
 }
 o
@@ -1264,8 +1250,8 @@ o
 		Time %BurstDuration{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		f %Radius{0x0000803F}
-		b %ReverseDirection{0}
 		s %Strength{"ezWindStrength::WeakShockwave"}
+		f %StrengthFactor{0x0000803F}
 	}
 }
 o
@@ -1472,7 +1458,7 @@ o
 			Uuid{u4{11630037461025191227,10472565601499112315}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000A8C0,0x0000AEC1,0}}
+		Vec3 %LocalPosition{f{0x6766A6C0,0x9A99ADC1,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -1629,7 +1615,7 @@ o
 			Uuid{u4{4621357508043836170,10879402769656819117}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xE638CEBF,0x008E63BE,0xA0AAAA3D}}
+		Vec3 %LocalPosition{f{0xCDCCCCBF,0xC0CC4CBE,0x9A9919BF}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -1666,10 +1652,10 @@ o
 			Uuid{u4{11837316362740020035,10972886140161831810}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00000040,0x2EBD3BB4,0}}
+		Vec3 %LocalPosition{f{0x0000A040,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x00000040}
+		f %LocalUniformScaling{0x0000A040}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -1697,7 +1683,7 @@ o
 			Uuid{u4{14606818152474643035,10658678204993448919}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x548E633E,0x408EE33E,0xA0AAAA3D}}
+		Vec3 %LocalPosition{f{0xC8CCCC3D,0x0000003F,0xFFFF7F3F}}
 		Quat %LocalRotation{f{0,0,0xF204353F,0xF40435BF}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -1864,7 +1850,7 @@ o
 {
 	Uuid %id{u4{17381108761040943972,10564372336630278849}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -1976,8 +1962,8 @@ o
 		Time %BurstDuration{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		f %Radius{0x0000803F}
-		b %ReverseDirection{0}
 		s %Strength{"ezWindStrength::Storm"}
+		f %StrengthFactor{0x0000803F}
 	}
 }
 o
@@ -2035,10 +2021,10 @@ o
 		b %Active{1}
 		Angle %Angle{f{0x0BBE753F}}
 		Time %BurstDuration{d{0}}
-		f %Length{0x00000040}
+		f %Length{0x0000A040}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
-		b %ReverseDirection{0}
 		s %Strength{"ezWindStrength::StrongBreeze"}
+		f %StrengthFactor{0x0000803F}
 	}
 }
 o
@@ -2512,7 +2498,7 @@ o
 {
 	Uuid %id{u4{9964875357198144749,16064528945186148738}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2570,7 +2556,7 @@ o
 {
 	Uuid %id{u4{2608292262415476001,16137655418134159624}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2757,8 +2743,8 @@ o
 		Time %BurstDuration{d{0}}
 		f %Length{0x00000041}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
-		b %ReverseDirection{0}
 		s %Strength{"ezWindStrength::ModerateBreeze"}
+		f %StrengthFactor{0x0000803F}
 	}
 }
 o
@@ -2964,7 +2950,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -3096,7 +3082,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindVolumeComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -4108,7 +4094,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeVersion{6}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -4241,23 +4227,6 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"WindInfluence"}
 		s %Type{"float"}
-	}
-}
-o
-{
-	Uuid %id{u4{11081527203184866822,15735316544108576551}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezAmbientLightComponent"}
-		u3 %TypeVersion{2}
 	}
 }
 o

@@ -43,6 +43,7 @@ protected:
 
 public:
   virtual ezVec3 GetWindAt(const ezVec3& vPosition) const = 0;
+  virtual ezSimdVec4f GetWindAtSimd(const ezSimdVec4f& vPosition) const;
 
   /// \brief Computes a 'fluttering' wind motion orthogonal to an object direction.
   ///

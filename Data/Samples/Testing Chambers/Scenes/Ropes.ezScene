@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14862950645315497606,4688600984674379026}}
-		u4 %Hash{11731324559800102470}
+		u4 %Hash{4026335241486505160}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -825,7 +825,7 @@ o
 {
 	Uuid %id{u4{2908280015347814029,4181371190484572565}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -1016,7 +1016,7 @@ o
 {
 	Uuid %id{u4{12338346752757010599,4409252373897902073}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -1101,19 +1101,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{15763801705607227536,4502178685601230006}}
-	s %t{"ezAmbientLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{0}
-		ColorGamma %BottomColor{u1{89,89,108,255}}
-		f %Intensity{0x00004040}
-		ColorGamma %TopColor{u1{124,124,149,255}}
 	}
 }
 o
@@ -1362,7 +1349,7 @@ o
 {
 	Uuid %id{u4{5180582315288896440,4655854173581362848}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2202,7 +2189,7 @@ o
 {
 	Uuid %id{u4{3510088600847477379,4920915973498567307}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2212,7 +2199,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
-		s %Shape{"ezGreyBoxShape::RampPosX"}
+		s %Shape{"ezGreyBoxShape::RampX"}
 		f %SizeNegX{0x00000040}
 		f %SizeNegY{0x00007040}
 		f %SizeNegZ{0}
@@ -2229,7 +2216,7 @@ o
 {
 	Uuid %id{u4{14291887423017045686,4926018280978778294}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2580,7 +2567,7 @@ o
 {
 	Uuid %id{u4{9923398791463539381,5057734822902799513}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2713,7 +2700,7 @@ o
 {
 	Uuid %id{u4{2210710726025330818,5094996803947707943}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2723,7 +2710,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
-		s %Shape{"ezGreyBoxShape::StairsPosX"}
+		s %Shape{"ezGreyBoxShape::StairsX"}
 		f %SizeNegX{0x00000040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -2870,7 +2857,6 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{15763801705607227536,4502178685601230006}}
 			Uuid{u4{1417610067587527102,4189351025146854538}}
 			Uuid{u4{7917543970698804371,4859133908891143834}}
 		}
@@ -3002,7 +2988,7 @@ o
 {
 	Uuid %id{u4{15895370514605434528,5206628199117231608}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -3441,7 +3427,7 @@ o
 {
 	Uuid %id{u4{5551023977374573244,5388028705069765308}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -3757,7 +3743,7 @@ o
 {
 	Uuid %id{u4{1141843123670466449,5462324013886405902}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -3829,7 +3815,7 @@ o
 {
 	Uuid %id{u4{7041155335728187320,5504627597647727539}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -5469,7 +5455,7 @@ o
 {
 	Uuid %id{u4{12150802733284971279,9109144368467640998}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -5949,7 +5935,7 @@ o
 {
 	Uuid %id{u4{3391811908112356908,9833858694601457848}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -6194,7 +6180,7 @@ o
 {
 	Uuid %id{u4{13830736413611590979,10001973729210651251}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -6538,7 +6524,7 @@ o
 {
 	Uuid %id{u4{14186590752793751136,10336783229803858995}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -6592,7 +6578,7 @@ o
 {
 	Uuid %id{u4{8940244574627381786,10369973002007452916}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -6769,7 +6755,7 @@ o
 {
 	Uuid %id{u4{2847262758515465223,10448537993877930727}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -7010,7 +6996,7 @@ o
 {
 	Uuid %id{u4{12190411016705327666,10851917026193008224}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -7135,7 +7121,7 @@ o
 {
 	Uuid %id{u4{9891940828916659246,11135221554833974928}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -8791,7 +8777,7 @@ o
 {
 	Uuid %id{u4{2459844358052474792,16076605536157581741}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -9432,7 +9418,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -11449,7 +11435,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeVersion{6}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -11673,23 +11659,6 @@ o
 	p
 	{
 		s %DynamicEnum{"PhysicsCollisionLayer"}
-	}
-}
-o
-{
-	Uuid %id{u4{11081527203184866822,15735316544108576551}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezAmbientLightComponent"}
-		u3 %TypeVersion{2}
 	}
 }
 o

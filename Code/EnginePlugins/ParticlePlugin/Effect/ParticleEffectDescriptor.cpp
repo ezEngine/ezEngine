@@ -15,6 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 2, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("SimulateInLocalSpace", m_bSimulateInLocalSpace),
     EZ_MEMBER_PROPERTY("ApplyOwnerVelocity", m_fApplyInstanceVelocity)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("PreSimulateDuration", m_PreSimulateDuration),
+    EZ_MEMBER_PROPERTY("NumWindSamples", m_vNumWindSamples)->AddAttributes(new ezDefaultValueAttribute(ezVec3U32(1)), new ezClampValueAttribute(ezVec3U32(1), ezVec3U32(8))),
     EZ_MAP_MEMBER_PROPERTY("FloatParameters", m_FloatParameters),
     EZ_MAP_MEMBER_PROPERTY("ColorParameters", m_ColorParameters)->AddAttributes(new ezExposeColorAlphaAttribute),
     EZ_SET_ACCESSOR_PROPERTY("ParticleSystems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
@@ -66,6 +67,7 @@ enum class ParticleEffectVersion
   Version_7, // added instance velocity
   Version_8, // added event reactions
   Version_9, // breaking change
+  Version_10, // added wind samples
 
   // insert new version numbers above
   Version_Count,
@@ -132,6 +134,9 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& inout_stream) const
       pReaction->Save(inout_stream);
     }
   }
+
+  // Version 10
+  inout_stream << m_vNumWindSamples;
 }
 
 
@@ -215,6 +220,11 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& inout_stream)
     pReaction = pRtti->GetAllocator()->Allocate<ezParticleEventReactionFactory>();
 
     pReaction->Load(inout_stream);
+  }
+
+  if (uiVersion >= (int)ParticleEffectVersion::Version_10)
+  {
+    inout_stream >> m_vNumWindSamples;
   }
 }
 

@@ -3,7 +3,6 @@
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Interfaces/WindWorldModule.h>
 #include <Core/World/World.h>
-#include <Core/World/WorldModule.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
@@ -11,7 +10,6 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Velocity>)
@@ -99,40 +97,22 @@ void ezParticleBehavior_Velocity::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
+
+  if (m_fWindInfluence > 0)
+  {
+    GetOwnerEffect()->RequestWindSamples();
+  }
 }
 
 void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
 {
   EZ_PROFILE_SCOPE("PFX: Velocity");
 
+  auto pOwner = GetOwnerEffect();
+
   const float tDiff = (float)m_TimeDiff.GetSeconds();
   const ezVec3 vDown = m_pPhysicsModule != nullptr ? m_pPhysicsModule->GetGravity().GetNormalized() : ezVec3(0.0f, 0.0f, -1.0f);
-  const ezVec3 vRise = vDown * tDiff * -m_fRiseSpeed;
-
-  auto pOwner = GetOwnerEffect();
-  ezVec3 vWind(0);
-
-  if (m_iWindSampleIdx >= 0)
-  {
-    ezVec3 vCurWind = pOwner->GetWindSampleResult(m_iWindSampleIdx);
-    vCurWind = ezMath::Lerp(m_vLastWind, vCurWind, tDiff);
-
-    vWind = vCurWind * m_fWindInfluence * tDiff;
-
-    m_vLastWind = vCurWind;
-
-    m_iWindSampleIdx = -1;
-  }
-
-  if (m_fWindInfluence > 0)
-  {
-    m_iWindSampleIdx = pOwner->AddWindSampleLocation(GetOwnerSystem()->GetTransform().m_vPosition);
-  }
-
-  const ezVec3 vAddPos0 = vRise + vWind;
-
-  ezSimdVec4f vAddPos;
-  vAddPos.Load<3>(&vAddPos0.x);
+  const ezSimdVec4f vRise = ezSimdConversion::ToVec3(vDown * tDiff * -m_fRiseSpeed);
 
   const float fFriction = ezMath::Clamp(m_fFriction, 0.0f, 100.0f);
   const float fFrictionFactor = ezMath::Pow(0.5f, tDiff * fFriction);
@@ -140,13 +120,31 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
   ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
   ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
-  while (!itPosition.HasReachedEnd())
+  if (m_fWindInfluence > 0)
   {
-    itPosition.Current() += vAddPos;
-    itVelocity.Current() *= fFrictionFactor;
+    const ezSimdFloat fWindFactor = m_fWindInfluence * tDiff;
 
-    itPosition.Advance();
-    itVelocity.Advance();
+    while (!itPosition.HasReachedEnd())
+    {
+      ezSimdVec4f addPos = vRise + pOwner->GetWindAt(itPosition.Current()) * fWindFactor;
+
+      itPosition.Current() += addPos;
+      itVelocity.Current() *= fFrictionFactor;
+
+      itPosition.Advance();
+      itVelocity.Advance();
+    }
+  }
+  else
+  {
+    while (!itPosition.HasReachedEnd())
+    {
+      itPosition.Current() += vRise;
+      itVelocity.Current() *= fFrictionFactor;
+
+      itPosition.Advance();
+      itVelocity.Advance();
+    }
   }
 }
 

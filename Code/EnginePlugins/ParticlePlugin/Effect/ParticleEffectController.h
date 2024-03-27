@@ -34,7 +34,7 @@ public:
   /// The volume is in the local space of the effect.
   void GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const;
 
-  void UpdateWindSamples();
+  void UpdateWindSamples(ezTime tDiff);
 
   /// \brief Ensures that the effect is considered to be 'visible', which affects the update rate.
   void ForceVisible();
