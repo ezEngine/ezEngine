@@ -51,7 +51,7 @@
 
 /// Whether starting other processes is supported.
 #undef EZ_SUPPORTS_PROCESSES
-#define EZ_SUPPORTS_PROCESSES EZ_ON
+#define EZ_SUPPORTS_PROCESSES EZ_OFF
 
 // SIMD support
 #undef EZ_SIMD_IMPLEMENTATION

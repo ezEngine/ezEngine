@@ -41,6 +41,7 @@ ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(ezStringView
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
   sArchivePath.AppendPath(sFile);
+  sArchivePath.MakeCleanPath();
 
   const ezUInt32 uiEntryIndex = toc.FindEntry(sArchivePath);
 
@@ -134,6 +135,7 @@ bool ezDataDirectory::ArchiveType::ExistsFile(ezStringView sFile, bool bOneSpeci
 {
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
   sArchivePath.AppendPath(sFile);
+  sArchivePath.MakeCleanPath();
   return m_ArchiveReader.GetArchiveTOC().FindEntry(sArchivePath) != ezInvalidIndex;
 }
 
@@ -142,6 +144,8 @@ ezResult ezDataDirectory::ArchiveType::GetFileStats(ezStringView sFileOrFolder, 
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
   sArchivePath.AppendPath(sFileOrFolder);
+  // We might be called with paths like AAA/../BBB which we won't find in the toc unless we clean the path first.
+  sArchivePath.MakeCleanPath();
   const ezUInt32 uiEntryIndex = toc.FindEntry(sArchivePath);
 
   if (uiEntryIndex == ezInvalidIndex)

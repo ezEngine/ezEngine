@@ -92,7 +92,11 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
 
     ezStringBuilder sTestDataDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     sTestDataDir.AppendPath("Scripting/TypeScript");
-    if (!EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(sTestDataDir, "TypeScriptTest", "TypeScriptTest", ezFileSystem::AllowWrites)))
+    if (!EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(sTestDataDir, "TypeScriptTest")))
+      return;
+
+    const ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    if (!EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(sWriteDir, "TypeScriptTest", "TypeScriptTest", ezFileSystem::AllowWrites)))
       return;
 
     if (!EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor", "DuktapeTest")))

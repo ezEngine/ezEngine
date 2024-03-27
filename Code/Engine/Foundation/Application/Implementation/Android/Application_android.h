@@ -24,6 +24,7 @@ public:
 private:
   struct android_app* m_pApp;
   ezApplication* m_pEzApp;
+  bool m_bStarted = false;
 };
 
 #endif

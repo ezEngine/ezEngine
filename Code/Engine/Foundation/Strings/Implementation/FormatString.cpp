@@ -415,7 +415,7 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& a
 }
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <string.h>
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg)
