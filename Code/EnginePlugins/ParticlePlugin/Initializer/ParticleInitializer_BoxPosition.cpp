@@ -3,8 +3,7 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/SimdMath/SimdTransform.h>
-#include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_BoxPosition.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
@@ -131,11 +130,8 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
 
   if (m_vSize.IsZero())
   {
-    ezVec4 pos0 = (GetOwnerSystem()->GetTransform() * m_vPositionOffset).GetAsVec4(0);
-
-    ezSimdVec4f pos;
-    pos.Load<4>(&pos0.x);
-
+    ezSimdVec4f pos = ezSimdConversion::ToVec4((GetOwnerSystem()->GetTransform() * m_vPositionOffset).GetAsVec4(0));
+    
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       pPosition[i] = pos;
@@ -143,13 +139,8 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
   }
   else
   {
-    ezTransform ownerTransform = GetOwnerSystem()->GetTransform();
-
     ezSimdVec4f pos;
-    ezSimdTransform transform;
-    transform.m_Position.Load<3>(&ownerTransform.m_vPosition.x);
-    transform.m_Rotation.m_v.Load<4>(&ownerTransform.m_qRotation.x);
-    transform.m_Scale.Load<3>(&ownerTransform.m_vScale.x);
+    ezSimdTransform transform = ezSimdConversion::ToTransform(GetOwnerSystem()->GetTransform());    
 
     float p0[4];
     p0[3] = 0;
