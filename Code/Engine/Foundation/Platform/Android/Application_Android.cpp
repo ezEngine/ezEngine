@@ -2,9 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#  include <Foundation/Logging/Log.h>
 #  include <Foundation/Application/Application.h>
 #  include <Foundation/Application/Implementation/Android/Application_android.h>
+#  include <Foundation/Logging/Log.h>
 #  include <android/log.h>
 #  include <android_native_app_glue.h>
 
