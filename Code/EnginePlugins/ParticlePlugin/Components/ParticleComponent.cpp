@@ -408,7 +408,7 @@ void ezParticleComponent::Update()
       }
     }
 
-    m_EffectController.UpdateWindSamples();
+    m_EffectController.UpdateWindSamples(GetWorld()->GetClock().GetTimeDiff());
   }
   else
   {

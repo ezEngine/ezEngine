@@ -43,15 +43,19 @@ public:
 
 public:
   template <int N>
-  ezInt32 GetComponent() const;                                                                                          // [tested]
+  ezInt32 GetComponent() const; // [tested]
 
-  ezInt32 x() const;                                                                                                     // [tested]
-  ezInt32 y() const;                                                                                                     // [tested]
-  ezInt32 z() const;                                                                                                     // [tested]
-  ezInt32 w() const;                                                                                                     // [tested]
+  ezInt32 x() const;            // [tested]
+  ezInt32 y() const;            // [tested]
+  ezInt32 z() const;            // [tested]
+  ezInt32 w() const;            // [tested]
 
   template <ezSwizzle::Enum s>
-  ezSimdVec4i Get() const;                                                                                               // [tested]
+  ezSimdVec4i Get() const;      // [tested]
+
+  ///\brief x = this[s0], y = this[s1], z = other[s2], w = other[s3]
+  template <ezSwizzle::Enum s>
+  [[nodiscard]] ezSimdVec4i GetCombined(const ezSimdVec4i& other) const;                                                 // [tested]
 
 public:
   [[nodiscard]] ezSimdVec4i operator-() const;                                                                           // [tested]

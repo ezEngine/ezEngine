@@ -144,6 +144,12 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Get() const
   return _mm_shuffle_epi32(m_v, EZ_TO_SHUFFLE(s));
 }
 
+template <ezSwizzle::Enum s>
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::GetCombined(const ezSimdVec4i& other) const
+{
+  return _mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(m_v), _mm_castsi128_ps(other.m_v), EZ_TO_SHUFFLE(s)));
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator-() const
 {
   return _mm_sub_epi32(_mm_setzero_si128(), m_v);

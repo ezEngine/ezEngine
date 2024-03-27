@@ -32,6 +32,7 @@ public:
   bool m_bAlwaysShared = false;
   float m_fApplyInstanceVelocity = 0.0f;
   ezTime m_PreSimulateDuration;
+  ezVec3U32 m_vNumWindSamples = ezVec3U32(1);
   ezMap<ezString, float> m_FloatParameters;
   ezMap<ezString, ezColor> m_ColorParameters;
 

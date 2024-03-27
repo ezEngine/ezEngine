@@ -61,6 +61,11 @@ ezWindWorldModuleInterface::ezWindWorldModuleInterface(ezWorld* pWorld)
 {
 }
 
+ezSimdVec4f ezWindWorldModuleInterface::GetWindAtSimd(const ezSimdVec4f& vPosition) const
+{
+  return ezSimdConversion::ToVec3(GetWindAt(ezSimdConversion::ToVec3(vPosition)));
+}
+
 ezVec3 ezWindWorldModuleInterface::ComputeWindFlutter(const ezVec3& vWind, const ezVec3& vObjectDir, float fFlutterSpeed, ezUInt32 uiFlutterRandomOffset) const
 {
   if (vWind.IsZero(0.001f))
