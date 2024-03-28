@@ -5,7 +5,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
+ezResult ezScreen::EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_Screens)
 {
   if (ANativeWindow* pWindow = ezAndroidUtils::GetAndroidApp()->window)
   {
@@ -16,7 +16,8 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
     currentScreen.m_iResolutionX = ANativeWindow_getWidth(pWindow);
     currentScreen.m_iResolutionY = ANativeWindow_getHeight(pWindow);
     currentScreen.m_bIsPrimary = true;
+    return EZ_SUCCESS;
   }
-  return EZ_SUCCESS;
+  return EZ_FAILURE;
 }
 #endif

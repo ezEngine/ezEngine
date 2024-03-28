@@ -37,7 +37,7 @@ BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprc
   return TRUE;
 }
 
-ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_screens)
+ezResult ezScreen::EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_screens)
 {
   out_screens.Clear();
   if (EnumDisplayMonitors(nullptr, nullptr, ezMonitorEnumProc, (LPARAM)&out_screens) == FALSE)

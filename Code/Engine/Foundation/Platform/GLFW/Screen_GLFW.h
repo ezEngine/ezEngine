@@ -26,7 +26,7 @@ namespace
       return EZ_FAILURE;                          \
   } while (false)
 
-ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
+ezResult ezScreen::EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_Screens)
 {
   out_Screens.Clear();
 

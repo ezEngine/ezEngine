@@ -23,7 +23,7 @@ function(ez_add_renderers TARGET_NAME)
 			RendererVulkan
 		)
 
-		if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP OR EZ_CMAKE_PLATFORM_LINUX)
+		if (TARGET ShaderCompilerDXC)
 			add_dependencies(${TARGET_NAME}
 				ShaderCompilerDXC
 			)
@@ -37,7 +37,7 @@ function(ez_add_renderers TARGET_NAME)
 		)
 		ez_link_target_dx11(${TARGET_NAME})
 
-		if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP OR EZ_CMAKE_PLATFORM_LINUX)
+		if (TARGET ShaderCompilerHLSL)
 			add_dependencies(${TARGET_NAME}
 				ShaderCompilerHLSL
 			)
