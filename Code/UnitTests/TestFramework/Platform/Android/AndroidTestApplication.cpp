@@ -2,12 +2,12 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#include <TestFramework/Platform/Android/AndroidTestApplication.h>
-#include <Foundation/Basics/Platform/Android/AndroidUtils.h>
-#include <Foundation/Logging/Log.h>
-#include <TestFramework/Utilities/TestSetup.h>
-#include <android/native_activity.h>
-#include <android_native_app_glue.h>
+#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#  include <Foundation/Logging/Log.h>
+#  include <TestFramework/Platform/Android/AndroidTestApplication.h>
+#  include <TestFramework/Utilities/TestSetup.h>
+#  include <android/native_activity.h>
+#  include <android_native_app_glue.h>
 
 ezAndroidTestApplication::ezAndroidTestApplication(struct android_app* pApp)
   : m_pApp(pApp)
