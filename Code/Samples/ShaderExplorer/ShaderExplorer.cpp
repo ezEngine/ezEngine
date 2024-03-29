@@ -220,7 +220,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
 
   ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
   ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();                                    // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).AssertSuccess();                      // for shader files
+  ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).AssertSuccess();                  // for shader files
   ezFileSystem::CreateDirectoryStructure(">user/ezEngine Project/ShaderExplorer").AssertSuccess();
   ezFileSystem::AddDataDirectory(">user/ezEngine Project/ShaderExplorer", "AppData", "appdata", ezFileSystem::AllowWrites).AssertSuccess(); // app user data
 

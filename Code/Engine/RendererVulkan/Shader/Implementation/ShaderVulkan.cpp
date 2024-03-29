@@ -160,5 +160,3 @@ ezResult ezGALShaderVulkan::DeInitPlatform(ezGALDevice* pDevice)
   }
   return EZ_SUCCESS;
 }
-
-

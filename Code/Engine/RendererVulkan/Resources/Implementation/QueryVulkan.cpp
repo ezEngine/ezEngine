@@ -37,5 +37,3 @@ void ezGALQueryVulkan::SetDebugNamePlatform(const char* szName) const
 
   // TODO
 }
-
-

@@ -5,8 +5,8 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererVulkan/Device/DispatchContext.h>
-#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/MemoryAllocator/MemoryAllocatorVulkan.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 
 #include <vulkan/vulkan.hpp>
 

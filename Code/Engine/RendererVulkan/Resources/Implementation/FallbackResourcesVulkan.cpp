@@ -265,4 +265,3 @@ bool ezFallbackResourcesVulkan::KeyHash::Equal(const Key& a, const Key& b)
 
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_FallbackResourcesVulkan);
-

@@ -83,7 +83,7 @@ PS_OUT main(PS_IN Input)
 
 #else
   Output.Color = float4(litColor, matData.opacity);
-  #  error "RENDER_PASS uses undefined value."
+#  error "RENDER_PASS uses undefined value."
 #endif
 
   return Output;
