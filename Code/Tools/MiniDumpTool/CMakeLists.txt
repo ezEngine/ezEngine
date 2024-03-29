@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-# currently the requirements are only met on Windows (ie. file iteration)
+# Writing external process dumps is only supported in windows right now.
 ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
 
 # Get the name of this folder as the project name

@@ -121,14 +121,25 @@ struct ezStaticLinkHelper
   ezStaticLinkHelper(Func f) { f(true); }
 };
 
+/// \brief Helper struct to register the existence of statically linked plugins.
+/// The macro EZ_STATICLINK_LIBRARY will register a the given library name prepended with `ez` to the ezPlugin system.
+/// Implemented in Plugin.cpp.
+struct EZ_FOUNDATION_DLL ezPluginRegister
+{
+  ezPluginRegister(const char* szName);
+};
+
 /// \brief The tool 'StaticLinkUtil' inserts this macro into each file in a library.
 /// Each library also needs to contain exactly one instance of EZ_STATICLINK_LIBRARY.
 /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
 /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
 /// they then end up in the final application, where they will do what they are meant for.
-#  define EZ_STATICLINK_FILE(LibraryName, UniqueName)      \
-    void ezReferenceFunction_##UniqueName(bool bReturn) {} \
-    void ezReferenceFunction_##LibraryName(bool bReturn);  \
+#  define EZ_STATICLINK_FILE(LibraryName, UniqueName)        \
+    extern "C"                                               \
+    {                                                        \
+      void ezReferenceFunction_##UniqueName(bool bReturn) {} \
+      void ezReferenceFunction_##LibraryName(bool bReturn);  \
+    }                                                        \
     static ezStaticLinkHelper StaticLinkHelper_##UniqueName(ezReferenceFunction_##LibraryName);
 
 /// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
@@ -138,7 +149,9 @@ struct ezStaticLinkHelper
     ezReferenceFunction_##UniqueName()
 
 /// \brief This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
-#  define EZ_STATICLINK_LIBRARY(LibraryName) void ezReferenceFunction_##LibraryName(bool bReturn = true)
+#  define EZ_STATICLINK_LIBRARY(LibraryName)                                                      \
+    ezPluginRegister ezPluginRegister_##LibraryName(EZ_PP_STRINGIFY(EZ_CONCAT(ez, LibraryName))); \
+    extern "C" void ezReferenceFunction_##LibraryName(bool bReturn = true)
 
 #endif
 

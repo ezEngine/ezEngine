@@ -16,6 +16,9 @@
 
 #include <stdarg.h>
 
+// Comment in to log into ezLog::Print any message that is output while no logger is registered.
+// #define DEBUG_STARTUP_LOGGING
+
 ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
 ezLog::PrintFunction ezLog::s_CustomPrintFunction = nullptr;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
@@ -86,6 +89,14 @@ void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
     if ((ThisType > ezLogMsgType::None) && (ThisType < ezLogMsgType::All))
       s_uiMessageCount[ThisType].Increment();
 
+#ifdef DEBUG_STARTUP_LOGGING
+    if (s_LoggingEvent.IsEmpty())
+    {
+      ezStringBuilder stmp = le.m_sText;
+      stmp.Append("\n");
+      ezLog::Print(stmp);
+    }
+#endif
     s_LoggingEvent.Broadcast(le);
   }
 }

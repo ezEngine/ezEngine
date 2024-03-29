@@ -68,8 +68,10 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
 
   ezStringBuilder pathToArchiveTool = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
   pathToArchiveTool.PathParentDirectory();
-  pathToArchiveTool.AppendPath("ezArchiveTool.exe");
-
+  pathToArchiveTool.AppendPath("ezArchiveTool");
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  pathToArchiveTool.Append(".exe");
+#  endif
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Create a Package")
   {
 

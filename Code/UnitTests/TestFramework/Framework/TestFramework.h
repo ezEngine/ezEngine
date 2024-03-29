@@ -4,6 +4,7 @@
 #include <TestFramework/Framework/SimpleTest.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <TestFramework/Framework/TestResults.h>
+#include <TestFramework/Platform/TestFrameworkEntryPoint.h>
 #include <TestFramework/TestFrameworkDLL.h>
 
 #include <Foundation/Containers/DynamicArray.h>
@@ -222,105 +223,6 @@ protected:
   ezUInt32 m_uiCurrentSubTestIndex = ezInvalidIndex;
   bool m_bTestsRunning = false;
 };
-
-#ifdef EZ_NV_OPTIMUS
-#  undef EZ_NV_OPTIMUS
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/MinWindows.h>
-#  define EZ_NV_OPTIMUS                                                                           \
-    extern "C"                                                                                    \
-    {                                                                                             \
-      _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                  \
-      _declspec(dllexport) ezMinWindows::DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; \
-    }
-#else
-#  define EZ_NV_OPTIMUS
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
-#  include <android/log.h>
-#  include <android/native_activity.h>
-#  include <android_native_app_glue.h>
-
-
-#  define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                   \
-    int ezAndroidMain(int argc, char** argv);                                                                              \
-    extern "C" void android_main(struct android_app* app)                                                                  \
-    {                                                                                                                      \
-      ezAndroidUtils::SetAndroidApp(app);                                                                                  \
-      /* TODO: do something with the return value of ezAndroidMain?  */                                                    \
-      /* TODO: can we get somehow get the command line arguments to the android app? Is there even something like that? */ \
-      int iReturnCode = ezAndroidMain(0, nullptr);                                                                         \
-      __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "Test framework exited with return code: '%d'", iReturnCode);     \
-    }                                                                                                                      \
-                                                                                                                           \
-    int ezAndroidMain(int argc, char** argv)                                                                               \
-    {                                                                                                                      \
-      ezTestSetup::InitTestFramework(szTestName, szNiceTestName, 0, nullptr);                                              \
-      /* Execute custom init code here by using the BEGIN/END macros directly */
-
-#else
-/// \brief Macro to define the application entry point for all test applications
-#  define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                    \
-    /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */           \
-    EZ_NV_OPTIMUS                                                                           \
-    EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                               \
-    int main(int argc, char** argv)                                                         \
-    {                                                                                       \
-      ezTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv); \
-      /* Execute custom init code here by using the BEGIN/END macros directly */
-
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                                       \
-    /* TODO: This is too big for a macro now */                                    \
-    auto app = ezAndroidUtils::GetAndroidApp();                                    \
-    bool bRun = true;                                                              \
-    while (true)                                                                   \
-    {                                                                              \
-      struct android_poll_source* source = nullptr;                                \
-      int ident = 0;                                                               \
-      int events = 0;                                                              \
-      while ((ident = ALooper_pollAll(0, nullptr, &events, (void**)&source)) >= 0) \
-      {                                                                            \
-        if (source != nullptr)                                                     \
-          source->process(app, source);                                            \
-      }                                                                            \
-      if (bRun && ezTestSetup::RunTests() != ezTestAppRun::Continue)               \
-      {                                                                            \
-        bRun = false;                                                              \
-        ANativeActivity_finish(app->activity);                                     \
-      }                                                                            \
-      if (app->destroyRequested)                                                   \
-      {                                                                            \
-        const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();            \
-        ezTestSetup::DeInitTestFramework();                                        \
-        return iFailedTests;                                                       \
-      }                                                                            \
-    }                                                                              \
-    }
-
-#else
-#  define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                        \
-    while (ezTestSetup::RunTests() == ezTestAppRun::Continue)       \
-    {                                                               \
-    }                                                               \
-    const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount(); \
-    ezTestSetup::DeInitTestFramework();                             \
-    return iFailedTests;                                            \
-    }
-
-#endif
-
-
-#define EZ_TESTFRAMEWORK_ENTRY_POINT(szTestName, szNiceTestName)             \
-  EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)             \
-  /* Execute custom init code here by using the BEGIN/END macros directly */ \
-  EZ_TESTFRAMEWORK_ENTRY_POINT_END()
 
 /// \brief Enum for usage in EZ_TEST_BLOCK to enable or disable the block.
 struct ezTestBlock
