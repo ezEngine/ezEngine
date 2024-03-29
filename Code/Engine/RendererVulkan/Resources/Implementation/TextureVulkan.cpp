@@ -363,5 +363,3 @@ void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
 }
 
 
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_TextureVulkan);

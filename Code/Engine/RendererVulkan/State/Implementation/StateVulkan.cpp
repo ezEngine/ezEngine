@@ -263,4 +263,4 @@ ezResult ezGALSamplerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_State_Implementation_StateVulkan);
+

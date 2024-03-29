@@ -22,10 +22,12 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   AddSubTest("01 - ReadRenderTarget", SubTests::ST_ReadRenderTarget);
   AddSubTest("02 - VertexShaderRenderTargetArrayIndex", SubTests::ST_VertexShaderRenderTargetArrayIndex);
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
   if (caps.m_bSharedTextures)
   {
     AddSubTest("03 - SharedTexture", SubTests::ST_SharedTexture);
   }
+#endif
 
   if (caps.m_bShaderStageSupported[ezGALShaderStage::HullShader])
   {
@@ -68,8 +70,21 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
   if (iIdentifier == ST_Compute)
   {
     // Texture2D as compute RW target. Note that SRGB and depth formats are not supported by most graphics cards for this purpose.
+    ezEnum<ezGALResourceFormat> textureFormat;
+    ezGALResourceFormat::Enum formats[] = {ezGALResourceFormat::BGRAUByteNormalized, ezGALResourceFormat::RGBAUByteNormalized};
+    for (auto format : formats)
+    {
+      if (m_pDevice->GetCapabilities().m_FormatSupport[format].IsSet(ezGALResourceFormatSupport::TextureRW))
+      {
+        textureFormat = format;
+        break;
+      }
+    }
+    if (!EZ_TEST_BOOL(textureFormat != ezGALResourceFormat::Invalid))
+      return EZ_FAILURE;
+
     ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalized, ezGALMSAASampleCount::None);
+    desc.SetAsRenderTarget(8, 8, textureFormat, ezGALMSAASampleCount::None);
     desc.m_bAllowUAV = true;
     desc.m_bCreateRenderTarget = false;
     desc.m_uiMipLevelCount = 1;
@@ -103,6 +118,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StereoPreview.ezShader");
   }
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
   if (iIdentifier == ST_SharedTexture)
   {
     ezCVarFloat* pProfilingThreshold = (ezCVarFloat*)ezCVar::FindCVarByName("Profiling.DiscardThresholdMS");
@@ -184,6 +200,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     }
     m_pProtocol->Send(&msg);
   }
+#endif
 
   if (iIdentifier == ST_Tessellation)
   {
@@ -233,6 +250,7 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
   {
     m_hSphereMesh.Invalidate();
   }
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
   else if (iIdentifier == ST_SharedTexture)
   {
     EZ_TEST_BOOL(m_pOffscreenProcess->WaitToFinish(ezTime::MakeFromSeconds(5)).Succeeded());
@@ -260,7 +278,7 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
     EZ_ASSERT_DEBUG(pProfilingThreshold, "Profiling.cpp cvar was renamed");
     *pProfilingThreshold = m_fOldProfilingThreshold;
   }
-
+#endif
   m_hShader2.Invalidate();
 
   if (!m_hTexture2D.IsInvalidated())
@@ -290,10 +308,12 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
   m_iFrame = uiInvocationCount;
   m_bCaptureImage = false;
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
   if (iIdentifier == ST_SharedTexture)
   {
     return SharedTexture();
   }
+#endif
 
   BeginFrame();
 
@@ -492,6 +512,7 @@ void ezRendererTestAdvancedFeatures::Compute()
   EndPass();
 }
 
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
 {
   if (m_pOffscreenProcess->GetState() != ezProcessState::Running)
@@ -567,7 +588,6 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
   return ezTestAppRun::Continue;
 }
 
-
 void ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc(const ezProcessMessage* pMsg)
 {
   if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderResponseMsg*>(pMsg))
@@ -579,5 +599,6 @@ void ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc(const ezProcess
     m_SharedTextureQueue.PushBack(pAction->m_Texture);
   }
 }
+#endif
 
 static ezRendererTestAdvancedFeatures g_AdvancedFeaturesTest;

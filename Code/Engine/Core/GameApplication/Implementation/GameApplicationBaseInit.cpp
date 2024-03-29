@@ -123,7 +123,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   ezFileSystem::CreateDirectoryStructure(sUserDataPath).IgnoreResult();
 
   ezString writableBinRoot = ">appdir/";
-  ezString shaderCacheRoot = ">appdir/";
+  ezString shaderCacheRoot = ">sdk/Output/";
 
 #if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
   // On platforms where this is disabled, one can usually only write to the user directory

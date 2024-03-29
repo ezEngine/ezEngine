@@ -44,7 +44,7 @@ public:
           if (warnOnRingBufferOverun && endTime < beginTime)
           {
             warnOnRingBufferOverun = false;
-            ezLog::Error("Profiling end is before start, the DX11 timestamp ring buffer was probably overrun.");
+            ezLog::Warning("Profiling end is before start, the DX11 timestamp ring buffer was probably overrun.");
           }
 #  endif
           ezProfilingSystem::AddGPUScope(timingScope.m_szName, beginTime, endTime);

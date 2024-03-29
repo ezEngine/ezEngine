@@ -51,18 +51,19 @@ private:
   ezMeshBufferResourceHandle m_hSphereMesh;
 
   // Shared Texture Test
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
   ezUniquePtr<ezProcess> m_pOffscreenProcess;
   ezUniquePtr<ezIpcChannel> m_pChannel;
   ezUniquePtr<ezIpcProcessMessageProtocol> m_pProtocol;
-
   ezGALTextureCreationDescription m_SharedTextureDesc;
 
   static constexpr ezUInt32 s_SharedTextureCount = 3;
+
   bool m_bExiting = false;
   ezGALTextureHandle m_hSharedTextures[s_SharedTextureCount];
   ezDeque<ezOffscreenTest_SharedTexture> m_SharedTextureQueue;
   ezUInt32 m_uiReceivedTextures = 0;
   float m_fOldProfilingThreshold = 0.0f;
-
   ezShaderUtils::ezBuiltinShader m_CopyShader;
+#endif
 };

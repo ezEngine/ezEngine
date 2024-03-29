@@ -493,6 +493,8 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
         {
           write.pImageInfo = &sourceInfo;
         }
+        default:
+          break;
       }
     }
     ezDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, descriptorWrites);

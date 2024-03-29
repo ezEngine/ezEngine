@@ -385,4 +385,4 @@ void ezGALSharedTextureVulkan::SignalSemaphoreGPU(ezUInt64 uiValue) const
   m_pDevice->GetCurrentPipelineBarrier().EnsureImageLayout(this, GetPreferredLayout(), GetUsedByPipelineStage(), GetAccessMask());
 }
 
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_SharedTextureVulkan);
+

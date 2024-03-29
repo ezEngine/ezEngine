@@ -57,10 +57,10 @@ float4 BlurFunction(int2 texelCoord, float gaussianExp, float centerDepth, inout
 float4 main(PS_IN input) : SV_Target
 {
 #if CAMERA_MODE == CAMERA_MODE_STEREO
-  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+  s_ActiveCameraEyeIndex = input.RenderTargetArrayIndex;
 #endif
-  float width, height, levels;
-  BlurSource.GetDimensions(0, width, height, levels);
+  uint width, height, elements, levels;
+  BlurSource.GetDimensions(0, width, height, elements, levels);
 
   int2 texelCoord = int2(input.TexCoord0 * float2(width, height));
 
