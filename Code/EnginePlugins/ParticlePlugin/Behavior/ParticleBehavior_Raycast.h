@@ -40,7 +40,8 @@ public:
   ezEnum<ezParticleRaycastHitReaction> m_Reaction;
   ezUInt8 m_uiCollisionLayer = 0;
   ezString m_sOnCollideEvent;
-  float m_fBounceFactor = 0.6f;
+  float m_fBounceFactor = 0.5f;
+  float m_fSlideFactor = 0.5f;
   float m_fSizeFactor = 0.1f;
 };
 
@@ -58,7 +59,8 @@ public:
   ezEnum<ezParticleRaycastHitReaction> m_Reaction;
   ezUInt8 m_uiCollisionLayer = 0;
   ezTempHashedString m_sOnCollideEvent;
-  float m_fBounceFactor = 0.6f;
+  float m_fBounceFactor = 0.5f;
+  float m_fSlideFactor = 0.5f;
   float m_fSizeFactor = 0.1f;
 
 protected:

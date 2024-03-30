@@ -20,6 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefa
   {
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezParticleRaycastHitReaction, m_Reaction),
     EZ_MEMBER_PROPERTY("BounceFactor", m_fBounceFactor)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("SlideFactor", m_fSlideFactor)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("SizeFactor", m_fSizeFactor)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("OnCollideEvent", m_sOnCollideEvent),
@@ -52,6 +53,7 @@ void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavio
   pBehavior->m_uiCollisionLayer = m_uiCollisionLayer;
   pBehavior->m_sOnCollideEvent = ezTempHashedString(m_sOnCollideEvent.GetData());
   pBehavior->m_fBounceFactor = m_fBounceFactor;
+  pBehavior->m_fSlideFactor = m_fSlideFactor;
   pBehavior->m_fSizeFactor = m_fSizeFactor;
 
   pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
@@ -63,7 +65,7 @@ enum class BehaviorRaycastVersion
   Version_1,
   Version_2, // added event
   Version_3, // added bounce factor
-  Version_4, // added size factor
+  Version_4, // added slide and size factor
 
   // insert new version numbers above
   Version_Count,
@@ -80,6 +82,7 @@ void ezParticleBehaviorFactory_Raycast::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sOnCollideEvent;
   inout_stream << m_Reaction;
   inout_stream << m_fBounceFactor;
+  inout_stream << m_fSlideFactor;
   inout_stream << m_fSizeFactor;
 }
 
@@ -104,6 +107,7 @@ void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& inout_stream)
 
   if (uiVersion >= 4)
   {
+    inout_stream >> m_fSlideFactor;
     inout_stream >> m_fSizeFactor;
   }
 }
@@ -164,18 +168,23 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
         ezVec3 vDirection = vChange;
 
         const float fSize = ezMath::Max(*pSize * m_fSizeFactor, 0.01f);
-        const float fMaxLen = vDirection.GetLengthAndNormalize() + fSize;
+        const float fMaxLen = vDirection.GetLengthAndNormalize();
 
         ezPhysicsQueryParameters query(m_uiCollisionLayer);
         query.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
 
-        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->Raycast(hitResult, vLastPos, vDirection, fMaxLen, query))
+        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->Raycast(hitResult, vLastPos, vDirection, fMaxLen + fSize, query))
         {
           hitResult.m_vPosition -= vDirection * fSize;
+          const float fRemainingLen = (vCurPos - hitResult.m_vPosition).GetLength();
+          const float fRemainder = fRemainingLen / fMaxLen;
 
           if (m_Reaction == ezParticleRaycastHitReaction::Bounce)
           {
-            const ezVec3 vNewDir = vChange.GetReflectedVector(hitResult.m_vNormal) * m_fBounceFactor;
+            const ezVec3 vTangentDir = vChange - hitResult.m_vNormal * hitResult.m_vNormal.Dot(vChange);
+            const ezVec3 vNormalDir = vTangentDir - vChange;
+
+            const ezVec3 vNewDir = vNormalDir * m_fBounceFactor + vTangentDir * m_fSlideFactor;
 
             if (vNewDir.GetLengthSquared() < ezMath::Square(0.01f))
             {
@@ -184,7 +193,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
             }
             else
             {
-              itPosition.Current() = ezVec3(hitResult.m_vPosition + vNewDir).GetAsVec4(0);
+              itPosition.Current() = (hitResult.m_vPosition + vNewDir * fRemainder).GetAsVec4(0);
               itVelocity.Current() = vNewDir / tDiff;
             }
           }
