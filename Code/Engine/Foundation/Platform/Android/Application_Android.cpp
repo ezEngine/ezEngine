@@ -85,16 +85,17 @@ void ezAndroidApplication::HandleCmd(int32_t cmd)
     default:
       break;
   }
+  ezAndroidUtils::s_AppCommandEvent.Broadcast(cmd);
 }
 
 int32_t ezAndroidApplication::HandleInput(AInputEvent* pEvent)
 {
   ezAndroidInputEvent event;
   event.m_pEvent = pEvent;
-  event.m_iReturn = 0;
+  event.m_bHandled = false;
 
   ezAndroidUtils::s_InputEvent.Broadcast(event);
-  return event.m_iReturn;
+  return event.m_bHandled ? 1 : 0;
 }
 
 void ezAndroidApplication::HandleIdent(ezInt32 iIdent)

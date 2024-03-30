@@ -15,11 +15,11 @@ using jobject = _jobject*;
 struct AInputEvent;
 
 /// \brief Event fired by ezAndroidUtils::s_InputEvent.
-/// Event listeners should inspect m_pEvent and set m_iReturn to 1 if they handled the event.
+/// Event listeners should inspect m_pEvent and set m_bHandled to true if they handled the event.
 struct ezAndroidInputEvent
 {
   AInputEvent* m_pEvent = nullptr;
-  ezInt32 m_iReturn = 0;
+  bool m_bHandled = false;
 };
 
 class EZ_FOUNDATION_DLL ezAndroidUtils
@@ -36,6 +36,7 @@ public:
 
 public:
   static ezEvent<ezAndroidInputEvent&> s_InputEvent;
+  static ezEvent<ezInt32> s_AppCommandEvent;
 
 private:
   static android_app* s_app;

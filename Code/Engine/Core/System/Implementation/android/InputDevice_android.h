@@ -26,5 +26,10 @@ private:
 
 private:
   void AndroidInputEventHandler(ezAndroidInputEvent& event);
-  ezInt32 AndroidHandleInput(AInputEvent* pEvent);
+  void AndroidAppCommandEventHandler(ezInt32 iCmd);
+  bool AndroidHandleInput(AInputEvent* pEvent);
+
+private:
+  ezInt32 m_iResolutionX = 0;
+  ezInt32 m_iResolutionY = 0;
 };

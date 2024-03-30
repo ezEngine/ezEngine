@@ -42,6 +42,7 @@ public:
   }
   virtual void OnResize(const ezSizeU32& newWindowSize) override
   {
+    ezWindow::OnResize(newWindowSize);
     if (g_uiWindowWidth != newWindowSize.width || g_uiWindowHeight != newWindowSize.height)
     {
       g_uiWindowWidth = newWindowSize.width;
@@ -235,7 +236,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   ezTelemetry::CreateServer();
-  ezPlugin::LoadPlugin("ezInspectorPlugin").IgnoreResult();
+  ezPlugin::LoadPlugin("ezInspectorPlugin", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
 
 #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
   constexpr const char* szDefaultRenderer = "Vulkan";
