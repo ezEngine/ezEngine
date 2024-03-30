@@ -494,6 +494,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
         {
           write.pImageInfo = &sourceInfo;
         }
+        break;
         default:
           EZ_REPORT_FAILURE("Resource type '{}' not supported in copy shader.", mapping.m_ResourceType);
           break;
