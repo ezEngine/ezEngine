@@ -301,6 +301,10 @@ EZ_ALWAYS_INLINE vk::DescriptorType ezConversionUtilsVulkan::GetDescriptorType(e
   {
     case ezGALShaderResourceType::Unknown:
       EZ_REPORT_FAILURE("Unknown descriptor type");
+      break;
+    case ezGALShaderResourceType::PushConstants:
+      EZ_REPORT_FAILURE("Push constants should never appear as shader resources");
+      break;
     case ezGALShaderResourceType::Sampler:
       return vk::DescriptorType::eSampler;
     case ezGALShaderResourceType::ConstantBuffer:

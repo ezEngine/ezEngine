@@ -384,5 +384,3 @@ void ezGALSharedTextureVulkan::SignalSemaphoreGPU(ezUInt64 uiValue) const
   // TODO, transition texture into GENERAL layout
   m_pDevice->GetCurrentPipelineBarrier().EnsureImageLayout(this, GetPreferredLayout(), GetUsedByPipelineStage(), GetAccessMask());
 }
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_SharedTextureVulkan);

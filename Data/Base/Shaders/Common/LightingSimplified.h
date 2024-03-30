@@ -19,9 +19,24 @@ float GetFogAmount(float3 worldPosition)
   return 1.0f;
 }
 
+float3 ApplyFog(float3 color, float3 worldPosition, float fogAmount)
+{
+  return color;
+}
+
+float3 ApplyFog(float3 color, float3 worldPosition)
+{
+  return color;
+}
+
 float DepthFade(float3 screenPosition, float fadeDistance)
 {
   return 1.0f;
+}
+
+float3 SampleSceneColor(float2 screenPosition)
+{
+  return float3(1.0, 1.0, 1.0);
 }
 
 AccumulatedLight CalculateLightingSimplified(ezMaterialData matData)

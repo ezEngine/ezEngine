@@ -95,5 +95,3 @@ ezResult ezGALVertexDeclarationVulkan::DeInitPlatform(ezGALDevice* pDevice)
 }
 
 
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Shader_Implementation_VertexDeclarationVulkan);

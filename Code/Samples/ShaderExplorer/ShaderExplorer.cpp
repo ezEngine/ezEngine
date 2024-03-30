@@ -219,9 +219,10 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   EZ_VERIFY(m_pDirectoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 
   ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
-  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();                                   // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).IgnoreResult();                      // for shader files
-  ezFileSystem::AddDataDirectory(">user/ezEngine Project/ShaderExplorer", "AppData", "appdata", ezFileSystem::AllowWrites).IgnoreResult(); // app user data
+  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();                                    // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).AssertSuccess();                  // for shader files
+  ezFileSystem::CreateDirectoryStructure(">user/ezEngine Project/ShaderExplorer").AssertSuccess();
+  ezFileSystem::AddDataDirectory(">user/ezEngine Project/ShaderExplorer", "AppData", "appdata", ezFileSystem::AllowWrites).AssertSuccess(); // app user data
 
   ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").IgnoreResult();
   ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites).IgnoreResult();

@@ -92,7 +92,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
       }
 
       // Swift shader can only do 4x MSAA. Add a check anyways.
-      const bool bSupported = s_pDevice->GetCapabilities().m_FormatSupport[ezGALResourceFormat::BGRAUByteNormalizedsRGB].AreAllSet(ezGALResourceFormatSupport::Sample | ezGALResourceFormatSupport::MSAA4x);
+      const bool bSupported = s_pDevice->GetCapabilities().m_FormatSupport[ezGALResourceFormat::BGRAUByteNormalizedsRGB].AreAllSet(ezGALResourceFormatSupport::Texture | ezGALResourceFormatSupport::MSAA4x);
 
       if (bSupported)
       {
@@ -262,3 +262,6 @@ bool ezFallbackResourcesVulkan::KeyHash::Equal(const Key& a, const Key& b)
 {
   return a.m_ResourceType == b.m_ResourceType && a.m_ezType == b.m_ezType && a.m_bDepth == b.m_bDepth;
 }
+
+
+EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_FallbackResourcesVulkan);

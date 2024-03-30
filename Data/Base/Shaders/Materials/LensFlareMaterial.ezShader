@@ -177,6 +177,7 @@ void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
 
 [PIXELSHADER]
 
+#include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Materials/LensFlareData.h>
 

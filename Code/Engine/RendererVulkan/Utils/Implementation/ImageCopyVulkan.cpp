@@ -487,12 +487,17 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
           // #TODO_VULKAN constant buffer for offset in the shader to allow region copy
           // const ezGALBufferVulkan* pBuffer = m_pBoundConstantBuffers[mapping.m_uiSource];
           // write.pBufferInfo = &pBuffer->GetBufferInfo();
+          EZ_REPORT_FAILURE("ConstantBuffer resource type not supported in copy shader.");
         }
         break;
         case ezGALShaderResourceType::Texture:
         {
           write.pImageInfo = &sourceInfo;
         }
+        break;
+        default:
+          EZ_REPORT_FAILURE("Resource type '{}' not supported in copy shader.", mapping.m_ResourceType);
+          break;
       }
     }
     ezDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, descriptorWrites);

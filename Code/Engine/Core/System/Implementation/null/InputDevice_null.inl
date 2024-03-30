@@ -10,6 +10,11 @@ ezStandardInputDevice::~ezStandardInputDevice() = default;
 
 void ezStandardInputDevice::SetShowMouseCursor(bool bShow) {}
 
+bool ezStandardInputDevice::GetShowMouseCursor() const
+{
+  return false;
+}
+
 void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) {}
 
 ezMouseCursorClipMode::Enum ezStandardInputDevice::GetClipMouseCursor() const

@@ -37,5 +37,3 @@ void ezGALQueryVulkan::SetDebugNamePlatform(const char* szName) const
 
   // TODO
 }
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_QueryVulkan);

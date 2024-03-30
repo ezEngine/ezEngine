@@ -5,6 +5,7 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererVulkan/Device/DispatchContext.h>
+#include <RendererVulkan/MemoryAllocator/MemoryAllocatorVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
 #include <vulkan/vulkan.hpp>
@@ -105,6 +106,8 @@ public:
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     bool m_bWin32Surface = false;
 #elif EZ_ENABLED(EZ_SUPPORTS_GLFW)
+#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
+    bool m_bAndroidSurface = false;
 #else
 #  error "Vulkan Platform not supported"
 #endif

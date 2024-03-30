@@ -29,7 +29,7 @@ void ezRendererTestReadback::SetupSubTests()
 
       default:
       {
-        if (caps.m_FormatSupport[i].AreAllSet(ezGALResourceFormatSupport::Sample | ezGALResourceFormatSupport::Render))
+        if (caps.m_FormatSupport[i].AreAllSet(ezGALResourceFormatSupport::Texture | ezGALResourceFormatSupport::RenderTarget))
         {
           m_TestableFormats.PushBack((ezGALResourceFormat::Enum)i);
         }

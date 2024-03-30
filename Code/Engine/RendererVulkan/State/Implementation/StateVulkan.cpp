@@ -262,5 +262,3 @@ ezResult ezGALSamplerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
   pVulkanDevice->DeleteLater(m_resourceImageInfo.sampler);
   return EZ_SUCCESS;
 }
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_State_Implementation_StateVulkan);

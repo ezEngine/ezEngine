@@ -70,7 +70,7 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     sReadDir.PathParentDirectory();
 
-    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites)); // for shader files
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites)); // for shader files
 
     EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sBaseDir, "Base"));
 
@@ -94,7 +94,8 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
   ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
 
   ezShaderManager::Configure(szShaderModel, true);
-  EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
+  if (ezPlugin::LoadPlugin(szShaderCompiler).Failed())
+    ezLog::Warning("Shader compiler '{}' plugin not found", szShaderCompiler);
 
   // Create a device
   {

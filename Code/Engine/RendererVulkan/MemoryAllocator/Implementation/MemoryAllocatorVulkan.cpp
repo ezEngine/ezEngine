@@ -39,20 +39,20 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
 
 #include VA_INCLUDE_HIDDEN
 
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT == ezVulkanAllocationCreateFlags::DedicatedMemory);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_NEVER_ALLOCATE_BIT == ezVulkanAllocationCreateFlags::NeverAllocate);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_MAPPED_BIT == ezVulkanAllocationCreateFlags::Mapped);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_CAN_ALIAS_BIT == ezVulkanAllocationCreateFlags::CanAlias);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT == ezVulkanAllocationCreateFlags::HostAccessSequentialWrite);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT == ezVulkanAllocationCreateFlags::HostAccessRandom);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT == ezVulkanAllocationCreateFlags::StrategyMinMemory);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_STRATEGY_MIN_TIME_BIT == ezVulkanAllocationCreateFlags::StrategyMinTime);
+EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::DedicatedMemory);
+EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_NEVER_ALLOCATE_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::NeverAllocate);
+EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_MAPPED_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::Mapped);
+EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_CAN_ALIAS_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::CanAlias);
+EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::HostAccessSequentialWrite);
+EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::HostAccessRandom);
+EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::StrategyMinMemory);
+EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_STRATEGY_MIN_TIME_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::StrategyMinTime);
 
-EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_UNKNOWN == ezVulkanMemoryUsage::Unknown);
-EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED == ezVulkanMemoryUsage::GpuLazilyAllocated);
-EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_AUTO == ezVulkanMemoryUsage::Auto);
-EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE == ezVulkanMemoryUsage::AutoPreferDevice);
-EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_AUTO_PREFER_HOST == ezVulkanMemoryUsage::AutoPreferHost);
+EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_UNKNOWN == (ezUInt32)ezVulkanMemoryUsage::Unknown);
+EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED == (ezUInt32)ezVulkanMemoryUsage::GpuLazilyAllocated);
+EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_AUTO == (ezUInt32)ezVulkanMemoryUsage::Auto);
+EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE == (ezUInt32)ezVulkanMemoryUsage::AutoPreferDevice);
+EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_AUTO_PREFER_HOST == (ezUInt32)ezVulkanMemoryUsage::AutoPreferHost);
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezVulkanAllocation) == sizeof(VmaAllocation));
 
@@ -91,7 +91,11 @@ vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice
   vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
 
   VmaAllocatorCreateInfo allocatorCreateInfo = {};
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+  allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_0;
+#else
   allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_1;
+#endif
   allocatorCreateInfo.physicalDevice = physicalDevice;
   allocatorCreateInfo.device = device;
   allocatorCreateInfo.instance = instance;

@@ -1,7 +1,28 @@
 #pragma once
 
-#include <Foundation/Basics.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+// Needed for vulkan.hpp which includes headers that include windows.h which then define min, breaking std::min used in vulkan.hpp :-/
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  define VK_USE_PLATFORM_WIN32_KHR
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  define VK_USE_PLATFORM_XCB_KHR
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  define VK_USE_PLATFORM_ANDROID_KHR
+#endif
+
+#define VULKAN_HPP_NO_NODISCARD_WARNINGS // TODO: temporarily disable warnings to make it compile. Need to fix all the warnings later.
+#include <vulkan/vulkan.hpp>
+
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <vulkan/vulkan_android.h>
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <vulkan/vulkan_win32.h>
+#endif
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)

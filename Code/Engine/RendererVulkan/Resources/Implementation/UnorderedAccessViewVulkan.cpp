@@ -118,5 +118,3 @@ ezResult ezGALUnorderedAccessViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
   pVulkanDevice->DeleteLater(m_bufferView);
   return EZ_SUCCESS;
 }
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_UnorderedAccessViewVulkan);

@@ -602,7 +602,7 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
 
   ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites).IgnoreResult();                   // for absolute paths
   ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezFileSystem::ReadOnly).IgnoreResult();            // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
+  ezFileSystem::AddDataDirectory(">sdk/Output/", "EngineProcess", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
   ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").IgnoreResult();                             // app specific data
   ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites).IgnoreResult();      // for writing app user data
 

@@ -108,6 +108,13 @@ using ezWindowHandle = IUnknown*;
 using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE nullptr
 
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+
+struct ANativeWindow;
+using ezWindowHandle = ANativeWindow*;
+using ezWindowInternalHandle = ezWindowHandle;
+#  define INVALID_WINDOW_HANDLE_VALUE nullptr
+
 #else
 
 using ezWindowHandle = void*;
