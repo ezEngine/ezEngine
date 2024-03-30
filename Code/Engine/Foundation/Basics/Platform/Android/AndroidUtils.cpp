@@ -7,6 +7,7 @@
 android_app* ezAndroidUtils::s_app;
 JavaVM* ezAndroidUtils::s_vm;
 jobject ezAndroidUtils::s_na;
+ezEvent<ezAndroidInputEvent&> ezAndroidUtils::s_InputEvent;
 
 void ezAndroidUtils::SetAndroidApp(android_app* app)
 {

@@ -466,8 +466,6 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
 void ezTelemetry::CloseConnection()
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-  s_bConnectedToServer = false;
-  s_bConnectedToClient = false;
   s_ConnectionMode = None;
   s_uiServerID = 0;
   g_pConnectionToServer = nullptr;
@@ -491,6 +489,24 @@ void ezTelemetry::CloseConnection()
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
   }
 
+  {
+    // Fire disconnect event.
+    if (s_bConnectedToClient)
+    {
+      TelemetryEventData e;
+      e.m_EventType = TelemetryEventData::DisconnectedFromClient;
+      s_TelemetryEvents.Broadcast(e);
+      s_bConnectedToClient = false;
+    }
+
+    if (s_bConnectedToServer)
+    {
+      TelemetryEventData e;
+      e.m_EventType = TelemetryEventData::DisconnectedFromServer;
+      s_TelemetryEvents.Broadcast(e);
+      s_bConnectedToServer = false;
+    }
+  }
   // finally close the network connection
   if (g_pHost)
   {

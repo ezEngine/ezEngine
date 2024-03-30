@@ -496,45 +496,45 @@ void ezStandardInputDevice::RegisterInputSlots()
 
 
   // Not yet supported
-  RegisterInputSlot(ezInputSlot_TouchPoint0, "Touchpoint 1", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionX, "Touchpoint 1 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionY, "Touchpoint 1 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint0, "Touchpoint 0", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionX, "Touchpoint 0 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionY, "Touchpoint 0 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint1, "Touchpoint 2", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionX, "Touchpoint 2 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionY, "Touchpoint 2 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint1, "Touchpoint 1", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionX, "Touchpoint 1 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionY, "Touchpoint 1 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint2, "Touchpoint 3", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionX, "Touchpoint 3 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionY, "Touchpoint 3 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint2, "Touchpoint 2", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionX, "Touchpoint 2 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionY, "Touchpoint 2 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint3, "Touchpoint 4", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionX, "Touchpoint 4 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionY, "Touchpoint 4 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint3, "Touchpoint 3", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionX, "Touchpoint 3 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionY, "Touchpoint 3 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint4, "Touchpoint 5", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionX, "Touchpoint 5 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionY, "Touchpoint 5 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint4, "Touchpoint 4", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionX, "Touchpoint 4 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionY, "Touchpoint 4 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint5, "Touchpoint 6", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionX, "Touchpoint 6 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionY, "Touchpoint 6 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint5, "Touchpoint 5", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionX, "Touchpoint 5 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionY, "Touchpoint 5 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint6, "Touchpoint 7", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionX, "Touchpoint 7 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionY, "Touchpoint 7 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint6, "Touchpoint 6", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionX, "Touchpoint 6 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionY, "Touchpoint 6 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint7, "Touchpoint 8", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionX, "Touchpoint 8 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionY, "Touchpoint 8 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint7, "Touchpoint 7", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionX, "Touchpoint 7 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionY, "Touchpoint 7 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint8, "Touchpoint 9", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionX, "Touchpoint 9 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionY, "Touchpoint 9 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint8, "Touchpoint 8", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionX, "Touchpoint 8 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionY, "Touchpoint 8 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint9, "Touchpoint 10", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionX, "Touchpoint 10 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionY, "Touchpoint 10 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint9, "Touchpoint 9", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionX, "Touchpoint 9 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionY, "Touchpoint 9 Position Y", ezInputSlotFlags::IsTouchPosition);
 }
 
 void ezStandardInputDevice::ResetInputSlotValues()

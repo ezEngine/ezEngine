@@ -91,7 +91,12 @@ namespace GlobalEventsDetail
       case ezTelemetry::TelemetryEventData::ConnectedToClient:
         SendAllGlobalEventTelemetry();
         break;
-
+      case ezTelemetry::TelemetryEventData::DisconnectedFromClient:
+      {
+        ezGlobalEvent::EventMap tmp;
+        s_LastState.Swap(tmp);
+        break;
+      }
       default:
         break;
     }

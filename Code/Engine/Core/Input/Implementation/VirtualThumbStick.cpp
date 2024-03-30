@@ -253,7 +253,7 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
     vDir.y *= -1;
 
     const float fLength = ezMath::Min(vDir.GetLength(), m_fRadius) / m_fRadius;
-    vDir.Normalize();
+    vDir.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
 
     m_InputSlotValues[m_sOutputLeft] = ezMath::Max(0.0f, -vDir.x) * fLength;
     m_InputSlotValues[m_sOutputRight] = ezMath::Max(0.0f, vDir.x) * fLength;
