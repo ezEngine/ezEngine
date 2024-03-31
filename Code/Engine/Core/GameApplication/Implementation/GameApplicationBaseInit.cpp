@@ -120,7 +120,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 
   const ezStringBuilder sUserDataPath(">user/", GetApplicationName());
 
-  ezFileSystem::CreateDirectoryStructure(sUserDataPath).IgnoreResult();
+  ezFileSystem::CreateDirectoryStructure(sUserDataPath).AssertSuccess();
 
   ezString writableBinRoot = ">appdir/";
   ezString shaderCacheRoot = ">sdk/Output/";
@@ -131,18 +131,19 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   writableBinRoot = sUserDataPath;
   shaderCacheRoot = sUserDataPath;
 #endif
+  ezFileSystem::CreateDirectoryStructure(shaderCacheRoot).AssertSuccess();
 
   // for absolute paths, read-only
-  ezFileSystem::AddDataDirectory("", "GameApplicationBase", ":", ezFileSystem::ReadOnly).IgnoreResult();
+  ezFileSystem::AddDataDirectory("", "GameApplicationBase", ":", ezFileSystem::ReadOnly).AssertSuccess();
 
   // ":bin/" : writing to the binary directory
-  ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplicationBase", "bin", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplicationBase", "bin", ezFileSystem::AllowWrites).AssertSuccess();
 
   // ":shadercache/" for reading and writing shader files
-  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezFileSystem::AllowWrites).AssertSuccess();
 
   // ":appdata/" for reading and writing app user data
-  ezFileSystem::AddDataDirectory(sUserDataPath, "GameApplicationBase", "appdata", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory(sUserDataPath, "GameApplicationBase", "appdata", ezFileSystem::AllowWrites).AssertSuccess();
 
   // ":base/" for reading the core engine files
   ezFileSystem::AddDataDirectory(GetBaseDataDirectoryPath(), "GameApplicationBase", "base", ezFileSystem::DataDirUsage::ReadOnly).IgnoreResult();
