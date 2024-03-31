@@ -5,6 +5,7 @@
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Serialization/GraphPatch.h>
 #include <GameEngine/Gameplay/GreyBoxComponent.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -12,12 +13,18 @@
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
-  EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::RampX, ezGreyBoxShape::RampY, ezGreyBoxShape::Column)
-  EZ_ENUM_CONSTANTS(ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY, ezGreyBoxShape::ArchX, ezGreyBoxShape::ArchY, ezGreyBoxShape::SpiralStairs)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 2)
+  EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box)
+  EZ_ENUM_CONSTANTS(ezGreyBoxShape::RampPosX, ezGreyBoxShape::RampNegX)
+  EZ_ENUM_CONSTANTS(ezGreyBoxShape::RampPosY, ezGreyBoxShape::RampNegY)
+  EZ_ENUM_CONSTANTS(ezGreyBoxShape::Column)
+  EZ_ENUM_CONSTANTS(ezGreyBoxShape::StairsPosX, ezGreyBoxShape::StairsNegX)
+  EZ_ENUM_CONSTANTS(ezGreyBoxShape::StairsPosY, ezGreyBoxShape::StairsNegY)
+  EZ_ENUM_CONSTANTS(ezGreyBoxShape::ArchX, ezGreyBoxShape::ArchY)
+  EZ_ENUM_CONSTANTS(ezGreyBoxShape::SpiralStairs)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 5, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 6, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -400,10 +407,14 @@ void ezGreyBoxComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg)
   if (m_pOccluderObject == nullptr)
   {
     ezEnum<ezGreyBoxShape> shape = m_Shape;
-    if (shape == ezGreyBoxShape::StairsX && m_Curvature == ezAngle())
-      shape = ezGreyBoxShape::RampX;
-    if (shape == ezGreyBoxShape::StairsY && m_Curvature == ezAngle())
-      shape = ezGreyBoxShape::RampY;
+    if (shape == ezGreyBoxShape::StairsPosX && m_Curvature == ezAngle())
+      shape = ezGreyBoxShape::RampPosX;
+    if (shape == ezGreyBoxShape::StairsNegX && m_Curvature == ezAngle())
+      shape = ezGreyBoxShape::RampNegX;
+    if (shape == ezGreyBoxShape::StairsPosY && m_Curvature == ezAngle())
+      shape = ezGreyBoxShape::RampPosY;
+    if (shape == ezGreyBoxShape::StairsNegY && m_Curvature == ezAngle())
+      shape = ezGreyBoxShape::RampNegY;
 
     ezStringBuilder sResourceName;
     GenerateMeshName(sResourceName);
@@ -482,13 +493,26 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
       geom.AddBox(size, true, opt);
       break;
 
-    case ezGreyBoxShape::RampX:
+    case ezGreyBoxShape::RampPosX:
       geom.AddTexturedRamp(size, opt);
       break;
 
-    case ezGreyBoxShape::RampY:
+    case ezGreyBoxShape::RampPosY:
       ezMath::Swap(size.x, size.y);
-      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90.0f));
+      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90.0f));
+      opt.m_Transform.SetTranslationVector(offset);
+      geom.AddTexturedRamp(size, opt);
+      break;
+
+    case ezGreyBoxShape::RampNegX:
+      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(180.0f));
+      opt.m_Transform.SetTranslationVector(offset);
+      geom.AddTexturedRamp(size, opt);
+      break;
+
+    case ezGreyBoxShape::RampNegY:
+      ezMath::Swap(size.x, size.y);
+      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(270.0f));
       opt.m_Transform.SetTranslationVector(offset);
       geom.AddTexturedRamp(size, opt);
       break;
@@ -498,13 +522,26 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
       geom.AddCylinder(0.5f, 0.5f, 0.5f, 0.5f, true, true, ezMath::Min<ezUInt16>(bOnlyRoughDetails ? 14 : 32, static_cast<ezUInt16>(m_uiDetail)), opt);
       break;
 
-    case ezGreyBoxShape::StairsX:
+    case ezGreyBoxShape::StairsPosX:
       geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, opt);
       break;
 
-    case ezGreyBoxShape::StairsY:
+    case ezGreyBoxShape::StairsPosY:
       ezMath::Swap(size.x, size.y);
-      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90.0f));
+      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90.0f));
+      opt.m_Transform.SetTranslationVector(offset);
+      geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, opt);
+      break;
+
+    case ezGreyBoxShape::StairsNegX:
+      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(180.0f));
+      opt.m_Transform.SetTranslationVector(offset);
+      geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, opt);
+      break;
+
+    case ezGreyBoxShape::StairsNegY:
+      ezMath::Swap(size.x, size.y);
+      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(270.0f));
       opt.m_Transform.SetTranslationVector(offset);
       geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, opt);
       break;
@@ -552,24 +589,39 @@ void ezGreyBoxComponent::GenerateMeshName(ezStringBuilder& out_sName) const
       out_sName.SetFormat("Grey-Box:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
       break;
 
-    case ezGreyBoxShape::RampX:
-      out_sName.SetFormat("Grey-RampX:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+    case ezGreyBoxShape::RampPosX:
+      out_sName.SetFormat("Grey-RampPosX:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+      break;
+    case ezGreyBoxShape::RampNegX:
+      out_sName.SetFormat("Grey-RampNegX:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
       break;
 
-    case ezGreyBoxShape::RampY:
-      out_sName.SetFormat("Grey-RampY:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+    case ezGreyBoxShape::RampPosY:
+      out_sName.SetFormat("Grey-RampPosY:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+      break;
+
+    case ezGreyBoxShape::RampNegY:
+      out_sName.SetFormat("Grey-RampNegY:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
       break;
 
     case ezGreyBoxShape::Column:
       out_sName.SetFormat("Grey-Column:{0}-{1},{2}-{3},{4}-{5}-d{6}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail);
       break;
 
-    case ezGreyBoxShape::StairsX:
-      out_sName.SetFormat("Grey-StairsX:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
+    case ezGreyBoxShape::StairsPosX:
+      out_sName.SetFormat("Grey-StairsPosX:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
       break;
 
-    case ezGreyBoxShape::StairsY:
-      out_sName.SetFormat("Grey-StairsY:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
+    case ezGreyBoxShape::StairsNegX:
+      out_sName.SetFormat("Grey-StairsNegX:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
+      break;
+
+    case ezGreyBoxShape::StairsPosY:
+      out_sName.SetFormat("Grey-StairsPosY:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
+      break;
+
+    case ezGreyBoxShape::StairsNegY:
+      out_sName.SetFormat("Grey-StairsNegY:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
       break;
 
     case ezGreyBoxShape::ArchX:
@@ -643,5 +695,35 @@ ezTypedResourceHandle<ResourceType> ezGreyBoxComponent::GenerateMesh() const
   return ezResourceManager::GetOrCreateResource<ResourceType>(sResourceName, std::move(desc), sResourceName);
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+class ezGreyBoxComponent_5_6 : public ezGraphPatch
+{
+public:
+  ezGreyBoxComponent_5_6()
+    : ezGraphPatch("ezGreyBoxComponent", 6)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ezAbstractObjectNode::Property* pProp = pNode->FindProperty("Shape");
+    const ezStringBuilder sOri = pProp->m_Value.Get<ezString>();
+
+    if (sOri == "ezGreyBoxShape::RampX")
+      pProp->m_Value = "ezGreyBoxShape::RampPosX";
+
+    if (sOri == "ezGreyBoxShape::RampY")
+      pProp->m_Value = "ezGreyBoxShape::RampNegY";
+
+    if (sOri == "ezGreyBoxShape::StairsX")
+      pProp->m_Value = "ezGreyBoxShape::StairsPosX";
+
+    if (sOri == "ezGreyBoxShape::StairsY")
+      pProp->m_Value = "ezGreyBoxShape::StairsNegY";
+  }
+};
+
+ezGreyBoxComponent_5_6 g_ezGreyBoxComponent_5_6;
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_GreyBoxComponent);

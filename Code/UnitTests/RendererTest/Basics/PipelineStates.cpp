@@ -133,7 +133,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
   }
   {
     ezGeometry geom;
-    geom.AddSphere(0.5f, 16, 16);
+    geom.AddStackedSphere(0.5f, 16, 16);
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);

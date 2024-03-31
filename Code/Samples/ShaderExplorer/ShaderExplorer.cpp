@@ -464,7 +464,7 @@ void ezShaderExplorerApp::CreateScreenQuad()
   ezGeometry geom;
   ezGeometry::GeoOptions opt;
   opt.m_Color = ezColor::Black;
-  geom.AddRectXY(ezVec2(2, 2), 1, 1, opt);
+  geom.AddRect(ezVec2(2, 2), 1, 1, opt);
 
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
