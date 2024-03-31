@@ -5,6 +5,7 @@
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 #include <GameEngine/Gameplay/GreyBoxComponent.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
