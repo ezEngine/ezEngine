@@ -597,14 +597,15 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
   ezStringBuilder sUserData = ">user/ezEngine Project/EditorEngineProcess";
 
   // make sure these directories exist
-  ezFileSystem::CreateDirectoryStructure(sAppDir).IgnoreResult();
-  ezFileSystem::CreateDirectoryStructure(sUserData).IgnoreResult();
+  ezFileSystem::CreateDirectoryStructure(sAppDir).AssertSuccess();
+  ezFileSystem::CreateDirectoryStructure(sUserData).AssertSuccess();
+  ezFileSystem::CreateDirectoryStructure(">sdk/Output/").AssertSuccess();
 
-  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites).IgnoreResult();                   // for absolute paths
-  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezFileSystem::ReadOnly).IgnoreResult();            // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">sdk/Output/", "EngineProcess", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
-  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").IgnoreResult();                             // app specific data
-  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites).IgnoreResult();      // for writing app user data
+  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites).AssertSuccess();                       // for absolute paths
+  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezFileSystem::ReadOnly).AssertSuccess();                // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">sdk/Output/", "EngineProcess", "shadercache", ezFileSystem::AllowWrites).AssertSuccess(); // for shader files
+  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").AssertSuccess();                                 // app specific data
+  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites).AssertSuccess();          // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
 

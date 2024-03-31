@@ -18,6 +18,8 @@ class ezOpenDdlReaderElement;
 #  include <Core/System/Implementation/Win/InputDevice_win32.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #  include <Core/System/Implementation/uwp/InputDevice_uwp.h>
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <Core/System/Implementation/android/InputDevice_android.h>
 #else
 #  include <Core/System/Implementation/null/InputDevice_null.h>
 #endif

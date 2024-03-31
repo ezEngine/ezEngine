@@ -54,7 +54,7 @@ void SetAppStats();
 EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-    "Foundation"
+    "Foundation", "ResourceManager"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORESYSTEMS_STARTUP

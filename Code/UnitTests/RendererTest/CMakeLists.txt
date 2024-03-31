@@ -18,7 +18,7 @@ if(EZ_CMAKE_PLATFORM_ANDROID)
     #apk gen steps that happen in POST_BUILD and which are already done via ez_create_target.
     add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${EZ_ROOT}/Output/ShaderCache/VULKAN/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/ShaderCache/VULKAN/)
+            ${EZ_ROOT}/Output/ShaderCache/VULKAN/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Output/ShaderCache/VULKAN/)
     add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${EZ_ROOT}/Data/UnitTests/RendererTest/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Data/UnitTests/RendererTest/)

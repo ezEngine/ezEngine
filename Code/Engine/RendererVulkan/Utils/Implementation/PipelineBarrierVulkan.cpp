@@ -364,7 +364,9 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTextu
 void ezPipelineBarrierVulkan::SetInitialImageState(const ezGALTextureVulkan* pTexture, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess)
 {
   auto it = m_imageState.Find(pTexture->GetImage());
-  EZ_ASSERT_DEBUG(!it.IsValid(), "Can't set initial state, texture is already tracked.");
+
+  // A Vulkan runtime is free to provide us with the very same native object if we request a resize but didn't actually change the size, in which case we ignore that we are already tacking this resource.
+  EZ_ASSERT_DEBUG(!it.IsValid() || it.Value().m_pTexture->GetDescription().m_pExisitingNativeObject != nullptr, "Can't set initial state, texture is already tracked.");
 
   ImageState state;
   state.m_pTexture = pTexture;

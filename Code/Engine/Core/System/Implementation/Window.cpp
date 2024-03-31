@@ -18,8 +18,8 @@
 #  include <Core/System/Implementation/uwp/InputDevice_uwp.inl>
 #  include <Core/System/Implementation/uwp/Window_uwp.inl>
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <Core/System/Implementation/android/InputDevice_android.inl>
 #  include <Core/System/Implementation/android/Window_android.inl>
-#  include <Core/System/Implementation/null/InputDevice_null.inl>
 #else
 #  include <Core/System/Implementation/null/InputDevice_null.inl>
 #  include <Core/System/Implementation/null/Window_null.inl>

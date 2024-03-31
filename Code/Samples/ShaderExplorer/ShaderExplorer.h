@@ -11,6 +11,7 @@ class ezShaderExplorerWindow;
 class ezCamera;
 class ezGALDevice;
 class ezDirectoryWatcher;
+class ezVirtualThumbStick;
 
 // A simple application that renders a full screen quad with a single shader and does live reloading of that shader
 // Can be used for singed distance rendering experiments or other single shader experiments.
@@ -30,7 +31,12 @@ public:
 private:
   void UpdateSwapChain();
   void CreateScreenQuad();
+
+#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
   void OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
+
+  ezUniquePtr<ezDirectoryWatcher> m_pDirectoryWatcher;
+#endif
 
   ezShaderExplorerWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
@@ -42,7 +48,8 @@ private:
   ezMeshBufferResourceHandle m_hQuadMeshBuffer;
 
   ezUniquePtr<ezCamera> m_pCamera;
-  ezUniquePtr<ezDirectoryWatcher> m_pDirectoryWatcher;
+  ezUniquePtr<ezVirtualThumbStick> m_pLeftStick;
+  ezUniquePtr<ezVirtualThumbStick> m_pRightStick;
 
   bool m_bStuffChanged;
 };
