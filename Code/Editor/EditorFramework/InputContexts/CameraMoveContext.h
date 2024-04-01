@@ -33,7 +33,7 @@ protected:
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 
 
- void OnActivated() override;
+  void OnActivated() override;
 
 private:
   virtual void UpdateContext() override;
