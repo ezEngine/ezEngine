@@ -144,15 +144,17 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     m_pCamera->MoveLocally(cameraMotion.y, cameraMotion.x, 0.0f);
   }
 
-
-  m_bStuffChanged = false;
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
-  m_pDirectoryWatcher->EnumerateChanges(ezMakeDelegate(&ezShaderExplorerApp::OnFileChanged, this));
-#endif
-  if (m_bStuffChanged)
+#if EZ_ENABLED(USE_DIRECTORY_WATCHER)
   {
-    ezResourceManager::ReloadAllResources(false);
+    m_bStuffChanged = false;
+    m_pDirectoryWatcher->EnumerateChanges(ezMakeDelegate(&ezShaderExplorerApp::OnFileChanged, this));
+
+    if (m_bStuffChanged)
+    {
+      ezResourceManager::ReloadAllResources(false);
+    }
   }
+#endif
 
   // do the rendering
   {
@@ -212,6 +214,10 @@ ezApplication::Execution ezShaderExplorerApp::Run()
 
 void ezShaderExplorerApp::AfterCoreSystemsStartup()
 {
+#if EZ_ENABLED(USE_FILESERVE)
+  ezPlugin::LoadPlugin("ezFileservePlugin").AssertSuccess("Failed to load FileServe plugin");
+#endif
+
   m_pCamera = EZ_DEFAULT_NEW(ezCamera);
   m_pCamera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
 
@@ -219,18 +225,16 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   ezStringBuilder sProjectDirResolved;
   ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved).IgnoreResult();
   ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
-  m_pDirectoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-  EZ_VERIFY(m_pDirectoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
-#endif
-  ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
-  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();                                    // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).AssertSuccess();                  // for shader files
-  ezFileSystem::CreateDirectoryStructure(">user/ezEngine Project/ShaderExplorer").AssertSuccess();
-  ezFileSystem::AddDataDirectory(">user/ezEngine Project/ShaderExplorer", "AppData", "appdata", ezFileSystem::AllowWrites).AssertSuccess(); // app user data
 
-  ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").IgnoreResult();
-  ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites).IgnoreResult();
+#if EZ_ENABLED(USE_DIRECTORY_WATCHER)
+  m_pDirectoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+  m_pDirectoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).AssertSuccess("Failed to watch project directory");
+#endif
+
+  ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).AssertSuccess();
+
+  ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").AssertSuccess();
+  ezFileSystem::AddDataDirectory(">project/", "Project", "project").AssertSuccess();
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -398,7 +402,7 @@ void ezShaderExplorerApp::BeforeHighLevelSystemsShutdown()
   ezTelemetry::CloseConnection();
   m_pLeftStick.Clear();
   m_pRightStick.Clear();
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
+#if EZ_ENABLED(USE_DIRECTORY_WATCHER)
   m_pDirectoryWatcher->CloseDirectory();
   m_pDirectoryWatcher.Clear();
 #endif
@@ -493,7 +497,7 @@ void ezShaderExplorerApp::CreateScreenQuad()
     m_hQuadMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
 }
 
-#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
+#if EZ_ENABLED(USE_DIRECTORY_WATCHER)
 void ezShaderExplorerApp::OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
   if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
