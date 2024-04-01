@@ -181,8 +181,8 @@ ezEditorInput ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
   if (m_vScaleMouseMove.z < 0.0f)
     m_vScalingResult.z = 1.0f / (1.0f - m_vScaleMouseMove.z * fScaleSpeed);
 
-  // disable snapping when ALT is pressed
-  if (!e->modifiers().testFlag(Qt::AltModifier))
+  // disable snapping when SHIFT is pressed
+  if (!e->modifiers().testFlag(Qt::ShiftModifier))
     ezSnapProvider::SnapScale(m_vScalingResult);
 
   GetOwnerWindow()->SetPermanentStatusBarMsg(
