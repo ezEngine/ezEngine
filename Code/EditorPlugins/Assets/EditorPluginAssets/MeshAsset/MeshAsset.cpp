@@ -126,7 +126,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Pyramid)
   {
-    geom.AddPyramid(ezVec3(1.0f), pProp->m_bCap, opt);
+    geom.AddPyramid(1.0f, 1.0f, pProp->m_bCap, opt);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Rect)
   {
@@ -134,7 +134,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
     opt.m_Transform.Element(2, 1) = -opt.m_Transform.Element(2, 1);
     opt.m_Transform.Element(2, 2) = -opt.m_Transform.Element(2, 2);
 
-    geom.AddRectXY(ezVec2(1.0f), ezMath::Max<ezUInt16>(1, detail1), ezMath::Max<ezUInt16>(1, detail2), opt);
+    geom.AddRect(ezVec2(1.0f), ezMath::Max<ezUInt16>(1, detail1), ezMath::Max<ezUInt16>(1, detail2), opt);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Sphere)
   {
@@ -144,7 +144,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
     if (detail2 == 0)
       detail2 = 32;
 
-    geom.AddSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(2, detail2), opt);
+    geom.AddStackedSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(2, detail2), opt);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Torus)
   {

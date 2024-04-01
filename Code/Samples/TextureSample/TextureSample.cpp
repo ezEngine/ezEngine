@@ -410,7 +410,7 @@ public:
     ezGeometry geom;
     ezGeometry::GeoOptions opt;
     opt.m_Color = ezColor::Black;
-    geom.AddRectXY(ezVec2(100, 100), 1, 1, opt);
+    geom.AddRect(ezVec2(100, 100), 1, 1, opt);
 
     ezDynamicArray<Vertex> Vertices;
     ezDynamicArray<ezUInt16> Indices;

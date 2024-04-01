@@ -301,14 +301,18 @@ void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& 
   {
     case ezGreyBoxShape::Box:
       break;
-    case ezGreyBoxShape::RampX:
-    case ezGreyBoxShape::RampY:
+    case ezGreyBoxShape::RampPosX:
+    case ezGreyBoxShape::RampNegX:
+    case ezGreyBoxShape::RampPosY:
+    case ezGreyBoxShape::RampNegY:
       break;
     case ezGreyBoxShape::Column:
       props["Detail"].m_Visibility = ezPropertyUiState::Default;
       break;
-    case ezGreyBoxShape::StairsX:
-    case ezGreyBoxShape::StairsY:
+    case ezGreyBoxShape::StairsPosX:
+    case ezGreyBoxShape::StairsNegX:
+    case ezGreyBoxShape::StairsPosY:
+    case ezGreyBoxShape::StairsNegY:
       props["Detail"].m_Visibility = ezPropertyUiState::Default;
       props["Curvature"].m_Visibility = ezPropertyUiState::Default;
       props["SlopedTop"].m_Visibility = ezPropertyUiState::Default;

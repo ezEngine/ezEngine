@@ -139,11 +139,11 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     ezStringBuilder sPID;
     ezConversionUtils::ToString(ezProcess::GetCurrentProcessID(), sPID);
 
-#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+#  ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
     constexpr const char* szDefaultRenderer = "Vulkan";
-#else
+#  else
     constexpr const char* szDefaultRenderer = "DX11";
-#endif
+#  endif
     ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
 
     opt.m_Arguments.PushBack("-offscreen");
@@ -206,7 +206,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
   {
     {
       ezGeometry geom;
-      geom.AddSphere(0.5f, 3, 2);
+      geom.AddStackedSphere(0.5f, 3, 2);
 
       ezMeshBufferResourceDescriptor desc;
       desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);

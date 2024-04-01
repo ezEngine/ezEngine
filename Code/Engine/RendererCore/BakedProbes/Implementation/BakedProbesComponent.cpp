@@ -135,7 +135,7 @@ void ezBakedProbesComponentManager::CreateDebugResources()
   if (!m_hDebugSphere.IsValid())
   {
     ezGeometry geom;
-    geom.AddSphere(0.3f, 32, 16);
+    geom.AddStackedSphere(0.3f, 32, 16);
 
     const char* szBufferResourceName = "IrradianceProbeDebugSphereBuffer";
     ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szBufferResourceName);
