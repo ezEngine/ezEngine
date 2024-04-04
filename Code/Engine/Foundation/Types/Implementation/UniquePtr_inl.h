@@ -107,7 +107,10 @@ EZ_ALWAYS_INLINE T* ezUniquePtr<T>::Borrow() const
 template <typename T>
 EZ_ALWAYS_INLINE void ezUniquePtr<T>::Clear()
 {
-  EZ_DELETE(m_pAllocator, m_pInstance);
+  if (m_pAllocator != nullptr)
+  {
+    EZ_DELETE(m_pAllocator, m_pInstance);
+  }
 
   m_pInstance = nullptr;
   m_pAllocator = nullptr;

@@ -89,6 +89,8 @@ ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin& source, co
   return ezStatus(EZ_SUCCESS);
 }
 
+//////////////////////////////////////////////////////////////////////////
+
 ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(ezStringView sDocumentPath)
   : ezAssetDocument(sDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), ezAssetDocEngineConnection::FullObjectMirroring)
 {

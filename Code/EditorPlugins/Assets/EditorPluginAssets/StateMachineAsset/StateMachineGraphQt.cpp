@@ -201,7 +201,7 @@ void ezQtStateMachineAssetScene::SetInitialState(ezQtStateMachineNode* pNode)
 
   ezStatus res = history->AddCommand(cmd);
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
     history->CancelTransaction();
   else
     history->FinishTransaction();
@@ -213,7 +213,7 @@ ezStatus ezQtStateMachineAssetScene::RemoveNode(ezQtNode* pNode)
   const bool bWasInitialState = pManager->IsInitialState(pNode->GetObject());
 
   auto res = ezQtNodeScene::RemoveNode(pNode);
-  if (res.m_Result.Succeeded() && bWasInitialState)
+  if (res.Succeeded() && bWasInitialState)
   {
     // Find another node
     ezUuid newInitialStateObject;
@@ -225,12 +225,15 @@ ezStatus ezQtStateMachineAssetScene::RemoveNode(ezQtNode* pNode)
       }
     }
 
-    ezCommandHistory* history = pManager->GetDocument()->GetCommandHistory();
+    if (newInitialStateObject.IsValid())
+    {
+      ezCommandHistory* history = pManager->GetDocument()->GetCommandHistory();
 
-    ezStateMachine_SetInitialStateCommand cmd;
-    cmd.m_NewInitialStateObject = newInitialStateObject;
+      ezStateMachine_SetInitialStateCommand cmd;
+      cmd.m_NewInitialStateObject = newInitialStateObject;
 
-    ezStatus res = history->AddCommand(cmd);
+      res = history->AddCommand(cmd);
+    }
   }
 
   return res;
