@@ -27,7 +27,7 @@ o
 			s{"Scripts/JointBroke.ts"}
 		}
 		Uuid %DocumentID{u4{10710519859122641547,4940167350880485618}}
-		u4 %Hash{7645082247475512680}
+		u4 %Hash{4562861536848735873}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5505854277665018920,5450823594935720142}}
@@ -38,6 +38,7 @@ o
 		{
 			s{"Scripts/JointBroke.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

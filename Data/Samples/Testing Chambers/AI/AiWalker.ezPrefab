@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9787685060025488154,10081810663128121436}}
-		u4 %Hash{7054961839376205446}
+		u4 %Hash{5473736696705372627}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2303340321395474942,4382405691360237669}}
@@ -81,9 +81,11 @@ o
 	u3 %v{1}
 	p
 	{
+		f %Acceleration{0x00004040}
 		b %Active{1}
 		u3 %CollisionLayer{0}
 		s %DebugFlags{"ezAiNavigationDebugFlags::PrintState|ezAiNavigationDebugFlags::VisPathCorridor|ezAiNavigationDebugFlags::VisPathLine|ezAiNavigationDebugFlags::VisTarget"}
+		f %Deceleration{0x00000041}
 		f %FallHeight{0x0000803F}
 		f %FootRadius{0x9A99193E}
 		HashedString %NavmeshConfig{s{"Default"}}

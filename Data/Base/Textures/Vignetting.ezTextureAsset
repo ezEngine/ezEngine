@@ -14,7 +14,7 @@ o
 			s{"Textures/Vignetting.tga"}
 		}
 		Uuid %DocumentID{u4{9132907039025431446,4850155600327151795}}
-		u4 %Hash{8913383847545292959}
+		u4 %Hash{6844473484096363939}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -25,6 +25,7 @@ o
 		{
 			s{"Textures/Vignetting.tga"}
 		}
+		s %Tags{""}
 	}
 }
 }

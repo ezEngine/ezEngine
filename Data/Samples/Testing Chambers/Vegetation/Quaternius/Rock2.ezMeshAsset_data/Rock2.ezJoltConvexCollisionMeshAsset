@@ -14,7 +14,7 @@ o
 			s{"Vegetation/Quaternius/Rock2.fbx"}
 		}
 		Uuid %DocumentID{u4{255058743824048292,4705138150606712767}}
-		u4 %Hash{1316097734767227046}
+		u4 %Hash{16530701673762678615}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -25,6 +25,7 @@ o
 		{
 			s{"Vegetation/Quaternius/Rock2.fbx"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -49,16 +50,20 @@ o
 	u3 %v{1}
 	p
 	{
+		b %AggressiveSimplification{0}
 		s %ConvexMeshType{"ezJoltConvexCollisionMeshType::ConvexHull"}
 		u1 %Detail{1}
 		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %IsConvexMesh{1}
 		u2 %MaxConvexPieces{2}
+		u1 %MaxSimplificationError{20}
 		s %MeshFile{"Vegetation/Quaternius/Rock2.fbx"}
+		u1 %MeshSimplification{50}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %Surface{""}
 		VarArray %Surfaces
 		{

@@ -14,7 +14,7 @@ o
 			s{"FleetOps/Raptor_data/raptor.obj"}
 		}
 		Uuid %DocumentID{u4{11029746117145571255,5608980641584566929}}
-		u4 %Hash{12684064775607850920}
+		u4 %Hash{3104553017026940670}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -26,6 +26,7 @@ o
 			s{"FleetOps/Raptor_data/raptor.obj"}
 			s{"{ 50fefdc0-191f-4cd5-b429-2246ba01d4fb }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -49,6 +50,7 @@ o
 	u3 %v{3}
 	p
 	{
+		b %AggressiveSimplification{0}
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
@@ -61,7 +63,9 @@ o
 		{
 			Uuid{u4{8787884484749449176,944244370587791384}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"FleetOps/Raptor_data/raptor.obj"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -69,6 +73,7 @@ o
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

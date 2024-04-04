@@ -14,7 +14,7 @@ o
 			s{"Objects/Container_data/Container.FBX"}
 		}
 		Uuid %DocumentID{u4{1325716919593115325,5652369746131908295}}
-		u4 %Hash{1555364777423176260}
+		u4 %Hash{6818007461401213745}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -26,6 +26,7 @@ o
 			s{"Objects/Container_data/Container.FBX"}
 			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -38,6 +39,7 @@ o
 	u3 %v{3}
 	p
 	{
+		b %AggressiveSimplification{0}
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
@@ -50,7 +52,9 @@ o
 		{
 			Uuid{u4{15772704604439142157,8966439951257204379}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Objects/Container_data/Container.FBX"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -58,6 +62,7 @@ o
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

@@ -11,7 +11,7 @@ o
 		s %AssetType{"StateMachine"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2391545697630743727,4670014653287619337}}
-		u4 %Hash{906380348055033177}
+		u4 %Hash{8552890364643498016}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}

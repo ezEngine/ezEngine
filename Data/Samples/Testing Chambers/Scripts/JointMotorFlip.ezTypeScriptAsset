@@ -27,7 +27,7 @@ o
 			s{"Scripts/JointMotorFlip.ts"}
 		}
 		Uuid %DocumentID{u4{15925295526450137016,4931846925447715486}}
-		u4 %Hash{1187933842446700041}
+		u4 %Hash{1180689872558550079}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{8507047225007805994,2130097493042254715}}
@@ -38,6 +38,7 @@ o
 		{
 			s{"Scripts/JointMotorFlip.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

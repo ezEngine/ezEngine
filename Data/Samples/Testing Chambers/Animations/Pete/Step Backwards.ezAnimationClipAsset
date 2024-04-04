@@ -14,7 +14,7 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{15241338051256993944,5689211930650885371}}
-		u4 %Hash{13385482386650371352}
+		u4 %Hash{6457624104446971382}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -22,6 +22,7 @@ o
 		{
 			s{"Animations/Pete/Pete.glb"}
 		}
+		s %Tags{""}
 	}
 }
 }

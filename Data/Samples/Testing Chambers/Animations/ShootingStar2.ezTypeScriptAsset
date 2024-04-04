@@ -24,7 +24,7 @@ o
 			s{"Animations/ShootingStar2.ts"}
 		}
 		Uuid %DocumentID{u4{3566634475515968644,5380460567169264569}}
-		u4 %Hash{17737404737179581687}
+		u4 %Hash{9556488418089373912}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3487612333869764005,373725414069526408}}
@@ -35,6 +35,7 @@ o
 		{
 			s{"Animations/ShootingStar2.ts"}
 		}
+		s %Tags{""}
 	}
 }
 }

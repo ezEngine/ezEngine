@@ -14,7 +14,7 @@ o
 			s{"Animations/Mattress/Mattress.glb"}
 		}
 		Uuid %DocumentID{u4{85153831524228785,4896476241313511951}}
-		u4 %Hash{1152767020759977699}
+		u4 %Hash{10849318484524585204}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -28,6 +28,7 @@ o
 			s{"{ ba807654-635f-462a-9113-4f3d262d57cc }"}
 			s{"{ d9628d95-9475-4ec7-b0dd-b64b52b9d2e9 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -40,16 +41,22 @@ o
 	u3 %v{2}
 	p
 	{
+		b %AggressiveSimplification{0}
+		s %BoneWeightPrecision{"ezMeshBoneWeigthPrecision::_8Bit"}
 		s %DefaultSkeleton{"{ ba807654-635f-462a-9113-4f3d262d57cc }"}
 		b %ImportMaterials{0}
 		VarArray %Materials
 		{
 			Uuid{u4{292248676611588998,5458871623945809914}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Animations/Mattress/Mattress.glb"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
+		b %NormalizeWeights{1}
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 	}
 }
@@ -96,6 +103,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshAssetProperties"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14196080311825956621,8048256116943370769}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshBoneWeigthPrecision"}
+		u3 %TypeVersion{1}
 	}
 }
 o

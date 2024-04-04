@@ -14,7 +14,7 @@ o
 			s{"Objects/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
 		}
 		Uuid %DocumentID{u4{14737680971665784505,5057588949416469305}}
-		u4 %Hash{11183616912392285477}
+		u4 %Hash{1481269076846208128}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -25,6 +25,7 @@ o
 		{
 			s{"Objects/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -49,16 +50,20 @@ o
 	u3 %v{1}
 	p
 	{
+		b %AggressiveSimplification{0}
 		s %ConvexMeshType{"ezJoltConvexCollisionMeshType::ConvexHull"}
 		u1 %Detail{1}
 		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %IsConvexMesh{1}
 		u2 %MaxConvexPieces{2}
+		u1 %MaxSimplificationError{20}
 		s %MeshFile{"Objects/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
+		u1 %MeshSimplification{50}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %Surface{""}
 		VarArray %Surfaces
 		{

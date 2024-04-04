@@ -11,7 +11,7 @@ o
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2103140589558521791,5741224228062947139}}
-		u4 %Hash{10648100822210172388}
+		u4 %Hash{16202456147206717623}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -22,6 +22,7 @@ o
 		{
 			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -45,6 +46,7 @@ o
 	u3 %v{3}
 	p
 	{
+		b %AggressiveSimplification{0}
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
@@ -57,7 +59,9 @@ o
 		{
 			Uuid{u4{5486107438184343714,4767629773727834831}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{""}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::Sphere"}
 		f %Radius{0x0000003F}
@@ -65,6 +69,7 @@ o
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveZ"}

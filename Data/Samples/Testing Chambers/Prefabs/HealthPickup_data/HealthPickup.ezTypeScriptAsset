@@ -24,7 +24,7 @@ o
 			s{"Prefabs/HealthPickup_data/HealthPickup.ts"}
 		}
 		Uuid %DocumentID{u4{4662619141635610766,4788884483168648736}}
-		u4 %Hash{18284992211451162194}
+		u4 %Hash{5215130381343668847}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7355302225660781577,3365495958262335452}}
@@ -35,6 +35,7 @@ o
 		{
 			s{"Prefabs/HealthPickup_data/HealthPickup.ts"}
 		}
+		s %Tags{""}
 	}
 }
 }

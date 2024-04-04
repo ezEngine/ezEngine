@@ -14,10 +14,15 @@ o
 			s{"Sound/Desktop/Master.bank"}
 		}
 		Uuid %DocumentID{u4{8266878307018545563,4915941679716108629}}
-		u4 %Hash{13989545822678011284}
+		u4 %Hash{5125867491789798071}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References{}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"Sound/Desktop/Master.bank"}
+		}
+		s %Tags{""}
 	}
 }
 }

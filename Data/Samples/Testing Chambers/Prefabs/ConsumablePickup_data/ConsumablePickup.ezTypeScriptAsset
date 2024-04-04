@@ -14,7 +14,7 @@ o
 			s{"Prefabs/ConsumablePickup_data/ConsumablePickup.ts"}
 		}
 		Uuid %DocumentID{u4{7635755329008314767,4989369311778397519}}
-		u4 %Hash{10464636865595295129}
+		u4 %Hash{2961908880850320038}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17391110236746215650,16003275907833952401}}
@@ -25,6 +25,7 @@ o
 		{
 			s{"Prefabs/ConsumablePickup_data/ConsumablePickup.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

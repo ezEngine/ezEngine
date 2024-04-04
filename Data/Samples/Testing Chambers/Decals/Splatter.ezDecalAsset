@@ -15,7 +15,7 @@ o
 			s{"Textures/NeutralNormal.tga"}
 		}
 		Uuid %DocumentID{u4{14031833484675528879,4725601891482844220}}
-		u4 %Hash{15201603453379310668}
+		u4 %Hash{11688275314077782454}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -24,6 +24,7 @@ o
 			s{"Decals/Splatter.png"}
 			s{"Textures/NeutralNormal.tga"}
 		}
+		s %Tags{""}
 	}
 }
 }

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Surface"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9792722692401254016,4982072354546932053}}
-		u4 %Hash{8343916719296780110}
+		u4 %Hash{7268015459874377857}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -30,6 +30,7 @@ o
 		{
 			s{"{ 8f19ce05-bf1e-4626-9659-e6acc058dee5 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -46,6 +47,7 @@ o
 		Angle %Deviation{f{0}}
 		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0}
+		VarDict %Parameters{}
 		s %Prefab{"{ 8731941b-792b-400c-94ee-f960ff29e293 }"}
 		s %Type{"Footstep"}
 	}
@@ -61,6 +63,7 @@ o
 		Angle %Deviation{f{0}}
 		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0x00004040}
+		VarDict %Parameters{}
 		s %Prefab{"{ 2c2d487a-c8d1-4487-9f55-309c1d9034cb }"}
 		s %Type{"Bump_Metal"}
 	}
@@ -76,6 +79,7 @@ o
 		Angle %Deviation{f{0}}
 		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0}
+		VarDict %Parameters{}
 		s %Prefab{"{ fb5832e7-eb18-4866-ad1f-a12b1d22118e }"}
 		s %Type{"BulletImpact"}
 	}
@@ -91,6 +95,7 @@ o
 		Angle %Deviation{f{0}}
 		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0x00002041}
+		VarDict %Parameters{}
 		s %Prefab{"{ 56cee000-c60d-4e64-ba8e-cfc49f512418 }"}
 		s %Type{"Bump_Wood"}
 	}
@@ -106,6 +111,7 @@ o
 		Angle %Deviation{f{0}}
 		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0x0000803F}
+		VarDict %Parameters{}
 		s %Prefab{"{ d93bbc29-e3d2-451b-aedd-a51e4072c87c }"}
 		s %Type{"Bump_Wood"}
 	}
@@ -121,6 +127,7 @@ o
 		Angle %Deviation{f{0}}
 		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0}
+		VarDict %Parameters{}
 		s %Prefab{"{ a0e40c49-9113-4bdf-ba33-3e603732813e }"}
 		s %Type{"Plasma_Impact"}
 	}
@@ -134,6 +141,7 @@ o
 	{
 		s %BaseSurface{"{ 8f19ce05-bf1e-4626-9659-e6acc058dee5 }"}
 		f %DynamicFriction{0xCDCCCC3E}
+		i1 %GroundType{-1}
 		VarArray %Interactions
 		{
 			Uuid{u4{9510873481043551369,4842663319085717135}}
@@ -164,6 +172,7 @@ o
 		Angle %Deviation{f{0xDB0F493F}}
 		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0}
+		VarDict %Parameters{}
 		s %Prefab{"{ 707d012d-03fc-461f-9792-5bd128f51688 }"}
 		s %Type{"PulseImpact"}
 	}
@@ -179,6 +188,7 @@ o
 		Angle %Deviation{f{0}}
 		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0x0000A041}
+		VarDict %Parameters{}
 		s %Prefab{"{ 56cee000-c60d-4e64-ba8e-cfc49f512418 }"}
 		s %Type{"Bump_Generic"}
 	}
@@ -194,6 +204,7 @@ o
 		Angle %Deviation{f{0}}
 		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0}
+		VarDict %Parameters{}
 		s %Prefab{"{ 9bd6d5f2-c682-451b-91a0-8b719e3e29c1 }"}
 		s %Type{"Rocket_Impact"}
 	}

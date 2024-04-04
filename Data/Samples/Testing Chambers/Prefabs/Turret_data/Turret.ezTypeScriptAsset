@@ -27,7 +27,7 @@ o
 			s{"Prefabs/Turret_data/Turret.ts"}
 		}
 		Uuid %DocumentID{u4{16577912382872780443,5145490269716092583}}
-		u4 %Hash{10288745815575001782}
+		u4 %Hash{14048262467601695236}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{874992110936302500,3687541599365579795}}
@@ -38,6 +38,7 @@ o
 		{
 			s{"Prefabs/Turret_data/Turret.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

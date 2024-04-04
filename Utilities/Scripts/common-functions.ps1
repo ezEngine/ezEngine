@@ -11,7 +11,7 @@ function global:Find-EditorProcessor
 			$version = $VsVersions[$versionIndex]
 			$config = $Configurations[$configIndex]			
 			
-			$fileToCheck = "$PSScriptRoot\..\..\Output\Bin\WinVs" + $version + $config +"64\EditorProcessor.exe"
+			$fileToCheck = "$PSScriptRoot\..\..\Output\Bin\WinVs" + $version + $config +"64\ezEditorProcessor.exe"
 			if (Test-Path $fileToCheck -PathType leaf)
 			{
 				return $fileToCheck

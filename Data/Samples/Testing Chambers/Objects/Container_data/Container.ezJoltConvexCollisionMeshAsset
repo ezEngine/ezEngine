@@ -14,7 +14,7 @@ o
 			s{"Objects/Container_data/Container.FBX"}
 		}
 		Uuid %DocumentID{u4{9737614160977163965,4909594793944982026}}
-		u4 %Hash{8658885423012322559}
+		u4 %Hash{9774806212045480428}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -25,6 +25,7 @@ o
 		{
 			s{"Objects/Container_data/Container.FBX"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -49,16 +50,20 @@ o
 	u3 %v{1}
 	p
 	{
+		b %AggressiveSimplification{0}
 		s %ConvexMeshType{"ezJoltConvexCollisionMeshType::ConvexHull"}
 		u1 %Detail{1}
 		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %IsConvexMesh{1}
 		u2 %MaxConvexPieces{2}
+		u1 %MaxSimplificationError{20}
 		s %MeshFile{"Objects/Container_data/Container.FBX"}
+		u1 %MeshSimplification{50}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %Surface{""}
 		VarArray %Surfaces
 		{

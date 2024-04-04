@@ -2,38 +2,15 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{5984906476330430411,1983541036523368411}}
-	s %t{"ezExposedParametersAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %ParametersSource{"Script"}
-	}
-}
-o
-{
-	Uuid %id{u4{13402867411579275029,2769991430691516589}}
-	s %t{"ezExposedParametersAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %ParametersSource{"Script"}
-	}
-}
-o
-{
 	Uuid %id{u4{15696133319264970979,3501877511505309542}}
 	s %t{"ezExposedParameter"}
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes
-		{
-			Uuid{u4{13402867411579275029,2769991430691516589}}
-		}
+		VarArray %Attributes{}
 		Vec3 %DefaultValue{f{0x0000803F,0x00000040,0x00004040}}
 		s %Name{"Vec3Var"}
-		s %Type{"ezVariant"}
+		s %Type{""}
 	}
 }
 o
@@ -47,16 +24,18 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{946935931168176294,5575304682845324353}}
-		u4 %Hash{773386888756883939}
+		u4 %Hash{8144601289305823716}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{15709950136310580568,9719543760896104263}}
 		}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ d653b69f-780d-4cd0-a8f0-32910ab7c4f6 }"}
 		}
+		VarArray %References{}
+		s %Tags{""}
 	}
 }
 o
@@ -66,43 +45,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes
-		{
-			Uuid{u4{1314835774538621813,6753052815184399693}}
-		}
+		VarArray %Attributes{}
 		b %DefaultValue{1}
 		s %Name{"BoolVar"}
-		s %Type{"ezVariant"}
-	}
-}
-o
-{
-	Uuid %id{u4{10674357281614953512,6422159680577271106}}
-	s %t{"ezExposedParametersAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %ParametersSource{"Script"}
-	}
-}
-o
-{
-	Uuid %id{u4{1314835774538621813,6753052815184399693}}
-	s %t{"ezExposedParametersAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %ParametersSource{"Script"}
-	}
-}
-o
-{
-	Uuid %id{u4{6500995543144528695,9022086823841100606}}
-	s %t{"ezExposedParametersAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %ParametersSource{"Script"}
+		s %Type{""}
 	}
 }
 o
@@ -129,13 +75,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes
-		{
-			Uuid{u4{5984906476330430411,1983541036523368411}}
-		}
+		VarArray %Attributes{}
 		Color %DefaultValue{f{0x90A5443F,0xD357123E,0x8DE8F73A,0x0000803F}}
 		s %Name{"ColorVar"}
-		s %Type{"ezVariant"}
+		s %Type{""}
 	}
 }
 o
@@ -145,13 +88,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes
-		{
-			Uuid{u4{10674357281614953512,6422159680577271106}}
-		}
+		VarArray %Attributes{}
 		d %DefaultValue{0x0000000000002640}
 		s %Name{"NumberVar"}
-		s %Type{"ezVariant"}
+		s %Type{""}
 	}
 }
 o
@@ -161,13 +101,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes
-		{
-			Uuid{u4{6500995543144528695,9022086823841100606}}
-		}
+		VarArray %Attributes{}
 		s %DefaultValue{"Hello"}
 		s %Name{"StringVar"}
-		s %Type{"ezVariant"}
+		s %Type{""}
 	}
 }
 }
@@ -323,7 +260,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -341,7 +277,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -359,7 +294,23 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabDocumentSettings"}
-		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -377,7 +328,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEventMessageHandlerComponent"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{3}
 	}
 }
@@ -395,7 +345,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -413,7 +362,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -431,7 +379,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{2}
 	}
 }
@@ -449,7 +396,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -467,7 +413,6 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{200}
 		u3 %TypeVersion{4}
 	}
 }
@@ -485,7 +430,23 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -503,7 +464,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -521,7 +481,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

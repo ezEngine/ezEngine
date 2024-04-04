@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4063831808526479806,5002292852126062766}}
-		u4 %Hash{8264392015311464676}
+		u4 %Hash{12598407963107518370}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5302902712215008652,16789820488192224536}}
@@ -35,6 +35,7 @@ o
 			s{"{ bac7f5bc-e554-40b5-99f0-dd89b60fcdd8 }"}
 			s{"{ d1b36926-5cdf-4c22-84e6-2fdad1e8935d }"}
 		}
+		s %Tags{""}
 	}
 }
 o
@@ -2399,6 +2400,7 @@ o
 	{
 		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Surface;"}
+		s %RequiredTag{""}
 	}
 }
 o

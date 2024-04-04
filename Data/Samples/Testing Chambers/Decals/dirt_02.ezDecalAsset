@@ -15,7 +15,7 @@ o
 			s{"Textures/NeutralNormal.tga"}
 		}
 		Uuid %DocumentID{u4{1995066729871024564,5116399159148008973}}
-		u4 %Hash{10104583288547901745}
+		u4 %Hash{17571216207758912518}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -24,6 +24,7 @@ o
 			s{"Kenney.nl/Decals/dirt_02.png"}
 			s{"Textures/NeutralNormal.tga"}
 		}
+		s %Tags{""}
 	}
 }
 }
