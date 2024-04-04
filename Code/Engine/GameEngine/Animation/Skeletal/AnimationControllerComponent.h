@@ -48,6 +48,9 @@ public:
   /// \brief How often to update the animation while the animated mesh is invisible.
   ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
 
+  /// \brief If enabled, child game objects can add IK computation commands to influence the final pose.
+  bool m_bEnableIK = false; // [ property ]
+
 protected:
   void Update();
 

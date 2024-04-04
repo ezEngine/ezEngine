@@ -12,7 +12,7 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 2, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 3, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -20,6 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 2, ezComponentMode::Stat
 
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
     EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
+    EZ_MEMBER_PROPERTY("EnableIK", m_bEnableIK),
   }
   EZ_END_PROPERTIES;
 
@@ -43,6 +44,7 @@ void ezAnimationControllerComponent::SerializeComponent(ezWorldWriter& inout_str
   s << m_hAnimGraph;
   s << m_RootMotionMode;
   s << m_InvisibleUpdateRate;
+  s << m_bEnableIK;
 }
 
 void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -57,6 +59,11 @@ void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_s
   if (uiVersion >= 2)
   {
     s >> m_InvisibleUpdateRate;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_bEnableIK;
   }
 }
 
@@ -116,7 +123,7 @@ void ezAnimationControllerComponent::Update()
   if (m_ElapsedTimeSinceUpdate < tMinStep)
     return;
 
-  m_AnimController.Update(m_ElapsedTimeSinceUpdate, GetOwner());
+  m_AnimController.Update(m_ElapsedTimeSinceUpdate, GetOwner(), m_bEnableIK);
   m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   ezVec3 translation;

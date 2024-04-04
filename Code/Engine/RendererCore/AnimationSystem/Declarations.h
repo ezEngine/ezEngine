@@ -10,6 +10,8 @@ class ezAnimationPose;
 struct ezSkeletonResourceDescriptor;
 class ezEditableSkeletonJoint;
 struct ezAnimationClipResourceDescriptor;
+class ezAnimPoseGenerator;
+class ezGameObject;
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
@@ -47,6 +49,19 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPosePreparing : public ezMessage
 
   const ezSkeleton* m_pSkeleton = nullptr;
   ezArrayPtr<ozz::math::SoaTransform> m_LocalTransforms;
+};
+
+/// \brief Sent to objects when a parent component is generating an animation pose, to inject additional pose commands, for instance to apply inverse kinematics (IK).
+///
+/// The message contains the ezAnimPoseGenerator that is currently being built.
+/// Usually it has already been executed once and generated a pose (in model space), which can be queried to build upon.
+/// Additional commands can then be added to modify the pose.
+/// This is mainly meant for inverse kinematics use cases.
+struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseGeneration : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseGeneration, ezMessage);
+
+  ezAnimPoseGenerator* m_pGenerator = nullptr;
 };
 
 /// \brief Used by components that skin a mesh to inform children whenever a new pose has been computed.
