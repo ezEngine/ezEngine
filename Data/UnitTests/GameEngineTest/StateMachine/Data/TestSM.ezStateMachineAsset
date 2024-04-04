@@ -11,7 +11,7 @@ o
 		s %AssetType{"StateMachine"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2391545697630743727,4670014653287619337}}
-		u4 %Hash{9585020128819562076}
+		u4 %Hash{906380348055033177}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -239,6 +239,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %IsInitialState{0}
 		s %Name{"A"}
 		Vec2 %Node::Pos{f{0x0F739D43,0xCBC60043}}
 		Uuid %Type{u4{6879367562142937791,4803109892030128720}}
@@ -295,6 +296,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %IsInitialState{0}
 		s %Name{"B"}
 		Vec2 %Node::Pos{f{0xDCF0EE43,0x1DD00643}}
 		Uuid %Type{u4{8507376996489491381,4834210225930572887}}
@@ -307,6 +309,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %IsInitialState{0}
 		s %Name{"FINAL"}
 		Vec2 %Node::Pos{f{0xFD3B2344,0xAAD10743}}
 		Uuid %Type{u4{3359297952540090240,5420362112664507257}}
