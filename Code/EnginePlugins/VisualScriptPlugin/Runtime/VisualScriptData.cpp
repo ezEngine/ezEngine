@@ -73,13 +73,13 @@ ezResult ezVisualScriptDataDescription::Deserialize(ezStreamReader& inout_stream
 
     uiOffset += ezVisualScriptDataType::GetStorageSize(dataType) * typeInfo.m_uiCount;
   }
-  
+
   inout_stream >> m_uiStorageSizeNeeded;
 
   if (m_uiStorageSizeNeeded != uiOffset)
   {
     ezLog::Error("VisualScriptDataDescription storage size mismatch. If a type changed in size or alignment the script needs to be re-transformed.");
-    return EZ_FAILURE;  
+    return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;
