@@ -141,7 +141,7 @@ void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration
 
     // in theory one could limit which joints get their model poses updated,
     // but in practice this doesn't work unless we know that they are definitely just in one straight line (not the case for spines)
-    //if (i + 1 < m_Joints.GetCount())
+    // if (i + 1 < m_Joints.GetCount())
     //{
     //  cmdIk.m_uiRecalcModelPoseToJointIdx = m_Joints[i + 1].m_uiJointIdx;
     //}
