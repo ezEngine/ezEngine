@@ -122,6 +122,21 @@ struct ezNodeCreationTemplate
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Base class for all node connections. Derive from this class and overwrite ezDocumentNodeManager::GetConnectionType
+/// if you need custom properties for connections.
+class ezDocumentObject_ConnectionBase : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentObject_ConnectionBase, ezReflectedClass);
+
+public:
+  ezUuid m_Source;
+  ezUuid m_Target;
+  ezString m_SourcePin;
+  ezString m_TargetPin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManager : public ezDocumentObjectManager
 {
 public:
@@ -186,6 +201,8 @@ protected:
   /// \brief Returns true if adding a connection between the two pins would create a circular graph
   bool WouldConnectionCreateCircle(const ezPin& source, const ezPin& target) const;
 
+  ezResult ResolveConnection(const ezUuid& sourceObject, const ezUuid& targetObject, ezStringView sourcePin, ezStringView targetPin, const ezPin*& out_pSourcePin, const ezPin*& out_pTargetPin) const;
+
   virtual void GetDynamicPinNames(const ezDocumentObject* pObject, ezStringView sPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const;
   virtual bool TryRecreatePins(const ezDocumentObject* pObject);
 
@@ -210,8 +227,6 @@ private:
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
 
   void HandlePotentialDynamicPinPropertyChanged(const ezDocumentObject* pObject, ezStringView sPropertyName);
-
-  void RestoreOldMetaDataAfterLoading(const ezAbstractObjectGraph& graph, const ezAbstractObjectNode::Property& connectionsProperty, const ezDocumentObject* pSourceObject);
 
 private:
   ezHashTable<ezUuid, NodeInternal> m_ObjectToNode;
