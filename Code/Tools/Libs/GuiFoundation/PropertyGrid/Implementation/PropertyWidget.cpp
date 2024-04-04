@@ -543,8 +543,21 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
   }
 }
 
-
 ezQtPropertyEditorIntSpinboxWidget::~ezQtPropertyEditorIntSpinboxWidget() = default;
+
+void ezQtPropertyEditorIntSpinboxWidget::SetReadOnly(bool bReadOnly /*= true*/)
+{
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    if (m_pWidget[i])
+      m_pWidget[i]->setReadOnly(bReadOnly);
+  }
+
+  if (m_pSlider)
+  {
+    m_pSlider->setDisabled(bReadOnly);
+  }
+}
 
 void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 {
@@ -1121,12 +1134,16 @@ ezQtPropertyEditorLineEditWidget::ezQtPropertyEditorLineEditWidget()
   connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered()));
 }
 
+void ezQtPropertyEditorLineEditWidget::SetReadOnly(bool bReadOnly /*= true*/)
+{
+  m_pWidget->setReadOnly(bReadOnly);
+}
+
 void ezQtPropertyEditorLineEditWidget::OnInit()
 {
   if (m_pProp->GetAttributeByType<ezReadOnlyAttribute>() != nullptr || m_pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
     setEnabled(true);
-
     ezQtScopedBlockSignals bs(m_pWidget);
 
     m_pWidget->setReadOnly(true);

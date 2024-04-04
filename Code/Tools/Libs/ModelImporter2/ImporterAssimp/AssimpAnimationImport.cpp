@@ -3,11 +3,14 @@
 #include <Foundation/Logging/Log.h>
 #include <ModelImporter2/ImporterAssimp/ImporterAssimp.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <assimp/anim.h>
 #include <assimp/scene.h>
 #include <ozz/animation/offline/additive_animation_builder.h>
+#include <ozz/animation/offline/animation_optimizer.h>
 #include <ozz/animation/offline/raw_animation.h>
 #include <ozz/animation/offline/raw_animation_utils.h>
+#include <ozz/animation/runtime/skeleton.h>
 
 namespace ezModelImporter2
 {
@@ -67,7 +70,7 @@ namespace ezModelImporter2
 
     ezHashedString hs;
 
-    ozz::animation::offline::RawAnimation orgRawAnim, sampledRawAnim, additiveAnim;
+    ozz::animation::offline::RawAnimation orgRawAnim, sampledRawAnim, additiveAnim, optAnim;
     ozz::animation::offline::RawAnimation* pFinalRawAnim = &orgRawAnim;
 
     for (ezUInt32 animIdx = 0; animIdx < m_pScene->mNumAnimations; ++animIdx)
@@ -175,7 +178,20 @@ namespace ezModelImporter2
         pFinalRawAnim = &sampledRawAnim;
       }
 
-      // TODO: optimize the animation
+      // TODO: optimize the animation (currently this code doesn't work)
+      if (m_Options.m_pSkeletonOutput && !m_Options.m_pSkeletonOutput->m_Children.IsEmpty())
+      {
+        ozz::animation::Skeleton skeleton;
+        m_Options.m_pSkeletonOutput->GenerateOzzSkeleton(skeleton);
+
+        ozz::animation::offline::AnimationOptimizer opt;
+        opt.setting.distance = 0.01f;
+        opt.setting.tolerance = 0.001f;
+        if (opt(*pFinalRawAnim, skeleton, &optAnim))
+        {
+          pFinalRawAnim = &optAnim;
+        }
+      }
 
       for (ezUInt32 channelIdx = 0; channelIdx < uiNumChannels; ++channelIdx)
       {
