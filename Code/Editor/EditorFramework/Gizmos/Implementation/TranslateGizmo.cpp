@@ -323,8 +323,8 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   m_vLastMousePos = UpdateMouseMode(e);
 
-  // disable snapping when ALT is pressed
-  if (!e->modifiers().testFlag(Qt::AltModifier))
+  // disable snapping when SHIFT is pressed
+  if (!e->modifiers().testFlag(Qt::ShiftModifier))
   {
     ezSnapProvider::SnapTranslationInLocalSpace(mTrans.m_qRotation, vTranslate);
   }

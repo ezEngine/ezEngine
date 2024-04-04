@@ -190,8 +190,8 @@ ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   ezVec3 vSnappedPosition = res.m_vPickedPosition;
 
-  // disable snapping when ALT is pressed
-  if (!e->modifiers().testFlag(Qt::AltModifier))
+  // disable snapping when SHIFT is pressed
+  if (!e->modifiers().testFlag(Qt::ShiftModifier))
     ezSnapProvider::SnapTranslation(vSnappedPosition);
 
   ezTransform mTrans = GetTransformation();

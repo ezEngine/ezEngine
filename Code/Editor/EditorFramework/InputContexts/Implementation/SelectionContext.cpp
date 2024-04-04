@@ -77,7 +77,7 @@ ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
       m_uiMarqueeID += 23;
       m_vMarqueeStartPos.Set(e->pos().x(), e->pos().y(), 0.01f);
 
-      // only shift -> add, shift AND control -> remove
+      // no modifier -> add, CTRL -> remove
       m_Mode = e->modifiers().testFlag(Qt::ControlModifier) ? Mode::MarqueeRemove : Mode::MarqueeAdd;
       MakeActiveInputContext();
 

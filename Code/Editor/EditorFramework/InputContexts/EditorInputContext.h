@@ -36,7 +36,7 @@ public:
   ezEditorInput MouseMoveEvent(QMouseEvent* e);
   ezEditorInput WheelEvent(QWheelEvent* e) { return DoWheelEvent(e); }
 
-  static void SetActiveInputContext(ezEditorInputContext* pContext) { s_pActiveInputContext = pContext; }
+  static void SetActiveInputContext(ezEditorInputContext* pContext);
 
   void MakeActiveInputContext(bool bActive = true);
 
@@ -89,6 +89,8 @@ protected:
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) = 0;
 
+  virtual void OnActivated() {}
+  virtual void OnDeactivated() {}
   virtual ezEditorInput DoKeyPressEvent(QKeyEvent* e);
   virtual ezEditorInput DoKeyReleaseEvent(QKeyEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
   virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
