@@ -486,12 +486,12 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandSampleEventTrack&
   SampleEventTrack(pResource.GetPointer(), cmd.m_EventSampling, cmd.m_fPreviousNormalizedSamplePos, cmd.m_fNormalizedSamplePos);
 }
 
-void MultiplySoATransformQuaternion(ezUInt32 uiIndex, const ozz::math::SimdQuaternion& quat, ezArrayPtr<ozz::math::SoaTransform>& transforms)
+void MultiplySoATransformQuaternion(ezUInt32 uiIndex, const ozz::math::SimdQuaternion& quat, ezArrayPtr<ozz::math::SoaTransform>& ref_transforms)
 {
-  EZ_ASSERT_DEBUG(uiIndex < transforms.GetCount() * 4, "Joint index out of bound.");
+  EZ_ASSERT_DEBUG(uiIndex < ref_transforms.GetCount() * 4, "Joint index out of bound.");
 
   // Convert SOA to AOS in order to perform quaternion multiplication, and get back to SOA.
-  ozz::math::SoaTransform& soa_transform_ref = transforms[uiIndex / 4];
+  ozz::math::SoaTransform& soa_transform_ref = ref_transforms[uiIndex / 4];
   ozz::math::SimdQuaternion aos_quats[4];
   ozz::math::Transpose4x4(&soa_transform_ref.rotation.x, &aos_quats->xyzw);
 

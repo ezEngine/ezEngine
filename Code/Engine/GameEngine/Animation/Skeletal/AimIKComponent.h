@@ -12,8 +12,8 @@ struct ezIkJointEntry
   float m_fWeight = 1.0f;
   mutable ezUInt16 m_uiJointIdx = 0;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezIkJointEntry);

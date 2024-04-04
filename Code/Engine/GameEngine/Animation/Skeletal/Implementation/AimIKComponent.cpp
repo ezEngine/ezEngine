@@ -47,17 +47,17 @@ EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 1, ezComponentMode::Dynamic);
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezResult ezIkJointEntry::Serialize(ezStreamWriter& stream) const
+ezResult ezIkJointEntry::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_sJointName;
-  stream << m_fWeight;
+  inout_stream << m_sJointName;
+  inout_stream << m_fWeight;
   return EZ_SUCCESS;
 }
 
-ezResult ezIkJointEntry::Deserialize(ezStreamReader& stream)
+ezResult ezIkJointEntry::Deserialize(ezStreamReader& inout_stream)
 {
-  stream >> m_sJointName;
-  stream >> m_fWeight;
+  inout_stream >> m_sJointName;
+  inout_stream >> m_fWeight;
   m_uiJointIdx = 0;
   return EZ_SUCCESS;
 }
