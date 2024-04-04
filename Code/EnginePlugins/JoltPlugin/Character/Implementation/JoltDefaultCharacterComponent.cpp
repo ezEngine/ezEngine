@@ -453,7 +453,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
   ezQuat shapeRot = ezQuat::MakeShortestRotation(ezVec3(0, 1, 0), ezVec3(0, 0, 1));
 
   const float radius = m_fFootRadius;
-  const float halfHeight = ezMath::Max(0.0f, m_fMaxStepDown - radius);
+  const float halfHeight = ezMath::Max(0.01f, m_fMaxStepDown - radius);
 
   JPH::CapsuleShape shape(halfHeight, radius);
 
