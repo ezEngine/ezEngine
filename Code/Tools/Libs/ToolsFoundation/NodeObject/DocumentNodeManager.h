@@ -124,7 +124,7 @@ struct ezNodeCreationTemplate
 
 /// \brief Base class for all node connections. Derive from this class and overwrite ezDocumentNodeManager::GetConnectionType
 /// if you need custom properties for connections.
-class ezDocumentObject_ConnectionBase : public ezReflectedClass
+class EZ_TOOLSFOUNDATION_DLL ezDocumentObject_ConnectionBase : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentObject_ConnectionBase, ezReflectedClass);
 
