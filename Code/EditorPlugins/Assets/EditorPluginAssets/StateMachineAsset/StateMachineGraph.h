@@ -15,9 +15,9 @@ public:
 
 /// \brief A connection that represents a state machine transition. Since we can't chose different connection
 /// types in the Editor we allow the user to switch the type in the properties.
-class ezStateMachineConnection : public ezReflectedClass
+class ezStateMachineConnection : public ezDocumentObject_ConnectionBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineConnection, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineConnection, ezDocumentObject_ConnectionBase);
 
 public:
   ezStateMachineTransition* m_pType = nullptr;

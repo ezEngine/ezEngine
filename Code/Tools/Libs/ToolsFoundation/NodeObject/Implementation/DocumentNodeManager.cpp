@@ -80,10 +80,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObject_ConnectionBase, 1, ezRTTIDefaul
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Source", m_Source),
-    EZ_MEMBER_PROPERTY("Target", m_Target),
-    EZ_MEMBER_PROPERTY("SourcePin", m_SourcePin),
-    EZ_MEMBER_PROPERTY("TargetPin", m_TargetPin),
+    EZ_MEMBER_PROPERTY("Source", m_Source)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("Target", m_Target)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("SourcePin", m_SourcePin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("TargetPin", m_TargetPin)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
 }
@@ -446,9 +446,33 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
       ezVariant targetPinVar = pObject->GetTypeAccessor().GetValue("TargetPin");
       EZ_ASSERT_DEV(sourceVar.IsA<ezUuid>() && targetVar.IsA<ezUuid>() && sourcePinVar.IsA<ezString>() && targetPinVar.IsA<ezString>(), "Invalid connection object");
 
+      ezUuid source = sourceVar.Get<ezUuid>();
+      ezUuid target = targetVar.Get<ezUuid>();
+      ezStringView sourcePin = sourcePinVar.Get<ezString>();
+      ezStringView targetPin = targetPinVar.Get<ezString>();
+
       const ezPin* pSourcePin = nullptr;
       const ezPin* pTargetPin = nullptr;
-      if (ResolveConnection(sourceVar.Get<ezUuid>(), targetVar.Get<ezUuid>(), sourcePinVar.Get<ezString>(), targetPinVar.Get<ezString>(), pSourcePin, pTargetPin).Succeeded())
+      if (ResolveConnection(source, target, sourcePin, targetPin, pSourcePin, pTargetPin).Failed())
+      {
+        // Try to restore from metadata
+        DocumentNodeManager_ConnectionMetaData connectionMetaData;
+        rttiConverter.ApplyPropertiesToObject(pAbstractObject, pConnectionMetaDataType, &connectionMetaData);
+        if (connectionMetaData.IsValid())
+        {
+          pObject->GetTypeAccessor().SetValue("Source", connectionMetaData.m_Source);
+          pObject->GetTypeAccessor().SetValue("Target", connectionMetaData.m_Target);
+          pObject->GetTypeAccessor().SetValue("SourcePin", connectionMetaData.m_SourcePin);
+          pObject->GetTypeAccessor().SetValue("TargetPin", connectionMetaData.m_TargetPin);
+
+          source = connectionMetaData.m_Source;
+          target = connectionMetaData.m_Target;
+          sourcePin = connectionMetaData.m_SourcePin;
+          targetPin = connectionMetaData.m_TargetPin;
+        }
+      }
+
+      if (ResolveConnection(source, target, sourcePin, targetPin, pSourcePin, pTargetPin).Succeeded())
       {
         if (bUndoable)
         {
