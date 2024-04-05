@@ -96,6 +96,8 @@
     <file>ezVolumeSphereComponent.svg</file>
     <file>ezLodComponent.svg</file>
     <file>ezLodMeshComponent.svg</file>
+    <file>ezAimIKComponent.svg</file>
+    <file>ezTwoBoneIKComponent.svg</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.svg</file>

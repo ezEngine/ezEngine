@@ -16,6 +16,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPosePreparing, 1, ezRTTIDefaultAll
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseGeneration);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseGeneration, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseGeneration>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseUpdated);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseUpdated, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseUpdated>)
 {
