@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5610093527764820148,5219027326469845793}}
-		u4 %Hash{5405994370300507568}
+		u4 %Hash{6929213846453778072}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -19,8 +19,8 @@ o
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 3ebb6609-8d64-436d-a723-446175509e0d }"}
 			s{"{ 6f17c604-4d55-401f-9d18-55acceff3215 }"}
-			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 			s{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
+			s{"{ cd62149a-5812-44fc-a00c-29c09ee8fef2 }"}
 			s{"{ ebd75409-6534-49dc-a7a3-ef5bfab657ec }"}
 			s{"{ f1b42973-eff4-405c-bab5-9174aedb999b }"}
 		}
@@ -133,7 +133,7 @@ o
 			Uuid{u4{13155961314641376217,5199664906609915283}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00004040,0x0000A03F,0x000018C1}}
+		Vec3 %LocalPosition{f{0x9A9923C2,0x0000D0C1,0x9A99A1C1}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -343,12 +343,8 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters
-		{
-			b %GiveAllWeapons{1}
-			b %Invincible{1}
-		}
-		s %PlayerPrefab{"{ 8044a36f-e313-4204-973d-796231798973 }"}
+		VarDict %Parameters{}
+		s %PlayerPrefab{"{ cd62149a-5812-44fc-a00c-29c09ee8fef2 }"}
 	}
 }
 o
