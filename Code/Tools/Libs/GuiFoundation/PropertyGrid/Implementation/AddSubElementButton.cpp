@@ -139,44 +139,17 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
     }
     m_SupportedTypes.Insert(pProp->GetSpecificType());
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
-
-    // remove all types that are marked as hidden
-    for (auto it = m_SupportedTypes.GetIterator(); it.IsValid();)
-    {
-      if (it.Key()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
-      {
-        it = m_SupportedTypes.Remove(it);
-        continue;
-      }
-
-      it.Key()->GetAllProperties(properties);
-      if (properties.IsEmpty())
-      {
-        // types that have zero properties are typically base classes that should not be shown
-        // TODO: unclear how many such types exist and which ones should show up anyway
-        // though all components have at least the 'Active' property
-        it = m_SupportedTypes.Remove(it);
-        continue;
-      }
-
-      if (!s_bShowInDevelopmentFeatures)
-      {
-        if (auto pInDev = it.Key()->GetAttributeByType<ezInDevelopmentAttribute>())
-        {
-          it = m_SupportedTypes.Remove(it);
-          continue;
-        }
-      }
-
-      ++it;
-    }
-
-    // Make category-sorted array of types
+    // Make category-sorted array of types and skip all abstract, hidden or in development types
     ezDynamicArray<const ezRTTI*> supportedTypes;
     for (const ezRTTI* pRtti : m_SupportedTypes)
     {
       if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
+        continue;
+
+      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+        continue;
+
+      if (!s_bShowInDevelopmentFeatures && pRtti->GetAttributeByType<ezInDevelopmentAttribute>() != nullptr)
         continue;
 
       supportedTypes.PushBack(pRtti);
