@@ -297,9 +297,8 @@ void JobSystemThreadPool::QueueJobs(Job **inJobs, uint inNumJobs)
 #elif defined(JPH_PLATFORM_LINUX)
 	static void SetThreadName(const char *inName)
 	{
-		char truncated_name[16] = { 0 };
-		strncpy(truncated_name, inName, min<size_t>(sizeof(truncated_name), 15));
-		prctl(PR_SET_NAME, truncated_name, 0, 0, 0);
+		JPH_ASSERT(strlen(inName) < 16); // String will be truncated if it is longer
+		prctl(PR_SET_NAME, inName, 0, 0, 0);
 	}
 #endif // JPH_PLATFORM_LINUX
 

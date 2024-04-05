@@ -196,6 +196,7 @@ const ConvexShape::Support *TaperedCapsuleShape::GetSupportFunction(ESupportMode
 		return new (&inBuffer) TaperedCapsule(scaled_top_center, scaled_bottom_center, scaled_top_radius, scaled_bottom_radius, 0.0f);
 
 	case ESupportMode::ExcludeConvexRadius:
+	case ESupportMode::Default:
 		{
 			// Get radii reduced by convex radius
 			float tr = scaled_top_radius - scaled_convex_radius;
@@ -409,7 +410,7 @@ void TaperedCapsuleShape::TransformShape(Mat44Arg inCenterOfMassTransform, Trans
 {
 	Vec3 scale;
 	Mat44 transform = inCenterOfMassTransform.Decompose(scale);
-	TransformedShape ts(RVec3(transform.GetTranslation()), transform.GetRotation().GetQuaternion(), this, BodyID(), SubShapeIDCreator());
+	TransformedShape ts(RVec3(transform.GetTranslation()), transform.GetQuaternion(), this, BodyID(), SubShapeIDCreator());
 	ts.SetShapeScale(scale.GetSign() * ScaleHelpers::MakeUniformScale(scale.Abs()));
 	ioCollector.AddHit(ts);
 }

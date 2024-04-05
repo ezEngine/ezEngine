@@ -181,7 +181,11 @@
 	#define JPH_CPU_ADDRESS_BITS 32
 	#define JPH_VECTOR_ALIGNMENT 16
 	#define JPH_DVECTOR_ALIGNMENT 32
-	#define JPH_DISABLE_CUSTOM_ALLOCATOR
+	#ifdef __wasm_simd128__
+		#define JPH_USE_SSE
+		#define JPH_USE_SSE4_1
+		#define JPH_USE_SSE4_2
+	#endif
 #elif defined(__e2k__)
 	// Elbrus e2k architecture
 	#define JPH_CPU_E2K
@@ -303,6 +307,7 @@
 	JPH_GCC_SUPPRESS_WARNING("-Wcomment")														\
 	JPH_GCC_SUPPRESS_WARNING("-Winvalid-offsetof")												\
 	JPH_GCC_SUPPRESS_WARNING("-Wclass-memaccess")												\
+	JPH_GCC_SUPPRESS_WARNING("-Wpedantic")														\
 																								\
 	JPH_MSVC_SUPPRESS_WARNING(4619) /* #pragma warning: there is no warning number 'XXXX' */	\
 	JPH_MSVC_SUPPRESS_WARNING(4514) /* 'X' : unreferenced inline function has been removed */	\
