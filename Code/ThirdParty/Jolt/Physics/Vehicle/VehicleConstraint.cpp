@@ -99,7 +99,7 @@ VehicleConstraint::VehicleConstraint(Body &inVehicleBody, const VehicleConstrain
 		JPH_ASSERT(r.mStiffness >= 0.0f);
 	}
 
-	// Construct our controler class
+	// Construct our controller class
 	mController = inSettings.mController->ConstructController(*this);
 
 	// Create wheels
@@ -504,6 +504,19 @@ void VehicleConstraint::SetupVelocityConstraint(float inDeltaTime)
 		}
 
 	CalculatePitchRollConstraintProperties(body_transform);
+}
+
+void VehicleConstraint::ResetWarmStart()
+{
+	for (Wheel *w : mWheels)
+	{
+		w->mSuspensionPart.Deactivate();
+		w->mSuspensionMaxUpPart.Deactivate();
+		w->mLongitudinalPart.Deactivate();
+		w->mLateralPart.Deactivate();
+	}
+
+	mPitchRollPart.Deactivate();
 }
 
 void VehicleConstraint::WarmStartVelocityConstraint(float inWarmStartImpulseRatio)
