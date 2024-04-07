@@ -219,7 +219,6 @@ ezUInt32 ezRemoteInterface::ExecuteMessageHandlersForQueue(ezRemoteMessageQueue&
   queue.m_MessageQueueIn.Swap(queue.m_MessageQueueOut);
   const ezUInt32 ret = queue.m_MessageQueueOut.GetCount();
 
-
   if (queue.m_MessageHandler.IsValid())
   {
     for (auto& msg : queue.m_MessageQueueOut)

@@ -201,15 +201,15 @@ ezSharedPtr<const ezGALShaderByteCode> ezShaderStageBinary::GetByteCode() const
   return m_pGALByteCode;
 }
 
-ezResult ezShaderStageBinary::WriteStageBinary(ezLogInterface* pLog) const
+ezResult ezShaderStageBinary::WriteStageBinary(ezLogInterface* pLog, ezStringView sPlatform) const
 {
   ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
 
-  sShaderStageFile.AppendPath(ezShaderManager::GetActivePlatform().GetData());
+  sShaderStageFile.AppendPath(sPlatform);
   sShaderStageFile.AppendFormat("/{0}_{1}.ezShaderStage", ezGALShaderStage::Names[m_pGALByteCode->m_Stage], ezArgU(m_uiSourceHash, 8, true, 16, true));
 
   ezFileWriter StageFileOut;
-  if (StageFileOut.Open(sShaderStageFile.GetData()).Failed())
+  if (StageFileOut.Open(sShaderStageFile).Failed())
   {
     ezLog::Error(pLog, "Could not open shader stage file '{0}' for writing", sShaderStageFile);
     return EZ_FAILURE;
@@ -225,7 +225,7 @@ ezResult ezShaderStageBinary::WriteStageBinary(ezLogInterface* pLog) const
 }
 
 // static
-ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash)
+ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash, ezStringView sPlatform)
 {
   auto itStage = s_ShaderStageBinaries[Stage].Find(uiHash);
 
@@ -233,7 +233,7 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
   {
     ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
 
-    sShaderStageFile.AppendPath(ezShaderManager::GetActivePlatform().GetData());
+    sShaderStageFile.AppendPath(sPlatform);
     sShaderStageFile.AppendFormat("/{0}_{1}.ezShaderStage", ezGALShaderStage::Names[Stage], ezArgU(uiHash, 8, true, 16, true));
 
     ezFileReader StageFileIn;

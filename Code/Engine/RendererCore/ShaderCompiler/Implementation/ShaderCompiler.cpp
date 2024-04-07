@@ -417,7 +417,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
       if (spd.m_uiSourceHash[stage] != 0)
       {
-        ezShaderStageBinary* pBinary = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, spd.m_uiSourceHash[stage]);
+        ezShaderStageBinary* pBinary = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, spd.m_uiSourceHash[stage], sPlatform);
 
         if (pBinary)
         {
@@ -456,7 +456,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
         bin.m_uiSourceHash = spd.m_uiSourceHash[stage];
         bin.m_pGALByteCode = spd.m_ByteCode[stage];
 
-        if (bin.WriteStageBinary(pLog).Failed())
+        if (bin.WriteStageBinary(pLog, sPlatform).Failed())
         {
           ezLog::Error(pLog, "Writing stage {0} binary failed", stage);
           return EZ_FAILURE;
