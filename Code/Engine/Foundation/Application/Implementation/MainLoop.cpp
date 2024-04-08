@@ -6,18 +6,18 @@
 #if defined(LIVEPP_ENABLED)
 #  include <LPP_API_x64_CPP.h>
 inline bool allow_hotreload = false;
-inline lpp::LppSynchronizedAgent lppAgent;
+inline lpp::LppDefaultAgent lppAgent;
 #endif
 
 ezResult ezRun_Startup(ezApplication* pApplicationInstance)
 {
   #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
   // create a synchronized agent, loading the Live++ agent from the given path, e.g. "ThirdParty/LivePP"
-  lppAgent = lpp::LppCreateSynchronizedAgent(nullptr, L"LivePP");
+  lppAgent = lpp::LppCreateDefaultAgent(nullptr, L"LivePP");
   // bail out in case the agent is not valid
-  if (!lpp::LppIsValidSynchronizedAgent(&lppAgent))
+  if (!lpp::LppIsValidDefaultAgent(&lppAgent))
   {
-    ezLog::Warning("Failed to create Live++ synchronized agent.");
+    ezLog::Warning("Failed to create Live++ agent.");
   }
   else
   {
@@ -48,25 +48,7 @@ void ezRun_MainLoop(ezApplication* pApplicationInstance)
 {
   while (pApplicationInstance->Run() == ezApplication::Execution::Continue)
   {
-    #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
-    if (allow_hotreload)
-    {
-      // listen to hot-reload and hot-restart requests
-      if (lppAgent.WantsReload(lpp::LPP_RELOAD_OPTION_SYNCHRONIZE_WITH_RELOAD))
-      {
-        // client code can do whatever it wants here, e.g. synchronize across several threads, the network, etc.
-        // ...
-        lppAgent.Reload(lpp::LPP_RELOAD_BEHAVIOUR_WAIT_UNTIL_CHANGES_ARE_APPLIED);
-      }
-
-      if (lppAgent.WantsRestart())
-      {
-        // client code can do whatever it wants here, e.g. finish logging, abandon threads, etc.
-        // ...
-        lppAgent.Restart(lpp::LPP_RESTART_BEHAVIOUR_INSTANT_TERMINATION, 0u);
-      }
-    }
-#endif
+    // do nothing
   }
 }
 
@@ -97,7 +79,7 @@ void ezRun_Shutdown(ezApplication* pApplicationInstance)
 
   #if EZ_ENABLED(NS_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
   // destroy the Live++ agent
-  lpp::LppDestroySynchronizedAgent(&lppAgent);
+  lpp::LppDestroyDefaultAgent(&lppAgent);
 #endif
 
   // memory leak reporting cannot be done here, because the application instance is still alive and may still hold on to memory that needs
