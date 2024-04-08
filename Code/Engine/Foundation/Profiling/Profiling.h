@@ -164,7 +164,7 @@ public:
 };
 
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
-
+#  ifndef TRACY_ENABLE
 /// \brief Profiles the current scope using the given name.
 ///
 /// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope
@@ -172,17 +172,17 @@ public:
 ///
 /// \note The name string must not be destroyed before the current scope ends.
 ///
-/// \sa ezProfilingScope
+/// \sa nsProfilingScope
 /// \sa EZ_PROFILE_LIST_SCOPE
-#  define EZ_PROFILE_SCOPE(szScopeName) ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero())
+#    define EZ_PROFILE_SCOPE(szScopeName) nsProfilingScope EZ_CONCAT(_nsProfilingScope, EZ_SOURCE_LINE)(szScopeName, EZ_SOURCE_FUNCTION, nsTime::MakeZero())
 
 
-/// \brief Same as EZ_PROFILE_SCOPE but if the scope takes longer than 'Timeout', the ezProfilingSystem's timeout callback is executed.
+/// \brief Same as EZ_PROFILE_SCOPE but if the scope takes longer than 'Timeout', the nsProfilingSystem's timeout callback is executed.
 ///
 /// This can be used to log an error or save a callstack, etc. when a scope exceeds an expected amount of time.
 ///
-/// \sa ezProfilingSystem::SetScopeTimeoutCallback()
-#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout) ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szScopeName, EZ_SOURCE_FUNCTION, Timeout)
+/// \sa nsProfilingSystem::SetScopeTimeoutCallback()
+#    define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout) nsProfilingScope EZ_CONCAT(_nsProfilingScope, EZ_SOURCE_LINE)(szScopeName, EZ_SOURCE_FUNCTION, Timeout)
 
 /// \brief Profiles the current scope using the given name as the overall list scope name and the section name for the first section in the list.
 ///
@@ -193,17 +193,64 @@ public:
 ///
 /// \note The name string must not be destroyed before the current scope ends.
 ///
-/// \sa ezProfilingListScope
+/// \sa nsProfilingListScope
 /// \sa EZ_PROFILE_LIST_NEXT_SECTION
-#  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) \
-    ezProfilingListScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szListName, szFirstSectionName, EZ_SOURCE_FUNCTION)
+#    define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) \
+      nsProfilingListScope EZ_CONCAT(_nsProfilingScope, EZ_SOURCE_LINE)(szListName, szFirstSectionName, EZ_SOURCE_FUNCTION)
 
 /// \brief Starts a new section in a EZ_PROFILE_LIST_SCOPE
 ///
-/// \sa ezProfilingListScope
+/// \sa nsProfilingListScope
 /// \sa EZ_PROFILE_LIST_SCOPE
-#  define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) ezProfilingListScope::StartNextSection(szNextSectionName)
+#    define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) nsProfilingListScope::StartNextSection(szNextSectionName)
 
+#  endif
+#  if defined(TRACY_ENABLE)
+#    include <tracy/tracy/Tracy.hpp>
+/// \brief Profiles the current scope using the given name.
+///
+/// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope
+/// section.
+///
+/// \note The name string must not be destroyed before the current scope ends.
+///
+/// \sa nsProfilingScope
+/// \sa EZ_PROFILE_LIST_SCOPE
+#    define EZ_PROFILE_SCOPE(szScopeName) \
+      ZoneScoped;
+
+
+/// \brief Same as EZ_PROFILE_SCOPE but if the scope takes longer than 'Timeout', the nsProfilingSystem's timeout callback is executed.
+///
+/// This can be used to log an error or save a callstack, etc. when a scope exceeds an expected amount of time.
+///
+/// \sa nsProfilingSystem::SetScopeTimeoutCallback()
+#    define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout) \
+      ZoneScoped;
+/// \brief Profiles the current scope using the given name as the overall list scope name and the section name for the first section in the list.
+///
+/// Use EZ_PROFILE_LIST_NEXT_SECTION to start a new section in the list scope.
+///
+/// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope
+/// section.
+///
+/// \note The name string must not be destroyed before the current scope ends.
+///
+/// \sa nsProfilingListScope
+/// \sa EZ_PROFILE_LIST_NEXT_SECTION
+#    define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) \
+      ZoneScoped;
+
+/// \brief Starts a new section in a EZ_PROFILE_LIST_SCOPE
+///
+/// \sa nsProfilingListScope
+/// \sa EZ_PROFILE_LIST_SCOPE
+#    define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) nsProfilingListScope::StartNextSection(szNextSectionName)
+
+#    define EZ_TRACY_END_FRAME FrameMark;
+#  else
+#    define EZ_TRACY_END_FRAME
+#  endif
 #else
 
 #  define EZ_PROFILE_SCOPE(Name)                                /*empty*/

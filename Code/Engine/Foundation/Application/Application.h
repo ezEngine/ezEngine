@@ -7,6 +7,8 @@
 #include <Foundation/Application/Implementation/ApplicationEntryPoint.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
+#include <Foundation/Profiling/Profiling.h>
+
 class ezApplication;
 
 /// \brief Platform independent run function for main loop based systems (e.g. Win32, ..)
