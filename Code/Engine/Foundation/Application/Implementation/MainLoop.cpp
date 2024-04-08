@@ -11,7 +11,7 @@ inline lpp::LppDefaultAgent lppAgent;
 
 ezResult ezRun_Startup(ezApplication* pApplicationInstance)
 {
-  #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
   // create a synchronized agent, loading the Live++ agent from the given path, e.g. "ThirdParty/LivePP"
   lppAgent = lpp::LppCreateDefaultAgent(nullptr, L"LivePP");
   // bail out in case the agent is not valid
@@ -21,6 +21,7 @@ ezResult ezRun_Startup(ezApplication* pApplicationInstance)
   }
   else
   {
+    ezLog::Info("Live++ agent created.");
     allow_hotreload = true;
     lppAgent.EnableModule(lpp::LppGetCurrentModulePath(), lpp::LPP_MODULES_OPTION_NONE, nullptr, nullptr);
     // make Live++ handle dynamically loaded modules automatically, enabling them on load, disabling them on unload
@@ -77,7 +78,7 @@ void ezRun_Shutdown(ezApplication* pApplicationInstance)
   // Destructor is called by entry point function
   ezApplication::s_pApplicationInstance = nullptr;
 
-  #if EZ_ENABLED(NS_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
+  #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
   // destroy the Live++ agent
   lpp::LppDestroyDefaultAgent(&lppAgent);
 #endif
