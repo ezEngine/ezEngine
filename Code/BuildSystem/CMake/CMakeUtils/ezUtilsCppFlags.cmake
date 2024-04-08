@@ -1,3 +1,7 @@
+# NOTE: Reference for what Live++ requires: https://liveplusplus.tech/docs/documentation.html
+# Live++ only works with MSVC and Clang on Windows. It does not work with GCC. 
+# Current Compiler Settings for PS5 and Xbox Series X/S can work just fine with Live++.
+
 # #####################################
 # ## ez_check_build_type()
 # #####################################
@@ -21,6 +25,24 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	ez_pull_config_vars()
 
 	# target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:DEBUG>:${MY_DEBUG_OPTIONS}>")
+	if(EZ_3RDPARTY_LIVEPP_SUPPORT)
+		# These compiler settings must be enabled in the configuration properties of each project which uses Live++:
+
+		# C/C++ -> General -> Debug Information Format must be set to either C7 compatible (/Z7) or Program Database (/Zi)
+
+		# C/C++ -> Code Generation -> Enable Minimal Rebuild must be set to No (/Gm-)
+
+		# x86/Win32 projects additionally require the following compiler settings:
+
+		# C/C++ -> Code Generation -> Create Hotpatchable Image must be set to Yes (/hotpatch)
+		target_compile_options(${TARGET_NAME} PRIVATE
+			"/Z7"
+			"/Gm-"
+			"/hotpatch"
+			"/Gy"
+			"/Gw"
+		)
+	endif()
 
 	# enable multi-threaded compilation
 	target_compile_options(${TARGET_NAME} PRIVATE "/MP")
@@ -104,6 +126,11 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# Do not enable comdat folding in debug. Required to make incremental linking work.
 	set(LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /OPT:NOICF")
 
+	if(EZ_3RDPARTY_LIVEPP_SUPPORT)
+		set(LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /FUNCTIONPADMIN")
+		set(LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /DEBUG:FULL")
+	endif()
+
 	set(LINKER_FLAGS_RELEASE "")
 
 	set(LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /INCREMENTAL:NO")
@@ -155,19 +182,24 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 
 	# 'nodiscard': attribute is ignored in this syntactic position
 	target_compile_options(${TARGET_NAME} PRIVATE /wd5240)
-    
-
 endfunction()
 
 # #####################################
 # ## ez_set_build_flags_clang(<target>)
 # #####################################
 function(ez_set_build_flags_clang TARGET_NAME)
-
 	if(EZ_CMAKE_ARCHITECTURE_X86)
 		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
 	endif()
-
+	if(EZ_3RDPARTY_LIVEPP_SUPPORT)
+		target_compile_options(${TARGET_NAME} PRIVATE 
+		"-g"
+		"-gcodeview"
+		"-fms-hotpatch"
+		"-ffunction-sections"
+		"-Xclang-mno-constructor-aliases"
+		)
+	endif()
 	# Disable warning: multi-character character constant
 	target_compile_options(${TARGET_NAME} PRIVATE -Wno-multichar)
 
@@ -190,7 +222,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${CMAKE_SOURCE_DIR}/Code/ThirdParty\"")
 	endif()
 
-	if (COMMAND ez_platformhook_set_build_flags_clang)
+	if(COMMAND ez_platformhook_set_build_flags_clang)
 		# call platform-specific hook
 		ez_platformhook_set_build_flags_clang()
 	endif()
@@ -293,7 +325,7 @@ function(ez_enable_strict_warnings TARGET_NAME)
 		get_target_property(TARGET_COMPILE_OPTS ${PROJECT_NAME} COMPILE_OPTIONS)
 		list(REMOVE_ITEM TARGET_COMPILE_OPTS /W3)
 		set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_OPTIONS "${TARGET_COMPILE_OPTS}")
-		
+
 		target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 	endif()
 

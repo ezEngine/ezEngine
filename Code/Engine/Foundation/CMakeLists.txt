@@ -19,7 +19,9 @@ if(EZ_CMAKE_COMPILER_CLANG)
   set_source_files_properties(ThirdParty/xxHash/xxHash.c PROPERTIES COMPILE_FLAGS "-Wno-unused-function")
 endif()
 
-if(EZ_CMAKE_PLATFORM_LINUX)
+ez_target_link_livepp(${PROJECT_NAME})
+
+if (EZ_CMAKE_PLATFORM_LINUX)
   CHECK_INCLUDE_FILE_CXX("uuid/uuid.h" UUID_HEADER)
 
   if(NOT UUID_HEADER)

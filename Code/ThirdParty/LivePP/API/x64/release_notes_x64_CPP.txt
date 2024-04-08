@@ -1,0 +1,822 @@
+2.4.1 - March 18, 2024
+======================
+
+- Optimized loading times
+  Since most build systems output all object files into the same directory, Live++ uses this as an opportunity to fetch several file attributes at once
+
+- Optimized patching performance
+
+- Improved documentation
+
+- Added showing progress in the task bar
+  This can be configured in the UI tab in the global preferences.
+  Thank you to Tom Read Cutting from Hello Games for suggesting this.
+
+- Added showing a message box when versions don't match between the Agent and the Broker
+  This can be configured in the UI tab in the global preferences.
+  Thank you to Tobias Sicheritz from Mi'pu'mi Games for suggesting this.
+
+- Fixed a crash in the 64-bit version of the Bridge when trying to read project preferences published from a 32-bit Agent process
+  Thank you to Tom Bui from Valve for reporting this.
+
+- Fixed a race condition between the pre-patch hook and Update() function in the examples
+
+
+2.4.0 - January 26, 2024
+========================
+
+- Resurrected support for x86/Win32 applications
+
+- Breaking API change: The WantsReload() API now offers options to either synchronize with compilation and hot-reload, or just hot-reload
+  Consequently, the CompileAndReloadChanges() API has been renamed into Reload() as well.
+  Thank you to Daniel Jennings from Valve for the feedback and discussions regarding this change.
+
+- Added global hot-restart shortcut CTRL+ALT+R
+  This can be configured in the Hot-Restart tab in the global preferences.
+
+- Added shortcuts to all action buttons in the exception handler dialog
+  Additionally, the dialog now focuses on "Leave function" by default and will also remember the last selected action.
+
+- The Broker version is now shown in the window title
+
+- Fixed patching of section-relative relocations with non-zero destination offset
+
+- Fixed horizontal scrolling in Module view
+
+- Fixed determining whether a SEH state is available in exception handler
+
+- Fixed serialization of licensing options
+  Changing any of these options never had an effect, because they weren't serialized correctly into the global preferences file.
+  Thank you to Sylvain Audi from Ubisoft Montreal for reporting this.
+
+
+2.3.3 - November 30, 2023
+=========================
+
+- Fixed a bug where the Bridge would try to access named shared memory that the Agent had already freed
+  Thank you to Kyle Rocha from Jetpack Interactive for reporting this.
+
+- Fixed possible LNK2011 in native toolchain after having recompiled a PCH during a Live++ session
+  The PCH is now recompiled so that it can be used by the native toolchain (e.g. Visual Studio) after the Live++ session has ended.
+  Thank you to Rick van Miltenburg from Triumph Studios for reporting this.
+
+- Fixed rare bug where stripping internal functions from a patch would lead to a crash in the hot-reloaded code
+  Thank you to Billy Khan from id Software for reporting this.
+
+- Fixed rendering artefact in examples
+
+
+2.3.2 - October 12, 2023
+========================
+
+- Improved handling of dynamic initializers when compiling with Clang
+
+- Improved handling of RTTI Complete Object Locators when compiling with Clang
+
+- Fixed "unknown warning group '-Wreserved-identifier'" warning on older versions of Clang
+  Thank you to Jim Kjellin from MachineGames for reporting this.
+
+- Fixed reading of large PDBs that contain nil pages
+  Thank you to Sebastian Schöner from Epic Games for reporting this.
+
+- Implemented resetting the notification tray icon to its default state as soon as the last registered target exits
+  Thank you to Tobias Sicheritz from Mi'pu'mi Games for suggesting this.
+
+
+2.3.1 - September 7, 2023
+=========================
+
+- Improved interoperability with anti-virus software that scans produced patch executables
+  In certain situations, patch executables could sometimes not be opened for READ/WRITE access because of anti-virus software locking the file during scanning. Live++ now employs a simple backoff and retry logic, and reports any process that might be holding a lock onto a patch executable.
+  Thank you to the teams at Ubisoft for reporting this.
+
+- Fixed Broker not staying open when being spawned from parent processes using a Win32 job object
+  Spawning the Broker from the Live++ Agent breaks away from any job object the parent process might be associated with.
+  Thank you to Julien Charbonneau from Quantic Dream for reporting this.
+
+- Fixed header in documentation not being responsive on mobile devices
+  Thank you to Jon Stevens for reporting this.
+
+- Fixed reading of PDBs larger than 4GB
+  When trying to read PDB stream data starting at offsets >4GB, an internal calculation would overflow, resulting in the wrong offset(s) being used for subsequent reads. This bug would only manifest itself if the data to be read would actually start at an offset >4GB in the file, so it was subject to how the linker laid out the data in the PDB. (See GitHub commit: https://github.com/MolecularMatters/raw_pdb/commit/9e024b60ede60f1ec81e971c4899d2a019b2f792)
+  Thank you to Ritesh Oedayrajsingh Varma and Jelle van der Beek from Superluminal for reporting this, and Sebastian Schöner from Epic Games for helping with debugging this issue.
+
+- Fixed reading of PDBs with symbols other than S_PUB32 in their public symbol stream
+  Thank you to Sebastian Schöner from Epic Games for reporting this.
+
+- Added colorized icons in the notification area showing whether the last operation was successful or not
+  This can be configured in the UI tab in the global preferences.
+  Thank you to Jonas Tärnström from MachineGames for suggesting this.
+
+- Added detection of relative jumps when modules are disabled and enabled without unloading in between, which would otherwise lead to confusing "Not enough space" warnings
+  Thank you to Sloan Phillippi from Grinnelli Designs LLC for bringing this to our attention.
+
+- Added support for storing Studio and Enterprise licenses in the LocalAppData folder
+  Thank you to Jack Knobel from Electronic Arts for suggesting this.
+
+- Added support for providing a global_preferences_default.json file
+  Thank you to Sylvain Audi from Ubisoft Montreal for the discussions and feedback on this.
+
+- Added project preferences for setting the directory to the Broker
+  This can be used for having the Live++ runtime (Agent and Bridge) reside in a different directory or even different drive than the Live++ Broker.
+  Thank you to Jack Knobel from Electronic Arts for suggesting this.
+
+- Added "What's New?" entry to main menu
+
+- Removed loading of global preferences from the legacy %LocalAppData%\Live++ 2 folder
+
+- Moved preferences spawnBrokerForLocalConnection and showErrorOnFailedBrokerConnection from global to project preferences
+  Thank you to Jack Knobel from Electronic Arts for the discussions about this.
+
+
+2.3.0 - August 8, 2023
+======================
+
+- Initial release of support for Xbox Series X|S
+
+- Line numbers which encode debugger metadata are now supported by the exception handler
+
+- Optional global_preferences_override.json file allows clients to override global preferences
+  This allows teams to set up certain preferences for the whole team, while still allowing individual people to configure the remaining preferences as they see fit.
+  Thank you to Sylvain Audi from Ubisoft Montreal for the discussions and feedback on this.
+
+- Very large reduction in Broker startup times, all licensing has been moved into separate DLLs
+
+- Exception handler now shows correct symbolicated callstacks for modules for which DbgHelp cannot locate the PDBs
+  Thank you to Timo Suikat from Brickadia for reporting this.
+
+- Unreal Engine 5 support has been improved by adding preferences for removing the "-sourceDependencies" compiler option
+  Thank you to Timo Suikat from Brickadia for bringing this to our attention.
+
+- Support for CLR/C# DLLs that contain regions with page protection zero has been added
+  Thank you to Jack Knobel from Electronic Arts for reporting this.
+
+- Queue used by the task system no longer causes extremely rare random crashes caused by a stale read
+
+- Unified API: API files and documentation files have been moved into platform-specific subfolders
+  This was a requirement to ensure that plugins for different platforms don't overwrite files of other existing platforms.
+
+- Emitting -object-file-name compiler option when recompiling for Clang-based compilers
+  Thank you to Sylvain Audi from Ubisoft Montreal for the discussions and feedback on this.
+
+- API change: APIs for creating agents now accept local preferences
+  Clients that don't require to change local preferences can simply pass nullptr as argument.
+
+- Key message boxes for connection errors and crash dumps now always stay on top
+
+- Stack overflows handled by the exception handler no longer cause a misleading crash in the agent
+  Thank you to Sylvain Audi from Ubisoft Montreal for reporting this.
+
+
+2.2.1 - July 12, 2023
+=====================
+
+- Fixed a bug where unity splitting would consider compiling the PCH file again, leading to multiple defined symbols
+  Thank you to Martin Matouš from Warhorse Studios for reporting this.
+
+- Fixed a bug where /EXPORT directives would not be stripped from PCHs after those have been recompiled at least once, leading to unresolved linker errors
+  Thank you to Tobias Sicheritz from Mi'pu'mi Games for reporting this.
+
+- Fixed a bug where compilands that failed to spawn the compiler would not be recompiled without modifying the corresponding source file again
+  Thank you to Sylvain Audi from Ubisoft Montreal for bringing this to our attention.
+
+- Added protection against LNK4099 and possible subsequent crash
+  Thank you to Tobias Sicheritz from Mi'pu'mi Games for reporting this.
+
+- Added protection against Clang/LLD toolchains producing patch PDBs without any translation units
+  Thank you to Sylvain Audi from Ubisoft Montreal for bringing this to our attention.
+
+- Added support for global hot-reload start and end hooks
+  Thank you to Bobby Anguelov and Daniel Jennings from Valve for suggesting this.
+
+- Additional command-line options specified in the project preferences no longer require an extra whitespace
+  This matches the behaviour from Live++ 1.x.
+  Thank you to Sylvain Audi from Ubisoft Montreal for suggesting this.
+
+- "Focus broker window upon" notifications now match the behaviour from Live++ 1.x
+  Thank you to Sylvain Audi from Ubisoft Montreal for suggesting this.
+
+- Improved log output to include the name of modules for successful and failed recompiles
+  When several modules were registered in the Broker, the UI log was confusing in cases where some modules would be successfully recompiled, while others failed.
+  Thank you to Martin Mais from Keen Games for reporting this.
+
+- Added release notes to deployment
+  Thank you to Tobias Sicheritz from Mi'pu'mi Games for suggesting this.
+
+
+2.2.0 - June 19, 2023
+=====================
+
+- Fixed rare crash while loading compilands
+  Thank you to Tobias Sicheritz from Mi'pu'mi Games for reporting this.
+
+- Fixed log output when loading modules built with LTCG
+  Thank you to Tobias Sicheritz from Mi'pu'mi Games for bringing this to our attention.
+
+- Fixed notification area icon not showing tooltip on hover
+
+- Fixed plugins not loading when using a different Broker working directory
+  We also added an error message in case no platform plugin can be loaded to make diagnosing this easier in the future.
+  Thank you to Jorel Ali and Richie Hindle from Cyberscience for reporting this.
+
+- Breaking API change: Make all Enable*() and Disable*() API calls accept a filter callback and context
+  Filtering of modules was previously only available for the EnableAutomaticHandlingOfDynamicallyLoadedModules() API, but that only allowed one filter pattern and only had support for built-in Windows wildcards. In order to support more patterns like e.g. regular expressions and allow filtering non-dynamically loaded modules as well, this change was introduced.
+  Clients that don't require any filtering can simply pass nullptr for both callback and context.
+  Thank you to Tobias Sicheritz from Mi'pu'mi Games for suggesting this.
+
+- Breaking API change: Removed LPP_STRING_PREF_NETWORK_HOST_OR_IP
+  Since the Agent and Broker must already be connected in order to call the corresponding API, it does not make sense to alter this preference - it would not have any effect.
+
+- Amended required Clang compiler options with -Xclang -mno-constructor-aliases
+  This compiler option is required to disable some internal compiler optimizations that behave similar to ICF, folding/aliasing constructors and destructors.
+  Thank you to Sylvain Audi from Ubisoft Montreal for investigating this.
+
+- Significantly improved Broker start times
+  Some people were having problems with the default connection timeout, because the Broker took to long to start when being spawned by the Bridge.
+  Thank you to Neil Wallace from Hello Games for bringing this to our attention.
+
+- Attaching the debugger to a hot-restarted process now makes the Visual Studio debugger behave as if it had spawned the process itself
+  The restarted process will automatically be terminated once debugging stops.
+- Thank you to Jeremy Laumon from Guerrilla Games for suggesting this.
+
+- Attaching the debugger after a Hot-Restart now happens on a suspended process
+  Breakpoints set early in the restarted process will no longer be missed.
+  Thank you to Jean Farines from Asobo Studio for reporting this.
+
+- Added hex addresses to exception handler callstack
+
+- All patch-related errors in the Agent are now also reported in the Broker UI log
+  Thank you to Jean Farines from Asobo Studio for suggesting this.
+
+- Added information about available SEH data to exception handler
+  Thank you to Jean Farines from Asobo Studio for suggesting this.
+
+- Added animated icon in notification area during Hot-Reload and Hot-Restart
+  This can be toggled in the "UI" tab of the global preferences and is on by default.
+  Thank you to folks at Asobo Studio for requesting this to be brought back.
+
+- Added linker command-line options to Module details dialog
+  Thank you to Tobias Sicheritz from Mi'pu'mi Games for suggesting this.
+
+- Changed Bridge UI style to be Dark instead of Light by default
+  This matches the default Broker settings.
+
+- Updated documentation with 30-day trial workflow
+  Thank you to Ryan Juckett for suggesting this.
+
+- Added log output when saving preferences
+- Added platform identifier to the Broker UI log
+- Added target and process ID to Process view
+- Added target and process ID to Compilands view
+- Added platform and language to all dialog window titles
+  These changes were done in anticipation of upcoming releases of Live++ for consoles.
+
+
+2.1.5 - May 17, 2023
+====================
+
+- Fixed hang when copying from the Broker UI log
+  This was caused by 3rd-party copy protection corrupting Qt's internal messaging system.
+  Thank you to Zsolt Molnar from Creative Assembly for reporting this.
+
+- Fixed hang during Hot-Reload when breaking into the Visual Studio debugger using either __debugbreak() or an INT3 instruction
+  Thank you to Neil Wallace from Hello Games for reporting this.
+
+- Fixed Hot-Restart not reattaching the Visual Studio debugger to the hot-restarted process
+  Due to a race between two code paths trying to exit the Bridge, the code for reattaching the Visual Studio debugger would sometimes not be able to run.
+  Thank you to Felix Erksell from Massive Entertainment for bringing this to our attention.
+
+- Fixed Broker instances being spawned for applications running as Windows Services
+  The global mutex that is used for detecting whether a Broker is already running was not global across Windows Services, leading to situations where multiple Brokers would be listening for incoming connections on the same port.
+  Thank you to Richie Hindle from Cyberscience for reporting this.
+
+- Fixed Agent exception handler not getting unregistered correctly in case "Leave function" has been used at least once
+  When an exception handler is called by the operating system, its internal reference count gets incremented internally to make sure that it isn't removed while being called (see ReactOS source). However, when using the "Leave function" option, the reference count is never decremented again because unwinding the stack does not continue execution at the original call site.
+  Thank you to Edward Lambert from Sports Interactive for reporting this.
+
+
+2.1.4 - April 18, 2023
+======================
+
+- Updated to Qt 6.5.0, fixing smaller UI and theming issues
+- Added OnConnection() API
+- Added possibility to run multiple Brokers on different ports simultaneously
+- Added queuing of compilands for deoptimization
+- Added reoptimize/deoptimize/queue actions in Compilands widget
+- Added state views/filters in Compilands widget
+- Improved versioning checks between Agent and Broker
+- Removed Windows toast notifications when no changes are detected
+- Removed SDL from Examples
+- Refactored keyboard shortcuts to work in cases where global applications (e.g. certain IHV utilities on laptops) already have global hot-keys registered
+- Fixed possible crash in FlsAlloc when linking against the static CRT with Visual Studio 2017
+
+
+2.1.3 - April 3, 2023
+=====================
+
+- Switched default port from ephemeral port 60000 to port 12216
+- Added configurable TCP/IP port used for communication between Bridge and Broker
+- Added configurable suppression of import library creation (/NOIMPLIB) via the project preferences
+
+
+2.1.2 - March 30, 2023
+======================
+
+- Added version check between Agent DLLs and Broker to prevent mismatches in future versions
+- Added UI button for clearing shortcuts in global preferences
+- Added workaround for Visual Studio bug that emits symbols containing names of anonymous namespaces
+- Improved timeout handling between Agent and Bridge when connecting pipes
+- Improved logging into files
+- Updated documentation with -fstandalone-debug when using Clang
+- Fixed linker error LNK1143 for COMDAT ".CRT$" sections containing "pick any" symbols
+- Fixed page protections not getting restored for unregistered modules
+- Fixed rare Broker deadlock during hot-restart of multiple processes
+- Fixed very rare hang when hot-reloading modules into a halted process
+
+
+2.1.1 - February 27, 2023
+=========================
+
+- Improved compatibility with ASAN
+- Improved compatibility with Clang++
+- Suppressed creation of .LIB files with Clang even for patches with stripped /EXPORT directives
+- Fixed automatic deletion of patch files upon Agent exit
+- Fixed Bridge exiting too early for hot-restart
+
+
+2.1.0 - February 17, 2023
+=========================
+
+- Deprecated dedicated FASTBuild API EnableFASTBuildModule()
+- Deprecated support for external agents
+- Added support for MITM proxies when connecting to the license server
+- Added logging of SSL errors when failing to connect to the license server
+- Refactored API to no longer rely on <Windows.h> being included
+- Fixed variables in thread-local storage being initialized twice in the Live++ receiver thread when linking against older versions of the MSVC CRT
+- Fixed rare out-of-bounds read for compiler response files whose size is a multiple of the OS page size
+- Fixed extremely rare write-after-free in task scheduler in Broker, potentially leading to a hang or crash when enabling modules
+
+
+2.0.5 - February 8, 2023
+========================
+
+- Updated examples and documentation with checks for invalid agents
+- Added ScheduleRestart() API for manually scheduling hot-restarts
+- Added compiler and linker log output in Visual Studio even when a process is halted
+- Added project preferences opt-in to having hooks called even when a process is halted
+- Added protection against PDBs containing invalid type indices in parts of the build info record
+- Added support for correctly patching COFF label symbols, making C++20 coroutines work
+- Added cancelable hot-reload operations via the Broker status bar and main menu
+- Added toggling optimizations for whole modules
+- Added PDB build information for incomplete compilands where available
+- Added dumping of both mini dumps and full dumps in exception handlers
+- Added bringing Broker window to front when activating via the tray icon
+- Added "Contact support" to help menu
+- Removed UI log "Compiland was not compiled for CPU type x64" for .obj files built using Microsoft's internal "aliasobj" tool
+- Improved compatibility with Clang when using __declspec(selectany) symbols
+- Improved exception handler in Bridge and Broker
+- Improved interaction with the Visual Studio debugger when hot-reloading at a breakpoint
+- Improved support for static libraries linked from arbitrary working directories
+- Fixed crash on shutdown when hot-reloading modules that link against the static runtime library
+- Fixed rare crash during symbol reconstruction for symbols without any contribution
+- Fixed rare crash for very short-lived processes
+- Fixed handling of global read-only data with relocations for code that assumes constant addresses
+- Fixed hang during hot-reload when an exception is thrown while calling the patch entry point
+- Fixed possible hang in Agent in case initialization of Bridge process fails
+- Fixed Bridge processes being left over in rare cases
+- Fixed bug in COFF reader for translation units compiled without /bigobj having more than 32767 sections
+- Fixed interaction with Visual Studio debugger in cases where threads are frozen when initiating a hot-reload
+- Fixed wrong /OPT:REF and /OPT:ICF error messages for projects using default /DEBUG settings
+
+
+2.0.4 - October 7, 2022
+=======================
+
+- Changed location of global_preferences.json from %LocalAppData% to Broker directory for easier distribution
+- Moved exception handler settings from global preferences to project preferences
+- Added support for configurable timeouts for hot-reload and hot-restart
+- Added support for configurable UI log verbosity
+- Added support for pre-compile and post-compile hooks
+- Added support for pre-build steps via project preferences
+- Implemented cancellation of hot-reload operations
+- Improved logs before and during compilation
+- Fixed rare crash when trying to load modules into already exited processes in multi-process scenarios
+- Fixed handling of interleaved EnableModule()/DisableModule() calls in quick succession
+- Fixed handling of static thread-local variables when splitting unity files
+- Fixed determining which files need to be recompiled or linked into a patch when splitting of unity files previously failed
+
+
+2.0.3 - September 7, 2022
+=========================
+
+- Added function name to hook symbol names for disambiguation of hook symbols declared on the same line or with a macro
+- Added ANSI versions of all APIs
+- Improved Broker startup time
+- Implemented support for LPP_FORCE_UNITY_SPLITTING preprocessor define for fine-grained control over unity splitting
+- Implemented automatic log file retirement
+- Fixed patching of incremental linking thunks with unity splitting enabled
+
+
+2.0.2 - September 1, 2022
+=========================
+
+- Added link to GitHub issues under "Help -> Report a bug"
+- Added safety net for PDBs containing malformed build info record type indices
+- Added API to validate agents after initialization
+- Added dedicated API to set shortcut preferences
+- Added support for copying multiple lines from list widgets in detail views, callstack window, etc.
+- Split LppCreateDefaultAgent and LppCreateSynchronizedAgent APIs into several functions
+- Project preferences can now be passed when creating an agent, reducing the room for errors due to calling APIs in the wrong order
+- Extended documentation and FAQ with known issues for bug reports acknowledged by Microsoft
+- Improved support for PDB files with completely empty DBI or IPI streams
+- Improved performance of Visual Studio COM automation
+- Improved performance of setting up agent APIs
+- Improved synchronization with the Visual Studio debugger after a hot-reload operation
+- Improved hot key handling
+- Improved documentation
+- Fixed handling of control-flow guard enabled modules
+- Fixed internal synchronization for SynchronizedAgents when hot-reloading while debugging
+
+
+2.0.1 - August 24, 2022
+=======================
+
+- Added support for splitting unity files where single .cpp files are included into several unity files
+- Improved Visual Studio interoperability when performing hot-reloads during debugging
+- Improved documentation
+- Fixed possible deadlock when interleaving EnableModule() and DisableModule() calls
+- Fixed crash when linking with the static run-time library
+- Fixed patching of RVA32 relocations
+- Fixed stripping of virtual function tables
+- Plugin versions are now shown in the "About" window
+
+
+2.0.0 - August 16, 2022
+=======================
+
+- New plugin-based Agent/Bridge/Broker architecture
+- New Hot-Deoptimize functionality
+- New networked multi-process editing
+- New modern user interface with high-DPI support
+- New automatic handling of dynamically loaded modules
+- New examples
+- Improved Hot-Restart functionality
+- Improved Hot-Fix functionality
+- Improved Clang compatibility
+- Improved Visual Studio interoperability
+- Improved Unity splitting
+- Improved hooks
+- Greatly reduced loading times
+- Greatly reduced hot-reload overhead
+- Deprecated 32-bit support
+
+
+1.6.10 - July 26, 2022
+======================
+
+- Bugfix: workaround for very rare Windows 10 bug that can hang the system by reserving too much address space
+
+
+1.6.9 - May 4, 2022
+===================
+
+- Bugfix: possible crash when using inline functions in templated structs of a certain name
+
+
+1.6.8 - November 11, 2021
+=========================
+
+- Bugfix: possible crash in dynamic initializer code when using Clang
+
+
+1.6.7 - November 3, 2021
+========================
+
+- Bugfix: detecting changes to files while hot-reload is in progress
+
+
+1.6.6 - July 19, 2021
+=====================
+
+- Bugfix: hot-restart no longer needs environment variables which caused problems with processes spawning child processes
+- Bugfix: virtual memory page reservations weren't freed correctly when manually restarting one process in a multi-process scenario
+- Bugfix: improved parsing and removing of linker directives when compiling with Clang
+- Feature: support for relative paths in continuous compilation
+
+
+1.6.5 - March 26, 2021
+======================
+
+- Bugfix: potential crash in user application when using global symbols that emit two dynamic atexit destructors due to throwing destructors
+
+
+1.6.4 - December 22, 2020
+=========================
+
+- Bugfix: improved situation where modules could "steal" ±2GB virtual memory range from other registered modules
+
+
+1.6.3 - November 25, 2020
+=========================
+
+- Bugfix: regression introduced in 1.6.1 that would wrongly identify source compilands as library compilands, leading to unpatched functions in user code
+
+
+1.6.2 - November 23, 2020
+=========================
+
+- Bugfix: crash in user application when linking against the static runtime and calling lpp::lppShutdown in newer versions of Visual Studio 2019
+- Feature: improved handling of ±2GB virtual memory range surrounding enabled modules, reducing chances of patches that cannot be activated
+- Feature: removed obsolete handling of weak symbols
+
+
+1.6.1 - October 30, 2020
+========================
+
+- Bugfix: changes applied to source files before loading the corresponding module in Live++ were not tracked correctly
+- Bugfix: certain relocations to symbols in anonymous namespace were not patched correctly
+- Bugfix: potential crash in external build system mode when adding new compilands
+- Bugfix: potential crash due to null pointer access
+- Bugfix: forcing local file when both local and remote files are stored in compiland dependencies when using Clang
+- Feature: dedicated FASTBuild support, i.e. compilation databases and dependencies can be directly read from FASTBuild .fdb database files
+- Feature: changed naming of Live++ patches in order to help external tools such as Superluminal Profiler find symbols for patches
+- Feature: improved logs when automating the Visual Studio debugger
+- Feature: added timeout setting for prewarming the compiler and linker environments
+
+
+1.6.0 - July 20, 2020
+=====================
+
+- Roadmap feature: support for Clang (needs patches D43002 and D80833)
+- Bugfix: recompiling files that manually set a different entry point using #pragma comment
+- Bugfix: forcing DIA interfaces to be created using the msdia140.dll that ships with Live++
+- Bugfix: public API header now compiles cleanly under Clang with -Wall
+- Bugfix: potential out-of-bounds access when gathering dynamic initializers
+- Bugfix: improved handling of symbols containing filename hashes when amalgamation splitting is used
+- Feature: extra error handling and safety nets when automating Visual Studio using COM
+- Feature: GUI item that allows to trigger recompiles in cases where the keyboard shortcut isn't recognized (e.g. when connecting via OS X remotely)
+- Feature: optimized enumeration of files
+- Feature: upgraded to xxhash version 0.7.3
+- Feature: added versioning information inside of version.txt to deployments
+- Feature: ignoring JustMyCode symbols and sections during reconstruction and when patching relocations
+
+
+1.5.2 - January 27, 2020
+========================
+
+- Bugfix: potential error when reading modules in foreign process
+- Bugfix: stripping of associated COMDAT sections in object files compiled with /bigobj
+- Bugfix: very rare case that caused slowdowns of several seconds when reconstructing symbols
+- Bugfix: rare case that pulls in unnecessary object files as 'libraries'
+- Feature: improved performance when reconstructing symbols from COFF files
+- Feature: safeguard against PDB files that don't store a PDB path
+- Feature: fetching the compiler and linker environment no longer needs a temporary file
+- Feature: improved development and telemetry logging when timestamps are enabled
+- Feature: support for NatVis visualizers in patches in pre-4.22 versions of Unreal Engine 4
+
+
+1.5.1 - August 1, 2019
+======================
+
+- Bugfix: potential hang when prewarming compiler/linker environment
+- Feature: lppStartup and lppShutdown APIs for cleaner startup and shutdown
+- Feature: lppRestart API for manually initiating restarts
+- Feature: menu option to show license file in Windows Explorer
+- Feature: Visual Studio 2019 support in Trial Sample and static runtime headers
+
+
+1.5.0 - July 9, 2019
+====================
+
+- Feature: Restart functionality
+- Feature: improved Visual Studio debugging experience for halted processes
+- Feature: improved debugging of managed C# code that calls into recompiled C++ code
+- Feature: improved startup times when prewarming compiler/linker environment
+- Feature: explanatory text regarding User ID used for license activation
+- Feature: moved log files to "%LocalAppData%\Live++" path
+
+
+1.4.3 - June 4, 2019
+====================
+
+- Bugfix: possible stall in consecutive *Async API calls
+- Bugfix: redundant global symbols in rare cases when compiling with exception handling turned on
+- Bugfix: rare crash during startup leading to stall in client
+- Bugfix: rare hang when re-compiling while being held in the debugger
+- Feature: reduced inter-process communication
+- Feature: debugging symbols for jump-to-self in code cave
+- Feature: improved log messages in a few cases
+- Feature: safeguard check ignoring compilands which are newer than the corresponding module
+- Feature: LPP_COMPILER_ERROR_MESSAGE_HOOK hook for compile error notifications
+- Feature: API for enabling and disabling multiple modules at once
+- Feature: API for logging to the Live++ UI
+- Feature: UI setting to show timestamps in log messages
+- Feature: digitally signed binaries with EV code signing certificate
+
+
+1.4.2 - April 12, 2019
+======================
+
+- Bugfix: licensing problems for some users of 32-bit builds, caused by a bug in the 3rd-party licensing software
+
+
+1.4.1 - April 9, 2019
+=====================
+
+- Bugfix: cryptic "Initialization error 4" in 32-bit builds
+
+
+1.4.0 - April 8, 2019
+=====================
+
+- Bugfix: possible crash when changing certain UI settings
+- Bugfix: potential buffer overrun in Live++ API
+- Bugfix: potential crash when enumerating thread instruction pointers
+- Bugfix: out-of-bounds read for malformed environment blocks
+- Bugfix: license activation status sometimes not showing correctly
+- Bugfix: window position not being saved correctly when docking to the desktop borders
+- Bugfix: potential slowdown caused by accessing optical drives
+- Feature: new API for applying UI settings
+- Feature: new API for building patches directly
+- Feature: new UI setting for C++ file extensions used when splitting amalgamated/unity files
+- Feature: support for relative compiler and linker paths in UI settings
+- Feature: support for adding completely new object files when using an external build system
+- Feature: support for .o object files
+- Feature: writing of callstack dump upon fatal errors
+
+
+1.3.3 - January 28, 2019
+========================
+
+- Bugfix: possible crash when registering modules using relative paths
+- Bugfix: increased CPU usage when opening and closing applications belonging to the same Live++ instance
+- Bugfix: hashing of module headers for identifying identical modules
+- Feature: added compiler command-line to development log
+- Feature: optimized logging performance
+
+
+1.3.2 - November 22, 2018
+=========================
+
+- Bugfix: improved information in About dialog in case hardware ID doesn't match
+- Bugfix: updated documentation regarding continuous compilation
+- Feature: UI setting for keeping Live++ in the system tray
+- Feature: updated documentation regarding natvis debug visualizers
+
+
+1.3.1 - September 24, 2018
+==========================
+
+- Bugfix: improved behaviour and error reporting when launching Live++ executable directly
+- Bugfix: fixed possible unresponsiveness when re-compiling while process is halted in debugger
+- Feature: updated documentation regarding license activation
+
+
+1.3.0 - July 11, 2018
+=====================
+
+- Roadmap feature: support for LLVM LLD
+- Roadmap feature: installing code patches while process is halted in debugger
+- Roadmap feature: exception handler for installing code patches on fatal exceptions
+- Bugfix: handling of C++ catch-clauses in 64-bit applications
+- Feature: improved reconstruction of symbols and dynamic initializers
+- Feature: performance improvement when loading and reconstructing COFF files
+- Feature: unloading and disabling of modules
+- Feature: automatic recognition of Visual Studio compilers and linkers when overriding paths
+- Feature: new compile hooks
+- Feature: support for external build systems
+
+
+1.2.5 - May 30, 2018
+====================
+
+- Bugfix: workaround for incremental Windows API slowdown when enumerating thread instruction pointers
+- Bugfix: over-subscription of threads when re-compiling multiple files
+- Feature: support for project and user setting files
+- Feature: improved error reporting when detecting API vs. DLL version mismatch
+- Feature: improved logging when patching multiple processes
+- Feature: improved logging when detecting partial PDBs with missing linker environment
+- Feature: automatic identification of binary identical modules when editing multiple processes, supports copied executables in different directories
+- Feature: updated documentation and FAQ regarding FASTBuild and IncrediBuild setup
+
+
+1.2.4 - May 24, 2018
+====================
+
+- Bugfix: mis-identification of dynamic initializers for COMDAT symbols in named namespaces
+- Bugfix: same compiland being added more than once caused by missing normalization of .obj paths
+
+
+1.2.3 - May 23, 2018
+====================
+
+- Feature: digitally signed binaries to remedy false positives generated by certain anti-virus and malware scanners
+- Feature: workaround for compile error C2858 experienced when using Incredibuild with remote agents and precompiled header files
+- Feature: improved documentation for command-line tools
+
+
+1.2.2 - May 22, 2018
+====================
+
+- Bugfix: linker symbol clashes when linking against the static runtime library using _ITERATOR_DEBUG_LEVEL 0
+- Bugfix: crash caused by race condition between client and server signals when client is held in the debugger
+- Bugfix: crash caused by not updating directory cache for new dependencies
+- Bugfix: 'LNK1143: invalid or corrupt file: no symbol for COMDAT section' when stripping symbols in discardable 'pick any' COMDAT sections
+- Bugfix: source files on virtual drives could lead to '#pragma once' being ignored in certain headers
+- Bugfix: breakpoints in source files on virtual drives being ignored by the debugger
+- Bugfix: loading same modules more than once in multi-process editing scenarios
+- Feature: removed obsolete UI setting superseded by additional linker options
+- Feature: UI setting for passing additional compiler options used when creating a patch
+- Feature: UI setting for letting Live++ minimize into the system tray when being closed
+- Feature: UI settings for using compiler and linker override paths as fallback only
+- Feature: warning message when changing UI settings related to splitting of amalgamated/unity files
+- Feature: improved loading times
+- Feature: improved telemetry logs
+- Feature: removed message box when no activated license can be found, window title will show 'not activated' instead
+
+
+1.2.1 - May 11, 2018
+====================
+
+- Roadmap feature: automatic splitting of amalgamated/unity files
+- Feature: performance improvement when reconstructing COFF files the first time
+- Feature: API for manually triggering recompiles
+- Feature: API for compile hooks
+- Feature: UI setting for passing additional linker options used when creating a patch
+- Feature: command-line tools for automated license management (activation, deactivation, and validation)
+
+
+1.1.2 - April 30, 2018
+======================
+
+- Bugfix: corrupt COFF symbol table when stripping object files compiled with /bigobj containing more than 65535 sections
+- Bugfix: missing relocation when stripping object files with overflown relocations
+- Bugfix: potential crash when PDB contains no linker symbol
+- Bugfix: error 87 when trying to spawn compiler or linker, caused by multi-line environment variables
+
+
+1.1.1 - April 25, 2018
+======================
+
+- Feature: installing compiled patches when editing multiple processes that already have patches applied
+- Feature: improved performance when applying patches to multiple processes
+
+
+1.1.0 - April 23, 2018
+======================
+
+- Bugfix: potential hang when querying terminated process for page protection
+- Bugfix: crash bug when throwing exceptions in 64-bit applications
+- Bugfix: system tray misbehaving in certain combinations of notifications and focus events
+- Bugfix: compiling to .obj files that contain UTF-8 characters, compiler response file needs ANSI
+- Feature: multi-processor compilation when re-compiling multiple files
+- Feature: terminated processes/clients are automatically detected and disconnected from the server
+- Feature: Live++ instance stays open until the last process terminates or disconnects
+- Feature: process group names are automatically fixed should they contain illegal characters
+- Feature: global COFF stripping when re-compiling multiple files
+- Feature: system tray icon is removed when last process disconnects
+
+
+1.0.5 - April 12, 2018
+======================
+
+- Bugfix: potential hang due to an endless loop when stripping COFFs
+- Bugfix: potential crash due to out-of-bounds read when reading and reconstructing COFFs
+- Feature: added support for virtual drives
+- Feature: added support for playing sounds on successful and failed re-compiles
+- Feature: minimizing Live++ now sends it into the system tray, where progress is shown via animated icons
+
+
+1.0.4 - April 10, 2018
+======================
+
+- Feature: added continuous compilation mode
+- Feature: optimized finding of changed files, leading to much shorter iteration times, especially on large projects with lots of files
+
+
+1.0.3 - April 6, 2018
+=====================
+
+- Bugfix: when linking fails, it will now be retried without having to modify a file first
+- Feature: added support for files built remotely using FASTBuild
+- Feature: added UI setting for overriding linker paths
+- Feature: added UI setting for clearing logs on recompiles
+- Feature: added UI settings for disabling the use of compiler and linker environments
+
+
+1.0.2 - April 4, 2018
+=====================
+
+- Feature: workaround for WriteProcessMemory slowdown in Windows 10 SDK
+
+
+1.0.1 - March 29, 2018
+======================
+
+- Bugfix: pre- and post-patch hooks would sometimes be discarded by the compiler (VS2015 and newer)
+- Feature: added free sample application included in trial version
+
+1.0.0 - March 27, 2018
+======================
+
+- Initial release
