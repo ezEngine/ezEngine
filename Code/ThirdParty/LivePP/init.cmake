@@ -1,4 +1,5 @@
 # LIVE++ Utils
+# NOTES: To not use github storage, you can download the Live++ SDK from the official website and put it in the same directory as this file.
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
     set(EZ_SUPPORT_LIVEPP ON CACHE BOOL "Enable Live++ support for Ez")
