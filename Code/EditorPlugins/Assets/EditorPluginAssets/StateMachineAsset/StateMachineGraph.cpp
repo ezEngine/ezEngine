@@ -126,27 +126,23 @@ const ezRTTI* ezStateMachineNodeManager::GetConnectionType() const
 
 void ezStateMachineNodeManager::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
-  if (IsNode(e.m_pObject) == false)
+  if (IsNode(e.m_pObject) == false || IsAnyState(e.m_pObject))
     return;
 
   auto pCommandHistory = GetDocument()->GetCommandHistory();
-  if (pCommandHistory == nullptr)
+  if (pCommandHistory == nullptr || pCommandHistory->IsInTransaction() == false)
     return;
 
-  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectAdded)
+  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectAdded &&
+      e.m_pObject->GetTypeAccessor().GetValue(s_szIsInitialState) == false &&
+      GetInitialState() == nullptr)
   {
-    if (GetInitialState() == nullptr && IsAnyState(e.m_pObject) == false)
-    {
-      if (pCommandHistory->IsInTransaction() && e.m_pObject->GetTypeAccessor().GetValue(s_szIsInitialState) == false)
-      {
-        ezSetObjectPropertyCommand propCmd;
-        propCmd.m_Object = e.m_pObject->GetGuid();
-        propCmd.m_sProperty = s_szIsInitialState;
-        propCmd.m_NewValue = ezVariant(true);
+    ezSetObjectPropertyCommand propCmd;
+    propCmd.m_Object = e.m_pObject->GetGuid();
+    propCmd.m_sProperty = s_szIsInitialState;
+    propCmd.m_NewValue = ezVariant(true);
 
-        EZ_VERIFY(pCommandHistory->AddCommand(propCmd).Succeeded(), "");
-      }
-    }
+    EZ_VERIFY(pCommandHistory->AddCommand(propCmd).Succeeded(), "");
   }
 }
 
