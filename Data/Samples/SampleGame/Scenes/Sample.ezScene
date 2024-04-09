@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10991936023139991684,4849455965415217685}}
-		u4 %Hash{17461899136572161597}
+		u4 %Hash{549362521280254005}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -41,6 +41,7 @@ o
 			s{"{ cbd060e2-5c3c-49ad-aac5-4bbd2fed8a99 }"}
 			s{"{ f962fc28-661b-485c-a527-c997e239a3f0 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -653,7 +654,7 @@ o
 {
 	Uuid %id{u4{17988415449697551021,5453041092899987299}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -1310,7 +1311,7 @@ o
 {
 	Uuid %id{u4{11794140543791166008,10655704936881388654}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -5805,7 +5806,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -6686,6 +6687,7 @@ o
 	{
 		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_CustomData;"}
+		s %RequiredTag{"SampleCustomData"}
 	}
 }
 o
@@ -6748,7 +6750,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -6890,6 +6892,7 @@ o
 	{
 		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
 	}
 }
 o

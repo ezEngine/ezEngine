@@ -191,7 +191,7 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{14480472025422740414,4881933244452828737}}
-		u4 %Hash{2202901069215718130}
+		u4 %Hash{13402095146428554348}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3973616563548524274,1591302125804003715}}
@@ -205,6 +205,7 @@ o
 		{
 			s{"Animations/Pete/Pete.glb"}
 		}
+		s %Tags{""}
 	}
 }
 o
@@ -482,8 +483,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x00D38C3B,0x00000034,0x8F53B43F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Torso"}
 		b %OverrideCollisionLayer{0}
@@ -517,8 +516,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x00D38C3B,0x00000034,0x72B19C3F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Belly"}
 		b %OverrideCollisionLayer{0}
@@ -605,8 +602,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x00449F3B,0xD8C7AEBD,0xEB9C823F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0x5E836CBF,0,0,0x15EFC33E}}
 		s %Name{"UpperLeg.L"}
 		b %OverrideCollisionLayer{0}
@@ -637,8 +632,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x3E0B083F,0x963406BF,0x24F7EC3E,0xA6C6F4BE}}
 		Vec3 %GizmoOffsetTranslationRO{f{0xDEFE9CBC,0xCC1CD03D,0x08C88F3D}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0x8478333F,0xB005BD3D,0xB405BDBD,0x8278333F}}
 		s %Name{"Foot.R"}
 		b %OverrideCollisionLayer{0}
@@ -715,8 +708,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
 		s %JointType{"ezSkeletonJointType::None"}
-		b %LimitSwing{0}
-		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Armature"}
 		b %OverrideCollisionLayer{0}
@@ -750,8 +741,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x7356F5BE,0x8CD9FA3E,0xA6C301BF,0xDEDB053F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0xECCD0C3D,0xC8A2C93D,0x3DBA083F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0x010000BF,0x00000033,0x00008033,0xD9B35D3F}}
 		s %Name{"LowerLeg.R"}
 		b %OverrideCollisionLayer{0}
@@ -782,8 +771,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x5C1F4E3D,0x560120BF,0xE4743A3F,0x3D748DBE}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x046B383D,0x6C15753E,0x189A773F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Hand.R"}
 		b %OverrideCollisionLayer{0}
@@ -864,8 +851,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0xFEFFFFBE,0x0100003F,0x0100003F,0xFEFFFFBE}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x00D38C3B,0,0xBE708C3F}}
 		s %JointType{"ezSkeletonJointType::None"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Hip"}
 		b %OverrideCollisionLayer{0}
@@ -896,8 +881,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0xD2FF1FBF,0x34F34D3D,0xE8758DBE,0x0F763A3F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0xB06A383D,0x481D75BE,0x149A773F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Hand.L"}
 		b %OverrideCollisionLayer{0}
@@ -958,8 +941,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0xB64C05BF,0xB74C053F,0x49F1F43E,0x45F1F4BE}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x0059CABB,0,0xD8D2E43F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Head"}
 		b %OverrideCollisionLayer{0}
@@ -993,8 +974,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x00CFFC3B,0x501A46BE,0x516DCB3F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0xB8673B3E,0x0600003F,0xEED92EBF,0xFEFFFF3E}}
 		s %Name{"UpperArm.L"}
 		b %OverrideCollisionLayer{0}
@@ -1043,8 +1022,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x80CFFC3B,0x501A463E,0x526DCB3F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0xF104B53E,0x74C41CBF,0x73C41C3F,0xED04B53E}}
 		s %Name{"UpperArm.R"}
 		b %OverrideCollisionLayer{0}
@@ -1078,8 +1055,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x00449F3B,0xE0C7AE3D,0xEB9C823F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0x5E836C3F,0,0x00000033,0x19EFC3BE}}
 		s %Name{"UpperLeg.R"}
 		b %OverrideCollisionLayer{0}
@@ -1122,8 +1097,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
 		s %JointType{"ezSkeletonJointType::None"}
-		b %LimitSwing{0}
-		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Mesh"}
 		b %OverrideCollisionLayer{0}
@@ -1172,8 +1145,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x5E2744BF,0xC650593E,0xF7A8D1BD,0x3E0A193F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0xB0167CBD,0x802C85BE,0xEB7BA13F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0x1B26D13E,0xF4D9AE3E,0xCE67BBBD,0xFE6C573F}}
 		s %Name{"LowerArm.L"}
 		b %OverrideCollisionLayer{0}
@@ -1222,8 +1193,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x014E59BE,0x9524443F,0xC40D19BF,0x44B6D13D}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x08F87BBD,0xC026853E,0x047CA13F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0x70F6013F,0x0793D3BE,0xDE6A903E,0x9C8E333F}}
 		s %Name{"LowerArm.R"}
 		b %OverrideCollisionLayer{0}
@@ -1254,8 +1223,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x9B3406BF,0x410B083F,0x9DC6F4BE,0x1BF7EC3E}}
 		Vec3 %GizmoOffsetTranslationRO{f{0xC0009DBC,0xD81CD0BD,0x4CC88F3D}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0x8378333F,0xB805BDBD,0xA105BD3D,0x8278333F}}
 		s %Name{"Foot.L"}
 		b %OverrideCollisionLayer{0}
@@ -1286,8 +1253,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0}}
 		s %JointType{"ezSkeletonJointType::None"}
-		b %LimitSwing{0}
-		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Root"}
 		b %OverrideCollisionLayer{0}
@@ -1321,8 +1286,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x94D9FABE,0x7956F53E,0xDADB05BF,0xA2C3013F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x70CD0C3D,0xD8A2C9BD,0x41BA083F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0x000000BF,0x00000033,0x0000C0B2,0xD7B35D3F}}
 		s %Name{"LowerLeg.L"}
 		b %OverrideCollisionLayer{0}
@@ -1356,8 +1319,6 @@ o
 		Quat %GizmoOffsetRotationRO{f{0x010000BF,0x0000003F,0x0000003F,0x000000BF}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x00D38C3B,0,0x3605D53F}}
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
-		b %LimitSwing{1}
-		b %LimitTwist{1}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Neck"}
 		b %OverrideCollisionLayer{0}
@@ -1452,6 +1413,23 @@ o
 }
 o
 {
+	Uuid %id{u4{18145823255500990886,658922949661762930}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{7487808954123518552,1038212999886154059}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1520,6 +1498,23 @@ o
 }
 o
 {
+	Uuid %id{u4{455663516835322266,10016785433957589977}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTransformManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10395479654444300045,10796011810626369603}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1532,6 +1527,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeleton"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
 		u3 %TypeVersion{1}
 	}
 }

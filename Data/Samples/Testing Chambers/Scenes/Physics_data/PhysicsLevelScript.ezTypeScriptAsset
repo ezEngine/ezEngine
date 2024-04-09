@@ -14,7 +14,7 @@ o
 			s{"Scenes/Physics_data/PhysicsLevelScript.ts"}
 		}
 		Uuid %DocumentID{u4{18379143498027233978,5192136105358585460}}
-		u4 %Hash{15283144420962730975}
+		u4 %Hash{13324293730949979529}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13314479062947666452,7184008096571003568}}
@@ -25,6 +25,7 @@ o
 		{
 			s{"Scenes/Physics_data/PhysicsLevelScript.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

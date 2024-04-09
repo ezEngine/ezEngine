@@ -14,10 +14,15 @@ o
 			s{"UI/Edit.rml"}
 		}
 		Uuid %DocumentID{u4{10922229380658380468,5439759434091703483}}
-		u4 %Hash{13982056462589339693}
+		u4 %Hash{2556700606829105822}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References{}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"UI/Edit.rml"}
+		}
+		s %Tags{""}
 	}
 }
 }
@@ -66,7 +71,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -84,7 +88,6 @@ o
 		s %PluginName{"ezEditorPluginRmlUi"}
 		VarArray %Properties{}
 		s %TypeName{"ezRmlUiScaleMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -102,7 +105,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -120,7 +122,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -138,7 +139,6 @@ o
 		s %PluginName{"ezEditorPluginRmlUi"}
 		VarArray %Properties{}
 		s %TypeName{"ezRmlUiAssetProperties"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }

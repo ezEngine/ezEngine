@@ -15,7 +15,7 @@ o
 			s{"Textures/NeutralNormal.tga"}
 		}
 		Uuid %DocumentID{u4{6607650483781336964,5726352943156608548}}
-		u4 %Hash{8686878107693899767}
+		u4 %Hash{934042659098914685}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -24,6 +24,7 @@ o
 			s{"Kenney.nl/Decals/scorch_01.png"}
 			s{"Textures/NeutralNormal.tga"}
 		}
+		s %Tags{""}
 	}
 }
 }

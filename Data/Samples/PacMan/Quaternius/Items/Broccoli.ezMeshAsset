@@ -14,14 +14,21 @@ o
 			s{"Quaternius/Items/Broccoli.fbx"}
 		}
 		Uuid %DocumentID{u4{13159429269467400069,5163986678170331097}}
-		u4 %Hash{4315987826867473731}
+		u4 %Hash{2528226848975184564}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ c48a62d2-396a-47b6-a4f8-89fb81105ff6 }"}
 			s{"{ f78a3188-730d-4c54-ae5f-22fcaaa6f1ee }"}
 		}
+		VarArray %References
+		{
+			s{"Quaternius/Items/Broccoli.fbx"}
+			s{"{ c48a62d2-396a-47b6-a4f8-89fb81105ff6 }"}
+			s{"{ f78a3188-730d-4c54-ae5f-22fcaaa6f1ee }"}
+		}
+		s %Tags{""}
 	}
 }
 }
@@ -56,6 +63,7 @@ o
 	u3 %v{3}
 	p
 	{
+		b %AggressiveSimplification{0}
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
@@ -69,7 +77,9 @@ o
 			Uuid{u4{15559914903434600849,5027702230942355929}}
 			Uuid{u4{18065396637056259494,4643401853962573488}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Quaternius/Items/Broccoli.fbx"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -77,6 +87,7 @@ o
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

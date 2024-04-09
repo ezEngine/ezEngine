@@ -14,7 +14,7 @@ o
 			s{"Shaders/Materials/IrradianceProbeVisualization.ezShader"}
 		}
 		Uuid %DocumentID{u4{10735177727750644884,4887717215577949974}}
-		u4 %Hash{16020794930718866227}
+		u4 %Hash{13467246162118106948}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -22,6 +22,7 @@ o
 		{
 			s{"Shaders/Materials/IrradianceProbeVisualization.ezShader"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -41,6 +42,7 @@ o
 	u3 %v{4}
 	p
 	{
+		s %AssetFilterTags{""}
 		s %BaseMaterial{""}
 		s %Shader{"Shaders/Materials/IrradianceProbeVisualization.ezShader"}
 		s %ShaderMode{"ezMaterialShaderMode::File"}

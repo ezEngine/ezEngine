@@ -14,7 +14,7 @@ o
 			s{"Prefabs/Guns/RocketLauncher_data/RocketLauncher.ts"}
 		}
 		Uuid %DocumentID{u4{1156250440807979148,5608678996852801665}}
-		u4 %Hash{15844907700621872833}
+		u4 %Hash{11369667755329425828}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7336969502426521471,6306001024629653976}}
@@ -25,6 +25,7 @@ o
 		{
 			s{"Prefabs/Guns/RocketLauncher_data/RocketLauncher.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

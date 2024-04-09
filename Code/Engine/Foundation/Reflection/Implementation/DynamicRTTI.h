@@ -73,6 +73,14 @@ public:                                                 \
     EZ_REFLECTION_DEBUG_GETPARENTFUNC);                                                                                              \
   }
 
+/// \brief Same as EZ_BEGIN_DYNAMIC_REFLECTED_TYPE but forces the type to be treated as abstract by reflection even though
+/// it might not be abstract from a C++ perspective.
+#define EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(Type, Version)     \
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, Version, ezRTTINoAllocator) \
+    flags.Add(ezTypeFlags::Abstract);
+
+#define EZ_END_ABSTRACT_DYNAMIC_REFLECTED_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
+
 /// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
 class EZ_FOUNDATION_DLL ezReflectedClass : public ezNoBase
 {

@@ -14,7 +14,7 @@ o
 			s{"Vegetation/EvilTree.tree"}
 		}
 		Uuid %DocumentID{u4{15484710852909599622,5114518352703152825}}
-		u4 %Hash{5831590393308480861}
+		u4 %Hash{4661657416946253207}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -26,6 +26,7 @@ o
 			s{"Vegetation/EvilTree.tree"}
 			s{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
 		}
+		s %Tags{""}
 	}
 }
 }

@@ -17,10 +17,18 @@ o
 			s{"Textures/cc0Textures.com/Rock02/Rock02_rgh.jpg"}
 		}
 		Uuid %DocumentID{u4{7090259011275364739,5033770014469946947}}
-		u4 %Hash{2280604957484937822}
+		u4 %Hash{10860820696380068436}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References{}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"Kenney.nl/Decals/scorch_01.png"}
+			s{"Textures/cc0Textures.com/Rock02/Rock02_col.jpg"}
+			s{"Textures/cc0Textures.com/Rock02/Rock02_nrm.jpg"}
+			s{"Textures/cc0Textures.com/Rock02/Rock02_rgh.jpg"}
+		}
+		s %Tags{""}
 	}
 }
 }
@@ -73,7 +81,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalAssetProperties"}
-		u3 %TypeSize{336}
 		u3 %TypeVersion{3}
 	}
 }
@@ -91,7 +98,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -109,7 +115,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -127,7 +132,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -145,7 +149,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

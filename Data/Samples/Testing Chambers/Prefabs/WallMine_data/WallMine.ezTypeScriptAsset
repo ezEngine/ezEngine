@@ -14,7 +14,7 @@ o
 			s{"Prefabs/WallMine_data/WallMine.ts"}
 		}
 		Uuid %DocumentID{u4{17611778222487649947,5026615784132543037}}
-		u4 %Hash{12986731918053597514}
+		u4 %Hash{3151877303467853175}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6532330975478375302,9432015202027311804}}
@@ -25,6 +25,7 @@ o
 		{
 			s{"Prefabs/WallMine_data/WallMine.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

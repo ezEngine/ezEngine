@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12847930402705578174,5226840514406773140}}
-		u4 %Hash{4551816519313525301}
+		u4 %Hash{13451359403848195713}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -42,6 +42,7 @@ o
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 			s{"{ cb87c3c6-1099-405d-9403-5f6ef992fb69 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -582,7 +583,7 @@ o
 {
 	Uuid %id{u4{273244684283605402,5618658630072283688}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -664,7 +665,10 @@ o
 		u3 %NumCascades{2}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -1198,7 +1202,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -1793,7 +1797,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -1810,7 +1814,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{5}
 	}
 }
 o

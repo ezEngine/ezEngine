@@ -14,7 +14,7 @@ o
 			s{"Objects/Fern_data/Fern.FBX"}
 		}
 		Uuid %DocumentID{u4{9642918425809047473,5547520881020995788}}
-		u4 %Hash{188874264140443470}
+		u4 %Hash{672295723245667993}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -26,6 +26,7 @@ o
 			s{"Objects/Fern_data/Fern.FBX"}
 			s{"{ 3550d7c1-1b7d-4c5f-977d-1a189e1544c3 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -49,6 +50,7 @@ o
 	u3 %v{3}
 	p
 	{
+		b %AggressiveSimplification{0}
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
@@ -61,7 +63,9 @@ o
 		{
 			Uuid{u4{5567099264838371444,4634255902589804557}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Objects/Fern_data/Fern.FBX"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -69,6 +73,7 @@ o
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

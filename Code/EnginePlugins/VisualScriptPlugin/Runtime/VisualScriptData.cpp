@@ -55,7 +55,32 @@ ezResult ezVisualScriptDataDescription::Deserialize(ezStreamReader& inout_stream
     inout_stream >> typeInfo.m_uiCount;
   }
 
+  // Validate type info
+  ezUInt32 uiOffset = 0;
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerTypeInfo); ++i)
+  {
+    auto dataType = static_cast<ezVisualScriptDataType::Enum>(i);
+    const auto& typeInfo = m_PerTypeInfo[i];
+    if (typeInfo.m_uiCount == 0)
+      continue;
+
+    uiOffset = ezMemoryUtils::AlignSize(uiOffset, ezVisualScriptDataType::GetStorageAlignment(dataType));
+    if (typeInfo.m_uiStartOffset != uiOffset)
+    {
+      ezLog::Error("VisualScriptDataDescription data offset mismatch. If a type changed in size or alignment the script needs to be re-transformed.");
+      return EZ_FAILURE;
+    }
+
+    uiOffset += ezVisualScriptDataType::GetStorageSize(dataType) * typeInfo.m_uiCount;
+  }
+
   inout_stream >> m_uiStorageSizeNeeded;
+
+  if (m_uiStorageSizeNeeded != uiOffset)
+  {
+    ezLog::Error("VisualScriptDataDescription storage size mismatch. If a type changed in size or alignment the script needs to be re-transformed.");
+    return EZ_FAILURE;
+  }
 
   return EZ_SUCCESS;
 }

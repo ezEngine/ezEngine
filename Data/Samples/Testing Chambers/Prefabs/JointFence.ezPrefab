@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13158806953917285567,5758585626465192094}}
-		u4 %Hash{4771290683215912950}
+		u4 %Hash{6714982632284666774}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{981247846175512182,6270795320212404795}}
@@ -19,6 +19,7 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References{}
+		s %Tags{""}
 	}
 }
 o
@@ -65,7 +66,7 @@ o
 {
 	Uuid %id{u4{14165242126834624249,179171458319025900}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -119,7 +120,7 @@ o
 {
 	Uuid %id{u4{16823692320969060209,2968211671463883318}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -129,7 +130,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampX"}
+		s %Shape{"ezGreyBoxShape::RampPosX"}
 		f %SizeNegX{0x0000803E}
 		f %SizeNegY{0x00004040}
 		f %SizeNegZ{0}
@@ -183,7 +184,7 @@ o
 {
 	Uuid %id{u4{14944244434473509847,5187952512909817189}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -237,7 +238,7 @@ o
 {
 	Uuid %id{u4{14321898352847639984,5701979681849945921}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -306,7 +307,7 @@ o
 {
 	Uuid %id{u4{8367986873909682420,8047886034579492921}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -316,7 +317,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampX"}
+		s %Shape{"ezGreyBoxShape::RampPosX"}
 		f %SizeNegX{0x0000803E}
 		f %SizeNegY{0x00008040}
 		f %SizeNegZ{0}
@@ -360,7 +361,7 @@ o
 {
 	Uuid %id{u4{14369344727184370774,10483263430991893009}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -370,7 +371,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampX"}
+		s %Shape{"ezGreyBoxShape::RampPosX"}
 		f %SizeNegX{0x0000803E}
 		f %SizeNegY{0x00004040}
 		f %SizeNegZ{0}
@@ -414,7 +415,7 @@ o
 {
 	Uuid %id{u4{15582205628520155625,15856683159612397275}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -424,7 +425,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampX"}
+		s %Shape{"ezGreyBoxShape::RampPosX"}
 		f %SizeNegX{0x0000803E}
 		f %SizeNegY{0x00008040}
 		f %SizeNegZ{0}
@@ -502,7 +503,7 @@ o
 {
 	Uuid %id{u4{17363208242456434208,18226805006304990848}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -530,6 +531,23 @@ Types
 {
 o
 {
+	Uuid %id{u4{18145823255500990886,658922949661762930}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6914292285925798136,1108246313736053318}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -547,6 +565,23 @@ o
 }
 o
 {
+	Uuid %id{u4{2284349921802521999,1592420110010687888}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezNonUniformBoxManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{15501499876559131010,2215366623898344174}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -559,7 +594,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -593,6 +628,23 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabDocumentSettings"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -700,6 +752,23 @@ o
 }
 o
 {
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10244937169896853361,14776906713232524690}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -712,7 +781,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o

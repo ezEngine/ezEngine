@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16750256978677192078,5617282061002174649}}
-		u4 %Hash{14432655307922988213}
+		u4 %Hash{9985925748072717472}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -26,6 +26,7 @@ o
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 71425a36-fe5c-4145-a9eb-3ba4dc5f0b8d }"}
 		}
+		s %Tags{""}
 	}
 }
 }

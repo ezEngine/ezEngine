@@ -14,7 +14,7 @@ o
 			s{"Textures/Reference_D.dds"}
 		}
 		Uuid %DocumentID{u4{11398830688999107201,5676112980344832649}}
-		u4 %Hash{16567511720743734671}
+		u4 %Hash{9249486067812912142}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -25,6 +25,7 @@ o
 		{
 			s{"Textures/Reference_D.dds"}
 		}
+		s %Tags{""}
 	}
 }
 }

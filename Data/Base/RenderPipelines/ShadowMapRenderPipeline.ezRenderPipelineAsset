@@ -11,11 +11,12 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17711001407536439736,5505436445966180118}}
-		u4 %Hash{17997667719207102130}
+		u4 %Hash{5249079314664029807}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References{}
+		s %Tags{""}
 	}
 }
 }
@@ -85,6 +86,19 @@ o
 }
 o
 {
+	Uuid %id{u4{2857678271037352340,5008916251141363881}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{6092888042282166442,4702730995123121724}}
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{506494092431856007,4712002059416219605}}
+		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
 	Uuid %id{u4{4612768257152447660,5093767427298493568}}
 	s %t{"ezVisibleObjectsExtractor"}
 	u3 %v{1}
@@ -97,28 +111,15 @@ o
 }
 o
 {
-	Uuid %id{u4{3839975967945236644,5356666130192556293}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{3012569870458697352,5386212663437548644}}
-		s %Connection::SourcePin{"Output"}
-		Uuid %Connection::Target{u4{6092888042282166442,4702730995123121724}}
-		s %Connection::TargetPin{"DepthStencil"}
-	}
-}
-o
-{
 	Uuid %id{u4{3012569870458697352,5386212663437548644}}
 	s %t{"ezSourcePass"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %Clear{0}
 		Color %ClearColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		s %Format{"ezGALResourceFormat::D16"}
+		s %Format{"ezSourceFormat::Depth16Bit"}
 		s %MSAA_Mode{"ezGALMSAASampleCount::None"}
 		s %Name{""}
 		Vec2 %Node::Pos{f{0x7F93EF42,0xC72DB343}}
@@ -127,15 +128,15 @@ o
 }
 o
 {
-	Uuid %id{u4{6204173561508457910,5553742337022629907}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
+	Uuid %id{u4{14156536749985766572,5447875146299195120}}
+	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{6092888042282166442,4702730995123121724}}
-		s %Connection::SourcePin{"DepthStencil"}
-		Uuid %Connection::Target{u4{506494092431856007,4712002059416219605}}
-		s %Connection::TargetPin{"DepthStencil"}
+		Uuid %Source{u4{3012569870458697352,5386212663437548644}}
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{6092888042282166442,4702730995123121724}}
+		s %TargetPin{"DepthStencil"}
 	}
 }
 o
@@ -152,8 +153,8 @@ o
 			Uuid{u4{6092888042282166442,4702730995123121724}}
 			Uuid{u4{506494092431856007,4712002059416219605}}
 			Uuid{u4{4612768257152447660,5093767427298493568}}
-			Uuid{u4{6204173561508457910,5553742337022629907}}
-			Uuid{u4{3839975967945236644,5356666130192556293}}
+			Uuid{u4{14156536749985766572,5447875146299195120}}
+			Uuid{u4{2857678271037352340,5008916251141363881}}
 		}
 	}
 }
@@ -211,23 +212,6 @@ Types
 {
 o
 {
-	Uuid %id{u4{16494060757066149471,3508695807418134535}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezGALResourceFormat"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{877898746071678167,5219608750413080699}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -240,6 +224,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeInputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1171764224113832221,8086341435307155030}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSourceFormat"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -279,6 +280,23 @@ o
 }
 o
 {
+	Uuid %id{u4{8636592190291312350,8842102502527186654}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezHiddenAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5054405531023925278,10259889057768368274}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -296,23 +314,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1988646526571382668,10729334715299371304}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"DocumentNodeManager_DefaultConnection"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{14675304957327956872,11163401579737089191}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -325,7 +326,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSourcePass"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -342,6 +343,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTargetPass"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -376,6 +394,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezExtractor"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12475066012725324296,14434929982913778195}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -444,6 +479,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisibleObjectsExtractor"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13983305718315019434,17572363554072221229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentObject_ConnectionBase"}
 		u3 %TypeVersion{1}
 	}
 }

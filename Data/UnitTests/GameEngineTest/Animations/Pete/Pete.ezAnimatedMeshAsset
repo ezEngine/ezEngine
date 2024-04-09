@@ -14,14 +14,21 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{17746295257572864441,4896013864949744260}}
-		u4 %Hash{837208227672721891}
+		u4 %Hash{4740546923418258132}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 009efe5f-1b03-4ec4-862e-990bd04922ed }"}
 			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
 		}
+		VarArray %References
+		{
+			s{"Animations/Pete/Pete.glb"}
+			s{"{ 009efe5f-1b03-4ec4-862e-990bd04922ed }"}
+			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+		}
+		s %Tags{""}
 	}
 }
 }
@@ -34,16 +41,22 @@ o
 	u3 %v{2}
 	p
 	{
+		b %AggressiveSimplification{0}
+		s %BoneWeightPrecision{"ezMeshBoneWeigthPrecision::_8Bit"}
 		s %DefaultSkeleton{"{ 009efe5f-1b03-4ec4-862e-990bd04922ed }"}
 		b %ImportMaterials{1}
 		VarArray %Materials
 		{
 			Uuid{u4{15510227724285861261,5614866899468438065}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Animations/Pete/Pete.glb"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
+		b %NormalizeWeights{1}
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 	}
 }
@@ -89,8 +102,24 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshAssetProperties"}
-		u3 %TypeSize{1256}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14196080311825956621,8048256116943370769}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshBoneWeigthPrecision"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -107,7 +136,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -125,7 +153,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialResourceSlot"}
-		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -143,7 +170,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshTexCoordPrecision"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -161,7 +187,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshNormalPrecision"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -179,7 +204,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -197,7 +221,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

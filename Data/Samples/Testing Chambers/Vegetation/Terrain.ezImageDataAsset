@@ -14,7 +14,7 @@ o
 			s{"ParticleFX/Textures/Smoke.jpg"}
 		}
 		Uuid %DocumentID{u4{5779307192664201893,5287294646948565984}}
-		u4 %Hash{3765942512577086208}
+		u4 %Hash{1208881596649395279}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -22,6 +22,7 @@ o
 		{
 			s{"ParticleFX/Textures/Smoke.jpg"}
 		}
+		s %Tags{""}
 	}
 }
 }

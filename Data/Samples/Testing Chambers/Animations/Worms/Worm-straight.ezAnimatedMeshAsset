@@ -14,7 +14,7 @@ o
 			s{"Animations/Worms/Worm-straight.glb"}
 		}
 		Uuid %DocumentID{u4{15640839840847877801,4817139964602816695}}
-		u4 %Hash{1297557356656173973}
+		u4 %Hash{6121692926485111057}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -28,6 +28,7 @@ o
 			s{"{ 1adaac63-52c2-44dc-a269-972949b56b7a }"}
 			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -40,16 +41,22 @@ o
 	u3 %v{2}
 	p
 	{
+		b %AggressiveSimplification{0}
+		s %BoneWeightPrecision{"ezMeshBoneWeigthPrecision::_8Bit"}
 		s %DefaultSkeleton{"{ 1adaac63-52c2-44dc-a269-972949b56b7a }"}
 		b %ImportMaterials{0}
 		VarArray %Materials
 		{
 			Uuid{u4{1061145152923520166,5443734665931398625}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Animations/Worms/Worm-straight.glb"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
+		b %NormalizeWeights{1}
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 	}
 }
@@ -96,6 +103,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshAssetProperties"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14196080311825956621,8048256116943370769}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshBoneWeigthPrecision"}
+		u3 %TypeVersion{1}
 	}
 }
 o

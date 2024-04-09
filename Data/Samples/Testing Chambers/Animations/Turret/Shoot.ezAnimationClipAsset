@@ -14,7 +14,7 @@ o
 			s{"Animations/Turret/Turret.glb"}
 		}
 		Uuid %DocumentID{u4{2104638118018229942,5158595748246167764}}
-		u4 %Hash{13190645521485052318}
+		u4 %Hash{18348749045349370215}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -22,6 +22,7 @@ o
 		{
 			s{"Animations/Turret/Turret.glb"}
 		}
+		s %Tags{""}
 	}
 }
 }

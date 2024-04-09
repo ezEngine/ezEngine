@@ -24,7 +24,7 @@ o
 			s{"Scenes/Corridor_data/Corridor.ts"}
 		}
 		Uuid %DocumentID{u4{10704327468068905896,5280056722113657732}}
-		u4 %Hash{6513770165081982073}
+		u4 %Hash{15961413987223120780}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6310228099224176475,4922193385981354705}}
@@ -35,6 +35,7 @@ o
 		{
 			s{"Scenes/Corridor_data/Corridor.ts"}
 		}
+		s %Tags{""}
 	}
 }
 }

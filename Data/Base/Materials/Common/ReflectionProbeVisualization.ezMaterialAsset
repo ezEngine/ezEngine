@@ -14,7 +14,7 @@ o
 			s{"Shaders/Materials/ReflectionProbeVisualization.ezShader"}
 		}
 		Uuid %DocumentID{u4{4746343837574186671,4963508747386251216}}
-		u4 %Hash{4322716520249289002}
+		u4 %Hash{15522248181752946743}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -22,6 +22,7 @@ o
 		{
 			s{"Shaders/Materials/ReflectionProbeVisualization.ezShader"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -45,6 +46,7 @@ o
 	u3 %v{4}
 	p
 	{
+		s %AssetFilterTags{""}
 		s %BaseMaterial{""}
 		s %Shader{"Shaders/Materials/ReflectionProbeVisualization.ezShader"}
 		s %ShaderMode{"ezMaterialShaderMode::File"}
@@ -92,6 +94,7 @@ o
 			Uuid{u4{5849102467259526275,4866623058304370910}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"ReflectionProbeIndex"}
 		s %Type{"ezInt32"}
@@ -110,6 +113,7 @@ o
 			Uuid{u4{9160964964946952189,7549479378294713679}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"MipLevel"}
 		s %Type{"ezInt32"}

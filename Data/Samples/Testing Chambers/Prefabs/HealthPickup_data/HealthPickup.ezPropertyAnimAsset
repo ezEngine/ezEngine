@@ -11,11 +11,12 @@ o
 		s %AssetType{"PropertyAnim"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7591201283432349607,4851611073892669779}}
-		u4 %Hash{550423787334897233}
+		u4 %Hash{13111253916438365053}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References{}
+		s %Tags{""}
 	}
 }
 }

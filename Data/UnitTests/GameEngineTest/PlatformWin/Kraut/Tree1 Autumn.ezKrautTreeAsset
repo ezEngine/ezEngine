@@ -14,14 +14,21 @@ o
 			s{"Kraut/Tree1.tree"}
 		}
 		Uuid %DocumentID{u4{7922893751843090352,4753529958296423156}}
-		u4 %Hash{15406622647745414399}
+		u4 %Hash{9301911591023184294}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 1f56861a-dfe6-4028-917a-1fcb10700d3b }"}
 			s{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
 		}
+		VarArray %References
+		{
+			s{"Kraut/Tree1.tree"}
+			s{"{ 1f56861a-dfe6-4028-917a-1fcb10700d3b }"}
+			s{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+		}
+		s %Tags{""}
 	}
 }
 }
@@ -134,7 +141,6 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautAssetMaterial"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -152,7 +158,6 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautTreeAssetProperties"}
-		u3 %TypeSize{1264}
 		u3 %TypeVersion{1}
 	}
 }
@@ -170,7 +175,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -188,7 +192,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

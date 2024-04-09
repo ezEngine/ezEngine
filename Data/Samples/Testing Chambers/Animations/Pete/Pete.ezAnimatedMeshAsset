@@ -14,7 +14,7 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{15978448176418478469,5243708960401303845}}
-		u4 %Hash{14078025857343744883}
+		u4 %Hash{2829995684514104092}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -28,6 +28,7 @@ o
 			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
 			s{"{ 94c7f641-1c6b-43c0-bebb-4d1796f8f4c8 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -51,16 +52,22 @@ o
 	u3 %v{2}
 	p
 	{
+		b %AggressiveSimplification{0}
+		s %BoneWeightPrecision{"ezMeshBoneWeigthPrecision::_8Bit"}
 		s %DefaultSkeleton{"{ 94c7f641-1c6b-43c0-bebb-4d1796f8f4c8 }"}
 		b %ImportMaterials{0}
 		VarArray %Materials
 		{
 			Uuid{u4{1157828301715832466,4873819715720402988}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Animations/Pete/Pete.glb"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
+		b %NormalizeWeights{1}
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 	}
 }
@@ -96,6 +103,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshAssetProperties"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14196080311825956621,8048256116943370769}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshBoneWeigthPrecision"}
+		u3 %TypeVersion{1}
 	}
 }
 o

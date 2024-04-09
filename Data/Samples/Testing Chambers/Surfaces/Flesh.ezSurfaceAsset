@@ -11,7 +11,7 @@ o
 		s %AssetType{"Surface"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17348597575240957102,5764298418626958774}}
-		u4 %Hash{8985830221186801161}
+		u4 %Hash{1576004144550142433}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -23,6 +23,7 @@ o
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -37,6 +38,7 @@ o
 	{
 		s %BaseSurface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 		f %DynamicFriction{0xCDCCCC3E}
+		i1 %GroundType{-1}
 		VarArray %Interactions
 		{
 			Uuid{u4{16566941942320309646,5462133076056582236}}
@@ -59,6 +61,7 @@ o
 		Angle %Deviation{f{0xC2B8323E}}
 		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0}
+		VarDict %Parameters{}
 		s %Prefab{"{ 2ca9ea38-05f6-4466-a5cc-3008a1a6da48 }"}
 		s %Type{"BulletImpact"}
 	}

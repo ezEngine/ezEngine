@@ -14,7 +14,7 @@ o
 			s{"Scripting/UnlockWeapon.ts"}
 		}
 		Uuid %DocumentID{u4{10218775709271672213,5293375756593532876}}
-		u4 %Hash{10953577402422448966}
+		u4 %Hash{505001612519857477}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{772655773491719153,12249326156225253183}}
@@ -25,6 +25,7 @@ o
 		{
 			s{"Scripting/UnlockWeapon.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

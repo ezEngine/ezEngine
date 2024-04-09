@@ -14,7 +14,7 @@ o
 			s{"Prefabs/Guns/Pistol_data/Pistol.ts"}
 		}
 		Uuid %DocumentID{u4{11593257910014223757,5399121192577550773}}
-		u4 %Hash{11124246511856937947}
+		u4 %Hash{15408211846999525284}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17011970878535678592,8573364185811024565}}
@@ -25,6 +25,7 @@ o
 		{
 			s{"Prefabs/Guns/Pistol_data/Pistol.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

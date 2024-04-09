@@ -14,10 +14,18 @@ o
 			s{"Quaternius/Monsters/Textures/Ghost_Texture.png"}
 		}
 		Uuid %DocumentID{u4{11808102127584342935,4892362021440907232}}
-		u4 %Hash{18018631329653000009}
+		u4 %Hash{16516369998924515726}
 		VarArray %MetaInfo{}
-		VarArray %Outputs{}
-		VarArray %References{}
+		VarArray %Outputs
+		{
+			s{"LOWRES"}
+		}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"Quaternius/Monsters/Textures/Ghost_Texture.png"}
+		}
+		s %Tags{""}
 	}
 }
 }
