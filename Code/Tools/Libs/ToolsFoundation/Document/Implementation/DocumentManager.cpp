@@ -237,7 +237,9 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
       EZ_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '{0}'", sDocumentTypeName);
 
       {
-        EZ_PROFILE_SCOPE(sDocumentTypeName);
+        ezStringBuilder szDocumentTypeName;
+        sDocumentTypeName.GetData(szDocumentTypeName);
+        EZ_PROFILE_SCOPE(szDocumentTypeName);
         status = ezStatus(EZ_SUCCESS);
         InternalCreateDocument(sDocumentTypeName, sPath, bCreate, out_pDocument, pOpenContext);
       }

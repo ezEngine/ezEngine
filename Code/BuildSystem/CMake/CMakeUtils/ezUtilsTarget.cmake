@@ -157,7 +157,7 @@ macro(ez_create_target TYPE TARGET_NAME)
 
 	if(EZ_SUPPORT_TRACY)
 		# Tracy has to be linked to all possible targets since it is a multi dll project.
-		if(TARGET tracy)
+		if(TARGET TracyClient)
 			target_compile_definitions(${TARGET_NAME} PRIVATE
 				TRACY_EXPORTS
 				TRACY_ENABLE
@@ -165,8 +165,8 @@ macro(ez_create_target TYPE TARGET_NAME)
 				TRACY_NO_FRAME_IMAGE
 			)
 
-			if(NOT ${TARGET_NAME} STREQUAL "tracy")
-				target_link_libraries(${TARGET_NAME} PRIVATE tracy)
+			if(NOT ${TARGET_NAME} STREQUAL "TracyClient" OR "Tracy::TracyClient")
+				target_link_libraries(${TARGET_NAME} PRIVATE TracyClient)
 			endif()
 		endif()
 	endif()

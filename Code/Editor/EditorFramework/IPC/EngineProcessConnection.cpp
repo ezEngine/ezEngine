@@ -288,7 +288,10 @@ bool ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
 
 ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
 {
-  EZ_PROFILE_SCOPE(pMessageType->GetTypeName());
+  // NOTE: When Tracy is enabled, there is no conversion for ezStringView to const char*, so this is a workaround.
+  ezStringBuilder sb;
+  pMessageType->GetTypeName().GetData(sb);
+  EZ_PROFILE_SCOPE(sb);
   return m_IPC.WaitForMessage(pMessageType, timeout, pCallback);
 }
 

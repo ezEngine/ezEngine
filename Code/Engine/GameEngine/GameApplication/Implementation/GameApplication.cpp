@@ -141,7 +141,10 @@ void ezGameApplication::Run_Present()
 
   for (ezActor* pActor : allActors)
   {
-    EZ_PROFILE_SCOPE(pActor->GetName());
+    // NOTE: When Tracy is enabled, there is no conversion for ezStringView to const char*, so this is a workaround.
+    ezStringBuilder sb;
+    pActor->GetName().GetData(sb);
+    EZ_PROFILE_SCOPE(sb);
 
     ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
 

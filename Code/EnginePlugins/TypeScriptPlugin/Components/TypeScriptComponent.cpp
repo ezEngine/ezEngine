@@ -294,7 +294,9 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
   if (m_LastUpdate + m_UpdateInterval > tNow)
     return;
 
-  EZ_PROFILE_SCOPE(GetOwner()->GetName());
+  ezStringBuilder sb;
+  GetOwner()->GetName().GetData(sb);
+  EZ_PROFILE_SCOPE(sb);
 
   m_LastUpdate = tNow;
 
