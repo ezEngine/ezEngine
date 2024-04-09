@@ -25,7 +25,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	ez_pull_config_vars()
 
 	# target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:DEBUG>:${MY_DEBUG_OPTIONS}>")
-	if(EZ_SUPPORT_LIVEPP)
+	if(EZ_3RDPARTY_LIVEPP_SUPPORT)
 		# These compiler settings must be enabled in the configuration properties of each project which uses Live++:
 
 		# C/C++ -> General -> Debug Information Format must be set to either C7 compatible (/Z7) or Program Database (/Zi)
@@ -126,7 +126,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# Do not enable comdat folding in debug. Required to make incremental linking work.
 	set(LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /OPT:NOICF")
 
-	if(EZ_SUPPORT_LIVEPP)
+	if(EZ_3RDPARTY_LIVEPP_SUPPORT)
 		set(LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /FUNCTIONPADMIN")
 		set(LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /DEBUG:FULL")
 	endif()
@@ -191,7 +191,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	if(EZ_CMAKE_ARCHITECTURE_X86)
 		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
 	endif()
-	if(EZ_SUPPORT_LIVEPP)
+	if(EZ_3RDPARTY_LIVEPP_SUPPORT)
 		target_compile_options(${TARGET_NAME} PRIVATE 
 		"-g"
 		"-gcodeview"

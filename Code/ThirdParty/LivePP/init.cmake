@@ -2,9 +2,9 @@
 # NOTES: To not use github storage, you can download the Live++ SDK from the official website and put it in the same directory as this file.
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
-    set(EZ_SUPPORT_LIVEPP ON CACHE BOOL "Enable Live++ support for Ez")
+    set(EZ_3RDPARTY_LIVEPP_SUPPORT OFF CACHE BOOL "Enable Live++ support for Ez")
 else()
-    set(EZ_SUPPORT_LIVEPP OFF CACHE BOOL "Enable Live++ support for Ez")
+    set(EZ_3RDPARTY_LIVEPP_SUPPORT OFF CACHE BOOL "Enable Live++ support for Ez")
 endif()
 
 # #####################################
@@ -12,11 +12,15 @@ endif()
 # #####################################
 macro(ez_requires_livepp)
     ez_requires_one_of(EZ_CMAKE_PLATFORM_WINDOWS)
-    ez_requires(EZ_SUPPORT_LIVEPP)
+    ez_requires(EZ_3RDPARTY_LIVEPP_SUPPORT)
 endmacro()
 
 function(ez_export_directory TARGET_NAME)
     ez_requires_livepp()
+    # NOTE: Before we export anything, we need to verify that the Live++ SDK is present.
+    if(NOT EXISTS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/Broker/LPP_Broker.exe)
+        message(FATAL_ERROR "Live++ SDK (Broker or Agent) not found. Please download the SDK from the official website (https://liveplusplus.tech/) and put it in the same directory as this file.")
+    endif()
     add_custom_command(TARGET ${TARGET_NAME}
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_CURRENT_FUNCTION_LIST_DIR} $<TARGET_FILE_DIR:${TARGET_NAME}>/LivePP
         WORKING_DIRECTORY ${CMAKE_CURRENT_FUNCTION_LIST_DIR}
