@@ -5,21 +5,27 @@ ez_requires(EZ_SUPPORT_TRACY)
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
-find_package(Threads REQUIRED)
+find_package(Threads)
 
 ez_create_target(LIBRARY TracyClient NO_EZ_PREFIX NO_UNITY MANUAL_SOURCE_FILES TracyClient.cpp)
-
-target_compile_features(TracyClient PUBLIC cxx_std_11)
 
 target_include_directories(TracyClient SYSTEM PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(TracyClient
-    PUBLIC
-    Threads::Threads
-    ${CMAKE_DL_LIBS}
-)
+# NOTE: Linking to Threads for windows seems to be problematic for Editor Tests, so it will be disabled for WIN32.
+if(Threads_FOUND AND NOT WIN32)
+    target_link_libraries(TracyClient
+        PUBLIC
+        Threads::Threads
+        ${CMAKE_DL_LIBS}
+    )
+else()
+    target_link_libraries(TracyClient
+        PUBLIC
+        ${CMAKE_DL_LIBS}
+    )
+endif()
 
 # Public dependency on some libraries required when using MinGw
 if(WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
@@ -36,6 +42,7 @@ add_library(Tracy::TracyClient ALIAS TracyClient)
 macro(set_option option help value)
     option(${option} ${help} ${value})
     mark_as_advanced(${option})
+
     if(${option})
         message(STATUS "${option}: ON")
         target_compile_definitions(TracyClient PUBLIC ${option})
@@ -59,8 +66,8 @@ set_option(TRACY_NO_EXIT "Client executable does not exit until all profile data
 set_option(TRACY_NO_SAMPLING "Disable call stack sampling" OFF)
 set_option(TRACY_NO_VERIFY "Disable zone validation for C API" OFF)
 set_option(TRACY_NO_VSYNC_CAPTURE "Disable capture of hardware Vsync events" OFF)
-set_option(TRACY_NO_FRAME_IMAGE  "Disable the frame image support and its thread" OFF)
-set_option(TRACY_NO_SYSTEM_TRACING  "Disable systrace sampling" OFF)
+set_option(TRACY_NO_FRAME_IMAGE "Disable the frame image support and its thread" OFF)
+set_option(TRACY_NO_SYSTEM_TRACING "Disable systrace sampling" OFF)
 set_option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on first call)" OFF)
 set_option(TRACY_MANUAL_LIFETIME "Enable the manual lifetime management of the profile" OFF)
 set_option(TRACY_FIBERS "Enable fibers support" OFF)
