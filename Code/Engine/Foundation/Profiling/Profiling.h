@@ -229,9 +229,7 @@ EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& szStrin
 #    define TRACY_PROFILE_SCOPE_DYNAMIC(szScopeName) \
       ZoneScoped;                                    \
       ZoneName(szScopeName, ___tracyGetStringLength(szScopeName))
-#  else
-#    define TRACY_PROFILE_SCOPE_DYNAMIC(szScopeName)
-#  endif
+
 
 /// \brief Profiles the current scope using the given name.
 ///
@@ -275,8 +273,10 @@ EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& szStrin
 #  if defined(TRACY_ENABLE)
 #    define EZ_TRACY_END_FRAME FrameMark;
 #  endif
+#  else
+#    define TRACY_PROFILE_SCOPE_DYNAMIC(szScopeName)
+#  endif
 #else
-#  if EZ_DISABLED(EZ_USE_PROFILING)
 #    define EZ_PROFILE_SCOPE(Name)                                /*empty*/
 
 #    define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout)   /*empty*/
@@ -286,5 +286,4 @@ EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& szStrin
 #    define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName)       /*empty*/
 
 #    define EZ_TRACY_END_FRAME
-#  endif
 #endif
