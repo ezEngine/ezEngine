@@ -10,6 +10,8 @@
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
+class ezRemoteMessage;
+
 /// \brief Shader compiler interface.
 /// Custom shader compiles need to derive from this class and implement the pure virtual interface functions. Instances are created via reflection so each implementation must be properly reflected.
 class EZ_RENDERERCORE_DLL ezShaderProgramCompiler : public ezReflectedClass
@@ -46,6 +48,8 @@ private:
 
   bool PassThroughUnknownCommandCB(ezStringView sCmd) { return sCmd == "version"; }
 
+  void ShaderCompileMsg(ezRemoteMessage& msg);
+
   struct ezShaderData
   {
     ezString m_Platforms;
@@ -63,4 +67,6 @@ private:
   ezShaderData m_ShaderData;
 
   ezSet<ezString> m_IncludeFiles;
+  bool m_bCompilingShaderRemote = false;
+  ezResult m_RemoteShaderCompileResult = EZ_FAILURE;
 };

@@ -400,6 +400,12 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
       LogActivity("Client searching for Server", ezFileserveActivityType::Other);
     }
     break;
+
+    case ezFileserverEvent::Type::LogCustomActivity:
+    {
+      LogActivity(e.m_szName, ezFileserveActivityType::Other);
+    }
+    break;
   }
 }
 

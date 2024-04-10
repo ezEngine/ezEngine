@@ -30,6 +30,7 @@ struct ezFileserverEvent
     FileUploading,
     FileUploadFinished,
     AreYouThereRequest,
+    LogCustomActivity,
   };
 
   Type m_Type = Type::None;
@@ -89,10 +90,15 @@ public:
   static ezResult SendConnectionInfo(
     const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& myIPs, ezTime timeout = ezTime::MakeFromSeconds(10));
 
+  using ClientMessageHandler = ezDelegate<void(ezFileserveClientContext&, ezRemoteMessage&, ezRemoteInterface&, ezDelegate<void(const char*)>)>;
+
+  void SetCustomMessageHandler(ezUInt32 uiSystemID, ClientMessageHandler handler);
+
 private:
   void NetworkEventHandler(const ezRemoteEvent& e);
   ezFileserveClientContext& DetermineClient(ezRemoteMessage& msg);
   void NetworkMsgHandler(ezRemoteMessage& msg);
+  void UnknownNetworkMsgHandler(ezRemoteMessage& msg);
   void HandleMountRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
   void HandleUnmountRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
   void HandleFileRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
@@ -100,6 +106,7 @@ private:
   void HandleUploadFileHeader(ezFileserveClientContext& client, ezRemoteMessage& msg);
   void HandleUploadFileTransfer(ezFileserveClientContext& client, ezRemoteMessage& msg);
   void HandleUploadFileFinished(ezFileserveClientContext& client, ezRemoteMessage& msg);
+  void LogCustomActivity(const char* szText);
 
   ezHashTable<ezUInt32, ezFileserveClientContext> m_Clients;
   ezUniquePtr<ezRemoteInterface> m_pNetwork;
@@ -109,4 +116,5 @@ private:
   ezUuid m_FileUploadGuid;
   ezUInt32 m_uiFileUploadSize;
   ezUInt16 m_uiPort = 1042;
+  ezMap<ezUInt32, ClientMessageHandler> m_CustomMessageHandlers;
 };

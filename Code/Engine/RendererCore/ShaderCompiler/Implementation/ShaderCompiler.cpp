@@ -1,5 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Interfaces/RemoteToolingInterface.h>
+#include <Foundation/Communication/RemoteInterface.h>
+#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
@@ -157,8 +160,63 @@ ezResult ezShaderCompiler::FileOpen(ezStringView sAbsoluteFile, ezDynamicArray<e
   return EZ_SUCCESS;
 }
 
+void ezShaderCompiler::ShaderCompileMsg(ezRemoteMessage& msg)
+{
+  if (msg.GetMessageID() == 'CRES')
+  {
+    m_bCompilingShaderRemote = false;
+    m_RemoteShaderCompileResult = EZ_SUCCESS;
+
+    bool success = false;
+    msg.GetReader() >> success;
+    m_RemoteShaderCompileResult = success ? EZ_SUCCESS : EZ_FAILURE;
+
+    ezStringBuilder log;
+    msg.GetReader() >> log;
+
+    if (!success)
+    {
+      ezLog::Error("Shader compilation failed:\n{}", log);
+    }
+  }
+}
+
 ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, ezStringView sPlatform)
 {
+  if (ezRemoteToolingInterface* pTooling = ezSingletonRegistry::GetSingletonInstance<ezRemoteToolingInterface>())
+  {
+    auto pNet = pTooling->GetRemoteInterface();
+
+    if (pNet && pNet->IsConnectedToServer())
+    {
+      m_bCompilingShaderRemote = true;
+
+      pNet->SetMessageHandler('SHDR', ezMakeDelegate(&ezShaderCompiler::ShaderCompileMsg, this));
+
+      ezRemoteMessage msg('SHDR', 'CMPL');
+      msg.GetWriter() << sFile;
+      msg.GetWriter() << sPlatform;
+      msg.GetWriter() << permutationVars.GetCount();
+      for (auto& pv : permutationVars)
+      {
+        msg.GetWriter() << pv.m_sName;
+        msg.GetWriter() << pv.m_sValue;
+      }
+
+      pNet->Send(ezRemoteTransmitMode::Reliable, msg);
+
+      while (m_bCompilingShaderRemote)
+      {
+        pNet->UpdateRemoteInterface();
+        pNet->ExecuteAllMessageHandlers();
+      }
+
+      pNet->SetMessageHandler('SHDR', {});
+
+      return m_RemoteShaderCompileResult;
+    }
+  }
+
   ezStringBuilder sFileContent, sTemp;
 
   {

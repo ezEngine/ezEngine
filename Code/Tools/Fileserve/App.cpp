@@ -26,6 +26,11 @@ void ezFileserverApp::AfterCoreSystemsStartup()
   ezFileserver::GetSingleton()->StartServer();
 #endif
 
+  ezPlugin::LoadPlugin("ezShaderCompilerDXC", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+  ezPlugin::LoadPlugin("ezShaderCompilerHLSL", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+
+  ezFileserver::GetSingleton()->SetCustomMessageHandler('SHDR', ezMakeDelegate(&ezFileserverApp::ShaderMessageHandler, this));
+
   // TODO: CommandLine Option
   m_CloseAppTimeout = ezTime::MakeFromSeconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_close_timeout", 0));
   m_TimeTillClosing = ezTime::MakeFromSeconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_wait_timeout", 0));

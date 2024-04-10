@@ -6,6 +6,7 @@
 #include <Core/Input/VirtualThumbStick.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/System/Window.h>
+#include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -208,6 +209,9 @@ ezApplication::Execution ezShaderExplorerApp::Run()
   // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
   // uploading GPU data etc.
   ezTaskSystem::FinishFrameTasks();
+
+  // for plugins (like FileServe) that need to hook into the game update
+  EZ_BROADCAST_EVENT(GameApp_UpdatePlugins);
 
   return ezApplication::Execution::Continue;
 }
