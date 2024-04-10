@@ -164,7 +164,7 @@ public:
 };
 
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
-#  ifndef TRACY_ENABLE
+#  if !defined(TRACY_ENABLE)
 /// \brief Profiles the current scope using the given name.
 ///
 /// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope
@@ -277,14 +277,15 @@ EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& szStrin
 #  else
 #    define EZ_TRACY_END_FRAME
 #  endif
-#else
 
-#  define EZ_PROFILE_SCOPE(Name)                                /*empty*/
+#  if !defined(TRACY_ENABLE) && EZ_DISABLED(EZ_USE_PROFILING)
+#    define EZ_PROFILE_SCOPE(Name)                                /*empty*/
 
-#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout)   /*empty*/
+#    define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout)   /*empty*/
 
-#  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) /*empty*/
+#    define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) /*empty*/
 
-#  define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName)       /*empty*/
+#    define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName)       /*empty*/
 
+#  endif
 #endif
