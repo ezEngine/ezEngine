@@ -202,7 +202,9 @@ public:
 /// \sa ezProfilingListScope
 /// \sa EZ_PROFILE_LIST_SCOPE
 #    define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) ezProfilingListScope::StartNextSection(szNextSectionName)
+#else
+/// Tracy Implementation Header.
+#    include <Foundation/Profiling/Profiling_Tracy.h>
 #  endif
 #endif
-/// Tracy Implementation Header.
-#  include <Foundation/Profiling/Profiling_Tracy.h>
+

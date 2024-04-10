@@ -9,6 +9,8 @@ find_package(Threads)
 
 ez_create_target(LIBRARY TracyClient NO_EZ_PREFIX NO_UNITY MANUAL_SOURCE_FILES TracyClient.cpp)
 
+set_property(TARGET TracyClient PROPERTY CXX_STANDARD 11)
+
 target_include_directories(TracyClient SYSTEM PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include>)
