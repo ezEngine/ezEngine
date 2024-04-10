@@ -274,11 +274,9 @@ EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& szStrin
 #  define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) ezProfilingListScope::StartNextSection(szNextSectionName)
 #  if defined(TRACY_ENABLE)
 #    define EZ_TRACY_END_FRAME FrameMark;
-#  else
-#    define EZ_TRACY_END_FRAME
 #  endif
-
-#  if !defined(TRACY_ENABLE) && EZ_DISABLED(EZ_USE_PROFILING)
+#else
+#  if EZ_DISABLED(EZ_USE_PROFILING)
 #    define EZ_PROFILE_SCOPE(Name)                                /*empty*/
 
 #    define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout)   /*empty*/
@@ -287,5 +285,6 @@ EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& szStrin
 
 #    define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName)       /*empty*/
 
+#    define EZ_TRACY_END_FRAME
 #  endif
 #endif
