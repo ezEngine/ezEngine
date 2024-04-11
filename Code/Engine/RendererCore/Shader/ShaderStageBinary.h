@@ -40,7 +40,7 @@ private:
   friend class ezShaderPermutationResource;
   friend class ezShaderPermutationResourceLoader;
 
-  ezResult WriteStageBinary(ezLogInterface* pLog) const;
+  ezResult WriteStageBinary(ezLogInterface* pLog, ezStringView sPlatform) const;
   ezResult Write(ezStreamWriter& inout_stream) const;
   ezResult Read(ezStreamReader& inout_stream);
   ezResult Write(ezStreamWriter& inout_stream, const ezShaderConstantBufferLayout& layout) const;
@@ -51,7 +51,7 @@ private:
   ezSharedPtr<ezGALShaderByteCode> m_pGALByteCode;
 
 private: // statics
-  static ezShaderStageBinary* LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash);
+  static ezShaderStageBinary* LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash, ezStringView sPlatform);
 
   static void OnEngineShutdown();
 

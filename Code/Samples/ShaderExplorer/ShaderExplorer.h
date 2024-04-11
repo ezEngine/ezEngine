@@ -15,12 +15,17 @@
 //
 // ezFileServe.exe -fs_start -specialdirs project "C:\ez\Data\Samples\ShaderExplorer"
 
-#if !defined(USE_FILESERVE) && EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+#if !defined(USE_FILESERVE)
+
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
 // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
-#  define USE_FILESERVE EZ_ON
-#else
-#  define USE_FILESERVE EZ_OFF
+#    define USE_FILESERVE EZ_ON
+#  else
+#    define USE_FILESERVE EZ_OFF
+#  endif
+
 #endif
+
 
 #if EZ_DISABLED(USE_FILESERVE) && EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
 #  define USE_DIRECTORY_WATCHER EZ_ON

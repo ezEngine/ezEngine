@@ -112,14 +112,12 @@ namespace
 
 void ezShaderManager::Configure(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory, const char* szPermVarSubDirectory)
 {
-  s_sShaderCacheDirectory = szShaderCacheDirectory;
-  s_sPermVarSubDir = szPermVarSubDirectory;
-
   ezStringBuilder s = szActivePlatform;
   s.ToUpper();
-
-  s_bEnableRuntimeCompilation = bEnableRuntimeCompilation;
   s_sPlatform = s;
+  s_bEnableRuntimeCompilation = bEnableRuntimeCompilation;
+  s_sShaderCacheDirectory = szShaderCacheDirectory;
+  s_sPermVarSubDir = szPermVarSubDirectory;
 }
 
 void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTempHashedString& sHashedName)

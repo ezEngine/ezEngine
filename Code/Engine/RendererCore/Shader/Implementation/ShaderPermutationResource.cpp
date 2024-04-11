@@ -113,7 +113,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     if (uiStageHash == 0) // not used
       continue;
 
-    ezShaderStageBinary* pStageBin = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, uiStageHash);
+    ezShaderStageBinary* pStageBin = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, uiStageHash, ezShaderManager::GetActivePlatform());
 
     if (pStageBin == nullptr)
     {
@@ -343,7 +343,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
         continue;
 
       // this is where the preloading happens
-      ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, uiStageHash);
+      ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, uiStageHash, ezShaderManager::GetActivePlatform());
     }
   }
 

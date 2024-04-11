@@ -25,5 +25,6 @@ ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network)
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
   EditorPluginFileserve
+  RendererCore
 )
 

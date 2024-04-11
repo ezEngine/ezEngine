@@ -32,6 +32,8 @@ public:
   void FileserverEventHandlerConsole(const ezFileserverEvent& e);
   void FileserverEventHandler(const ezFileserverEvent& e);
 
+  void ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, ezRemoteMessage& ref_msg, ezRemoteInterface& ref_clientChannel, ezDelegate<void(const char*)> logActivity);
+
   ezUInt32 m_uiSleepCounter = 0;
   ezUInt32 m_uiConnections = 0;
   ezTime m_CloseAppTimeout;
