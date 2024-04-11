@@ -154,21 +154,5 @@ macro(ez_create_target TYPE TARGET_NAME)
 	if(GATHER_EXPORT_PROJECTS)
 		set_property(GLOBAL APPEND PROPERTY "EXPORT_PROJECTS" ${TARGET_NAME})
 	endif()
-
-	if(EZ_SUPPORT_TRACY)
-		# Tracy has to be linked to all possible targets since it is a multi dll project.
-		if(TARGET TracyClient)
-			target_compile_definitions(${TARGET_NAME} PRIVATE
-				TRACY_EXPORTS
-				TRACY_ENABLE
-				TRACY_NO_INVARIANT_CHECK
-				TRACY_NO_FRAME_IMAGE
-			)
-
-			if(NOT ${TARGET_NAME} STREQUAL "TracyClient" OR "Tracy::TracyClient")
-				target_link_libraries(${TARGET_NAME} PRIVATE TracyClient)
-			endif()
-		endif()
-	endif()
 	
 endmacro()

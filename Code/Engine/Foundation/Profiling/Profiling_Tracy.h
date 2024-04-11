@@ -1,4 +1,5 @@
 #include <Foundation/Basics.h>
+#include <Foundation/Strings/HashedString.h>
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
 #  if defined(TRACY_ENABLE)
 #    include <tracy/tracy/Tracy.hpp>
@@ -21,11 +22,36 @@ EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& szStrin
 {
   return szString.GetElementCount();
 }
-
+EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezHashedString& szString)
+{
+  return szString.GetView().GetElementCount();
+}
+EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezString& szString)
+{
+  return szString.GetData();
+}
+EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezStringBuilder& szString)
+{
+  return szString.GetData();
+}
+EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezHashedString& szString)
+{
+  return szString.GetData();
+}
+EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezStringView& szString)
+{
+  ezStringBuilder temp_str;
+  szString.GetData(temp_str);
+  return temp_str.GetData();
+}
+/// Let the accepted types pass through.
+EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const char* szString)
+{
+  return szString;
+}
 #    define TRACY_PROFILE_SCOPE_DYNAMIC(szScopeName) \
       ZoneScoped;                                    \
-      ZoneName(szScopeName, ___tracyGetStringLength(szScopeName))
-
+      ZoneName(__convertezStringToConstChar(szScopeName), ___tracyGetStringLength(szScopeName))
 
 /// \brief Profiles the current scope using the given name.
 ///
@@ -68,5 +94,5 @@ EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& szStrin
 #    define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) ezProfilingListScope::StartNextSection(szNextSectionName)
 
 #    define EZ_PROFILER_END_FRAME FrameMark;
-#endif
+#  endif
 #endif
