@@ -1,13 +1,12 @@
 ez_cmake_init()
 
-ez_requires(EZ_SUPPORT_TRACY)
-
-# Get the name of this folder as the project name
-get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+ez_requires(EZ_3RDPARTY_TRACY_SUPPORT)
 
 find_package(Threads)
 
 ez_create_target(LIBRARY TracyClient NO_EZ_PREFIX NO_UNITY MANUAL_SOURCE_FILES TracyClient.cpp)
+
+target_compile_definitions(TracyClient PUBLIC BUILDSYSTEM_ENABLE_TRACY_SUPPORT)
 
 set_property(TARGET TracyClient PROPERTY CXX_STANDARD 11)
 

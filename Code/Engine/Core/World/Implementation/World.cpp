@@ -1070,7 +1070,7 @@ void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::Register
       continue;
 
     {
-      EZ_PROFILE_SCOPE(updateFunction.m_sFunctionName.GetData());
+      EZ_PROFILE_SCOPE(updateFunction.m_sFunctionName);
       updateFunction.m_Function(context);
     }
   }
