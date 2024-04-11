@@ -25,8 +25,7 @@ ezResult ezRun_Startup(ezApplication* pApplicationInstance)
 void ezRun_MainLoop(ezApplication* pApplicationInstance)
 {
   while (pApplicationInstance->Run() == ezApplication::Execution::Continue)
-  {
-    EZ_PROFILER_END_FRAME;
+  {    
   }
 }
 
