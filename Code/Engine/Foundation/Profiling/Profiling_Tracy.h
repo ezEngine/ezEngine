@@ -67,6 +67,6 @@ EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& szStrin
 /// \sa EZ_PROFILE_LIST_SCOPE
 #    define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) ezProfilingListScope::StartNextSection(szNextSectionName)
 
-#    define EZ_TRACY_END_FRAME FrameMark;
+#    define EZ_PROFILER_END_FRAME FrameMark;
 #endif
 #endif

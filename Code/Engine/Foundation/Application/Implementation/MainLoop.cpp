@@ -26,7 +26,7 @@ void ezRun_MainLoop(ezApplication* pApplicationInstance)
 {
   while (pApplicationInstance->Run() == ezApplication::Execution::Continue)
   {
-    EZ_TRACY_END_FRAME;
+    EZ_PROFILER_END_FRAME;
   }
 }
 
