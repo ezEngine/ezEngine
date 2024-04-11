@@ -4,7 +4,7 @@ ALL
 [PERMUTATIONS]
 
 VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
-CAMERA_MODE = CAMERA_MODE_STEREO
+CAMERA_MODE
 
 [RENDERSTATE]
 
@@ -32,6 +32,10 @@ Texture2DArray Input;
 float4 main(PS_IN input) : SV_Target
 {
   int mipLevel = 0;
-  float4 res = Input.Load(int4((int)input.Position.x, (int)input.Position.y, input.RenderTargetArrayIndex, mipLevel));
+  int arrayIndex = 0;
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  arrayIndex = input.RenderTargetArrayIndex;
+#endif
+  float4 res = Input.Load(int4((int)input.Position.x, (int)input.Position.y, arrayIndex, mipLevel));
   return res;
 }

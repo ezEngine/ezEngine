@@ -2,7 +2,7 @@
 
 // This geometry shader is a pass-through that leaves the geometry unmodified and sets the render target array index.
 
-#if CAMERA_MODE == CAMERA_MODE_STEREO && !defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX)
+#if CAMERA_MODE == CAMERA_MODE_STEREO && VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == FALSE
 
 #  include "MaterialInterpolator.h"
 
@@ -62,17 +62,11 @@
 #  endif
 
 #  if defined(CUSTOM_INTERPOLATOR)
-    CopyCustomInterpolators(output, input);
+    CopyCustomInterpolators(output, input[i]);
 #  endif
 
     output.InstanceID = input[i].InstanceID;
     output.RenderTargetArrayIndex = input[i].InstanceID % 2;
-
-#  if defined(TWO_SIDED)
-#    if TWO_SIDED == TRUE
-    output.FrontFace : input[i].FrontFace;
-#    endif
-#  endif
 
     outStream.Append(output);
   }

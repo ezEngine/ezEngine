@@ -64,6 +64,7 @@ ezResult ezRendererTestReadback::InitializeSubTest(ezInt32 iIdentifier)
 
   m_hTexture2DShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
   m_hTexture2DIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackInt.ezShader");
+  m_hTexture2DUIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackUInt.ezShader");
 
   // Texture2D
   {
@@ -98,6 +99,7 @@ ezResult ezRendererTestReadback::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hUVColorIntShader.Invalidate();
   m_hTexture2DShader.Invalidate();
   m_hTexture2DIntShader.Invalidate();
+  m_hTexture2DUIntShader.Invalidate();
   m_hUVColorDepthShader.Invalidate();
 
   DestroyWindow();
@@ -308,7 +310,15 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
 
   BeginPass("Readback");
   {
-    m_hShader = (bIsIntTexture && !bIsDepthTexture) ? m_hTexture2DIntShader : m_hTexture2DShader;
+    if (bIsIntTexture && !bIsDepthTexture)
+    {
+      m_hShader = ezGALResourceFormat::IsSignedFormat(m_Format) ? m_hTexture2DIntShader : m_hTexture2DUIntShader;
+    }
+    else
+    {
+      m_hShader = m_hTexture2DShader;
+    }
+
     {
       ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
       RenderCube(viewport, mMVP, 0xFFFFFFFF, m_pDevice->GetDefaultResourceView(m_hTexture2DReadback));

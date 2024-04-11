@@ -37,6 +37,7 @@ public:
 
   static bool IsDepthFormat(vk::Format format);
   static bool IsStencilFormat(vk::Format format);
+  static vk::ImageLayout GetDefaultLayout(vk::Format format);
   static vk::PrimitiveTopology GetPrimitiveTopology(ezEnum<ezGALPrimitiveTopology> topology);
   static vk::ShaderStageFlagBits GetShaderStage(ezGALShaderStage::Enum stage);
   static vk::ShaderStageFlagBits GetShaderStages(ezBitflags<ezGALShaderStageFlags> stages);

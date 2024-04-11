@@ -306,7 +306,16 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
 
   vk::SwapchainCreateInfoKHR swapChainCreateInfo = {};
   swapChainCreateInfo.clipped = VK_FALSE;
-  swapChainCreateInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+  vk::CompositeAlphaFlagBitsKHR preferredCompositeMode[] = {vk::CompositeAlphaFlagBitsKHR::eOpaque, vk::CompositeAlphaFlagBitsKHR::eInherit, vk::CompositeAlphaFlagBitsKHR::ePreMultiplied, vk::CompositeAlphaFlagBitsKHR::ePostMultiplied};
+  for (auto cm : preferredCompositeMode)
+  {
+    if (surfaceCapabilities.supportedCompositeAlpha & cm)
+    {
+      swapChainCreateInfo.compositeAlpha = cm;
+      break;
+    }
+  }
+
   swapChainCreateInfo.imageArrayLayers = 1;
   swapChainCreateInfo.imageColorSpace = desiredColorSpace;
   swapChainCreateInfo.imageExtent.width = m_WindowDesc.m_pWindow->GetClientAreaSize().width;

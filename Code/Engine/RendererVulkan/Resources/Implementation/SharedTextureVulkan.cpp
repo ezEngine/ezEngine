@@ -350,6 +350,11 @@ ezResult ezGALSharedTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
     pVulkanDevice->DeleteLater(m_image, m_allocInfo.m_deviceMemory);
     pVulkanDevice->DeleteLater(m_SharedSemaphore);
   }
+  else if (m_SharedType == ezGALSharedTextureType::Exported)
+  {
+    pVulkanDevice->DeleteLater(m_image, m_alloc);
+    pVulkanDevice->DeleteLater(m_SharedSemaphore);
+  }
 
   auto res = SUPER::DeInitPlatform(pDevice);
 
