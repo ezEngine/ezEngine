@@ -2,10 +2,6 @@
 
 #include <Foundation/Basics.h>
 
-#if defined(TRACY_ENABLE)
-#  include <tracy/tracy/Tracy.hpp>
-#endif
-
 /// \brief Default heap memory allocation policy.
 ///
 /// \see ezAllocatorWithPolicy
@@ -30,10 +26,6 @@ public:
     void* ptr = malloc(uiSize);
     EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
-#if defined(TRACY_ENABLE)
-    TracyAlloc(ptr, uiSize);
-#endif
-
     return OffsetPtr(ptr);
   }
 
@@ -44,22 +36,12 @@ public:
     void* ptr = realloc(orgPtr, uiNewSize);
     EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
-#if defined(TRACY_ENABLE)
-    TracyFree(orgPtr);
-    TracyAlloc(ptr, uiNewSize);
-#endif
-
     return OffsetPtr(ptr);
   }
 
   EZ_ALWAYS_INLINE void Deallocate(void* pPtr)
   {
     pPtr = RestorePtr(pPtr);
-
-#if defined(TRACY_ENABLE)
-    TracyFree(pPtr);
-#endif
-
     free(pPtr);
   }
 

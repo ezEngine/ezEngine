@@ -1,6 +1,3 @@
-#if defined(TRACY_ENABLE)
-#  include <tracy/tracy/Tracy.hpp>
-#endif
 
 EZ_FORCE_INLINE void* ezAllocPolicyAlignedHeap::Allocate(size_t uiSize, size_t uiAlign)
 {
@@ -15,18 +12,10 @@ EZ_FORCE_INLINE void* ezAllocPolicyAlignedHeap::Allocate(size_t uiSize, size_t u
 
   EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
-#if defined(TRACY_ENABLE)
-  TracyAlloc(ptr, uiSize);
-#endif
-
   return ptr;
 }
 
 EZ_ALWAYS_INLINE void ezAllocPolicyAlignedHeap::Deallocate(void* ptr)
 {
-#if defined(TRACY_ENABLE)
-  TracyFree(pPtr);
-#endif
-
   free(ptr);
 }

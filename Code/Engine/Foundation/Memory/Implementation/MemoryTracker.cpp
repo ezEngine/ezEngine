@@ -10,6 +10,20 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(TRACY_ENABLE)
+#  include <tracy/tracy/Tracy.hpp>
+
+#  define EZ_TRACE_TRACY_CALLSTACK_DEPTH 16
+#  define EZ_TRACE_ALLOC_CS(ptr, size, name) TracyAllocNS(ptr, size, EZ_TRACE_TRACY_CALLSTACK_DEPTH, name)
+#  define EZ_TRACE_FREE_CS(ptr, name) TracyFreeNS(ptr, EZ_TRACE_TRACY_CALLSTACK_DEPTH, name)
+
+#  define EZ_TRACE_ALLOC(ptr, size, name) TracyAllocN(ptr, size, name)
+#  define EZ_TRACE_FREE(ptr, name) TracyFreeN(ptr, name)
+#else
+#  define EZ_TRACE_ALLOC(ptr, size, name)
+#  define EZ_TRACE_FREE(ptr, name)
+#endif
+
 namespace
 {
   // no tracking for the tracker data itself
@@ -201,6 +215,15 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezAllocatorTracki
     pInfo->m_uiSize = uiSize;
     pInfo->m_uiAlignment = (ezUInt16)uiAlign;
     pInfo->SetStackTrace(stackTrace);
+
+    if (mode >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
+    {
+      EZ_TRACE_ALLOC_CS(pPtr, uiSize, data.m_sName.GetData());
+    }
+    else
+    {
+      EZ_TRACE_ALLOC(pPtr, uiSize, data.m_sName.GetData());
+    }
   }
 }
 
@@ -221,6 +244,15 @@ void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pP
       data.m_Stats.m_uiAllocationSize -= info.m_uiSize;
 
       stackTrace = info.GetStackTrace();
+
+      if (data.m_TrackingMode >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
+      {
+        EZ_TRACE_FREE_CS(pPtr, data.m_sName.GetData());
+      }
+      else
+      {
+        EZ_TRACE_FREE(pPtr, data.m_sName.GetData());
+      }
     }
     else
     {
@@ -241,6 +273,21 @@ void ezMemoryTracker::RemoveAllAllocations(ezAllocatorId allocatorId)
     auto& info = it.Value();
     data.m_Stats.m_uiNumDeallocations++;
     data.m_Stats.m_uiAllocationSize -= info.m_uiSize;
+
+    if (data.m_TrackingMode >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
+    {
+      for (const auto& alloc : data.m_Allocations)
+      {
+        EZ_TRACE_FREE_CS(alloc.Key(), data.m_sName.GetData());
+      }
+    }
+    else
+    {
+      for (const auto& alloc : data.m_Allocations)
+      {
+        TracyFreeN(alloc.Key(), data.m_sName.GetData());
+      }
+    }
 
     EZ_DELETE_ARRAY(s_pTrackerDataAllocator, info.GetStackTrace());
   }
