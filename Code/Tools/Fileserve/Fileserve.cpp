@@ -94,16 +94,16 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
   }
 }
 
-void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ctxt, ezRemoteMessage& msg, ezRemoteInterface& clientChannel, ezDelegate<void(const char*)> logActivity)
+void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, ezRemoteMessage& ref_msg, ezRemoteInterface& ref_clientChannel, ezDelegate<void(const char*)> logActivity)
 {
-  if (msg.GetMessageID() == 'CMPL')
+  if (ref_msg.GetMessageID() == 'CMPL')
   {
-    for (auto& dd : ctxt.m_MountedDataDirs)
+    for (auto& dd : ref_ctxt.m_MountedDataDirs)
     {
       ezFileSystem::AddDataDirectory(dd.m_sPathOnServer, "FileServe", dd.m_sRootName, ezFileSystem::AllowWrites).IgnoreResult();
     }
 
-    auto& r = msg.GetReader();
+    auto& r = ref_msg.GetReader();
 
     ezStringBuilder tmp;
     ezStringBuilder file, platform;
@@ -143,7 +143,7 @@ void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ctxt, ezRem
     {
       // invalidate read cache to not short-circuit the next file read operation
       ezRemoteMessage msg2('FSRV', 'INVC');
-      clientChannel.Send(ezRemoteTransmitMode::Reliable, msg2);
+      ref_clientChannel.Send(ezRemoteTransmitMode::Reliable, msg2);
     }
     else
     {
@@ -164,7 +164,7 @@ void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ctxt, ezRem
       msg2.GetWriter() << (res == EZ_SUCCESS);
       msg2.GetWriter() << log.m_sBuffer;
 
-      clientChannel.Send(ezRemoteTransmitMode::Reliable, msg2);
+      ref_clientChannel.Send(ezRemoteTransmitMode::Reliable, msg2);
     }
   }
 }
