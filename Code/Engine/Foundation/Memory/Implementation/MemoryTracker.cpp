@@ -13,15 +13,16 @@
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && TRACY_ENABLE
 #  include <tracy/tracy/Tracy.hpp>
 
-#  define EZ_TRACE_TRACY_CALLSTACK_DEPTH 16
-#  define EZ_TRACE_ALLOC_CS(ptr, size, name) TracyAllocNS(ptr, size, EZ_TRACE_TRACY_CALLSTACK_DEPTH, name)
-#  define EZ_TRACE_FREE_CS(ptr, name) TracyFreeNS(ptr, EZ_TRACE_TRACY_CALLSTACK_DEPTH, name)
-
-#  define EZ_TRACE_ALLOC(ptr, size, name) TracyAllocN(ptr, size, name)
-#  define EZ_TRACE_FREE(ptr, name) TracyFreeN(ptr, name)
+#  define EZ_TRACY_CALLSTACK_DEPTH 16
+#  define EZ_TRACY_ALLOC_CS(ptr, size, name) TracyAllocNS(ptr, size, EZ_TRACY_CALLSTACK_DEPTH, name)
+#  define EZ_TRACY_FREE_CS(ptr, name) TracyFreeNS(ptr, EZ_TRACY_CALLSTACK_DEPTH, name)
+#  define EZ_TRACY_ALLOC(ptr, size, name) TracyAllocN(ptr, size, name)
+#  define EZ_TRACY_FREE(ptr, name) TracyFreeN(ptr, name)
 #else
-#  define EZ_TRACE_ALLOC(ptr, size, name)
-#  define EZ_TRACE_FREE(ptr, name)
+#  define EZ_TRACY_ALLOC_CS(ptr, size, name)
+#  define EZ_TRACY_FREE_CS(ptr, name)
+#  define EZ_TRACY_ALLOC(ptr, size, name)
+#  define EZ_TRACY_FREE(ptr, name)
 #endif
 
 namespace
@@ -218,11 +219,11 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezAllocatorTracki
 
     if (mode >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
     {
-      EZ_TRACE_ALLOC_CS(pPtr, uiSize, data.m_sName.GetData());
+      EZ_TRACY_ALLOC_CS(pPtr, uiSize, data.m_sName.GetData());
     }
     else
     {
-      EZ_TRACE_ALLOC(pPtr, uiSize, data.m_sName.GetData());
+      EZ_TRACY_ALLOC(pPtr, uiSize, data.m_sName.GetData());
     }
   }
 }
@@ -247,11 +248,11 @@ void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pP
 
       if (data.m_TrackingMode >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
       {
-        EZ_TRACE_FREE_CS(pPtr, data.m_sName.GetData());
+        EZ_TRACY_FREE_CS(pPtr, data.m_sName.GetData());
       }
       else
       {
-        EZ_TRACE_FREE(pPtr, data.m_sName.GetData());
+        EZ_TRACY_FREE(pPtr, data.m_sName.GetData());
       }
     }
     else
@@ -278,7 +279,7 @@ void ezMemoryTracker::RemoveAllAllocations(ezAllocatorId allocatorId)
     {
       for (const auto& alloc : data.m_Allocations)
       {
-        EZ_TRACE_FREE_CS(alloc.Key(), data.m_sName.GetData());
+        EZ_TRACY_FREE_CS(alloc.Key(), data.m_sName.GetData());
       }
     }
     else
