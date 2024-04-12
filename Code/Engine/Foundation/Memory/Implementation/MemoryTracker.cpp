@@ -279,6 +279,7 @@ void ezMemoryTracker::RemoveAllAllocations(ezAllocatorId allocatorId)
     {
       for (const auto& alloc : data.m_Allocations)
       {
+        EZ_IGNORE_UNUSED(alloc);
         EZ_TRACY_FREE_CS(alloc.Key(), data.m_sName.GetData());
       }
     }
@@ -286,7 +287,8 @@ void ezMemoryTracker::RemoveAllAllocations(ezAllocatorId allocatorId)
     {
       for (const auto& alloc : data.m_Allocations)
       {
-        TracyFreeN(alloc.Key(), data.m_sName.GetData());
+        EZ_IGNORE_UNUSED(alloc);
+        EZ_TRACY_FREE(alloc.Key(), data.m_sName.GetData());
       }
     }
 
