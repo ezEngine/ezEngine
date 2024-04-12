@@ -9,46 +9,46 @@ EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const char* szString)
   return ezStringUtils::GetStringElementCount(szString);
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(ezStringView szString)
+EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(ezStringView sString)
 {
-  return szString.GetElementCount();
+  return sString.GetElementCount();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezString& szString)
+EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezString& sString)
 {
-  return szString.GetElementCount();
+  return sString.GetElementCount();
 }
-EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& szString)
+EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& sString)
 {
-  return szString.GetElementCount();
+  return sString.GetElementCount();
 }
-EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezHashedString& szString)
+EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezHashedString& sString)
 {
-  return szString.GetView().GetElementCount();
+  return sString.GetView().GetElementCount();
 }
-EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezString& szString)
+EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezString& sString)
 {
-  return szString.GetData();
+  return sString.GetData();
 }
-EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezStringBuilder& szString)
+EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezStringBuilder& sString)
 {
-  return szString.GetData();
+  return sString.GetData();
 }
-EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezHashedString& szString)
+EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezHashedString& sString)
 {
-  return szString.GetData();
+  return sString.GetData();
 }
-EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezStringView& szString)
+EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezStringView& sString)
 {
-  ezStringBuilder temp_str;
-  szString.GetData(temp_str);
-  return temp_str.GetData();
+  // can just return the string views start pointer, because this is used together with ___tracyGetStringLength
+  return sString.GetStartPointer();
 }
 /// Let the accepted types pass through.
 EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const char* szString)
 {
   return szString;
 }
+
 #    define TRACY_PROFILE_SCOPE_DYNAMIC(szScopeName) \
       ZoneScoped;                                    \
       ZoneName(__convertezStringToConstChar(szScopeName), ___tracyGetStringLength(szScopeName))
