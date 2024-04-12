@@ -683,7 +683,8 @@ void ezProfilingSystem::StartNewFrame()
   }
 
   s_FrameStartTimes.PushBack(ezTime::Now());
-  EZ_PROFILER_END_FRAME;
+
+  EZ_PROFILER_FRAME_MARKER();
 }
 
 // static

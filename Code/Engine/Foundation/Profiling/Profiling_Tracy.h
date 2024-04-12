@@ -1,98 +1,89 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/HashedString.h>
-#if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
-#  if defined(TRACY_ENABLE)
-#    include <tracy/tracy/Tracy.hpp>
 
-EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const char* szString)
+#if EZ_ENABLED(EZ_USE_PROFILING) && TRACY_ENABLE && !EZ_DOCS
+
+#  include <tracy/tracy/Tracy.hpp>
+
+EZ_ALWAYS_INLINE ezUInt32 __tracyEzStringLength(const char* szString)
 {
   return ezStringUtils::GetStringElementCount(szString);
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(ezStringView sString)
+EZ_ALWAYS_INLINE ezUInt32 __tracyEzStringLength(ezStringView sString)
 {
   return sString.GetElementCount();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezString& sString)
+EZ_ALWAYS_INLINE ezUInt32 __tracyEzStringLength(const ezString& sString)
 {
   return sString.GetElementCount();
 }
-EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezStringBuilder& sString)
+
+EZ_ALWAYS_INLINE ezUInt32 __tracyEzStringLength(const ezStringBuilder& sString)
 {
   return sString.GetElementCount();
 }
-EZ_ALWAYS_INLINE ezUInt32 ___tracyGetStringLength(const ezHashedString& sString)
+
+EZ_ALWAYS_INLINE ezUInt32 __tracyEzStringLength(const ezHashedString& sString)
 {
   return sString.GetView().GetElementCount();
 }
-EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezString& sString)
+
+EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const ezString& sString)
 {
   return sString.GetData();
 }
-EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezStringBuilder& sString)
+
+EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const ezStringBuilder& sString)
 {
   return sString.GetData();
 }
-EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezHashedString& sString)
+
+EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const ezHashedString& sString)
 {
   return sString.GetData();
 }
-EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const ezStringView& sString)
+
+EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const ezStringView& sString)
 {
-  // can just return the string views start pointer, because this is used together with ___tracyGetStringLength
+  // can just return the string views start pointer, because this is used together with __tracyEzStringLength
   return sString.GetStartPointer();
 }
-/// Let the accepted types pass through.
-EZ_ALWAYS_INLINE const char* __convertezStringToConstChar(const char* szString)
+
+EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const char* szString)
 {
   return szString;
 }
 
-#    define TRACY_PROFILE_SCOPE_DYNAMIC(szScopeName) \
-      ZoneScoped;                                    \
-      ZoneName(__convertezStringToConstChar(szScopeName), ___tracyGetStringLength(szScopeName))
+/// \brief Similar to EZ_PROFILE_SCOPE, but only forwards to Tracy
+#  define EZ_TRACY_PROFILE_SCOPE(ScopeName) \
+    ZoneScoped;                             \
+    ZoneName(__tracyEzStringToConstChar(ScopeName), __tracyEzStringLength(ScopeName))
 
-/// \brief Profiles the current scope using the given name.
-///
-/// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope
-/// section.
-///
-/// \note The name string must not be destroyed before the current scope ends.
-///
-/// \sa ezProfilingScope
-/// \sa EZ_PROFILE_LIST_SCOPE
-#    define EZ_PROFILE_SCOPE(szScopeName)                                                                                 \
-      ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero()); \
-      TRACY_PROFILE_SCOPE_DYNAMIC(szScopeName)
+// Override the standard EZ profiling macros and inject Tracy profiling scopes
 
-/// \brief Same as EZ_PROFILE_SCOPE but if the scope takes longer than 'Timeout', the ezProfilingSystem's timeout callback is executed.
-///
-/// This can be used to log an error or save a callstack, etc. when a scope exceeds an expected amount of time.
-///
-/// \sa ezProfilingSystem::SetScopeTimeoutCallback()
-#    define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout) \
-      TRACY_PROFILE_SCOPE_DYNAMIC(szScopeName);
-/// \brief Profiles the current scope using the given name as the overall list scope name and the section name for the first section in the list.
-///
-/// Use EZ_PROFILE_LIST_NEXT_SECTION to start a new section in the list scope.
-///
-/// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope
-/// section.
-///
-/// \note The name string must not be destroyed before the current scope ends.
-///
-/// \sa ezProfilingListScope
-/// \sa EZ_PROFILE_LIST_NEXT_SECTION
-#    define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) \
-      TRACY_PROFILE_SCOPE_DYNAMIC(szScopeName);
+#  undef EZ_PROFILE_SCOPE
+#  define EZ_PROFILE_SCOPE(ScopeName)                                                                                 \
+    ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero()); \
+    EZ_TRACY_PROFILE_SCOPE(ScopeName)
 
-/// \brief Starts a new section in a EZ_PROFILE_LIST_SCOPE
-///
-/// \sa ezProfilingListScope
-/// \sa EZ_PROFILE_LIST_SCOPE
-#    define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) ezProfilingListScope::StartNextSection(szNextSectionName)
+#  undef EZ_PROFILE_SCOPE_WITH_TIMEOUT
+#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(ScopeName, Timeout)                                                \
+    ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, Timeout); \
+    EZ_TRACY_PROFILE_SCOPE(ScopeName);
 
-#    define EZ_PROFILER_END_FRAME FrameMark;
-#  endif
+#  undef EZ_PROFILE_LIST_SCOPE
+#  define EZ_PROFILE_LIST_SCOPE(ListName, FirstSectionName)                                                            \
+    ezProfilingListScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ListName, FirstSectionName, EZ_SOURCE_FUNCTION); \
+    EZ_TRACY_PROFILE_SCOPE(ScopeName);
+
+#  undef EZ_PROFILER_FRAME_MARKER
+#  define EZ_PROFILER_FRAME_MARKER() FrameMark
+
+#else
+
+/// \brief Similar to EZ_PROFILE_SCOPE, but only forwards to Tracy
+#  define EZ_TRACY_PROFILE_SCOPE(ScopeName)
+
 #endif
