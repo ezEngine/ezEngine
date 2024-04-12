@@ -394,10 +394,10 @@ ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout
 ezUInt32 ezVisualScriptCompiler::ConnectionHasher::Hash(const Connection& c)
 {
   ezUInt32 uiHashes[] = {
-    ezHashHelper<void*>::Hash(c.m_pPrev),
-    ezHashHelper<void*>::Hash(c.m_pCurrent),
+    ezHashHelper<void*>::Hash(c.m_pSource),
+    ezHashHelper<void*>::Hash(c.m_pTarget),
     ezHashHelper<ezUInt32>::Hash(c.m_Type),
-    ezHashHelper<ezUInt32>::Hash(c.m_uiPrevPinIndex),
+    ezHashHelper<ezUInt32>::Hash(c.m_uiSourcePinIndex),
   };
   return ezHashingUtils::xxHash32(uiHashes, sizeof(uiHashes));
 }
@@ -405,10 +405,10 @@ ezUInt32 ezVisualScriptCompiler::ConnectionHasher::Hash(const Connection& c)
 // static
 bool ezVisualScriptCompiler::ConnectionHasher::Equal(const Connection& a, const Connection& b)
 {
-  return a.m_pPrev == b.m_pPrev &&
-         a.m_pCurrent == b.m_pCurrent &&
+  return a.m_pSource == b.m_pSource &&
+         a.m_pTarget == b.m_pTarget &&
          a.m_Type == b.m_Type &&
-         a.m_uiPrevPinIndex == b.m_uiPrevPinIndex;
+         a.m_uiSourcePinIndex == b.m_uiSourcePinIndex;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -866,7 +866,7 @@ ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
   EZ_SUCCEED_OR_RETURN(TraverseExecutionConnections(pEntryAstNode,
     [&](Connection& connection)
     {
-      AstNode* pNode = connection.m_pCurrent;
+      AstNode* pNode = connection.m_pTarget;
 
       if (ezVisualScriptNodeDescription::Type::IsLoop(pNode->m_Type))
       {
@@ -880,7 +880,7 @@ ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
   return TraverseExecutionConnections(pEntryAstNode,
     [&](Connection& connection)
     {
-      AstNode* pNode = connection.m_pCurrent;
+      AstNode* pNode = connection.m_pTarget;
 
       if (pNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_CompareExec)
       {
@@ -899,8 +899,8 @@ ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
         branchNode.m_Next.PushBack(pNode->m_Next[1]);
 
         compareNode.m_Next.PushBack(&branchNode);
-        connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = &compareNode;
-        connection.m_pCurrent = &branchNode;
+        connection.m_pSource->m_Next[connection.m_uiSourcePinIndex] = &compareNode;
+        connection.m_pTarget = &branchNode;
       }
 
       return VisitorResult::Continue;
@@ -919,7 +919,7 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
   AstNode* pLoopElement = nullptr;
   AstNode* pLoopIndex = nullptr;
 
-  AstNode* pLoopNode = connection.m_pCurrent;
+  AstNode* pLoopNode = connection.m_pTarget;
   AstNode* pLoopBody = pLoopNode->m_Next[0];
   AstNode* pLoopCompleted = pLoopNode->m_Next[1];
   auto loopType = pLoopNode->m_Type;
@@ -1106,12 +1106,12 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
 
   if (pLoopInitStart != nullptr)
   {
-    connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pLoopInitStart;
+    connection.m_pSource->m_Next[connection.m_uiSourcePinIndex] = pLoopInitStart;
     pLoopInitEnd->m_Next.PushBack(pLoopConditionStart);
   }
   else
   {
-    connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pLoopConditionStart;
+    connection.m_pSource->m_Next[connection.m_uiSourcePinIndex] = pLoopConditionStart;
   }
 
   AstNode* pJumpNode = CreateJumpNode(pLoopConditionStart);
@@ -1124,26 +1124,26 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
   EZ_SUCCEED_OR_RETURN(TraverseAllConnections(pLoopBody,
     [&](Connection& connection)
     {
-      if (connection.m_pPrev == nullptr)
+      if (connection.m_pSource == nullptr)
       {
-        connection.m_pPrev = pLoopConditionEnd;
-        connection.m_uiPrevPinIndex = 0;
+        connection.m_pSource = pLoopConditionEnd;
+        connection.m_uiSourcePinIndex = 0;
       }
 
-      if (ezVisualScriptNodeDescription::Type::IsLoop(connection.m_pCurrent->m_Type))
+      if (ezVisualScriptNodeDescription::Type::IsLoop(connection.m_pTarget->m_Type))
       {
         if (ReplaceLoop(connection).Failed())
           return VisitorResult::Error;
       }
 
-      if (connection.m_Type == ConnectionType::Data && connection.m_pCurrent->m_bImplicitExecution == false)
+      if (connection.m_Type == ConnectionType::Data && connection.m_pTarget->m_bImplicitExecution == false)
         return VisitorResult::Skip;
 
-      AstNode* pNode = connection.m_pCurrent;
+      AstNode* pNode = connection.m_pTarget;
 
       if (pNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Break)
       {
-        connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pLoopCompleted;
+        connection.m_pSource->m_Next[connection.m_uiSourcePinIndex] = pLoopCompleted;
         return VisitorResult::Continue;
       }
 
@@ -1182,9 +1182,9 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
       return VisitorResult::Continue;
     }));
 
-  connection.m_pPrev = pLoopConditionEnd;
-  connection.m_pCurrent = pLoopCompleted;
-  connection.m_uiPrevPinIndex = 1;
+  connection.m_pSource = pLoopConditionStart;
+  connection.m_pTarget = pLoopConditionEnd;
+  connection.m_uiSourcePinIndex = 0;
 
   return EZ_SUCCESS;
 }
@@ -1196,7 +1196,7 @@ ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
     {
       if (connection.m_Type == ConnectionType::Data)
       {
-        auto& dataInput = connection.m_pPrev->m_Inputs[connection.m_uiPrevPinIndex];
+        auto& dataInput = connection.m_pSource->m_Inputs[connection.m_uiSourcePinIndex];
         auto& dataOutput = GetDataOutput(dataInput);
 
         if (dataOutput.m_DataType != dataInput.m_DataType)
@@ -1221,7 +1221,7 @@ ezResult ezVisualScriptCompiler::InlineConstants(AstNode* pEntryAstNode)
   return TraverseAllConnections(pEntryAstNode,
     [&](const Connection& connection)
     {
-      auto pCurrentNode = connection.m_pCurrent;
+      auto pCurrentNode = connection.m_pTarget;
       for (auto& dataInput : pCurrentNode->m_Inputs)
       {
         if (m_PinIdToDataDesc.Contains(dataInput.m_uiId))
@@ -1263,7 +1263,7 @@ ezResult ezVisualScriptCompiler::InlineVariables(AstNode* pEntryAstNode)
   return TraverseAllConnections(pEntryAstNode,
     [&](const Connection& connection)
     {
-      auto pCurrentNode = connection.m_pCurrent;
+      auto pCurrentNode = connection.m_pTarget;
       for (auto& dataInput : pCurrentNode->m_Inputs)
       {
         if (m_PinIdToDataDesc.Contains(dataInput.m_uiId))
@@ -1332,16 +1332,16 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
     pEntryAstNode,
     [&](const Connection& connection)
     {
-      if (connection.m_pCurrent->m_bImplicitExecution == false)
+      if (connection.m_pTarget->m_bImplicitExecution == false)
         return VisitorResult::Skip;
 
-      if (visitedNodes.Insert(connection.m_pCurrent))
+      if (visitedNodes.Insert(connection.m_pTarget))
       {
         // If the node was already visited, remove it again so it is moved to the top of the stack
-        out_Stack.RemoveAndCopy(connection.m_pCurrent);
+        out_Stack.RemoveAndCopy(connection.m_pTarget);
       }
 
-      out_Stack.PushBack(connection.m_pCurrent);
+      out_Stack.PushBack(connection.m_pTarget);
 
       return VisitorResult::Continue;
     },
@@ -1445,9 +1445,9 @@ ezResult ezVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
   for (const auto& connection : allExecConnections)
   {
     AstNode* pFirstDataNode = nullptr;
-    if (nodeToFirstDataNode.TryGetValue(connection.m_pCurrent, pFirstDataNode) == false)
+    if (nodeToFirstDataNode.TryGetValue(connection.m_pTarget, pFirstDataNode) == false)
     {
-      if (BuildDataStack(connection.m_pCurrent, nodeStack).Failed())
+      if (BuildDataStack(connection.m_pTarget, nodeStack).Failed())
         return EZ_FAILURE;
 
       if (nodeStack.IsEmpty() == false)
@@ -1455,15 +1455,15 @@ ezResult ezVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
         pFirstDataNode = nodeStack.PeekBack();
 
         AstNode* pLastDataNode = nodeStack[0];
-        pLastDataNode->m_Next.PushBack(connection.m_pCurrent);
+        pLastDataNode->m_Next.PushBack(connection.m_pTarget);
       }
     }
 
     if (pFirstDataNode != nullptr)
     {
-      connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pFirstDataNode;
+      connection.m_pSource->m_Next[connection.m_uiSourcePinIndex] = pFirstDataNode;
     }
-    nodeToFirstDataNode.Insert(connection.m_pCurrent, pFirstDataNode);
+    nodeToFirstDataNode.Insert(connection.m_pTarget, pFirstDataNode);
   }
 
   return EZ_SUCCESS;
@@ -1476,13 +1476,13 @@ ezResult ezVisualScriptCompiler::FillDataOutputConnections(AstNode* pEntryAstNod
     {
       if (connection.m_Type == ConnectionType::Data)
       {
-        auto& dataInput = connection.m_pPrev->m_Inputs[connection.m_uiPrevPinIndex];
+        auto& dataInput = connection.m_pSource->m_Inputs[connection.m_uiSourcePinIndex];
         auto& dataOutput = GetDataOutput(dataInput);
 
-        EZ_ASSERT_DEBUG(dataInput.m_pSourceNode == connection.m_pCurrent, "");
-        if (dataOutput.m_TargetNodes.Contains(connection.m_pPrev) == false)
+        EZ_ASSERT_DEBUG(dataInput.m_pSourceNode == connection.m_pTarget, "");
+        if (dataOutput.m_TargetNodes.Contains(connection.m_pSource) == false)
         {
-          dataOutput.m_TargetNodes.PushBack(connection.m_pPrev);
+          dataOutput.m_TargetNodes.PushBack(connection.m_pSource);
         }
       }
 
@@ -1498,7 +1498,7 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
     [&](const Connection& connection)
     {
       // Outputs first so we don't end up using the same data as input and output
-      for (auto& dataOutput : connection.m_pCurrent->m_Outputs)
+      for (auto& dataOutput : connection.m_pTarget->m_Outputs)
       {
         if (m_PinIdToDataDesc.Contains(dataOutput.m_uiId))
           continue;
@@ -1534,7 +1534,7 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
         }
       }
 
-      for (auto& dataInput : connection.m_pCurrent->m_Inputs)
+      for (auto& dataInput : connection.m_pTarget->m_Inputs)
       {
         if (m_PinIdToDataDesc.Contains(dataInput.m_uiId) || dataInput.m_pSourceNode == nullptr)
           continue;
@@ -1603,18 +1603,18 @@ ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, e
     [&](const Connection& connection)
     {
       ezUInt32 uiCurrentIndex = 0;
-      if (astNodeToNodeDescIndices.TryGetValue(connection.m_pCurrent, uiCurrentIndex) == false)
+      if (astNodeToNodeDescIndices.TryGetValue(connection.m_pTarget, uiCurrentIndex) == false)
       {
         return VisitorResult::Skip;
       }
 
       auto pNodeDesc = &out_NodeDescriptions[uiCurrentIndex];
-      if (pNodeDesc->m_ExecutionIndices.GetCount() == connection.m_pCurrent->m_Next.GetCount())
+      if (pNodeDesc->m_ExecutionIndices.GetCount() == connection.m_pTarget->m_Next.GetCount())
       {
         return VisitorResult::Continue;
       }
 
-      for (auto pNextAstNode : connection.m_pCurrent->m_Next)
+      for (auto pNextAstNode : connection.m_pTarget->m_Next)
       {
         if (pNextAstNode == nullptr)
         {
@@ -1664,26 +1664,26 @@ ezResult ezVisualScriptCompiler::TraverseExecutionConnections(AstNode* pEntryAst
     if (res == VisitorResult::Error)
       return EZ_FAILURE;
 
-    if (connection.m_pCurrent != nullptr)
+    if (connection.m_pTarget != nullptr)
     {
-      nodeStack.PushBack(connection.m_pCurrent);
+      nodeStack.PushBack(connection.m_pTarget);
     }
   }
 
   while (nodeStack.IsEmpty() == false)
   {
-    AstNode* pCurrentAstNode = nodeStack.PeekBack();
+    AstNode* pSourceAstNode = nodeStack.PeekBack();
     nodeStack.PopBack();
 
-    for (ezUInt32 i = 0; i < pCurrentAstNode->m_Next.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < pSourceAstNode->m_Next.GetCount(); ++i)
     {
-      auto pNextAstNode = pCurrentAstNode->m_Next[i];
-      EZ_ASSERT_DEBUG(pNextAstNode != pCurrentAstNode, "");
+      auto pTargetAstNode = pSourceAstNode->m_Next[i];
+      EZ_ASSERT_DEBUG(pTargetAstNode != pSourceAstNode, "");
 
-      if (pNextAstNode == nullptr)
+      if (pTargetAstNode == nullptr)
         continue;
 
-      Connection connection = {pCurrentAstNode, pNextAstNode, ConnectionType::Execution, i};
+      Connection connection = {pSourceAstNode, pTargetAstNode, ConnectionType::Execution, i};
       if (bDeduplicate && m_ReportedConnections.Insert(connection))
         continue;
 
@@ -1695,9 +1695,9 @@ ezResult ezVisualScriptCompiler::TraverseExecutionConnections(AstNode* pEntryAst
       if (res == VisitorResult::Error)
         return EZ_FAILURE;
 
-      if (connection.m_pCurrent != nullptr)
+      if (connection.m_pTarget != nullptr)
       {
-        nodeStack.PushBack(connection.m_pCurrent);
+        nodeStack.PushBack(connection.m_pTarget);
       }
     }
   }
@@ -1740,9 +1740,9 @@ ezResult ezVisualScriptCompiler::TraverseDataConnections(AstNode* pEntryAstNode,
       if (res == VisitorResult::Error)
         return EZ_FAILURE;
 
-      if (connection.m_pCurrent != nullptr)
+      if (connection.m_pTarget != nullptr)
       {
-        nodeStack.PushBack(connection.m_pCurrent);
+        nodeStack.PushBack(connection.m_pTarget);
       }
     }
   }
@@ -1760,7 +1760,7 @@ ezResult ezVisualScriptCompiler::TraverseAllConnections(AstNode* pEntryAstNode, 
       if (res != VisitorResult::Continue)
         return res;
 
-      if (TraverseDataConnections(connection.m_pCurrent, func, bDeduplicate, false).Failed())
+      if (TraverseDataConnections(connection.m_pTarget, func, bDeduplicate, false).Failed())
         return VisitorResult::Error;
 
       return VisitorResult::Continue;
@@ -1854,7 +1854,7 @@ void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutpu
     TraverseAllConnections(pEntryAstNode,
       [&](const Connection& connection)
       {
-        AstNode* pAstNode = connection.m_pCurrent;
+        AstNode* pAstNode = connection.m_pTarget;
 
         ezUInt32 uiGraphNode = 0;
         if (nodeCache.TryGetValue(pAstNode, uiGraphNode) == false)
@@ -1883,10 +1883,10 @@ void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutpu
           nodeCache.Insert(pAstNode, uiGraphNode);
         }
 
-        if (connection.m_pPrev != nullptr)
+        if (connection.m_pSource != nullptr)
         {
           ezUInt32 uiPrevGraphNode = 0;
-          EZ_VERIFY(nodeCache.TryGetValue(connection.m_pPrev, uiPrevGraphNode), "");
+          EZ_VERIFY(nodeCache.TryGetValue(connection.m_pSource, uiPrevGraphNode), "");
 
           if (connection.m_Type == ConnectionType::Execution)
           {
@@ -1898,7 +1898,7 @@ void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutpu
             {
               sb.Append(" + ");
             }
-            sb.Append("Exec");
+            sb.AppendFormat("Exec{}", connection.m_uiSourcePinIndex);
             sLabel = sb;
           }
           else
@@ -1906,7 +1906,7 @@ void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutpu
             ezUInt64 uiConnectionKey = uiGraphNode | ezUInt64(uiPrevGraphNode) << 32;
             ezString& sLabel = connectionCache[uiConnectionKey];
 
-            auto& dataInput = connection.m_pPrev->m_Inputs[connection.m_uiPrevPinIndex];
+            auto& dataInput = connection.m_pSource->m_Inputs[connection.m_uiSourcePinIndex];
             auto& dataOutput = GetDataOutput(dataInput);
 
             ezStringBuilder sb = sLabel;
@@ -1914,7 +1914,7 @@ void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutpu
             {
               sb.Append(" + ");
             }
-            sb.AppendFormat("o{}:{} (id: {})->i{}:{} (id: {})", dataInput.m_uiSourcePinIndex, ezVisualScriptDataType::GetName(dataOutput.m_DataType), dataOutput.m_uiId, connection.m_uiPrevPinIndex, ezVisualScriptDataType::GetName(dataInput.m_DataType), dataInput.m_uiId);
+            sb.AppendFormat("o{}:{} (id: {})->i{}:{} (id: {})", dataInput.m_uiSourcePinIndex, ezVisualScriptDataType::GetName(dataOutput.m_DataType), dataOutput.m_uiId, connection.m_uiSourcePinIndex, ezVisualScriptDataType::GetName(dataInput.m_DataType), dataInput.m_uiId);
             sLabel = sb;
           }
         }

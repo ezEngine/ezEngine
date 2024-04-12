@@ -126,10 +126,10 @@ private:
 
   struct Connection
   {
-    AstNode* m_pPrev = nullptr;
-    AstNode* m_pCurrent = nullptr;
+    AstNode* m_pSource = nullptr;
+    AstNode* m_pTarget = nullptr;
     ConnectionType::Enum m_Type = ConnectionType::Execution;
-    ezUInt32 m_uiPrevPinIndex = 0;
+    ezUInt32 m_uiSourcePinIndex = 0;
   };
 
   AstNode* BuildAST(const ezDocumentObject* pEntryNode);

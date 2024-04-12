@@ -26,6 +26,7 @@ void ezGameEngineTestVisualScript::SetupSubTests()
   AddSubTest("Blackboard", SubTests::Blackboard);
   AddSubTest("Loops", SubTests::Loops);
   AddSubTest("Loops2", SubTests::Loops2);
+  AddSubTest("Loops3", SubTests::Loops3);
   AddSubTest("Properties", SubTests::Properties);
   AddSubTest("Arrays", SubTests::Arrays);
   AddSubTest("Expressions", SubTests::Expressions);
@@ -101,6 +102,13 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_pTestLog->m_Interface.ExpectMessage("Maximum node executions (100000) reached, execution will be aborted. Does the script contain an infinite loop?");
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops2.ezObjectGraph"));
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::Loops3)
+  {
+    m_ImgCompFrames.PushBack(1);
+
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops3.ezObjectGraph"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Properties)
