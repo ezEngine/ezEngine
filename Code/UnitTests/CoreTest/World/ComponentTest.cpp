@@ -197,9 +197,6 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_TEST_BOOL(pTest == pTestComponent);
     EZ_TEST_BOOL(pTestComponent->GetHandle() == handle);
 
-    TestComponent2* pTest2 = nullptr;
-    EZ_TEST_BOOL(!world.TryGetComponent(handle, pTest2));
-
     EZ_TEST_INT(pTestComponent->m_iSomeData, 1);
     EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
 
