@@ -70,7 +70,13 @@ namespace
     }
     else
     {
-      if (scriptDataType == ezVisualScriptDataType::Variant)
+      if (scriptDataType == ezVisualScriptDataType::Color)
+      {
+        propDesc.m_Category = ezPropertyCategory::Member;
+        propDesc.m_sType = pRtti->GetTypeName();
+        propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezExposeColorAlphaAttribute));
+      }
+      else if (scriptDataType == ezVisualScriptDataType::Variant)
       {
         propDesc.m_Category = ezPropertyCategory::Member;
         propDesc.m_sType = ezGetStaticRTTI<ezVariant>()->GetTypeName();
