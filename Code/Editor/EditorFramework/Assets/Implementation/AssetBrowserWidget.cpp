@@ -976,9 +976,10 @@ void ezQtAssetBrowserWidget::NewAsset()
 
   // find path
   {
-    if (TreeFolderFilter->currentItem())
+    if (TreeFolderFilter->selectionModel()->hasSelection())
     {
-      sStartDir = TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+      auto idx = TreeFolderFilter->selectionModel()->selection().indexes()[0];
+      sStartDir = TreeFolderFilter->itemFromIndex(idx)->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
     }
 
     // this will take precedence
