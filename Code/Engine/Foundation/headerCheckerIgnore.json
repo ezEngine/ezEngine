@@ -52,7 +52,8 @@
 			"ThreadingDeclarations_posix.h",
 			"xxhash.h",
 			"core.h",
-			"WinRTUtils.h"
+			"WinRTUtils.h",
+			"Profiling_Tracy.h"
 		]
 	}
 }

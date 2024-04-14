@@ -36,14 +36,14 @@ macro(ez_create_target TYPE TARGET_NAME)
 
 		if(ARG_NO_EZ_PREFIX)
 			# on some platforms like linux there is a default prefix like "lib".
-            # We don't want that as it confuses our plugin system.
+			# We don't want that as it confuses our plugin system.
 			set_target_properties(${TARGET_NAME} PROPERTIES IMPORT_PREFIX "")
 			set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "")
 		else()
 			ez_add_output_ez_prefix(${TARGET_NAME})
 		endif()
 
-		if (COMMAND ez_platformhook_set_library_properties)
+		if(COMMAND ez_platformhook_set_library_properties)
 			ez_platformhook_set_library_properties(${TARGET_NAME})
 		endif()
 
@@ -71,7 +71,7 @@ macro(ez_create_target TYPE TARGET_NAME)
 		# PLATFORM-TODO (use hook from below?)
 		ez_uwp_add_default_content(${TARGET_NAME})
 
-		if (COMMAND ez_platformhook_set_application_properties)
+		if(COMMAND ez_platformhook_set_application_properties)
 			ez_platformhook_set_application_properties(${TARGET_NAME})
 		endif()
 
@@ -154,5 +154,5 @@ macro(ez_create_target TYPE TARGET_NAME)
 	if(GATHER_EXPORT_PROJECTS)
 		set_property(GLOBAL APPEND PROPERTY "EXPORT_PROJECTS" ${TARGET_NAME})
 	endif()
-
+	
 endmacro()

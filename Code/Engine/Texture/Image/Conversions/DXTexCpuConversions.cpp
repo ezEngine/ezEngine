@@ -7,8 +7,7 @@
 
 #  include <Foundation/Threading/TaskSystem.h>
 
-
-ezImageConversionEntry g_DXTexCpuConversions[] = {
+  ezImageConversionEntry g_DXTexCpuConversions[] = {
   ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::BC6H_UF16, ezImageConversionFlags::Default),
 
   ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC1_UNORM, ezImageConversionFlags::Default),
@@ -134,7 +133,5 @@ public:
 static ezImageConversion_CompressDxTexCpu s_conversion_compressDxTexCpu;
 
 #endif
-
-
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTexCpuConversions);

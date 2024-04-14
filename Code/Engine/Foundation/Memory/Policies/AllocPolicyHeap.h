@@ -22,7 +22,8 @@ public:
     EZ_ASSERT_DEBUG(
       uiAlign <= 8, "This allocator does not guarantee alignments larger than 8. Use an aligned allocator to allocate the desired data type.");
 
-    void* ptr = malloc(PadSize(uiSize));
+    uiSize = PadSize(uiSize);
+    void* ptr = malloc(uiSize);
     EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
     return OffsetPtr(ptr);
@@ -30,13 +31,19 @@ public:
 
   EZ_FORCE_INLINE void* Reallocate(void* pCurrentPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
   {
-    void* ptr = realloc(RestorePtr(pCurrentPtr), PadSize(uiNewSize));
+    void* orgPtr = RestorePtr(pCurrentPtr);
+    uiNewSize = PadSize(uiNewSize);
+    void* ptr = realloc(orgPtr, uiNewSize);
     EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
     return OffsetPtr(ptr);
   }
 
-  EZ_ALWAYS_INLINE void Deallocate(void* pPtr) { free(RestorePtr(pPtr)); }
+  EZ_ALWAYS_INLINE void Deallocate(void* pPtr)
+  {
+    pPtr = RestorePtr(pPtr);
+    free(pPtr);
+  }
 
   EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return nullptr; }
 

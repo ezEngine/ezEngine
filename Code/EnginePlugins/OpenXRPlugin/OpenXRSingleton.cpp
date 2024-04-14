@@ -361,7 +361,6 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
 
   pView->SetViewport(ezRectFloat((float)m_Info.m_vEyeRenderTargetSize.width, (float)m_Info.m_vEyeRenderTargetSize.height));
 
-
   return std::move(pActor);
 }
 
@@ -941,34 +940,35 @@ void ezOpenXR::EndFrame()
 
   if (!m_bRenderInProgress || !pSwapChain)
     return;
-
-  EZ_PROFILE_SCOPE("OpenXrEndFrame");
-  for (uint32_t i = 0; i < 2; i++)
+  /// NOTE: (Only Applies When Tracy is Enabled.)Tracy Seems to declare Timers in the same scope, so dual profile macros can throw: '__tracy_scoped_zone' : redefinition; multitple initalization, so we must scope the two events.
   {
-    m_ProjectionLayerViews[i] = {XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW};
-    m_ProjectionLayerViews[i].pose = m_Views[i].pose;
-    m_ProjectionLayerViews[i].fov = m_Views[i].fov;
-    m_ProjectionLayerViews[i].subImage.swapchain = pSwapChain->GetColorSwapchain();
-    m_ProjectionLayerViews[i].subImage.imageRect.offset = {0, 0};
-    m_ProjectionLayerViews[i].subImage.imageRect.extent = {(ezInt32)m_Info.m_vEyeRenderTargetSize.width, (ezInt32)m_Info.m_vEyeRenderTargetSize.height};
-    m_ProjectionLayerViews[i].subImage.imageArrayIndex = i;
-
-    if (m_Extensions.m_bDepthComposition && m_pCameraToSynchronize)
+    EZ_PROFILE_SCOPE("OpenXrEndFrame");
+    for (uint32_t i = 0; i < 2; i++)
     {
-      m_DepthLayerViews[i] = {XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR};
-      m_DepthLayerViews[i].minDepth = 0;
-      m_DepthLayerViews[i].maxDepth = 1;
-      m_DepthLayerViews[i].nearZ = m_pCameraToSynchronize->GetNearPlane();
-      m_DepthLayerViews[i].farZ = m_pCameraToSynchronize->GetFarPlane();
-      m_DepthLayerViews[i].subImage.swapchain = pSwapChain->GetDepthSwapchain();
-      m_DepthLayerViews[i].subImage.imageRect.offset = {0, 0};
-      m_DepthLayerViews[i].subImage.imageRect.extent = {(ezInt32)m_Info.m_vEyeRenderTargetSize.width, (ezInt32)m_Info.m_vEyeRenderTargetSize.height};
-      m_DepthLayerViews[i].subImage.imageArrayIndex = i;
+      m_ProjectionLayerViews[i] = {XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW};
+      m_ProjectionLayerViews[i].pose = m_Views[i].pose;
+      m_ProjectionLayerViews[i].fov = m_Views[i].fov;
+      m_ProjectionLayerViews[i].subImage.swapchain = pSwapChain->GetColorSwapchain();
+      m_ProjectionLayerViews[i].subImage.imageRect.offset = {0, 0};
+      m_ProjectionLayerViews[i].subImage.imageRect.extent = {(ezInt32)m_Info.m_vEyeRenderTargetSize.width, (ezInt32)m_Info.m_vEyeRenderTargetSize.height};
+      m_ProjectionLayerViews[i].subImage.imageArrayIndex = i;
 
-      m_ProjectionLayerViews[i].next = &m_DepthLayerViews[i];
+      if (m_Extensions.m_bDepthComposition && m_pCameraToSynchronize)
+      {
+        m_DepthLayerViews[i] = {XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR};
+        m_DepthLayerViews[i].minDepth = 0;
+        m_DepthLayerViews[i].maxDepth = 1;
+        m_DepthLayerViews[i].nearZ = m_pCameraToSynchronize->GetNearPlane();
+        m_DepthLayerViews[i].farZ = m_pCameraToSynchronize->GetFarPlane();
+        m_DepthLayerViews[i].subImage.swapchain = pSwapChain->GetDepthSwapchain();
+        m_DepthLayerViews[i].subImage.imageRect.offset = {0, 0};
+        m_DepthLayerViews[i].subImage.imageRect.extent = {(ezInt32)m_Info.m_vEyeRenderTargetSize.width, (ezInt32)m_Info.m_vEyeRenderTargetSize.height};
+        m_DepthLayerViews[i].subImage.imageArrayIndex = i;
+
+        m_ProjectionLayerViews[i].next = &m_DepthLayerViews[i];
+      }
     }
   }
-
 
   m_Layer.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
   m_Layer.space = GetBaseSpace();

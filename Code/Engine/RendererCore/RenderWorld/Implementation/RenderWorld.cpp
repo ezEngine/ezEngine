@@ -580,10 +580,12 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   }
 
   filteredRenderPipelines.Clear();
-
-  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::EndRender;
-  EZ_PROFILE_SCOPE("EndRender");
-  s_RenderEvent.Broadcast(renderEvent);
+  /// NOTE: (Only Applies When Tracy is Enabled.)Tracy Seems to declare Timers in the same scope, so dual profile macros can throw: '__tracy_scoped_zone' : redefinition; multitple initalization, so we must scope the two events.
+  {
+    renderEvent.m_Type = ezRenderWorldRenderEvent::Type::EndRender;
+    EZ_PROFILE_SCOPE("EndRender");
+    s_RenderEvent.Broadcast(renderEvent);
+  }
 }
 
 void ezRenderWorld::BeginFrame()
