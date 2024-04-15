@@ -177,17 +177,13 @@ public:
   template <typename ComponentType>
   [[nodiscard]] bool TryGetComponent(const ezComponentHandle& hComponent, const ComponentType*& out_pComponent) const;
 
-  template <typename ComponentType>
-  [[nodiscard]] bool TryGetComponent(const ezTypedComponentHandle<ComponentType>& hComponent, ComponentType*& out_pComponent)
-  {
-    return TryGetComponent<ComponentType>(static_cast<const ezComponentHandle&>(hComponent), out_pComponent);
-  }
+  /// \brief Explicitly delete TryGetComponent overload when handle type is not related to a pointer type given by out_pComponent.
+  template <typename T, typename U, std::enable_if_t<!std::disjunction_v<std::is_base_of<U, T>, std::is_base_of<T, U>>, bool> = true>
+  [[nodiscard]] bool TryGetComponent(const ezTypedComponentHandle<T>& hComponent, U*& out_pComponent) = delete;
 
-  template <typename ComponentType>
-  [[nodiscard]] bool TryGetComponent(const ezTypedComponentHandle<ComponentType>& hComponent, const ComponentType*& out_pComponent) const
-  {
-    return TryGetComponent<ComponentType>(static_cast<const ezComponentHandle&>(hComponent), out_pComponent);
-  }
+  /// \brief Explicitly delete TryGetComponent overload when handle type is not related to a pointer type given by out_pComponent.
+  template <typename T, typename U, std::enable_if_t<!std::disjunction_v<std::is_base_of<U, T>, std::is_base_of<T, U>>, bool> = true>
+  [[nodiscard]] bool TryGetComponent(const ezTypedComponentHandle<T>& hComponent, const U*& out_pComponent) const = delete;
 
   /// \brief Creates a new component init batch.
   /// It is ensured that the Initialize function is called for all components in a batch before the OnSimulationStarted is called.
