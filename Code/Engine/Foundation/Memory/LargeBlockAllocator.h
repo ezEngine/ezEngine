@@ -63,7 +63,6 @@ private:
   ezAllocatorTrackingMode m_TrackingMode;
 
   ezMutex m_Mutex;
-  ezThreadID m_ThreadID;
 
   struct SuperBlock
   {

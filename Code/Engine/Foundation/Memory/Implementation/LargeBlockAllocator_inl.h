@@ -51,7 +51,6 @@ ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(ezStringView sName, ezAl
   static_assert(BlockSize >= 4096, "Block size must be 4096 or bigger");
 
   m_Id = ezMemoryTracker::RegisterAllocator(sName, mode, ezPageAllocator::GetId());
-  m_ThreadID = ezThreadUtils::GetCurrentThreadID();
 
   const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
   EZ_IGNORE_UNUSED(uiPageSize);
@@ -62,7 +61,6 @@ ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(ezStringView sName, ezAl
 template <ezUInt32 BlockSize>
 ezLargeBlockAllocator<BlockSize>::~ezLargeBlockAllocator()
 {
-  EZ_ASSERT_RELEASE(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
   ezMemoryTracker::DeregisterAllocator(m_Id);
 
   for (ezUInt32 i = 0; i < m_SuperBlocks.GetCount(); ++i)
