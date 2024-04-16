@@ -170,7 +170,7 @@ public:
   const ezHashTable<ezHashedString, Entry>& GetAllEntries() const { return m_Entries; }
 
   /// \brief Allows you to register to the OnEntryEvent. This is broadcast whenever an entry is modified that has the flag ezBlackboardEntryFlags::OnChangeEvent.
-  const ezEvent<EntryEvent>& OnEntryEvent() const { return m_EntryEvents; }
+  const ezEvent<const EntryEvent&>& OnEntryEvent() const { return m_EntryEvents; }
 
   /// \brief This counter is increased every time an entry is added or removed (but not when it is modified).
   ///
@@ -202,7 +202,7 @@ private:
 
   bool m_bIsGlobal = false;
   ezHashedString m_sName;
-  ezEvent<EntryEvent> m_EntryEvents;
+  ezEvent<const EntryEvent&> m_EntryEvents;
   ezUInt32 m_uiBlackboardChangeCounter = 0;
   ezUInt32 m_uiBlackboardEntryChangeCounter = 0;
   ezHashTable<ezHashedString, Entry> m_Entries;

@@ -402,11 +402,11 @@ void ezLocalBlackboardComponent::SetSendEntryChangedMessage(bool bSend)
 
   if (bSend)
   {
-    m_EntryChangedSubscriptionID = m_pBoard->OnEntryEvent().AddEventHandler(ezMakeDelegate(&ezLocalBlackboardComponent::OnEntryChanged, this));
+    m_pBoard->OnEntryEvent().AddEventHandler(ezMakeDelegate(&ezLocalBlackboardComponent::OnEntryChanged, this));
   }
   else
   {
-    m_pBoard->OnEntryEvent().RemoveEventHandler(m_EntryChangedSubscriptionID);
+    m_pBoard->OnEntryEvent().RemoveEventHandler(ezMakeDelegate(&ezLocalBlackboardComponent::OnEntryChanged, this));
   }
 }
 

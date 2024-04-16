@@ -148,7 +148,6 @@ private:
   ezDynamicArray<ezBlackboardEntry> m_InitialEntries;
 
   ezEventMessageSender<ezMsgBlackboardEntryChanged> m_EntryChangedSender; // [ event ]
-  ezEventSubscriptionID m_EntryChangedSubscriptionID = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
