@@ -15,8 +15,8 @@
 
 [INCLUDE]
 
-#if PLATFORM_PROFILE_PC
-/Player.exe
+#if PLATFORM_PROFILE_DEFAULT
+/ezPlayer.exe
 /ezFoundation.dll
 /ezCore.dll
 /ezGameEngine.dll
