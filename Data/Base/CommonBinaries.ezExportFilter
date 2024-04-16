@@ -33,4 +33,5 @@
 /Duktape.dll
 /stb_image.dll
 /enet.dll
+/TracyClient.dll
 #endif
