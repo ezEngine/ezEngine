@@ -148,6 +148,12 @@ namespace ezModelImporter2
     if ((pMesh->mPrimitiveTypes & aiPrimitiveType::aiPrimitiveType_TRIANGLE) == 0) // no triangles in there ?
       return EZ_SUCCESS;
 
+    if (m_Options.m_bImportSkinningData && !pMesh->HasBones())
+    {
+      ezLog::Warning("Mesh contains an unskinned part ('{}' - {} triangles)", pMesh->mName.C_Str(), pMesh->mNumFaces);
+      return EZ_SUCCESS;
+    }
+
     // if enabled, the aiMesh is modified in-place to have less detail
     SimplifyAiMesh(pMesh);
 
@@ -665,8 +671,6 @@ namespace ezModelImporter2
     }
 
     const bool b8BitBoneIndices = m_Options.m_pMeshOutput->m_Bones.GetCount() <= 255;
-
-    // TODO: m_uiTotalMeshTriangles and m_uiTotalMeshVertices are too high if we skip non-skinned meshes
 
     StreamIndices streams;
     AllocateMeshStreams(mb, ezArrayPtr<aiMesh*>(m_pScene->mMeshes, m_pScene->mNumMeshes), streams, m_uiTotalMeshVertices, m_uiTotalMeshTriangles, m_Options.m_MeshNormalsPrecision, m_Options.m_MeshTexCoordsPrecision, m_Options.m_bImportSkinningData, b8BitBoneIndices, m_Options.m_MeshBoneWeightPrecision);

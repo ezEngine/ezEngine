@@ -358,6 +358,7 @@ void ezMeshBufferResourceDescriptor::SetLineIndices(ezUInt32 uiLine, ezUInt32 ui
 void ezMeshBufferResourceDescriptor::SetTriangleIndices(ezUInt32 uiTriangle, ezUInt32 uiVertex0, ezUInt32 uiVertex1, ezUInt32 uiVertex2)
 {
   EZ_ASSERT_DEBUG(m_Topology == ezGALPrimitiveTopology::Triangles, "Wrong topology");
+  EZ_ASSERT_DEBUG(uiVertex0 < m_uiVertexCount && uiVertex1 < m_uiVertexCount && uiVertex2 < m_uiVertexCount, "Vertex indices out of range.");
 
   if (Uses32BitIndices())
   {
