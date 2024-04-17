@@ -215,7 +215,7 @@ public:
   ezAnimPoseGenerator();
   ~ezAnimPoseGenerator();
 
-  void Reset(const ezSkeletonResource* pSkeleton, const ezGameObject* pTarget);
+  void Reset(const ezSkeletonResource* pSkeleton, ezGameObject* pTarget);
 
   const ezSkeletonResource* GetSkeleton() const { return m_pSkeleton; }
   const ezGameObject* GetTargetObject() const { return m_pTargetGameObject; }
@@ -254,7 +254,7 @@ private:
   ezArrayPtr<ozz::math::SoaTransform> AcquireLocalPoseTransforms(ezAnimPoseGeneratorLocalPoseID id);
   ezArrayPtr<ezMat4> AcquireModelPoseTransforms(ezAnimPoseGeneratorModelPoseID id);
 
-  const ezGameObject* m_pTargetGameObject = nullptr;
+  ezGameObject* m_pTargetGameObject = nullptr;
   const ezSkeletonResource* m_pSkeleton = nullptr;
 
   ezArrayPtr<ezMat4> m_OutputPose;
