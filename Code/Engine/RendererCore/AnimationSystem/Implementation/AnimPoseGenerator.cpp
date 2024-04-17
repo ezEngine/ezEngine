@@ -16,7 +16,7 @@
 #include <ozz/base/maths/simd_quaternion.h>
 #include <ozz/base/span.h>
 
-void ezAnimPoseGenerator::Reset(const ezSkeletonResource* pSkeleton, const ezGameObject* pTarget)
+void ezAnimPoseGenerator::Reset(const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
   m_pSkeleton = pSkeleton;
   m_pTargetGameObject = pTarget;
