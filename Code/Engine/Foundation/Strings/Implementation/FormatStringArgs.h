@@ -220,12 +220,12 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const
 
 // on these platforms "long int" is a different type from "long long int"
 
-EZ_ALWAYS_INLINE ezStringView BuildString(char* szTmp, ezUInt32 uiLength, long int iArg)
+EZ_ALWAYS_INLINE ezStringView BuildString(char* szTmp, ezUInt32 uiLength, long long iArg)
 {
   return BuildString(szTmp, uiLength, static_cast<ezInt64>(iArg));
 }
 
-EZ_ALWAYS_INLINE ezStringView BuildString(char* szTmp, ezUInt32 uiLength, unsigned long int uiArg)
+EZ_ALWAYS_INLINE ezStringView BuildString(char* szTmp, ezUInt32 uiLength, unsigned long long uiArg)
 {
   return BuildString(szTmp, uiLength, static_cast<ezUInt64>(uiArg));
 }
