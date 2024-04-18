@@ -2,6 +2,8 @@
 
 // ***** Definition of types *****
 
+#include <cstdint>
+
 using ezUInt8 = uint8_t;
 using ezUInt16 = uint16_t;
 using ezUInt32 = uint32_t;
