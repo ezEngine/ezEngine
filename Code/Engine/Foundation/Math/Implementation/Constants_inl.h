@@ -80,7 +80,7 @@ namespace ezMath
 
     // NaN = 0111 1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0001
 
-    ezInt64DoubleUnion i2f(0x7FF0000000000042ull);
+    ezInt64DoubleUnion i2f(static_cast<ezUInt64>(0x7FF0000000000042ull));
     return i2f.f;
   }
 
@@ -134,7 +134,7 @@ namespace ezMath
     // INF = 0111 1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
 
     // bitwise representation of double infinity (positive)
-    ezInt64DoubleUnion i2f(0x7FF0000000000000ull);
+    ezInt64DoubleUnion i2f(static_cast<ezUInt64>(0x7FF0000000000000ull));
 
     return i2f.f;
   }
