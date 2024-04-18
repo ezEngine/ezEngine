@@ -7,12 +7,12 @@
 using ezUInt8 = uint8_t;
 using ezUInt16 = uint16_t;
 using ezUInt32 = uint32_t;
-using ezUInt64 = unsigned long long;
+using ezUInt64 = uint64_t;
 
 using ezInt8 = int8_t;
 using ezInt16 = int16_t;
 using ezInt32 = int32_t;
-using ezInt64 = long long;
+using ezInt64 = int64_t;
 
 // no float-types, since those are well portable
 
