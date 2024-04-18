@@ -190,8 +190,8 @@ template <typename> // Second template needed so that the compiler does only ins
 void ezSmallArrayBase<T, Size>::SetCountUninitialized(ezUInt16 uiCount, ezAllocator* pAllocator)
 {
   static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types.");
-  const ezUInt32 uiOldCount = m_uiCount;
-  const ezUInt32 uiNewCount = uiCount;
+  const ezUInt16 uiOldCount = m_uiCount;
+  const ezUInt16 uiNewCount = uiCount;
 
   if (uiNewCount > uiOldCount)
   {
