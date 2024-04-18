@@ -83,7 +83,7 @@ void ezParallelForParams::DetermineThreading(ezUInt64 uiNumItemsToExecute, ezUIn
 
   const ezUInt32 uiNumWorkerThreads = ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks);
   const ezUInt64 uiMaxTasksToUse = uiNumWorkerThreads * m_uiMaxTasksPerThread;
-  const ezUInt64 uiMaxExecutionsRequired = ezMath::Max(1llu, uiNumItemsToExecute / m_uiBinSize);
+  const ezUInt64 uiMaxExecutionsRequired = ezMath::Max<ezUInt64>(1, uiNumItemsToExecute / m_uiBinSize);
 
   if (uiMaxExecutionsRequired >= uiMaxTasksToUse)
   {
