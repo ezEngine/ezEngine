@@ -7,10 +7,10 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default, bool ShouldPoisonMemory = false>
-class ezLinearAllocator : public ezAllocatorWithPolicy<ezAllocPolicyLinear<ShouldPoisonMemory>, TrackingMode>
+template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default, bool OverwriteMemoryOnReset = false>
+class ezLinearAllocator : public ezAllocatorWithPolicy<ezAllocPolicyLinear<OverwriteMemoryOnReset>, TrackingMode>
 {
-  using PolicyStack = ezAllocPolicyLinear<ShouldPoisonMemory>;
+  using PolicyStack = ezAllocPolicyLinear<OverwriteMemoryOnReset>;
 
 public:
   ezLinearAllocator(ezStringView sName, ezAllocator* pParent);

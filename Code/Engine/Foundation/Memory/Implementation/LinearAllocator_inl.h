@@ -1,23 +1,23 @@
-template <ezAllocatorTrackingMode TrackingMode, bool ShouldPoisonMemory>
-ezLinearAllocator<TrackingMode, ShouldPoisonMemory>::ezLinearAllocator(ezStringView sName, ezAllocator* pParent)
-  : ezAllocatorWithPolicy<typename ezLinearAllocator<TrackingMode, ShouldPoisonMemory>::PolicyStack, TrackingMode>(sName, pParent)
+template <ezAllocatorTrackingMode TrackingMode, bool OverwriteMemoryOnReset>
+ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::ezLinearAllocator(ezStringView sName, ezAllocator* pParent)
+  : ezAllocatorWithPolicy<typename ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::PolicyStack, TrackingMode>(sName, pParent)
   , m_DestructData(pParent)
   , m_PtrToDestructDataIndexTable(pParent)
 {
 }
 
-template <ezAllocatorTrackingMode TrackingMode, bool ShouldPoisonMemory>
-ezLinearAllocator<TrackingMode, ShouldPoisonMemory>::~ezLinearAllocator()
+template <ezAllocatorTrackingMode TrackingMode, bool OverwriteMemoryOnReset>
+ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::~ezLinearAllocator()
 {
   Reset();
 }
 
-template <ezAllocatorTrackingMode TrackingMode, bool ShouldPoisonMemory>
-void* ezLinearAllocator<TrackingMode, ShouldPoisonMemory>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
+template <ezAllocatorTrackingMode TrackingMode, bool OverwriteMemoryOnReset>
+void* ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
 {
   EZ_LOCK(m_Mutex);
 
-  void* ptr = ezAllocatorWithPolicy<typename ezLinearAllocator<TrackingMode, ShouldPoisonMemory>::PolicyStack, TrackingMode>::Allocate(uiSize, uiAlign, destructorFunc);
+  void* ptr = ezAllocatorWithPolicy<typename ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::PolicyStack, TrackingMode>::Allocate(uiSize, uiAlign, destructorFunc);
 
   if (destructorFunc != nullptr)
   {
@@ -32,8 +32,8 @@ void* ezLinearAllocator<TrackingMode, ShouldPoisonMemory>::Allocate(size_t uiSiz
   return ptr;
 }
 
-template <ezAllocatorTrackingMode TrackingMode, bool ShouldPoisonMemory>
-void ezLinearAllocator<TrackingMode, ShouldPoisonMemory>::Deallocate(void* pPtr)
+template <ezAllocatorTrackingMode TrackingMode, bool OverwriteMemoryOnReset>
+void ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::Deallocate(void* pPtr)
 {
   EZ_LOCK(m_Mutex);
 
@@ -45,7 +45,7 @@ void ezLinearAllocator<TrackingMode, ShouldPoisonMemory>::Deallocate(void* pPtr)
     data.m_Ptr = nullptr;
   }
 
-  ezAllocatorWithPolicy<typename ezLinearAllocator<TrackingMode, ShouldPoisonMemory>::PolicyStack, TrackingMode>::Deallocate(pPtr);
+  ezAllocatorWithPolicy<typename ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::PolicyStack, TrackingMode>::Deallocate(pPtr);
 }
 
 EZ_MSVC_ANALYSIS_WARNING_PUSH
@@ -54,8 +54,8 @@ EZ_MSVC_ANALYSIS_WARNING_PUSH
 // even with the added guard of a check that it can't be 0.
 EZ_MSVC_ANALYSIS_WARNING_DISABLE(6313)
 
-template <ezAllocatorTrackingMode TrackingMode, bool ShouldPoisonMemory>
-void ezLinearAllocator<TrackingMode, ShouldPoisonMemory>::Reset()
+template <ezAllocatorTrackingMode TrackingMode, bool OverwriteMemoryOnReset>
+void ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::Reset()
 {
   EZ_LOCK(m_Mutex);
 
