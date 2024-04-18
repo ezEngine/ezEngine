@@ -3,11 +3,12 @@
 #include <Foundation/Containers/HybridArray.h>
 
 /// \brief This allocation policy works like a stack. You can only "push" and "pop" allocations
-///   in the correct order.
+///   in the correct order. The allocation policy can poison all allocations to show usages after destruction.
 ///
 /// \note It is also possible to free all allocations at once.
 ///
 /// \see ezAllocatorWithPolicy
+template <bool ShouldPoisonMemory = false>
 class ezAllocPolicyStack
 {
 public:
@@ -90,6 +91,14 @@ public:
   {
     m_uiCurrentBucketIndex = 0;
     m_pNextAllocation = !m_Buckets.IsEmpty() ? m_Buckets[0].GetPtr() : nullptr;
+
+    if constexpr (ShouldPoisonMemory)
+    {
+      for(auto& bucket : m_Buckets)
+      {
+        ezMemoryUtils::PatternFill(bucket.GetPtr(), 0xcd, bucket.GetCount());
+      }
+    }
   }
 
   EZ_FORCE_INLINE void FillStats(ezAllocator::Stats& ref_stats)

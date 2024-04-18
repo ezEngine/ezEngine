@@ -6,7 +6,12 @@
 class EZ_FOUNDATION_DLL ezDoubleBufferedLinearAllocator
 {
 public:
-  using StackAllocatorType = ezLinearAllocator<ezAllocatorTrackingMode::Basics>;
+  #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  static constexpr bool poisonMemory = true;
+  #else
+  static constexpr bool poisonMemory = false;
+  #endif 
+  using StackAllocatorType = ezLinearAllocator<ezAllocatorTrackingMode::Basics, poisonMemory>;
 
   ezDoubleBufferedLinearAllocator(ezStringView sName, ezAllocator* pParent);
   ~ezDoubleBufferedLinearAllocator();

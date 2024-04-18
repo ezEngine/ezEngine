@@ -697,7 +697,10 @@ void ezFileSystemIterator::Next()
         ezStringBuilder search = m_StartFolders[m_uiCurrentStartFolder];
         search.AppendPath(m_sMultiSearchTerm);
 
-        StartSearch(search, m_Flags);
+        if (search.IsAbsolutePath())
+        {
+          StartSearch(search, m_Flags);
+        }
       }
       else
       {

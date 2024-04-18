@@ -2,14 +2,14 @@
 
 // ***** Definition of types *****
 
-using ezUInt8 = unsigned char;
-using ezUInt16 = unsigned short;
-using ezUInt32 = unsigned int;
+using ezUInt8 = uint8_t;
+using ezUInt16 = uint16_t;
+using ezUInt32 = uint32_t;
 using ezUInt64 = unsigned long long;
 
-using ezInt8 = signed char;
-using ezInt16 = short;
-using ezInt32 = int;
+using ezInt8 = int8_t;
+using ezInt16 = int16_t;
+using ezInt32 = int32_t;
 using ezInt64 = long long;
 
 // no float-types, since those are well portable

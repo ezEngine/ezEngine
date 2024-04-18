@@ -16,15 +16,15 @@ constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(T pStart, typename std::en
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezStringView::ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type*)
+constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type*)
 {
   m_pStart = str;
   m_uiElementCount = ezStringUtils::GetStringElementCount(m_pStart);
 }
 
-EZ_ALWAYS_INLINE ezStringView::ezStringView(const char* pStart, const char* pEnd)
+constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(const char* pStart, const char* pEnd)
 {
-  EZ_ASSERT_DEV(pStart <= pEnd, "It should start BEFORE it ends.");
+  EZ_ASSERT_DEBUG(pStart <= pEnd, "Invalid pointers to construct a string view from.");
 
   m_pStart = pStart;
   m_uiElementCount = static_cast<ezUInt32>(pEnd - pStart);
@@ -37,16 +37,15 @@ constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(const char* pStart, ezUInt
 }
 
 template <size_t N>
-EZ_ALWAYS_INLINE ezStringView::ezStringView(const char (&str)[N])
+constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(const char (&str)[N])
   : m_pStart(str)
   , m_uiElementCount(N - 1)
 {
   static_assert(N > 0, "Not a string literal");
-  EZ_ASSERT_DEBUG(str[N - 1] == '\0', "Not a string literal. Manually cast to 'const char*' if you are trying to pass a const char fixed size array.");
 }
 
 template <size_t N>
-EZ_ALWAYS_INLINE ezStringView::ezStringView(char (&str)[N])
+constexpr EZ_ALWAYS_INLINE ezStringView::ezStringView(char (&str)[N])
 {
   m_pStart = str;
   m_uiElementCount = ezStringUtils::GetStringElementCount(str, str + N);

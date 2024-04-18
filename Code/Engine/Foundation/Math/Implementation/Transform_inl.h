@@ -102,6 +102,12 @@ inline bool ezTransformTemplate<Type>::IsEqual(const ezTransformTemplate<Type>& 
 }
 
 template <typename Type>
+inline bool ezTransformTemplate<Type>::IsValid() const
+{
+  return m_vPosition.IsValid() && m_qRotation.IsValid(0.005f) && m_vScale.IsValid();
+}
+
+template <typename Type>
 EZ_ALWAYS_INLINE const ezMat4Template<Type> ezTransformTemplate<Type>::GetAsMat4() const
 {
   auto result = m_qRotation.GetAsMat4();

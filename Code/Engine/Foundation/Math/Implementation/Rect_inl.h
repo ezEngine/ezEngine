@@ -218,6 +218,15 @@ EZ_ALWAYS_INLINE const ezVec2Template<Type> ezRectTemplate<Type>::GetClampedPoin
 }
 
 template <typename Type>
+void ezRectTemplate<Type>::SetCenter(Type tX, Type tY)
+{
+  /// \test This is new
+
+  x = tX - width / 2;
+  y = tY - height / 2;
+}
+
+template <typename Type>
 void ezRectTemplate<Type>::Translate(Type tX, Type tY)
 {
   /// \test This is new

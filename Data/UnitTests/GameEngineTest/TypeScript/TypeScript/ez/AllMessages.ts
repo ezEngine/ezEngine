@@ -43,6 +43,12 @@ export class EventMsgSetPowerInput extends EventMessage
   NewValue: number = 0;
 }
 
+export class MsgAnimationPoseGeneration extends Message
+{
+  public static GetTypeNameHash(): number { return 1114351692; }
+  constructor() { super(); this.TypeNameHash = 1114351692; }
+}
+
 export class MsgAnimationPosePreparing extends Message
 {
   public static GetTypeNameHash(): number { return 2419062254; }
