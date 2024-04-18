@@ -11,6 +11,7 @@ template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Defaul
 class ezLinearAllocator : public ezAllocatorWithPolicy<ezAllocPolicyStack<ShouldPoisonMemory>, TrackingMode>
 {
   using PolicyStack = ezAllocPolicyStack<ShouldPoisonMemory>;
+
 public:
   ezLinearAllocator(ezStringView sName, ezAllocator* pParent);
   ~ezLinearAllocator();

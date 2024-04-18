@@ -76,13 +76,13 @@ public:
   ezStringBuilder(ezStringView sData1, ezStringView sData2, ezStringView sData3 = {}, ezStringView sData4 = {},
     ezStringView sData5 = {}, ezStringView sData6 = {}); // [tested]
 
-  /// \brief Copies the given Utf8 string into this one.
+                                                         /// \brief Copies the given Utf8 string into this one.
   /* implicit */ ezStringBuilder(const char* szUTF8, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
-  /// \brief Copies the given wchar_t string into this one.
+                                                                                                                     /// \brief Copies the given wchar_t string into this one.
   /* implicit */ ezStringBuilder(const wchar_t* pWChar, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
-  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+                                                                                                                        /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
   /* implicit */ ezStringBuilder(ezStringView rhs, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Copies the given string into this one.

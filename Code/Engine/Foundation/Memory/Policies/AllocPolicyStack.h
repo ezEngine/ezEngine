@@ -94,7 +94,7 @@ public:
 
     if constexpr (ShouldPoisonMemory)
     {
-      for(auto& bucket : m_Buckets)
+      for (auto& bucket : m_Buckets)
       {
         ezMemoryUtils::PatternFill(bucket.GetPtr(), 0xcd, bucket.GetCount());
       }

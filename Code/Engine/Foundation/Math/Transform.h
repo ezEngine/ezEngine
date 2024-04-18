@@ -96,13 +96,13 @@ public:
   void Invert(); // [tested]
 
   /// \brief Returns the inverse of this transform.
-  const ezTransformTemplate GetInverse() const; // [tested]
+  const ezTransformTemplate GetInverse() const;                                               // [tested]
 
   [[nodiscard]] ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const;  // [tested]
   [[nodiscard]] ezVec3Template<Type> TransformDirection(const ezVec3Template<Type>& v) const; // [tested]
 
-  void operator+=(const ezVec3Template<Type>& v); // [tested]
-  void operator-=(const ezVec3Template<Type>& v); // [tested]
+  void operator+=(const ezVec3Template<Type>& v);                                             // [tested]
+  void operator-=(const ezVec3Template<Type>& v);                                             // [tested]
 
   // *** Conversion operations ***
 public:
@@ -137,9 +137,9 @@ template <typename Type>
 const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2); // [tested]
 
 template <typename Type>
-bool operator==(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2); // [tested]
+bool operator==(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2);                           // [tested]
 
 template <typename Type>
-bool operator!=(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2); // [tested]
+bool operator!=(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2);                           // [tested]
 
 #include <Foundation/Math/Implementation/Transform_inl.h>
