@@ -3,14 +3,14 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Memory/AllocatorWithPolicy.h>
-#include <Foundation/Memory/Policies/AllocPolicyStack.h>
+#include <Foundation/Memory/Policies/AllocPolicyLinear.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
 template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default, bool ShouldPoisonMemory = false>
-class ezLinearAllocator : public ezAllocatorWithPolicy<ezAllocPolicyStack<ShouldPoisonMemory>, TrackingMode>
+class ezLinearAllocator : public ezAllocatorWithPolicy<ezAllocPolicyLinear<ShouldPoisonMemory>, TrackingMode>
 {
-  using PolicyStack = ezAllocPolicyStack<ShouldPoisonMemory>;
+  using PolicyStack = ezAllocPolicyLinear<ShouldPoisonMemory>;
 
 public:
   ezLinearAllocator(ezStringView sName, ezAllocator* pParent);
