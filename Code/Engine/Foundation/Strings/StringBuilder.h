@@ -165,10 +165,19 @@ public:
   /// If possible, do not use this function, at all.
   void ChangeCharacter(iterator& ref_it, ezUInt32 uiCharacter); // [tested]
 
+  /// \brief Sets the string to the given string.
+  void Set(ezStringView sData1); // [tested]
   /// \brief Sets the string by concatenating all given strings.
-  void Set(ezStringView sData1, ezStringView sData2 = {}, ezStringView sData3 = {}, ezStringView sData4 = {}, ezStringView sData5 = {}, ezStringView sData6 = {});
+  void Set(ezStringView sData1, ezStringView sData2); // [tested]
   /// \brief Sets the string by concatenating all given strings.
-  void SetPath(ezStringView sData1, ezStringView sData2 = {}, ezStringView sData3 = {}, ezStringView sData4 = {});
+  void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3); // [tested]
+  /// \brief Sets the string by concatenating all given strings.
+  void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4); // [tested]
+  /// \brief Sets the string by concatenating all given strings.
+  void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = {}); // [tested]
+
+  /// \brief Sets several path pieces. Makes sure they are always properly separated by a slash.
+  void SetPath(ezStringView sData1, ezStringView sData2, ezStringView sData3 = {}, ezStringView sData4 = {});
 
   /// \brief Copies the string starting at \a pStart up to \a pEnd (exclusive).
   void SetSubString_FromTo(const char* pStart, const char* pEnd);
@@ -185,8 +194,16 @@ public:
   /// \brief Appends all the given strings at the back of this string in one operation.
   void Append(const wchar_t* pData1, const wchar_t* pData2 = nullptr, const wchar_t* pData3 = nullptr, const wchar_t* pData4 = nullptr, const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
 
-  /// \brief Appends all the given strings at the back of this string in one operation.
-  void Append(ezStringView sData1, ezStringView sData2 = {}, ezStringView sData3 = {}, ezStringView sData4 = {}, ezStringView sData5 = {}, ezStringView sData6 = {}); // [tested]
+  /// \brief Appends all the given strings to the back of this string in one operation.
+  void Append(ezStringView sData1); // [tested]
+  /// \brief Appends all the given strings to the back of this string in one operation.
+  void Append(ezStringView sData1, ezStringView sData2); // [tested]
+  /// \brief Appends all the given strings to the back of this string in one operation.
+  void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3); // [tested]
+  /// \brief Appends all the given strings to the back of this string in one operation.
+  void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4); // [tested]
+  /// \brief Appends all the given strings to the back of this string in one operation.
+  void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = {}); // [tested]
 
   /// \brief Prepends a single Utf32 character.
   void Prepend(ezUInt32 uiChar); // [tested]
@@ -323,8 +340,6 @@ public:
   void PathParentDirectory(ezUInt32 uiLevelsUp = 1); // [tested]
 
   /// \brief Appends several path pieces. Makes sure they are always properly separated by a slash.
-  ///
-  /// Will call 'MakeCleanPath' internally, so the representation of the path might change.
   void AppendPath(ezStringView sPath1, ezStringView sPath2 = {}, ezStringView sPath3 = {}, ezStringView sPath4 = {}); // [tested]
 
   /// \brief Similar to Append() but the very first argument is a separator that is only appended (once) if the existing string is not empty and does
@@ -347,11 +362,17 @@ public:
   /// sNewExtension may or may not start with a dot.
   /// If sNewExtension is empty, the file extension is removed, but the dot remains.
   /// E.g. "file.txt" -> "file."
-  /// If the full extension should be removed, including the dot, use RemoveFileExtension() instead.
-  void ChangeFileExtension(ezStringView sNewExtension); // [tested]
+  /// If you also want to remove the dot, use RemoveFileExtension() instead.
+  ///
+  /// If bFullExtension is false, a file named "file.a.b.c" will replace only "c".
+  /// If bFullExtension is true, a file named "file.a.b.c" will replace all of "a.b.c".
+  void ChangeFileExtension(ezStringView sNewExtension, bool bFullExtension = false); // [tested]
 
   /// \brief If any extension exists, it is removed, including the dot before it.
-  void RemoveFileExtension(); // [tested]
+  ///
+  /// If bFullExtension is false, a file named "file.a.b.c" will end up as "file.a.b"
+  /// If bFullExtension is true, a file named "file.a.b.c" will end up as "file"
+  void RemoveFileExtension(bool bFullExtension = false); // [tested]
 
   /// \brief Converts this path into a relative path to the path with the awesome variable name 'szAbsolutePathToMakeThisRelativeTo'
   ///

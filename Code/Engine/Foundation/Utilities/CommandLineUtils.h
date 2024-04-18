@@ -32,6 +32,12 @@ public:
   /// \brief Initializes ezCommandLineUtils from the parameter arguments that were passed to the application.
   void SetCommandLine(ezUInt32 uiArgc, const char** pArgv, ArgMode mode = UseArgcArgv); // [tested]
 
+  /// \brief Overload for non-const argv versions.
+  void SetCommandLine(ezUInt32 uiArgc, char** pArgv, ArgMode mode = UseArgcArgv)
+  {
+    SetCommandLine(uiArgc, const_cast<const char**>(pArgv), mode);
+  }
+
   /// \brief Initializes ezCommandLineUtils from a list of already split up commands.
   void SetCommandLine(ezArrayPtr<ezString> commands);
 

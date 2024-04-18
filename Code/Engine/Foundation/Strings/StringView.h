@@ -46,21 +46,21 @@ public:
 
   /// \brief Creates a string view from any class / struct which is implicitly convertible to const char *
   template <typename T>
-  EZ_ALWAYS_INLINE ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type* = 0); // [tested]
+  constexpr EZ_ALWAYS_INLINE ezStringView(const T&& str, typename std::enable_if<std::is_same<T, const char*>::value == false && std::is_convertible<T, const char*>::value, int>::type* = 0); // [tested]
 
   /// \brief Creates a string view for the range from pStart to pEnd.
-  ezStringView(const char* pStart, const char* pEnd); // [tested]
+  constexpr ezStringView(const char* pStart, const char* pEnd); // [tested]
 
   /// \brief Creates a string view for the range from pStart to pStart + uiLength.
   constexpr ezStringView(const char* pStart, ezUInt32 uiLength);
 
   /// \brief Construct a string view from a string literal.
   template <size_t N>
-  ezStringView(const char (&str)[N]);
+  constexpr ezStringView(const char (&str)[N]);
 
   /// \brief Construct a string view from a fixed size buffer
   template <size_t N>
-  ezStringView(char (&str)[N]);
+  constexpr ezStringView(char (&str)[N]);
 
   /// \brief Advances the start to the next character, unless the end of the range was reached.
   void operator++(); // [tested]
@@ -234,12 +234,16 @@ public:
   /// \brief Checks whether the given path has any file extension
   bool HasAnyExtension() const; // [tested]
 
-  /// \brief Checks whether the given path ends with the given extension. szExtension should start with a '.' for performance reasons, but
-  /// it will work without a '.' too.
+  /// \brief Checks whether the given path ends with the given extension. szExtension may start with a '.', but doesn't have to.
+  ///
+  /// The check is case insensitive.
   bool HasExtension(ezStringView sExtension) const; // [tested]
 
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
-  ezStringView GetFileExtension() const; // [tested]
+  ///
+  /// If bFullExtension is false, a file named "file.a.b.c" will return "c".
+  /// If bFullExtension is true, a file named "file.a.b.c" will return "a.b.c".
+  ezStringView GetFileExtension(bool bFullExtension = false) const; // [tested]
 
   /// \brief Returns the file name of a path, excluding the path and extension.
   ///

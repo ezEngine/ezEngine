@@ -60,7 +60,12 @@ public:
   };
 
   ezDirectoryWatcher();
+  ezDirectoryWatcher(const ezDirectoryWatcher&) = delete;
+  ezDirectoryWatcher(ezDirectoryWatcher&&) noexcept = delete;
   ~ezDirectoryWatcher();
+
+  ezDirectoryWatcher& operator=(const ezDirectoryWatcher&) = delete;
+  ezDirectoryWatcher& operator=(ezDirectoryWatcher&&) noexcept = delete;
 
   /// \brief
   ///   Opens the directory at \p absolutePath for watching. \p whatToWatch controls what exactly should be watched.

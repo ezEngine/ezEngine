@@ -121,7 +121,7 @@ public:
   static void ClearAllDataDirectories(); // [tested]
 
   /// \brief If a data directory with the given root name already exists, it will be returned, nullptr otherwise.
-  static ezDataDirectoryType* FindDataDirectoryWithRoot(ezStringView sRootName);
+  static const DataDirectoryInfo* FindDataDirectoryWithRoot(ezStringView sRootName);
 
   /// \brief Returns the number of currently active data directories.
   static ezUInt32 GetNumDataDirectories(); // [tested]

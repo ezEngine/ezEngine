@@ -368,6 +368,8 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchStart, ezBitflags<ezF
 
   m_sCurPath = sSearch.GetFileDirectory();
 
+  EZ_ASSERT_DEV(sSearch.IsAbsolutePath(), "The path '{0}' is not absolute.", m_sCurPath);
+
   m_Flags = flags;
 
   WIN32_FIND_DATAW data;

@@ -13,6 +13,30 @@ ezStringBuilder::ezStringBuilder(ezStringView sData1, ezStringView sData2, ezStr
   Append(sData1, sData2, sData3, sData4, sData5, sData6);
 }
 
+void ezStringBuilder::Set(ezStringView sData1)
+{
+  Clear();
+  Append(sData1);
+}
+
+void ezStringBuilder::Set(ezStringView sData1, ezStringView sData2)
+{
+  Clear();
+  Append(sData1, sData2);
+}
+
+void ezStringBuilder::Set(ezStringView sData1, ezStringView sData2, ezStringView sData3)
+{
+  Clear();
+  Append(sData1, sData2, sData3);
+}
+
+void ezStringBuilder::Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4)
+{
+  Clear();
+  Append(sData1, sData2, sData3, sData4);
+}
+
 void ezStringBuilder::Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6)
 {
   Clear();
@@ -51,49 +75,171 @@ void ezStringBuilder::SetSubString_CharacterCount(const char* pStart, ezUInt32 u
   *this = view;
 }
 
-void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6)
+void ezStringBuilder::Append(ezStringView sData1)
 {
-  // it is not possible to find out how many parameters were passed to a vararg function
-  // with a fixed size of parameters we do not need to have a parameter that tells us how many strings will come
-
-  const ezUInt32 uiMaxParams = 6;
-
-  const ezStringView pStrings[uiMaxParams] = {sData1, sData2, sData3, sData4, sData5, sData6};
-  ezUInt32 uiStrLen[uiMaxParams] = {0};
-
   ezUInt32 uiMoreBytes = 0;
-
-  // first figure out how much the string has to grow
-  for (ezUInt32 i = 0; i < uiMaxParams; ++i)
-  {
-    if (pStrings[i].IsEmpty())
-      continue;
-
-    EZ_ASSERT_DEBUG(pStrings[i].GetStartPointer() < m_Data.GetData() || pStrings[i].GetStartPointer() >= m_Data.GetData() + m_Data.GetCapacity(),
-      "Parameter {0} comes from the string builders own storage. This type assignment is not allowed.", i);
-
-    uiStrLen[i] = pStrings[i].GetElementCount();
-    uiMoreBytes += uiStrLen[i];
-
-    EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStrings[i].GetStartPointer(), pStrings[i].GetEndPointer()), "Parameter {0} is not a valid Utf8 sequence.", i + 1);
-  }
+  uiMoreBytes += sData1.GetElementCount();
 
   ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
-  EZ_ASSERT_DEBUG(uiPrevCount > 0, "There should be a 0 terminator somewhere around here.");
-
-  // now resize
   m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
 
-  // and then append all the strings
-  for (ezUInt32 i = 0; i < uiMaxParams; ++i)
   {
-    if (uiStrLen[i] == 0)
-      continue;
+    const char* szStartPtr = sData1.GetStartPointer();
+    const ezUInt32 uiStrLen = sData1.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+}
 
-    // make enough room to copy the entire string, including the T-800
-    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen[i] + 1, pStrings[i].GetStartPointer(), pStrings[i].GetStartPointer() + uiStrLen[i]);
+void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2)
+{
+  ezUInt32 uiMoreBytes = 0;
+  uiMoreBytes += sData1.GetElementCount();
+  uiMoreBytes += sData2.GetElementCount();
 
-    uiPrevCount += uiStrLen[i];
+  ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
+  m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
+
+  {
+    const char* szStartPtr = sData1.GetStartPointer();
+    const ezUInt32 uiStrLen = sData1.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData2.GetStartPointer();
+    const ezUInt32 uiStrLen = sData2.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+}
+
+void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2, ezStringView sData3)
+{
+  ezUInt32 uiMoreBytes = 0;
+  uiMoreBytes += sData1.GetElementCount();
+  uiMoreBytes += sData2.GetElementCount();
+  uiMoreBytes += sData3.GetElementCount();
+
+  ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
+  m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
+
+  {
+    const char* szStartPtr = sData1.GetStartPointer();
+    const ezUInt32 uiStrLen = sData1.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData2.GetStartPointer();
+    const ezUInt32 uiStrLen = sData2.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData3.GetStartPointer();
+    const ezUInt32 uiStrLen = sData3.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+}
+
+void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4)
+{
+  ezUInt32 uiMoreBytes = 0;
+  uiMoreBytes += sData1.GetElementCount();
+  uiMoreBytes += sData2.GetElementCount();
+  uiMoreBytes += sData3.GetElementCount();
+  uiMoreBytes += sData4.GetElementCount();
+
+  ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
+  m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
+
+  {
+    const char* szStartPtr = sData1.GetStartPointer();
+    const ezUInt32 uiStrLen = sData1.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData2.GetStartPointer();
+    const ezUInt32 uiStrLen = sData2.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData3.GetStartPointer();
+    const ezUInt32 uiStrLen = sData3.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData4.GetStartPointer();
+    const ezUInt32 uiStrLen = sData4.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+}
+
+void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6)
+{
+  ezUInt32 uiMoreBytes = 0;
+  uiMoreBytes += sData1.GetElementCount();
+  uiMoreBytes += sData2.GetElementCount();
+  uiMoreBytes += sData3.GetElementCount();
+  uiMoreBytes += sData4.GetElementCount();
+  uiMoreBytes += sData5.GetElementCount();
+  uiMoreBytes += sData6.GetElementCount();
+
+  ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
+  m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
+
+  {
+    const char* szStartPtr = sData1.GetStartPointer();
+    const ezUInt32 uiStrLen = sData1.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData2.GetStartPointer();
+    const ezUInt32 uiStrLen = sData2.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData3.GetStartPointer();
+    const ezUInt32 uiStrLen = sData3.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData4.GetStartPointer();
+    const ezUInt32 uiStrLen = sData4.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData5.GetStartPointer();
+    const ezUInt32 uiStrLen = sData5.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
+  }
+
+  {
+    const char* szStartPtr = sData6.GetStartPointer();
+    const ezUInt32 uiStrLen = sData6.GetElementCount();
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, szStartPtr, szStartPtr + uiStrLen);
+    uiPrevCount += uiStrLen;
   }
 }
 
@@ -816,14 +962,14 @@ void ezStringBuilder::ChangeFileNameAndExtension(ezStringView sNewFileNameWithEx
   ReplaceSubString(it.GetStartPointer(), it.GetEndPointer(), sNewFileNameWithExtension);
 }
 
-void ezStringBuilder::ChangeFileExtension(ezStringView sNewExtension)
+void ezStringBuilder::ChangeFileExtension(ezStringView sNewExtension, bool bFullExtension /*= false*/)
 {
   while (sNewExtension.StartsWith("."))
   {
     sNewExtension.ChopAwayFirstCharacterAscii();
   }
 
-  const ezStringView it = ezPathUtils::GetFileExtension(GetView());
+  const ezStringView it = ezPathUtils::GetFileExtension(GetView(), bFullExtension);
 
   if (it.IsEmpty())
   {
@@ -842,11 +988,11 @@ void ezStringBuilder::ChangeFileExtension(ezStringView sNewExtension)
   }
 }
 
-void ezStringBuilder::RemoveFileExtension()
+void ezStringBuilder::RemoveFileExtension(bool bFullExtension /*= false*/)
 {
   if (HasAnyExtension())
   {
-    ChangeFileExtension("");
+    ChangeFileExtension("", bFullExtension);
     Shrink(0, 1); // remove the dot
   }
 }

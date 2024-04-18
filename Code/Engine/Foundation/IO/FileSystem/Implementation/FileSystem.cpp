@@ -240,7 +240,7 @@ void ezFileSystem::ClearAllDataDirectories()
   s_pData->m_DataDirectories.Clear();
 }
 
-ezDataDirectoryType* ezFileSystem::FindDataDirectoryWithRoot(ezStringView sRootName)
+const ezFileSystem::DataDirectoryInfo* ezFileSystem::FindDataDirectoryWithRoot(ezStringView sRootName)
 {
   if (sRootName.IsEmpty())
     return nullptr;
@@ -251,7 +251,7 @@ ezDataDirectoryType* ezFileSystem::FindDataDirectoryWithRoot(ezStringView sRootN
   {
     if (dd.m_sRootName.IsEqual_NoCase(sRootName))
     {
-      return dd.m_pDataDirectory;
+      return &dd;
     }
   }
 
@@ -980,7 +980,7 @@ void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView 
   {
     const ezStringView root = sSearchTerm.GetRootedPathRootName();
 
-    ezDataDirectoryType* pDataDir = FindDataDirectoryWithRoot(root);
+    const DataDirectoryInfo* pDataDir = FindDataDirectoryWithRoot(root);
     if (pDataDir == nullptr)
       return;
 
@@ -992,7 +992,7 @@ void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView 
       sSearchTerm.ChopAwayFirstCharacterAscii();
     }
 
-    folders.PushBack(pDataDir->GetRedirectedDataDirectoryPath().GetView());
+    folders.PushBack(pDataDir->m_pDataDirectory->GetRedirectedDataDirectoryPath().GetView());
   }
   else if (sSearchTerm.IsAbsolutePath())
   {
@@ -1041,6 +1041,11 @@ ezResult ezFileSystem::CreateDirectoryStructure(ezStringView sPath)
 {
   ezStringBuilder sRedir;
   EZ_SUCCEED_OR_RETURN(ResolveSpecialDirectory(sPath, sRedir));
+
+  if (sRedir.IsRootedPath())
+  {
+    ezFileSystem::ResolvePath(sRedir, &sRedir, nullptr).AssertSuccess();
+  }
 
   return ezOSFile::CreateDirectoryStructure(sRedir);
 }

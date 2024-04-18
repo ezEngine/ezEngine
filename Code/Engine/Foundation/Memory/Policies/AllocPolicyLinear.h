@@ -2,13 +2,13 @@
 
 #include <Foundation/Containers/HybridArray.h>
 
-/// \brief This allocation policy works like a stack. You can only "push" and "pop" allocations
-///   in the correct order.
+/// \brief This policy implements a linear allocator that can only grow and at some point all allocations gets reset at once.
 ///
-/// \note It is also possible to free all allocations at once.
+/// For debugging purposes, the policy can also overwrite all freed memory with 0xCDCDCDCD to make it easier to find use-after-free situations.
 ///
 /// \see ezAllocatorWithPolicy
-class ezAllocPolicyStack
+template <bool OverwriteMemoryOnReset = false>
+class ezAllocPolicyLinear
 {
 public:
   enum
@@ -16,13 +16,13 @@ public:
     Alignment = 16
   };
 
-  EZ_FORCE_INLINE ezAllocPolicyStack(ezAllocator* pParent)
+  EZ_FORCE_INLINE ezAllocPolicyLinear(ezAllocator* pParent)
     : m_pParent(pParent)
     , m_uiNextBucketSize(4096)
   {
   }
 
-  EZ_FORCE_INLINE ~ezAllocPolicyStack()
+  EZ_FORCE_INLINE ~ezAllocPolicyLinear()
   {
     EZ_ASSERT_DEV(m_uiCurrentBucketIndex == 0 && (m_Buckets.IsEmpty() || m_Buckets[m_uiCurrentBucketIndex].GetPtr() == m_pNextAllocation),
       "There is still something allocated!");
@@ -90,6 +90,14 @@ public:
   {
     m_uiCurrentBucketIndex = 0;
     m_pNextAllocation = !m_Buckets.IsEmpty() ? m_Buckets[0].GetPtr() : nullptr;
+
+    if constexpr (OverwriteMemoryOnReset)
+    {
+      for (auto& bucket : m_Buckets)
+      {
+        ezMemoryUtils::PatternFill(bucket.GetPtr(), 0xCD, bucket.GetCount());
+      }
+    }
   }
 
   EZ_FORCE_INLINE void FillStats(ezAllocator::Stats& ref_stats)

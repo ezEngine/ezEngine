@@ -121,8 +121,8 @@
 #include <Foundation/Memory/Policies/AllocPolicyAlignedHeap.h>
 #include <Foundation/Memory/Policies/AllocPolicyGuarding.h>
 #include <Foundation/Memory/Policies/AllocPolicyHeap.h>
+#include <Foundation/Memory/Policies/AllocPolicyLinear.h>
 #include <Foundation/Memory/Policies/AllocPolicyProxy.h>
-#include <Foundation/Memory/Policies/AllocPolicyStack.h>
 
 #include <Foundation/Profiling/Profiling.h>
 

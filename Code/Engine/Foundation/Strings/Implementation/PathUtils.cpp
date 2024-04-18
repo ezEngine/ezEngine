@@ -270,18 +270,30 @@ void ezPathUtils::MakeValidFilename(ezStringView sFilename, ezUInt32 uiReplaceme
   }
 }
 
-bool ezPathUtils::IsSubPath(ezStringView sPrefixPath, ezStringView sFullPath)
+bool ezPathUtils::IsSubPath(ezStringView sPrefixPath, ezStringView sFullPath0)
 {
+  if (sPrefixPath.IsEmpty())
+  {
+    if (sFullPath0.IsAbsolutePath())
+      return true;
+
+    EZ_REPORT_FAILURE("Prefixpath is empty and checked path is not absolute.");
+    return false;
+  }
+
   ezStringBuilder tmp = sPrefixPath;
   tmp.MakeCleanPath();
   tmp.Trim("", "/");
+
+  ezStringBuilder sFullPath = sFullPath0;
+  sFullPath.MakeCleanPath();
 
   if (sFullPath.StartsWith(tmp))
   {
     if (tmp.GetElementCount() == sFullPath.GetElementCount())
       return true;
 
-    return sFullPath.GetStartPointer()[tmp.GetElementCount()] == '/';
+    return sFullPath.GetData()[tmp.GetElementCount()] == '/';
   }
 
   return false;

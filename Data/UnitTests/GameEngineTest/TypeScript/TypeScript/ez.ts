@@ -63,6 +63,7 @@ export import Physics = __Physics.Physics;
 
 // AUTO-GENERATED
 import __AllComponents = require("./ez/AllComponents")
+export import AimIKComponent = __AllComponents.AimIKComponent;
 export import RenderComponent = __AllComponents.RenderComponent;
 export import AlwaysVisibleComponent = __AllComponents.AlwaysVisibleComponent;
 export import SettingsComponent = __AllComponents.SettingsComponent;
@@ -86,6 +87,7 @@ export import ClothSheetComponent = __AllComponents.ClothSheetComponent;
 export import CollectionComponent = __AllComponents.CollectionComponent;
 export import ColorAnimationComponent = __AllComponents.ColorAnimationComponent;
 export import CommentComponent = __AllComponents.CommentComponent;
+export import CreatureCrawlComponent = __AllComponents.CreatureCrawlComponent;
 export import CustomMeshComponent = __AllComponents.CustomMeshComponent;
 export import DebugTextComponent = __AllComponents.DebugTextComponent;
 export import DecalComponent = __AllComponents.DecalComponent;
@@ -155,6 +157,7 @@ export import StageSpaceComponent = __AllComponents.StageSpaceComponent;
 export import StateMachineComponent = __AllComponents.StateMachineComponent;
 export import TimedDeathComponent = __AllComponents.TimedDeathComponent;
 export import TriggerDelayModifierComponent = __AllComponents.TriggerDelayModifierComponent;
+export import TwoBoneIKComponent = __AllComponents.TwoBoneIKComponent;
 export import VisualizeHandComponent = __AllComponents.VisualizeHandComponent;
 export import VolumeComponent = __AllComponents.VolumeComponent;
 export import VolumeBoxComponent = __AllComponents.VolumeBoxComponent;
@@ -169,6 +172,7 @@ export import WindVolumeSphereComponent = __AllComponents.WindVolumeSphereCompon
 // AUTO-GENERATED
 import __AllMessages = require("./ez/AllMessages")
 export import EventMsgSetPowerInput = __AllMessages.EventMsgSetPowerInput;
+export import MsgAnimationPoseGeneration = __AllMessages.MsgAnimationPoseGeneration;
 export import MsgAnimationPosePreparing = __AllMessages.MsgAnimationPosePreparing;
 export import MsgAnimationPoseUpdated = __AllMessages.MsgAnimationPoseUpdated;
 export import MsgAnimationReachedEnd = __AllMessages.MsgAnimationReachedEnd;

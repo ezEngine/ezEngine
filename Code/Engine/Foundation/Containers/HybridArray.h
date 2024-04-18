@@ -24,7 +24,7 @@ public:
   explicit ezHybridArray(const ezArrayPtr<const T>& other); // [tested]
 
   /// \brief Moves the given array.
-  ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other); // [tested]
+  ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other) noexcept; // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
   void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs); // [tested]

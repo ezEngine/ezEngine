@@ -253,9 +253,9 @@ bool ezStringView::HasExtension(ezStringView sExtension) const
   return ezPathUtils::HasExtension(*this, sExtension);
 }
 
-ezStringView ezStringView::GetFileExtension() const
+ezStringView ezStringView::GetFileExtension(bool bFullExtension /*= false*/) const
 {
-  return ezPathUtils::GetFileExtension(*this);
+  return ezPathUtils::GetFileExtension(*this, bFullExtension);
 }
 
 ezStringView ezStringView::GetFileName() const

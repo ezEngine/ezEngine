@@ -135,7 +135,6 @@ void ezTestSetup::DeInitTestFramework(bool bSilent /*= false*/)
   if (!bSilent)
   {
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-    ezStringUtils::PrintStringLengthStatistics();
   }
 #endif
 

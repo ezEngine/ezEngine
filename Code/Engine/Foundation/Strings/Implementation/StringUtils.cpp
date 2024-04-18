@@ -3,52 +3,6 @@
 #include <Foundation/Strings/StringView.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-#if EZ_ENABLED(EZ_USE_STRING_VALIDATION)
-#  include <Foundation/Logging/Log.h>
-
-ezAtomicInteger32 ezStringUtils::g_MaxUsedStringLength;
-ezAtomicInteger32 ezStringUtils::g_UsedStringLengths[256];
-
-void ezStringUtils::AddUsedStringLength(ezUInt32 uiLength)
-{
-  g_MaxUsedStringLength.Max(uiLength);
-
-  if (uiLength > 255)
-    uiLength = 255;
-
-  g_UsedStringLengths[uiLength].Increment();
-}
-
-void ezStringUtils::PrintStringLengthStatistics()
-{
-  EZ_LOG_BLOCK("String Length Statistics");
-
-  ezLog::Info("Max String Length: {0}", (ezInt32)g_MaxUsedStringLength);
-
-  ezUInt32 uiCopiedStrings = 0;
-  for (ezUInt32 i = 0; i < 256; ++i)
-    uiCopiedStrings += g_UsedStringLengths[i];
-
-  ezLog::Info("Number of String Copies: {0}", uiCopiedStrings);
-  ezLog::Info("");
-
-  ezUInt32 uiPercent = 0;
-  ezUInt32 uiStrings = 0;
-
-  for (ezUInt32 i = 0; i < 256; ++i)
-  {
-    if (100.0f * (uiStrings + g_UsedStringLengths[i]) / (float)uiCopiedStrings >= uiPercent)
-    {
-      ezLog::Info("{0}%% of all Strings are shorter than {1} Elements.", ezArgI(uiPercent, 3), ezArgI(i + 1, 3));
-      uiPercent += 10;
-    }
-
-    uiStrings += g_UsedStringLengths[i];
-  }
-}
-
-#endif
-
 // Unicode ToUpper / ToLower character conversion
 //  License: $(WEB www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
 //  Authors: $(WEB digitalmars.com, Walter Bright), Jonathan M Davis, and Kenji Hara
@@ -412,7 +366,6 @@ ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSou
 
   if (IsNullOrEmpty(szSource))
   {
-    ezStringUtils::AddUsedStringLength(0);
     szDest[0] = '\0';
     return 0;
   }
@@ -441,14 +394,10 @@ ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSou
   }
 #endif
 
-
   // make sure the buffer is always terminated
   *szLastCharacterPos = '\0';
 
-  const ezUInt32 uiLength = (ezUInt32)(szLastCharacterPos - szDest);
-
-  ezStringUtils::AddUsedStringLength(uiLength);
-  return uiLength;
+  return uiBytesToCopy;
 }
 
 ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSource, ezUInt32 uiCharsToCopy, const char* pSourceEnd)
@@ -457,7 +406,6 @@ ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSo
 
   if (IsNullOrEmpty(szSource))
   {
-    ezStringUtils::AddUsedStringLength(0);
     szDest[0] = '\0';
     return 0;
   }
@@ -500,10 +448,7 @@ ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSo
   // this will actually overwrite the last byte that we wrote into the output buffer
   *szLastCharacterPos = '\0';
 
-  const ezUInt32 uiLength = (ezUInt32)(szLastCharacterPos - szStartPos);
-
-  ezStringUtils::AddUsedStringLength(uiLength);
-  return uiLength;
+  return (ezUInt32)(szLastCharacterPos - szStartPos);
 }
 
 bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, const char* pStringEnd, const char* szStartsWithEnd)

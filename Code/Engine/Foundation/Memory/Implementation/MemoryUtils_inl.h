@@ -67,7 +67,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, co
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using CopyConstruct.");
+  EZ_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using CopyConstruct.");
 
   if constexpr (ezIsPodType<T>::value)
   {
@@ -109,7 +109,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T&& source)
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using MoveConstruct.");
+  EZ_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using MoveConstruct.");
 
   // Enforce move construction.
   static_assert(std::is_move_constructible<T>::value, "Type is not move constructible!");
@@ -138,7 +138,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
+  EZ_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
 
   if constexpr (ezGetTypeClass<T>::value != 0) // POD or mem-relocatable
   {
@@ -253,7 +253,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOverlapped(T* pDestination, const T* pS
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Relocate.");
+  EZ_ASSERT_DEV(pDestination + uiCount <= pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Relocate.");
 
   if constexpr (ezGetTypeClass<T>::value != 0) // POD or mem-relocatable
   {

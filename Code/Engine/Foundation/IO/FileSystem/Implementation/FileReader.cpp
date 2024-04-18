@@ -7,7 +7,7 @@ ezResult ezFileReader::Open(ezStringView sFile, ezUInt32 uiCacheSize /*= 1024 * 
 {
   EZ_ASSERT_DEV(m_pDataDirReader == nullptr, "The file reader is already open. (File: '{0}')", sFile);
 
-  uiCacheSize = ezMath::Clamp<ezUInt32>(uiCacheSize, 1024, 1024 * 1024 * 32);
+  uiCacheSize = ezMath::Min<ezUInt32>(uiCacheSize, 1024 * 1024 * 32);
 
   m_pDataDirReader = GetFileReader(sFile, fileShareMode, bAllowFileEvents);
 

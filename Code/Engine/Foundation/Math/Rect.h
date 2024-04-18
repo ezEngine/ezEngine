@@ -148,7 +148,10 @@ public:
     return ezRectTemplate<Type>(vNewMin, vNewMax - vNewMin);
   }
 
-  /// \brief Moves the rectangle
+  /// \brief Sets the center of the rectangle.
+  void SetCenter(Type tX, Type tY);
+
+  /// \brief Moves the rectangle.
   void Translate(Type tX, Type tY);
 
   /// \brief Scales width and height, and moves the position as well.

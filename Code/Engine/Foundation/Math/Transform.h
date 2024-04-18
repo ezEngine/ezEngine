@@ -79,6 +79,9 @@ public:
   /// \brief Returns whether this transform contains uniform scaling.
   bool ContainsUniformScale() const;
 
+  /// \brief Checks that all components are valid (no NaN, only finite numbers).
+  bool IsValid() const;
+
   // *** Equality ***
 public:
   /// \brief Equality Check (bitwise)
