@@ -83,7 +83,7 @@ bool ezCollectionResource::IsLoadingFinished(float* out_pProgress) const
       continue;
 
     const ezCollectionEntry& entry = m_Collection.m_Resources[i];
-    ezUInt64 thisWeight = ezMath::Max(entry.m_uiFileSize, 1ull); // if file sizes are not specified, we weight by 1
+    ezUInt64 thisWeight = ezMath::Max<ezUInt64>(entry.m_uiFileSize, 1); // if file sizes are not specified, we weight by 1
     ezResourceState state = ezResourceManager::GetLoadingState(hResource);
 
     if (state == ezResourceState::Loaded || state == ezResourceState::LoadedResourceMissing)
