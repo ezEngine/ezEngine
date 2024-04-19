@@ -808,13 +808,13 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CountTrailingZeros (64)")
   {
-    EZ_TEST_INT(ezMath::CountTrailingZeros(0b1111llu), 0);
-    EZ_TEST_INT(ezMath::CountTrailingZeros(0b1110llu), 1);
-    EZ_TEST_INT(ezMath::CountTrailingZeros(0b1100llu), 2);
-    EZ_TEST_INT(ezMath::CountTrailingZeros(0b1000llu), 3);
-    EZ_TEST_INT(ezMath::CountTrailingZeros(0xFFFFFFFF0llu), 4);
-    EZ_TEST_INT(ezMath::CountTrailingZeros(0llu), 64);
-    EZ_TEST_INT(ezMath::CountTrailingZeros(0xFFFFFFFF00llu), 8);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(static_cast<ezUInt64>(0b1111llu)), 0);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(static_cast<ezUInt64>(0b1110llu)), 1);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(static_cast<ezUInt64>(0b1100llu)), 2);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(static_cast<ezUInt64>(0b1000llu)), 3);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(static_cast<ezUInt64>(0xFFFFFFFF0llu)), 4);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(static_cast<ezUInt64>(0llu)), 64);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(static_cast<ezUInt64>(0xFFFFFFFF00llu)), 8);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CountLeadingZeros")

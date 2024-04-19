@@ -215,8 +215,8 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezTime& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg);
 
-
-#if EZ_ENABLED(EZ_COMPILER_GCC) // || EZ_ENABLED(EZ_COMPILER_CLANG)
+#if ULONGLONG_MAX > ULONG_MAX
+// #if EZ_ENABLED(EZ_COMPILER_GCC) // || EZ_ENABLED(EZ_COMPILER_CLANG)
 
 // on these platforms "long int" is a different type from "long long int"
 
