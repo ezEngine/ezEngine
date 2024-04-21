@@ -417,7 +417,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
     // This is a workaround for broken lavapipe drivers which cannot handle label scopes that span across multiple command buffers.
     ezStringBuilder sDeviceName = ezStringUtf8(m_properties.deviceName).GetView();
-    if (sDeviceName.Compare_NoCase("LLVMPIPE") == 0)
+    if (sDeviceName.FindSubString_NoCase("LLVMPIPE") != nullptr)
     {
       m_extensions.m_bDebugUtilsMarkers = false;
     }
