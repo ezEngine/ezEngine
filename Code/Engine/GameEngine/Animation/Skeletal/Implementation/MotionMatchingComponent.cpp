@@ -171,7 +171,7 @@
 //  const ezAngle turn = ezAngle::MakeFromDegree((tr - tl) * 90.0f);
 //
 //  ezQuat q;
-//  q.SetFromAxisAndAngle(ezVec3(0, 0, 1), turn);
+//  q = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), turn);
 //  return q;
 //}
 //
