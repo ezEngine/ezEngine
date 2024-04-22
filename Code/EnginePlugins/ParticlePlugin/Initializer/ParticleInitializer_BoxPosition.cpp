@@ -131,7 +131,7 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
   if (m_vSize.IsZero())
   {
     ezSimdVec4f pos = ezSimdConversion::ToVec4((GetOwnerSystem()->GetTransform() * m_vPositionOffset).GetAsVec4(0));
-    
+
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       pPosition[i] = pos;
@@ -140,7 +140,7 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
   else
   {
     ezSimdVec4f pos;
-    ezSimdTransform transform = ezSimdConversion::ToTransform(GetOwnerSystem()->GetTransform());    
+    ezSimdTransform transform = ezSimdConversion::ToTransform(GetOwnerSystem()->GetTransform());
 
     float p0[4];
     p0[3] = 0;

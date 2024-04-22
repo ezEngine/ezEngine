@@ -62,11 +62,11 @@ enum class ParticleEffectVersion
   Version_2,
   Version_3,
   Version_4,
-  Version_5, // m_bAlwaysShared
-  Version_6, // added parameters
-  Version_7, // added instance velocity
-  Version_8, // added event reactions
-  Version_9, // breaking change
+  Version_5,  // m_bAlwaysShared
+  Version_6,  // added parameters
+  Version_7,  // added instance velocity
+  Version_8,  // added event reactions
+  Version_9,  // breaking change
   Version_10, // added wind samples
 
   // insert new version numbers above

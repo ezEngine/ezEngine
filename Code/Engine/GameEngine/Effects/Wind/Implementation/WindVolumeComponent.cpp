@@ -303,7 +303,7 @@ void ezWindVolumeCylinderComponent::DeserializeComponent(ezWorldReader& inout_st
   {
     s >> m_fRadiusFalloff;
   }
-    
+
   s >> m_fLength;
   if (uiVersion >= 2)
   {
@@ -383,7 +383,7 @@ void ezWindVolumeCylinderComponent::SetNegativeFalloff(float fVal)
 void ezWindVolumeCylinderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   const ezVec3 halfExtents(m_fLength * 0.5f, m_fRadius, m_fRadius);
-  const float sphereRadius = halfExtents.GetAsVec2().GetLength(); 
+  const float sphereRadius = halfExtents.GetAsVec2().GetLength();
 
   msg.AddBounds(ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), halfExtents, sphereRadius), ezWindVolumeComponent::SpatialDataCategory);
 }
