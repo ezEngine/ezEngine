@@ -226,6 +226,7 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
   opt.m_pMeshOutput = &desc;
   opt.m_MeshNormalsPrecision = pProp->m_NormalPrecision;
   opt.m_MeshTexCoordsPrecision = pProp->m_TexCoordPrecision;
+  opt.m_MeshVertexColorConversion = pProp->m_VertexColorConversion;
   opt.m_RootTransform = CalculateTransformationMatrix(pProp);
 
   if (pProp->m_bSimplifyMesh)

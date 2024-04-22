@@ -69,6 +69,26 @@ EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeBoneWeights(const ezVec4& vWe
 }
 
 // static
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeColor(const ezVec4& vColor, ezArrayPtr<ezUInt8> dest, ezMeshVertexColorConversion::Enum conversion)
+{
+  ezVec4 finalColor;
+  if (conversion == ezMeshVertexColorConversion::LinearToSrgb)
+  {
+    finalColor = ezColor::LinearToGamma(vColor.GetAsVec3()).GetAsVec4(vColor.w);
+  }
+  else if (conversion == ezMeshVertexColorConversion::SrgbToLinear)
+  {
+    finalColor = ezColor::GammaToLinear(vColor.GetAsVec3()).GetAsVec4(vColor.w);
+  }
+  else
+  {
+    finalColor = vColor;
+  }
+
+  return EncodeFromVec4(finalColor, dest, ezGALResourceFormat::RGBAUByteNormalized);
+}
+
+// static
 EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeNormal(const ezVec3& vNormal, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
 {
   // we store normals in unsigned formats thus we need to map from -1..1 to 0..1 here

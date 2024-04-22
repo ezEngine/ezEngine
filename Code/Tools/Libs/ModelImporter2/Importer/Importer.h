@@ -26,6 +26,7 @@ namespace ezModelImporter2
     ezEnum<ezMeshNormalPrecision> m_MeshNormalsPrecision = ezMeshNormalPrecision::Default;
     ezEnum<ezMeshTexCoordPrecision> m_MeshTexCoordsPrecision = ezMeshTexCoordPrecision::Default;
     ezEnum<ezMeshBoneWeigthPrecision> m_MeshBoneWeightPrecision = ezMeshBoneWeigthPrecision::Default;
+    ezEnum<ezMeshVertexColorConversion> m_MeshVertexColorConversion = ezMeshVertexColorConversion::Default;
 
     ezEditableSkeleton* m_pSkeletonOutput = nullptr;
 
