@@ -63,7 +63,7 @@ public:
   ezUInt64 GetRandomSeed() const { return m_uiRandomSeed; }
 
   void RequestWindSamples();
-  void UpdateWindSamples(ezTime tDiff);
+  void UpdateWindSamples(ezTime diff);
 
   /// \brief Returns the number of currently active particles across all systems.
   ezUInt64 GetNumActiveParticles() const;
@@ -90,7 +90,7 @@ public:
   /// \brief Returns the wind at the given position.
   ///
   /// Returns a zero vector, if no wind value is available (invalid index).
-  ezSimdVec4f GetWindAt(const ezSimdVec4f& position) const;
+  ezSimdVec4f GetWindAt(const ezSimdVec4f& vPosition) const;
 
 private:
   void PassTransformToSystems();

@@ -123,11 +123,11 @@ void ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& ref_volu
   }
 }
 
-void ezParticleEffectController::UpdateWindSamples(ezTime tDiff)
+void ezParticleEffectController::UpdateWindSamples(ezTime diff)
 {
   if (ezParticleEffectInstance* pEffect = GetInstance())
   {
-    pEffect->UpdateWindSamples(tDiff);
+    pEffect->UpdateWindSamples(diff);
   }
 }
 

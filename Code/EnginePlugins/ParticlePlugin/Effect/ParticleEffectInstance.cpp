@@ -554,7 +554,7 @@ void ezParticleEffectInstance::RequestWindSamples()
   }
 }
 
-void ezParticleEffectInstance::UpdateWindSamples(ezTime tDiff)
+void ezParticleEffectInstance::UpdateWindSamples(ezTime diff)
 {
   const ezUInt64 uiFrameCounter = ezRenderWorld::GetFrameCounter();
   const ezUInt32 uiDataIdx = uiFrameCounter & 1;
@@ -570,7 +570,7 @@ void ezParticleEffectInstance::UpdateWindSamples(ezTime tDiff)
   const ezUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
   EZ_ASSERT_DEBUG(grid.m_Samples.GetCount() == uiTotalNumSamples && oldGrid.m_Samples.GetCount() == uiTotalNumSamples, "Invalid number of samples");
 
-  const ezSimdVec4f interpolationFactor = ezSimdVec4f(1.0f - ezMath::Pow(0.1f, tDiff.AsFloatInSeconds()));
+  const ezSimdVec4f interpolationFactor = ezSimdVec4f(1.0f - ezMath::Pow(0.1f, diff.AsFloatInSeconds()));
 
   const ezSimdBBox boundingBox = ezSimdConversion::ToBBox(m_BoundingVolume.GetBox());
   const ezSimdVec4f boundsSize = boundingBox.GetExtents();
@@ -663,7 +663,7 @@ void ezParticleEffectInstance::SetTransformForNextFrame(const ezTransform& trans
   m_vVelocityForNextFrame = vParticleStartVelocity;
 }
 
-ezSimdVec4f ezParticleEffectInstance::GetWindAt(const ezSimdVec4f& position) const
+ezSimdVec4f ezParticleEffectInstance::GetWindAt(const ezSimdVec4f& vPosition) const
 {
   const ezUInt64 uiFrameCounter = ezRenderWorld::GetFrameCounter();
   const ezUInt32 uiDataIdx = (uiFrameCounter + 1) & 1;
@@ -678,7 +678,7 @@ ezSimdVec4f ezParticleEffectInstance::GetWindAt(const ezSimdVec4f& position) con
   EZ_ASSERT_DEBUG(grid.m_Samples.GetCount() == uiTotalNumSamples, "Invalid sample count");
 
   // Sample grid with trilinear interpolation
-  ezSimdVec4f gridSpacePos = (position - grid.m_vMinPos).CompMul(grid.m_vInvCellSize);
+  ezSimdVec4f gridSpacePos = (vPosition - grid.m_vMinPos).CompMul(grid.m_vInvCellSize);
   gridSpacePos = gridSpacePos.CompMax(ezSimdVec4f::MakeZero());
 
   const ezSimdVec4f gridSpacePosFloor = gridSpacePos.Floor();
