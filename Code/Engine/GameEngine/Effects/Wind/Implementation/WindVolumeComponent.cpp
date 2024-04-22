@@ -11,12 +11,12 @@
 ezSpatialData::Category ezWindVolumeComponent::SpatialDataCategory = ezSpatialData::RegisterCategory("WindVolumes", ezSpatialData::Flags::None);
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, 2)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Strength", ezWindStrength, m_Strength),
-    EZ_MEMBER_PROPERTY("ReverseDirection", m_bReverseDirection),
+    EZ_MEMBER_PROPERTY("StrengthFactor", m_fStrengthFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10, 10)),
     EZ_MEMBER_PROPERTY("BurstDuration", m_BurstDuration),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
   }
@@ -74,7 +74,7 @@ void ezWindVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_BurstDuration;
   s << m_OnFinishedAction;
   s << m_Strength;
-  s << m_bReverseDirection;
+  s << m_fStrengthFactor;
 }
 
 void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -87,9 +87,16 @@ void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_OnFinishedAction;
   s >> m_Strength;
 
-  if (uiVersion >= 2)
+  if (uiVersion == 2)
   {
-    s >> m_bReverseDirection;
+    bool bReverse = false;
+    s >> bReverse;
+    m_fStrengthFactor = bReverse ? -1 : 1;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_fStrengthFactor;
   }
 }
 
@@ -124,8 +131,34 @@ void ezWindVolumeComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 
 float ezWindVolumeComponent::GetWindInMetersPerSecond() const
 {
-  return m_bReverseDirection ? -ezWindStrength::GetInMetersPerSecond(m_Strength) : ezWindStrength::GetInMetersPerSecond(m_Strength);
+  return ezWindStrength::GetInMetersPerSecond(m_Strength) * m_fStrengthFactor;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezWindVolumeComponentPatch_2_3 : public ezGraphPatch
+{
+public:
+  ezWindVolumeComponentPatch_2_3()
+    : ezGraphPatch("ezWindVolumeComponent", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto pReverseDirection = pNode->FindProperty("ReverseDirection");
+    if (pReverseDirection && pReverseDirection->m_Value.IsA<bool>())
+    {
+      float fFactor = pReverseDirection->m_Value.Get<bool>() ? -1 : 1;
+      pNode->AddProperty("StrengthFactor", fFactor);
+    }
+  }
+};
+
+ezWindVolumeComponentPatch_2_3 g_ezWindVolumeComponentPatch_2_3;
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -216,12 +249,15 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezWindVolumeCylinderMode, 1)
   EZ_ENUM_CONSTANTS(ezWindVolumeCylinderMode::Directional, ezWindVolumeCylinderMode::Vortex)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezWindVolumeCylinderComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezWindVolumeCylinderComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Length", GetLength, SetLength)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.1f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("RadiusFalloff", GetRadiusFalloff, SetRadiusFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ACCESSOR_PROPERTY("Length", GetLength, SetLength)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.1f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("PositiveFalloff", GetPositiveFalloff, SetPositiveFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ACCESSOR_PROPERTY("NegativeFalloff", GetNegativeFalloff, SetNegativeFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezWindVolumeCylinderMode, m_Mode),
   }
   EZ_END_PROPERTIES;
@@ -249,55 +285,75 @@ void ezWindVolumeCylinderComponent::SerializeComponent(ezWorldWriter& inout_stre
   auto& s = inout_stream.GetStream();
 
   s << m_fRadius;
+  s << m_fRadiusFalloff;
   s << m_fLength;
+  s << m_fPositiveFalloff;
+  s << m_fNegativeFalloff;
   s << m_Mode;
 }
 
 void ezWindVolumeCylinderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
-  m_fOneDivRadius = 1.0f / m_fRadius;
+  if (uiVersion >= 2)
+  {
+    s >> m_fRadiusFalloff;
+  }
 
   s >> m_fLength;
+  if (uiVersion >= 2)
+  {
+    s >> m_fPositiveFalloff;
+    s >> m_fNegativeFalloff;
+  }
+
   s >> m_Mode;
+
+  ComputeScaleBiasValues();
 }
 
 ezSimdVec4f ezWindVolumeCylinderComponent::ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const
 {
-  const ezSimdFloat fCylDist = vLocalPos.x();
-
-  if (fCylDist <= -m_fLength * 0.5f || fCylDist >= m_fLength * 0.5f)
-    return ezSimdVec4f::MakeZero();
-
   ezSimdVec4f orthoDir = vLocalPos;
-  orthoDir.SetX(0.0f);
+  orthoDir.SetX(ezSimdFloat::MakeZero());
+  const ezSimdVec4f radius = ezSimdVec4f(orthoDir.GetLength<3>());
 
-  if (orthoDir.GetLengthSquared<3>() >= ezMath::Square(m_fRadius))
-    return ezSimdVec4f::MakeZero();
+  const ezSimdVec4f ddr = vLocalPos.GetCombined<ezSwizzle::XXXX>(radius); // dist, dist, radius
+  ezSimdVec4f fadeValues = ezSimdVec4f::MulAdd(ddr, m_vScaleValues, m_vBiasValues);
+  fadeValues = fadeValues.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::MakeZero());
+  const ezSimdFloat finalStrength = fadeValues.HorizontalMin<2>() * fadeValues.z() * ezSimdFloat(GetWindInMetersPerSecond());
 
-  if (m_Mode == ezWindVolumeCylinderMode::Vortex)
-  {
-    ezSimdVec4f forceDir = ezSimdVec4f(1, 0, 0, 0).CrossRH(orthoDir);
-    forceDir.NormalizeIfNotZero<3>();
-    return forceDir * GetWindInMetersPerSecond();
-  }
+  ezSimdVec4f dir = ezSimdVec4f(1, 0, 0, 0);
+  ezSimdVec4f vortexDir = dir.CrossRH(orthoDir);
+  vortexDir.NormalizeIfNotZero<3>();
 
-  return ezSimdVec4f(GetWindInMetersPerSecond(), 0, 0);
+  ezSimdVec4b isVortex(m_Mode == ezWindVolumeCylinderMode::Vortex);
+  dir = ezSimdVec4f::Select(isVortex, vortexDir, dir);
+
+  return dir * finalStrength;
 }
 
 void ezWindVolumeCylinderComponent::SetRadius(float fVal)
 {
   m_fRadius = ezMath::Max(fVal, 0.1f);
-  m_fOneDivRadius = 1.0f / m_fRadius;
+
+  ComputeScaleBiasValues();
 
   if (IsActiveAndInitialized())
   {
     GetOwner()->UpdateLocalBounds();
   }
+}
+
+void ezWindVolumeCylinderComponent::SetRadiusFalloff(float fVal)
+{
+  m_fRadiusFalloff = ezMath::Saturate(fVal);
+
+  ComputeScaleBiasValues();
 }
 
 void ezWindVolumeCylinderComponent::SetLength(float fVal)
@@ -310,13 +366,43 @@ void ezWindVolumeCylinderComponent::SetLength(float fVal)
   }
 }
 
-void ezWindVolumeCylinderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void ezWindVolumeCylinderComponent::SetPositiveFalloff(float fVal)
 {
-  const ezVec3 corner(m_fLength * 0.5f, m_fRadius, m_fRadius);
+  m_fPositiveFalloff = ezMath::Saturate(fVal);
 
-  msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-corner, corner)), ezWindVolumeComponent::SpatialDataCategory);
+  ComputeScaleBiasValues();
 }
 
+void ezWindVolumeCylinderComponent::SetNegativeFalloff(float fVal)
+{
+  m_fNegativeFalloff = ezMath::Saturate(fVal);
+
+  ComputeScaleBiasValues();
+}
+
+void ezWindVolumeCylinderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+{
+  const ezVec3 halfExtents(m_fLength * 0.5f, m_fRadius, m_fRadius);
+  const float sphereRadius = halfExtents.GetAsVec2().GetLength();
+
+  msg.AddBounds(ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), halfExtents, sphereRadius), ezWindVolumeComponent::SpatialDataCategory);
+}
+
+void ezWindVolumeCylinderComponent::ComputeScaleBiasValues()
+{
+  const float fPositiveScale = -1.0f / ezMath::Max(m_fLength * m_fPositiveFalloff, 0.0001f);
+  const float fPositiveBias = -fPositiveScale * m_fLength * 0.5f;
+
+  const float fNegativeFalloff = ezMath::Min(m_fNegativeFalloff, 1.0f - m_fPositiveFalloff);
+  const float fNegativeScale = 1.0f / ezMath::Max(m_fLength * fNegativeFalloff, 0.0001f);
+  const float fNegativeBias = fNegativeScale * m_fLength * 0.5f;
+
+  const float fRadiusScale = -1.0f / ezMath::Max(m_fRadius * m_fRadiusFalloff, 0.0001f);
+  const float fRadiusBias = -fRadiusScale * m_fRadius;
+
+  m_vScaleValues.Set(fPositiveScale, fNegativeScale, fRadiusScale, 0.0f);
+  m_vBiasValues.Set(fPositiveBias, fNegativeBias, fRadiusBias, 0.0f);
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

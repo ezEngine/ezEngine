@@ -65,6 +65,7 @@ public:
 
   ezEnum<ezMeshNormalPrecision> m_NormalPrecision;
   ezEnum<ezMeshTexCoordPrecision> m_TexCoordPrecision;
+  ezEnum<ezMeshVertexColorConversion> m_VertexColorConversion;
 
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
 

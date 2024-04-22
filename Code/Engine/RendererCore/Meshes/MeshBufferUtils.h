@@ -66,12 +66,29 @@ struct ezMeshBoneWeigthPrecision
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshBoneWeigthPrecision);
 
+struct ezMeshVertexColorConversion
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    None,
+    LinearToSrgb,
+    SrgbToLinear,
+
+    Default = None
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshVertexColorConversion);
+
 struct EZ_RENDERERCORE_DLL ezMeshBufferUtils
 {
   static ezResult EncodeNormal(const ezVec3& vNormal, ezArrayPtr<ezUInt8> dest, ezMeshNormalPrecision::Enum normalPrecision);
   static ezResult EncodeTangent(const ezVec3& vTangent, float fTangentSign, ezArrayPtr<ezUInt8> dest, ezMeshNormalPrecision::Enum tangentPrecision);
   static ezResult EncodeTexCoord(const ezVec2& vTexCoord, ezArrayPtr<ezUInt8> dest, ezMeshTexCoordPrecision::Enum texCoordPrecision);
   static ezResult EncodeBoneWeights(const ezVec4& vWeights, ezArrayPtr<ezUInt8> dest, ezMeshBoneWeigthPrecision::Enum precision);
+  static ezResult EncodeColor(const ezVec4& vColor, ezArrayPtr<ezUInt8> dest, ezMeshVertexColorConversion::Enum conversion);
 
   static ezResult EncodeNormal(const ezVec3& vNormal, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
   static ezResult EncodeTangent(const ezVec3& vTangent, float fTangentSign, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);

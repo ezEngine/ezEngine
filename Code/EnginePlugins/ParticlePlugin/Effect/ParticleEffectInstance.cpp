@@ -3,6 +3,7 @@
 #include <Core/Interfaces/WindWorldModule.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
@@ -14,7 +15,12 @@
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+ezCVarBool cvar_ParticlesDebugWindSamples("Particles.DebugWindSamples", false, ezCVarFlags::Default, "Enables debug visualization for wind sampling on particle effects.");
+#endif
 
 ezParticleEffectInstance::ezParticleEffectInstance()
 {
@@ -74,6 +80,9 @@ void ezParticleEffectInstance::Destruct()
   m_hResource.Invalidate();
   m_hEffectHandle.Invalidate();
   m_uiReviveTimeout = 5;
+
+  m_WindSampleGrids[0] = nullptr;
+  m_WindSampleGrids[1] = nullptr;
 }
 
 void ezParticleEffectInstance::Interrupt()
@@ -263,6 +272,13 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   m_fApplyInstanceVelocity = desc.m_fApplyInstanceVelocity;
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
   m_InvisibleUpdateRate = desc.m_InvisibleUpdateRate;
+
+  m_vNumWindSamples.x = desc.m_vNumWindSamples.x;
+  m_vNumWindSamples.y = desc.m_vNumWindSamples.y;
+  m_vNumWindSamples.z = desc.m_vNumWindSamples.z;
+  m_vNumWindSamples.w = desc.m_vNumWindSamples.x * desc.m_vNumWindSamples.y * desc.m_vNumWindSamples.z;
+  m_WindSampleGrids[0] = nullptr;
+  m_WindSampleGrids[1] = nullptr;
 
   // parameters
   {
@@ -520,26 +536,101 @@ void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
   m_EventQueue.PushBack(pe);
 }
 
-void ezParticleEffectInstance::UpdateWindSamples()
+void ezParticleEffectInstance::RequestWindSamples()
 {
-  const ezUInt32 uiDataIdx = ezRenderWorld::GetDataIndexForExtraction();
+  const ezUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
 
-  m_vSampleWindResults[uiDataIdx].Clear();
+  for (auto& grid : m_WindSampleGrids)
+  {
+    if (grid == nullptr)
+    {
+      grid = EZ_NEW(ezFoundation::GetAlignedAllocator(), WindSampleGrid);
+      grid->m_vMinPos.Set(1000.0f);
+      grid->m_vMaxPos.Set(-1000.0f);
+      grid->m_vInvCellSize.SetZero();
+      grid->m_Samples.SetCountUninitialized(uiTotalNumSamples);
+      ezMemoryUtils::ZeroFill(grid->m_Samples.GetData(), uiTotalNumSamples);
+    }
+  }
+}
 
-  if (m_vSampleWindLocations[uiDataIdx].IsEmpty())
+void ezParticleEffectInstance::UpdateWindSamples(ezTime diff)
+{
+  const ezUInt64 uiFrameCounter = ezRenderWorld::GetFrameCounter();
+  const ezUInt32 uiDataIdx = uiFrameCounter & 1;
+  if (m_WindSampleGrids[uiDataIdx] == nullptr || m_BoundingVolume.IsValid() == false)
     return;
 
-  m_vSampleWindResults[uiDataIdx].SetCount(m_vSampleWindLocations[uiDataIdx].GetCount(), ezVec3::MakeZero());
+  auto& grid = *m_WindSampleGrids[uiDataIdx];
+  const auto& oldGrid = *m_WindSampleGrids[(uiDataIdx + 1) & 1];
+
+  const ezUInt32 uiNumSamplesX = m_vNumWindSamples.x;
+  const ezUInt32 uiNumSamplesY = m_vNumWindSamples.y;
+  const ezUInt32 uiNumSamplesZ = m_vNumWindSamples.z;
+  const ezUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
+  EZ_ASSERT_DEBUG(grid.m_Samples.GetCount() == uiTotalNumSamples && oldGrid.m_Samples.GetCount() == uiTotalNumSamples, "Invalid number of samples");
+
+  const ezSimdVec4f interpolationFactor = ezSimdVec4f(1.0f - ezMath::Pow(0.1f, diff.AsFloatInSeconds()));
+
+  const ezSimdBBox boundingBox = ezSimdConversion::ToBBox(m_BoundingVolume.GetBox());
+  const ezSimdVec4f boundsSize = boundingBox.GetExtents();
+  const ezSimdVec4f gridSize = ezSimdVec4f(uiNumSamplesX, uiNumSamplesY, uiNumSamplesZ);
+  ezSimdVec4f cellSize = boundsSize.CompDiv(gridSize);
+  const ezSimdVec4f minPos = boundingBox.m_Min + cellSize * 0.5f;
+  const ezSimdVec4f maxPos = boundingBox.m_Max - cellSize * 0.5f;
+
+  const ezSimdVec4b oldGridValid = oldGrid.m_vMinPos < oldGrid.m_vMaxPos;
+  grid.m_vMinPos = ezSimdVec4f::Select(oldGridValid, ezSimdVec4f::Lerp(oldGrid.m_vMinPos, minPos, interpolationFactor), minPos);
+  grid.m_vMaxPos = ezSimdVec4f::Select(oldGridValid, ezSimdVec4f::Lerp(oldGrid.m_vMaxPos, maxPos, interpolationFactor), maxPos);
+
+  const ezSimdVec4f finalGridSize = grid.m_vMaxPos - grid.m_vMinPos;
+  const ezSimdVec4f maxIndices = gridSize - ezSimdVec4f(1.0f);
+  cellSize = ezSimdVec4f::Select(maxIndices != ezSimdVec4f::MakeZero(), finalGridSize.CompDiv(maxIndices), ezSimdVec4f::MakeZero());
+  grid.m_vInvCellSize = ezSimdVec4f::Select(cellSize != ezSimdVec4f::MakeZero(), ezSimdVec4f(1.0f).CompDiv(cellSize), ezSimdVec4f::MakeZero());
+  EZ_ASSERT_DEBUG(grid.m_vInvCellSize.IsValid<3>(), "");
 
   if (auto pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
   {
-    for (ezUInt32 i = 0; i < m_vSampleWindLocations[uiDataIdx].GetCount(); ++i)
+    for (ezUInt32 i = 0; i < uiTotalNumSamples; ++i)
     {
-      m_vSampleWindResults[uiDataIdx][i] = pWind->GetWindAt(m_vSampleWindLocations[uiDataIdx][i]);
+      ezUInt32 index = i;
+      const ezUInt32 z = i / (uiNumSamplesX * uiNumSamplesY);
+      index -= z * (uiNumSamplesX * uiNumSamplesY);
+      const ezUInt32 y = index / uiNumSamplesX;
+      const ezUInt32 x = index - (y * uiNumSamplesX);
+
+      const ezSimdVec4f samplePos = grid.m_vMinPos + cellSize.CompMul(ezSimdVec4f(x, y, z));
+
+      grid.m_Samples[i] = ezSimdVec4f::Lerp(oldGrid.m_Samples[i], pWind->GetWindAtSimd(samplePos), interpolationFactor);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      if (cvar_ParticlesDebugWindSamples)
+      {
+        const ezColor c = ezColorScheme::GetColor(ezColorScheme::Blue, 8);
+
+        const ezVec3 samplePos0 = ezSimdConversion::ToVec3(samplePos);
+        ezDebugRenderer::DrawCross(GetWorld(), samplePos0, 0.1f, c);
+
+        const ezVec3 vWind = ezSimdConversion::ToVec3(grid.m_Samples[i]);
+        const float fWindStrength = vWind.GetLength();
+        ezDebugRenderer::Draw3DText(GetWorld(), ezFmt("{} m/s", ezArgF(fWindStrength, 2)), samplePos0, c);
+
+        if (fWindStrength > 0.01f)
+        {
+          const ezQuat q = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), vWind);
+          ezDebugRenderer::DrawArrow(GetWorld(), fWindStrength, c, ezTransform::Make(samplePos0, q));
+        }
+      }
+#endif
     }
   }
-
-  m_vSampleWindLocations[uiDataIdx].Clear();
+  else
+  {
+    for (auto& sample : grid.m_Samples)
+    {
+      sample.SetZero();
+    }
+  }
 }
 
 ezUInt64 ezParticleEffectInstance::GetNumActiveParticles() const
@@ -572,29 +663,71 @@ void ezParticleEffectInstance::SetTransformForNextFrame(const ezTransform& trans
   m_vVelocityForNextFrame = vParticleStartVelocity;
 }
 
-ezInt32 ezParticleEffectInstance::AddWindSampleLocation(const ezVec3& vPos)
+ezSimdVec4f ezParticleEffectInstance::GetWindAt(const ezSimdVec4f& vPosition) const
 {
-  const ezUInt32 uiDataIdx = ezRenderWorld::GetDataIndexForRendering();
-
-  if (m_vSampleWindLocations[uiDataIdx].GetCount() < m_vSampleWindLocations[uiDataIdx].GetCapacity())
+  const ezUInt64 uiFrameCounter = ezRenderWorld::GetFrameCounter();
+  const ezUInt32 uiDataIdx = (uiFrameCounter + 1) & 1;
+  if (m_WindSampleGrids[uiDataIdx] == nullptr)
   {
-    m_vSampleWindLocations[uiDataIdx].PushBack(vPos);
-    return m_vSampleWindLocations[uiDataIdx].GetCount() - 1;
+    return ezSimdVec4f::MakeZero();
   }
 
-  return -1;
-}
+  auto& grid = *m_WindSampleGrids[uiDataIdx];
 
-ezVec3 ezParticleEffectInstance::GetWindSampleResult(ezInt32 iIdx) const
-{
-  const ezUInt32 uiDataIdx = ezRenderWorld::GetDataIndexForRendering();
+  const ezUInt32 uiTotalNumSamples = m_vNumWindSamples.w;
+  EZ_ASSERT_DEBUG(grid.m_Samples.GetCount() == uiTotalNumSamples, "Invalid sample count");
 
-  if (iIdx >= 0 && m_vSampleWindResults[uiDataIdx].GetCount() > (ezUInt32)iIdx)
-  {
-    return m_vSampleWindResults[uiDataIdx][iIdx];
-  }
+  // Sample grid with trilinear interpolation
+  ezSimdVec4f gridSpacePos = (vPosition - grid.m_vMinPos).CompMul(grid.m_vInvCellSize);
+  gridSpacePos = gridSpacePos.CompMax(ezSimdVec4f::MakeZero());
 
-  return ezVec3::MakeZero();
+  const ezSimdVec4f gridSpacePosFloor = gridSpacePos.Floor();
+  const ezSimdVec4f weights = gridSpacePos - gridSpacePosFloor;
+
+  const ezSimdVec4i maxIndices = ezSimdConversion::ToVec4i(m_vNumWindSamples) - ezSimdVec4i(1);
+  const ezSimdVec4i pos0 = ezSimdVec4i::Truncate(gridSpacePosFloor).CompMin(maxIndices);
+  const ezSimdVec4i pos1 = (pos0 + ezSimdVec4i(1)).CompMin(maxIndices);
+
+  const ezInt32 xCount = m_vNumWindSamples.x;
+  const ezInt32 xyCount = xCount * m_vNumWindSamples.y;
+  const ezSimdVec4i cXcXYcXcXY = ezSimdVec4i(xCount, xyCount, xCount, xyCount);
+  const ezSimdVec4i y0z0y1z1 = pos0.GetCombined<ezSwizzle::YZYZ>(pos1).CompMul(cXcXYcXcXY);
+  const ezSimdVec4i y0y0y1y1 = y0z0y1z1.Get<ezSwizzle::XXZZ>();
+  const ezSimdVec4i x0x0x1x1 = pos0.GetCombined<ezSwizzle::XXXX>(pos1);
+  const ezSimdVec4i x0x1x0x1 = x0x0x1x1.Get<ezSwizzle::XZXZ>();
+  const ezSimdVec4i y0y0y1y1_plus_x0x1x0x1 = y0y0y1y1 + x0x1x0x1;
+
+  const ezSimdVec4f wX = weights.Get<ezSwizzle::XXXX>();
+  const ezSimdVec4f wY = weights.Get<ezSwizzle::YYYY>();
+
+  const ezSimdVec4f* pSamples = grid.m_Samples.GetData();
+
+  const ezSimdVec4i indices_z0 = y0z0y1z1.Get<ezSwizzle::YYYY>() + y0y0y1y1_plus_x0x1x0x1;
+  const ezSimdVec4f sample_z0y0x0 = pSamples[indices_z0.x()];
+  const ezSimdVec4f sample_z0y0x1 = pSamples[indices_z0.y()];
+  const ezSimdVec4f res_z0y0 = ezSimdVec4f::Lerp(sample_z0y0x0, sample_z0y0x1, wX);
+
+  const ezSimdVec4f sample_z0y1x0 = pSamples[indices_z0.z()];
+  const ezSimdVec4f sample_z0y1x1 = pSamples[indices_z0.w()];
+  const ezSimdVec4f res_z0y1 = ezSimdVec4f::Lerp(sample_z0y1x0, sample_z0y1x1, wX);
+
+  const ezSimdVec4f res_z0 = ezSimdVec4f::Lerp(res_z0y0, res_z0y1, wY);
+
+  const ezSimdVec4i indices_z1 = y0z0y1z1.Get<ezSwizzle::WWWW>() + y0y0y1y1_plus_x0x1x0x1;
+  const ezSimdVec4f sample_z1y0x0 = pSamples[indices_z1.x()];
+  const ezSimdVec4f sample_z1y0x1 = pSamples[indices_z1.y()];
+  const ezSimdVec4f res_z1y0 = ezSimdVec4f::Lerp(sample_z1y0x0, sample_z1y0x1, wX);
+
+  const ezSimdVec4f sample_z1y1x0 = pSamples[indices_z1.z()];
+  const ezSimdVec4f sample_z1y1x1 = pSamples[indices_z1.w()];
+  const ezSimdVec4f res_z1y1 = ezSimdVec4f::Lerp(sample_z1y1x0, sample_z1y1x1, wX);
+
+  const ezSimdVec4f res_z1 = ezSimdVec4f::Lerp(res_z1y0, res_z1y1, wY);
+
+  const ezSimdVec4f wZ = weights.Get<ezSwizzle::ZZZZ>();
+  const ezSimdVec4f res = ezSimdVec4f::Lerp(res_z0, res_z1, wZ);
+
+  return res;
 }
 
 void ezParticleEffectInstance::PassTransformToSystems()

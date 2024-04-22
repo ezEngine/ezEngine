@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{4891154588354633158}
+		u4 %Hash{15173666521599619521}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -2151,7 +2151,7 @@ o
 {
 	Uuid %id{u4{8934191910348986764,2510824718234150554}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2502,7 +2502,7 @@ o
 {
 	Uuid %id{u4{10362584086104424557,2830608465593250453}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2512,7 +2512,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampNegY"}
+		s %Shape{"ezGreyBoxShape::RampY"}
 		f %SizeNegX{0x00002040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -3254,7 +3254,7 @@ o
 {
 	Uuid %id{u4{17952456231626479743,3630751861228559779}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -3373,7 +3373,7 @@ o
 {
 	Uuid %id{u4{4620677274494284680,3724209296307828921}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -4346,7 +4346,6 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{18158644783344028828,5145048891365706276}}
 			Uuid{u4{1377023503152179345,5611782642857704400}}
 			Uuid{u4{9520276982924474556,5067844615313723500}}
 		}
@@ -5199,7 +5198,7 @@ o
 {
 	Uuid %id{u4{11341755196785872283,4693057467671460465}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -5254,7 +5253,7 @@ o
 {
 	Uuid %id{u4{341800527934774943,4699491802594435435}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -5475,7 +5474,7 @@ o
 {
 	Uuid %id{u4{4220081091075350691,4713340861984725651}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -5709,7 +5708,7 @@ o
 {
 	Uuid %id{u4{6402229251682090373,4740937601337528484}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -5736,7 +5735,7 @@ o
 {
 	Uuid %id{u4{6625653281180356286,4754566588831389429}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -6365,7 +6364,7 @@ o
 {
 	Uuid %id{u4{2451368656994253718,4843975618776232767}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -7666,7 +7665,7 @@ o
 {
 	Uuid %id{u4{5915166190318237103,4989587203334373981}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -7676,7 +7675,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsPosX"}
+		s %Shape{"ezGreyBoxShape::StairsX"}
 		f %SizeNegX{0x0000D040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -8537,7 +8536,7 @@ o
 {
 	Uuid %id{u4{2128865152013403838,5115005639416411092}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -8603,7 +8602,7 @@ o
 {
 	Uuid %id{u4{1376916972355259048,5120154506341732871}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -8613,7 +8612,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsPosX"}
+		s %Shape{"ezGreyBoxShape::StairsX"}
 		f %SizeNegX{0x0000003F}
 		f %SizeNegY{0x00002040}
 		f %SizeNegZ{0}
@@ -8676,7 +8675,7 @@ o
 {
 	Uuid %id{u4{9040772765683065763,5134909709615955496}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -8763,19 +8762,6 @@ o
 	{
 		b %Active{1}
 		Vec3 %HalfExtents{f{0x0000003F,0x0000003F,0x0000003F}}
-	}
-}
-o
-{
-	Uuid %id{u4{18158644783344028828,5145048891365706276}}
-	s %t{"ezAmbientLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{0}
-		ColorGamma %BottomColor{u1{89,89,108,255}}
-		f %Intensity{0x0000803F}
-		ColorGamma %TopColor{u1{124,124,149,255}}
 	}
 }
 o
@@ -9689,7 +9675,7 @@ o
 {
 	Uuid %id{u4{16996444949911002540,5274580211478089382}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -9781,7 +9767,7 @@ o
 {
 	Uuid %id{u4{15223958793089175207,5285482701883028580}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -9791,7 +9777,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsNegY"}
+		s %Shape{"ezGreyBoxShape::StairsY"}
 		f %SizeNegX{0}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -10356,7 +10342,7 @@ o
 {
 	Uuid %id{u4{17461462470739730310,5350919150175572764}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -10366,7 +10352,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampPosX"}
+		s %Shape{"ezGreyBoxShape::RampX"}
 		f %SizeNegX{0x0000403F}
 		f %SizeNegY{0x00000841}
 		f %SizeNegZ{0}
@@ -10575,7 +10561,7 @@ o
 {
 	Uuid %id{u4{12893969309980742031,5386532169348789379}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -11176,7 +11162,7 @@ o
 {
 	Uuid %id{u4{16497603065911933343,5450779575715237299}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -11500,7 +11486,7 @@ o
 {
 	Uuid %id{u4{2271629012020095901,5501828757579223128}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -11833,7 +11819,7 @@ o
 {
 	Uuid %id{u4{17092161220155211939,5536905134491953836}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -12085,7 +12071,7 @@ o
 {
 	Uuid %id{u4{17815034734211412366,5566732202788399846}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -12095,7 +12081,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampNegY"}
+		s %Shape{"ezGreyBoxShape::RampY"}
 		f %SizeNegX{0x00002040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -12367,7 +12353,7 @@ o
 {
 	Uuid %id{u4{17286638419770729360,5595161201011231395}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -12603,7 +12589,7 @@ o
 {
 	Uuid %id{u4{13999472997786286235,5625479843572063396}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -12613,7 +12599,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampNegY"}
+		s %Shape{"ezGreyBoxShape::RampY"}
 		f %SizeNegX{0x00007041}
 		f %SizeNegY{0x0000A040}
 		f %SizeNegZ{0}
@@ -13039,7 +13025,7 @@ o
 {
 	Uuid %id{u4{2641312814765962151,5689027963668687802}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -13096,7 +13082,7 @@ o
 {
 	Uuid %id{u4{11229079107651232136,5701248675764333451}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -13265,7 +13251,7 @@ o
 {
 	Uuid %id{u4{7242337380764176770,5732274011729194127}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -15390,7 +15376,7 @@ o
 {
 	Uuid %id{u4{14536357159775573275,8091276680196604573}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -15400,7 +15386,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampNegY"}
+		s %Shape{"ezGreyBoxShape::RampY"}
 		f %SizeNegX{0x00002040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -15824,7 +15810,7 @@ o
 {
 	Uuid %id{u4{9015924281856116745,8563757505443362688}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -15834,7 +15820,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampPosX"}
+		s %Shape{"ezGreyBoxShape::RampX"}
 		f %SizeNegX{0x00007040}
 		f %SizeNegY{0x0000A040}
 		f %SizeNegZ{0x00000040}
@@ -16036,8 +16022,8 @@ o
 		Time %BurstDuration{d{0}}
 		f %Length{0x0000A040}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
-		b %ReverseDirection{0}
 		s %Strength{"ezWindStrength::Storm"}
+		f %StrengthFactor{0x0000803F}
 	}
 }
 o
@@ -16879,7 +16865,7 @@ o
 {
 	Uuid %id{u4{624394206911056468,9430290590223449572}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -16930,7 +16916,7 @@ o
 {
 	Uuid %id{u4{57262042788652831,9445408662223407479}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -17408,7 +17394,7 @@ o
 {
 	Uuid %id{u4{8082555463817751335,9818166820791642975}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -17564,7 +17550,7 @@ o
 {
 	Uuid %id{u4{9179198194245012284,9882308078459974895}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -17618,7 +17604,7 @@ o
 {
 	Uuid %id{u4{10634810001157449543,9898889294427435174}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -18101,7 +18087,7 @@ o
 {
 	Uuid %id{u4{11985233226141606191,10196725939891087606}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -18287,7 +18273,7 @@ o
 {
 	Uuid %id{u4{17696379496858538318,10247218563564023694}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -18413,7 +18399,7 @@ o
 {
 	Uuid %id{u4{18149898972937019439,10267029614022377323}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -18423,7 +18409,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsPosX"}
+		s %Shape{"ezGreyBoxShape::StairsX"}
 		f %SizeNegX{0x0000D040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -18824,7 +18810,7 @@ o
 {
 	Uuid %id{u4{1659409170102682645,10361878546517734235}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -18834,7 +18820,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampPosX"}
+		s %Shape{"ezGreyBoxShape::RampX"}
 		f %SizeNegX{0x0000403F}
 		f %SizeNegY{0x00000841}
 		f %SizeNegZ{0}
@@ -19189,7 +19175,7 @@ o
 {
 	Uuid %id{u4{10910434986757646672,10405054030730973622}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -19286,7 +19272,7 @@ o
 {
 	Uuid %id{u4{8762811443711482944,10448726710745124824}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -19313,7 +19299,7 @@ o
 {
 	Uuid %id{u4{7369486124475346486,10451273435707448228}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -19618,7 +19604,7 @@ o
 {
 	Uuid %id{u4{17126098321568610407,10567516004938624249}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -19645,7 +19631,7 @@ o
 {
 	Uuid %id{u4{9897464967785797678,10573567904427110042}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -19792,7 +19778,7 @@ o
 {
 	Uuid %id{u4{18266114878220654879,10602975008205464036}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -19984,7 +19970,7 @@ o
 {
 	Uuid %id{u4{6681958018889972751,10663974580036792721}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -20627,7 +20613,7 @@ o
 {
 	Uuid %id{u4{7787461706695516955,10902922254260066738}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -20637,7 +20623,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampNegY"}
+		s %Shape{"ezGreyBoxShape::RampY"}
 		f %SizeNegX{0x00007041}
 		f %SizeNegY{0x0000A040}
 		f %SizeNegZ{0}
@@ -20774,7 +20760,7 @@ o
 {
 	Uuid %id{u4{5578290816199012906,10958192192986225144}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -20784,7 +20770,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsNegY"}
+		s %Shape{"ezGreyBoxShape::StairsY"}
 		f %SizeNegX{0}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -20801,7 +20787,7 @@ o
 {
 	Uuid %id{u4{10897358268143943228,10960594377386900920}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -20948,7 +20934,7 @@ o
 {
 	Uuid %id{u4{9556310360662146906,11019036538039077863}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -21333,7 +21319,7 @@ o
 {
 	Uuid %id{u4{989624216473285155,11134408863421665552}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -21802,7 +21788,7 @@ o
 {
 	Uuid %id{u4{8348037040413987883,11307145273721135165}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -21812,7 +21798,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampNegY"}
+		s %Shape{"ezGreyBoxShape::RampY"}
 		f %SizeNegX{0x00002040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -24322,7 +24308,7 @@ o
 {
 	Uuid %id{u4{1814090142977665993,14325977573492163180}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -26980,7 +26966,7 @@ o
 {
 	Uuid %id{u4{14589846766941299410,15292384486581106530}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -27157,7 +27143,7 @@ o
 {
 	Uuid %id{u4{10035890396347744199,15320966273271129441}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -27223,7 +27209,7 @@ o
 {
 	Uuid %id{u4{10166572254670696670,15328447101919524592}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -27483,7 +27469,7 @@ o
 {
 	Uuid %id{u4{3830184687833300177,15389168308301000261}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -29899,7 +29885,7 @@ o
 {
 	Uuid %id{u4{15904261094266854418,15842322667831481674}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -34407,7 +34393,7 @@ o
 {
 	Uuid %id{u4{1081064585947731415,16503134748918116996}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -35201,7 +35187,7 @@ o
 {
 	Uuid %id{u4{12121626437778571738,16665291928530294519}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -35211,7 +35197,7 @@ o
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampNegY"}
+		s %Shape{"ezGreyBoxShape::RampY"}
 		f %SizeNegX{0x00002040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -35228,7 +35214,7 @@ o
 {
 	Uuid %id{u4{13863987342176414423,16676286583777631725}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{6}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -37619,7 +37605,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -37847,7 +37833,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindVolumeComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -40595,7 +40581,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeVersion{6}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -40840,23 +40826,6 @@ o
 	p
 	{
 		s %DynamicEnum{"PhysicsCollisionLayer"}
-	}
-}
-o
-{
-	Uuid %id{u4{11081527203184866822,15735316544108576551}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezAmbientLightComponent"}
-		u3 %TypeVersion{2}
 	}
 }
 o

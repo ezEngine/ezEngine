@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/World/WorldModule.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
 
 /// \brief Defines the strength / speed of wind. Inspired by the Beaufort Scale.
 ///
@@ -43,6 +44,7 @@ protected:
 
 public:
   virtual ezVec3 GetWindAt(const ezVec3& vPosition) const = 0;
+  virtual ezSimdVec4f GetWindAtSimd(const ezSimdVec4f& vPosition) const;
 
   /// \brief Computes a 'fluttering' wind motion orthogonal to an object direction.
   ///

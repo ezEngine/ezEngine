@@ -19,6 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTrangents)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ENUM_MEMBER_PROPERTY("NormalPrecision", ezMeshNormalPrecision, m_NormalPrecision),
     EZ_ENUM_MEMBER_PROPERTY("TexCoordPrecision", ezMeshTexCoordPrecision, m_TexCoordPrecision),
+    EZ_ENUM_MEMBER_PROPERTY("VertexColorConversion", ezMeshVertexColorConversion, m_VertexColorConversion),
     EZ_MEMBER_PROPERTY("ImportMaterials", m_bImportMaterials)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
@@ -96,6 +97,7 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
     props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Invisible;
     props["NormalPrecision"].m_Visibility = ezPropertyUiState::Invisible;
     props["TexCoordPrecision"].m_Visibility = ezPropertyUiState::Invisible;
+    props["VertexColorConversion"].m_Visibility = ezPropertyUiState::Invisible;
 
     props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
@@ -110,6 +112,7 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
         props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Default;
         props["NormalPrecision"].m_Visibility = ezPropertyUiState::Default;
         props["TexCoordPrecision"].m_Visibility = ezPropertyUiState::Default;
+        props["VertexColorConversion"].m_Visibility = ezPropertyUiState::Default;
         break;
 
       case ezMeshPrimitive::Box:

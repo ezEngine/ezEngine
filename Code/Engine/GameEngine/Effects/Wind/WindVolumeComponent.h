@@ -45,9 +45,8 @@ public:
   /// \brief How strong the wind shall blow at the strongest point of the volume.
   ezEnum<ezWindStrength> m_Strength; // [ property ]
 
-  /// \brief Whether the wind shall blow forwards or backwards.
-  /// Depending on the shape, this may also mean inwards or outwards.
-  bool m_bReverseDirection = false; // [ property ]
+  /// \brief Factor to scale the wind strength. Negative values can be used to reverse the wind direction.
+  float m_fStrengthFactor = 1.0f;
 
   /// \brief Computes the wind force at a global position.
   ///
@@ -150,20 +149,36 @@ public:
 
   virtual ezSimdVec4f ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const override;
 
-  float GetRadius() const { return m_fRadius; } // [ property ]
-  void SetRadius(float fVal);                   // [ property ]
+  float GetRadius() const { return m_fRadius; }                   // [ property ]
+  void SetRadius(float fVal);                                     // [ property ]
 
-  float GetLength() const { return m_fLength; } // [ property ]
-  void SetLength(float fVal);                   // [ property ]
+  float GetRadiusFalloff() const { return m_fRadiusFalloff; }     // [ property ]
+  void SetRadiusFalloff(float fVal);                              // [ property ]
 
-  ezEnum<ezWindVolumeCylinderMode> m_Mode;      // [ property ]
+  float GetLength() const { return m_fLength; }                   // [ property ]
+  void SetLength(float fVal);                                     // [ property ]
+
+  float GetPositiveFalloff() const { return m_fPositiveFalloff; } // [ property ]
+  void SetPositiveFalloff(float fVal);                            // [ property ]
+
+  float GetNegativeFalloff() const { return m_fNegativeFalloff; } // [ property ]
+  void SetNegativeFalloff(float fVal);                            // [ property ]
+
+  ezEnum<ezWindVolumeCylinderMode> m_Mode;                        // [ property ]
 
 private:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
 
+  void ComputeScaleBiasValues();
+
   float m_fRadius = 1.0f;
+  float m_fRadiusFalloff = 0.0f;
   float m_fLength = 5.0f;
-  ezSimdFloat m_fOneDivRadius;
+  float m_fPositiveFalloff = 0.0f;
+  float m_fNegativeFalloff = 0.0f;
+
+  ezSimdVec4f m_vScaleValues;
+  ezSimdVec4f m_vBiasValues;
 };
 
 //////////////////////////////////////////////////////////////////////////
