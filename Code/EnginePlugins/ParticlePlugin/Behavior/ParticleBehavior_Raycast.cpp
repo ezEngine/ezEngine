@@ -8,6 +8,7 @@
 #include <ParticlePlugin/Behavior/ParticleBehavior_Raycast.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_LastPosition.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>

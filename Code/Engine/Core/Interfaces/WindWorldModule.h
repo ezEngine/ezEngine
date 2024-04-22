@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/World/WorldModule.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
 
 /// \brief Defines the strength / speed of wind. Inspired by the Beaufort Scale.
 ///
