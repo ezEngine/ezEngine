@@ -130,14 +130,11 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
 
   InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if ((!m_InStart.IsConnected() && pState->m_uiState == 0) || m_InStart.IsTriggered(ref_graph))
+  if (m_InStart.IsTriggered(ref_graph))
   {
     pState->m_PlaybackTime = ezTime::MakeZero();
-    pState->m_uiState = 1;
+    pState->m_State = State::Start;
   }
-
-  if (pState->m_uiState == 0)
-    return;
 
   const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
 
@@ -150,9 +147,9 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
   ezAnimationClipResourceHandle hCurClip;
   ezTime tCurDuration;
 
-  while (pState->m_uiState != 0)
+  while (pState->m_State != State::Off)
   {
-    if (pState->m_uiState == 1)
+    if (pState->m_State == State::Start)
     {
       const auto& startClip = ref_controller.GetAnimationClipInfo(m_sStartClip);
 
@@ -167,7 +164,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
           }
         }
 
-        pState->m_uiState = 2;
+        pState->m_State = State::Middle;
         m_OutOnMiddleStarted.SetTriggered(ref_graph);
         continue;
       }
@@ -184,7 +181,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
           }
         }
 
-        pState->m_uiState = 2;
+        pState->m_State = State::Middle;
         m_OutOnMiddleStarted.SetTriggered(ref_graph);
         continue;
       }
@@ -198,7 +195,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
         m_OutOnMiddleStarted.SetTriggered(ref_graph);
         tPrevSamplePos = ezTime::MakeZero();
         pState->m_PlaybackTime -= tCurDuration;
-        pState->m_uiState = 2;
+        pState->m_State = State::Middle;
 
         if (!m_Clips.IsEmpty())
         {
@@ -215,11 +212,11 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       break;
     }
 
-    if (pState->m_uiState == 2)
+    if (pState->m_State == State::Middle)
     {
       if (m_Clips.IsEmpty())
       {
-        pState->m_uiState = 3;
+        pState->m_State = State::End;
         m_OutOnEndStarted.SetTriggered(ref_graph);
         continue;
       }
@@ -228,7 +225,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
 
       if (!clipInfo.m_hClip.IsValid())
       {
-        pState->m_uiState = 3;
+        pState->m_State = State::End;
         m_OutOnEndStarted.SetTriggered(ref_graph);
         continue;
       }
@@ -236,7 +233,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       ezResourceLock<ezAnimationClipResource> pAnimClip(clipInfo.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
       if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
       {
-        pState->m_uiState = 3;
+        pState->m_State = State::End;
         m_OutOnEndStarted.SetTriggered(ref_graph);
         continue;
       }
@@ -253,7 +250,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
         if (bLoop)
         {
           m_OutOnMiddleStarted.SetTriggered(ref_graph);
-          pState->m_uiState = 2;
+          pState->m_State = State::Middle;
 
           pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(ref_graph, 0xFF);
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
@@ -264,7 +261,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
         else
         {
           m_OutOnEndStarted.SetTriggered(ref_graph);
-          pState->m_uiState = 3;
+          pState->m_State = State::End;
         }
         continue;
       }
@@ -273,13 +270,13 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       break;
     }
 
-    if (pState->m_uiState == 3)
+    if (pState->m_State == State::End)
     {
       const auto& endClip = ref_controller.GetAnimationClipInfo(m_sEndClip);
 
       if (!endClip.m_hClip.IsValid())
       {
-        pState->m_uiState = 0;
+        pState->m_State = State::HoldMiddleFrame;
         m_OutOnFinished.SetTriggered(ref_graph);
         continue;
       }
@@ -287,7 +284,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       ezResourceLock<ezAnimationClipResource> pAnimClip(endClip.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
       if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
       {
-        pState->m_uiState = 0;
+        pState->m_State = State::HoldMiddleFrame;
         m_OutOnFinished.SetTriggered(ref_graph);
         continue;
       }
@@ -299,11 +296,76 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       {
         // TODO: sample anim events of previous clip
         m_OutOnFinished.SetTriggered(ref_graph);
-        pState->m_uiState = 0;
+        pState->m_State = State::HoldEndFrame;
         continue;
       }
 
       hCurClip = endClip.m_hClip;
+      break;
+    }
+
+    if (pState->m_State == State::HoldEndFrame)
+    {
+      const auto& endClip = ref_controller.GetAnimationClipInfo(m_sEndClip);
+      hCurClip = endClip.m_hClip;
+
+      ezResourceLock<ezAnimationClipResource> pAnimClip(endClip.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      tCurDuration = pAnimClip->GetDescriptor().GetDuration();
+      pState->m_PlaybackTime = tCurDuration;
+      break;
+    }
+
+    if (pState->m_State == State::HoldMiddleFrame)
+    {
+      if (m_Clips.IsEmpty() || pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
+      {
+        pState->m_State = State::HoldStartFrame;
+        continue;
+      }
+
+      const auto& clipInfo = ref_controller.GetAnimationClipInfo(m_Clips[pState->m_uiMiddleClipIdx]);
+
+      if (!clipInfo.m_hClip.IsValid())
+      {
+        pState->m_State = State::HoldStartFrame;
+        continue;
+      }
+
+      ezResourceLock<ezAnimationClipResource> pAnimClip(clipInfo.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
+      {
+        pState->m_State = State::HoldStartFrame;
+        continue;
+      }
+
+      tCurDuration = pAnimClip->GetDescriptor().GetDuration();
+      pState->m_PlaybackTime = tCurDuration;
+      hCurClip = clipInfo.m_hClip;
+      break;
+    }
+
+    if (pState->m_State == State::HoldStartFrame)
+    {
+      const auto& startClip = ref_controller.GetAnimationClipInfo(m_sStartClip);
+
+      if (!startClip.m_hClip.IsValid())
+      {
+        pState->m_State = State::Off;
+        continue;
+      }
+
+      ezResourceLock<ezAnimationClipResource> pAnimClip(startClip.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
+      {
+        pState->m_State = State::Off;
+        continue;
+      }
+
+      tCurDuration = pAnimClip->GetDescriptor().GetDuration();
+      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::MakeFromMilliseconds(5), "Too short clip");
+
+      hCurClip = startClip.m_hClip;
+      pState->m_PlaybackTime = tCurDuration;
       break;
     }
   }

@@ -152,8 +152,9 @@ public:
     enum Enum
     {
       None = 0,
-      ExcludeNonAllocatable = EZ_BIT(0),
-      ExcludeAbstract = EZ_BIT(1),
+      ExcludeNonAllocatable = EZ_BIT(0), ///< Excludes all types that cannot be allocated through ezRTTI. They may still be creatable through regular C++, though.
+      ExcludeAbstract = EZ_BIT(1),       ///< Excludes all types that are marked as 'abstract'. They may not be abstract in the C++ sense, though.
+      ExcludeNotConcrete = ExcludeNonAllocatable | ExcludeAbstract,
 
       Default = None
     };
@@ -161,6 +162,7 @@ public:
     struct Bits
     {
       ezUInt8 ExcludeNonAllocatable : 1;
+      ezUInt8 ExcludeAbstract : 1;
     };
   };
 

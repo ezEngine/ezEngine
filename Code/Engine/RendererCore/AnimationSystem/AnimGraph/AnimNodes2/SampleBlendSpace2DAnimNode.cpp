@@ -151,17 +151,13 @@ void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnim
 
   InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(ref_graph))
+  if (m_InStart.IsTriggered(ref_graph))
   {
     pState->m_CenterPlaybackTime = ezTime::MakeZero();
     pState->m_fOtherPlaybackPosNorm = 0.0f;
-    pState->m_bPlaying = true;
 
     m_OutOnStarted.SetTriggered(ref_graph);
   }
-
-  if (!pState->m_bPlaying)
-    return;
 
   const float x = static_cast<float>(m_InCoordX.GetNumber(ref_graph));
   const float y = static_cast<float>(m_InCoordY.GetNumber(ref_graph));
@@ -369,8 +365,16 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     else
     {
       pState->m_fOtherPlaybackPosNorm = 1.0f;
-      pState->m_bPlaying = false;
-      m_OutOnFinished.SetTriggered(ref_graph);
+
+      if (fPrevPlaybackPosNorm < 1.0f)
+      {
+        m_OutOnFinished.SetTriggered(ref_graph);
+      }
+      else
+      {
+        eventSampling = ezAnimPoseEventTrackSampleMode::None;
+      }
+
       break;
     }
   }

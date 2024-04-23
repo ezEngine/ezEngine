@@ -68,8 +68,7 @@ private:
 
   struct InstanceState
   {
-    bool m_bPlaying = false;
-    ezTime m_CenterPlaybackTime;
+    ezTime m_CenterPlaybackTime = ezTime::MakeZero();
     float m_fOtherPlaybackPosNorm = 0.0f;
     float m_fLastValueX = 0.0f;
     float m_fLastValueY = 0.0f;
