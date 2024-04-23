@@ -137,7 +137,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Assert on Test Fail</string>
+    <string>Break on Test Failure</string>
    </property>
   </action>
   <action name="actionOpenHTMLOutput">

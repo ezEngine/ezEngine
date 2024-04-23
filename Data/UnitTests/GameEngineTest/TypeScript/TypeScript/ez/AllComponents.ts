@@ -1355,8 +1355,8 @@ export class WindVolumeComponent extends Component
   public static GetTypeNameHash(): number { return 969175823; }
   get Strength(): Enum.WindStrength { return __CPP_ComponentProperty_get(this, 1408869612); }
   set Strength(value: Enum.WindStrength) { __CPP_ComponentProperty_set(this, 1408869612, value); }
-  get ReverseDirection(): boolean { return __CPP_ComponentProperty_get(this, 3820920862); }
-  set ReverseDirection(value: boolean) { __CPP_ComponentProperty_set(this, 3820920862, value); }
+  get StrengthFactor(): number { return __CPP_ComponentProperty_get(this, 338039914); }
+  set StrengthFactor(value: number) { __CPP_ComponentProperty_set(this, 338039914, value); }
   get BurstDuration(): number { return __CPP_ComponentProperty_get(this, 635172675); }
   set BurstDuration(value: number) { __CPP_ComponentProperty_set(this, 635172675, value); }
   get OnFinishedAction(): Enum.OnComponentFinishedAction { return __CPP_ComponentProperty_get(this, 1277794349); }
@@ -1375,10 +1375,16 @@ export class WindVolumeConeComponent extends WindVolumeComponent
 export class WindVolumeCylinderComponent extends WindVolumeComponent
 {
   public static GetTypeNameHash(): number { return 1321819725; }
-  get Length(): number { return __CPP_ComponentProperty_get(this, 4114686021); }
-  set Length(value: number) { __CPP_ComponentProperty_set(this, 4114686021, value); }
   get Radius(): number { return __CPP_ComponentProperty_get(this, 258961560); }
   set Radius(value: number) { __CPP_ComponentProperty_set(this, 258961560, value); }
+  get RadiusFalloff(): number { return __CPP_ComponentProperty_get(this, 3847740912); }
+  set RadiusFalloff(value: number) { __CPP_ComponentProperty_set(this, 3847740912, value); }
+  get Length(): number { return __CPP_ComponentProperty_get(this, 4114686021); }
+  set Length(value: number) { __CPP_ComponentProperty_set(this, 4114686021, value); }
+  get PositiveFalloff(): number { return __CPP_ComponentProperty_get(this, 91847062); }
+  set PositiveFalloff(value: number) { __CPP_ComponentProperty_set(this, 91847062, value); }
+  get NegativeFalloff(): number { return __CPP_ComponentProperty_get(this, 3560202190); }
+  set NegativeFalloff(value: number) { __CPP_ComponentProperty_set(this, 3560202190, value); }
   get Mode(): Enum.WindVolumeCylinderMode { return __CPP_ComponentProperty_get(this, 3800825428); }
   set Mode(value: Enum.WindVolumeCylinderMode) { __CPP_ComponentProperty_set(this, 3800825428, value); }
 }

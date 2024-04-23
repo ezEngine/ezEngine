@@ -1,0 +1,6 @@
+Forward
+Right
+Shoot
+Speed
+Walk
+Wave
