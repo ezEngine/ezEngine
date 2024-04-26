@@ -132,16 +132,12 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
 
   InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(ref_graph))
+  if (m_InStart.IsTriggered(ref_graph))
   {
     pState->m_PlaybackTime = ezTime::MakeZero();
-    pState->m_bPlaying = true;
 
     m_OutOnStarted.SetTriggered(ref_graph);
   }
-
-  if (!pState->m_bPlaying)
-    return;
 
   const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
 
@@ -186,6 +182,12 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
   if (!clip1.m_hClip.IsValid() || !clip2.m_hClip.IsValid())
     return;
 
+  ezResourceLock<ezAnimationClipResource> pAnimClip1(clip1.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
+  ezResourceLock<ezAnimationClipResource> pAnimClip2(clip2.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
+
+  if (pAnimClip1.GetAcquireResult() != ezResourceAcquireResult::Final || pAnimClip2.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
   float fLerpFactor = 0.0f;
 
   if (uiClip1 != uiClip2)
@@ -205,12 +207,6 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
       uiClip1 = uiClip2;
     }
   }
-
-  ezResourceLock<ezAnimationClipResource> pAnimClip1(clip1.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
-  ezResourceLock<ezAnimationClipResource> pAnimClip2(clip2.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
-
-  if (pAnimClip1.GetAcquireResult() != ezResourceAcquireResult::Final || pAnimClip2.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
 
   const float fAvgClipSpeed = ezMath::Lerp(m_Clips[uiClip1].m_fSpeed, m_Clips[uiClip2].m_fSpeed, fLerpFactor);
   const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed)) * fAvgClipSpeed;
@@ -237,8 +233,16 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
     else
     {
       pState->m_PlaybackTime = avgDuration;
-      pState->m_bPlaying = false;
-      m_OutOnFinished.SetTriggered(ref_graph);
+
+      if (tPrevPlayback < avgDuration)
+      {
+        m_OutOnFinished.SetTriggered(ref_graph);
+      }
+      else
+      {
+        // if we are already holding the last frame, we can skip event sampling
+        eventSampling = ezAnimPoseEventTrackSampleMode::None;
+      }
     }
   }
 

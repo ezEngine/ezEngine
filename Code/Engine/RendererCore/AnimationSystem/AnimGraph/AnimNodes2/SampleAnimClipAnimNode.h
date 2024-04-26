@@ -44,7 +44,6 @@ private:
 
   struct InstanceState
   {
-    bool m_bPlaying = false;
-    ezTime m_PlaybackTime;
+    ezTime m_PlaybackTime = ezTime::MakeZero();
   };
 };

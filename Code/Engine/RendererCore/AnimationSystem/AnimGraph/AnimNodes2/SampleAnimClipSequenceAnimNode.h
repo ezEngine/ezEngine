@@ -55,10 +55,21 @@ private:
   ezAnimGraphTriggerOutputPin m_OutOnEndStarted;    // [ property ]
   ezAnimGraphTriggerOutputPin m_OutOnFinished;      // [ property ]
 
+  enum class State : ezUInt8
+  {
+    Off,
+    Start,
+    Middle,
+    End,
+    HoldStartFrame,
+    HoldMiddleFrame,
+    HoldEndFrame,
+  };
+
   struct InstanceState
   {
-    ezTime m_PlaybackTime;
-    ezUInt8 m_uiState = 0; // 0 = off, 1 = start, 2 = middle, 3 = end
+    ezTime m_PlaybackTime = ezTime::MakeZero();
+    State m_State = State::Start;
     ezUInt8 m_uiMiddleClipIdx = 0;
   };
 };
