@@ -106,8 +106,6 @@ PFN_vkQueueEndDebugUtilsLabelEXT vkQueueEndDebugUtilsLabelEXTFunc;
 PFN_vkCmdBeginDebugUtilsLabelEXT vkCmdBeginDebugUtilsLabelEXTFunc;
 PFN_vkCmdEndDebugUtilsLabelEXT vkCmdEndDebugUtilsLabelEXTFunc;
 PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXTFunc;
-PFN_vkGetPhysicalDeviceFeatures2 vkGetPhysicalDeviceFeatures2Func;
-PFN_vkGetPhysicalDeviceFeatures2KHR vkGetPhysicalDeviceFeatures2KHRFunc;
 
 VkResult vkSetDebugUtilsObjectNameEXT(VkDevice device, const VkDebugUtilsObjectNameInfoEXT* pObjectName)
 {
@@ -142,16 +140,6 @@ void vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer)
 void vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const VkDebugUtilsLabelEXT* pLabelInfo)
 {
   return vkCmdInsertDebugUtilsLabelEXTFunc(commandBuffer, pLabelInfo);
-}
-
-void vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures2* pFeatures)
-{
-  EZ_ASSERT_DEV(vkGetPhysicalDeviceFeatures2KHRFunc != nullptr || vkGetPhysicalDeviceFeatures2Func != nullptr, "");
-  if (vkGetPhysicalDeviceFeatures2KHRFunc != nullptr)
-  {
-    return vkGetPhysicalDeviceFeatures2KHRFunc(physicalDevice, pFeatures);
-  }
-  return vkGetPhysicalDeviceFeatures2Func(physicalDevice, pFeatures);
 }
 
 ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& Description)
@@ -231,8 +219,11 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
 #else
 #  error "Vulkan platform not supported"
 #endif
-  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, m_extensions.m_bDebugUtils));
+  AddExtIfSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, m_extensions.m_bDebugUtils);
   m_extensions.m_bDebugUtilsMarkers = m_extensions.m_bDebugUtils;
+
+  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalMemoryCapabilities);
+  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreCapabilities);
 
   return vk::Result::eSuccess;
 }
@@ -270,12 +261,6 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   };
 
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME, m_extensions.m_bDeviceSwapChain));
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  // On android we don't require Vulkan 1.1, so instead we require VK_KHR_maintenance1 so we have the same feature set we need.
-  bool bMaintenance = false;
-  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_MAINTENANCE1_EXTENSION_NAME, bMaintenance));
-#endif
-
   AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer);
 
   vk::PhysicalDeviceFeatures2 features;
@@ -323,6 +308,8 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
     m_extensions.m_timelineSemaphoresEXT.timelineSemaphore = true;
   }
 
+  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, m_extensions.m_bExternalMemory);
+  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME, m_extensions.m_bExternalSemaphore);
 #if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
   AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME, m_extensions.m_bExternalMemoryFd);
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreFd);
@@ -343,15 +330,12 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   const char* layers[] = {"VK_LAYER_KHRONOS_validation"};
   {
     // Create instance
-    // We either have to use Vulkan 1.1 or require VK_KHR_maintenance1 because of two features:
+    // We require Vulkan 1.1 because of three features:
     // 1. Descriptor set pools return vk::Result::eErrorOutOfPoolMemory if exhausted. Removing the requirement to count usage yourself.
     // 2. Viewport height can be negative which performs y-inversion of the clip-space to framebuffer-space transform.
+    // 3. Vulkan 1.0 is a pain to work with.
     vk::ApplicationInfo applicationInfo = {};
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-    applicationInfo.apiVersion = VK_API_VERSION_1_0;
-#else
     applicationInfo.apiVersion = VK_API_VERSION_1_1;
-#endif
     applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); // TODO put ezEngine version here
     applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);      // TODO put ezEngine version here
     applicationInfo.pApplicationName = "ezEngine";
@@ -433,7 +417,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
     // This is a workaround for broken lavapipe drivers which cannot handle label scopes that span across multiple command buffers.
     ezStringBuilder sDeviceName = ezStringUtf8(m_properties.deviceName).GetView();
-    if (sDeviceName.Compare_NoCase("LLVMPIPE"))
+    if (sDeviceName.FindSubString_NoCase("LLVMPIPE") != nullptr)
     {
       m_extensions.m_bDebugUtilsMarkers = false;
     }
@@ -512,11 +496,6 @@ ezResult ezGALDeviceVulkan::InitPlatform()
       transferQueueCreateInfo.queueCount = 1;
       transferQueueCreateInfo.queueFamilyIndex = m_transferQueue.m_uiQueueFamily;
     }
-
-    // These didn't exist in Vulkan 1.0. Some runtimes either expose the KHR extension or the Vulkan 1.1 spec version.
-    vkGetPhysicalDeviceFeatures2Func = (PFN_vkGetPhysicalDeviceFeatures2)m_instance.getProcAddr("vkGetPhysicalDeviceFeatures2");
-    vkGetPhysicalDeviceFeatures2KHRFunc = (PFN_vkGetPhysicalDeviceFeatures2KHR)m_instance.getProcAddr("vkGetPhysicalDeviceFeatures2KHR");
-    EZ_ASSERT_DEV(vkGetPhysicalDeviceFeatures2Func || vkGetPhysicalDeviceFeatures2Func, "Device does not support vkGetPhysicalDeviceFeatures2 extension");
 
     // #TODO_VULKAN test that this returns the same as 'layers' passed into the instance.
     ezUInt32 uiLayers;

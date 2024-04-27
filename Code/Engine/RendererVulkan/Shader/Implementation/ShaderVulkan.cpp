@@ -69,6 +69,12 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
     return nullptr;
   };
 
+  // If no descriptor set is needed, we still need to create an empty one to fulfil the Vulkan spec :-/
+  if (m_SetBindings.IsEmpty())
+  {
+    m_SetBindings.SetCount(1);
+  }
+
   // Sort mappings and build descriptor set layout
   ezHybridArray<DescriptorSetLayoutDesc, 4> descriptorSetLayoutDesc;
   descriptorSetLayoutDesc.SetCount(m_SetBindings.GetCount());

@@ -20,8 +20,10 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
 
   AddSubTest("01 - ReadRenderTarget", SubTests::ST_ReadRenderTarget);
-  AddSubTest("02 - VertexShaderRenderTargetArrayIndex", SubTests::ST_VertexShaderRenderTargetArrayIndex);
-
+  if (caps.m_bVertexShaderRenderTargetArrayIndex)
+  {
+    AddSubTest("02 - VertexShaderRenderTargetArrayIndex", SubTests::ST_VertexShaderRenderTargetArrayIndex);
+  }
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
   if (caps.m_bSharedTextures)
   {
@@ -103,11 +105,6 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == ST_VertexShaderRenderTargetArrayIndex)
   {
-    if (!m_pDevice->GetCapabilities().m_bVertexShaderRenderTargetArrayIndex)
-    {
-      ezTestFramework::GetInstance()->Output(ezTestOutput::Warning, "VertexShaderRenderTargetArrayIndex capability not supported, skipping test.");
-      return EZ_SUCCESS;
-    }
     // Texture2DArray
     ezGALTextureCreationDescription desc;
     desc.SetAsRenderTarget(320 / 2, 240, ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALMSAASampleCount::None);

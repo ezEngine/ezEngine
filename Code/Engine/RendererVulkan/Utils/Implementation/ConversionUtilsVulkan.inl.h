@@ -216,6 +216,11 @@ EZ_ALWAYS_INLINE bool ezConversionUtilsVulkan::IsStencilFormat(vk::Format format
   }
 }
 
+EZ_ALWAYS_INLINE vk::ImageLayout ezConversionUtilsVulkan::GetDefaultLayout(vk::Format format)
+{
+  return IsDepthFormat(format) ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal;
+}
+
 EZ_ALWAYS_INLINE vk::PrimitiveTopology ezConversionUtilsVulkan::GetPrimitiveTopology(ezEnum<ezGALPrimitiveTopology> topology)
 {
   switch (topology)

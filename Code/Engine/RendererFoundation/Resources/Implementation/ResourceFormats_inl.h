@@ -74,6 +74,44 @@ EZ_FORCE_INLINE bool ezGALResourceFormat::IsIntegerFormat(Enum format)
   }
 }
 
+EZ_FORCE_INLINE bool ezGALResourceFormat::IsSignedFormat(Enum format)
+{
+  switch (format)
+  {
+    case RGBAFloat:
+    case RGBAInt:
+    case RGBFloat:
+    case RGBInt:
+    case RGBAHalf:
+    case RGBAShort:
+    case RGBAShortNormalized:
+    case RGFloat:
+    case RGInt:
+    case RGB10A2UIntNormalized:
+    case RG11B10Float:
+    case RGBAByteNormalized:
+    case RGBAByte:
+    case RGHalf:
+    case RGShort:
+    case RGShortNormalized:
+    case RGByte:
+    case RGByteNormalized:
+    case RFloat:
+    case RInt:
+    case RHalf:
+    case RShort:
+    case RShortNormalized:
+    case RByte:
+    case RByteNormalized:
+    case BC4Normalized:
+    case BC5Normalized:
+    case BC6Float:
+      return true;
+    default:
+      return false;
+  }
+}
+
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
 ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::ezGALFormatLookupEntry()
   : m_eStorage(InvalidFormat)

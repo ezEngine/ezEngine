@@ -114,6 +114,11 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 #endif
 
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[m_uiCurrentSwapChainImage];
+
+  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  // pVulkanDevice->Submit();
+  pVulkanDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput));
+  pVulkanDevice->ReclaimLater(m_currentPipelineImageAvailableSemaphore);
 }
 
 void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
@@ -131,10 +136,9 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
   // Submit command buffer
   vk::Semaphore currentPipelineRenderFinishedSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
 
-  pVulkanDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput));
+
   pVulkanDevice->AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(currentPipelineRenderFinishedSemaphore));
   pVulkanDevice->Submit();
-  pVulkanDevice->ReclaimLater(m_currentPipelineImageAvailableSemaphore);
 
   {
     // Present image
@@ -306,7 +310,16 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
 
   vk::SwapchainCreateInfoKHR swapChainCreateInfo = {};
   swapChainCreateInfo.clipped = VK_FALSE;
-  swapChainCreateInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+  vk::CompositeAlphaFlagBitsKHR preferredCompositeMode[] = {vk::CompositeAlphaFlagBitsKHR::eOpaque, vk::CompositeAlphaFlagBitsKHR::eInherit, vk::CompositeAlphaFlagBitsKHR::ePreMultiplied, vk::CompositeAlphaFlagBitsKHR::ePostMultiplied};
+  for (auto cm : preferredCompositeMode)
+  {
+    if (surfaceCapabilities.supportedCompositeAlpha & cm)
+    {
+      swapChainCreateInfo.compositeAlpha = cm;
+      break;
+    }
+  }
+
   swapChainCreateInfo.imageArrayLayers = 1;
   swapChainCreateInfo.imageColorSpace = desiredColorSpace;
   swapChainCreateInfo.imageExtent.width = m_WindowDesc.m_pWindow->GetClientAreaSize().width;

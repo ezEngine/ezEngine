@@ -91,11 +91,7 @@ vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice
   vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
 
   VmaAllocatorCreateInfo allocatorCreateInfo = {};
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_0;
-#else
   allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_1;
-#endif
   allocatorCreateInfo.physicalDevice = physicalDevice;
   allocatorCreateInfo.device = device;
   allocatorCreateInfo.instance = instance;

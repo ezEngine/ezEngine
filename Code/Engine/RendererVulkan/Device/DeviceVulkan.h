@@ -128,6 +128,12 @@ public:
     vk::PhysicalDeviceTimelineSemaphoreFeatures m_timelineSemaphoresEXT;
     bool m_bTimelineSemaphore = false;
 
+    bool m_bExternalMemoryCapabilities = false;
+    bool m_bExternalSemaphoreCapabilities = false;
+
+    bool m_bExternalMemory = false;
+    bool m_bExternalSemaphore = false;
+
     bool m_bExternalMemoryFd = false;
     bool m_bExternalSemaphoreFd = false;
 

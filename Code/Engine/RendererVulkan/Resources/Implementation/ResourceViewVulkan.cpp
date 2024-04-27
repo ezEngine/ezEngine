@@ -62,7 +62,7 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
     viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;
 
 
-    m_resourceImageInfo.imageLayout = bIsDepth ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal;
+    m_resourceImageInfo.imageLayout = ezConversionUtilsVulkan::GetDefaultLayout(pParentTexture->GetImageFormat());
     m_resourceImageInfoArray.imageLayout = m_resourceImageInfo.imageLayout;
 
     m_range = viewCreateInfo.subresourceRange;

@@ -46,9 +46,11 @@ void ezPipelineBarrierVulkan::Flush()
     m_pCommandBuffer->pipelineBarrier(m_srcStageMask, m_dstStageMask, vk::DependencyFlags(), bHasMemoryBarrier ? 1 : 0, bHasMemoryBarrier ? &memoryBarrier : nullptr, m_bufferBarriers.GetCount(), m_bufferBarriers.IsEmpty() ? nullptr : m_bufferBarriers.GetData(), m_imageBarriers.GetCount(), m_imageBarriers.IsEmpty() ? nullptr : m_imageBarriers.GetData());
 
 #ifdef VK_LOG_LAYOUT_CHANGES
+    ezLog::Warning("Flush: [m{}] {}|{} -> {}|{}", bHasMemoryBarrier, vk::to_string(m_srcStageMask).c_str(), vk::to_string(m_srcAccess).c_str(), vk::to_string(m_dstStageMask).c_str(), vk::to_string(m_dstAccess).c_str());
+
     for (vk::ImageMemoryBarrier& img : m_imageBarriers)
     {
-      ezLog::Warning("Layout Changed {}: {} -> {}", ezArgP(img.image), vk::to_string(img.oldLayout).c_str(), vk::to_string(img.newLayout).c_str());
+      ezLog::Warning("Layout Changed: {} [{},{}]: {} [{}] -> {} [{}]", ezArgP(img.image), img.subresourceRange.baseMipLevel, img.subresourceRange.levelCount, vk::to_string(img.oldLayout).c_str(), vk::to_string(img.srcAccessMask).c_str(), vk::to_string(img.newLayout).c_str(), vk::to_string(img.dstAccessMask).c_str());
     }
 #endif
 
@@ -323,11 +325,14 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTextu
   }
   else
   {
-    vk::ImageLayout srcLayout = pTexture->GetPreferredLayout();
-    if (srcLayout == dstLayout)
+    const vk::ImageLayout srcLayout = pTexture->GetPreferredLayout();
+    if (srcLayout == dstLayout && !(s_writeAccess & dstAccess))
+    {
+      // We can early out of read-only access transitions into the current layout.
       return;
+    }
 
-    m_srcStageMask |= vk::PipelineStageFlagBits::eTopOfPipe;
+    m_srcStageMask |= pTexture->GetUsedByPipelineStage();
     m_dstStageMask |= dstStages;
 
     ImageState state;
@@ -337,7 +342,10 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTextu
       state.m_dirty.SetCount(1, true);
       state.m_subElementLayout.SetCount(1, {dstStages, dstAccess, dstLayout});
 
-      AddImageBarrierInternal(pTexture->GetImage(), subResources, srcLayout, {}, dstLayout, dstAccess, bDiscardSource);
+      if (srcLayout != dstLayout || (s_writeAccess & dstAccess))
+      {
+        AddImageBarrierInternal(pTexture->GetImage(), subResources, srcLayout, pTexture->GetAccessMask(), dstLayout, dstAccess, bDiscardSource);
+      }
     }
     else
     {
@@ -355,7 +363,10 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTextu
           state.m_subElementLayout[uiSubresourceIndex] = {dstStages, dstAccess, dstLayout};
         }
       }
-      AddImageBarrierInternal(pTexture->GetImage(), subResources, srcLayout, {}, dstLayout, dstAccess, bDiscardSource);
+      if (srcLayout != dstLayout || (s_writeAccess & dstAccess))
+      {
+        AddImageBarrierInternal(pTexture->GetImage(), subResources, srcLayout, pTexture->GetAccessMask(), dstLayout, dstAccess, bDiscardSource);
+      }
     }
     m_imageState.Insert(pTexture->GetImage(), state);
   }
@@ -421,7 +432,7 @@ bool ezPipelineBarrierVulkan::AddBufferBarrierInternal(vk::Buffer buffer, vk::De
 {
   // According to https://themaister.net/blog/2019/08/14/yet-another-blog-explaining-vulkan-synchronization/, no GPU supports VkBufferMemoryBarrier so it's best to just use a memory barrier. This is corroborated by https://github.com/doitsujin/dxvk/blob/master/src/dxvk/dxvk_barrier.cpp which also omits using VkBufferMemoryBarrier.
 
-  if ((((srcAccess | dstAccess) & s_writeAccess)) != vk::AccessFlagBits::eNone)
+  if ((((srcAccess | dstAccess) & s_writeAccess)) == vk::AccessFlagBits::eNone)
     return false;
 
   m_srcStageMask |= srcStages;
@@ -451,7 +462,7 @@ bool ezPipelineBarrierVulkan::IsDirtyInternal(const BufferState& state, const Su
 
 bool ezPipelineBarrierVulkan::AddImageBarrierInternal(vk::Image image, const vk::ImageSubresourceRange& subResources, vk::ImageLayout srcLayout, vk::AccessFlags srcAccess, vk::ImageLayout dstLayout, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
-  if (srcLayout == dstLayout && srcAccess == dstAccess)
+  if (srcLayout == dstLayout && srcAccess == dstAccess && !(s_writeAccess & srcAccess))
     return false;
 
   vk::ImageMemoryBarrier& imageBarrier = m_imageBarriers.ExpandAndGetRef();
