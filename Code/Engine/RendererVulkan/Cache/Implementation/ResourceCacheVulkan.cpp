@@ -247,17 +247,22 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPassInternal(const RenderPass
   subpass.pDepthStencilAttachment = bHasDepth ? depthAttachmentRefs.GetData() : nullptr;
 
   vk::SubpassDependency dependency;
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
   dependency.dstSubpass = 0;
+  dependency.dependencyFlags = vk::DependencyFlagBits::eByRegion;// VK_DEPENDENCY_BY_REGION_BIT;
+
+  dependency.srcAccessMask = {};
   if (bHasColor)
-    dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite;
+    dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead;
 
   if (bHasDepth)
-    dependency.dstAccessMask |= vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+    dependency.dstAccessMask |= vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead;
 
-  dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-  dependency.srcAccessMask = {};
   dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+  dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+
+
+
 
   vk::RenderPassCreateInfo renderPassCreateInfo;
   renderPassCreateInfo.attachmentCount = attachments.GetCount();

@@ -245,7 +245,7 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
 
       vk::SubpassDependency dependency;
       dependency.dstSubpass = 0;
-      dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite;
+      dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead;
 
       dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
       dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -349,7 +349,7 @@ void ezImageCopyVulkan::Copy(const ezVec3U32& sourceOffset, const vk::ImageSubre
   {
     const bool bSourceIsDepth = ezConversionUtilsVulkan::IsDepthFormat(m_pSource->GetImageFormat());
     pipelineBarrier.EnsureImageLayout(m_pSource, ezConversionUtilsVulkan::GetSubresourceRange(sourceLayers), ezConversionUtilsVulkan::GetDefaultLayout(m_pSource->GetImageFormat()), vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eShaderRead);
-    pipelineBarrier.EnsureImageLayout(m_pTarget, ezConversionUtilsVulkan::GetSubresourceRange(targetLayers), vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite);
+    pipelineBarrier.EnsureImageLayout(m_pTarget, ezConversionUtilsVulkan::GetSubresourceRange(targetLayers), vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead);
     pipelineBarrier.Flush();
   }
 

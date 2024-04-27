@@ -558,7 +558,7 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
     const bool bSourceIsDepth = ezConversionUtilsVulkan::IsDepthFormat(pVulkanTexture->GetImageFormat());
 
     m_pPipelineBarrier->EnsureImageLayout(pVulkanTexture, ezConversionUtilsVulkan::GetDefaultLayout(pVulkanTexture->GetImageFormat()), vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eShaderRead);
-    m_pPipelineBarrier->EnsureImageLayout(pStagingTexture, vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite);
+    m_pPipelineBarrier->EnsureImageLayout(pStagingTexture, vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead);
     m_pPipelineBarrier->Flush();
 
     ezImageCopyVulkan copy(m_GALDeviceVulkan);
@@ -832,7 +832,7 @@ void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALResourceV
         vk::ImageSubresourceRange otherLevels = viewRange;
         otherLevels.baseMipLevel += 1;
         otherLevels.levelCount -= 1;
-        m_pPipelineBarrier->EnsureImageLayout(pVulkanTexture, otherLevels, vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite);
+        m_pPipelineBarrier->EnsureImageLayout(pVulkanTexture, otherLevels, vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead);
       }
 
       ezImageCopyVulkan copy(m_GALDeviceVulkan);
@@ -968,7 +968,7 @@ void ezGALCommandEncoderImplVulkan::BeginRendering(const ezGALRenderingSetup& re
 
       const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(m_GALDeviceVulkan.GetRenderTargetView(renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget()));
       m_depthMask = pRenderTargetView->GetRange().aspectMask;
-      m_pPipelineBarrier->EnsureImageLayout(pRenderTargetView, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite);
+      m_pPipelineBarrier->EnsureImageLayout(pRenderTargetView, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead);
     }
     for (ezUInt32 i = 0; i < uiColorCount; i++)
     {
@@ -977,7 +977,7 @@ void ezGALCommandEncoderImplVulkan::BeginRendering(const ezGALRenderingSetup& re
       colorClear.color.setFloat32({col.r, col.g, col.b, col.a});
 
       const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(m_GALDeviceVulkan.GetRenderTargetView(renderingSetup.m_RenderTargetSetup.GetRenderTarget(i)));
-      m_pPipelineBarrier->EnsureImageLayout(pRenderTargetView, vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite);
+      m_pPipelineBarrier->EnsureImageLayout(pRenderTargetView, vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead);
     }
 
     m_renderPass.clearValueCount = m_clearValues.GetCount();
@@ -1426,7 +1426,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
             write.pImageInfo = &pUAV->GetImageInfo();
 
             const auto* pTexture = static_cast<const ezGALTextureVulkan*>(pUAV->GetResource()->GetParentResource());
-            m_pPipelineBarrier->EnsureImageLayout(pUAV, pTexture->GetPreferredLayout(vk::ImageLayout::eGeneral), ezConversionUtilsVulkan::GetPipelineStages(mapping.m_Stages), vk::AccessFlagBits::eShaderRead);
+            m_pPipelineBarrier->EnsureImageLayout(pUAV, pTexture->GetPreferredLayout(vk::ImageLayout::eGeneral), ezConversionUtilsVulkan::GetPipelineStages(mapping.m_Stages), vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite);
           }
           break;
           case ezGALShaderResourceType::TexelBufferRW:
@@ -1471,7 +1471,10 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
   {
     m_pCommandBuffer->endRenderPass();
     m_bRenderPassActive = false;
+
+    m_pPipelineBarrier->FullBarrier();
   }
+
   m_pPipelineBarrier->Flush();
 
   if (!m_bRenderPassActive && !m_bInsideCompute)
