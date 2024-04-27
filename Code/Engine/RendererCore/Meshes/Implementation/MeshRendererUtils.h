@@ -32,5 +32,6 @@ namespace ezInternal
     ref_perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;
     ref_perInstanceData.VertexColorAccessData = 0;
     ref_perInstanceData.Color = pRenderData->m_Color;
+    ref_perInstanceData.CustomData = pRenderData->m_vCustomData;
   }
 } // namespace ezInternal

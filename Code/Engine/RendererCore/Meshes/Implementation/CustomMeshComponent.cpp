@@ -333,6 +333,7 @@ void ezCustomMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
 
     instanceData[0].GameObjectID = pRenderData->m_uiUniqueID;
     instanceData[0].Color = pRenderData->m_Color;
+    instanceData[0].CustomData = pRenderData->m_CustomData;
     instanceData[0].ObjectToWorld = pRenderData->m_GlobalTransform;
 
     if (pRenderData->m_uiUniformScale)

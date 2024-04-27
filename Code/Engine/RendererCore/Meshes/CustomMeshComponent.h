@@ -102,6 +102,7 @@ public:
   ezDynamicMeshBufferResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
+  ezVec4 m_CustomData = ezVec4::MakeZero();
 
   ezUInt32 m_uiFlipWinding : 1;
   ezUInt32 m_uiUniformScale : 1;

@@ -128,6 +128,7 @@ void ezKrautRenderer::FillPerInstanceData(const ezVec3& vLodCamPos, ezArrayPtr<e
     perInstanceData.ObjectToWorldNormal = objectToWorld;
     perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;
     perInstanceData.Color = ezColor(pRenderData->m_vWindTrunk.x, pRenderData->m_vWindTrunk.y, pRenderData->m_vWindTrunk.z, pRenderData->m_vWindTrunk.GetLength());
+    perInstanceData.CustomData.SetZero(); // unused
 
     ++uiCurrentIndex;
   }

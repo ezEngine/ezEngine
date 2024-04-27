@@ -7,6 +7,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 
 struct ezMsgSetColor;
+struct ezMsgSetCustomData;
 struct ezInstanceData;
 
 class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
@@ -19,6 +20,7 @@ public:
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
+  ezVec4 m_vCustomData = ezVec4::MakeZero();
 
   ezUInt32 m_uiSubMeshIndex : 30;
   ezUInt32 m_uiFlipWinding : 1;
@@ -102,6 +104,10 @@ public:
   void SetColor(const ezColor& color); // [ property ]
   const ezColor& GetColor() const;     // [ property ]
 
+  /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
+  void SetCustomData(const ezVec4& vData); // [ property ]
+  const ezVec4& GetCustomData() const;     // [ property ]
+
   /// \brief The sorting depth offset allows to tweak the order in which this mesh is rendered relative to other meshes.
   ///
   /// This is mainly useful for transparent objects to render them before or after other meshes.
@@ -110,6 +116,7 @@ public:
 
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
+  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);     // [ msg handler ]
 
 protected:
   virtual ezMeshRenderData* CreateRenderData() const;
@@ -125,5 +132,6 @@ protected:
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
   ezColor m_Color = ezColor::White;
+  ezVec4 m_vCustomData = ezVec4::MakeZero();
   float m_fSortingDepthOffset = 0.0f;
 };

@@ -322,6 +322,13 @@ Node %InstanceData
     string %Tooltip { "Per instance color." }
   }
   
+  OutputPin %CustomData
+  {
+    string %Type { "float4" }
+    unsigned_int8 %Color { 200, 200, 200 }
+    string %Inline { "GetInstanceData().CustomData" }
+    string %Tooltip { "Per instance custom data" }
+  }
 }
 
 Node %Camera

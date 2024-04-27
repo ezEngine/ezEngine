@@ -503,6 +503,7 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
     instanceData[0].ObjectToWorldNormal = instanceData[0].ObjectToWorld;
     instanceData[0].GameObjectID = pRenderData->m_uiUniqueID;
     instanceData[0].Color = pRenderData->m_Color;
+    instanceData[0].CustomData.SetZero(); // unused
 
     pInstanceData->UpdateInstanceData(pRenderContext, 1);
 
