@@ -249,7 +249,7 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPassInternal(const RenderPass
   vk::SubpassDependency dependency;
   dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
   dependency.dstSubpass = 0;
-  dependency.dependencyFlags = vk::DependencyFlagBits::eByRegion;// VK_DEPENDENCY_BY_REGION_BIT;
+  dependency.dependencyFlags = vk::DependencyFlagBits::eByRegion; // VK_DEPENDENCY_BY_REGION_BIT;
 
   dependency.srcAccessMask = {};
   if (bHasColor)
@@ -260,7 +260,6 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPassInternal(const RenderPass
 
   dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
   dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-
 
 
 

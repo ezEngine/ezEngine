@@ -116,10 +116,9 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[m_uiCurrentSwapChainImage];
 
   auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  //pVulkanDevice->Submit();
+  // pVulkanDevice->Submit();
   pVulkanDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput));
   pVulkanDevice->ReclaimLater(m_currentPipelineImageAvailableSemaphore);
-
 }
 
 void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
@@ -158,8 +157,6 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
   }
 
   pVulkanDevice->ReclaimLater(currentPipelineRenderFinishedSemaphore);
-
-  
 }
 
 ezResult ezGALSwapChainVulkan::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
