@@ -196,6 +196,7 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_Color = m_Color;
+      pRenderData->m_vCustomData = m_vCustomData;
 
       pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiFlipWinding = uiFlipWinding;
@@ -444,6 +445,13 @@ void ezGreyBoxComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
 void ezGreyBoxComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
   ref_msg.ModifyColor(m_Color);
+
+  InvalidateCachedRenderData();
+}
+
+void ezGreyBoxComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
+{
+  m_vCustomData = ref_msg.m_vData;
 
   InvalidateCachedRenderData();
 }
