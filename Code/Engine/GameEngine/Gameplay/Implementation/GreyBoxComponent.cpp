@@ -62,6 +62,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 6, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractOccluderData, OnMsgExtractOccluderData),
     EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
   }
   EZ_END_MESSAGEHANDLERS;
 }

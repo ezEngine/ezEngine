@@ -34,6 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
   } EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE

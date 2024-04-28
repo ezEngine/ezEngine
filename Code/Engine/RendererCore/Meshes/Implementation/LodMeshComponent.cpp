@@ -45,6 +45,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLodMeshComponent, 1, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
   }
   EZ_END_MESSAGEHANDLERS;
 }
