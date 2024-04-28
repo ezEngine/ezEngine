@@ -13,6 +13,7 @@ struct EZ_SHADER_STRUCT ezPerInstanceData
 
   INT1(Reserved);
   COLOR4F(Color);
+  FLOAT4(CustomData);
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)
@@ -28,7 +29,7 @@ Buffer<uint> perInstanceVertexColors;
 
 EZ_DEFINE_AS_POD_TYPE(ezPerInstanceData);
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezPerInstanceData) == 128);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezPerInstanceData) == 144);
 #endif
 
 CONSTANT_BUFFER(ezObjectConstants, 2)

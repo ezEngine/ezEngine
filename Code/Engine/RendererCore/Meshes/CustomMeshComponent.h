@@ -76,12 +76,14 @@ public:
 
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
+  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);     // [ msg handler ]
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
+  ezVec4 m_vCustomData = ezVec4::MakeZero();
   ezUInt32 m_uiFirstPrimitive = 0;
   ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
   ezBoundingBoxSphere m_Bounds;
@@ -102,6 +104,7 @@ public:
   ezDynamicMeshBufferResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
+  ezVec4 m_vCustomData = ezVec4::MakeZero();
 
   ezUInt32 m_uiFlipWinding : 1;
   ezUInt32 m_uiUniformScale : 1;

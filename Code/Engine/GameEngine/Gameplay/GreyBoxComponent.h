@@ -17,6 +17,7 @@ struct ezMsgExtractOccluderData;
 struct ezMsgSetMeshMaterial;
 struct ezMsgSetColor;
 class ezMeshResourceDescriptor;
+struct ezMsgSetCustomData;
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
@@ -151,10 +152,12 @@ protected:
 
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
+  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);     // [ msg handler ]
 
   ezEnum<ezGreyBoxShape> m_Shape;
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
+  ezVec4 m_vCustomData = ezVec4::MakeZero();
   float m_fSizeNegX = 0;
   float m_fSizePosX = 0;
   float m_fSizeNegY = 0;

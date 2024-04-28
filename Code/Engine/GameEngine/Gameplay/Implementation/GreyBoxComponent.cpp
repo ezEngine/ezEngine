@@ -62,6 +62,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 6, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractOccluderData, OnMsgExtractOccluderData),
     EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -196,6 +197,7 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_Color = m_Color;
+      pRenderData->m_vCustomData = m_vCustomData;
 
       pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiFlipWinding = uiFlipWinding;
@@ -444,6 +446,13 @@ void ezGreyBoxComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
 void ezGreyBoxComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
   ref_msg.ModifyColor(m_Color);
+
+  InvalidateCachedRenderData();
+}
+
+void ezGreyBoxComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
+{
+  m_vCustomData = ref_msg.m_vData;
 
   InvalidateCachedRenderData();
 }

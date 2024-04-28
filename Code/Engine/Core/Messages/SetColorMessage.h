@@ -47,3 +47,13 @@ struct EZ_CORE_DLL ezMsgSetColor : public ezMessage
   virtual void Serialize(ezStreamWriter& inout_stream) const override;
   virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;
 };
+
+struct EZ_CORE_DLL ezMsgSetCustomData : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetCustomData, ezMessage);
+
+  ezVec4 m_vData;
+
+  virtual void Serialize(ezStreamWriter& inout_stream) const override;
+  virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;
+};

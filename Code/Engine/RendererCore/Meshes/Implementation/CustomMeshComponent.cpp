@@ -34,6 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
   } EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE
@@ -171,6 +172,13 @@ void ezCustomMeshComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
   InvalidateCachedRenderData();
 }
 
+void ezCustomMeshComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
+{
+  m_vCustomData = ref_msg.m_vData;
+
+  InvalidateCachedRenderData();
+}
+
 void ezCustomMeshComponent::SetUsePrimitiveRange(ezUInt32 uiFirstPrimitive /*= 0*/, ezUInt32 uiNumPrimitives /*= ezMath::MaxValue<ezUInt32>()*/)
 {
   m_uiFirstPrimitive = uiFirstPrimitive;
@@ -191,6 +199,7 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     pRenderData->m_hMesh = m_hDynamicMesh;
     pRenderData->m_hMaterial = m_hMaterial;
     pRenderData->m_Color = m_Color;
+    pRenderData->m_vCustomData = m_vCustomData;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
     pRenderData->m_uiFirstPrimitive = ezMath::Min(m_uiFirstPrimitive, pMesh->GetDescriptor().m_uiMaxPrimitives);
     pRenderData->m_uiNumPrimitives = ezMath::Min(m_uiNumPrimitives, pMesh->GetDescriptor().m_uiMaxPrimitives - pRenderData->m_uiFirstPrimitive);
@@ -333,6 +342,7 @@ void ezCustomMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
 
     instanceData[0].GameObjectID = pRenderData->m_uiUniqueID;
     instanceData[0].Color = pRenderData->m_Color;
+    instanceData[0].CustomData = pRenderData->m_vCustomData;
     instanceData[0].ObjectToWorld = pRenderData->m_GlobalTransform;
 
     if (pRenderData->m_uiUniformScale)
