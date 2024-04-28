@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{16749140966956909268}
+		u4 %Hash{16451222835697307961}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -480,7 +480,7 @@ o
 		Color %HighlightColor{f{0xBEB1423F,0xA135683E,0x04BF123D,0x0000803F}}
 		s %Name{""}
 		Vec2 %Node::Pos{f{0x8E281D44,0x4E465CC3}}
-		f %OverlayOpacity{0xCDCCCC3D}
+		f %OverlayOpacity{0}
 	}
 }
 o
