@@ -8,6 +8,10 @@ ez_create_target(LIBRARY TracyClient NO_EZ_PREFIX NO_UNITY MANUAL_SOURCE_FILES T
 
 target_compile_definitions(TracyClient PUBLIC BUILDSYSTEM_ENABLE_TRACY_SUPPORT)
 
+if (EZ_3RDPARTY_TRACY_TRACK_ALLOCATIONS)
+  target_compile_definitions(TracyClient PUBLIC TRACY_ENABLE_MEMORY_TRACKING)
+endif()
+
 set_property(TARGET TracyClient PROPERTY CXX_STANDARD 11)
 
 target_include_directories(TracyClient SYSTEM PUBLIC
