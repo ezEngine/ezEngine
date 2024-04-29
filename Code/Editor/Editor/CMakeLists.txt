@@ -33,13 +33,6 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
   )
 endif()
 
-# set all external projects as runtime dependencies of this application
-get_property(EXTERNAL_PROJECTS GLOBAL PROPERTY "EXTERNAL_PROJECTS")
-if(EXTERNAL_PROJECTS)
-  message(STATUS "External Projects: ${EXTERNAL_PROJECTS}")
-  add_dependencies(${PROJECT_NAME} ${EXTERNAL_PROJECTS})
-endif()
-
 set(EDITOR_DATA_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Tools/ezEditor")
 file(GLOB_RECURSE EDITOR_DATA "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Tools/ezEditor/*")
 

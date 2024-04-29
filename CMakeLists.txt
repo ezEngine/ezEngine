@@ -77,6 +77,15 @@ if(NOT EZ_SUBMODULE_MODE)
 	if(TARGET Editor)
 		# sets the Editor project as the default startup project in Visual Studio
 		set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT Editor)
+
+		get_property(EXTERNAL_PROJECTS GLOBAL PROPERTY "EXTERNAL_PROJECTS")
+		if(EXTERNAL_PROJECTS)
+		  message(STATUS "External Projects (ezEditor): ${EXTERNAL_PROJECTS}")
+		  add_dependencies(Editor ${EXTERNAL_PROJECTS})
+
+		  message(STATUS "External Projects (ezPlayer): ${EXTERNAL_PROJECTS}")
+		  add_dependencies(Player ${EXTERNAL_PROJECTS})
+		  endif()		
 	endif()
 endif()
 
