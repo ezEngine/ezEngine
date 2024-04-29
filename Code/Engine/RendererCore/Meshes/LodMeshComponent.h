@@ -53,6 +53,10 @@ public:
   void SetColor(const ezColor& color); // [ property ]
   const ezColor& GetColor() const;     // [ property ]
 
+  /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
+  void SetCustomData(const ezVec4& vData); // [ property ]
+  const ezVec4& GetCustomData() const;     // [ property ]
+
   /// \brief The sorting depth offset allows to tweak the order in which this mesh is rendered relative to other meshes.
   ///
   /// This is mainly useful for transparent objects to render them before or after other meshes.
@@ -79,7 +83,7 @@ protected:
   mutable ezInt32 m_iCurLod = 0;
   ezDynamicArray<ezLodMeshLod> m_Meshes;
   ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4::MakeZero();
+  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
   float m_fSortingDepthOffset = 0.0f;
   ezVec3 m_vBoundsOffset = ezVec3::MakeZero();
   float m_fBoundsRadius = 1.0f;

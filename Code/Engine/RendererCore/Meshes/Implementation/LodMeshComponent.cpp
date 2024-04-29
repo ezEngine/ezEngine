@@ -10,7 +10,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodMeshLod, ezNoBase, 1, ezRTTIDefaultAllocator<ezLodMeshLod>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodMeshLod, ezNoBase, 2, ezRTTIDefaultAllocator<ezLodMeshLod>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -26,6 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLodMeshComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
+    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
     EZ_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
     EZ_MEMBER_PROPERTY("BoundsOffset", m_vBoundsOffset),
     EZ_MEMBER_PROPERTY("BoundsRadius", m_fBoundsRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
@@ -127,6 +128,8 @@ void ezLodMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   s << m_vBoundsOffset;
   s << m_fBoundsRadius;
+
+  s << m_vCustomData;
 }
 
 void ezLodMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -152,6 +155,11 @@ void ezLodMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
   s >> m_vBoundsOffset;
   s >> m_fBoundsRadius;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_vCustomData;
+  }
 }
 
 ezResult ezLodMeshComponent::GetLocalBounds(ezBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
@@ -227,6 +235,18 @@ void ezLodMeshComponent::SetColor(const ezColor& color)
 const ezColor& ezLodMeshComponent::GetColor() const
 {
   return m_Color;
+}
+
+void ezLodMeshComponent::SetCustomData(const ezVec4& vData)
+{
+  m_vCustomData = vData;
+
+  InvalidateCachedRenderData();
+}
+
+const ezVec4& ezLodMeshComponent::GetCustomData() const
+{
+  return m_vCustomData;
 }
 
 void ezLodMeshComponent::SetSortingDepthOffset(float fOffset)
