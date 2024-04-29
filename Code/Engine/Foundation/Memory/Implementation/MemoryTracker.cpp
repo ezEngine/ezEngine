@@ -10,7 +10,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && TRACY_ENABLE
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && TRACY_ENABLE && TRACY_ENABLE_MEMORY_TRACKING
 #  include <tracy/tracy/Tracy.hpp>
 
 #  define EZ_TRACY_CALLSTACK_DEPTH 16
