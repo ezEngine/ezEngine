@@ -7,7 +7,7 @@ set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_UwpProjects
 	InspectorPlugin
 	Lua
 	mikktspace
-	stb_image
+	stb
 	Texture
 	zlib
 	zstd

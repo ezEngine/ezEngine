@@ -1,6 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_WRITE_NO_STDIO
+#define STB_RECT_PACK_IMPLEMENTATION
 
 #ifdef _MSC_VER
 #define STBI_MSC_SECURE_CRT
@@ -17,5 +18,6 @@
 
 #include "stb_image.h"
 #include "stb_image_write.h"
+#include "stb_rect_pack.h"
 
 #pragma warning(pop)

@@ -7,8 +7,8 @@
 #include <Foundation/IO/StreamUtils.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageConversion.h>
-#include <stb_image/stb_image.h>
-#include <stb_image/stb_image_write.h>
+#include <stb/stb_image.h>
+#include <stb/stb_image_write.h>
 
 // EZ_STATICLINK_FORCE
 ezStbImageFileFormats g_StbImageFormats;

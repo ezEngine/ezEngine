@@ -20,7 +20,7 @@ target_link_libraries(${PROJECT_NAME}
     Foundation
 
   PRIVATE
-    stb_image
+    stb
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_HAS_TEXTURE)
