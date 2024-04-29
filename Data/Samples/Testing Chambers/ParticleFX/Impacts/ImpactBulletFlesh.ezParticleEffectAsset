@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3750422148337051577,4755495847018279901}}
-		u4 %Hash{4549302128153688955}
+		u4 %Hash{5127573647194492386}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7083884799930403875,1064729614642923820}}
@@ -57,7 +57,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		Color %DefaultValue{f{0x0000803F,0,0,0x0000803F}}
+		Color %DefaultValue{f{0xC6EFCF3F,0,0,0x0000803F}}
 		s %Name{"Color"}
 		s %Type{""}
 	}
@@ -287,6 +287,9 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x9A99993E}
+		s %LightingMode{"ezParticleLightingMode::VertexLit"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{2}
 		u1 %NumSpritesY{2}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
@@ -308,13 +311,14 @@ o
 		f %ApplyOwnerVelocity{0}
 		VarDict %ColorParameters
 		{
-			Color %Color{f{0x0000803F,0,0,0x0000803F}}
+			Color %Color{f{0xC6EFCF3F,0,0,0x0000803F}}
 		}
 		VarArray %EventReactions
 		{
 			Uuid{u4{8866526326719596968,5739385673592075302}}
 		}
 		VarDict %FloatParameters{}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{1782989809993201572,5373384407426990531}}
@@ -386,6 +390,8 @@ o
 		u1 %CollisionLayer{0}
 		s %OnCollideEvent{"GibDecal"}
 		s %Reaction{"ezParticleRaycastHitReaction::Die"}
+		f %SizeFactor{0xCDCCCC3D}
+		f %SlideFactor{0x0000003F}
 	}
 }
 o
@@ -504,6 +510,23 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9692001477283607726,5375904088218900509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleLightingMode"}
 		u3 %TypeVersion{1}
 	}
 }

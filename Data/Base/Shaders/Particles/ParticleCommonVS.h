@@ -1,5 +1,7 @@
 #pragma once
 
+#define SHADOW_FORCE_LAST_CASCADE
+
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Particles/ParticleSystemConstants.h>
@@ -31,71 +33,69 @@ uint CalcQuadParticleVertexIndex(uint VertexID)
   return VertexID % 6;
 }
 
-float4 CalcQuadOutputPositionWithTangents(uint vertexIndex, float3 inPosition, float3 inTangentX, float3 inTangentZ, float inSize)
+struct Quad
 {
-  float4 position = float4(inPosition, 1);
+  float4 worldPosition;
+  float4 screenPosition;
+  float3 normal;
+};
 
-  float4 tangentX = float4(inTangentX, 0);
-  float4 tangentZ = float4(inTangentZ, 0);
+Quad CalcQuadOutputPositionWithTangents(uint vertexIndex, float3 inPosition, float3 inTangentX, float3 inTangentZ, float inSize)
+{
+  float3 offsetRight = inTangentX * ((QuadTexCoords[vertexIndex].x - 0.5) * inSize);
+  float3 offsetUp = inTangentZ * ((QuadTexCoords[vertexIndex].y - 0.5) * -inSize);
+  float3 offset = offsetRight + offsetUp;
 
-  float4 offsetRight = tangentX * (QuadTexCoords[vertexIndex].x - 0.5) * inSize;
-  float4 offsetUp = tangentZ * (QuadTexCoords[vertexIndex].y - 0.5) * -inSize;
+  Quad quad;
+  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition + offset, 1));
+  quad.screenPosition = mul(GetWorldToScreenMatrix(), quad.worldPosition);
 
-  float4 worldPosition = mul(ObjectToWorldMatrix, position + offsetRight + offsetUp);
-  float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
+  float3 centerNormal = normalize(cross(inTangentZ, inTangentX));
+  float3 cornerNormal = normalize(quad.worldPosition.xyz - inPosition);
+  quad.normal = normalize(lerp(centerNormal, cornerNormal, NormalCurvature));
 
-  return screenPosition;
+  return quad;
 }
 
-float4 CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, float3 inTangentX, float3 inTangentZ, float inSize)
+Quad CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, float3 inTangentX, float3 inTangentZ, float inSize)
 {
   float stretch = -inTangentZ.x;
 
-  float4 position = float4(inPosition, 1);
+  float3 axisDir = normalize(inTangentX);
+  float3 orthoDir = normalize(cross(inTangentX, GetCameraDirForwards()));
 
-  float4 axisDir = float4(normalize(inTangentX), 0);
-  float4 orthoDir = float4(normalize(cross(inTangentX, GetCameraDirForwards())), 0);
+  float3 offsetRight = orthoDir * ((QuadTexCoords[vertexIndex].x - 0.5) * inSize);
+  float3 offsetUp = axisDir * ((1.0 - QuadTexCoords[vertexIndex].y) * inSize * stretch);
+  float3 offset = offsetRight + offsetUp;
+  float3 centerNormal = cross(offsetRight, offsetUp);
 
-  float4 offsetRight = orthoDir * (QuadTexCoords[vertexIndex].x - 0.5) * inSize;
-  // float4 offsetUp = axisDir * (0.5 - (QuadTexCoords[vertexIndex].y - 0.5)) * inSize * stretch;
-  float4 offsetUp = axisDir * (1.0 - QuadTexCoords[vertexIndex].y) * inSize * stretch;
+  Quad quad;
+  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition + offset, 1));
+  quad.screenPosition = mul(GetWorldToScreenMatrix(), quad.worldPosition);
+  quad.normal = normalize(lerp(centerNormal, offset, 0.5));
 
-  float4 worldPosition = mul(ObjectToWorldMatrix, position + offsetRight + offsetUp);
-  float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
-
-  return screenPosition;
+  return quad;
 }
 
-float3x3 CreateRotationMatrixY(float radians)
+Quad CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 inPosition, float rotationOffset, float rotationSpeed, float inSize)
 {
-  float fsin = sin(radians);
-  float fcos = cos(radians);
+  float2 angles;
+  sincos(rotationOffset + rotationSpeed * TotalEffectLifeTime, angles.x, angles.y);
+  float2x2 rotation = {angles.x, -angles.y, angles.y, angles.x};
 
-  return float3x3(fcos, 0, fsin, 0, 1, 0, -fsin, 0, fcos);
-}
+  float2 quadCorners = mul(rotation, QuadTexCoords[vertexIndex] - 0.5);
 
-float4 CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 centerPosition, float rotationOffset, float rotationSpeed, float inSize)
-{
-  // float4 position = TransformToPosition(inTransform);
-  float4 position = float4(centerPosition, 1);
-  // float3x3 rotation = TransformToRotation(inTransform);
-  float3x3 rotation = CreateRotationMatrixY(rotationOffset + rotationSpeed * TotalEffectLifeTime);
+  float3 offsetRight = GetCameraDirRight() * (quadCorners.x * inSize);
+  float3 offsetUp = GetCameraDirUp() * (quadCorners.y * -inSize);
 
-  float3 offsetRight = GetCameraDirRight() * (QuadTexCoords[vertexIndex].x - 0.5) * inSize;
-  float3 offsetUp = GetCameraDirUp() * (QuadTexCoords[vertexIndex].y - 0.5) * -inSize;
+  Quad quad;
+  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition + offsetRight + offsetUp, 1));
+  quad.screenPosition = mul(GetWorldToScreenMatrix(), quad.worldPosition);
 
-  float3 offsetRightCS = mul(GetWorldToCameraMatrix(), float4(offsetRight, 0)).xzy;
-  float3 offsetUpCS = mul(GetWorldToCameraMatrix(), float4(offsetUp, 0)).xzy;
+  float3 cornerNormal = normalize(quad.worldPosition.xyz - inPosition);
+  quad.normal = normalize(lerp(-GetCameraDirForwards(), cornerNormal, NormalCurvature));
 
-  offsetRightCS = mul(rotation, offsetRightCS);
-  offsetUpCS = mul(rotation, offsetUpCS);
-
-  float4 worldPosition = mul(ObjectToWorldMatrix, position);
-  float4 cameraPosition = mul(GetWorldToCameraMatrix(), worldPosition);
-  cameraPosition.xzy = cameraPosition.xzy + offsetRightCS + offsetUpCS;
-  float4 screenPosition = mul(GetCameraToScreenMatrix(), cameraPosition);
-
-  return screenPosition;
+  return quad;
 }
 
 float4 ComputeTextureAtlasRect(uint numVarsX, uint numVarsY, float varLerp, float4 texCoordOffsetAndSize)
@@ -128,4 +128,85 @@ float2 ComputeAtlasTexCoordRandomAnimated(float2 baseTexCoord, uint numVarsX, ui
   float4 texCoordOffsetAndSize = ComputeAtlasRectRandomAnimated(numVarsX, numVarsY, varLerp, numAnimsX, numAnimsY, animLerp);
 
   return texCoordOffsetAndSize.xy + baseTexCoord * texCoordOffsetAndSize.zw;
+}
+
+float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, float3 normal)
+{
+  float2 normalizedScreenPos = (screenPosition.xy / screenPosition.w) * float2(0.5, -0.5) + 0.5;
+  float3 screenPos = float3(normalizedScreenPos * ViewportSize.xy, screenPosition.w);
+  ezPerClusterData clusterData = GetClusterData(screenPos);
+
+  float3 viewVector = normalize(GetCameraPosition() - worldPosition);
+
+  float3 totalLight = 0.0f;
+
+  uint firstItemIndex = clusterData.offset;
+  uint lastItemIndex = firstItemIndex + GET_LIGHT_INDEX(clusterData.counts);
+
+  [loop] for (uint i = firstItemIndex; i < lastItemIndex; ++i)
+  {
+    uint itemIndex = clusterItemBuffer[i];
+    uint lightIndex = GET_LIGHT_INDEX(itemIndex);
+
+    ezPerLightData lightData = perLightDataBuffer[lightIndex];
+    uint type = (lightData.colorAndType >> 24) & 0xFF;
+
+    float3 lightDir = normalize(RGB10ToFloat3(lightData.direction) * 2.0f - 1.0f);
+    float3 lightVector = lightDir;
+    float attenuation = 1.0f;
+    float distanceToLight = 1.0f;
+
+    [branch] if (type != LIGHT_TYPE_DIR)
+    {
+      lightVector = lightData.position - worldPosition;
+      float sqrDistance = dot(lightVector, lightVector);
+
+      attenuation = DistanceAttenuation(sqrDistance, lightData.invSqrAttRadius);
+
+      distanceToLight = sqrDistance * lightData.invSqrAttRadius;
+      lightVector *= rsqrt(sqrDistance);
+
+      [branch] if (type == LIGHT_TYPE_SPOT)
+      {
+        float2 spotParams = RG16FToFloat2(lightData.spotParams);
+        attenuation *= SpotAttenuation(lightVector, lightDir, spotParams);
+      }
+    }
+
+    float nDotL = dot(normal, lightVector);
+    attenuation *= saturate(lerp(1, nDotL, LightDirectionality));
+
+    [branch] if (attenuation > 0.0f)
+    {
+      float3 debugColor = 1.0f;
+      float shadowTerm = 1.0;
+      float subsurfaceShadow = 1.0;
+
+      [branch] if (lightData.shadowDataOffset != 0xFFFFFFFF)
+      {
+        uint shadowDataOffset = lightData.shadowDataOffset;
+
+        float noise = 0.0;
+        float2x2 fixedRotation = {1, 0, 0, 1};
+        float extraPenumbraScale = 4.0;
+
+        shadowTerm = CalculateShadowTerm(worldPosition, normal, lightVector, distanceToLight, type,
+          shadowDataOffset, noise, fixedRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
+      }
+
+      attenuation *= lightData.intensity;
+      float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
+
+      totalLight += lightColor * (attenuation * shadowTerm);
+    }
+  }
+
+  // normalize brdf
+  totalLight *= (1.0f / PI);
+  
+  // sky light in ambient cube basis
+  float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, normal).rgb;
+  totalLight += skyLight;
+
+  return totalLight;
 }

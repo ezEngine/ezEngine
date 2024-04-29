@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
-		u4 %Hash{13005009763726954048}
+		u4 %Hash{6773147093198644820}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12870683337904732869,2574950570201427135}}
@@ -53,7 +53,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		Color %DefaultValue{f{0xF1CADB40,0xF1CADB40,0xF1CADB40,0x0000803F}}
+		Color %DefaultValue{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		s %Name{"Color"}
 		s %Type{""}
 	}
@@ -71,7 +71,7 @@ o
 		s %ColorGradientMode{"ezParticleColorGradientMode::Age"}
 		s %Gradient{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
 		f %GradientMaxSpeed{0x0000803F}
-		Color %TintColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Color %TintColor{f{0x9C164640,0x9C164640,0x9C164640,0x0000803F}}
 	}
 }
 o
@@ -175,6 +175,9 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::VertexLit"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{2}
 		u1 %NumSpritesY{2}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
@@ -196,7 +199,7 @@ o
 		f %ApplyOwnerVelocity{0}
 		VarDict %ColorParameters
 		{
-			Color %Color{f{0xF1CADB40,0xF1CADB40,0xF1CADB40,0x0000803F}}
+			Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		}
 		VarArray %EventReactions{}
 		VarDict %FloatParameters{}
@@ -358,6 +361,23 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9692001477283607726,5375904088218900509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleLightingMode"}
 		u3 %TypeVersion{1}
 	}
 }
