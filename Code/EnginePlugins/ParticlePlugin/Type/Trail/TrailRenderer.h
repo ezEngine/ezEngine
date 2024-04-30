@@ -28,6 +28,10 @@ public:
   ezUInt8 m_uiNumFlipbookAnimationsY = 1;
   ezTexture2DResourceHandle m_hDistortionTexture;
   float m_fDistortionStrength = 0;
+
+  ezEnum<ezParticleLightingMode> m_LightingMode;
+  float m_fNormalCurvature = 0.5f;
+  float m_fLightDirectionality = 0.5f;
 };
 
 /// \brief Implements rendering of a trail particle systems

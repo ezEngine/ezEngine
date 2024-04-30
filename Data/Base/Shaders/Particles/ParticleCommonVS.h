@@ -70,7 +70,7 @@ Quad CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, 
   quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition + offsetRight + offsetUp, 1));
   quad.screenPosition = mul(GetWorldToScreenMatrix(), quad.worldPosition);
 
-  float3 centerNormal = normalize(cross(inTangentX, orthoDir));
+  float3 centerNormal = cross(axisDir, orthoDir);
   float3 cornerNormal = normalize(offsetRight);
   quad.normal = normalize(mul((float3x3)ObjectToWorldMatrix, lerp(centerNormal, cornerNormal, NormalCurvature)));
 
@@ -89,7 +89,7 @@ Quad CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 inPosition, floa
   float3 offsetUp = GetCameraDirUp() * (quadCorners.y * -inSize);
 
   Quad quad;
-  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition + offsetRight + offsetUp, 1));
+  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition, 1)) + float4(offsetRight + offsetUp, 0);
   quad.screenPosition = mul(GetWorldToScreenMatrix(), quad.worldPosition);
 
   float3 cornerNormal = normalize(quad.worldPosition.xyz - inPosition);

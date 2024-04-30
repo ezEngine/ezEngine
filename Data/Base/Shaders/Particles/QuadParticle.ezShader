@@ -106,8 +106,6 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   float3 diffuseLight = 1;
 #endif
 
-  ret.FogAmount = GetFogAmount(mul(GetScreenToWorldMatrix(), ret.Position).xyz);
-
 #if RENDER_PASS == RENDER_PASS_EDITOR
   if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_LIT_ONLY)
   {
@@ -121,6 +119,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   ret.Color0.rgb *= diffuseLight;
 #endif
 
+  ret.FogAmount = GetFogAmount(quad.worldPosition.xyz);
   return ret;
 }
 

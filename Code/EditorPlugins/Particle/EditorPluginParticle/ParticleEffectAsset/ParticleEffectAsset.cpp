@@ -76,6 +76,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     auto& props = *e.m_pPropertyStates;
 
     ezInt64 renderMode = e.m_pObject->GetTypeAccessor().GetValue("RenderMode").ConvertTo<ezInt64>();
+    ezInt64 lightingMode = e.m_pObject->GetTypeAccessor().GetValue("LightingMode").ConvertTo<ezInt64>();
     ezInt64 textureAtlas = e.m_pObject->GetTypeAccessor().GetValue("TextureAtlas").ConvertTo<ezInt64>();
 
     props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
@@ -84,11 +85,19 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
       (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
     props["NumSpritesY"].m_Visibility =
       (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["NormalCurvature"].m_Visibility = ezPropertyUiState::Invisible;
+    props["LightDirectionality"].m_Visibility = ezPropertyUiState::Invisible;
 
     if (renderMode == ezParticleTypeRenderMode::Distortion)
     {
       props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
       props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
+    }
+
+    if (lightingMode == ezParticleLightingMode::VertexLit)
+    {
+      props["NormalCurvature"].m_Visibility = ezPropertyUiState::Default;
+      props["LightDirectionality"].m_Visibility = ezPropertyUiState::Default;
     }
   }
   else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_ColorGradient>())
