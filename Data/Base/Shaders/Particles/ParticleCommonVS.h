@@ -44,13 +44,12 @@ Quad CalcQuadOutputPositionWithTangents(uint vertexIndex, float3 inPosition, flo
 {
   float3 offsetRight = inTangentX * ((QuadTexCoords[vertexIndex].x - 0.5) * inSize);
   float3 offsetUp = inTangentZ * ((QuadTexCoords[vertexIndex].y - 0.5) * -inSize);
-  float3 offset = offsetRight + offsetUp;
 
   Quad quad;
-  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition + offset, 1));
+  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition + offsetRight + offsetUp, 1));
   quad.screenPosition = mul(GetWorldToScreenMatrix(), quad.worldPosition);
 
-  float3 centerNormal = normalize(cross(inTangentZ, inTangentX));
+  float3 centerNormal = normalize(mul((float3x3)ObjectToWorldMatrix, cross(inTangentZ, inTangentX)));
   float3 cornerNormal = normalize(quad.worldPosition.xyz - inPosition);
   quad.normal = normalize(lerp(centerNormal, cornerNormal, NormalCurvature));
 
@@ -66,13 +65,14 @@ Quad CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, 
 
   float3 offsetRight = orthoDir * ((QuadTexCoords[vertexIndex].x - 0.5) * inSize);
   float3 offsetUp = axisDir * ((1.0 - QuadTexCoords[vertexIndex].y) * inSize * stretch);
-  float3 offset = offsetRight + offsetUp;
-  float3 centerNormal = cross(offsetRight, offsetUp);
 
   Quad quad;
-  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition + offset, 1));
+  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition + offsetRight + offsetUp, 1));
   quad.screenPosition = mul(GetWorldToScreenMatrix(), quad.worldPosition);
-  quad.normal = normalize(lerp(centerNormal, offset, 0.5));
+
+  float3 centerNormal = normalize(cross(inTangentX, orthoDir));
+  float3 cornerNormal = normalize(offsetRight);
+  quad.normal = normalize(mul((float3x3)ObjectToWorldMatrix, lerp(centerNormal, cornerNormal, NormalCurvature)));
 
   return quad;
 }
