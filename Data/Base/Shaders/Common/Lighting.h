@@ -249,10 +249,13 @@ float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 ligh
     {
       float4 fadeOutParams = shadowDataBuffer[GET_FADE_OUT_PARAMS_INDEX(shadowDataOffset)];
       float xyMax = max(abs(shadowPosition.x), abs(shadowPosition.y));
-      float xyFadeOut = saturate(xyMax * fadeOutParams.x + fadeOutParams.y);
-      float zFadeOut = saturate(shadowPosition.z * fadeOutParams.z + fadeOutParams.w);
+      float2 xyScaleOffset = RG16FToFloat2(asuint(fadeOutParams.x));
+      float2 zScaleOffset = RG16FToFloat2(asuint(fadeOutParams.y));
+      float xyFadeOut = saturate(xyMax * xyScaleOffset.x + xyScaleOffset.y);
+      float zFadeOut = saturate(shadowPosition.z * zScaleOffset.x + zScaleOffset.y);
+      float distanceFadeOut = saturate(viewDistance * fadeOutParams.z + fadeOutParams.w);
 
-      fadeOut = min(xyFadeOut, zFadeOut);
+      fadeOut = max(min(xyFadeOut, zFadeOut), distanceFadeOut);
     }
     else
     {
@@ -472,7 +475,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   float noise = InterleavedGradientNoise(screenPosition.xy);
   float2 randomAngle;
   sincos(noise * 2.0f * PI, randomAngle.x, randomAngle.y);
-  float2x2 randomRotation = {randomAngle.x, -randomAngle.y, randomAngle.y, randomAngle.x};
+  float2x2 randomRotation = { randomAngle.x, -randomAngle.y, randomAngle.y, randomAngle.x };
 
   uint firstItemIndex = clusterData.offset;
   uint lastItemIndex = firstItemIndex + GET_LIGHT_INDEX(clusterData.counts);
@@ -531,9 +534,9 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
       attenuation *= lightData.intensity;
       float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
 
-// debug cascade or point face selection
+      // debug cascade or point face selection
 #if 0
-        lightColor = lerp(1.0f, debugColor, 0.5f);
+      lightColor = lerp(1.0f, debugColor, 0.5f);
 #endif
 
       AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector), lightColor * (attenuation * shadowTerm), lightData.specularMultiplier);

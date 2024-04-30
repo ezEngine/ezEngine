@@ -4,8 +4,6 @@
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Math/Math.h>
-#include <Foundation/Math/Rect.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
@@ -19,8 +17,10 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
+#include <Shaders/Common/LightData.h>
+
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ShadowPool)
@@ -73,6 +73,7 @@ struct ShadowData
   float m_fConstantBias;
   float m_fFadeOutStart;
   float m_fMinRange;
+  float m_fActualRange;
   ezUInt32 m_uiPackedDataOffset; // in 16 bytes steps
 };
 
@@ -410,6 +411,7 @@ struct ezShadowPool::Data
     out_pData->m_fConstantBias = pLight->GetConstantBias() / 100.0f; // map from user friendly range to real range
     out_pData->m_fFadeOutStart = 1.0f;
     out_pData->m_fMinRange = 1.0f;
+    out_pData->m_fActualRange = 1.0f;
     out_pData->m_uiPackedDataOffset = m_uiUsedPackedShadowData;
 
     m_LightToShadowDataTable.Insert(key, m_uiUsedShadowData);
@@ -537,6 +539,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 
       ezVec3 startCorner = corner * fCascadeStart;
       ezVec3 endCorner = corner * fCascadeEnd;
+      pData->m_fActualRange = endCorner.GetLength();
 
       // Find the enclosing sphere for the frustum:
       // The sphere center must be on the view's center ray and should be equally far away from the corner points.
@@ -951,17 +954,23 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
         float fadeOutRange = 1.0f - shadowData.m_fFadeOutStart;
         float xyScale = -1.0f / fadeOutRange;
         float xyOffset = -xyScale;
+        ezUInt32 xyScaleOffset = ezShaderUtils::PackFloat16intoUint(xyScale, xyOffset);
 
         float zFadeOutRange = fadeOutRange * pLastCascadeCamera->GetFovOrDim() / pLastCascadeCamera->GetFarPlane();
         float zScale = -1.0f / zFadeOutRange;
         float zOffset = -zScale;
+        ezUInt32 zScaleOffset = ezShaderUtils::PackFloat16intoUint(zScale, zOffset);
+
+        float distanceFadeOutRange = fadeOutRange * shadowData.m_fActualRange;
+        float distanceScale = -1.0f / distanceFadeOutRange;
+        float distanceOffset = -distanceScale * shadowData.m_fActualRange;
 
         ezUInt32 uiFadeOutIndex = GET_FADE_OUT_PARAMS_INDEX(shadowData.m_uiPackedDataOffset);
         ezVec4& fadeOutParams = packedShadowData[uiFadeOutIndex];
-        fadeOutParams.x = xyScale;
-        fadeOutParams.y = xyOffset;
-        fadeOutParams.z = zScale;
-        fadeOutParams.w = zOffset;
+        fadeOutParams.x = *reinterpret_cast<float*>(&xyScaleOffset);
+        fadeOutParams.y = *reinterpret_cast<float*>(&zScaleOffset);
+        fadeOutParams.z = distanceScale;
+        fadeOutParams.w = distanceOffset;
       }
     }
     else // spot or point light
