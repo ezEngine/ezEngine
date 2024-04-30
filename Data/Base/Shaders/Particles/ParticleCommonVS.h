@@ -186,11 +186,15 @@ float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, fl
       {
         uint shadowDataOffset = lightData.shadowDataOffset;
 
+        // Zero normal effectively disables normal offset bias. Since our particles may have curved normals the
+        // normal offset bias can create weird artifacts and we don't need this bias on particles as they can't have self-shadow issues.
+        // Our usual noise also doesn't make sense with vertex lighting so we use a fixed shadow filter kernel rotation here.
+        float3 vertexNormal = float3(0, 0, 0); 
         float noise = 0.0;
         float2x2 fixedRotation = {1, 0, 0, 1};
         float extraPenumbraScale = 4.0;
 
-        shadowTerm = CalculateShadowTerm(worldPosition, normal, lightVector, distanceToLight, type,
+        shadowTerm = CalculateShadowTerm(worldPosition, vertexNormal, lightVector, distanceToLight, type,
           shadowDataOffset, noise, fixedRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
       }
 

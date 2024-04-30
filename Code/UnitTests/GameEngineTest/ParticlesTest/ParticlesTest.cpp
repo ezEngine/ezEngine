@@ -52,6 +52,8 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("DistanceEmitter", SubTests::DistanceEmitter);
   AddSubTest("SharedInstances", SubTests::SharedInstances);
   AddSubTest("LocalSpaceSim", SubTests::LocalSpaceSim);
+
+  AddSubTest("Lighting", SubTests::Lighting);
 }
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
@@ -89,6 +91,11 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
   else if (iIdentifier == SubTests::LocalSpaceSim)
   {
     m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/LocalSpaceSim.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::Lighting)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Lighting.ezObjectGraph");
     return EZ_SUCCESS;
   }
   else
