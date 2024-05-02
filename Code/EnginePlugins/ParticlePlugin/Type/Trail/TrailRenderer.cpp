@@ -89,7 +89,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     pRenderContext->BindTexture2D("ParticleTexture", pRenderData->m_hTexture);
 
     systemConstants.SetGenericData(
-      pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength);
+      pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength, pRenderData->m_fNormalCurvature, pRenderData->m_fLightDirectionality);
     systemConstants.SetTrailData(pRenderData->m_fSnapshotFraction, pRenderData->m_uiMaxTrailPoints);
 
     ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
@@ -137,6 +137,16 @@ bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* p
       break;
     case ezParticleTypeRenderMode::BlendAdd:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDADD");
+      break;
+  }
+
+  switch (pRenderData->m_LightingMode)
+  {
+    case ezParticleLightingMode::Fullbright:
+      pRenderContext->SetShaderPermutationVariable("PARTICLE_LIGHTING_MODE", "PARTICLE_LIGHTING_MODE_FULLBRIGHT");
+      break;
+    case ezParticleLightingMode::VertexLit:
+      pRenderContext->SetShaderPermutationVariable("PARTICLE_LIGHTING_MODE", "PARTICLE_LIGHTING_MODE_VERTEX_LIT");
       break;
   }
 

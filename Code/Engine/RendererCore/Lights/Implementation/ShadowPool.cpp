@@ -4,8 +4,6 @@
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Math/Math.h>
-#include <Foundation/Math/Rect.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
@@ -19,8 +17,10 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
+#include <Shaders/Common/LightData.h>
+
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ShadowPool)
@@ -44,6 +44,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_RenderingShadowsShowPoolStats("Rendering.Shadows.ShowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
+ezCVarBool cvar_RenderingShadowsVisCascadeBounds("Rendering.Shadows.VisCascadeBounds", false, ezCVarFlags::Default, "Visualizes the bounding volumes of shadow cascades");
 #endif
 
 /// NOTE: The default values for these are defined in ezCoreRenderProfileConfig
@@ -72,6 +73,7 @@ struct ShadowData
   float m_fConstantBias;
   float m_fFadeOutStart;
   float m_fMinRange;
+  float m_fActualRange;
   ezUInt32 m_uiPackedDataOffset; // in 16 bytes steps
 };
 
@@ -409,6 +411,7 @@ struct ezShadowPool::Data
     out_pData->m_fConstantBias = pLight->GetConstantBias() / 100.0f; // map from user friendly range to real range
     out_pData->m_fFadeOutStart = 1.0f;
     out_pData->m_fMinRange = 1.0f;
+    out_pData->m_fActualRange = 1.0f;
     out_pData->m_uiPackedDataOffset = m_uiUsedPackedShadowData;
 
     m_LightToShadowDataTable.Insert(key, m_uiUsedShadowData);
@@ -524,10 +527,19 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
     // Setup camera
     {
       fCascadeStart = fCascadeEnd;
+
+      // Make sure that the last cascade always covers the whole range so effects like e.g. particles can get away with
+      // sampling only the last cascade.
+      if (i == uiNumCascades - 1)
+      {
+        fCascadeStart = 0.0f;
+      }
+
       fCascadeEnd = fCascadeRanges[i];
 
       ezVec3 startCorner = corner * fCascadeStart;
       ezVec3 endCorner = corner * fCascadeEnd;
+      pData->m_fActualRange = endCorner.GetLength();
 
       // Find the enclosing sphere for the frustum:
       // The sphere center must be on the view's center ray and should be equally far away from the corner points.
@@ -548,29 +560,33 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       center.z = ezMath::Clamp(center.z, -1000000.0f, +1000000.0f);
 
       endCorner.z -= x;
-      float radius = endCorner.GetLength();
+      const float radius = endCorner.GetLength();
 
-      if (false)
-      {
-        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(center, radius), ezColor::OrangeRed);
-      }
-
-      float fCameraToCenterDistance = radius + fNearPlaneOffset;
-      ezVec3 shadowCameraPos = center - vLightDirForwards * fCameraToCenterDistance;
-      float fFarPlane = radius + fCameraToCenterDistance;
+      const float fCameraToCenterDistance = radius + fNearPlaneOffset;
+      const ezVec3 shadowCameraPos = center - vLightDirForwards * fCameraToCenterDistance;
+      const float fFarPlane = radius + fCameraToCenterDistance;
 
       ezCamera& camera = shadowView.m_Camera;
       camera.LookAt(shadowCameraPos, center, vLightDirUp);
       camera.SetCameraMode(ezCameraMode::OrthoFixedWidth, radius * 2.0f, 0.0f, fFarPlane);
 
       // stabilize
-      ezMat4 worldToLightMatrix = pView->GetViewMatrix(ezCameraEye::Left);
+      const ezMat4 worldToLightMatrix = pView->GetViewMatrix(ezCameraEye::Left);
+      const float texelInWorld = (2.0f * radius) / cvar_RenderingShadowsMaxShadowMapSize;
       ezVec3 offset = worldToLightMatrix.TransformPosition(ezVec3::MakeZero());
-      float texelInWorld = (2.0f * radius) / cvar_RenderingShadowsMaxShadowMapSize;
       offset.x -= ezMath::Floor(offset.x / texelInWorld) * texelInWorld;
       offset.y -= ezMath::Floor(offset.y / texelInWorld) * texelInWorld;
 
       camera.MoveLocally(0.0f, offset.x, offset.y);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      if (cvar_RenderingShadowsVisCascadeBounds)
+      {
+        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(center, radius), ezColorScheme::LightUI(ezColorScheme::Orange));
+
+        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, fCameraToCenterDistance), radius), ezColorScheme::LightUI(ezColorScheme::Red), ezTransform::MakeFromMat4(camera.GetViewMatrix().GetInverse()));
+      }
+#endif
     }
 
     ezRenderWorld::AddViewToRender(shadowView.m_hView);
@@ -927,7 +943,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
         ezUInt32 uiParams2Index = GET_SHADOW_PARAMS2_INDEX(shadowData.m_uiPackedDataOffset);
         ezVec4& shadowParams2 = packedShadowData[uiParams2Index];
-        shadowParams2.x = 1.0f - (ezMath::Max(penumbraSize, goodPenumbraSize) + texelSize) * 2.0f;
+        shadowParams2.x = 1.0f - ezMath::Max(penumbraSize, goodPenumbraSize);
         shadowParams2.y = ditherMultiplier;
         shadowParams2.z = ditherMultiplier * zRange;
         shadowParams2.w = penumbraSizeIncrement * relativeShadowSize;
@@ -938,17 +954,23 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
         float fadeOutRange = 1.0f - shadowData.m_fFadeOutStart;
         float xyScale = -1.0f / fadeOutRange;
         float xyOffset = -xyScale;
+        ezUInt32 xyScaleOffset = ezShaderUtils::PackFloat16intoUint(xyScale, xyOffset);
 
         float zFadeOutRange = fadeOutRange * pLastCascadeCamera->GetFovOrDim() / pLastCascadeCamera->GetFarPlane();
         float zScale = -1.0f / zFadeOutRange;
         float zOffset = -zScale;
+        ezUInt32 zScaleOffset = ezShaderUtils::PackFloat16intoUint(zScale, zOffset);
+
+        float distanceFadeOutRange = fadeOutRange * shadowData.m_fActualRange;
+        float distanceScale = -1.0f / distanceFadeOutRange;
+        float distanceOffset = -distanceScale * shadowData.m_fActualRange;
 
         ezUInt32 uiFadeOutIndex = GET_FADE_OUT_PARAMS_INDEX(shadowData.m_uiPackedDataOffset);
         ezVec4& fadeOutParams = packedShadowData[uiFadeOutIndex];
-        fadeOutParams.x = xyScale;
-        fadeOutParams.y = xyOffset;
-        fadeOutParams.z = zScale;
-        fadeOutParams.w = zOffset;
+        fadeOutParams.x = *reinterpret_cast<float*>(&xyScaleOffset);
+        fadeOutParams.y = *reinterpret_cast<float*>(&zScaleOffset);
+        fadeOutParams.z = distanceScale;
+        fadeOutParams.w = distanceOffset;
       }
     }
     else // spot or point light

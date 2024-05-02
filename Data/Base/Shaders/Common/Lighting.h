@@ -171,8 +171,11 @@ float SampleShadow(float3 shadowPosition, float2x2 randomRotation, float penumbr
 #endif
 }
 
-float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float distanceToLight, uint type,
-  uint shadowDataOffset, float noise, float2x2 randomRotation, out float subsurfaceShadow, out float3 debugColor)
+// Enable to only sample the last cascade for directional lights (which will always enclose the whole shadow range)
+// #define SHADOW_FORCE_LAST_CASCADE
+
+float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 lightVector, float distanceToLight, uint type,
+  uint shadowDataOffset, float noise, float2x2 randomRotation, float extraPenumbraScale, out float subsurfaceShadow, out float3 debugColor)
 {
   float3 debugColors[] = {
     float3(1, 0, 0),
@@ -185,10 +188,12 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
 
   float4 shadowParams = shadowDataBuffer[GET_SHADOW_PARAMS_INDEX(shadowDataOffset)];
 
+  float viewDistance = length(GetCameraPosition() - worldPosition);
+
   // normal offset bias
   float normalOffsetBias = shadowParams.x * distanceToLight;
-  float normalOffsetScale = normalOffsetBias - dot(matData.vertexNormal, lightVector) * normalOffsetBias;
-  float3 worldPosition = matData.worldPosition + matData.vertexNormal * normalOffsetScale;
+  float normalOffsetScale = normalOffsetBias - dot(vertexNormal, lightVector) * normalOffsetBias;
+  worldPosition += vertexNormal * normalOffsetScale;
 
   float constantBias = shadowParams.y;
   float penumbraSize = shadowParams.z;
@@ -206,14 +211,23 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
     shadowPosition.xyz += shadowDataBuffer[matrixIndex + 2].xyz * worldPosition.z;
     shadowPosition.w = 1.0f;
 
+    uint lastCascadeIndex = asuint(shadowParams.w);
+    float4 shadowParams2 = shadowDataBuffer[GET_SHADOW_PARAMS2_INDEX(shadowDataOffset)];
+
+#if defined(SHADOW_FORCE_LAST_CASCADE)
+    uint cascadeIndex = lastCascadeIndex;
+    float4 cascadeScale = shadowDataBuffer[GET_CASCADE_SCALE_INDEX(shadowDataOffset, cascadeIndex - 1)];
+    float4 cascadeOffset = shadowDataBuffer[GET_CASCADE_OFFSET_INDEX(shadowDataOffset, cascadeIndex - 1)];
+    shadowPosition.xyz = shadowPosition.xyz * cascadeScale.xyz + cascadeOffset.xyz;
+    float penumbraSizeScale = cascadeScale.x;
+
+#else
     float4 firstCascadePosition = shadowPosition;
     float penumbraSizeScale = 1.0f;
 
-    float4 shadowParams2 = shadowDataBuffer[GET_SHADOW_PARAMS2_INDEX(shadowDataOffset)];
     float2 threshold = float2(shadowParams2.x, 1.0f) - shadowParams2.yz * noise;
 
     uint cascadeIndex = 0;
-    uint lastCascadeIndex = asuint(shadowParams.w);
     while (cascadeIndex < lastCascadeIndex)
     {
       if (all(abs(shadowPosition.xyz) < threshold.xxy))
@@ -226,19 +240,22 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
 
       ++cascadeIndex;
     }
+#endif
 
     constantBias /= penumbraSizeScale;
-    float viewDistance = length(GetCameraPosition() - matData.worldPosition);
     penumbraSize = (penumbraSize + shadowParams2.w * viewDistance) * penumbraSizeScale;
 
     if (cascadeIndex == lastCascadeIndex)
     {
       float4 fadeOutParams = shadowDataBuffer[GET_FADE_OUT_PARAMS_INDEX(shadowDataOffset)];
       float xyMax = max(abs(shadowPosition.x), abs(shadowPosition.y));
-      float xyFadeOut = saturate(xyMax * fadeOutParams.x + fadeOutParams.y);
-      float zFadeOut = saturate(shadowPosition.z * fadeOutParams.z + fadeOutParams.w);
+      float2 xyScaleOffset = RG16FToFloat2(asuint(fadeOutParams.x));
+      float2 zScaleOffset = RG16FToFloat2(asuint(fadeOutParams.y));
+      float xyFadeOut = saturate(xyMax * xyScaleOffset.x + xyScaleOffset.y);
+      float zFadeOut = saturate(shadowPosition.z * zScaleOffset.x + zScaleOffset.y);
+      float distanceFadeOut = saturate(viewDistance * fadeOutParams.z + fadeOutParams.w);
 
-      fadeOut = min(xyFadeOut, zFadeOut);
+      fadeOut = max(min(xyFadeOut, zFadeOut), distanceFadeOut);
     }
     else
     {
@@ -275,7 +292,7 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
 
     shadowPosition.xyz /= shadowPosition.w;
 
-    float shadowTerm = SampleShadow(shadowPosition.xyz, randomRotation, penumbraSize);
+    float shadowTerm = SampleShadow(shadowPosition.xyz, randomRotation, penumbraSize * extraPenumbraScale);
 
     // fade out
     shadowTerm = lerp(1.0f, shadowTerm, fadeOut);
@@ -508,17 +525,18 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
       [branch] if (lightData.shadowDataOffset != 0xFFFFFFFF)
       {
         uint shadowDataOffset = lightData.shadowDataOffset;
+        float extraPenumbraScale = 1.0;
 
-        shadowTerm = CalculateShadowTerm(matData, lightVector, distanceToLight, type,
-          shadowDataOffset, noise, randomRotation, subsurfaceShadow, debugColor);
+        shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightVector, distanceToLight, type,
+          shadowDataOffset, noise, randomRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
       }
 
       attenuation *= lightData.intensity;
       float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
 
-// debug cascade or point face selection
+      // debug cascade or point face selection
 #if 0
-        lightColor = lerp(1.0f, debugColor, 0.5f);
+      lightColor = lerp(1.0f, debugColor, 0.5f);
 #endif
 
       AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector), lightColor * (attenuation * shadowTerm), lightData.specularMultiplier);

@@ -20,6 +20,13 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleLightingMode, 1)
+  EZ_ENUM_CONSTANT(ezParticleLightingMode::Fullbright),
+  EZ_ENUM_CONSTANT(ezParticleLightingMode::VertexLit),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezEffectInvisibleUpdateRate, 1)
   EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::FullUpdate),
   EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::Max20fps),

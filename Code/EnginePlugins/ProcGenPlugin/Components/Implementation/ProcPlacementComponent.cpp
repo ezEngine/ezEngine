@@ -129,6 +129,9 @@ void ezProcPlacementComponentManager::FindTiles(const ezWorldModule::UpdateConte
       auto& outputContexts = pComponent->m_OutputContexts;
       for (auto& outputContext : outputContexts)
       {
+        if (outputContext.IsValid() == false)
+          continue;
+
         outputContext.m_pUpdateTilesTask->AddCameraPosition(visibleComponent.m_vCameraPosition);
 
         if (outputContext.m_pUpdateTilesTask->IsTaskFinished())
@@ -166,6 +169,9 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
       auto& outputContexts = pComponent->m_OutputContexts;
       for (auto& outputContext : outputContexts)
       {
+        if (outputContext.IsValid() == false)
+          continue;
+
         auto oldTiles = outputContext.m_pUpdateTilesTask->GetOldTiles();
         for (ezUInt64 uiOldTileKey : oldTiles)
         {

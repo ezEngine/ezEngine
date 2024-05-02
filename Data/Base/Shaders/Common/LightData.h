@@ -49,10 +49,10 @@ struct EZ_SHADER_STRUCT ezSpotShadowData
 
 struct EZ_SHADER_STRUCT ezDirShadowData
 {
-  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = num cascades
+  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = last cascade index
   MAT4(worldToLightMatrix);
   FLOAT4(shadowParams2); // x = cascade border threshold, y = xy dither multiplier, z = z dither multiplier, w = penumbra size increment
-  FLOAT4(fadeOutParams); // x = xy fadeout scale, y = xy fadeout offset, z = z fadeout scale, w = z fadeout offset
+  FLOAT4(fadeOutParams); // x = xy fadeout scale offset (fp16), y = z fadeout scale offset (fp16), z = distance fadeout scale, w = distance fadeout offset
   FLOAT4(cascadeScaleOffset)[6]; // interleaved, maxNumCascades - 1 since first cascade has identity scale and offset
   FLOAT4(atlasScaleOffset)[4];
 

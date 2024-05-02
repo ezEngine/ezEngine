@@ -71,6 +71,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   float3 worldPosition = data.WorldSpacePosition;
 
   float3 cameraDir = normalize(worldPosition - GetCameraPosition());
+  if (dot(cameraDir, GetCameraDirForwards()) < 0)
+  {
+	return (VS_OUT)0;
+  }
+  
   worldPosition += cameraDir * data.DepthOffset;
 
   float4 screenPosition = mul(GetWorldToScreenMatrix(), float4(worldPosition, 1.0));
@@ -142,6 +147,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
       visibility += (screenPosition.z < depthFromZBuffer) ? 1 : 0;
     }
     fade *= (visibility / 32);
+  }
+  
+  if (fade <= 0)
+  {
+	return (VS_OUT)0;
   }
 
   float2 screenSize = scale * (data.Size / screenPosition.w);

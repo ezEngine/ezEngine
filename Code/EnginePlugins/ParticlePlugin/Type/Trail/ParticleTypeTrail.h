@@ -29,6 +29,9 @@ public:
   ezString m_sTintColorParameter;
   ezString m_sDistortionTexture;
   float m_fDistortionStrength = 0;
+  ezEnum<ezParticleLightingMode> m_LightingMode;
+  float m_fNormalCurvature = 0.5f;
+  float m_fLightDirectionality = 0.5f;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrail final : public ezParticleType
@@ -49,6 +52,9 @@ public:
   ezTempHashedString m_sTintColorParameter;
   ezTexture2DResourceHandle m_hDistortionTexture;
   float m_fDistortionStrength = 0;
+  ezEnum<ezParticleLightingMode> m_LightingMode;
+  float m_fNormalCurvature = 0.5f;
+  float m_fLightDirectionality = 0.5f;
 
   virtual void CreateRequiredStreams() override;
   virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;

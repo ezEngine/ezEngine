@@ -174,6 +174,8 @@ private:
     ezHashTable<ezUInt64, TileIndexAndAge> m_TileIndices;
 
     ezSharedPtr<ezProcGenInternal::FindPlacementTilesTask> m_pUpdateTilesTask;
+
+    bool IsValid() const { return m_pOutput != nullptr && m_pUpdateTilesTask != nullptr; }
   };
 
   ezDynamicArray<OutputContext> m_OutputContexts;

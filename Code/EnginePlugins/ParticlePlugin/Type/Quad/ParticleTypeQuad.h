@@ -54,6 +54,9 @@ public:
   ezString m_sDistortionTexture;
   float m_fDistortionStrength = 0;
   float m_fStretch = 1;
+  ezEnum<ezParticleLightingMode> m_LightingMode;
+  float m_fNormalCurvature = 0.5f;
+  float m_fLightDirectionality = 0.5f;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuad final : public ezParticleType
@@ -77,6 +80,9 @@ public:
   ezTexture2DResourceHandle m_hDistortionTexture;
   float m_fDistortionStrength = 0;
   float m_fStretch = 1;
+  ezEnum<ezParticleLightingMode> m_LightingMode;
+  float m_fNormalCurvature = 0.5f;
+  float m_fLightDirectionality = 0.5f;
 
   virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
 

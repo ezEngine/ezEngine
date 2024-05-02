@@ -24,4 +24,10 @@ CONSTANT_BUFFER(ezParticleSystemConstants, 2)
 
   // use this instead of world clock for determinism
   FLOAT1(TotalEffectLifeTime);
+
+  // lighting params
+  FLOAT1(NormalCurvature);
+  FLOAT1(LightDirectionality);
+
+  INT2(ParticlePadding);
 };

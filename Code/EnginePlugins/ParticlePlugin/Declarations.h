@@ -93,6 +93,22 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTypeRenderMode);
 
 //////////////////////////////////////////////////////////////////////////
 
+struct EZ_PARTICLEPLUGIN_DLL ezParticleLightingMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Fullbright,
+    VertexLit,
+    Default = Fullbright
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleLightingMode);
+
+//////////////////////////////////////////////////////////////////////////
+
 /// \brief What to do when an effect is not visible.
 struct EZ_PARTICLEPLUGIN_DLL ezEffectInvisibleUpdateRate
 {

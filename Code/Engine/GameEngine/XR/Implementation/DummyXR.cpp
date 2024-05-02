@@ -105,9 +105,6 @@ ezUniquePtr<ezActor> ezDummyXR::CreateActor(ezView* pView, ezGALMSAASampleCount:
   pActor->AddPlugin(std::move(pActorPlugin));
 
   m_hView = pView->GetHandle();
-  m_pWorld = pView->GetWorld();
-  EZ_ASSERT_DEV(m_pWorld != nullptr, "");
-
 
   ezGALRenderTargets renderTargets;
   renderTargets.m_hRTs[0] = m_hColorRT;
@@ -130,7 +127,6 @@ void ezDummyXR::OnActorDestroyed()
     return;
 
   m_pCompanion = nullptr;
-  m_pWorld = nullptr;
   m_pCameraToSynchronize = nullptr;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -181,7 +177,11 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
       if (ezWorld* pWorld0 = pView0->GetWorld())
       {
         EZ_LOCK(pWorld0->GetWriteMarker());
-        ezCameraComponent* pCameraComponent = pWorld0->GetComponentManager<ezCameraComponentManager>()->GetCameraByUsageHint(ezCameraUsageHint::MainView);
+        ezCameraComponentManager* pCameraComponentManager = pWorld0->GetComponentManager<ezCameraComponentManager>();
+        if (!pCameraComponentManager)
+          return;
+
+        ezCameraComponent* pCameraComponent = pCameraComponentManager->GetCameraByUsageHint(ezCameraUsageHint::MainView);
         if (!pCameraComponent)
           return;
 

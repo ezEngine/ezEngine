@@ -13,6 +13,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllo
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezParticleTypeRenderMode, m_RenderMode),
+    EZ_ENUM_MEMBER_PROPERTY("LightingMode", ezParticleLightingMode, m_LightingMode),
+    EZ_MEMBER_PROPERTY("NormalCurvature", m_fNormalCurvature)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0, 1)),
+    EZ_MEMBER_PROPERTY("LightDirectionality", m_fLightDirectionality)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0, 1)),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezDefaultValueAttribute(ezStringView("{ e00262e8-58f5-42f5-880d-569257047201 }"))),// wrap in ezStringView to prevent a memory leak report
     EZ_MEMBER_PROPERTY("Segments", m_uiMaxPoints)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 64)),
     EZ_ENUM_MEMBER_PROPERTY("TextureAtlas", ezParticleTextureAtlasType, m_TextureAtlasType),
@@ -48,6 +51,9 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, boo
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
   pType->m_hDistortionTexture.Invalidate();
   pType->m_fDistortionStrength = m_fDistortionStrength;
+  pType->m_LightingMode = m_LightingMode;
+  pType->m_fNormalCurvature = m_fNormalCurvature;
+  pType->m_fLightDirectionality = m_fLightDirectionality;
 
   // fixed 25 FPS for the update rate
   pType->m_UpdateDiff = ezTime::MakeFromSeconds(1.0 / 25.0); // m_UpdateDiff;
@@ -80,6 +86,7 @@ enum class TypeTrailVersion
   Version_3, // added texture atlas support
   Version_4, // added tint color
   Version_5, // added distortion mode
+  Version_6, // added particle lighting
 
   // insert new version numbers above
   Version_Count,
@@ -107,6 +114,11 @@ void ezParticleTypeTrailFactory::Save(ezStreamWriter& inout_stream) const
   // version 5
   inout_stream << m_sDistortionTexture;
   inout_stream << m_fDistortionStrength;
+
+  // Version 6
+  inout_stream << m_LightingMode;
+  inout_stream << m_fNormalCurvature;
+  inout_stream << m_fLightDirectionality;
 }
 
 void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream)
@@ -147,6 +159,13 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> m_sDistortionTexture;
     inout_stream >> m_fDistortionStrength;
+  }
+
+  if (uiVersion >= 6)
+  {
+    inout_stream >> m_LightingMode;
+    inout_stream >> m_fNormalCurvature;
+    inout_stream >> m_fLightDirectionality;
   }
 }
 
@@ -261,6 +280,9 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
   pRenderData->m_fSnapshotFraction = m_fSnapshotFraction;
   pRenderData->m_hDistortionTexture = m_hDistortionTexture;
   pRenderData->m_fDistortionStrength = m_fDistortionStrength;
+  pRenderData->m_LightingMode = m_LightingMode;
+  pRenderData->m_fNormalCurvature = m_fNormalCurvature;
+  pRenderData->m_fLightDirectionality = m_fLightDirectionality;
 
   pRenderData->m_uiNumVariationsX = 1;
   pRenderData->m_uiNumVariationsY = 1;
