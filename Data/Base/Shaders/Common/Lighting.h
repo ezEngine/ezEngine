@@ -475,7 +475,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   float noise = InterleavedGradientNoise(screenPosition.xy);
   float2 randomAngle;
   sincos(noise * 2.0f * PI, randomAngle.x, randomAngle.y);
-  float2x2 randomRotation = { randomAngle.x, -randomAngle.y, randomAngle.y, randomAngle.x };
+  float2x2 randomRotation = {randomAngle.x, -randomAngle.y, randomAngle.y, randomAngle.x};
 
   uint firstItemIndex = clusterData.offset;
   uint lastItemIndex = firstItemIndex + GET_LIGHT_INDEX(clusterData.counts);
