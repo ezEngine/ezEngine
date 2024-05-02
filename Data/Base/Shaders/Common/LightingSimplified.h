@@ -41,8 +41,6 @@ float3 SampleSceneColor(float2 screenPosition)
 
 AccumulatedLight CalculateLightingSimplified(ezMaterialData matData)
 {
-  float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
-
   AccumulatedLight totalLight = InitializeLight(0.0f, 0.0f);
 
   float occlusion = matData.occlusion;

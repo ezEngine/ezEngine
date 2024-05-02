@@ -132,13 +132,14 @@ float2 ComputeAtlasTexCoordRandomAnimated(float2 baseTexCoord, uint numVarsX, ui
 
 float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, float3 normal)
 {
+  float3 totalLight = 0.0f;
+
+#if SHADING_QUALITY == SHADING_QUALITY_NORMAL
   float2 normalizedScreenPos = (screenPosition.xy / screenPosition.w) * float2(0.5, -0.5) + 0.5;
   float3 screenPos = float3(normalizedScreenPos * ViewportSize.xy, screenPosition.w);
   ezPerClusterData clusterData = GetClusterData(screenPos);
 
   float3 viewVector = normalize(GetCameraPosition() - worldPosition);
-
-  float3 totalLight = 0.0f;
 
   uint firstItemIndex = clusterData.offset;
   uint lastItemIndex = firstItemIndex + GET_LIGHT_INDEX(clusterData.counts);
@@ -207,6 +208,7 @@ float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, fl
 
   // normalize brdf
   totalLight *= (1.0f / PI);
+#endif
 
   // sky light in ambient cube basis
   float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, normal).rgb;
