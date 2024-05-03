@@ -20,7 +20,7 @@ public:
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4::MakeZero();
+  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
 
   ezUInt32 m_uiSubMeshIndex : 30;
   ezUInt32 m_uiFlipWinding : 1;
@@ -132,6 +132,6 @@ protected:
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
   ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4::MakeZero();
+  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
   float m_fSortingDepthOffset = 0.0f;
 };

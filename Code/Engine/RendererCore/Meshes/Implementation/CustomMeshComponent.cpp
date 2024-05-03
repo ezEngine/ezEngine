@@ -16,7 +16,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -26,6 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
+    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
     EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
   }
   EZ_END_PROPERTIES;
@@ -56,6 +57,8 @@ void ezCustomMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 
   s << m_Color;
   s << m_hMaterial;
+
+  s << m_vCustomData;
 }
 
 void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -72,6 +75,11 @@ void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
     ezUInt32 uiCategory = 0;
     s >> uiCategory;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_vCustomData;
   }
 }
 
@@ -158,6 +166,18 @@ void ezCustomMeshComponent::SetColor(const ezColor& color)
 const ezColor& ezCustomMeshComponent::GetColor() const
 {
   return m_Color;
+}
+
+void ezCustomMeshComponent::SetCustomData(const ezVec4& vData)
+{
+  m_vCustomData = vData;
+
+  InvalidateCachedRenderData();
+}
+
+const ezVec4& ezCustomMeshComponent::GetCustomData() const
+{
+  return m_vCustomData;
 }
 
 void ezCustomMeshComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)

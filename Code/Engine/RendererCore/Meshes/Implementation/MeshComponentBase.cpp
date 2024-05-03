@@ -74,7 +74,7 @@ void ezMeshRenderData::FillBatchIdAndSortingKey()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 3)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 4)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -112,6 +112,7 @@ void ezMeshComponentBase::SerializeComponent(ezWorldWriter& inout_stream) const
 
   s << m_Color;
   s << m_fSortingDepthOffset;
+  s << m_vCustomData;
 }
 
 void ezMeshComponentBase::DeserializeComponent(ezWorldReader& inout_stream)
@@ -144,6 +145,11 @@ void ezMeshComponentBase::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 3)
   {
     s >> m_fSortingDepthOffset;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_vCustomData;
   }
 }
 
@@ -277,6 +283,8 @@ const ezColor& ezMeshComponentBase::GetColor() const
 void ezMeshComponentBase::SetCustomData(const ezVec4& vData)
 {
   m_vCustomData = vData;
+
+  InvalidateCachedRenderData();
 }
 
 const ezVec4& ezMeshComponentBase::GetCustomData() const

@@ -83,6 +83,14 @@ public:
   void SetShape(ezEnum<ezGreyBoxShape> shape);                // [ property ]
   ezEnum<ezGreyBoxShape> GetShape() const { return m_Shape; } // [ property ]
 
+  /// \brief An additional tint color passed to the renderer to modify the mesh.
+  void SetColor(const ezColor& color); // [ property ]
+  const ezColor& GetColor() const;     // [ property ]
+
+  /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
+  void SetCustomData(const ezVec4& vData); // [ property ]
+  const ezVec4& GetCustomData() const;     // [ property ]
+
   /// \brief The ezMaterialResource file to use.
   void SetMaterialFile(const char* szFile); // [ property ]
   const char* GetMaterialFile() const;      // [ property ]
@@ -157,7 +165,7 @@ protected:
   ezEnum<ezGreyBoxShape> m_Shape;
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4::MakeZero();
+  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
   float m_fSizeNegX = 0;
   float m_fSizePosX = 0;
   float m_fSizeNegY = 0;

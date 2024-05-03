@@ -72,7 +72,11 @@ public:
   void SetColor(const ezColor& color); // [ property ]
 
   /// \brief Returns the mesh instance color.
-  const ezColor& GetColor() const;                          // [ property ]
+  const ezColor& GetColor() const; // [ property ]
+
+  /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
+  void SetCustomData(const ezVec4& vData);                  // [ property ]
+  const ezVec4& GetCustomData() const;                      // [ property ]
 
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
@@ -83,7 +87,7 @@ protected:
 
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4::MakeZero();
+  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
   ezUInt32 m_uiFirstPrimitive = 0;
   ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
   ezBoundingBoxSphere m_Bounds;
@@ -104,7 +108,7 @@ public:
   ezDynamicMeshBufferResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4::MakeZero();
+  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
 
   ezUInt32 m_uiFlipWinding : 1;
   ezUInt32 m_uiUniformScale : 1;

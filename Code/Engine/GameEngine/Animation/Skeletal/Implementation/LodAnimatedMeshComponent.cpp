@@ -16,7 +16,7 @@
 #include <ozz/base/span.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodAnimatedMeshLod, ezNoBase, 1, ezRTTIDefaultAllocator<ezLodAnimatedMeshLod>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodAnimatedMeshLod, ezNoBase, 2, ezRTTIDefaultAllocator<ezLodAnimatedMeshLod>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -32,6 +32,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLodAnimatedMeshComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
+    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
     EZ_ACCESSOR_PROPERTY("SortingDepthOffset", GetSortingDepthOffset, SetSortingDepthOffset),
     EZ_MEMBER_PROPERTY("BoundsOffset", m_vBoundsOffset),
     EZ_MEMBER_PROPERTY("BoundsRadius", m_fBoundsRadius)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
@@ -135,6 +136,8 @@ void ezLodAnimatedMeshComponent::SerializeComponent(ezWorldWriter& inout_stream)
 
   s << m_vBoundsOffset;
   s << m_fBoundsRadius;
+
+  s << m_vCustomData;
 }
 
 void ezLodAnimatedMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -160,6 +163,11 @@ void ezLodAnimatedMeshComponent::DeserializeComponent(ezWorldReader& inout_strea
 
   s >> m_vBoundsOffset;
   s >> m_fBoundsRadius;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_vCustomData;
+  }
 }
 
 ezResult ezLodAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& out_bounds, bool& out_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
@@ -268,6 +276,18 @@ const ezColor& ezLodAnimatedMeshComponent::GetColor() const
   return m_Color;
 }
 
+void ezLodAnimatedMeshComponent::SetCustomData(const ezVec4& vData)
+{
+  m_vCustomData = vData;
+
+  InvalidateCachedRenderData();
+}
+
+const ezVec4& ezLodAnimatedMeshComponent::GetCustomData() const
+{
+  return m_vCustomData;
+}
+
 void ezLodAnimatedMeshComponent::SetSortingDepthOffset(float fOffset)
 {
   m_fSortingDepthOffset = fOffset;
@@ -292,6 +312,37 @@ void ezLodAnimatedMeshComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
   m_vCustomData = ref_msg.m_vData;
 
   InvalidateCachedRenderData();
+}
+
+void ezLodAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton)
+{
+  out_modelTransforms.Clear();
+
+  if (m_Meshes.IsEmpty())
+    return;
+
+  auto hMesh = m_Meshes[0].m_hMesh;
+
+  if (!hMesh.IsValid())
+    return;
+
+  out_rootTransform = m_RootTransform;
+
+  ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::BlockTillLoaded);
+
+  const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
+
+  out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
+
+  for (auto itBone : bones)
+  {
+    const ezUInt16 uiJointIdx = skeleton.FindJointByName(itBone.Key());
+
+    if (uiJointIdx == ezInvalidJointIndex)
+      continue;
+
+    out_modelTransforms[uiJointIdx] = m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseRestPoseMatrix.GetInverse();
+  }
 }
 
 ezMeshRenderData* ezLodAnimatedMeshComponent::CreateRenderData() const
