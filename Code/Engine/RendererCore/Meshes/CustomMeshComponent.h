@@ -78,7 +78,7 @@ public:
   void SetCustomData(const ezVec4& vData);                  // [ property ]
   const ezVec4& GetCustomData() const;                      // [ property ]
 
-    void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
+  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
   void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);     // [ msg handler ]
 
