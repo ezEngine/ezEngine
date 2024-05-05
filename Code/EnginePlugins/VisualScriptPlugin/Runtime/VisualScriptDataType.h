@@ -41,6 +41,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
     Count,
 
     EnumValue,
+    BitflagValue,
 
     ExtendedCount,
 

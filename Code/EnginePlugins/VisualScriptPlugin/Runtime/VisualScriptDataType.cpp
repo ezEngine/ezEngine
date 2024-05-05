@@ -140,6 +140,7 @@ namespace
     "Coroutine",
     "", // Count,
     "Enum",
+    "Bitflag",
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeNames) == (size_t)ezVisualScriptDataType::ExtendedCount);
 } // namespace
@@ -257,6 +258,7 @@ const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
     ezGetStaticRTTI<ezScriptCoroutineHandle>(), // Coroutine,
     nullptr,                                    // Count,
     nullptr,                                    // EnumValue,
+    nullptr,                                    // BitflagValue,
   };
   static_assert(EZ_ARRAY_SIZE(s_Rttis) == (size_t)ezVisualScriptDataType::ExtendedCount);
 
@@ -285,6 +287,9 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromRtti(const ezRTTI* pRtt
 
   if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::IsEnum))
     return EnumValue;
+
+  if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Bitflags))
+    return BitflagValue;
 
   if (pRtti == ezGetStaticRTTI<ezVariant>())
     return Variant;
@@ -331,8 +336,8 @@ bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataTy
       targetDataType == Variant)
     return true;
 
-  if ((IsNumber(sourceDataType) || sourceDataType == EnumValue) &&
-      (IsNumber(targetDataType) || targetDataType == EnumValue))
+  if ((IsNumber(sourceDataType) || (sourceDataType == EnumValue || sourceDataType == BitflagValue)) &&
+      (IsNumber(targetDataType) || (targetDataType == EnumValue || targetDataType == BitflagValue)))
     return true;
 
   return false;

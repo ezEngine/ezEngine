@@ -51,7 +51,9 @@ ezStringView ezVisualScriptPin::GetDataTypeName() const
     return ezVisualScriptDataType::GetName(GetScriptDataType());
   }
 
-  if ((resolvedDataType == ezVisualScriptDataType::TypedPointer || resolvedDataType == ezVisualScriptDataType::EnumValue) && GetDataType() != nullptr)
+  if ((resolvedDataType == ezVisualScriptDataType::TypedPointer ||
+        resolvedDataType == ezVisualScriptDataType::EnumValue || resolvedDataType == ezVisualScriptDataType::BitflagValue) &&
+      GetDataType() != nullptr)
   {
     return GetDataType()->GetTypeName();
   }
@@ -77,6 +79,10 @@ bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bU
 
   if (sourceScriptDataType == ezVisualScriptDataType::EnumValue && pSourceDataType != nullptr &&
       targetScriptDataType == ezVisualScriptDataType::EnumValue && pTargetDataType != nullptr)
+    return pSourceDataType == pTargetDataType;
+
+  if (sourceScriptDataType == ezVisualScriptDataType::BitflagValue && pSourceDataType != nullptr &&
+      targetScriptDataType == ezVisualScriptDataType::BitflagValue && pTargetDataType != nullptr)
     return pSourceDataType == pTargetDataType;
 
   if (sourceScriptDataType == ezVisualScriptDataType::Any ||

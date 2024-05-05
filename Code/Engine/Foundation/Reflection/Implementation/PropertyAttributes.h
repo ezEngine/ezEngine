@@ -998,7 +998,7 @@ class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribu
 
   ezScriptableFunctionAttribute(ArgType argType1 = In, const char* szArg1 = nullptr, ArgType argType2 = In, const char* szArg2 = nullptr,
     ArgType argType3 = In, const char* szArg3 = nullptr, ArgType argType4 = In, const char* szArg4 = nullptr, ArgType argType5 = In,
-    const char* szArg5 = nullptr, ArgType argType6 = In, const char* szArg6 = nullptr);
+    const char* szArg5 = nullptr, ArgType argType6 = In, const char* szArg6 = nullptr, ArgType argType7 = In, const char* szArg7 = nullptr);
 
   ezUInt32 GetArgumentCount() const { return m_ArgNames.GetCount(); }
   const char* GetArgumentName(ezUInt32 uiIndex) const { return m_ArgNames[uiIndex]; }

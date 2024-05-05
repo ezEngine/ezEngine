@@ -87,6 +87,20 @@ public:
   }
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+  /// \brief Helper class to expose physics to scripting
+class EZ_CORE_DLL ezScriptExtensionClass_Physics
+{
+public:
+  /// \brief The result object is allocated with the frame allocator and thus must be processed within the same frame.
+  static ezPhysicsCastResult* Raycast(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, ezUInt32 uiIgnoreObjectFilterID);
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptExtensionClass_Physics);
+
 /// \brief Used to apply a physical impulse on the object
 struct EZ_CORE_DLL ezMsgPhysicsAddImpulse : public ezMessage
 {
@@ -139,8 +153,6 @@ struct EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
 };
 
 //////////////////////////////////////////////////////////////////////////
-
-#include <Foundation/Communication/Message.h>
 
 struct EZ_CORE_DLL ezSmcTriangle
 {
