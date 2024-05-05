@@ -280,11 +280,16 @@ struct ezGALDeviceEvent
     AfterBeginFrame,
     BeforeEndFrame,
     AfterEndFrame,
+    BeforeBeginPipeline,
+    AfterBeginPipeline,
+    BeforeEndPipeline,
+    AfterEndPipeline,
     // could add resource creation/destruction events, if this would be useful
   };
 
   Type m_Type;
-  class ezGALDevice* m_pDevice;
+  class ezGALDevice* m_pDevice = nullptr;
+  ezGALSwapChainHandle m_hSwapChain;
 };
 
 // Opaque platform specific handle

@@ -3,6 +3,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Foundation/Basics/Platform/Android/AndroidJni.h>
 #  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#  include <Foundation/Threading/Thread.h>
 #  include <android_native_app_glue.h>
 
 thread_local JNIEnv* ezJniAttachment::s_env;
@@ -23,8 +24,17 @@ ezJniAttachment::ezJniAttachment()
     bool ownsEnv = (envStatus != JNI_OK);
     if (ownsEnv)
     {
+      const char* szThreadName = "EZ JNI";
+      if (const ezThread* pThread = ezThread::GetCurrentThread())
+      {
+        szThreadName = pThread->GetThreadName();
+      }
+      else if (ezThreadUtils::IsMainThread())
+      {
+        szThreadName = "EZ Main Thread";
+      }
       // Assign name to attachment since ART complains about it not being set.
-      JavaVMAttachArgs args = {JNI_VERSION_1_6, "EZ JNI", nullptr};
+      JavaVMAttachArgs args = {JNI_VERSION_1_6, szThreadName, nullptr};
       ezAndroidUtils::GetAndroidJavaVM()->AttachCurrentThread(&env, &args);
     }
     else

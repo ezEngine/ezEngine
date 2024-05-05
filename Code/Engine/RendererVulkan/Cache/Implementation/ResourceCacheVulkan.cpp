@@ -23,7 +23,7 @@ ezMap<const ezRefCounted*, ezHybridArray<ezResourceCacheVulkan::ComputePipelineM
 
 ezHashTable<ezGALShaderVulkan::DescriptorSetLayoutDesc, vk::DescriptorSetLayout, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_descriptorSetLayouts;
 
-#define EZ_LOG_VULKAN_RESOURCES
+// #define EZ_LOG_VULKAN_RESOURCES
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt32) == sizeof(ezGALRenderTargetViewHandle));
 namespace

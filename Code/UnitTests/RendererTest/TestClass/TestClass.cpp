@@ -138,6 +138,10 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     {
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_LLVMPIPE");
     }
+    else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("SwiftShader"))
+    {
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_SwiftShader");
+    }
     else
     {
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");

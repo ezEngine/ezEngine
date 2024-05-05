@@ -6,11 +6,11 @@
 
 thread_local ezTaskWorkerInfo tl_TaskWorkerInfo;
 
-static const char* GenerateThreadName(ezWorkerThreadType::Enum threadType, ezUInt32 uiThreadNumber)
+static ezString GenerateThreadName(ezWorkerThreadType::Enum threadType, ezUInt32 uiThreadNumber)
 {
-  static ezStringBuilder sTemp;
+  ezStringBuilder sTemp;
   sTemp.SetFormat("{} {}", ezWorkerThreadType::GetThreadTypeName(threadType), uiThreadNumber);
-  return sTemp.GetData();
+  return sTemp;
 }
 
 ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum threadType, ezUInt32 uiThreadNumber)

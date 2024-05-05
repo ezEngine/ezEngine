@@ -39,6 +39,9 @@ struct ezThreadEvent
 class EZ_FOUNDATION_DLL ezThread : public ezOSThread
 {
 public:
+  /// \brief Returns the current ezThread if the current platform thread is an ezThread. Returns nullptr otherwise.
+  static const ezThread* GetCurrentThread();
+
   /// \brief Describes the thread status
   enum ezThreadStatus
   {
@@ -48,7 +51,7 @@ public:
   };
 
   /// \brief Initializes the runnable class
-  ezThread(const char* szName = "ezThread", ezUInt32 uiStackSize = 128 * 1024);
+  ezThread(ezStringView sName = "ezThread", ezUInt32 uiStackSize = 128 * 1024);
 
   /// \brief Destructor checks if the thread is deleted while still running, which is not allowed as this is a data hazard
   virtual ~ezThread();
