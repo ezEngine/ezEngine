@@ -403,11 +403,11 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
         VkLayerSettingsCreateInfoEXT layer_settings_create_info = {
           VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT, nullptr, EZ_ARRAY_SIZE(settings), settings};
-        
+
         {
           layer_settings_create_info.pNext = instanceCreateInfo.pNext;
           instanceCreateInfo.pNext = &layer_settings_create_info;
-        } 
+        }
       }
     }
 
