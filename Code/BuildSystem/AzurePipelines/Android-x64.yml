@@ -1,0 +1,155 @@
+# Variable 'task.MSBuild.status' was defined in the Variables tab
+trigger:
+  branches:
+    include:
+    - dev
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: dev
+jobs:
+- job: Job_1
+  displayName: Android-x64
+  timeoutInMinutes: 180
+  pool:
+    name: Default
+    demands:
+    - Agent.OS -equals Windows_NT
+    - EMULATOR
+  steps:
+  - checkout: self
+    submodules: true
+    lfs: true
+    clean: false
+
+  - task: PowerShell@2
+    displayName: Check force clean
+    inputs:
+      targetType: inline
+      script: |
+        $pathA = Join-Path $(System.DefaultWorkingDirectory) "gitClean.txt"
+        $pathB = Join-Path $(System.DefaultWorkingDirectory) "gitCleanCopy.txt"
+        $clean = -not (Test-Path $pathB) -or (compare-object (get-content $pathA) (get-content $pathB))
+        if ($clean)
+        {
+            Write-Host "Cleaning repo!"
+            git clean -dfx
+            Copy-Item -Path $pathA -Destination $pathB
+        }
+
+  - task: AzureKeyVault@1
+    displayName: 'Azure Key Vault: ezKeys'
+    inputs:
+      ConnectedServiceName: a416236e-0672-4024-bca3-853beb235e5e
+      KeyVaultName: ezKeys
+      SecretsFilter: AzureBlobPW
+
+  - task: CMake@1
+    displayName: CMake vs2022x64
+    inputs:
+      cwd: $(System.DefaultWorkingDirectory)
+      cmakeArgs: --preset vs2022x64
+
+  - task: CMake@1
+    displayName: CMake build vs2022x64
+    inputs:
+      cwd: $(System.DefaultWorkingDirectory)/Workspace/vs2022x64
+      cmakeArgs: --build . --target ShaderCompiler --config dev
+
+  - task: CmdLine@2
+    displayName: Compile Shaders
+    inputs:
+      script: |
+        cd $(System.DefaultWorkingDirectory)/Output/Bin/WinVs2022Dev64
+        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Base -shader Shaders/Pipeline
+        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/UnitTests -shader RendererTest/Shaders
+        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Samples/ShaderExplorer -shader Shaders
+
+  - task: CMake@1
+    displayName: CMake android-x64-dev
+    inputs:
+      cwd: $(System.DefaultWorkingDirectory)
+      cmakeArgs: --preset android-x64-dev
+
+  - task: CmdLine@2
+    displayName: Build
+    inputs:
+      script: |
+        cd $(System.DefaultWorkingDirectory)/Workspace/android-x64-dev
+        ninja
+
+  - task: PowerShell@2
+    displayName: Install Emulator
+    inputs:
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidEmulator.ps1
+      arguments: "-installEmulator"
+
+  - task: PowerShell@2
+    displayName: Start Emulator
+    inputs:
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidEmulator.ps1
+      arguments: "-startEmulator"
+
+  - task: PowerShell@2
+    displayName: Check Ready for Testing
+    inputs:
+      targetType: inline
+      script: Write-Host "##vso[task.setvariable variable=task.MSBuild.status]success"
+
+  - task: PowerShell@2
+    displayName: FoundationTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
+      arguments: "-deviceAdb emulator-5555 -packageName com.ezengine.FoundationTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/FoundationTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDev64/FoundationTest.apk"
+
+  - task: PowerShell@2
+    displayName: CoreTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
+      arguments: "-deviceAdb emulator-5555 -packageName com.ezengine.CoreTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/CoreTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDev64/CoreTest.apk"
+
+  - task: PowerShell@2
+    displayName: RendererTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
+      arguments: "-deviceAdb emulator-5555 -packageName com.ezengine.RendererTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/RendererTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDev64/RendererTest.apk"
+
+  - task: PowerShell@2
+    displayName: ToolsFoundationTest
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
+      arguments: "-deviceAdb emulator-5555 -packageName com.ezengine.ToolsFoundationTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/ToolsFoundationTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDev64/ToolsFoundationTest.apk"
+
+  - task: PowerShell@2
+    displayName: Stop Emulator
+    condition: always()
+    inputs:
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidEmulator.ps1
+      arguments: "-stopEmulator"
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: TestResults'
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)/Test
+      ArtifactName: TestResults
+...

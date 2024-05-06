@@ -67,7 +67,7 @@ void ezPipelineBarrierVulkan::Flush()
     {
       it.Value().m_dirty.ClearAllBits();
     }
-    // FullBarrier();
+    FullBarrier();
   }
 }
 

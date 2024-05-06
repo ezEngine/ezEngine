@@ -19,3 +19,6 @@ set_property(GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_URL "https://github.com/ezEngin
 set_property(GLOBAL PROPERTY EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION "1.3.275.0")
 set_property(GLOBAL PROPERTY EZ_CONFIG_VULKAN_SDK_LINUXX64_URL "https://sdk.lunarg.com/sdk/download/1.3.275.0/linux/vulkansdk-linux-x86_64-1.3.275.0.tar.xz")
 
+# Android validation layers version 1.3.275.0 are broken, so a different version is used compared to the SDK.
+set_property(GLOBAL PROPERTY EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION "1.3.280.0")
+set_property(GLOBAL PROPERTY EZ_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL "https://github.com/KhronosGroup/Vulkan-ValidationLayers/releases/download/vulkan-sdk-1.3.280.0/android-binaries-1.3.280.0.tar.gz")

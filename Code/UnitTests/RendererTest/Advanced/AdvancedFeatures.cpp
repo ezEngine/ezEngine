@@ -73,7 +73,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
   {
     // Texture2D as compute RW target. Note that SRGB and depth formats are not supported by most graphics cards for this purpose.
     ezEnum<ezGALResourceFormat> textureFormat;
-    ezGALResourceFormat::Enum formats[] = {ezGALResourceFormat::BGRAUByteNormalized, ezGALResourceFormat::RGBAUByteNormalized};
+    ezGALResourceFormat::Enum formats[] = {ezGALResourceFormat::RGBAFloat, ezGALResourceFormat::BGRAUByteNormalized, ezGALResourceFormat::RGBAUByteNormalized};
     for (auto format : formats)
     {
       if (m_pDevice->GetCapabilities().m_FormatSupport[format].IsSet(ezGALResourceFormatSupport::TextureRW))

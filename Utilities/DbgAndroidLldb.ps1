@@ -8,96 +8,8 @@ param(
 	[switch]$StartLogcat
 )
 
-# Find ADB and JDB
-$adb = "$env:ANDROID_HOME/platform-tools/adb"
-if ($IsWindows) {
-	$adb = "$adb.exe"
-}
-if (-not (Test-Path $adb)) {
-	RaiseError "Failed to find adb executable in $adb. Please ensure that the ANDROID_HOME environment variable is correctly set"
-}
-$adb = Resolve-Path $adb
-
-$jdb = "$env:JAVA_HOME/bin/jdb"
-if ($IsWindows) {
-	$jdb = "$jdb.exe"
-}
-if (-not (Test-Path $jdb)) {
-	RaiseError "Failed to find jdb executable in $jdb. Please ensure that the JAVA_HOME environment variable is correctly set."
-}
-$jdb = Resolve-Path $jdb
-
-$ErrorActionPreference = "Stop"
-if ($MessageBoxOnError -and $IsWindows) {
-	[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
-}
-
-function RaiseError {
-	param(
-		[string]$msg
-	)
-	if ($MessageBoxOnError -and $IsWindows) {
-		[System.Windows.Forms.MessageBox]::Show($msg)
-	}
-	else {
-		Write-Host $msg -foreground red
-	}
-	exit 1
-}
-
-function Adb-Shell {
-	param(
-		[string]$cmd,
-		[string]$failureMsg = ("Error executing adb shell command: {0}" -f $cmd)
-	)
-	if ($PrintCmds) {
-		Write-Host "Executing: adb shell" $cmd
-	}
-	try {
-		$($result = (& $adb shell $cmd *>&1)) | Out-Null
-	}
-	catch {
-		$callstack = Get-PSCallStack
-		$callstack = $callstack[1..$callstack.Length] | % { $res = "" } { $res += $_.toString() + "`n" } { $res }
-		RaiseError ("{0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f $failureMsg, ($result | Out-String), $callstack)
-	}
-	if ($lastexitcode -ne 0) {
-		$callstack = Get-PSCallStack
-		$callstack = $callstack[1..$callstack.Length] | % { $res = "" } { $res += $_.toString() + "`n" } { $res }
-		RaiseError ("{0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f $failureMsg, ($result | Out-String), $callstack)		
-	}
-	return $result
-}
-
-function Adb-Cmd {
-	param(
-		[Parameter(
-			Mandatory = $True,
-			ValueFromRemainingArguments = $true,
-			Position = 0
-		)][string[]]
-		$cmds
-	)
-	if ($PrintCmds) {
-		Write-Host "Executing: adb" $cmds
-	}
-	
-	$result = ""
-	$errorAction = $ErrorActionPreference
-	try {
-		$ErrorActionPreference = "Continue"
-		$result = (& $adb $cmds *>&1)
-	}
-	finally {
-		$ErrorActionPreference = $errorAction
-	}
-	if ($lastexitcode -ne 0) {
-		$callstack = Get-PSCallStack
-		$callstack = $callstack[1..$callstack.Length] | % { $res = "" } { $res += $_.toString() + "`n" } { $res }
-		RaiseError ("Failed to execute adb {0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f ($cmds -join " "), ($result -join "`n"), $callstack)	
-	}
-	return $result -join "`n"
-}
+# Import Android utils
+. "$PSScriptRoot/Android/AndroidUtils.ps1"
 
 # Find arch
 $arch = Adb-Shell "getprop ro.product.cpu.abi"
@@ -166,13 +78,15 @@ if (-not $userIsRoot) {
 }
 
 # Check if the lldb-server is still running from a previous session
-$lldbServerInfo = (Adb-Shell "pidof lldb-server")
-$lldbServerPids = $lldbServerInfo.Split(" ")
-if ($lldbServerPids) {
-	foreach ($lldbServerPid in $lldbServerPids) {
-		# Ignore results as there might be multiple instances running from other packages.
-		adb shell run-as $packageName kill $lldbServerPid
-	}	
+$lldbServerInfo = & $adb shell pidof lldb-server
+if ($null -ne $lldbServerInfo) {
+	$lldbServerPids = $lldbServerInfo.Split(" ")
+	if ($lldbServerPids) {
+		foreach ($lldbServerPid in $lldbServerPids) {
+			# Ignore results as there might be multiple instances running from other packages.
+			& $adb shell run-as $packageName kill $lldbServerPid
+		}	
+	}
 }
 
 # Tell the java application to wait for an java debugger
@@ -236,7 +150,7 @@ Adb-Shell "cat ${TEMP_DIR}/lldb-server | run-as ${packageName} sh -c 'cat > ${LL
 Adb-Shell "cat ${TEMP_DIR}/start_lldb_server.sh | run-as ${packageName} sh -c 'cat > ${LLDB_DIR}/bin/start_lldb_server.sh && chmod 700 ${LLDB_DIR}/bin/start_lldb_server.sh'"
 
 # Start lldbserver
-adb shell "run-as ${packageName} ${LLDB_DIR}/bin/start_lldb_server.sh ${LLDB_DIR} unix-abstract /${packageName} debug.socket `"lldb process:gdb-remote packets`"" &
+& $adb shell "run-as ${packageName} ${LLDB_DIR}/bin/start_lldb_server.sh ${LLDB_DIR} unix-abstract /${packageName} debug.socket `"lldb process:gdb-remote packets`"" &
 
 # Generate lldb config
 $lldbConfig = "platform select remote-android`n"

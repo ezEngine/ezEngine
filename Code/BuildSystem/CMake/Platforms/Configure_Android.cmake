@@ -103,6 +103,19 @@ macro(ez_platformhook_find_vulkan)
 		message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
 	endif()
 
+	set(EZ_VULKAN_VALIDATIONLAYERS_DIR "" CACHE PATH "Directory of the Vulkan Validation Layers")
+
+	# Download prebuilt VkLayer_khronos_validation for Android
+	if((EZ_VULKAN_VALIDATIONLAYERS_DIR STREQUAL "EZ_VULKAN_VALIDATIONLAYERS_DIR-NOTFOUND") OR (EZ_VULKAN_VALIDATIONLAYERS_DIR STREQUAL ""))
+		ez_download_and_extract("${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL}" "${CMAKE_BINARY_DIR}/vulkan-sdk" "vulkan-layers-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}")
+		set(EZ_VULKAN_VALIDATIONLAYERS_DIR "${CMAKE_BINARY_DIR}/vulkan-sdk/android-binaries-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}" CACHE PATH "Directory of the Vulkan Validation Layers" FORCE)
+
+		find_path(EZ_VULKAN_VALIDATIONLAYERS_DIR arm64-v8a/libVkLayer_khronos_validation.so
+			PATHS
+			${EZ_VULKAN_VALIDATIONLAYERS_DIR}
+		)
+	endif()
+
 	include(FindPackageHandleStandardArgs)
 	find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_VULKAN_DIR)
 

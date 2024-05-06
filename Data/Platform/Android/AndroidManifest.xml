@@ -5,9 +5,9 @@
           android:versionCode="1"
           android:versionName="1.0">
 
-  <!-- 26 Introduces Vulkan 1.0 (optional), 29 requires Vulkan 1.1 -->
+  <!-- 26 Introduces Vulkan 1.0, 29 requires Vulkan 1.1 -->
   <uses-sdk
-	android:minSdkVersion="26"
+	android:minSdkVersion="29"
 	android:targetSdkVersion="29" />
   <!-- Permissions -->
   <uses-permission android:name="android.permission.INTERNET" />

@@ -122,17 +122,17 @@ private:
                                                   vk::AccessFlagBits::eInputAttachmentRead | vk::AccessFlagBits::eShaderRead |
                                                   vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentRead |
                                                   vk::AccessFlagBits::eTransferRead | vk::AccessFlagBits::eHostRead |
-                                                  vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eTransformFeedbackCounterReadEXT |
-                                                  vk::AccessFlagBits::eConditionalRenderingReadEXT | vk::AccessFlagBits::eColorAttachmentReadNoncoherentEXT |
-                                                  vk::AccessFlagBits::eAccelerationStructureReadKHR | vk::AccessFlagBits::eFragmentDensityMapReadEXT |
-                                                  vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR | vk::AccessFlagBits::eCommandPreprocessReadNV |
-                                                  vk::AccessFlagBits::eAccelerationStructureReadKHR | vk::AccessFlagBits::eFragmentDensityMapReadEXT |
-                                                  vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR | vk::AccessFlagBits::eCommandPreprocessReadNV;
+                                                  vk::AccessFlagBits::eMemoryRead | // vk::AccessFlagBits::eTransformFeedbackCounterReadEXT |
+                                                  /* vk::AccessFlagBits::eConditionalRenderingReadEXT |*/ vk::AccessFlagBits::eColorAttachmentReadNoncoherentEXT |
+                                                  // vk::AccessFlagBits::eAccelerationStructureReadKHR | vk::AccessFlagBits::eFragmentDensityMapReadEXT |
+                                                  vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR | // vk::AccessFlagBits::eCommandPreprocessReadNV |
+                                                  // vk::AccessFlagBits::eAccelerationStructureReadKHR | vk::AccessFlagBits::eFragmentDensityMapReadEXT |
+                                                  vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR /*| vk::AccessFlagBits::eCommandPreprocessReadNV*/;
   static constexpr vk::AccessFlags s_writeAccess = vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite |
                                                    vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eTransferWrite |
-                                                   vk::AccessFlagBits::eHostWrite | vk::AccessFlagBits::eMemoryWrite |
-                                                   vk::AccessFlagBits::eTransformFeedbackWriteEXT | vk::AccessFlagBits::eTransformFeedbackCounterWriteEXT |
-                                                   vk::AccessFlagBits::eAccelerationStructureWriteKHR | vk::AccessFlagBits::eCommandPreprocessWriteNV;
+                                                   vk::AccessFlagBits::eHostWrite | vk::AccessFlagBits::eMemoryWrite
+    // vk::AccessFlagBits::eTransformFeedbackWriteEXT | vk::AccessFlagBits::eTransformFeedbackCounterWriteEXT |
+    /*vk::AccessFlagBits::eAccelerationStructureWriteKHR | vk::AccessFlagBits::eCommandPreprocessWriteNV*/;
 
   vk::CommandBuffer* m_pCommandBuffer = nullptr;
 

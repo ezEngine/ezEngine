@@ -172,26 +172,66 @@ ezResult ezGALDevice::Shutdown()
 
 void ezGALDevice::BeginPipeline(const char* szName, ezGALSwapChainHandle hSwapChain)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
+  {
+    EZ_PROFILE_SCOPE("BeforeBeginPipeline");
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::BeforeBeginPipeline;
+    e.m_hSwapChain = hSwapChain;
+    s_Events.Broadcast(e, 1);
+  }
 
-  EZ_ASSERT_DEV(!m_bBeginPipelineCalled, "Nested Pipelines are not allowed: You must call ezGALDevice::EndPipeline before you can call ezGALDevice::BeginPipeline again");
-  m_bBeginPipelineCalled = true;
+  {
+    EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  ezGALSwapChain* pSwapChain = nullptr;
-  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
-  BeginPipelinePlatform(szName, pSwapChain);
+    EZ_ASSERT_DEV(!m_bBeginPipelineCalled, "Nested Pipelines are not allowed: You must call ezGALDevice::EndPipeline before you can call ezGALDevice::BeginPipeline again");
+    m_bBeginPipelineCalled = true;
+
+    ezGALSwapChain* pSwapChain = nullptr;
+    m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
+    BeginPipelinePlatform(szName, pSwapChain);
+  }
+
+  {
+    EZ_PROFILE_SCOPE("AfterBeginPipeline");
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::AfterBeginPipeline;
+    e.m_hSwapChain = hSwapChain;
+    s_Events.Broadcast(e, 1);
+  }
 }
 
 void ezGALDevice::EndPipeline(ezGALSwapChainHandle hSwapChain)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
+  {
+    EZ_PROFILE_SCOPE("BeforeBeginPipeline");
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::BeforeEndPipeline;
+    e.m_hSwapChain = hSwapChain;
+    s_Events.Broadcast(e, 1);
+  }
 
-  EZ_ASSERT_DEV(m_bBeginPipelineCalled, "You must have called ezGALDevice::BeginPipeline before you can call ezGALDevice::EndPipeline");
-  m_bBeginPipelineCalled = false;
+  {
+    EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  ezGALSwapChain* pSwapChain = nullptr;
-  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
-  EndPipelinePlatform(pSwapChain);
+    EZ_ASSERT_DEV(m_bBeginPipelineCalled, "You must have called ezGALDevice::BeginPipeline before you can call ezGALDevice::EndPipeline");
+    m_bBeginPipelineCalled = false;
+
+    ezGALSwapChain* pSwapChain = nullptr;
+    m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
+    EndPipelinePlatform(pSwapChain);
+  }
+
+  {
+    EZ_PROFILE_SCOPE("AfterBeginPipeline");
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::AfterEndPipeline;
+    e.m_hSwapChain = hSwapChain;
+    s_Events.Broadcast(e, 1);
+  }
 }
 
 ezGALPass* ezGALDevice::BeginPass(const char* szName)

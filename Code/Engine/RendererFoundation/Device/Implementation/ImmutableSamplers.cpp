@@ -63,10 +63,7 @@ void ezGALImmutableSamplers::GALDeviceEventHandler(const ezGALDeviceEvent& e)
     case ezGALDeviceEvent::BeforeShutdown:
       DestroySamplers(e.m_pDevice);
       break;
-    case ezGALDeviceEvent::BeforeBeginFrame:
-    case ezGALDeviceEvent::AfterBeginFrame:
-    case ezGALDeviceEvent::BeforeEndFrame:
-    case ezGALDeviceEvent::AfterEndFrame:
+    default:
       break;
   }
 }
