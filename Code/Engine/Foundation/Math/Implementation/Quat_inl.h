@@ -128,6 +128,12 @@ EZ_FORCE_INLINE Type ezQuatTemplate<Type>::Dot(const ezQuatTemplate& rhs) const
 }
 
 template <typename Type>
+EZ_ALWAYS_INLINE ezVec3Template<Type> ezQuatTemplate<Type>::Rotate(const ezVec3Template<Type>& v) const
+{
+  return *this * v;
+}
+
+template <typename Type>
 EZ_ALWAYS_INLINE const ezVec3Template<Type> operator*(const ezQuatTemplate<Type>& q, const ezVec3Template<Type>& v)
 {
   ezVec3Template<Type> t = q.GetVectorPart().CrossRH(v) * (Type)2;

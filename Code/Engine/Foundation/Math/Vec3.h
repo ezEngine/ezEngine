@@ -32,8 +32,7 @@ public:
 
   /// \brief Returns a vector with all components set to Not-a-Number (NaN).
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static ezVec3Template<Type>
-  MakeNaN() { return ezVec3Template<Type>(ezMath::NaN<Type>()); }
+  [[nodiscard]] static ezVec3Template<Type> MakeNaN() { return ezVec3Template<Type>(ezMath::NaN<Type>()); }
 
   /// \brief Returns a vector with all components set to zero.
   [[nodiscard]] static ezVec3Template<Type> MakeZero() { return ezVec3Template<Type>(0); } // [tested]
@@ -46,6 +45,9 @@ public:
 
   /// \brief Returns a vector initialized to the Z unit vector (0, 0, 1).
   [[nodiscard]] static ezVec3Template<Type> MakeAxisZ() { return ezVec3Template<Type>(0, 0, 1); } // [tested]
+
+  /// \brief Returns a vector initialized to x,y,z
+  [[nodiscard]] static ezVec3Template<Type> Make(Type x, Type y, Type z) { return ezVec3Template<Type>(x, y, z); } // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
