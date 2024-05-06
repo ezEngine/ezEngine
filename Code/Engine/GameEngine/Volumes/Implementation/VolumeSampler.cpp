@@ -17,10 +17,10 @@ void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue
   {
     // Reach 90% of target value after interpolation duration:
     // Lerp factor for exponential moving average:
-    // y = 1-(1-f)^t
+    // y = 1-f^t
     // solve for f with y = 0.9:
-    // f = 1 - 10^(-1 / t)
-    value.m_fInterpolationFactor = 1.0 - ezMath::Pow(10.0, -1.0 / interpolationDuration.GetSeconds());
+    // f = 10^(-1 / t)
+    value.m_fInterpolationFactor = ezMath::Pow(10.0, -1.0 / interpolationDuration.GetSeconds());
   }
   else
   {
@@ -141,7 +141,7 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
 
     if (value.m_fInterpolationFactor > 0.0)
     {
-      double f = 1.0 - ezMath::Pow(1.0 - value.m_fInterpolationFactor, deltaTime.GetSeconds());
+      double f = 1.0 - ezMath::Pow(value.m_fInterpolationFactor, deltaTime.GetSeconds());
       value.m_CurrentValue = ezMath::Lerp(value.m_CurrentValue, value.m_TargetValue, f);
     }
     else
