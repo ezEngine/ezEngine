@@ -238,9 +238,7 @@ namespace
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = uiStructSize;
       desc.m_uiTotalSize = DEBUG_BUFFER_SIZE;
-      desc.m_BufferType = ezGALBufferType::Generic;
-      desc.m_bUseAsStructuredBuffer = true;
-      desc.m_bAllowShaderResourceView = true;
+      desc.m_BufferFlags = ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       s_hDataBuffer[bufferType] = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
@@ -254,7 +252,7 @@ namespace
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = uiVertexSize;
       desc.m_uiTotalSize = DEBUG_BUFFER_SIZE;
-      desc.m_BufferType = ezGALBufferType::VertexBuffer;
+      desc.m_BufferFlags = ezGALBufferFlags::VertexBuffer;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       s_hDataBuffer[bufferType] = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);

@@ -24,6 +24,7 @@ public:
 
   ezResult Init();
   ezResult Shutdown();
+  ezStringView GetRenderer();
 
   // Pipeline & Pass functions
 
@@ -253,6 +254,7 @@ protected:
 
   virtual ezResult InitPlatform() = 0;
   virtual ezResult ShutdownPlatform() = 0;
+  virtual ezStringView GetRendererPlatform() = 0;
 
   // Pipeline & Pass functions
 

@@ -238,7 +238,7 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
 
   ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferDX11*>(pDestination)->GetDXBuffer();
 
-  if (pDestination->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer)
+  if (pDestination->GetDescription().m_BufferFlags.IsSet(ezGALBufferFlags::ConstantBuffer))
   {
     EZ_ASSERT_DEV(uiDestOffset == 0 && sourceData.GetCount() == pDestination->GetSize(),
       "Constant buffers can't be updated partially (and we don't check for DX11.1)!");

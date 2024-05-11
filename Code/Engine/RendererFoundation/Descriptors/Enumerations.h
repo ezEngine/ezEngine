@@ -164,22 +164,40 @@ struct ezGALVertexAttributeSemantic
 
 /// \brief General type of buffer.
 /// \sa ezGALBufferCreationDescription
-struct ezGALBufferType
+struct ezGALBufferFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = ezUInt16;
 
   enum Enum
   {
-    Generic = 0,
-    VertexBuffer,
-    IndexBuffer,
-    ConstantBuffer,
+    VertexBuffer = EZ_BIT(0), // Can be used as a vertex buffer.
+    IndexBuffer = EZ_BIT(1), // Can be used as an index buffer.
+    ConstantBuffer = EZ_BIT(2), // Can be used as a constant buffer.
+    TexelBuffer = EZ_BIT(3), // Can be used as a texel buffer.
+    StructuredBuffer = EZ_BIT(4),  // ezGALShaderResourceType::StructuredBuffer
+    ByteAddressBuffer = EZ_BIT(5), // ezGALShaderResourceType::ByteAddressBuffer (RAW)
 
-    ENUM_COUNT,
+    ShaderResource = EZ_BIT(6), // Can be used for ezGALShaderResourceCategory::SRV
+    UnorderedAccess = EZ_BIT(7), // Can be used for ezGALShaderResourceCategory::UAV
+    DrawIndirect = EZ_BIT(8),
 
-    Default = Generic
+    Default = 0
+  };
+
+  struct Bits
+  {
+    StorageType VertexBuffer : 1;
+    StorageType IndexBuffer : 1;
+    StorageType ConstantBuffer : 1;
+    StorageType TexelBuffer : 1;
+    StorageType StructuredBuffer : 1;
+    StorageType ByteAddressBuffer : 1;
+    StorageType ShaderResource : 1;
+    StorageType UnorderedAccess : 1;
+    StorageType DrawIndirect : 1;
   };
 };
+EZ_DECLARE_FLAGS_OPERATORS(ezGALBufferFlags);
 
 /// \brief Type of GPU->CPU query.
 /// \sa ezGALQueryCreationDescription

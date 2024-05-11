@@ -170,6 +170,11 @@ ezResult ezGALDevice::Shutdown()
   return ShutdownPlatform();
 }
 
+ezStringView ezGALDevice::GetRenderer()
+{
+  return GetRendererPlatform();
+}
+
 void ezGALDevice::BeginPipeline(const char* szName, ezGALSwapChainHandle hSwapChain)
 {
   {
@@ -588,16 +593,19 @@ ezGALBufferHandle ezGALDevice::FinalizeBufferInternal(const ezGALBufferCreationD
     ezGALBufferHandle hBuffer(m_Buffers.Insert(pBuffer));
 
     // Create default resource view
-    if (desc.m_bAllowShaderResourceView && desc.m_BufferType == ezGALBufferType::Generic)
+    if (desc.m_BufferFlags.IsSet(ezGALBufferFlags::ShaderResource))
     {
-      ezGALResourceViewCreationDescription viewDesc;
-      viewDesc.m_hBuffer = hBuffer;
-      viewDesc.m_uiFirstElement = 0;
-      viewDesc.m_uiNumElements = (desc.m_uiStructSize != 0) ? (desc.m_uiTotalSize / desc.m_uiStructSize) : desc.m_uiTotalSize;
+      // #TODO_VULKAN TexelBuffer requires a format, should we store it in the buffer desc?
+      if (desc.m_BufferFlags.IsAnySet(ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ByteAddressBuffer))
+      {
+        ezGALResourceViewCreationDescription viewDesc;
+        viewDesc.m_hBuffer = hBuffer;
+        viewDesc.m_uiFirstElement = 0;
+        viewDesc.m_uiNumElements = (desc.m_uiStructSize != 0) ? (desc.m_uiTotalSize / desc.m_uiStructSize) : desc.m_uiTotalSize;
 
-      pBuffer->m_hDefaultResourceView = CreateResourceView(viewDesc);
+        pBuffer->m_hDefaultResourceView = CreateResourceView(viewDesc);
+      }
     }
-
     return hBuffer;
   }
 
@@ -626,7 +634,7 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = uiVertexSize;
   desc.m_uiTotalSize = uiVertexSize * ezMath::Max(1u, uiVertexCount);
-  desc.m_BufferType = ezGALBufferType::VertexBuffer;
+  desc.m_BufferFlags = ezGALBufferFlags::VertexBuffer;
   desc.m_ResourceAccess.m_bImmutable = !initialData.IsEmpty() && !bDataIsMutable;
 
   return CreateBuffer(desc, initialData);
@@ -637,7 +645,7 @@ ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum indexType,
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(indexType);
   desc.m_uiTotalSize = desc.m_uiStructSize * ezMath::Max(1u, uiIndexCount);
-  desc.m_BufferType = ezGALBufferType::IndexBuffer;
+  desc.m_BufferFlags = ezGALBufferFlags::IndexBuffer;
   desc.m_ResourceAccess.m_bImmutable = !bDataIsMutable && !initialData.IsEmpty();
 
   return CreateBuffer(desc, initialData);
@@ -648,7 +656,7 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = 0;
   desc.m_uiTotalSize = uiBufferSize;
-  desc.m_BufferType = ezGALBufferType::ConstantBuffer;
+  desc.m_BufferFlags = ezGALBufferFlags::ConstantBuffer;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   return CreateBuffer(desc);
@@ -1069,7 +1077,7 @@ ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGA
         return ezGALUnorderedAccessViewHandle();
       }
 
-      if (!pBuffer->GetDescription().m_bAllowRawViews && desc.m_bRawView)
+      if (!pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferFlags::ByteAddressBuffer) && desc.m_bRawView)
       {
         ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
         return ezGALUnorderedAccessViewHandle();

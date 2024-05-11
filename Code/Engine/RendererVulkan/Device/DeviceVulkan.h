@@ -293,6 +293,7 @@ protected:
   vk::Result SelectInstanceExtensions(ezHybridArray<const char*, 6>& extensions);
   vk::Result SelectDeviceExtensions(vk::DeviceCreateInfo& deviceCreateInfo, ezHybridArray<const char*, 6>& extensions);
 
+  virtual ezStringView GetRendererPlatform() override;
   virtual ezResult InitPlatform() override;
   virtual ezResult ShutdownPlatform() override;
 

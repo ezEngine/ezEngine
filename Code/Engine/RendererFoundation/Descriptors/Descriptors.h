@@ -167,17 +167,9 @@ struct ezGALResourceAccess
 
 struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
 {
-  ezUInt32 m_uiStructSize = 0;
   ezUInt32 m_uiTotalSize = 0;
-
-  ezEnum<ezGALBufferType> m_BufferType = ezGALBufferType::Generic;
-
-  bool m_bUseForIndirectArguments = false;
-  bool m_bUseAsStructuredBuffer = false;
-  bool m_bAllowRawViews = false;
-  bool m_bAllowShaderResourceView = false;
-  bool m_bAllowUAV = false;
-
+  ezUInt32 m_uiStructSize = 0; // Struct or texel size
+  ezBitflags<ezGALBufferFlags> m_BufferFlags;
   ezGALResourceAccess m_ResourceAccess;
 };
 

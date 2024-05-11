@@ -116,11 +116,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
       }
       {
         ezGALBufferCreationDescription desc;
-        desc.m_bUseForIndirectArguments = false;
-        desc.m_bUseAsStructuredBuffer = true;
-        desc.m_bAllowRawViews = true;
-        desc.m_bAllowShaderResourceView = true;
-        desc.m_bAllowUAV = true;
+        desc.m_BufferFlags = ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ByteAddressBuffer | ezGALBufferFlags::ShaderResource;
         desc.m_uiStructSize = 128;
         desc.m_uiTotalSize = 1280;
         desc.m_ResourceAccess.m_bImmutable = false;
@@ -137,7 +133,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         ezGALBufferCreationDescription desc;
         desc.m_uiStructSize = sizeof(ezUInt32);
         desc.m_uiTotalSize = 1024;
-        desc.m_bAllowShaderResourceView = true;
+        desc.m_BufferFlags = ezGALBufferFlags::TexelBuffer | ezGALBufferFlags::ShaderResource;
         desc.m_ResourceAccess.m_bImmutable = false;
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
         s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackTexelBufferVulkan");
@@ -172,8 +168,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         ezGALBufferCreationDescription desc;
         desc.m_uiStructSize = sizeof(ezUInt32);
         desc.m_uiTotalSize = 1024;
-        desc.m_bAllowShaderResourceView = true;
-        desc.m_bAllowUAV = true;
+        desc.m_BufferFlags = ezGALBufferFlags::TexelBuffer | ezGALBufferFlags::ShaderResource | ezGALBufferFlags::UnorderedAccess;
         desc.m_ResourceAccess.m_bImmutable = false;
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
         s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackTexelBufferRWVulkan");
@@ -184,11 +179,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
       }
       {
         ezGALBufferCreationDescription desc;
-        desc.m_bUseForIndirectArguments = false;
-        desc.m_bUseAsStructuredBuffer = true;
-        desc.m_bAllowRawViews = true;
-        desc.m_bAllowShaderResourceView = true;
-        desc.m_bAllowUAV = true;
+        desc.m_BufferFlags = ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ByteAddressBuffer | ezGALBufferFlags::ShaderResource | ezGALBufferFlags::UnorderedAccess;
         desc.m_uiStructSize = 128;
         desc.m_uiTotalSize = 1280;
         desc.m_ResourceAccess.m_bImmutable = false;

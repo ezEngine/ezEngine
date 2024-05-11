@@ -323,6 +323,11 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
 
 #define EZ_GET_INSTANCE_PROC_ADDR(name) m_extensions.pfn_##name = reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(m_instance, #name));
 
+ezStringView ezGALDeviceVulkan::GetRendererPlatform()
+{
+  return "Vulkan";
+}
+
 ezResult ezGALDeviceVulkan::InitPlatform()
 {
   EZ_LOG_BLOCK("ezGALDeviceVulkan::InitPlatform");

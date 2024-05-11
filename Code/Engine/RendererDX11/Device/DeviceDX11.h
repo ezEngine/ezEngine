@@ -59,6 +59,7 @@ protected:
   ///   Null means default adapter.
   ezResult InitPlatform(DWORD flags, IDXGIAdapter* pUsedAdapter);
 
+  virtual ezStringView GetRendererPlatform() override;
   virtual ezResult InitPlatform() override;
   virtual ezResult ShutdownPlatform() override;
 

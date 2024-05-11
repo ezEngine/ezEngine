@@ -36,7 +36,7 @@ ezRmlUiRenderer::ezRmlUiRenderer()
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezUInt32);
     desc.m_uiTotalSize = EZ_ARRAY_SIZE(indices) * desc.m_uiStructSize;
-    desc.m_BufferType = ezGALBufferType::IndexBuffer;
+    desc.m_BufferFlags = ezGALBufferFlags::IndexBuffer;
 
     m_hQuadIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, ezMakeArrayPtr(indices).ToByteArray());
   }

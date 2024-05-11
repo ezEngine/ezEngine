@@ -30,7 +30,7 @@ void ezGALCommandEncoder::SetConstantBuffer(const ezShaderResourceBinding& bindi
   AssertRenderingThread();
 
   const ezGALBuffer* pBuffer = m_Device.GetBuffer(hBuffer);
-  EZ_ASSERT_DEV(pBuffer == nullptr || pBuffer->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer, "Wrong buffer type");
+  EZ_ASSERT_DEV(pBuffer == nullptr || pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferFlags::ConstantBuffer), "Wrong buffer type");
 
   m_CommonImpl.SetConstantBufferPlatform(binding, pBuffer);
 }

@@ -133,7 +133,7 @@ retry:
         {
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
-          pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+          //pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
         }
 
         // Ignore list.
@@ -237,6 +237,11 @@ retry:
         { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
 
   return EZ_SUCCESS;
+}
+
+ezStringView ezGALDeviceDX11::GetRendererPlatform()
+{
+  return "DX11";
 }
 
 ezResult ezGALDeviceDX11::InitPlatform()

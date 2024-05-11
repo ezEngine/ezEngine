@@ -70,14 +70,14 @@ ezResult ezGALUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice)
   }
   else if (pBuffer)
   {
-    if (!pBuffer->GetDescription().m_bAllowRawViews && m_Description.m_bRawView)
+    if (!pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferFlags::ByteAddressBuffer) && m_Description.m_bRawView)
     {
       ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
       return EZ_FAILURE;
     }
 
     auto pParentBuffer = static_cast<const ezGALBufferVulkan*>(pBuffer);
-    if (pBuffer->GetDescription().m_bUseAsStructuredBuffer)
+    if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferFlags::StructuredBuffer))
     {
       m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
       m_resourceBufferInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
