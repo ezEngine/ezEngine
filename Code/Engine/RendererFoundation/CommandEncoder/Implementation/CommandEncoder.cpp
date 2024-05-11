@@ -44,11 +44,20 @@ void ezGALCommandEncoder::SetSamplerState(const ezShaderResourceBinding& binding
   m_CommonImpl.SetSamplerStatePlatform(binding, pSamplerState);
 }
 
-void ezGALCommandEncoder::SetResourceView(const ezShaderResourceBinding& binding, ezGALResourceViewHandle hResourceView)
+void ezGALCommandEncoder::SetResourceView(const ezShaderResourceBinding& binding, ezGALTextureResourceViewHandle hResourceView)
 {
   AssertRenderingThread();
 
-  const ezGALResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
+  const ezGALTextureResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
+
+  m_CommonImpl.SetResourceViewPlatform(binding, pResourceView);
+}
+
+void ezGALCommandEncoder::SetResourceView(const ezShaderResourceBinding& binding, ezGALBufferResourceViewHandle hResourceView)
+{
+  AssertRenderingThread();
+
+  const ezGALBufferResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
 
   m_CommonImpl.SetResourceViewPlatform(binding, pResourceView);
 }
@@ -301,11 +310,11 @@ void ezGALCommandEncoder::CopyTextureReadbackResult(ezGALTextureHandle hTexture,
   }
 }
 
-void ezGALCommandEncoder::GenerateMipMaps(ezGALResourceViewHandle hResourceView)
+void ezGALCommandEncoder::GenerateMipMaps(ezGALTextureResourceViewHandle hResourceView)
 {
   AssertRenderingThread();
 
-  const ezGALResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
+  const ezGALTextureResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
   if (pResourceView != nullptr)
   {
     EZ_ASSERT_DEV(!pResourceView->GetDescription().m_hTexture.IsInvalidated(), "Resource view needs a valid texture to generate mip maps.");

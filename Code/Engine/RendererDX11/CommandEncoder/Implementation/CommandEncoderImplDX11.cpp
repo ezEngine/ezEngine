@@ -124,15 +124,32 @@ void ezGALCommandEncoderImplDX11::SetSamplerStatePlatform(const ezShaderResource
   }
 }
 
-void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALResourceView* pResourceView)
+void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView)
 {
   if (pResourceView != nullptr && UnsetUnorderedAccessViews(pResourceView->GetResource()))
   {
     FlushPlatform();
   }
 
-  ID3D11ShaderResourceView* pResourceViewDX11 = pResourceView != nullptr ? static_cast<const ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
+  ID3D11ShaderResourceView* pResourceViewDX11 = pResourceView != nullptr ? static_cast<const ezGALTextureResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
 
+  SetResourceView(binding, pResourceView != nullptr ? pResourceView->GetResource() : nullptr, pResourceViewDX11);
+}
+
+void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView)
+{
+  if (pResourceView != nullptr && UnsetUnorderedAccessViews(pResourceView->GetResource()))
+  {
+    FlushPlatform();
+  }
+
+  ID3D11ShaderResourceView* pResourceViewDX11 = pResourceView != nullptr ? static_cast<const ezGALBufferResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
+
+  SetResourceView(binding, pResourceView != nullptr ? pResourceView->GetResource() : nullptr, pResourceViewDX11);
+}
+
+void ezGALCommandEncoderImplDX11::SetResourceView(const ezShaderResourceBinding& binding, const ezGALResourceBase* pResource, ID3D11ShaderResourceView* pResourceViewDX11)
+{
   for (ezGALShaderStage::Enum stage : ezIterateBitIndices<ezUInt16, ezGALShaderStage::Enum>(binding.m_Stages.GetValue()))
   {
     auto& boundShaderResourceViews = m_pBoundShaderResourceViews[stage];
@@ -142,7 +159,7 @@ void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResource
     if (boundShaderResourceViews[binding.m_iSlot] != pResourceViewDX11)
     {
       boundShaderResourceViews[binding.m_iSlot] = pResourceViewDX11;
-      resourcesForResourceViews[binding.m_iSlot] = pResourceView != nullptr ? pResourceView->GetResource() : nullptr;
+      resourcesForResourceViews[binding.m_iSlot] = pResource;
       m_BoundShaderResourceViewsRange[stage].SetToIncludeValue(binding.m_iSlot);
     }
   }
@@ -461,9 +478,9 @@ void ezGALCommandEncoderImplDX11::CopyTextureReadbackResultPlatform(const ezGALT
   }
 }
 
-void ezGALCommandEncoderImplDX11::GenerateMipMapsPlatform(const ezGALResourceView* pResourceView)
+void ezGALCommandEncoderImplDX11::GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView)
 {
-  const ezGALResourceViewDX11* pDXResourceView = static_cast<const ezGALResourceViewDX11*>(pResourceView);
+  const ezGALTextureResourceViewDX11* pDXResourceView = static_cast<const ezGALTextureResourceViewDX11*>(pResourceView);
 
   m_pDXContext->GenerateMips(pDXResourceView->GetDXResourceView());
 }

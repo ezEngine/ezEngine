@@ -81,9 +81,9 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
     // Setup input view and sampler
-    ezGALResourceViewCreationDescription rvcd;
+    ezGALTextureResourceViewCreationDescription rvcd;
     rvcd.m_hTexture = inputs[m_PinInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALResourceViewHandle hResourceView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    ezGALTextureResourceViewHandle hResourceView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
 
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);

@@ -16,7 +16,8 @@ public:
 
   virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) = 0;
   virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) = 0;
-  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALResourceView* pResourceView) = 0;
+  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView) = 0;
+  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView) = 0;
   virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALUnorderedAccessView* pUnorderedAccessView) = 0;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) = 0;
 
@@ -51,7 +52,7 @@ public:
 
   virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData) = 0;
 
-  virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) = 0;
+  virtual void GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView) = 0;
 
   // Misc
 

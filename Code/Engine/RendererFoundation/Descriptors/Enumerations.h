@@ -19,7 +19,7 @@ struct ezGALShaderResourceType
     // Read-only struct. Set directly via ezGALCommandEncoder::SetPushConstants. HLSL: Use macro BEGIN_PUSH_CONSTANTS, END_PUSH_CONSTANTS, GET_PUSH_CONSTANT
     PushConstants,
 
-    /// \name Shader Resource Views (SRVs). These are set via ezGALResourceViewHandle.
+    /// \name Shader Resource Views (SRVs). These are set via ezGALTextureResourceViewHandle.
     ///@{
 
     /// Read-only texture view. When set, ezGALShaderTextureType is also set. HLSL: Texture*
@@ -65,7 +65,7 @@ struct ezGALShaderResourceCategory
   {
     Sampler = EZ_BIT(0),        //< Sampler (ezGALSamplerStateHandle).
     ConstantBuffer = EZ_BIT(1), //< Constant Buffer (ezGALBufferHandle)
-    SRV = EZ_BIT(2),            //< Shader Resource Views (ezGALResourceViewHandle).
+    SRV = EZ_BIT(2),            //< Shader Resource Views (ezGALTextureResourceViewHandle / ezGALBufferResourceViewHandle).
     UAV = EZ_BIT(3),            //< Unordered Access Views (ezGALUnorderedAccessViewHandle).
     Default = 0
   };

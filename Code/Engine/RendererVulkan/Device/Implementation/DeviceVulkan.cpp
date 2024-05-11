@@ -453,7 +453,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     // TODO making sure we have a hardware device?
     m_physicalDevice = physicalDevices[0];
     m_properties = m_physicalDevice.getProperties();
-    ezLog::Info("Selected physical device \"{}\" for device creation.", m_properties.deviceName);
+    ezLog::Warning("Selected physical device \"{}\" for device creation.", m_properties.deviceName);
 
     // This is a workaround for broken lavapipe drivers which cannot handle label scopes that span across multiple command buffers.
     ezStringBuilder sDeviceName = ezStringUtf8(m_properties.deviceName).GetView();
@@ -1192,10 +1192,9 @@ void ezGALDeviceVulkan::DestroySharedTexturePlatform(ezGALTexture* pTexture)
   EZ_DELETE(&m_Allocator, pVulkanTexture);
 }
 
-ezGALResourceView* ezGALDeviceVulkan::CreateResourceViewPlatform(
-  ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
+ezGALTextureResourceView* ezGALDeviceVulkan::CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description)
 {
-  ezGALResourceViewVulkan* pResourceView = EZ_NEW(&m_Allocator, ezGALResourceViewVulkan, pResource, Description);
+  ezGALTextureResourceViewVulkan* pResourceView = EZ_NEW(&m_Allocator, ezGALTextureResourceViewVulkan, pResource, Description);
 
   if (!pResourceView->InitPlatform(this).Succeeded())
   {
@@ -1206,9 +1205,29 @@ ezGALResourceView* ezGALDeviceVulkan::CreateResourceViewPlatform(
   return pResourceView;
 }
 
-void ezGALDeviceVulkan::DestroyResourceViewPlatform(ezGALResourceView* pResourceView)
+void ezGALDeviceVulkan::DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView)
 {
-  ezGALResourceViewVulkan* pVulkanResourceView = static_cast<ezGALResourceViewVulkan*>(pResourceView);
+  ezGALTextureResourceViewVulkan* pVulkanResourceView = static_cast<ezGALTextureResourceViewVulkan*>(pResourceView);
+  pVulkanResourceView->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pVulkanResourceView);
+}
+
+ezGALBufferResourceView* ezGALDeviceVulkan::CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description)
+{
+  ezGALBufferResourceViewVulkan* pResourceView = EZ_NEW(&m_Allocator, ezGALBufferResourceViewVulkan, pResource, Description);
+
+  if (!pResourceView->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pResourceView);
+    return nullptr;
+  }
+
+  return pResourceView;
+}
+
+void ezGALDeviceVulkan::DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView)
+{
+  ezGALBufferResourceViewVulkan* pVulkanResourceView = static_cast<ezGALBufferResourceViewVulkan*>(pResourceView);
   pVulkanResourceView->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanResourceView);
 }

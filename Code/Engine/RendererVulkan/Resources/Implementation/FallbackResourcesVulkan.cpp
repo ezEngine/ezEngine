@@ -35,7 +35,8 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezGALDevice* ezFallbackResourcesVulkan::s_pDevice = nullptr;
 ezEventSubscriptionID ezFallbackResourcesVulkan::s_EventID = 0;
 
-ezHashTable<ezFallbackResourcesVulkan::Key, ezGALResourceViewHandle, ezFallbackResourcesVulkan::KeyHash> ezFallbackResourcesVulkan::m_ResourceViews;
+ezHashTable<ezFallbackResourcesVulkan::Key, ezGALTextureResourceViewHandle, ezFallbackResourcesVulkan::KeyHash> ezFallbackResourcesVulkan::m_TextureResourceViews;
+ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferResourceViewHandle, ezFallbackResourcesVulkan::KeyHash> ezFallbackResourcesVulkan::m_BufferResourceViews;
 ezHashTable<ezFallbackResourcesVulkan::Key, ezGALUnorderedAccessViewHandle, ezFallbackResourcesVulkan::KeyHash> ezFallbackResourcesVulkan::m_UAVs;
 ezDynamicArray<ezGALBufferHandle> ezFallbackResourcesVulkan::m_Buffers;
 ezDynamicArray<ezGALTextureHandle> ezFallbackResourcesVulkan::m_Textures;
@@ -56,7 +57,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
     case ezGALDeviceEvent::AfterInit:
     {
       s_pDevice = e.m_pDevice;
-      auto CreateTexture = [](ezGALTextureType::Enum type, ezGALMSAASampleCount::Enum samples, bool bDepth) -> ezGALResourceViewHandle
+      auto CreateTexture = [](ezGALTextureType::Enum type, ezGALMSAASampleCount::Enum samples, bool bDepth) -> ezGALTextureResourceViewHandle
       {
         ezGALTextureCreationDescription desc;
         desc.m_uiWidth = 4;
@@ -77,18 +78,18 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         return s_pDevice->GetDefaultResourceView(hTexture);
       };
       {
-        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None, false);
-        m_ResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2D, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DArray, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2D, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DArray, false}] = hView;
+        ezGALTextureResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None, false);
+        m_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2D, false}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DArray, false}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2D, false}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DArray, false}] = hView;
       }
       {
-        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None, true);
-        m_ResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2D, true}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DArray, true}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2D, true}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DArray, true}] = hView;
+        ezGALTextureResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None, true);
+        m_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2D, true}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DArray, true}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2D, true}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DArray, true}] = hView;
       }
 
       // Swift shader can only do 4x MSAA. Add a check anyways.
@@ -96,23 +97,23 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 
       if (bSupported)
       {
-        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::FourSamples, false);
-        m_ResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMS, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMSArray, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DMS, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DMSArray, false}] = hView;
+        ezGALTextureResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::FourSamples, false);
+        m_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMS, false}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMSArray, false}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DMS, false}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DMSArray, false}] = hView;
       }
       {
-        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::TextureCube, ezGALMSAASampleCount::None, false);
-        m_ResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCube, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCubeArray, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::TextureCube, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::TextureCubeArray, false}] = hView;
+        ezGALTextureResourceViewHandle hView = CreateTexture(ezGALTextureType::TextureCube, ezGALMSAASampleCount::None, false);
+        m_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCube, false}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCubeArray, false}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::TextureCube, false}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::TextureCubeArray, false}] = hView;
       }
       {
-        ezGALResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture3D, ezGALMSAASampleCount::None, false);
-        m_ResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture3D, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture3D, false}] = hView;
+        ezGALTextureResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture3D, ezGALMSAASampleCount::None, false);
+        m_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture3D, false}] = hView;
+        m_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture3D, false}] = hView;
       }
       {
         ezGALBufferCreationDescription desc;
@@ -123,11 +124,11 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
         s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackStructuredBufferVulkan");
         m_Buffers.PushBack(hBuffer);
-        ezGALResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
-        m_ResourceViews[{ezGALShaderResourceType::ConstantBuffer, ezGALShaderTextureType::Unknown, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::ConstantBuffer, ezGALShaderTextureType::Unknown, true}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::StructuredBuffer, ezGALShaderTextureType::Unknown, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::StructuredBuffer, ezGALShaderTextureType::Unknown, true}] = hView;
+        ezGALBufferResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
+        m_BufferResourceViews[ezGALShaderResourceType::ConstantBuffer] = hView;
+        m_BufferResourceViews[ezGALShaderResourceType::ConstantBuffer] = hView;
+        m_BufferResourceViews[ezGALShaderResourceType::StructuredBuffer] = hView;
+        m_BufferResourceViews[ezGALShaderResourceType::StructuredBuffer] = hView;
       }
       {
         ezGALBufferCreationDescription desc;
@@ -138,9 +139,8 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
         s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackTexelBufferVulkan");
         m_Buffers.PushBack(hBuffer);
-        ezGALResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
-        m_ResourceViews[{ezGALShaderResourceType::TexelBuffer, ezGALShaderTextureType::Unknown, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TexelBuffer, ezGALShaderTextureType::Unknown, true}] = hView;
+        ezGALBufferResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
+        m_BufferResourceViews[ezGALShaderResourceType::TexelBuffer] = hView;
       }
       {
         ezGALTextureCreationDescription desc;
@@ -173,9 +173,8 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
         s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackTexelBufferRWVulkan");
         m_Buffers.PushBack(hBuffer);
-        ezGALResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
-        m_ResourceViews[{ezGALShaderResourceType::TexelBufferRW, ezGALShaderTextureType::Unknown, false}] = hView;
-        m_ResourceViews[{ezGALShaderResourceType::TexelBufferRW, ezGALShaderTextureType::Unknown, true}] = hView;
+        ezGALBufferResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
+        m_BufferResourceViews[ezGALShaderResourceType::TexelBufferRW] = hView;
       }
       {
         ezGALBufferCreationDescription desc;
@@ -186,15 +185,17 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
         s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackStructuredBufferRWVulkan");
         m_Buffers.PushBack(hBuffer);
-        ezGALResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
-        m_ResourceViews[{ezGALShaderResourceType::StructuredBufferRW, ezGALShaderTextureType::Unknown, false}] = hView;
+        ezGALBufferResourceViewHandle hView = s_pDevice->GetDefaultResourceView(hBuffer);
+        m_BufferResourceViews[ezGALShaderResourceType::StructuredBufferRW] = hView;
       }
     }
     break;
     case ezGALDeviceEvent::BeforeShutdown:
     {
-      m_ResourceViews.Clear();
-      m_ResourceViews.Compact();
+      m_TextureResourceViews.Clear();
+      m_TextureResourceViews.Compact();
+      m_BufferResourceViews.Clear();
+      m_BufferResourceViews.Compact();
 
       m_UAVs.Clear();
       m_UAVs.Compact();
@@ -220,11 +221,21 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   }
 }
 
-const ezGALResourceViewVulkan* ezFallbackResourcesVulkan::GetFallbackResourceView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType, bool bDepth)
+const ezGALTextureResourceViewVulkan* ezFallbackResourcesVulkan::GetFallbackTextureResourceView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType, bool bDepth)
 {
-  if (ezGALResourceViewHandle* pView = m_ResourceViews.GetValue(Key{descriptorType, textureType, bDepth}))
+  if (ezGALTextureResourceViewHandle* pView = m_TextureResourceViews.GetValue(Key{descriptorType, textureType, bDepth}))
   {
-    return static_cast<const ezGALResourceViewVulkan*>(s_pDevice->GetResourceView(*pView));
+    return static_cast<const ezGALTextureResourceViewVulkan*>(s_pDevice->GetResourceView(*pView));
+  }
+  EZ_REPORT_FAILURE("No fallback resource set, update ezFallbackResourcesVulkan::GALDeviceEventHandler.");
+  return nullptr;
+}
+
+const ezGALBufferResourceViewVulkan* ezFallbackResourcesVulkan::GetFallbackBufferResourceView(ezGALShaderResourceType::Enum descriptorType)
+{
+  if (ezGALBufferResourceViewHandle* pView = m_BufferResourceViews.GetValue(descriptorType))
+  {
+    return static_cast<const ezGALBufferResourceViewVulkan*>(s_pDevice->GetResourceView(*pView));
   }
   EZ_REPORT_FAILURE("No fallback resource set, update ezFallbackResourcesVulkan::GALDeviceEventHandler.");
   return nullptr;
@@ -252,6 +263,18 @@ ezUInt32 ezFallbackResourcesVulkan::KeyHash::Hash(const Key& a)
 bool ezFallbackResourcesVulkan::KeyHash::Equal(const Key& a, const Key& b)
 {
   return a.m_ResourceType == b.m_ResourceType && a.m_ezType == b.m_ezType && a.m_bDepth == b.m_bDepth;
+}
+
+ezUInt32 ezFallbackResourcesVulkan::KeyHash::Hash(const ezEnum<ezGALShaderResourceType>& a)
+{
+  ezHashStreamWriter32 writer;
+  writer << a.GetValue();
+  return writer.GetHashValue();
+}
+
+bool ezFallbackResourcesVulkan::KeyHash::Equal(const ezEnum<ezGALShaderResourceType>& a, const ezEnum<ezGALShaderResourceType>& b)
+{
+  return a == b;
 }
 
 

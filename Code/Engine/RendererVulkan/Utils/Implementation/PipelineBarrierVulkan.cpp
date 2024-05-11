@@ -179,7 +179,7 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALRenderTargetViewVulka
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
-void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
+void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
   auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
@@ -377,7 +377,7 @@ void ezPipelineBarrierVulkan::SetInitialImageState(const ezGALTextureVulkan* pTe
   auto it = m_imageState.Find(pTexture->GetImage());
 
   // A Vulkan runtime is free to provide us with the very same native object if we request a resize but didn't actually change the size, in which case we ignore that we are already tacking this resource.
-  EZ_ASSERT_DEBUG(!it.IsValid() || it.Value().m_pTexture->GetDescription().m_pExisitingNativeObject != nullptr, "Can't set initial state, texture is already tracked.");
+  EZ_ASSERT_DEBUG(!it.IsValid(), "");// || it.Value().m_pTexture->GetDescription().m_pExisitingNativeObject != nullptr, "Can't set initial state, texture is already tracked.");
 
   ImageState state;
   state.m_pTexture = pTexture;
@@ -425,7 +425,7 @@ void ezPipelineBarrierVulkan::FullBarrier()
   memoryBarrier.srcAccessMask = s_writeAccess | s_readAccess;
   memoryBarrier.dstAccessMask = s_writeAccess | s_readAccess;
 
-  m_pCommandBuffer->pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands, vk::DependencyFlags(), 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+  m_pCommandBuffer->pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands | vk::PipelineStageFlagBits::eTopOfPipe, vk::DependencyFlags(), 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 }
 
 bool ezPipelineBarrierVulkan::AddBufferBarrierInternal(vk::Buffer buffer, vk::DeviceSize offset, vk::DeviceSize length, vk::PipelineStageFlags srcStages, vk::AccessFlags srcAccess, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess)

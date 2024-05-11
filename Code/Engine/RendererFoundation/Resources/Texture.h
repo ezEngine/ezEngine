@@ -17,6 +17,13 @@ protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) = 0;
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+
+protected:
+  ezGALTextureResourceViewHandle m_hDefaultResourceView;
+  ezGALRenderTargetViewHandle m_hDefaultRenderTargetView;
+
+  ezHashTable<ezUInt32, ezGALTextureResourceViewHandle> m_ResourceViews;
+  ezHashTable<ezUInt32, ezGALRenderTargetViewHandle> m_RenderTargetViews;
 };
 
 /// \brief Optional interface for ezGALTexture if it was created via ezGALDevice::CreateSharedTexture.

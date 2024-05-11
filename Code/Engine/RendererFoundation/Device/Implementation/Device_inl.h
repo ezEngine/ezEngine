@@ -74,9 +74,14 @@ inline const ezGALSamplerState* ezGALDevice::GetSamplerState(ezGALSamplerStateHa
   return Get<SamplerStateTable, ezGALSamplerState>(hSamplerState, m_SamplerStates);
 }
 
-inline const ezGALResourceView* ezGALDevice::GetResourceView(ezGALResourceViewHandle hResourceView) const
+inline const ezGALTextureResourceView* ezGALDevice::GetResourceView(ezGALTextureResourceViewHandle hResourceView) const
 {
-  return Get<ResourceViewTable, ezGALResourceView>(hResourceView, m_ResourceViews);
+  return Get<TextureResourceViewTable, ezGALTextureResourceView>(hResourceView, m_TextureResourceViews);
+}
+
+inline const ezGALBufferResourceView* ezGALDevice::GetResourceView(ezGALBufferResourceViewHandle hResourceView) const
+{
+  return Get<BufferResourceViewTable, ezGALBufferResourceView>(hResourceView, m_BufferResourceViews);
 }
 
 inline const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const

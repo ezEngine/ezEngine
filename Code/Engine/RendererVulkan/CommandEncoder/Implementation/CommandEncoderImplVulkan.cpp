@@ -63,7 +63,8 @@ void ezGALCommandEncoderImplVulkan::Reset()
   for (ezUInt32 i = 0; i < m_Resources.GetCount(); i++)
   {
     m_Resources[i].m_pBoundConstantBuffers.Clear();
-    m_Resources[i].m_pBoundShaderResourceViews.Clear();
+    m_Resources[i].m_pBoundTextureResourceViews.Clear();
+    m_Resources[i].m_pBoundBufferResourceViews.Clear();
     m_Resources[i].m_pBoundUnoderedAccessViews.Clear();
     m_Resources[i].m_pBoundSamplerStates.Clear();
   }
@@ -126,12 +127,21 @@ void ezGALCommandEncoderImplVulkan::SetSamplerStatePlatform(const ezShaderResour
   m_bDescriptorsDirty = true;
 }
 
-void ezGALCommandEncoderImplVulkan::SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALResourceView* pResourceView)
+void ezGALCommandEncoderImplVulkan::SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView)
 {
   m_Resources.EnsureCount(binding.m_iSet + 1);
   auto& resources = m_Resources[binding.m_iSet];
-  resources.m_pBoundShaderResourceViews.EnsureCount(binding.m_iSlot + 1);
-  resources.m_pBoundShaderResourceViews[binding.m_iSlot] = pResourceView != nullptr ? static_cast<const ezGALResourceViewVulkan*>(pResourceView) : nullptr;
+  resources.m_pBoundTextureResourceViews.EnsureCount(binding.m_iSlot + 1);
+  resources.m_pBoundTextureResourceViews[binding.m_iSlot] = pResourceView != nullptr ? static_cast<const ezGALTextureResourceViewVulkan*>(pResourceView) : nullptr;
+  m_bDescriptorsDirty = true;
+}
+
+void ezGALCommandEncoderImplVulkan::SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView)
+{
+  m_Resources.EnsureCount(binding.m_iSet + 1);
+  auto& resources = m_Resources[binding.m_iSet];
+  resources.m_pBoundBufferResourceViews.EnsureCount(binding.m_iSlot + 1);
+  resources.m_pBoundBufferResourceViews[binding.m_iSlot] = pResourceView != nullptr ? static_cast<const ezGALBufferResourceViewVulkan*>(pResourceView) : nullptr;
   m_bDescriptorsDirty = true;
 }
 
@@ -757,9 +767,9 @@ void ezGALCommandEncoderImplVulkan::CopyTextureReadbackResultPlatform(const ezGA
   }
 }
 
-void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALResourceView* pResourceView)
+void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView)
 {
-  const ezGALResourceViewVulkan* pVulkanResourceView = static_cast<const ezGALResourceViewVulkan*>(pResourceView);
+  const ezGALTextureResourceViewVulkan* pVulkanResourceView = static_cast<const ezGALTextureResourceViewVulkan*>(pResourceView);
   if (m_bRenderPassActive)
   {
     m_pCommandBuffer->endRenderPass();
@@ -1385,8 +1395,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
           case ezGALShaderResourceType::Texture:
           case ezGALShaderResourceType::TextureAndSampler:
           {
-            const ezGALResourceViewVulkan* pResourceView = GetShaderResourceView(resources, mapping);
-            EZ_VULKAN_CHECK_STATE(!pResourceView->GetDescription().m_hTexture.IsInvalidated(), "Texture resource view expected to be bound at '{}'", mapping.m_sName.GetView());
+            const ezGALTextureResourceViewVulkan* pResourceView = GetTextureResourceView(resources, mapping);
             write.pImageInfo = &pResourceView->GetImageInfo(ezGALShaderTextureType::IsArray(mapping.m_TextureType));
 
             const auto* pTexture = static_cast<const ezGALTextureVulkan*>(pResourceView->GetResource()->GetParentResource());
@@ -1407,14 +1416,14 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
           break;
           case ezGALShaderResourceType::TexelBuffer:
           {
-            const ezGALResourceViewVulkan* pResourceView = GetShaderResourceView(resources, mapping);
+            const ezGALBufferResourceViewVulkan* pResourceView = GetBufferResourceView(resources, mapping);
             EZ_VULKAN_CHECK_STATE(pResourceView != nullptr, "No SRV bound at '{}'", mapping.m_sName.GetView());
             write.pTexelBufferView = &pResourceView->GetBufferView();
           }
           break;
           case ezGALShaderResourceType::StructuredBuffer:
           {
-            const ezGALResourceViewVulkan* pResourceView = GetShaderResourceView(resources, mapping);
+            const ezGALBufferResourceViewVulkan* pResourceView = GetBufferResourceView(resources, mapping);
             EZ_VULKAN_CHECK_STATE(pResourceView != nullptr, "No SRV bound at '{}'", mapping.m_sName.GetView());
             write.pBufferInfo = &pResourceView->GetBufferInfo();
           }
@@ -1486,19 +1495,36 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
   return EZ_SUCCESS;
 }
 
-const ezGALResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetShaderResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping)
+const ezGALTextureResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetTextureResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping)
 {
-  const ezGALResourceViewVulkan* pResourceView = nullptr;
-  if (mapping.m_iSlot < resources.m_pBoundShaderResourceViews.GetCount())
+  const ezGALTextureResourceViewVulkan* pResourceView = nullptr;
+  if (mapping.m_iSlot < resources.m_pBoundTextureResourceViews.GetCount())
   {
-    pResourceView = resources.m_pBoundShaderResourceViews[mapping.m_iSlot];
+    pResourceView = resources.m_pBoundTextureResourceViews[mapping.m_iSlot];
   }
 
   if (!pResourceView)
   {
     ezStringBuilder sName = mapping.m_sName.GetData();
     bool bDepth = sName.FindSubString_NoCase("shadow") != nullptr || sName.FindSubString_NoCase("depth");
-    pResourceView = ezFallbackResourcesVulkan::GetFallbackResourceView(mapping.m_ResourceType, mapping.m_TextureType, bDepth);
+    pResourceView = ezFallbackResourcesVulkan::GetFallbackTextureResourceView(mapping.m_ResourceType, mapping.m_TextureType, bDepth);
+  }
+  return pResourceView;
+}
+
+const ezGALBufferResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetBufferResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping)
+{
+  const ezGALBufferResourceViewVulkan* pResourceView = nullptr;
+  if (mapping.m_iSlot < resources.m_pBoundBufferResourceViews.GetCount())
+  {
+    pResourceView = resources.m_pBoundBufferResourceViews[mapping.m_iSlot];
+  }
+  
+  if (!pResourceView)
+  {
+    ezStringBuilder sName = mapping.m_sName.GetData();
+    bool bDepth = sName.FindSubString_NoCase("shadow") != nullptr || sName.FindSubString_NoCase("depth");
+    pResourceView = ezFallbackResourcesVulkan::GetFallbackBufferResourceView(mapping.m_ResourceType);
   }
   return pResourceView;
 }

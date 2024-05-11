@@ -16,7 +16,8 @@ public:
 
   void SetConstantBuffer(const ezShaderResourceBinding& binding, ezGALBufferHandle hBuffer);
   void SetSamplerState(const ezShaderResourceBinding& binding, ezGALSamplerStateHandle hSamplerState);
-  void SetResourceView(const ezShaderResourceBinding& binding, ezGALResourceViewHandle hResourceView);
+  void SetResourceView(const ezShaderResourceBinding& binding, ezGALTextureResourceViewHandle hResourceView);
+  void SetResourceView(const ezShaderResourceBinding& binding, ezGALBufferResourceViewHandle hResourceView);
   void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALUnorderedAccessViewHandle hUnorderedAccessView);
   void SetPushConstants(ezArrayPtr<const ezUInt8> data);
 
@@ -54,7 +55,7 @@ public:
   void ReadbackTexture(ezGALTextureHandle hTexture);
   void CopyTextureReadbackResult(ezGALTextureHandle hTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData);
 
-  void GenerateMipMaps(ezGALResourceViewHandle hResourceView);
+  void GenerateMipMaps(ezGALTextureResourceViewHandle hResourceView);
 
   // Misc
 

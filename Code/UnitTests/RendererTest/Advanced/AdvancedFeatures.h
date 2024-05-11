@@ -44,7 +44,7 @@ private:
   ezShaderResourceHandle m_hShader2;
 
   ezGALTextureHandle m_hTexture2D;
-  ezGALResourceViewHandle m_hTexture2DMips[4];
+  ezGALTextureResourceViewHandle m_hTexture2DMips[4];
   ezGALTextureHandle m_hTexture2DArray;
 
   // Tessellation Test

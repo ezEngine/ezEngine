@@ -7,4 +7,8 @@ ezGALBuffer::ezGALBuffer(const ezGALBufferCreationDescription& Description)
 {
 }
 
-ezGALBuffer::~ezGALBuffer() = default;
+ezGALBuffer::~ezGALBuffer()
+{
+  EZ_ASSERT_DEV(m_hDefaultResourceView.IsInvalidated(), "");
+  EZ_ASSERT_DEV(m_ResourceViews.IsEmpty(), "Dangling resource views");
+}

@@ -24,11 +24,6 @@ protected:
 
   inline ~ezGALResourceBase()
   {
-    EZ_ASSERT_DEV(m_hDefaultResourceView.IsInvalidated(), "");
-    EZ_ASSERT_DEV(m_hDefaultRenderTargetView.IsInvalidated(), "");
-
-    EZ_ASSERT_DEV(m_ResourceViews.IsEmpty(), "Dangling resource views");
-    EZ_ASSERT_DEV(m_RenderTargetViews.IsEmpty(), "Dangling render target views");
     EZ_ASSERT_DEV(m_UnorderedAccessViews.IsEmpty(), "Dangling unordered access views");
   }
 
@@ -37,12 +32,6 @@ protected:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   mutable ezHashedString m_sDebugName;
 #endif
-
-  ezGALResourceViewHandle m_hDefaultResourceView;
-  ezGALRenderTargetViewHandle m_hDefaultRenderTargetView;
-
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_ResourceViews;
-  ezHashTable<ezUInt32, ezGALRenderTargetViewHandle> m_RenderTargetViews;
   ezHashTable<ezUInt32, ezGALUnorderedAccessViewHandle> m_UnorderedAccessViews;
 };
 

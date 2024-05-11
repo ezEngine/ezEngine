@@ -31,12 +31,12 @@ private:
 
   ezGALTextureHandle m_hScreenTexture;
   ezGALRenderTargetViewHandle m_hScreenRTV;
-  ezGALResourceViewHandle m_hScreenSRV;
+  ezGALTextureResourceViewHandle m_hScreenSRV;
 
   // Could use buffer, but access and organisation with texture is more straight forward.
   ezGALTextureHandle m_hHistogramTexture;
   ezGALUnorderedAccessViewHandle m_hHistogramUAV;
-  ezGALResourceViewHandle m_hHistogramSRV;
+  ezGALTextureResourceViewHandle m_hHistogramSRV;
 
   ezWindowBase* m_pWindow = nullptr;
   ezGALSwapChainHandle m_hSwapChain;

@@ -583,9 +583,9 @@ void ezGALDeviceDX11::DestroySharedTexturePlatform(ezGALTexture* pTexture)
   EZ_DELETE(&m_Allocator, pDX11Texture);
 }
 
-ezGALResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
+ezGALTextureResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description)
 {
-  ezGALResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALResourceViewDX11, pResource, Description);
+  ezGALTextureResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALTextureResourceViewDX11, pResource, Description);
 
   if (!pResourceView->InitPlatform(this).Succeeded())
   {
@@ -596,9 +596,29 @@ ezGALResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALResourceBase
   return pResourceView;
 }
 
-void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALResourceView* pResourceView)
+void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView)
 {
-  ezGALResourceViewDX11* pDX11ResourceView = static_cast<ezGALResourceViewDX11*>(pResourceView);
+  ezGALTextureResourceViewDX11* pDX11ResourceView = static_cast<ezGALTextureResourceViewDX11*>(pResourceView);
+  pDX11ResourceView->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11ResourceView);
+}
+
+ezGALBufferResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description)
+{
+  ezGALBufferResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALBufferResourceViewDX11, pResource, Description);
+
+  if (!pResourceView->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pResourceView);
+    return nullptr;
+  }
+
+  return pResourceView;
+}
+
+void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView)
+{
+  ezGALBufferResourceViewDX11* pDX11ResourceView = static_cast<ezGALBufferResourceViewDX11*>(pResourceView);
   pDX11ResourceView->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11ResourceView);
 }

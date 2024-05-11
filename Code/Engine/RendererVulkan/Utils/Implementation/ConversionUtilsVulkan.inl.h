@@ -4,7 +4,7 @@
 
 namespace
 {
-  bool IsArrayViewInternal(const ezGALTextureCreationDescription& texDesc, const ezGALResourceViewCreationDescription& viewDesc)
+  bool IsArrayViewInternal(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc)
   {
     return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
   }
@@ -62,7 +62,7 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   return range;
 }
 
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALResourceViewCreationDescription& viewDesc)
+EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc)
 {
   vk::ImageSubresourceRange range;
 

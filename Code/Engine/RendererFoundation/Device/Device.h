@@ -73,11 +73,14 @@ public:
   void DestroySharedTexture(ezGALTextureHandle hTexture);
 
   // Resource views
-  ezGALResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
-  ezGALResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
+  ezGALTextureResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
+  ezGALBufferResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
 
-  ezGALResourceViewHandle CreateResourceView(const ezGALResourceViewCreationDescription& description);
-  void DestroyResourceView(ezGALResourceViewHandle hResourceView);
+  ezGALTextureResourceViewHandle CreateResourceView(const ezGALTextureResourceViewCreationDescription& description);
+  void DestroyResourceView(ezGALTextureResourceViewHandle hResourceView);
+
+  ezGALBufferResourceViewHandle CreateResourceView(const ezGALBufferResourceViewCreationDescription& description);
+  void DestroyResourceView(ezGALBufferResourceViewHandle hResourceView);
 
   // Render target views
   ezGALRenderTargetViewHandle GetDefaultRenderTargetView(ezGALTextureHandle hTexture);
@@ -139,7 +142,8 @@ public:
   const ezGALRasterizerState* GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const;
   const ezGALVertexDeclaration* GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const;
   const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
-  const ezGALResourceView* GetResourceView(ezGALResourceViewHandle hResourceView) const;
+  const ezGALTextureResourceView* GetResourceView(ezGALTextureResourceViewHandle hResourceView) const;
+  const ezGALBufferResourceView* GetResourceView(ezGALBufferResourceViewHandle hResourceView) const;
   const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
   const ezGALUnorderedAccessView* GetUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView) const;
   const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
@@ -172,7 +176,8 @@ protected:
   template <typename IdTableType, typename ReturnType>
   ReturnType* Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const;
 
-  void DestroyViews(ezGALResourceBase* pResource);
+  void DestroyViews(ezGALTexture* pResource);
+  void DestroyViews(ezGALBuffer* pResource);
 
   template <typename HandleType>
   void AddDeadObject(ezUInt32 uiType, HandleType handle);
@@ -199,7 +204,8 @@ protected:
   using RasterizerStateTable = ezIdTable<ezGALRasterizerStateHandle::IdType, ezGALRasterizerState*, ezLocalAllocatorWrapper>;
   using BufferTable = ezIdTable<ezGALBufferHandle::IdType, ezGALBuffer*, ezLocalAllocatorWrapper>;
   using TextureTable = ezIdTable<ezGALTextureHandle::IdType, ezGALTexture*, ezLocalAllocatorWrapper>;
-  using ResourceViewTable = ezIdTable<ezGALResourceViewHandle::IdType, ezGALResourceView*, ezLocalAllocatorWrapper>;
+  using TextureResourceViewTable = ezIdTable<ezGALTextureResourceViewHandle::IdType, ezGALTextureResourceView*, ezLocalAllocatorWrapper>;
+  using BufferResourceViewTable = ezIdTable<ezGALBufferResourceViewHandle::IdType, ezGALBufferResourceView*, ezLocalAllocatorWrapper>;
   using SamplerStateTable = ezIdTable<ezGALSamplerStateHandle::IdType, ezGALSamplerState*, ezLocalAllocatorWrapper>;
   using RenderTargetViewTable = ezIdTable<ezGALRenderTargetViewHandle::IdType, ezGALRenderTargetView*, ezLocalAllocatorWrapper>;
   using UnorderedAccessViewTable = ezIdTable<ezGALUnorderedAccessViewHandle::IdType, ezGALUnorderedAccessView*, ezLocalAllocatorWrapper>;
@@ -213,7 +219,8 @@ protected:
   RasterizerStateTable m_RasterizerStates;
   BufferTable m_Buffers;
   TextureTable m_Textures;
-  ResourceViewTable m_ResourceViews;
+  TextureResourceViewTable m_TextureResourceViews;
+  BufferResourceViewTable m_BufferResourceViews;
   SamplerStateTable m_SamplerStates;
   RenderTargetViewTable m_RenderTargetViews;
   UnorderedAccessViewTable m_UnorderedAccessViews;
@@ -292,8 +299,11 @@ protected:
   virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) = 0;
   virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) = 0;
 
-  virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) = 0;
-  virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) = 0;
+  virtual ezGALTextureResourceView* CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description) = 0;
+  virtual void DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView) = 0;
+
+  virtual ezGALBufferResourceView* CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description) = 0;
+  virtual void DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView) = 0;
 
   virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) = 0;
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) = 0;

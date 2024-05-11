@@ -197,22 +197,20 @@ struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCre
   void* m_pExisitingNativeObject = nullptr; ///< Can be used to encapsulate existing native textures in objects usable by the GAL
 };
 
-struct ezGALResourceViewCreationDescription : public ezHashableStruct<ezGALResourceViewCreationDescription>
+struct ezGALTextureResourceViewCreationDescription : public ezHashableStruct<ezGALTextureResourceViewCreationDescription>
 {
   ezGALTextureHandle m_hTexture;
-
-  ezGALBufferHandle m_hBuffer;
-
   ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-
-  // Texture only
   ezUInt32 m_uiMostDetailedMipLevel = 0;
   ezUInt32 m_uiMipLevelsToUse = 0xFFFFFFFFu;
-
   ezUInt32 m_uiFirstArraySlice = 0; // For cubemap array: index of first 2d slice to start with
   ezUInt32 m_uiArraySize = 1;       // For cubemap array: number of cubemaps
+};
 
-  // Buffer only
+struct ezGALBufferResourceViewCreationDescription : public ezHashableStruct<ezGALBufferResourceViewCreationDescription>
+{
+  ezGALBufferHandle m_hBuffer;
+  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
   ezUInt32 m_uiFirstElement = 0;
   ezUInt32 m_uiNumElements = 0;
   bool m_bRawView = false;

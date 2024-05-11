@@ -5,7 +5,8 @@
 #include <vulkan/vulkan.hpp>
 
 class ezGALDeviceVulkan;
-class ezGALResourceViewVulkan;
+class ezGALTextureResourceViewVulkan;
+class ezGALBufferResourceViewVulkan;
 class ezGALUnorderedAccessViewVulkan;
 
 /// \brief Creates fallback resources in case the high-level renderer did not map a resource to a descriptor slot.
@@ -18,7 +19,8 @@ public:
   /// \param textureType In case descriptorType is a texture, this specifies the texture type.
   /// \param bDepth Whether the shader resource is using a depth sampler.
   /// \return
-  static const ezGALResourceViewVulkan* GetFallbackResourceView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType, bool bDepth);
+  static const ezGALTextureResourceViewVulkan* GetFallbackTextureResourceView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType, bool bDepth);
+  static const ezGALBufferResourceViewVulkan* GetFallbackBufferResourceView(ezGALShaderResourceType::Enum descriptorType);
   static const ezGALUnorderedAccessViewVulkan* GetFallbackUnorderedAccessView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType);
 
 private:
@@ -42,9 +44,13 @@ private:
   {
     static ezUInt32 Hash(const Key& a);
     static bool Equal(const Key& a, const Key& b);
+
+    static ezUInt32 Hash(const ezEnum<ezGALShaderResourceType>& a);
+    static bool Equal(const ezEnum<ezGALShaderResourceType>& a, const ezEnum<ezGALShaderResourceType>& b);
   };
 
-  static ezHashTable<Key, ezGALResourceViewHandle, KeyHash> m_ResourceViews;
+  static ezHashTable<Key, ezGALTextureResourceViewHandle, KeyHash> m_TextureResourceViews;
+  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferResourceViewHandle, KeyHash> m_BufferResourceViews;
   static ezHashTable<Key, ezGALUnorderedAccessViewHandle, KeyHash> m_UAVs;
 
   static ezDynamicArray<ezGALBufferHandle> m_Buffers;

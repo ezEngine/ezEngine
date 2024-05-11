@@ -14,7 +14,8 @@ class ezGALBlendStateVulkan;
 class ezGALBufferVulkan;
 class ezGALDepthStencilStateVulkan;
 class ezGALRasterizerStateVulkan;
-class ezGALResourceViewVulkan;
+class ezGALTextureResourceViewVulkan;
+class ezGALBufferResourceViewVulkan;
 class ezGALSamplerStateVulkan;
 class ezGALShaderVulkan;
 class ezGALUnorderedAccessViewVulkan;
@@ -37,7 +38,8 @@ public:
 
   virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) override;
   virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) override;
-  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALResourceView* pResourceView) override;
+  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView) override;
+  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView) override;
   virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
 
@@ -72,7 +74,7 @@ public:
 
   virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData) override;
 
-  virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) override;
+  virtual void GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView) override;
 
   void CopyImageToBuffer(const ezGALTextureVulkan* pSource, const ezGALBufferVulkan* pDestination);
 
@@ -128,14 +130,16 @@ private:
   struct SetResources
   {
     ezDynamicArray<const ezGALBufferVulkan*> m_pBoundConstantBuffers;
-    ezDynamicArray<const ezGALResourceViewVulkan*> m_pBoundShaderResourceViews;
+    ezDynamicArray<const ezGALTextureResourceViewVulkan*> m_pBoundTextureResourceViews;
+    ezDynamicArray<const ezGALBufferResourceViewVulkan*> m_pBoundBufferResourceViews;
     ezDynamicArray<const ezGALUnorderedAccessViewVulkan*> m_pBoundUnoderedAccessViews;
     ezDynamicArray<const ezGALSamplerStateVulkan*> m_pBoundSamplerStates;
   };
 
 private:
   ezResult FlushDeferredStateChanges();
-  const ezGALResourceViewVulkan* GetShaderResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping);
+  const ezGALTextureResourceViewVulkan* GetTextureResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping);
+  const ezGALBufferResourceViewVulkan* GetBufferResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping);
   const ezGALUnorderedAccessViewVulkan* GetShaderUAV(const SetResources& resources, const ezShaderResourceBinding& mapping);
 
 private:
