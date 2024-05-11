@@ -43,7 +43,7 @@ public:
 
   /// \brief Wakes up one of the threads that are currently waiting for the variable.
   ///
-  /// If no thread is currently waiting, this has no effect.
+  /// If no thread is currently waiting, this has no effect. In rare cases more than one thread can be woken up, called a spurious wake up.
   void SignalOne();
 
   /// \brief Wakes up all the threads that are currently waiting for the variable.

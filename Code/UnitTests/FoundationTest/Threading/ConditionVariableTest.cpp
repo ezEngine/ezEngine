@@ -96,7 +96,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ConditionalVariable)
 
     for (ezUInt32 t = 0; t < uiNumThreads / 2; ++t)
     {
-      const ezInt32 iExpected = t + 1;
+      const ezInt32 iExpected = iCounter + 1;
 
       cv.SignalOne();
 
@@ -108,10 +108,9 @@ EZ_CREATE_SIMPLE_TEST(Threading, ConditionalVariable)
           break;
       }
 
-      // theoretically this could fail, if the OS doesn't wake up any other thread in time
-      // but with 1000 tries that is very unlikely
-      EZ_TEST_INT(iCounter, iExpected);
-      EZ_TEST_BOOL(iCounter <= iExpected); // THIS test must never fail!
+      // Theoretically this could fail, if the OS doesn't wake up any other thread in time but with 1000 tries that is very unlikely.
+      // On some platforms like posix it is not guaranteed that exactly one thread is woken up, so we check that at least one thread was woken up.
+      EZ_TEST_BOOL(iCounter >= iExpected);
     }
 
     // wake up the rest
