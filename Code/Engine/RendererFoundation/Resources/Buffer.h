@@ -23,6 +23,7 @@ protected:
 protected:
   ezGALBufferResourceViewHandle m_hDefaultResourceView;
   ezHashTable<ezUInt32, ezGALBufferResourceViewHandle> m_ResourceViews;
+  ezHashTable<ezUInt32, ezGALBufferUnorderedAccessViewHandle> m_UnorderedAccessViews;
 };
 
 #include <RendererFoundation/Resources/Implementation/Buffer_inl.h>

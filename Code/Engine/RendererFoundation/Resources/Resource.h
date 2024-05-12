@@ -24,7 +24,6 @@ protected:
 
   inline ~ezGALResourceBase()
   {
-    EZ_ASSERT_DEV(m_UnorderedAccessViews.IsEmpty(), "Dangling unordered access views");
   }
 
   virtual void SetDebugNamePlatform(const char* szName) const = 0;
@@ -32,7 +31,6 @@ protected:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   mutable ezHashedString m_sDebugName;
 #endif
-  ezHashTable<ezUInt32, ezGALUnorderedAccessViewHandle> m_UnorderedAccessViews;
 };
 
 /// \brief Base class for GAL resources, stores a creation description of the object and also allows for reference counting.

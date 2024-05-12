@@ -486,12 +486,66 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_data, ezLogInt
   return EZ_SUCCESS;
 }
 
+namespace
+{
+  struct DX11ResourceCategory
+  {
+    using StorageType = ezUInt8;
+    static constexpr int ENUM_COUNT = 4;
+    enum Enum : ezUInt8
+    {
+      Sampler = EZ_BIT(0),
+      ConstantBuffer = EZ_BIT(1),
+      SRV = EZ_BIT(2),
+      UAV = EZ_BIT(3),
+      Default = 0
+    };
+
+    struct Bits
+    {
+      StorageType Sampler : 1;
+      StorageType ConstantBuffer : 1;
+      StorageType SRV : 1;
+      StorageType UAV : 1;
+    };
+
+    static ezBitflags<DX11ResourceCategory> MakeFromShaderDescriptorType(ezGALShaderResourceType::Enum type);
+  };
+
+  EZ_DECLARE_FLAGS_OPERATORS(DX11ResourceCategory);
+}
+
+inline ezBitflags<DX11ResourceCategory> DX11ResourceCategory::MakeFromShaderDescriptorType(ezGALShaderResourceType::Enum type)
+{
+  switch (type)
+  {
+    case ezGALShaderResourceType::Sampler:
+      return DX11ResourceCategory::Sampler;
+    case ezGALShaderResourceType::ConstantBuffer:
+    case ezGALShaderResourceType::PushConstants:
+      return DX11ResourceCategory::ConstantBuffer;
+    case ezGALShaderResourceType::Texture:
+    case ezGALShaderResourceType::TexelBuffer:
+    case ezGALShaderResourceType::StructuredBuffer:
+      return DX11ResourceCategory::SRV;
+    case ezGALShaderResourceType::TextureRW:
+    case ezGALShaderResourceType::TexelBufferRW:
+    case ezGALShaderResourceType::StructuredBufferRW:
+      return DX11ResourceCategory::UAV;
+    case ezGALShaderResourceType::TextureAndSampler:
+      return DX11ResourceCategory::SRV | DX11ResourceCategory::Sampler;
+    default:
+      EZ_REPORT_FAILURE("Missing enum");
+      return {};
+  }
+}
+
 ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgramData& data, ezHashTable<ezHashedString, ezShaderResourceBinding>& inout_resourceBinding, ezLogInterface* pLog)
 {
-  ezHybridBitfield<64> indexInUse[ezGALShaderResourceCategory::ENUM_COUNT];
+  ezHybridBitfield<64> indexInUse[DX11ResourceCategory::ENUM_COUNT];
   for (auto it : inout_resourceBinding)
   {
-    const ezBitflags<ezGALShaderResourceCategory> type = ezGALShaderResourceCategory::MakeFromShaderDescriptorType(it.Value().m_ResourceType);
+    const ezBitflags<DX11ResourceCategory> type = DX11ResourceCategory::MakeFromShaderDescriptorType(it.Value().m_ResourceType);
     // Convert bit to index. We know that only one bit can be set in DX11 as TextureAndSampler is not supported.
     const ezUInt32 uiIndex = ezMath::FirstBitLow((ezUInt32)type.GetValue());
     const ezInt16 iSlot = it.Value().m_iSlot;
@@ -505,7 +559,7 @@ ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgra
   }
 
   // Create stable order of resources
-  ezHybridArray<ezHashedString, 16> order[ezGALShaderResourceCategory::ENUM_COUNT];
+  ezHybridArray<ezHashedString, 16> order[DX11ResourceCategory::ENUM_COUNT];
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     if (data.m_sShaderSource[stage].IsEmpty())
@@ -513,7 +567,7 @@ ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgra
 
     for (const auto& res : data.m_Resources[stage])
     {
-      const ezBitflags<ezGALShaderResourceCategory> type = ezGALShaderResourceCategory::MakeFromShaderDescriptorType(res.m_Binding.m_ResourceType);
+      const ezBitflags<DX11ResourceCategory> type = DX11ResourceCategory::MakeFromShaderDescriptorType(res.m_Binding.m_ResourceType);
       const ezUInt32 uiIndex = ezMath::FirstBitLow((ezUInt32)type.GetValue());
       if (!order[uiIndex].Contains(res.m_Binding.m_sName))
       {
@@ -525,12 +579,12 @@ ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgra
   // EZ: We only allow constant buffers to be bound globally, so they must all have unique indices.
   // DX11: UAV are bound globally
   // #TODO_SHADER: DX11: SRV, Samplers can be bound by stage, so indices can be re-used. But we treat them globally for now.
-  for (ezUInt32 uiIndex = 0; uiIndex < ezGALShaderResourceCategory::ENUM_COUNT; ++uiIndex)
+  for (ezUInt32 uiIndex = 0; uiIndex < DX11ResourceCategory::ENUM_COUNT; ++uiIndex)
   {
     const ezUInt32 type = EZ_BIT(uiIndex);
     ezUInt32 uiCurrentIndex = 0;
     // Workaround for this: error X4509: UAV registers live in the same name space as outputs, so they must be bound to at least u1, manual bind to slot u0 failed
-    if (type == ezGALShaderResourceCategory::UAV)
+    if (type == DX11ResourceCategory::UAV)
       uiCurrentIndex = 1;
 
     for (const auto& sName : order[uiIndex])
@@ -551,20 +605,20 @@ ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgra
 void ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration)
 {
   EZ_ASSERT_DEBUG(binding.m_iSet == 0, "HLSL: error X3721: space is only supported for shader targets 5.1 and higher");
-  const ezBitflags<ezGALShaderResourceCategory> type = ezGALShaderResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
+  const ezBitflags<DX11ResourceCategory> type = DX11ResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
   ezStringView sResourcePrefix;
   switch (type.GetValue())
   {
-    case ezGALShaderResourceCategory::Sampler:
+    case DX11ResourceCategory::Sampler:
       sResourcePrefix = "s"_ezsv;
       break;
-    case ezGALShaderResourceCategory::ConstantBuffer:
+    case DX11ResourceCategory::ConstantBuffer:
       sResourcePrefix = "b"_ezsv;
       break;
-    case ezGALShaderResourceCategory::SRV:
+    case DX11ResourceCategory::SRV:
       sResourcePrefix = "t"_ezsv;
       break;
-    case ezGALShaderResourceCategory::UAV:
+    case DX11ResourceCategory::UAV:
       sResourcePrefix = "u"_ezsv;
       break;
     default:

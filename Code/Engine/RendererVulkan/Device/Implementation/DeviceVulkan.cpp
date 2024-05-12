@@ -1253,10 +1253,10 @@ void ezGALDeviceVulkan::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* p
   EZ_DELETE(&m_Allocator, pVulkanRenderTargetView);
 }
 
-ezGALUnorderedAccessView* ezGALDeviceVulkan::CreateUnorderedAccessViewPlatform(
-  ezGALResourceBase* pTextureOfBuffer, const ezGALUnorderedAccessViewCreationDescription& Description)
+ezGALTextureUnorderedAccessView* ezGALDeviceVulkan::CreateUnorderedAccessViewPlatform(
+  ezGALTexture* pTextureOfBuffer, const ezGALTextureUnorderedAccessViewCreationDescription& Description)
 {
-  ezGALUnorderedAccessViewVulkan* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALUnorderedAccessViewVulkan, pTextureOfBuffer, Description);
+  ezGALTextureUnorderedAccessViewVulkan* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALTextureUnorderedAccessViewVulkan, pTextureOfBuffer, Description);
 
   if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
   {
@@ -1267,14 +1267,33 @@ ezGALUnorderedAccessView* ezGALDeviceVulkan::CreateUnorderedAccessViewPlatform(
   return pUnorderedAccessView;
 }
 
-void ezGALDeviceVulkan::DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pUnorderedAccessView)
+void ezGALDeviceVulkan::DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAccessView* pUnorderedAccessView)
 {
-  ezGALUnorderedAccessViewVulkan* pUnorderedAccessViewVulkan = static_cast<ezGALUnorderedAccessViewVulkan*>(pUnorderedAccessView);
+  ezGALTextureUnorderedAccessViewVulkan* pUnorderedAccessViewVulkan = static_cast<ezGALTextureUnorderedAccessViewVulkan*>(pUnorderedAccessView);
   pUnorderedAccessViewVulkan->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pUnorderedAccessViewVulkan);
 }
 
+ezGALBufferUnorderedAccessView* ezGALDeviceVulkan::CreateUnorderedAccessViewPlatform(
+  ezGALBuffer* pBufferOfBuffer, const ezGALBufferUnorderedAccessViewCreationDescription& Description)
+{
+  ezGALBufferUnorderedAccessViewVulkan* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALBufferUnorderedAccessViewVulkan, pBufferOfBuffer, Description);
+  
+  if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pUnorderedAccessView);
+    return nullptr;
+  }
 
+  return pUnorderedAccessView;
+}
+
+void ezGALDeviceVulkan::DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView)
+{
+  ezGALBufferUnorderedAccessViewVulkan* pUnorderedAccessViewVulkan = static_cast<ezGALBufferUnorderedAccessViewVulkan*>(pUnorderedAccessView);
+  pUnorderedAccessViewVulkan->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pUnorderedAccessViewVulkan);
+}
 
 // Other rendering creation functions
 ezGALQuery* ezGALDeviceVulkan::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)

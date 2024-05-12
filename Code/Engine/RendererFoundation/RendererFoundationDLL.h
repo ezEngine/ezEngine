@@ -41,7 +41,8 @@ struct ezGALSamplerStateCreationDescription;
 struct ezGALTextureResourceViewCreationDescription;
 struct ezGALBufferResourceViewCreationDescription;
 struct ezGALRenderTargetViewCreationDescription;
-struct ezGALUnorderedAccessViewCreationDescription;
+struct ezGALTextureUnorderedAccessViewCreationDescription;
+struct ezGALBufferUnorderedAccessViewCreationDescription;
 
 class ezGALSwapChain;
 class ezGALShader;
@@ -59,7 +60,8 @@ class ezGALSamplerState;
 class ezGALTextureResourceView;
 class ezGALBufferResourceView;
 class ezGALRenderTargetView;
-class ezGALUnorderedAccessView;
+class ezGALTextureUnorderedAccessView;
+class ezGALBufferUnorderedAccessView;
 class ezGALDevice;
 class ezGALPass;
 class ezGALCommandEncoder;
@@ -423,9 +425,16 @@ class ezGALBufferResourceViewHandle
   friend class ezGALDevice;
 };
 
-class ezGALUnorderedAccessViewHandle
+class ezGALTextureUnorderedAccessViewHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALUnorderedAccessViewHandle, ezGAL::ez18_14Id);
+  EZ_DECLARE_HANDLE_TYPE(ezGALTextureUnorderedAccessViewHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALBufferUnorderedAccessViewHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALBufferUnorderedAccessViewHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };

@@ -165,22 +165,37 @@ void ezGALCommandEncoderImplDX11::SetResourceView(const ezShaderResourceBinding&
   }
 }
 
-void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALUnorderedAccessView* pUnorderedAccessView)
+void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureUnorderedAccessView* pUnorderedAccessView)
 {
   if (pUnorderedAccessView != nullptr && UnsetResourceViews(pUnorderedAccessView->GetResource()))
   {
     FlushPlatform();
   }
 
-  ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pUnorderedAccessView != nullptr ? static_cast<const ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
+  ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pUnorderedAccessView != nullptr ? static_cast<const ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
+  SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource() : nullptr);
+}
 
-  m_BoundUnoderedAccessViews.EnsureCount(binding.m_iSlot + 1);
-  m_ResourcesForUnorderedAccessViews.EnsureCount(binding.m_iSlot + 1);
-  if (m_BoundUnoderedAccessViews[binding.m_iSlot] != pUnorderedAccessViewDX11)
+void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView)
+{
+  if (pUnorderedAccessView != nullptr && UnsetResourceViews(pUnorderedAccessView->GetResource()))
   {
-    m_BoundUnoderedAccessViews[binding.m_iSlot] = pUnorderedAccessViewDX11;
-    m_ResourcesForUnorderedAccessViews[binding.m_iSlot] = pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource() : nullptr;
-    m_BoundUnoderedAccessViewsRange.SetToIncludeValue(binding.m_iSlot);
+    FlushPlatform();
+  }
+  
+  ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pUnorderedAccessView != nullptr ? static_cast<const ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
+  SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource() : nullptr);
+}
+
+void ezGALCommandEncoderImplDX11::SetUnorderedAccessView(const ezShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, ezGALResourceBase* pResource)
+{
+  m_BoundUnorderedAccessViews.EnsureCount(binding.m_iSlot + 1);
+  m_ResourcesForUnorderedAccessViews.EnsureCount(binding.m_iSlot + 1);
+  if (m_BoundUnorderedAccessViews[binding.m_iSlot] != pUnorderedAccessViewDX11)
+  {
+    m_BoundUnorderedAccessViews[binding.m_iSlot] = pUnorderedAccessViewDX11;
+    m_ResourcesForUnorderedAccessViews[binding.m_iSlot] = pResource;
+    m_BoundUnorderedAccessViewsRange.SetToIncludeValue(binding.m_iSlot);
   }
 }
 
@@ -220,15 +235,27 @@ void ezGALCommandEncoderImplDX11::InsertTimestampPlatform(ezGALTimestampHandle h
 
 // Resource update functions
 
-void ezGALCommandEncoderImplDX11::ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues)
+void ezGALCommandEncoderImplDX11::ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues)
 {
-  const ezGALUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView);
+  const ezGALTextureUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView);
   m_pDXContext->ClearUnorderedAccessViewFloat(pUnorderedAccessViewDX11->GetDXResourceView(), &vClearValues.x);
 }
 
-void ezGALCommandEncoderImplDX11::ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues)
+void ezGALCommandEncoderImplDX11::ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues)
 {
-  const ezGALUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView);
+  const ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView);
+  m_pDXContext->ClearUnorderedAccessViewFloat(pUnorderedAccessViewDX11->GetDXResourceView(), &vClearValues.x);
+}
+
+void ezGALCommandEncoderImplDX11::ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues)
+{
+  const ezGALTextureUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView);
+  m_pDXContext->ClearUnorderedAccessViewUint(pUnorderedAccessViewDX11->GetDXResourceView(), &vClearValues.x);
+}
+
+void ezGALCommandEncoderImplDX11::ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues)
+{
+  const ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView);
   m_pDXContext->ClearUnorderedAccessViewUint(pUnorderedAccessViewDX11->GetDXResourceView(), &vClearValues.x);
 }
 
@@ -926,13 +953,13 @@ ezResult ezGALCommandEncoderImplDX11::FlushDeferredStateChanges()
   }
 
   // Do UAV bindings before SRV since UAV are outputs which need to be unbound before they are potentially rebound as SRV again.
-  if (m_BoundUnoderedAccessViewsRange.IsValid())
+  if (m_BoundUnorderedAccessViewsRange.IsValid())
   {
-    const ezUInt32 uiStartSlot = m_BoundUnoderedAccessViewsRange.m_uiMin;
-    const ezUInt32 uiNumSlots = m_BoundUnoderedAccessViewsRange.GetCount();
-    m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_BoundUnoderedAccessViews.GetData() + uiStartSlot, nullptr); // Todo: Count reset.
+    const ezUInt32 uiStartSlot = m_BoundUnorderedAccessViewsRange.m_uiMin;
+    const ezUInt32 uiNumSlots = m_BoundUnorderedAccessViewsRange.GetCount();
+    m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_BoundUnorderedAccessViews.GetData() + uiStartSlot, nullptr); // Todo: Count reset.
 
-    m_BoundUnoderedAccessViewsRange.Reset();
+    m_BoundUnorderedAccessViewsRange.Reset();
   }
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
@@ -976,8 +1003,8 @@ bool ezGALCommandEncoderImplDX11::UnsetUnorderedAccessViews(const ezGALResourceB
     if (m_ResourcesForUnorderedAccessViews[uiSlot] == pResource)
     {
       m_ResourcesForUnorderedAccessViews[uiSlot] = nullptr;
-      m_BoundUnoderedAccessViews[uiSlot] = nullptr;
-      m_BoundUnoderedAccessViewsRange.SetToIncludeValue(uiSlot);
+      m_BoundUnorderedAccessViews[uiSlot] = nullptr;
+      m_BoundUnorderedAccessViewsRange.SetToIncludeValue(uiSlot);
       bResult = true;
     }
   }

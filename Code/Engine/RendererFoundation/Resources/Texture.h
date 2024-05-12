@@ -24,6 +24,7 @@ protected:
 
   ezHashTable<ezUInt32, ezGALTextureResourceViewHandle> m_ResourceViews;
   ezHashTable<ezUInt32, ezGALRenderTargetViewHandle> m_RenderTargetViews;
+  ezHashTable<ezUInt32, ezGALTextureUnorderedAccessViewHandle> m_UnorderedAccessViews;
 };
 
 /// \brief Optional interface for ezGALTexture if it was created via ezGALDevice::CreateSharedTexture.

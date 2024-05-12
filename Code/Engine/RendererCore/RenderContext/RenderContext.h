@@ -155,7 +155,8 @@ public:
   void BindTextureCube(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView);
 
   /// Binds a read+write texture or buffer
-  void BindUAV(const ezTempHashedString& sSlotName, ezGALUnorderedAccessViewHandle hUnorderedAccessViewHandle);
+  void BindUAV(const ezTempHashedString& sSlotName, ezGALTextureUnorderedAccessViewHandle hUnorderedAccessViewHandle);
+  void BindUAV(const ezTempHashedString& sSlotName, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessViewHandle);
 
   void BindSamplerState(const ezTempHashedString& sSlotName, ezGALSamplerStateHandle hSamplerSate);
 
@@ -314,9 +315,12 @@ private:
   ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTextures2D;
   ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTextures3D;
   ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTexturesCube;
-  ezHashTable<ezUInt64, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
+  ezHashTable<ezUInt64, ezGALTextureUnorderedAccessViewHandle> m_BoundTextureUAVs;
+
   ezHashTable<ezUInt64, ezGALSamplerStateHandle> m_BoundSamplers;
+
   ezHashTable<ezUInt64, ezGALBufferResourceViewHandle> m_BoundBuffer;
+  ezHashTable<ezUInt64, ezGALBufferUnorderedAccessViewHandle> m_BoundBufferUAVs;
   ezGALSamplerStateHandle m_hFallbackSampler;
 
   struct BoundConstantBuffer

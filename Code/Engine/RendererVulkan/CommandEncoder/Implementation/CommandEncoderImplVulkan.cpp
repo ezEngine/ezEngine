@@ -65,7 +65,8 @@ void ezGALCommandEncoderImplVulkan::Reset()
     m_Resources[i].m_pBoundConstantBuffers.Clear();
     m_Resources[i].m_pBoundTextureResourceViews.Clear();
     m_Resources[i].m_pBoundBufferResourceViews.Clear();
-    m_Resources[i].m_pBoundUnoderedAccessViews.Clear();
+    m_Resources[i].m_pBoundTextureUnorderedAccessViews.Clear();
+    m_Resources[i].m_pBoundBufferUnorderedAccessViews.Clear();
     m_Resources[i].m_pBoundSamplerStates.Clear();
   }
 
@@ -145,12 +146,21 @@ void ezGALCommandEncoderImplVulkan::SetResourceViewPlatform(const ezShaderResour
   m_bDescriptorsDirty = true;
 }
 
-void ezGALCommandEncoderImplVulkan::SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALUnorderedAccessView* pUnorderedAccessView)
+void ezGALCommandEncoderImplVulkan::SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureUnorderedAccessView* pUnorderedAccessView)
 {
   m_Resources.EnsureCount(binding.m_iSet + 1);
   auto& resources = m_Resources[binding.m_iSet];
-  resources.m_pBoundUnoderedAccessViews.EnsureCount(binding.m_iSlot + 1);
-  resources.m_pBoundUnoderedAccessViews[binding.m_iSlot] = pUnorderedAccessView != nullptr ? static_cast<const ezGALUnorderedAccessViewVulkan*>(pUnorderedAccessView) : nullptr;
+  resources.m_pBoundTextureUnorderedAccessViews.EnsureCount(binding.m_iSlot + 1);
+  resources.m_pBoundTextureUnorderedAccessViews[binding.m_iSlot] = pUnorderedAccessView != nullptr ? static_cast<const ezGALTextureUnorderedAccessViewVulkan*>(pUnorderedAccessView) : nullptr;
+  m_bDescriptorsDirty = true;
+}
+
+void ezGALCommandEncoderImplVulkan::SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView)
+{
+  m_Resources.EnsureCount(binding.m_iSet + 1);
+  auto& resources = m_Resources[binding.m_iSet];
+  resources.m_pBoundBufferUnorderedAccessViews.EnsureCount(binding.m_iSlot + 1);
+  resources.m_pBoundBufferUnorderedAccessViews[binding.m_iSlot] = pUnorderedAccessView != nullptr ? static_cast<const ezGALBufferUnorderedAccessViewVulkan*>(pUnorderedAccessView) : nullptr;
   m_bDescriptorsDirty = true;
 }
 
@@ -193,18 +203,28 @@ void ezGALCommandEncoderImplVulkan::InsertTimestampPlatform(ezGALTimestampHandle
 
 // Resource update functions
 
-void ezGALCommandEncoderImplVulkan::ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues)
+void ezGALCommandEncoderImplVulkan::ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues)
 {
   // this looks to require custom code, either using buffer copies or
   // clearing via a compute shader
-
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezGALCommandEncoderImplVulkan::ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues)
+void ezGALCommandEncoderImplVulkan::ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues)
 {
   // Same as the other clearing variant
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
 
+void ezGALCommandEncoderImplVulkan::ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues)
+{
+  // Same as the other clearing variant
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+void ezGALCommandEncoderImplVulkan::ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues)
+{
+  // Same as the other clearing variant
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
@@ -1430,8 +1450,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
           break;
           case ezGALShaderResourceType::TextureRW:
           {
-            const ezGALUnorderedAccessViewVulkan* pUAV = GetShaderUAV(resources, mapping);
-            EZ_VULKAN_CHECK_STATE(!pUAV->GetDescription().m_hTexture.IsInvalidated(), "Texture resource view expected to be bound at '{}'", mapping.m_sName.GetView());
+            const ezGALTextureUnorderedAccessViewVulkan* pUAV = GetTextureUAV(resources, mapping);
             write.pImageInfo = &pUAV->GetImageInfo();
 
             const auto* pTexture = static_cast<const ezGALTextureVulkan*>(pUAV->GetResource()->GetParentResource());
@@ -1440,14 +1459,14 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
           break;
           case ezGALShaderResourceType::TexelBufferRW:
           {
-            const ezGALUnorderedAccessViewVulkan* pUAV = GetShaderUAV(resources, mapping);
+            const ezGALBufferUnorderedAccessViewVulkan* pUAV = GetBufferUAV(resources, mapping);
             EZ_VULKAN_CHECK_STATE(pUAV != nullptr, "No UAV bound at '{}'", mapping.m_sName.GetView());
             write.pTexelBufferView = &pUAV->GetBufferView();
           }
           break;
           case ezGALShaderResourceType::StructuredBufferRW:
           {
-            const ezGALUnorderedAccessViewVulkan* pUAV = GetShaderUAV(resources, mapping);
+            const ezGALBufferUnorderedAccessViewVulkan* pUAV = GetBufferUAV(resources, mapping);
             EZ_VULKAN_CHECK_STATE(pUAV != nullptr, "No UAV bound at '{}'", mapping.m_sName.GetView());
             write.pBufferInfo = &pUAV->GetBufferInfo();
           }
@@ -1529,17 +1548,32 @@ const ezGALBufferResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetBufferRes
   return pResourceView;
 }
 
-const ezGALUnorderedAccessViewVulkan* ezGALCommandEncoderImplVulkan::GetShaderUAV(const SetResources& resources, const ezShaderResourceBinding& mapping)
+const ezGALTextureUnorderedAccessViewVulkan* ezGALCommandEncoderImplVulkan::GetTextureUAV(const SetResources& resources, const ezShaderResourceBinding& mapping)
 {
-  const ezGALUnorderedAccessViewVulkan* pUAV = nullptr;
-  if (mapping.m_iSlot < resources.m_pBoundUnoderedAccessViews.GetCount())
+  const ezGALTextureUnorderedAccessViewVulkan* pUAV = nullptr;
+  if (mapping.m_iSlot < resources.m_pBoundTextureUnorderedAccessViews.GetCount())
   {
-    pUAV = resources.m_pBoundUnoderedAccessViews[mapping.m_iSlot];
+    pUAV = resources.m_pBoundTextureUnorderedAccessViews[mapping.m_iSlot];
   }
 
   if (!pUAV)
   {
-    pUAV = ezFallbackResourcesVulkan::GetFallbackUnorderedAccessView(mapping.m_ResourceType, mapping.m_TextureType);
+    pUAV = ezFallbackResourcesVulkan::GetFallbackTextureUnorderedAccessView(mapping.m_ResourceType, mapping.m_TextureType);
+  }
+  return pUAV;
+}
+
+const ezGALBufferUnorderedAccessViewVulkan* ezGALCommandEncoderImplVulkan::GetBufferUAV(const SetResources& resources, const ezShaderResourceBinding& mapping)
+{
+  const ezGALBufferUnorderedAccessViewVulkan* pUAV = nullptr;
+  if (mapping.m_iSlot < resources.m_pBoundBufferUnorderedAccessViews.GetCount())
+  {
+    pUAV = resources.m_pBoundBufferUnorderedAccessViews[mapping.m_iSlot];
+  }
+  
+  if (!pUAV)
+  {
+    pUAV = ezFallbackResourcesVulkan::GetFallbackBufferUnorderedAccessView(mapping.m_ResourceType);
   }
   return pUAV;
 }

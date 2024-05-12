@@ -411,7 +411,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
 
       m_hLineSweepOutputBuffer = device->CreateBuffer(bufferDesc);
 
-      ezGALUnorderedAccessViewCreationDescription uavDesc;
+      ezGALBufferUnorderedAccessViewCreationDescription uavDesc;
       uavDesc.m_hBuffer = m_hLineSweepOutputBuffer;
       uavDesc.m_OverrideViewFormat = ezGALResourceFormat::RUInt;
       uavDesc.m_uiFirstElement = 0;

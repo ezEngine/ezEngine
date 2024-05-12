@@ -5,7 +5,7 @@
 
 struct ID3D11UnorderedAccessView;
 
-class ezGALUnorderedAccessViewDX11 : public ezGALUnorderedAccessView
+class ezGALTextureUnorderedAccessViewDX11 : public ezGALTextureUnorderedAccessView
 {
 public:
   EZ_ALWAYS_INLINE ID3D11UnorderedAccessView* GetDXResourceView() const;
@@ -14,12 +14,28 @@ protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 
-  ezGALUnorderedAccessViewDX11(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description);
-
-  ~ezGALUnorderedAccessViewDX11();
+  ezGALTextureUnorderedAccessViewDX11(ezGALTexture* pResource, const ezGALTextureUnorderedAccessViewCreationDescription& Description);
+  ~ezGALTextureUnorderedAccessViewDX11();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
+  ID3D11UnorderedAccessView* m_pDXUnorderedAccessView = nullptr;
+};
+
+class ezGALBufferUnorderedAccessViewDX11 : public ezGALBufferUnorderedAccessView
+{
+public:
+  EZ_ALWAYS_INLINE ID3D11UnorderedAccessView* GetDXResourceView() const;
+  
+protected:
+  friend class ezGALDeviceDX11;
+  friend class ezMemoryUtils;
+
+  ezGALBufferUnorderedAccessViewDX11(ezGALBuffer* pResource, const ezGALBufferUnorderedAccessViewCreationDescription& Description);
+  ~ezGALBufferUnorderedAccessViewDX11();
+
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   ID3D11UnorderedAccessView* m_pDXUnorderedAccessView = nullptr;

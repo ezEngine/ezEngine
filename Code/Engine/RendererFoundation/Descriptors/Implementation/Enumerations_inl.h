@@ -9,15 +9,17 @@ inline ezBitflags<ezGALShaderResourceCategory> ezGALShaderResourceCategory::Make
     case ezGALShaderResourceType::PushConstants:
       return ezGALShaderResourceCategory::ConstantBuffer;
     case ezGALShaderResourceType::Texture:
+      return ezGALShaderResourceCategory::TextureSRV;
     case ezGALShaderResourceType::TexelBuffer:
     case ezGALShaderResourceType::StructuredBuffer:
-      return ezGALShaderResourceCategory::SRV;
+      return ezGALShaderResourceCategory::BufferSRV;
     case ezGALShaderResourceType::TextureRW:
+      return ezGALShaderResourceCategory::TextureUAV;
     case ezGALShaderResourceType::TexelBufferRW:
     case ezGALShaderResourceType::StructuredBufferRW:
-      return ezGALShaderResourceCategory::UAV;
+      return ezGALShaderResourceCategory::BufferUAV;
     case ezGALShaderResourceType::TextureAndSampler:
-      return ezGALShaderResourceCategory::SRV | ezGALShaderResourceCategory::Sampler;
+      return ezGALShaderResourceCategory::TextureSRV | ezGALShaderResourceCategory::Sampler;
     default:
       EZ_REPORT_FAILURE("Missing enum");
       return {};

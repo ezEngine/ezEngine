@@ -407,7 +407,7 @@ void ezShaderCompilerDXC::CreateNewShaderResourceDeclaration(ezStringView sPlatf
   // There will be two declarations in the HLSL code, the sampler and the texture.
   if (binding.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
   {
-    type = binding.m_TextureType == ezGALShaderTextureType::Unknown ? ezGALShaderResourceCategory::Sampler : ezGALShaderResourceCategory::SRV;
+    type = binding.m_TextureType == ezGALShaderTextureType::Unknown ? ezGALShaderResourceCategory::Sampler : ezGALShaderResourceCategory::TextureSRV;
   }
 
   switch (type.GetValue())
@@ -418,10 +418,12 @@ void ezShaderCompilerDXC::CreateNewShaderResourceDeclaration(ezStringView sPlatf
     case ezGALShaderResourceCategory::ConstantBuffer:
       sResourcePrefix = "b"_ezsv;
       break;
-    case ezGALShaderResourceCategory::SRV:
+    case ezGALShaderResourceCategory::TextureSRV:
+    case ezGALShaderResourceCategory::BufferSRV:
       sResourcePrefix = "t"_ezsv;
       break;
-    case ezGALShaderResourceCategory::UAV:
+    case ezGALShaderResourceCategory::TextureUAV:
+    case ezGALShaderResourceCategory::BufferUAV:
       sResourcePrefix = "u"_ezsv;
       break;
     default:

@@ -470,9 +470,9 @@ void ezRendererTestAdvancedFeatures::Compute()
     {
       ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
 
-      ezGALUnorderedAccessViewHandle hFilterOutput;
+      ezGALTextureUnorderedAccessViewHandle hFilterOutput;
       {
-        ezGALUnorderedAccessViewCreationDescription desc;
+        ezGALTextureUnorderedAccessViewCreationDescription desc;
         desc.m_hTexture = m_hTexture2D;
         desc.m_uiMipLevelToUse = 0;
         desc.m_uiFirstArraySlice = 0;

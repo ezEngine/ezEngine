@@ -230,22 +230,21 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
   bool m_bReadOnly = false; ///< Can be used for depth stencil views to create read only views (e.g. for soft particles using the native depth buffer)
 };
 
-struct ezGALUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALUnorderedAccessViewCreationDescription>
+struct ezGALTextureUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALTextureUnorderedAccessViewCreationDescription>
 {
   ezGALTextureHandle m_hTexture;
-
-  ezGALBufferHandle m_hBuffer;
-
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-
-  // Texture only
-  ezUInt32 m_uiMipLevelToUse = 0;   ///< Which MipLevel is accessed with this UAV
   ezUInt32 m_uiFirstArraySlice = 0; ///< First depth slice for 3D Textures.
   ezUInt32 m_uiArraySize = 1;       ///< Number of depth slices for 3D textures.
+  ezUInt16 m_uiMipLevelToUse = 0;   ///< Which MipLevel is accessed with this UAV
+  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
+};
 
-  // Buffer only
+struct ezGALBufferUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALBufferUnorderedAccessViewCreationDescription>
+{
+  ezGALBufferHandle m_hBuffer;
   ezUInt32 m_uiFirstElement = 0;
   ezUInt32 m_uiNumElements = 0;
+  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
   bool m_bRawView = false;
   bool m_bAppend = false; // Allows appending data to the end of the buffer.
 };

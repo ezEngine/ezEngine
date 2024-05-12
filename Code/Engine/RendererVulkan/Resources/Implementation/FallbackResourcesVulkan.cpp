@@ -37,7 +37,8 @@ ezEventSubscriptionID ezFallbackResourcesVulkan::s_EventID = 0;
 
 ezHashTable<ezFallbackResourcesVulkan::Key, ezGALTextureResourceViewHandle, ezFallbackResourcesVulkan::KeyHash> ezFallbackResourcesVulkan::m_TextureResourceViews;
 ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferResourceViewHandle, ezFallbackResourcesVulkan::KeyHash> ezFallbackResourcesVulkan::m_BufferResourceViews;
-ezHashTable<ezFallbackResourcesVulkan::Key, ezGALUnorderedAccessViewHandle, ezFallbackResourcesVulkan::KeyHash> ezFallbackResourcesVulkan::m_UAVs;
+ezHashTable<ezFallbackResourcesVulkan::Key, ezGALTextureUnorderedAccessViewHandle, ezFallbackResourcesVulkan::KeyHash> ezFallbackResourcesVulkan::m_TextureUAVs;
+ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferUnorderedAccessViewHandle, ezFallbackResourcesVulkan::KeyHash> ezFallbackResourcesVulkan::m_BufferUAVs;
 ezDynamicArray<ezGALBufferHandle> ezFallbackResourcesVulkan::m_Buffers;
 ezDynamicArray<ezGALTextureHandle> ezFallbackResourcesVulkan::m_Textures;
 
@@ -159,10 +160,10 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         s_pDevice->GetTexture(hTexture)->SetDebugName("FallbackTextureRWVulkan");
         m_Textures.PushBack(hTexture);
 
-        ezGALUnorderedAccessViewCreationDescription descUAV;
+        ezGALTextureUnorderedAccessViewCreationDescription descUAV;
         descUAV.m_hTexture = hTexture;
         auto hUAV = s_pDevice->CreateUnorderedAccessView(descUAV);
-        m_UAVs[{ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Unknown, false}] = hUAV;
+        m_TextureUAVs[{ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Unknown, false}] = hUAV;
       }
       {
         ezGALBufferCreationDescription desc;
@@ -197,8 +198,10 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
       m_BufferResourceViews.Clear();
       m_BufferResourceViews.Compact();
 
-      m_UAVs.Clear();
-      m_UAVs.Compact();
+      m_TextureUAVs.Clear();
+      m_TextureUAVs.Compact();
+      m_BufferUAVs.Clear();
+      m_BufferUAVs.Compact();
 
       for (ezGALBufferHandle hBuffer : m_Buffers)
       {
@@ -241,11 +244,21 @@ const ezGALBufferResourceViewVulkan* ezFallbackResourcesVulkan::GetFallbackBuffe
   return nullptr;
 }
 
-const ezGALUnorderedAccessViewVulkan* ezFallbackResourcesVulkan::GetFallbackUnorderedAccessView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType)
+const ezGALTextureUnorderedAccessViewVulkan* ezFallbackResourcesVulkan::GetFallbackTextureUnorderedAccessView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType)
 {
-  if (ezGALUnorderedAccessViewHandle* pView = m_UAVs.GetValue(Key{descriptorType, textureType, false}))
+  if (ezGALTextureUnorderedAccessViewHandle* pView = m_TextureUAVs.GetValue(Key{descriptorType, textureType, false}))
   {
-    return static_cast<const ezGALUnorderedAccessViewVulkan*>(s_pDevice->GetUnorderedAccessView(*pView));
+    return static_cast<const ezGALTextureUnorderedAccessViewVulkan*>(s_pDevice->GetUnorderedAccessView(*pView));
+  }
+  EZ_REPORT_FAILURE("No fallback resource set, update ezFallbackResourcesVulkan::GALDeviceEventHandler.");
+  return nullptr;
+}
+
+const ezGALBufferUnorderedAccessViewVulkan* ezFallbackResourcesVulkan::GetFallbackBufferUnorderedAccessView(ezGALShaderResourceType::Enum descriptorType)
+{
+  if (ezGALBufferUnorderedAccessViewHandle* pView = m_BufferUAVs.GetValue(descriptorType))
+  {
+    return static_cast<const ezGALBufferUnorderedAccessViewVulkan*>(s_pDevice->GetUnorderedAccessView(*pView));
   }
   EZ_REPORT_FAILURE("No fallback resource set, update ezFallbackResourcesVulkan::GALDeviceEventHandler.");
   return nullptr;

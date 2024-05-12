@@ -35,7 +35,7 @@ private:
 
   // Could use buffer, but access and organisation with texture is more straight forward.
   ezGALTextureHandle m_hHistogramTexture;
-  ezGALUnorderedAccessViewHandle m_hHistogramUAV;
+  ezGALTextureUnorderedAccessViewHandle m_hHistogramUAV;
   ezGALTextureResourceViewHandle m_hHistogramSRV;
 
   ezWindowBase* m_pWindow = nullptr;
