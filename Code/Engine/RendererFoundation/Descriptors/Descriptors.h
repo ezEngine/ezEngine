@@ -246,7 +246,6 @@ struct ezGALBufferUnorderedAccessViewCreationDescription : public ezHashableStru
   ezUInt32 m_uiNumElements = 0;
   ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
   bool m_bRawView = false;
-  bool m_bAppend = false; // Allows appending data to the end of the buffer.
 };
 
 struct ezGALQueryCreationDescription : public ezHashableStruct<ezGALQueryCreationDescription>

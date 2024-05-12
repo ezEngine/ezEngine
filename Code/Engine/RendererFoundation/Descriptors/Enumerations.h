@@ -166,7 +166,7 @@ struct ezGALVertexAttributeSemantic
   };
 };
 
-/// \brief General type of buffer.
+/// \brief Defines for what purpose a buffer can be used for.
 /// \sa ezGALBufferCreationDescription
 struct ezGALBufferFlags
 {
@@ -174,16 +174,16 @@ struct ezGALBufferFlags
 
   enum Enum
   {
-    VertexBuffer = EZ_BIT(0), // Can be used as a vertex buffer.
-    IndexBuffer = EZ_BIT(1), // Can be used as an index buffer.
-    ConstantBuffer = EZ_BIT(2), // Can be used as a constant buffer. Can't be combined with any of the other *Buffer flags.
-    TexelBuffer = EZ_BIT(3), // Can be used as a texel buffer.
-    StructuredBuffer = EZ_BIT(4),  // ezGALShaderResourceType::StructuredBuffer
-    ByteAddressBuffer = EZ_BIT(5), // ezGALShaderResourceType::ByteAddressBuffer (RAW)
+    VertexBuffer = EZ_BIT(0), ///< Can be used as a vertex buffer.
+    IndexBuffer = EZ_BIT(1), ///< Can be used as an index buffer.
+    ConstantBuffer = EZ_BIT(2), ///< Can be used as a constant buffer. Can't be combined with any of the other *Buffer flags.
+    TexelBuffer = EZ_BIT(3), ///< Can be used as a texel buffer.
+    StructuredBuffer = EZ_BIT(4),  ///< ezGALShaderResourceType::StructuredBuffer
+    ByteAddressBuffer = EZ_BIT(5), ///< ezGALShaderResourceType::ByteAddressBuffer (RAW)
 
-    ShaderResource = EZ_BIT(6), // Can be used for ezGALShaderResourceCategory::SRV
-    UnorderedAccess = EZ_BIT(7), // Can be used for ezGALShaderResourceCategory::UAV
-    DrawIndirect = EZ_BIT(8),
+    ShaderResource = EZ_BIT(6), ///< Can be used for ezGALShaderResourceType in the SRV section.
+    UnorderedAccess = EZ_BIT(7), ///< Can be used for ezGALShaderResourceType in the UAV section.
+    DrawIndirect = EZ_BIT(8), ///< Can be used in an indirect draw call.
 
     Default = 0
   };
