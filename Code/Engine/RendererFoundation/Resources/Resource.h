@@ -22,9 +22,7 @@ public:
 protected:
   friend class ezGALDevice;
 
-  inline ~ezGALResourceBase()
-  {
-  }
+  inline ~ezGALResourceBase() = default;
 
   virtual void SetDebugNamePlatform(const char* szName) const = 0;
 
