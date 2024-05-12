@@ -553,7 +553,10 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
   if (iCurFrame < 1)
     return ezTestAppRun::Continue;
 
-  EZ_TEST_LINE_IMAGE(0, 150);
+  ezStringView sRendererName = ezGALDevice::GetDefaultDevice()->GetRenderer();
+  const bool bRandomlyChangesLineThicknessOnDriverUpdate = sRendererName.IsEqual_NoCase("DX11") && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia");
+
+  EZ_TEST_LINE_IMAGE(0, bRandomlyChangesLineThicknessOnDriverUpdate ? 700 : 150);
 
   return ezTestAppRun::Quit;
 }
