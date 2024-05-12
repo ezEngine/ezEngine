@@ -133,7 +133,7 @@ retry:
         {
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
-          //pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+          // pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
         }
 
         // Ignore list.
@@ -666,7 +666,7 @@ void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAc
 ezGALBufferUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezGALBuffer* pBufferOfBuffer, const ezGALBufferUnorderedAccessViewCreationDescription& Description)
 {
   ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALBufferUnorderedAccessViewDX11, pBufferOfBuffer, Description);
-  
+
   if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
   {
     EZ_DELETE(&m_Allocator, pUnorderedAccessView);

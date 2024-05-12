@@ -25,8 +25,8 @@ protected:
 
 private:
   mutable vk::DescriptorImageInfo m_resourceImageInfo;
-  //mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
-  //vk::BufferView m_bufferView;
+  // mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
+  // vk::BufferView m_bufferView;
   vk::ImageSubresourceRange m_range;
 };
 
@@ -47,10 +47,10 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
 private:
-  //mutable vk::DescriptorImageInfo m_resourceImageInfo;
+  // mutable vk::DescriptorImageInfo m_resourceImageInfo;
   mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
   vk::BufferView m_bufferView;
-  //vk::ImageSubresourceRange m_range;
+  // vk::ImageSubresourceRange m_range;
 };
 
 #include <RendererVulkan/Resources/Implementation/UnorderedAccessViewVulkan_inl.h>

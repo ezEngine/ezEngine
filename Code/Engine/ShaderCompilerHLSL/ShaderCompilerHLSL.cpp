@@ -513,7 +513,7 @@ namespace
   };
 
   EZ_DECLARE_FLAGS_OPERATORS(DX11ResourceCategory);
-}
+} // namespace
 
 inline ezBitflags<DX11ResourceCategory> DX11ResourceCategory::MakeFromShaderDescriptorType(ezGALShaderResourceType::Enum type)
 {

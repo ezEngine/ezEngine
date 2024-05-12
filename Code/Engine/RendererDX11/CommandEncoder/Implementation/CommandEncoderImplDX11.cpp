@@ -182,7 +182,7 @@ void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderR
   {
     FlushPlatform();
   }
-  
+
   ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pUnorderedAccessView != nullptr ? static_cast<const ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
   SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource() : nullptr);
 }

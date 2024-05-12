@@ -1538,7 +1538,7 @@ const ezGALBufferResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetBufferRes
   {
     pResourceView = resources.m_pBoundBufferResourceViews[mapping.m_iSlot];
   }
-  
+
   if (!pResourceView)
   {
     ezStringBuilder sName = mapping.m_sName.GetData();
@@ -1570,7 +1570,7 @@ const ezGALBufferUnorderedAccessViewVulkan* ezGALCommandEncoderImplVulkan::GetBu
   {
     pUAV = resources.m_pBoundBufferUnorderedAccessViews[mapping.m_iSlot];
   }
-  
+
   if (!pUAV)
   {
     pUAV = ezFallbackResourcesVulkan::GetFallbackBufferUnorderedAccessView(mapping.m_ResourceType);

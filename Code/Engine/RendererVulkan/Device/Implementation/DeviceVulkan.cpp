@@ -1278,7 +1278,7 @@ ezGALBufferUnorderedAccessView* ezGALDeviceVulkan::CreateUnorderedAccessViewPlat
   ezGALBuffer* pBufferOfBuffer, const ezGALBufferUnorderedAccessViewCreationDescription& Description)
 {
   ezGALBufferUnorderedAccessViewVulkan* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALBufferUnorderedAccessViewVulkan, pBufferOfBuffer, Description);
-  
+
   if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
   {
     EZ_DELETE(&m_Allocator, pUnorderedAccessView);

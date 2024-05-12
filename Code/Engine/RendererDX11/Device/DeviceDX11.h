@@ -117,7 +117,7 @@ protected:
 
   ezGALBufferUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALBuffer* pResource, const ezGALBufferUnorderedAccessViewCreationDescription& Description) override;
   virtual void DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView) override;
-  
+
   // Other rendering creation functions
 
   virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) override;

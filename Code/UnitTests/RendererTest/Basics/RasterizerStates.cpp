@@ -130,7 +130,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   {
     ezStringView sRendererName = m_pDevice->GetRenderer();
     const bool bRandomlyChangesLineThicknessOnDriverUpdate = sRendererName.IsEqual_NoCase("DX11") && m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia");
-    
+
     EZ_TEST_LINE_IMAGE(m_iFrame, bRandomlyChangesLineThicknessOnDriverUpdate ? 1000 : 300);
   }
   else

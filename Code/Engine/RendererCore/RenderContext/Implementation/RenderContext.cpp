@@ -369,7 +369,7 @@ void ezRenderContext::BindUAV(const ezTempHashedString& sSlotName, ezGALBufferUn
   {
     if (*pOldResourceView == hUnorderedAccessView)
       return;
-    
+
     *pOldResourceView = hUnorderedAccessView;
   }
   else

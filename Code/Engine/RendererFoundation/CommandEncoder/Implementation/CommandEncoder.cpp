@@ -73,7 +73,7 @@ void ezGALCommandEncoder::SetUnorderedAccessView(const ezShaderResourceBinding& 
 void ezGALCommandEncoder::SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView)
 {
   AssertRenderingThread();
-  
+
   const ezGALBufferUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
   m_CommonImpl.SetUnorderedAccessViewPlatform(binding, pUnorderedAccessView);
 }

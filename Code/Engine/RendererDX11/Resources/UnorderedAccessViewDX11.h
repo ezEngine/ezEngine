@@ -27,7 +27,7 @@ class ezGALBufferUnorderedAccessViewDX11 : public ezGALBufferUnorderedAccessView
 {
 public:
   EZ_ALWAYS_INLINE ID3D11UnorderedAccessView* GetDXResourceView() const;
-  
+
 protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;

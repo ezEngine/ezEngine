@@ -339,7 +339,7 @@ protected:
 
   virtual ezGALTextureResourceView* CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description) override;
   virtual void DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView) override;
-  
+
   virtual ezGALBufferResourceView* CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description) override;
   virtual void DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView) override;
 

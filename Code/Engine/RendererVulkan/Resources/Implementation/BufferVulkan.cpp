@@ -29,14 +29,14 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
         m_usage |= vk::BufferUsageFlagBits::eVertexBuffer;
         m_stages |= vk::PipelineStageFlagBits::eVertexInput;
         m_access |= vk::AccessFlagBits::eVertexAttributeRead;
-        //EZ_ASSERT_DEBUG(!bSRV && !bUAV, "Not implemented");
+        // EZ_ASSERT_DEBUG(!bSRV && !bUAV, "Not implemented");
         break;
       case ezGALBufferFlags::IndexBuffer:
         m_usage |= vk::BufferUsageFlagBits::eIndexBuffer;
         m_stages |= vk::PipelineStageFlagBits::eVertexInput;
         m_access |= vk::AccessFlagBits::eIndexRead;
         m_indexType = m_Description.m_uiStructSize == 2 ? vk::IndexType::eUint16 : vk::IndexType::eUint32;
-        //EZ_ASSERT_DEBUG(!bSRV && !bUAV, "Not implemented");
+        // EZ_ASSERT_DEBUG(!bSRV && !bUAV, "Not implemented");
         break;
       case ezGALBufferFlags::ConstantBuffer:
         m_usage |= vk::BufferUsageFlagBits::eUniformBuffer;
@@ -72,7 +72,7 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
     }
   }
 
-  //if (m_Description.m_ResourceAccess.m_bReadBack)
+  // if (m_Description.m_ResourceAccess.m_bReadBack)
   {
     m_usage |= vk::BufferUsageFlagBits::eTransferSrc;
     m_access |= vk::AccessFlagBits::eTransferRead;

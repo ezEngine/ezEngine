@@ -181,7 +181,7 @@ ezResult ezGALBufferUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
   if (m_Description.m_bRawView)
     DXUAVDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_RAW;
   // #TODO_VULKAN Append / counter buffers can't easily be implemented in Vulkan on top of the same buffer infrastructure. So it's best to make these their own resource type similiar to shared textures.
-  //if (m_Description.m_bAppend)
+  // if (m_Description.m_bAppend)
   //  DXUAVDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_APPEND;
 
   if (FAILED(pDXDevice->GetDXDevice()->CreateUnorderedAccessView(pDXResource, &DXUAVDesc, &m_pDXUnorderedAccessView)))

@@ -28,7 +28,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALBufferUnorderedAccessView : public ezGALObj
 {
 public:
   EZ_ALWAYS_INLINE ezGALBuffer* GetResource() const { return m_pResource; }
-  
+
 protected:
   friend class ezGALDevice;
 

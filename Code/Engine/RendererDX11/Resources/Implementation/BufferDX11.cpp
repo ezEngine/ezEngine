@@ -77,7 +77,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
     }
     else
     {
-      if (m_Description.m_BufferFlags.IsSet(ezGALBufferFlags::UnorderedAccess))// UAVs allow writing from the GPU which cannot be combined with CPU write access.
+      if (m_Description.m_BufferFlags.IsSet(ezGALBufferFlags::UnorderedAccess)) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
       {
         BufferDesc.Usage = D3D11_USAGE_DEFAULT;
       }
