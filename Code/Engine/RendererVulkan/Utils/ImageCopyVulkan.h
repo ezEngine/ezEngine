@@ -10,8 +10,10 @@
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 class ezGALRenderTargetViewVulkan;
-class ezGALResourceViewVulkan;
-class ezGALUnorderedAccessViewVulkan;
+class ezGALTextureResourceViewVulkan;
+class ezGALBufferResourceViewVulkan;
+class ezGALTextureUnorderedAccessViewVulkan;
+class ezGALBufferUnorderedAccessViewVulkan;
 
 
 /// \brief

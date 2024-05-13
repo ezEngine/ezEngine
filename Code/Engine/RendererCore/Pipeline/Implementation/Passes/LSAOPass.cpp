@@ -405,32 +405,24 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       ezGALBufferCreationDescription bufferDesc;
       bufferDesc.m_uiStructSize = 4;
       bufferDesc.m_uiTotalSize = imageResolution.z * 2 * totalNumberOfSamples;
-      bufferDesc.m_BufferType = ezGALBufferType::Generic;
-      bufferDesc.m_bUseForIndirectArguments = false;
-      bufferDesc.m_bUseAsStructuredBuffer = false;
-      bufferDesc.m_bAllowRawViews = false;
-      bufferDesc.m_bAllowShaderResourceView = true;
-      bufferDesc.m_bAllowUAV = true;
+      bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
       bufferDesc.m_ResourceAccess.m_bReadBack = false;
       bufferDesc.m_ResourceAccess.m_bImmutable = false;
 
       m_hLineSweepOutputBuffer = device->CreateBuffer(bufferDesc);
 
-      ezGALUnorderedAccessViewCreationDescription uavDesc;
+      ezGALBufferUnorderedAccessViewCreationDescription uavDesc;
       uavDesc.m_hBuffer = m_hLineSweepOutputBuffer;
       uavDesc.m_OverrideViewFormat = ezGALResourceFormat::RUInt;
       uavDesc.m_uiFirstElement = 0;
       uavDesc.m_uiNumElements = imageResolution.z * totalNumberOfSamples / 2;
-      uavDesc.m_bRawView = false;
-      uavDesc.m_bAppend = false;
       m_hLineSweepOutputUAV = device->CreateUnorderedAccessView(uavDesc);
 
-      ezGALResourceViewCreationDescription srvDesc;
+      ezGALBufferResourceViewCreationDescription srvDesc;
       srvDesc.m_hBuffer = m_hLineSweepOutputBuffer;
       srvDesc.m_OverrideViewFormat = ezGALResourceFormat::RUInt;
       srvDesc.m_uiFirstElement = 0;
       srvDesc.m_uiNumElements = imageResolution.z * totalNumberOfSamples / 2;
-      srvDesc.m_bRawView = false;
       m_hLineSweepOutputSRV = device->CreateResourceView(srvDesc);
     }
 
@@ -439,12 +431,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       ezGALBufferCreationDescription bufferDesc;
       bufferDesc.m_uiStructSize = sizeof(LineInstruction);
       bufferDesc.m_uiTotalSize = sizeof(LineInstruction) * m_uiNumSweepLines;
-      bufferDesc.m_BufferType = ezGALBufferType::Generic;
-      bufferDesc.m_bUseForIndirectArguments = false;
-      bufferDesc.m_bUseAsStructuredBuffer = true;
-      bufferDesc.m_bAllowRawViews = false;
-      bufferDesc.m_bAllowShaderResourceView = true;
-      bufferDesc.m_bAllowUAV = false;
+      bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
       bufferDesc.m_ResourceAccess.m_bReadBack = false;
       bufferDesc.m_ResourceAccess.m_bImmutable = true;
 

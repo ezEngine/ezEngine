@@ -179,13 +179,13 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALRenderTargetViewVulka
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
-void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
+void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
   auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
-void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
+void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
   auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);

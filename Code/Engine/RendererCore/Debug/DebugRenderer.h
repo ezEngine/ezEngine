@@ -158,7 +158,7 @@ public:
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture, ezVec2 vScale = ezVec2(1, 1));
 
   /// \brief Renders a textured 2D rectangle in screen-space for one frame.
-  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView, ezVec2 vScale = ezVec2(1, 1));
+  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALTextureResourceViewHandle hResourceView, ezVec2 vScale = ezVec2(1, 1));
 
   /// \brief Displays a string in screen-space for one frame.
   ///

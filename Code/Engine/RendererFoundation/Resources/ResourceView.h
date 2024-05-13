@@ -4,21 +4,43 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Resources/Resource.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALResourceView : public ezGALObject<ezGALResourceViewCreationDescription>
+class ezGALTexture;
+class ezGALBuffer;
+
+class EZ_RENDERERFOUNDATION_DLL ezGALTextureResourceView : public ezGALObject<ezGALTextureResourceViewCreationDescription>
 {
 public:
-  EZ_ALWAYS_INLINE ezGALResourceBase* GetResource() const { return m_pResource; }
+  EZ_ALWAYS_INLINE ezGALTexture* GetResource() const { return m_pResource; }
 
 protected:
   friend class ezGALDevice;
 
-  ezGALResourceView(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& description);
+  ezGALTextureResourceView(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& description);
 
-  virtual ~ezGALResourceView();
+  virtual ~ezGALTextureResourceView();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 
-  ezGALResourceBase* m_pResource;
+  ezGALTexture* m_pResource;
+};
+
+class EZ_RENDERERFOUNDATION_DLL ezGALBufferResourceView : public ezGALObject<ezGALBufferResourceViewCreationDescription>
+{
+public:
+  EZ_ALWAYS_INLINE ezGALBuffer* GetResource() const { return m_pResource; }
+
+protected:
+  friend class ezGALDevice;
+
+  ezGALBufferResourceView(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& description);
+
+  virtual ~ezGALBufferResourceView();
+
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
+
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+
+  ezGALBuffer* m_pResource;
 };

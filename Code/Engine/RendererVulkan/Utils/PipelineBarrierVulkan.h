@@ -9,8 +9,10 @@
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 class ezGALRenderTargetViewVulkan;
-class ezGALResourceViewVulkan;
-class ezGALUnorderedAccessViewVulkan;
+class ezGALTextureResourceViewVulkan;
+class ezGALBufferResourceViewVulkan;
+class ezGALTextureUnorderedAccessViewVulkan;
+class ezGALBufferUnorderedAccessViewVulkan;
 
 /// \brief
 class EZ_RENDERERVULKAN_DLL ezPipelineBarrierVulkan
@@ -64,8 +66,8 @@ public:
   /// \param bDiscardSource Discard the previous layout, replaces current layout with unknown.
   void EnsureImageLayout(const ezGALTextureVulkan* pTexture, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
   void EnsureImageLayout(const ezGALRenderTargetViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
-  void EnsureImageLayout(const ezGALResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
-  void EnsureImageLayout(const ezGALUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
+  void EnsureImageLayout(const ezGALTextureResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
+  void EnsureImageLayout(const ezGALTextureUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
   void EnsureImageLayout(const ezGALTextureVulkan* pTexture, vk::ImageSubresourceRange subResources, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
 
   bool IsDirty(vk::Image image, const vk::ImageSubresourceRange& subResources) const;
@@ -122,12 +124,12 @@ private:
                                                   vk::AccessFlagBits::eInputAttachmentRead | vk::AccessFlagBits::eShaderRead |
                                                   vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentRead |
                                                   vk::AccessFlagBits::eTransferRead | vk::AccessFlagBits::eHostRead |
-                                                  vk::AccessFlagBits::eMemoryRead | // vk::AccessFlagBits::eTransformFeedbackCounterReadEXT |
-                                                  /* vk::AccessFlagBits::eConditionalRenderingReadEXT |*/ vk::AccessFlagBits::eColorAttachmentReadNoncoherentEXT |
-                                                  // vk::AccessFlagBits::eAccelerationStructureReadKHR | vk::AccessFlagBits::eFragmentDensityMapReadEXT |
-                                                  vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR | // vk::AccessFlagBits::eCommandPreprocessReadNV |
-                                                  // vk::AccessFlagBits::eAccelerationStructureReadKHR | vk::AccessFlagBits::eFragmentDensityMapReadEXT |
-                                                  vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR /*| vk::AccessFlagBits::eCommandPreprocessReadNV*/;
+                                                  vk::AccessFlagBits::eMemoryRead // | vk::AccessFlagBits::eTransformFeedbackCounterReadEXT |
+                                                                                  // vk::AccessFlagBits::eConditionalRenderingReadEXT | vk::AccessFlagBits::eColorAttachmentReadNoncoherentEXT |
+                                                                                  // vk::AccessFlagBits::eAccelerationStructureReadKHR | vk::AccessFlagBits::eFragmentDensityMapReadEXT |
+                                                                                  // vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR | vk::AccessFlagBits::eCommandPreprocessReadNV |
+                                                                                  // vk::AccessFlagBits::eAccelerationStructureReadKHR | vk::AccessFlagBits::eFragmentDensityMapReadEXT |
+    /*vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR | vk::AccessFlagBits::eCommandPreprocessReadNV*/;
   static constexpr vk::AccessFlags s_writeAccess = vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite |
                                                    vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eTransferWrite |
                                                    vk::AccessFlagBits::eHostWrite | vk::AccessFlagBits::eMemoryWrite

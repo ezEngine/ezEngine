@@ -21,9 +21,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
     {
       desc.m_uiStructSize = sizeof(ezPerLightData);
       desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_LIGHT_DATA;
-      desc.m_BufferType = ezGALBufferType::Generic;
-      desc.m_bUseAsStructuredBuffer = true;
-      desc.m_bAllowShaderResourceView = true;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       m_hLightDataBuffer = pDevice->CreateBuffer(desc);
@@ -32,9 +30,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
     {
       desc.m_uiStructSize = sizeof(ezPerDecalData);
       desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_DECAL_DATA;
-      desc.m_BufferType = ezGALBufferType::Generic;
-      desc.m_bUseAsStructuredBuffer = true;
-      desc.m_bAllowShaderResourceView = true;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       m_hDecalDataBuffer = pDevice->CreateBuffer(desc);
@@ -43,9 +39,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
     {
       desc.m_uiStructSize = sizeof(ezPerReflectionProbeData);
       desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_REFLECTION_PROBE_DATA;
-      desc.m_BufferType = ezGALBufferType::Generic;
-      desc.m_bUseAsStructuredBuffer = true;
-      desc.m_bAllowShaderResourceView = true;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       m_hReflectionProbeDataBuffer = pDevice->CreateBuffer(desc);

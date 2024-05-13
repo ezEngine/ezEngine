@@ -167,17 +167,9 @@ struct ezGALResourceAccess
 
 struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
 {
-  ezUInt32 m_uiStructSize = 0;
   ezUInt32 m_uiTotalSize = 0;
-
-  ezEnum<ezGALBufferType> m_BufferType = ezGALBufferType::Generic;
-
-  bool m_bUseForIndirectArguments = false;
-  bool m_bUseAsStructuredBuffer = false;
-  bool m_bAllowRawViews = false;
-  bool m_bAllowShaderResourceView = false;
-  bool m_bAllowUAV = false;
-
+  ezUInt32 m_uiStructSize = 0; // Struct or texel size
+  ezBitflags<ezGALBufferUsageFlags> m_BufferFlags;
   ezGALResourceAccess m_ResourceAccess;
 };
 
@@ -205,22 +197,20 @@ struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCre
   void* m_pExisitingNativeObject = nullptr; ///< Can be used to encapsulate existing native textures in objects usable by the GAL
 };
 
-struct ezGALResourceViewCreationDescription : public ezHashableStruct<ezGALResourceViewCreationDescription>
+struct ezGALTextureResourceViewCreationDescription : public ezHashableStruct<ezGALTextureResourceViewCreationDescription>
 {
   ezGALTextureHandle m_hTexture;
-
-  ezGALBufferHandle m_hBuffer;
-
   ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-
-  // Texture only
   ezUInt32 m_uiMostDetailedMipLevel = 0;
   ezUInt32 m_uiMipLevelsToUse = 0xFFFFFFFFu;
-
   ezUInt32 m_uiFirstArraySlice = 0; // For cubemap array: index of first 2d slice to start with
   ezUInt32 m_uiArraySize = 1;       // For cubemap array: number of cubemaps
+};
 
-  // Buffer only
+struct ezGALBufferResourceViewCreationDescription : public ezHashableStruct<ezGALBufferResourceViewCreationDescription>
+{
+  ezGALBufferHandle m_hBuffer;
+  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
   ezUInt32 m_uiFirstElement = 0;
   ezUInt32 m_uiNumElements = 0;
   bool m_bRawView = false;
@@ -240,24 +230,22 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
   bool m_bReadOnly = false; ///< Can be used for depth stencil views to create read only views (e.g. for soft particles using the native depth buffer)
 };
 
-struct ezGALUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALUnorderedAccessViewCreationDescription>
+struct ezGALTextureUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALTextureUnorderedAccessViewCreationDescription>
 {
   ezGALTextureHandle m_hTexture;
-
-  ezGALBufferHandle m_hBuffer;
-
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-
-  // Texture only
-  ezUInt32 m_uiMipLevelToUse = 0;   ///< Which MipLevel is accessed with this UAV
   ezUInt32 m_uiFirstArraySlice = 0; ///< First depth slice for 3D Textures.
   ezUInt32 m_uiArraySize = 1;       ///< Number of depth slices for 3D textures.
+  ezUInt16 m_uiMipLevelToUse = 0;   ///< Which MipLevel is accessed with this UAV
+  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
+};
 
-  // Buffer only
+struct ezGALBufferUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALBufferUnorderedAccessViewCreationDescription>
+{
+  ezGALBufferHandle m_hBuffer;
   ezUInt32 m_uiFirstElement = 0;
   ezUInt32 m_uiNumElements = 0;
+  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
   bool m_bRawView = false;
-  bool m_bAppend = false; // Allows appending data to the end of the buffer.
 };
 
 struct ezGALQueryCreationDescription : public ezHashableStruct<ezGALQueryCreationDescription>

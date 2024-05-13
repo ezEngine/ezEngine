@@ -123,7 +123,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   // Find temp targets
   ezGALTextureHandle hzbTexture;
   ezHybridArray<ezVec2, 8> hzbSizes;
-  ezHybridArray<ezGALResourceViewHandle, 8> hzbResourceViews;
+  ezHybridArray<ezGALTextureResourceViewHandle, 8> hzbResourceViews;
   ezHybridArray<ezGALRenderTargetViewHandle, 8> hzbRenderTargetViews;
 
   ezGALTextureHandle tempSSAOTexture;
@@ -151,7 +151,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       hzbSizes.PushBack(ezVec2((float)uiHzbWidth, (float)uiHzbHeight));
 
       {
-        ezGALResourceViewCreationDescription desc;
+        ezGALTextureResourceViewCreationDescription desc;
         desc.m_hTexture = hzbTexture;
         desc.m_uiMostDetailedMipLevel = i;
         desc.m_uiMipLevelsToUse = 1;
@@ -179,7 +179,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
     for (ezUInt32 i = 0; i < uiNumMips; ++i)
     {
-      ezGALResourceViewHandle hInputView;
+      ezGALTextureResourceViewHandle hInputView;
       ezVec2 pixelSize;
 
       if (i == 0)

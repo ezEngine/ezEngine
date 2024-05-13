@@ -19,6 +19,11 @@ protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData) = 0;
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+
+protected:
+  ezGALBufferResourceViewHandle m_hDefaultResourceView;
+  ezHashTable<ezUInt32, ezGALBufferResourceViewHandle> m_ResourceViews;
+  ezHashTable<ezUInt32, ezGALBufferUnorderedAccessViewHandle> m_UnorderedAccessViews;
 };
 
 #include <RendererFoundation/Resources/Implementation/Buffer_inl.h>

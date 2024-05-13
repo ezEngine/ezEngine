@@ -24,6 +24,7 @@ public:
 
   ezResult Init();
   ezResult Shutdown();
+  ezStringView GetRenderer();
 
   // Pipeline & Pass functions
 
@@ -72,11 +73,14 @@ public:
   void DestroySharedTexture(ezGALTextureHandle hTexture);
 
   // Resource views
-  ezGALResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
-  ezGALResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
+  ezGALTextureResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
+  ezGALBufferResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
 
-  ezGALResourceViewHandle CreateResourceView(const ezGALResourceViewCreationDescription& description);
-  void DestroyResourceView(ezGALResourceViewHandle hResourceView);
+  ezGALTextureResourceViewHandle CreateResourceView(const ezGALTextureResourceViewCreationDescription& description);
+  void DestroyResourceView(ezGALTextureResourceViewHandle hResourceView);
+
+  ezGALBufferResourceViewHandle CreateResourceView(const ezGALBufferResourceViewCreationDescription& description);
+  void DestroyResourceView(ezGALBufferResourceViewHandle hResourceView);
 
   // Render target views
   ezGALRenderTargetViewHandle GetDefaultRenderTargetView(ezGALTextureHandle hTexture);
@@ -85,9 +89,11 @@ public:
   void DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView);
 
   // Unordered access views
-  ezGALUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALUnorderedAccessViewCreationDescription& description);
-  void DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView);
+  ezGALTextureUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALTextureUnorderedAccessViewCreationDescription& description);
+  void DestroyUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView);
 
+  ezGALBufferUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALBufferUnorderedAccessViewCreationDescription& description);
+  void DestroyUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView);
 
   // Other rendering creation functions
 
@@ -138,9 +144,11 @@ public:
   const ezGALRasterizerState* GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const;
   const ezGALVertexDeclaration* GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const;
   const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
-  const ezGALResourceView* GetResourceView(ezGALResourceViewHandle hResourceView) const;
+  const ezGALTextureResourceView* GetResourceView(ezGALTextureResourceViewHandle hResourceView) const;
+  const ezGALBufferResourceView* GetResourceView(ezGALBufferResourceViewHandle hResourceView) const;
   const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
-  const ezGALUnorderedAccessView* GetUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView) const;
+  const ezGALTextureUnorderedAccessView* GetUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView) const;
+  const ezGALBufferUnorderedAccessView* GetUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView) const;
   const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
 
   const ezGALDeviceCapabilities& GetCapabilities() const;
@@ -171,7 +179,8 @@ protected:
   template <typename IdTableType, typename ReturnType>
   ReturnType* Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const;
 
-  void DestroyViews(ezGALResourceBase* pResource);
+  void DestroyViews(ezGALTexture* pResource);
+  void DestroyViews(ezGALBuffer* pResource);
 
   template <typename HandleType>
   void AddDeadObject(ezUInt32 uiType, HandleType handle);
@@ -198,10 +207,12 @@ protected:
   using RasterizerStateTable = ezIdTable<ezGALRasterizerStateHandle::IdType, ezGALRasterizerState*, ezLocalAllocatorWrapper>;
   using BufferTable = ezIdTable<ezGALBufferHandle::IdType, ezGALBuffer*, ezLocalAllocatorWrapper>;
   using TextureTable = ezIdTable<ezGALTextureHandle::IdType, ezGALTexture*, ezLocalAllocatorWrapper>;
-  using ResourceViewTable = ezIdTable<ezGALResourceViewHandle::IdType, ezGALResourceView*, ezLocalAllocatorWrapper>;
+  using TextureResourceViewTable = ezIdTable<ezGALTextureResourceViewHandle::IdType, ezGALTextureResourceView*, ezLocalAllocatorWrapper>;
+  using BufferResourceViewTable = ezIdTable<ezGALBufferResourceViewHandle::IdType, ezGALBufferResourceView*, ezLocalAllocatorWrapper>;
   using SamplerStateTable = ezIdTable<ezGALSamplerStateHandle::IdType, ezGALSamplerState*, ezLocalAllocatorWrapper>;
   using RenderTargetViewTable = ezIdTable<ezGALRenderTargetViewHandle::IdType, ezGALRenderTargetView*, ezLocalAllocatorWrapper>;
-  using UnorderedAccessViewTable = ezIdTable<ezGALUnorderedAccessViewHandle::IdType, ezGALUnorderedAccessView*, ezLocalAllocatorWrapper>;
+  using TextureUnorderedAccessViewTable = ezIdTable<ezGALTextureUnorderedAccessViewHandle::IdType, ezGALTextureUnorderedAccessView*, ezLocalAllocatorWrapper>;
+  using BufferUnorderedAccessViewTable = ezIdTable<ezGALBufferUnorderedAccessViewHandle::IdType, ezGALBufferUnorderedAccessView*, ezLocalAllocatorWrapper>;
   using SwapChainTable = ezIdTable<ezGALSwapChainHandle::IdType, ezGALSwapChain*, ezLocalAllocatorWrapper>;
   using QueryTable = ezIdTable<ezGALQueryHandle::IdType, ezGALQuery*, ezLocalAllocatorWrapper>;
   using VertexDeclarationTable = ezIdTable<ezGALVertexDeclarationHandle::IdType, ezGALVertexDeclaration*, ezLocalAllocatorWrapper>;
@@ -212,10 +223,12 @@ protected:
   RasterizerStateTable m_RasterizerStates;
   BufferTable m_Buffers;
   TextureTable m_Textures;
-  ResourceViewTable m_ResourceViews;
+  TextureResourceViewTable m_TextureResourceViews;
+  BufferResourceViewTable m_BufferResourceViews;
   SamplerStateTable m_SamplerStates;
   RenderTargetViewTable m_RenderTargetViews;
-  UnorderedAccessViewTable m_UnorderedAccessViews;
+  TextureUnorderedAccessViewTable m_TextureUnorderedAccessViews;
+  BufferUnorderedAccessViewTable m_BufferUnorderedAccessViews;
   SwapChainTable m_SwapChains;
   QueryTable m_Queries;
   VertexDeclarationTable m_VertexDeclarations;
@@ -253,6 +266,7 @@ protected:
 
   virtual ezResult InitPlatform() = 0;
   virtual ezResult ShutdownPlatform() = 0;
+  virtual ezStringView GetRendererPlatform() = 0;
 
   // Pipeline & Pass functions
 
@@ -290,14 +304,20 @@ protected:
   virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) = 0;
   virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) = 0;
 
-  virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) = 0;
-  virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) = 0;
+  virtual ezGALTextureResourceView* CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description) = 0;
+  virtual void DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView) = 0;
+
+  virtual ezGALBufferResourceView* CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description) = 0;
+  virtual void DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView) = 0;
 
   virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) = 0;
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) = 0;
 
-  virtual ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) = 0;
-  virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pUnorderedAccessView) = 0;
+  virtual ezGALTextureUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALTexture* pResource, const ezGALTextureUnorderedAccessViewCreationDescription& Description) = 0;
+  virtual void DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAccessView* pUnorderedAccessView) = 0;
+
+  virtual ezGALBufferUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALBuffer* pResource, const ezGALBufferUnorderedAccessViewCreationDescription& Description) = 0;
+  virtual void DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView) = 0;
 
   // Other rendering creation functions
 

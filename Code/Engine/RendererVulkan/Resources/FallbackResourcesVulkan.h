@@ -5,8 +5,10 @@
 #include <vulkan/vulkan.hpp>
 
 class ezGALDeviceVulkan;
-class ezGALResourceViewVulkan;
-class ezGALUnorderedAccessViewVulkan;
+class ezGALTextureResourceViewVulkan;
+class ezGALBufferResourceViewVulkan;
+class ezGALTextureUnorderedAccessViewVulkan;
+class ezGALBufferUnorderedAccessViewVulkan;
 
 /// \brief Creates fallback resources in case the high-level renderer did not map a resource to a descriptor slot.
 /// #TODO_VULKAN: Although the class has 'Vulkan' in the name, it could be made GAL agnostic by just returning the base class of the resource views and then it will work for any device type so it could be moved to RendererFoundation if needed for another GAL implementation.
@@ -18,8 +20,10 @@ public:
   /// \param textureType In case descriptorType is a texture, this specifies the texture type.
   /// \param bDepth Whether the shader resource is using a depth sampler.
   /// \return
-  static const ezGALResourceViewVulkan* GetFallbackResourceView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType, bool bDepth);
-  static const ezGALUnorderedAccessViewVulkan* GetFallbackUnorderedAccessView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType);
+  static const ezGALTextureResourceViewVulkan* GetFallbackTextureResourceView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType, bool bDepth);
+  static const ezGALBufferResourceViewVulkan* GetFallbackBufferResourceView(ezGALShaderResourceType::Enum descriptorType);
+  static const ezGALTextureUnorderedAccessViewVulkan* GetFallbackTextureUnorderedAccessView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType);
+  static const ezGALBufferUnorderedAccessViewVulkan* GetFallbackBufferUnorderedAccessView(ezGALShaderResourceType::Enum descriptorType);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererVulkan, FallbackResourcesVulkan)
@@ -42,10 +46,15 @@ private:
   {
     static ezUInt32 Hash(const Key& a);
     static bool Equal(const Key& a, const Key& b);
+
+    static ezUInt32 Hash(const ezEnum<ezGALShaderResourceType>& a);
+    static bool Equal(const ezEnum<ezGALShaderResourceType>& a, const ezEnum<ezGALShaderResourceType>& b);
   };
 
-  static ezHashTable<Key, ezGALResourceViewHandle, KeyHash> m_ResourceViews;
-  static ezHashTable<Key, ezGALUnorderedAccessViewHandle, KeyHash> m_UAVs;
+  static ezHashTable<Key, ezGALTextureResourceViewHandle, KeyHash> m_TextureResourceViews;
+  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferResourceViewHandle, KeyHash> m_BufferResourceViews;
+  static ezHashTable<Key, ezGALTextureUnorderedAccessViewHandle, KeyHash> m_TextureUAVs;
+  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferUnorderedAccessViewHandle, KeyHash> m_BufferUAVs;
 
   static ezDynamicArray<ezGALBufferHandle> m_Buffers;
   static ezDynamicArray<ezGALTextureHandle> m_Textures;

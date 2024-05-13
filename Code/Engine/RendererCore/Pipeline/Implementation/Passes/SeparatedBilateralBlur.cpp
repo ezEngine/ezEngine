@@ -98,11 +98,11 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
 
     // Setup input view and sampler
-    ezGALResourceViewCreationDescription rvcd;
+    ezGALTextureResourceViewCreationDescription rvcd;
     rvcd.m_hTexture = inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALResourceViewHandle hBlurSourceInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    ezGALTextureResourceViewHandle hBlurSourceInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
     rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    ezGALTextureResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
 
     // Get temp texture for horizontal target / vertical source.
     ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinBlurSourceInput.m_uiInputIndex]->m_Desc;
@@ -110,7 +110,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     tempTextureDesc.m_bCreateRenderTarget = true;
     ezGALTextureHandle tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
     rvcd.m_hTexture = tempTexture;
-    ezGALResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    ezGALTextureResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
 
     ezGALRenderingSetup renderingSetup;
 

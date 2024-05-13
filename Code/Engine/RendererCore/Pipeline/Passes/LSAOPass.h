@@ -83,12 +83,12 @@ protected:
 
   /// Output of the line sweep pass.
   ezGALBufferHandle m_hLineSweepOutputBuffer;
-  ezGALUnorderedAccessViewHandle m_hLineSweepOutputUAV;
-  ezGALResourceViewHandle m_hLineSweepOutputSRV;
+  ezGALBufferUnorderedAccessViewHandle m_hLineSweepOutputUAV;
+  ezGALBufferResourceViewHandle m_hLineSweepOutputSRV;
 
   /// Structured buffer containing instructions for every single line to trace.
   ezGALBufferHandle m_hLineInfoBuffer;
-  ezGALResourceViewHandle m_hLineSweepInfoSRV;
+  ezGALBufferResourceViewHandle m_hLineSweepInfoSRV;
 
   /// Total number of lines to be traced.
   ezUInt32 m_uiNumSweepLines = 0;

@@ -59,7 +59,7 @@ void ezGridRenderer::CreateVertexBuffer()
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(GridVertex);
     desc.m_uiTotalSize = s_uiBufferSize;
-    desc.m_BufferType = ezGALBufferType::VertexBuffer;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);

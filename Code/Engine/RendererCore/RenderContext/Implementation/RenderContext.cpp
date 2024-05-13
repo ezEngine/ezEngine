@@ -256,7 +256,7 @@ void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, const e
   }
   else
   {
-    BindTexture2D(sSlotName, ezGALResourceViewHandle());
+    BindTexture2D(sSlotName, ezGALTextureResourceViewHandle());
   }
 }
 
@@ -271,7 +271,7 @@ void ezRenderContext::BindTexture3D(const ezTempHashedString& sSlotName, const e
   }
   else
   {
-    BindTexture3D(sSlotName, ezGALResourceViewHandle());
+    BindTexture3D(sSlotName, ezGALTextureResourceViewHandle());
   }
 }
 
@@ -286,13 +286,13 @@ void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, const
   }
   else
   {
-    BindTextureCube(sSlotName, ezGALResourceViewHandle());
+    BindTextureCube(sSlotName, ezGALTextureResourceViewHandle());
   }
 }
 
-void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
+void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView)
 {
-  ezGALResourceViewHandle* pOldResourceView = nullptr;
+  ezGALTextureResourceViewHandle* pOldResourceView = nullptr;
   if (m_BoundTextures2D.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hResourceView)
@@ -308,9 +308,9 @@ void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, ezGALRe
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
 }
 
-void ezRenderContext::BindTexture3D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
+void ezRenderContext::BindTexture3D(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView)
 {
-  ezGALResourceViewHandle* pOldResourceView = nullptr;
+  ezGALTextureResourceViewHandle* pOldResourceView = nullptr;
   if (m_BoundTextures3D.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hResourceView)
@@ -326,9 +326,9 @@ void ezRenderContext::BindTexture3D(const ezTempHashedString& sSlotName, ezGALRe
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
 }
 
-void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
+void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView)
 {
-  ezGALResourceViewHandle* pOldResourceView = nullptr;
+  ezGALTextureResourceViewHandle* pOldResourceView = nullptr;
   if (m_BoundTexturesCube.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hResourceView)
@@ -344,10 +344,10 @@ void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, ezGAL
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
 }
 
-void ezRenderContext::BindUAV(const ezTempHashedString& sSlotName, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
+void ezRenderContext::BindUAV(const ezTempHashedString& sSlotName, ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView)
 {
-  ezGALUnorderedAccessViewHandle* pOldResourceView = nullptr;
-  if (m_BoundUAVs.TryGetValue(sSlotName.GetHash(), pOldResourceView))
+  ezGALTextureUnorderedAccessViewHandle* pOldResourceView = nullptr;
+  if (m_BoundTextureUAVs.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hUnorderedAccessView)
       return;
@@ -356,7 +356,25 @@ void ezRenderContext::BindUAV(const ezTempHashedString& sSlotName, ezGALUnordere
   }
   else
   {
-    m_BoundUAVs.Insert(sSlotName.GetHash(), hUnorderedAccessView);
+    m_BoundTextureUAVs.Insert(sSlotName.GetHash(), hUnorderedAccessView);
+  }
+
+  m_StateFlags.Add(ezRenderContextFlags::UAVBindingChanged);
+}
+
+void ezRenderContext::BindUAV(const ezTempHashedString& sSlotName, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView)
+{
+  ezGALBufferUnorderedAccessViewHandle* pOldResourceView = nullptr;
+  if (m_BoundBufferUAVs.TryGetValue(sSlotName.GetHash(), pOldResourceView))
+  {
+    if (*pOldResourceView == hUnorderedAccessView)
+      return;
+
+    *pOldResourceView = hUnorderedAccessView;
+  }
+  else
+  {
+    m_BoundBufferUAVs.Insert(sSlotName.GetHash(), hUnorderedAccessView);
   }
 
   m_StateFlags.Add(ezRenderContextFlags::UAVBindingChanged);
@@ -386,9 +404,9 @@ void ezRenderContext::BindSamplerState(const ezTempHashedString& sSlotName, ezGA
   m_StateFlags.Add(ezRenderContextFlags::SamplerBindingChanged);
 }
 
-void ezRenderContext::BindBuffer(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
+void ezRenderContext::BindBuffer(const ezTempHashedString& sSlotName, ezGALBufferResourceViewHandle hResourceView)
 {
-  ezGALResourceViewHandle* pOldResourceView = nullptr;
+  ezGALBufferResourceViewHandle* pOldResourceView = nullptr;
   if (m_BoundBuffer.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hResourceView)
@@ -768,7 +786,8 @@ void ezRenderContext::ResetContextState()
   }
   EZ_ASSERT_DEBUG(!m_hFallbackSampler.IsInvalidated(), "'LinearSampler' should have been registered as an immutable sampler.");
 
-  m_BoundUAVs.Clear();
+  m_BoundTextureUAVs.Clear();
+  m_BoundBufferUAVs.Clear();
   m_BoundConstantBuffers.Clear();
 }
 
@@ -1224,7 +1243,7 @@ void ezRenderContext::ApplyTextureBindings(const ezGALShader* pShader)
   for (const ezShaderResourceBinding& binding : bindings)
   {
     const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
-    ezGALResourceViewHandle hResourceView;
+    ezGALTextureResourceViewHandle hResourceView;
 
     if (binding.m_ResourceType == ezGALShaderResourceType::Texture || binding.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
     {
@@ -1262,13 +1281,18 @@ void ezRenderContext::ApplyUAVBindings(const ezGALShader* pShader)
   for (const ezShaderResourceBinding& binding : bindings)
   {
     auto type = ezGALShaderResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
-    if (type.IsSet(ezGALShaderResourceCategory::UAV))
+    if (type.IsSet(ezGALShaderResourceCategory::TextureUAV))
     {
       const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
-
-      ezGALUnorderedAccessViewHandle hResourceView;
-      m_BoundUAVs.TryGetValue(uiResourceHash, hResourceView);
-
+      ezGALTextureUnorderedAccessViewHandle hResourceView;
+      m_BoundTextureUAVs.TryGetValue(uiResourceHash, hResourceView);
+      m_pGALCommandEncoder->SetUnorderedAccessView(binding, hResourceView);
+    }
+    else if (type.IsSet(ezGALShaderResourceCategory::BufferUAV))
+    {
+      const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
+      ezGALBufferUnorderedAccessViewHandle hResourceView;
+      m_BoundBufferUAVs.TryGetValue(uiResourceHash, hResourceView);
       m_pGALCommandEncoder->SetUnorderedAccessView(binding, hResourceView);
     }
   }
@@ -1305,7 +1329,7 @@ void ezRenderContext::ApplyBufferBindings(const ezGALShader* pShader)
     {
       const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
 
-      ezGALResourceViewHandle hResourceView;
+      ezGALBufferResourceViewHandle hResourceView;
       m_BoundBuffer.TryGetValue(uiResourceHash, hResourceView);
 
       m_pGALCommandEncoder->SetResourceView(binding, hResourceView);

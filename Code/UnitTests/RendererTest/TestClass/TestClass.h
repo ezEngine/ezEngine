@@ -62,7 +62,7 @@ protected:
   /// \param mMVP Model View Projection matrix for camera. Use CreateSimpleMVP for convenience.
   /// \param uiRenderTargetClearMask What render targets if any should be cleared.
   /// \param hSRV The texture to render onto the cube.
-  void RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALResourceViewHandle hSRV);
+  void RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureResourceViewHandle hSRV);
 
   ezMat4 CreateSimpleMVP(float fAspectRatio);
 

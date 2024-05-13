@@ -59,6 +59,7 @@ protected:
   ///   Null means default adapter.
   ezResult InitPlatform(DWORD flags, IDXGIAdapter* pUsedAdapter);
 
+  virtual ezStringView GetRendererPlatform() override;
   virtual ezResult InitPlatform() override;
   virtual ezResult ShutdownPlatform() override;
 
@@ -102,14 +103,20 @@ protected:
   virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) override;
   virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) override;
 
-  virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) override;
-  virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) override;
+  virtual ezGALTextureResourceView* CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description) override;
+  virtual void DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView) override;
+
+  virtual ezGALBufferResourceView* CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description) override;
+  virtual void DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView) override;
 
   virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) override;
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) override;
 
-  ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) override;
-  virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pUnorderedAccessView) override;
+  ezGALTextureUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALTexture* pResource, const ezGALTextureUnorderedAccessViewCreationDescription& Description) override;
+  virtual void DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAccessView* pUnorderedAccessView) override;
+
+  ezGALBufferUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALBuffer* pResource, const ezGALBufferUnorderedAccessViewCreationDescription& Description) override;
+  virtual void DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView) override;
 
   // Other rendering creation functions
 

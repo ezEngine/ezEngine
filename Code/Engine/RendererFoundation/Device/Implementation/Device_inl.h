@@ -74,9 +74,14 @@ inline const ezGALSamplerState* ezGALDevice::GetSamplerState(ezGALSamplerStateHa
   return Get<SamplerStateTable, ezGALSamplerState>(hSamplerState, m_SamplerStates);
 }
 
-inline const ezGALResourceView* ezGALDevice::GetResourceView(ezGALResourceViewHandle hResourceView) const
+inline const ezGALTextureResourceView* ezGALDevice::GetResourceView(ezGALTextureResourceViewHandle hResourceView) const
 {
-  return Get<ResourceViewTable, ezGALResourceView>(hResourceView, m_ResourceViews);
+  return Get<TextureResourceViewTable, ezGALTextureResourceView>(hResourceView, m_TextureResourceViews);
+}
+
+inline const ezGALBufferResourceView* ezGALDevice::GetResourceView(ezGALBufferResourceViewHandle hResourceView) const
+{
+  return Get<BufferResourceViewTable, ezGALBufferResourceView>(hResourceView, m_BufferResourceViews);
 }
 
 inline const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const
@@ -84,9 +89,14 @@ inline const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ezGALRender
   return Get<RenderTargetViewTable, ezGALRenderTargetView>(hRenderTargetView, m_RenderTargetViews);
 }
 
-inline const ezGALUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView) const
+inline const ezGALTextureUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView) const
 {
-  return Get<UnorderedAccessViewTable, ezGALUnorderedAccessView>(hUnorderedAccessView, m_UnorderedAccessViews);
+  return Get<TextureUnorderedAccessViewTable, ezGALTextureUnorderedAccessView>(hUnorderedAccessView, m_TextureUnorderedAccessViews);
+}
+
+inline const ezGALBufferUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView) const
+{
+  return Get<BufferUnorderedAccessViewTable, ezGALBufferUnorderedAccessView>(hUnorderedAccessView, m_BufferUnorderedAccessViews);
 }
 
 inline const ezGALQuery* ezGALDevice::GetQuery(ezGALQueryHandle hQuery) const

@@ -114,8 +114,8 @@ namespace
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_line2DVertices;
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_lineBoxes;
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_solidBoxes;
-    ezMap<ezGALResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle2DVertices;
-    ezMap<ezGALResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle3DVertices;
+    ezMap<ezGALTextureResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle2DVertices;
+    ezMap<ezGALTextureResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle3DVertices;
 
     ezDynamicArray<InfoTextData> m_infoTextData[(int)ezDebugTextPlacement::ENUM_COUNT];
     ezDynamicArray<TextLineData2D> m_textLines2D;
@@ -238,9 +238,7 @@ namespace
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = uiStructSize;
       desc.m_uiTotalSize = DEBUG_BUFFER_SIZE;
-      desc.m_BufferType = ezGALBufferType::Generic;
-      desc.m_bUseAsStructuredBuffer = true;
-      desc.m_bAllowShaderResourceView = true;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       s_hDataBuffer[bufferType] = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
@@ -254,7 +252,7 @@ namespace
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = uiVertexSize;
       desc.m_uiTotalSize = DEBUG_BUFFER_SIZE;
-      desc.m_BufferType = ezGALBufferType::VertexBuffer;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       s_hDataBuffer[bufferType] = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
@@ -956,7 +954,7 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   Draw2DRectangle(context, rectInPixel, fDepth, color, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()), vScale);
 }
 
-void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView, ezVec2 vScale)
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALTextureResourceViewHandle hResourceView, ezVec2 vScale)
 {
   TexVertex vertices[6];
 

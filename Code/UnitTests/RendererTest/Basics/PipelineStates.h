@@ -85,19 +85,19 @@ private:
   ezConstantBufferStorageHandle m_hTestPositionsConstantBuffer;
 
   ezGALBufferHandle m_hInstancingData;
-  ezGALResourceViewHandle m_hInstancingDataView_8_4;
-  ezGALResourceViewHandle m_hInstancingDataView_12_4;
+  ezGALBufferResourceViewHandle m_hInstancingDataView_8_4;
+  ezGALBufferResourceViewHandle m_hInstancingDataView_12_4;
 
   ezGALTextureHandle m_hTexture2D;
-  ezGALResourceViewHandle m_hTexture2D_Mip0;
-  ezGALResourceViewHandle m_hTexture2D_Mip1;
-  ezGALResourceViewHandle m_hTexture2D_Mip2;
-  ezGALResourceViewHandle m_hTexture2D_Mip3;
+  ezGALTextureResourceViewHandle m_hTexture2D_Mip0;
+  ezGALTextureResourceViewHandle m_hTexture2D_Mip1;
+  ezGALTextureResourceViewHandle m_hTexture2D_Mip2;
+  ezGALTextureResourceViewHandle m_hTexture2D_Mip3;
   ezGALTextureHandle m_hTexture2DArray;
-  ezGALResourceViewHandle m_hTexture2DArray_Layer0_Mip0;
-  ezGALResourceViewHandle m_hTexture2DArray_Layer0_Mip1;
-  ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
-  ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
+  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer0_Mip0;
+  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer0_Mip1;
+  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
+  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
 
   bool m_bTimestampsValid = false;
   ezTime m_CPUTime[2];

@@ -149,9 +149,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezTestShaderData);
     desc.m_uiTotalSize = 16 * desc.m_uiStructSize;
-    desc.m_BufferType = ezGALBufferType::Generic;
-    desc.m_bUseAsStructuredBuffer = true;
-    desc.m_bAllowShaderResourceView = true;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     // We only fill the first 8 elements with data. The rest is dynamically updated during testing.
@@ -159,7 +157,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     FillStructuredBuffer(instanceData);
     m_hInstancingData = m_pDevice->CreateBuffer(desc, instanceData.GetByteArrayPtr());
 
-    ezGALResourceViewCreationDescription viewDesc;
+    ezGALBufferResourceViewCreationDescription viewDesc;
     viewDesc.m_hBuffer = m_hInstancingData;
     viewDesc.m_uiFirstElement = 8;
     viewDesc.m_uiNumElements = 4;
@@ -213,7 +211,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     }
     m_hTexture2D = m_pDevice->CreateTexture(desc, initialData);
 
-    ezGALResourceViewCreationDescription viewDesc;
+    ezGALTextureResourceViewCreationDescription viewDesc;
     viewDesc.m_hTexture = m_hTexture2D;
     viewDesc.m_uiMostDetailedMipLevel = 0;
     viewDesc.m_uiMipLevelsToUse = 1;
@@ -254,7 +252,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     }
     m_hTexture2DArray = m_pDevice->CreateTexture(desc, initialData);
 
-    ezGALResourceViewCreationDescription viewDesc;
+    ezGALTextureResourceViewCreationDescription viewDesc;
     viewDesc.m_hTexture = m_hTexture2DArray;
     viewDesc.m_uiMipLevelsToUse = 1;
     viewDesc.m_uiFirstArraySlice = 0;

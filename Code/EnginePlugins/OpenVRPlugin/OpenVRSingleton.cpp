@@ -411,7 +411,7 @@ void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationExecutionEvent
       auto* constants = ezRenderContext::GetConstantBufferData<ezVRCompanionViewConstants>(m_hCompanionConstantBuffer);
       constants->TargetSize = targetSize;
 
-      ezGALResourceViewHandle hInputView = pDevice->GetDefaultResourceView(m_hColorRT);
+      ezGALTextureResourceViewHandle hInputView = pDevice->GetDefaultResourceView(m_hColorRT);
       m_pRenderContext->BindTexture2D("VRTexture", hInputView);
       m_pRenderContext->DrawMeshBuffer();
     }

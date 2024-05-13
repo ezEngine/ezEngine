@@ -17,57 +17,62 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 {
   m_pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
   m_device = m_pDeviceVulkan->GetVulkanDevice();
-
   m_stages = vk::PipelineStageFlagBits::eTransfer;
 
-  switch (m_Description.m_BufferType)
+  const bool bSRV = m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ShaderResource);
+  const bool bUAV = m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::UnorderedAccess);
+  for (ezGALBufferUsageFlags::Enum flag : m_Description.m_BufferFlags)
   {
-    case ezGALBufferType::ConstantBuffer:
-      m_usage = vk::BufferUsageFlagBits::eUniformBuffer;
-      m_stages |= m_pDeviceVulkan->GetSupportedStages();
-      m_access |= vk::AccessFlagBits::eUniformRead;
-      break;
-    case ezGALBufferType::IndexBuffer:
-      m_usage = vk::BufferUsageFlagBits::eIndexBuffer;
-      m_stages |= vk::PipelineStageFlagBits::eVertexInput;
-      m_access |= vk::AccessFlagBits::eIndexRead;
-      m_indexType = m_Description.m_uiStructSize == 2 ? vk::IndexType::eUint16 : vk::IndexType::eUint32;
-
-      break;
-    case ezGALBufferType::VertexBuffer:
-      m_usage = vk::BufferUsageFlagBits::eVertexBuffer;
-      m_stages |= vk::PipelineStageFlagBits::eVertexInput;
-      m_access |= vk::AccessFlagBits::eVertexAttributeRead;
-      break;
-    case ezGALBufferType::Generic:
-      m_usage = m_Description.m_bUseAsStructuredBuffer ? vk::BufferUsageFlagBits::eStorageBuffer : vk::BufferUsageFlagBits::eUniformTexelBuffer;
-      m_stages |= m_pDeviceVulkan->GetSupportedStages();
-      break;
-    default:
-      ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
-      return EZ_FAILURE;
+    switch (flag)
+    {
+      case ezGALBufferUsageFlags::VertexBuffer:
+        m_usage |= vk::BufferUsageFlagBits::eVertexBuffer;
+        m_stages |= vk::PipelineStageFlagBits::eVertexInput;
+        m_access |= vk::AccessFlagBits::eVertexAttributeRead;
+        // EZ_ASSERT_DEBUG(!bSRV && !bUAV, "Not implemented");
+        break;
+      case ezGALBufferUsageFlags::IndexBuffer:
+        m_usage |= vk::BufferUsageFlagBits::eIndexBuffer;
+        m_stages |= vk::PipelineStageFlagBits::eVertexInput;
+        m_access |= vk::AccessFlagBits::eIndexRead;
+        m_indexType = m_Description.m_uiStructSize == 2 ? vk::IndexType::eUint16 : vk::IndexType::eUint32;
+        // EZ_ASSERT_DEBUG(!bSRV && !bUAV, "Not implemented");
+        break;
+      case ezGALBufferUsageFlags::ConstantBuffer:
+        m_usage |= vk::BufferUsageFlagBits::eUniformBuffer;
+        m_stages |= m_pDeviceVulkan->GetSupportedStages();
+        m_access |= vk::AccessFlagBits::eUniformRead;
+        break;
+      case ezGALBufferUsageFlags::TexelBuffer:
+        if (bSRV)
+          m_usage |= vk::BufferUsageFlagBits::eUniformTexelBuffer;
+        if (bUAV)
+          m_usage |= vk::BufferUsageFlagBits::eStorageTexelBuffer;
+        break;
+      case ezGALBufferUsageFlags::StructuredBuffer:
+      case ezGALBufferUsageFlags::ByteAddressBuffer:
+        m_usage |= vk::BufferUsageFlagBits::eStorageBuffer;
+        break;
+      case ezGALBufferUsageFlags::ShaderResource:
+        m_stages |= m_pDeviceVulkan->GetSupportedStages();
+        m_access |= vk::AccessFlagBits::eShaderRead;
+        break;
+      case ezGALBufferUsageFlags::UnorderedAccess:
+        m_stages |= m_pDeviceVulkan->GetSupportedStages();
+        m_access |= vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
+        break;
+      case ezGALBufferUsageFlags::DrawIndirect:
+        m_usage |= vk::BufferUsageFlagBits::eIndirectBuffer;
+        m_stages |= vk::PipelineStageFlagBits::eDrawIndirect;
+        m_access |= vk::AccessFlagBits::eIndirectCommandRead;
+        break;
+      default:
+        ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
+        return EZ_FAILURE;
+    }
   }
 
-  if (m_Description.m_bAllowShaderResourceView)
-  {
-    m_stages |= m_pDeviceVulkan->GetSupportedStages();
-    m_access |= vk::AccessFlagBits::eShaderRead;
-  }
-
-  if (m_Description.m_bAllowUAV)
-  {
-    m_stages |= m_pDeviceVulkan->GetSupportedStages();
-    m_access |= vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
-  }
-
-  if (m_Description.m_bUseForIndirectArguments)
-  {
-    m_usage |= vk::BufferUsageFlagBits::eIndirectBuffer;
-    m_stages |= vk::PipelineStageFlagBits::eDrawIndirect;
-    m_access |= vk::AccessFlagBits::eIndirectCommandRead;
-  }
-
-  if (m_Description.m_ResourceAccess.m_bReadBack)
+  // if (m_Description.m_ResourceAccess.m_bReadBack)
   {
     m_usage |= vk::BufferUsageFlagBits::eTransferSrc;
     m_access |= vk::AccessFlagBits::eTransferRead;
@@ -79,11 +84,6 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
   EZ_ASSERT_DEBUG(pInitialData.GetCount() <= m_Description.m_uiTotalSize, "Initial data is bigger than target buffer.");
   vk::DeviceSize alignment = GetAlignment(m_pDeviceVulkan, m_usage);
   m_size = ezMemoryUtils::AlignSize((vk::DeviceSize)m_Description.m_uiTotalSize, alignment);
-
-  if (m_Description.m_bAllowRawViews)
-  {
-    // TODO Vulkan?
-  }
 
   CreateBuffer();
 
@@ -199,7 +199,7 @@ vk::DeviceSize ezGALBufferVulkan::GetAlignment(const ezGALDeviceVulkan* pDevice,
     alignment = ezMath::Max(alignment, properties.limits.minTexelBufferOffsetAlignment);
 
   if (usage & (vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndirectBuffer))
-    alignment = ezMath::Max(alignment, VkDeviceSize(16));
+    alignment = ezMath::Max(alignment, VkDeviceSize(16)); // If no cache line aligned perf will suffer.
 
   if (usage & (vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst))
     alignment = ezMath::Max(alignment, properties.limits.optimalBufferCopyOffsetAlignment);

@@ -30,7 +30,7 @@ void ezGALCommandEncoder::SetConstantBuffer(const ezShaderResourceBinding& bindi
   AssertRenderingThread();
 
   const ezGALBuffer* pBuffer = m_Device.GetBuffer(hBuffer);
-  EZ_ASSERT_DEV(pBuffer == nullptr || pBuffer->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer, "Wrong buffer type");
+  EZ_ASSERT_DEV(pBuffer == nullptr || pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer), "Wrong buffer type");
 
   m_CommonImpl.SetConstantBufferPlatform(binding, pBuffer);
 }
@@ -44,20 +44,37 @@ void ezGALCommandEncoder::SetSamplerState(const ezShaderResourceBinding& binding
   m_CommonImpl.SetSamplerStatePlatform(binding, pSamplerState);
 }
 
-void ezGALCommandEncoder::SetResourceView(const ezShaderResourceBinding& binding, ezGALResourceViewHandle hResourceView)
+void ezGALCommandEncoder::SetResourceView(const ezShaderResourceBinding& binding, ezGALTextureResourceViewHandle hResourceView)
 {
   AssertRenderingThread();
 
-  const ezGALResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
+  const ezGALTextureResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
 
   m_CommonImpl.SetResourceViewPlatform(binding, pResourceView);
 }
 
-void ezGALCommandEncoder::SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
+void ezGALCommandEncoder::SetResourceView(const ezShaderResourceBinding& binding, ezGALBufferResourceViewHandle hResourceView)
 {
   AssertRenderingThread();
 
-  const ezGALUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
+  const ezGALBufferResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
+
+  m_CommonImpl.SetResourceViewPlatform(binding, pResourceView);
+}
+
+void ezGALCommandEncoder::SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView)
+{
+  AssertRenderingThread();
+
+  const ezGALTextureUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
+  m_CommonImpl.SetUnorderedAccessViewPlatform(binding, pUnorderedAccessView);
+}
+
+void ezGALCommandEncoder::SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView)
+{
+  AssertRenderingThread();
+
+  const ezGALBufferUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
   m_CommonImpl.SetUnorderedAccessViewPlatform(binding, pUnorderedAccessView);
 }
 
@@ -106,11 +123,11 @@ ezGALTimestampHandle ezGALCommandEncoder::InsertTimestamp()
   return hTimestamp;
 }
 
-void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 vClearValues)
+void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 vClearValues)
 {
   AssertRenderingThread();
 
-  const ezGALUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
+  const ezGALTextureUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
   if (pUnorderedAccessView == nullptr)
   {
     EZ_REPORT_FAILURE("ClearUnorderedAccessView failed, unordered access view handle invalid.");
@@ -120,11 +137,39 @@ void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandl
   m_CommonImpl.ClearUnorderedAccessViewPlatform(pUnorderedAccessView, vClearValues);
 }
 
-void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 vClearValues)
+void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 vClearValues)
 {
   AssertRenderingThread();
 
-  const ezGALUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
+  const ezGALBufferUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
+  if (pUnorderedAccessView == nullptr)
+  {
+    EZ_REPORT_FAILURE("ClearUnorderedAccessView failed, unordered access view handle invalid.");
+    return;
+  }
+
+  m_CommonImpl.ClearUnorderedAccessViewPlatform(pUnorderedAccessView, vClearValues);
+}
+
+void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 vClearValues)
+{
+  AssertRenderingThread();
+
+  const ezGALTextureUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
+  if (pUnorderedAccessView == nullptr)
+  {
+    EZ_REPORT_FAILURE("ClearUnorderedAccessView failed, unordered access view handle invalid.");
+    return;
+  }
+
+  m_CommonImpl.ClearUnorderedAccessViewPlatform(pUnorderedAccessView, vClearValues);
+}
+
+void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 vClearValues)
+{
+  AssertRenderingThread();
+
+  const ezGALBufferUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
   if (pUnorderedAccessView == nullptr)
   {
     EZ_REPORT_FAILURE("ClearUnorderedAccessView failed, unordered access view handle invalid.");
@@ -301,11 +346,11 @@ void ezGALCommandEncoder::CopyTextureReadbackResult(ezGALTextureHandle hTexture,
   }
 }
 
-void ezGALCommandEncoder::GenerateMipMaps(ezGALResourceViewHandle hResourceView)
+void ezGALCommandEncoder::GenerateMipMaps(ezGALTextureResourceViewHandle hResourceView)
 {
   AssertRenderingThread();
 
-  const ezGALResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
+  const ezGALTextureResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
   if (pResourceView != nullptr)
   {
     EZ_ASSERT_DEV(!pResourceView->GetDescription().m_hTexture.IsInvalidated(), "Resource view needs a valid texture to generate mip maps.");

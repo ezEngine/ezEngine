@@ -150,7 +150,7 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
     constants->ContrastParams = ezVec4(a, b, m, 0.0f);
   }
 
-  ezGALResourceViewHandle hBloomTextureView;
+  ezGALTextureResourceViewHandle hBloomTextureView;
   auto pBloomInput = inputs[m_PinBloomInput.m_uiInputIndex];
   if (pBloomInput != nullptr)
   {

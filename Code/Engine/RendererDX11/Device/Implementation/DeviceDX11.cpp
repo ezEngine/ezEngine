@@ -133,7 +133,7 @@ retry:
         {
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
-          pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+          // pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
         }
 
         // Ignore list.
@@ -237,6 +237,11 @@ retry:
         { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
 
   return EZ_SUCCESS;
+}
+
+ezStringView ezGALDeviceDX11::GetRendererPlatform()
+{
+  return "DX11";
 }
 
 ezResult ezGALDeviceDX11::InitPlatform()
@@ -578,9 +583,9 @@ void ezGALDeviceDX11::DestroySharedTexturePlatform(ezGALTexture* pTexture)
   EZ_DELETE(&m_Allocator, pDX11Texture);
 }
 
-ezGALResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
+ezGALTextureResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description)
 {
-  ezGALResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALResourceViewDX11, pResource, Description);
+  ezGALTextureResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALTextureResourceViewDX11, pResource, Description);
 
   if (!pResourceView->InitPlatform(this).Succeeded())
   {
@@ -591,9 +596,29 @@ ezGALResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALResourceBase
   return pResourceView;
 }
 
-void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALResourceView* pResourceView)
+void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView)
 {
-  ezGALResourceViewDX11* pDX11ResourceView = static_cast<ezGALResourceViewDX11*>(pResourceView);
+  ezGALTextureResourceViewDX11* pDX11ResourceView = static_cast<ezGALTextureResourceViewDX11*>(pResourceView);
+  pDX11ResourceView->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11ResourceView);
+}
+
+ezGALBufferResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description)
+{
+  ezGALBufferResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALBufferResourceViewDX11, pResource, Description);
+
+  if (!pResourceView->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pResourceView);
+    return nullptr;
+  }
+
+  return pResourceView;
+}
+
+void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView)
+{
+  ezGALBufferResourceViewDX11* pDX11ResourceView = static_cast<ezGALBufferResourceViewDX11*>(pResourceView);
   pDX11ResourceView->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11ResourceView);
 }
@@ -618,9 +643,9 @@ void ezGALDeviceDX11::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRe
   EZ_DELETE(&m_Allocator, pDX11RenderTargetView);
 }
 
-ezGALUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezGALResourceBase* pTextureOfBuffer, const ezGALUnorderedAccessViewCreationDescription& Description)
+ezGALTextureUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezGALTexture* pTextureOfBuffer, const ezGALTextureUnorderedAccessViewCreationDescription& Description)
 {
-  ezGALUnorderedAccessViewDX11* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALUnorderedAccessViewDX11, pTextureOfBuffer, Description);
+  ezGALTextureUnorderedAccessViewDX11* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALTextureUnorderedAccessViewDX11, pTextureOfBuffer, Description);
 
   if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
   {
@@ -631,14 +656,32 @@ ezGALUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezG
   return pUnorderedAccessView;
 }
 
-void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pUnorderedAccessView)
+void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAccessView* pUnorderedAccessView)
 {
-  ezGALUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView);
+  ezGALTextureUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView);
   pUnorderedAccessViewDX11->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pUnorderedAccessViewDX11);
 }
 
+ezGALBufferUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezGALBuffer* pBufferOfBuffer, const ezGALBufferUnorderedAccessViewCreationDescription& Description)
+{
+  ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALBufferUnorderedAccessViewDX11, pBufferOfBuffer, Description);
 
+  if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pUnorderedAccessView);
+    return nullptr;
+  }
+
+  return pUnorderedAccessView;
+}
+
+void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView)
+{
+  ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView);
+  pUnorderedAccessViewDX11->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pUnorderedAccessViewDX11);
+}
 
 // Other rendering creation functions
 

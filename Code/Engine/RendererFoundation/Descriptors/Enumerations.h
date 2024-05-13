@@ -19,7 +19,7 @@ struct ezGALShaderResourceType
     // Read-only struct. Set directly via ezGALCommandEncoder::SetPushConstants. HLSL: Use macro BEGIN_PUSH_CONSTANTS, END_PUSH_CONSTANTS, GET_PUSH_CONSTANT
     PushConstants,
 
-    /// \name Shader Resource Views (SRVs). These are set via ezGALResourceViewHandle.
+    /// \name Shader Resource Views (SRVs). These are set via ezGALTextureResourceViewHandle / ezGALBufferResourceViewHandle.
     ///@{
 
     /// Read-only texture view. When set, ezGALShaderTextureType is also set. HLSL: Texture*
@@ -32,7 +32,7 @@ struct ezGALShaderResourceType
     StructuredBuffer,
 
     ///@}
-    /// \name Unordered Access Views (UAVs). These are set via ezGALUnorderedAccessViewHandle.
+    /// \name Unordered Access Views (UAVs). These are set via ezGALTextureUnorderedAccessViewHandle / ezGALBufferUnorderedAccessViewHandle.
     ///@{
 
     /// Read-write texture view. When set, ezGALShaderTextureType is also set. HLSL: RWTexture*
@@ -65,8 +65,10 @@ struct ezGALShaderResourceCategory
   {
     Sampler = EZ_BIT(0),        //< Sampler (ezGALSamplerStateHandle).
     ConstantBuffer = EZ_BIT(1), //< Constant Buffer (ezGALBufferHandle)
-    SRV = EZ_BIT(2),            //< Shader Resource Views (ezGALResourceViewHandle).
-    UAV = EZ_BIT(3),            //< Unordered Access Views (ezGALUnorderedAccessViewHandle).
+    TextureSRV = EZ_BIT(2),     //< Shader Resource Views (ezGALTextureResourceViewHandle).
+    BufferSRV = EZ_BIT(3),      //< Shader Resource Views (ezGALBufferResourceViewHandle).
+    TextureUAV = EZ_BIT(4),     //< Unordered Access Views (ezGALTextureUnorderedAccessViewHandle).
+    BufferUAV = EZ_BIT(5),      //< Unordered Access Views (ezGALBufferUnorderedAccessViewHandle).
     Default = 0
   };
 
@@ -74,8 +76,10 @@ struct ezGALShaderResourceCategory
   {
     StorageType Sampler : 1;
     StorageType ConstantBuffer : 1;
-    StorageType SRV : 1;
-    StorageType UAV : 1;
+    StorageType TextureSRV : 1;
+    StorageType BufferSRV : 1;
+    StorageType TextureUAV : 1;
+    StorageType BufferUAV : 1;
   };
 
   static ezBitflags<ezGALShaderResourceCategory> MakeFromShaderDescriptorType(ezGALShaderResourceType::Enum type);
@@ -162,24 +166,42 @@ struct ezGALVertexAttributeSemantic
   };
 };
 
-/// \brief General type of buffer.
+/// \brief Defines for what purpose a buffer can be used for.
 /// \sa ezGALBufferCreationDescription
-struct ezGALBufferType
+struct ezGALBufferUsageFlags
 {
-  using StorageType = ezUInt8;
+  using StorageType = ezUInt16;
 
   enum Enum
   {
-    Generic = 0,
-    VertexBuffer,
-    IndexBuffer,
-    ConstantBuffer,
+    VertexBuffer = EZ_BIT(0),      ///< Can be used as a vertex buffer.
+    IndexBuffer = EZ_BIT(1),       ///< Can be used as an index buffer.
+    ConstantBuffer = EZ_BIT(2),    ///< Can be used as a constant buffer. Can't be combined with any of the other *Buffer flags.
+    TexelBuffer = EZ_BIT(3),       ///< Can be used as a texel buffer.
+    StructuredBuffer = EZ_BIT(4),  ///< ezGALShaderResourceType::StructuredBuffer
+    ByteAddressBuffer = EZ_BIT(5), ///< ezGALShaderResourceType::ByteAddressBuffer (RAW)
 
-    ENUM_COUNT,
+    ShaderResource = EZ_BIT(6),    ///< Can be used for ezGALShaderResourceType in the SRV section.
+    UnorderedAccess = EZ_BIT(7),   ///< Can be used for ezGALShaderResourceType in the UAV section.
+    DrawIndirect = EZ_BIT(8),      ///< Can be used in an indirect draw call.
 
-    Default = Generic
+    Default = 0
+  };
+
+  struct Bits
+  {
+    StorageType VertexBuffer : 1;
+    StorageType IndexBuffer : 1;
+    StorageType ConstantBuffer : 1;
+    StorageType TexelBuffer : 1;
+    StorageType StructuredBuffer : 1;
+    StorageType ByteAddressBuffer : 1;
+    StorageType ShaderResource : 1;
+    StorageType UnorderedAccess : 1;
+    StorageType DrawIndirect : 1;
   };
 };
+EZ_DECLARE_FLAGS_OPERATORS(ezGALBufferUsageFlags);
 
 /// \brief Type of GPU->CPU query.
 /// \sa ezGALQueryCreationDescription

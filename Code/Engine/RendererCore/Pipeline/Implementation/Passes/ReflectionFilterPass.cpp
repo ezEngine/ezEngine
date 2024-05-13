@@ -110,9 +110,9 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
 
       for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
       {
-        ezGALUnorderedAccessViewHandle hFilterOutput;
+        ezGALTextureUnorderedAccessViewHandle hFilterOutput;
         {
-          ezGALUnorderedAccessViewCreationDescription desc;
+          ezGALTextureUnorderedAccessViewCreationDescription desc;
           desc.m_hTexture = pFilteredSpecularOutput->m_TextureHandle;
           desc.m_uiMipLevelToUse = uiMipMapIndex;
           desc.m_uiFirstArraySlice = m_uiSpecularOutputIndex * 6;
@@ -140,9 +140,9 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   {
     auto pCommandEncoder = ezRenderContext::BeginComputeScope(pGALPass, renderViewContext, "Irradiance");
 
-    ezGALUnorderedAccessViewHandle hIrradianceOutput;
+    ezGALTextureUnorderedAccessViewHandle hIrradianceOutput;
     {
-      ezGALUnorderedAccessViewCreationDescription desc;
+      ezGALTextureUnorderedAccessViewCreationDescription desc;
       desc.m_hTexture = pIrradianceOutput->m_TextureHandle;
 
       hIrradianceOutput = pDevice->CreateUnorderedAccessView(desc);

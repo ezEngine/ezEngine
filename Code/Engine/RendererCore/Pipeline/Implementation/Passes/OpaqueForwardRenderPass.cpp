@@ -64,7 +64,7 @@ void ezOpaqueForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRend
   {
     if (inputs[m_PinSSAO.m_uiInputIndex])
     {
-      ezGALResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
+      ezGALTextureResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
       renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", ssaoResourceViewHandle);
     }
     else

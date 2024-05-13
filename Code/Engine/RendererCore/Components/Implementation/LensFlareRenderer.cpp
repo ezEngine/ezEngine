@@ -64,9 +64,7 @@ ezGALBufferHandle ezLensFlareRenderer::CreateLensFlareDataBuffer(ezUInt32 uiBuff
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = sizeof(ezPerLensFlareData);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiBufferSize;
-  desc.m_BufferType = ezGALBufferType::Generic;
-  desc.m_bUseAsStructuredBuffer = true;
-  desc.m_bAllowShaderResourceView = true;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);

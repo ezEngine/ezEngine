@@ -150,16 +150,17 @@ public:
   void BindTexture3D(const ezTempHashedString& sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
   void BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
 
-  void BindTexture2D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
-  void BindTexture3D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
-  void BindTextureCube(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
+  void BindTexture2D(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView);
+  void BindTexture3D(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView);
+  void BindTextureCube(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView);
 
   /// Binds a read+write texture or buffer
-  void BindUAV(const ezTempHashedString& sSlotName, ezGALUnorderedAccessViewHandle hUnorderedAccessViewHandle);
+  void BindUAV(const ezTempHashedString& sSlotName, ezGALTextureUnorderedAccessViewHandle hUnorderedAccessViewHandle);
+  void BindUAV(const ezTempHashedString& sSlotName, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessViewHandle);
 
   void BindSamplerState(const ezTempHashedString& sSlotName, ezGALSamplerStateHandle hSamplerSate);
 
-  void BindBuffer(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
+  void BindBuffer(const ezTempHashedString& sSlotName, ezGALBufferResourceViewHandle hResourceView);
 
   void BindConstantBuffer(const ezTempHashedString& sSlotName, ezGALBufferHandle hConstantBuffer);
   void BindConstantBuffer(const ezTempHashedString& sSlotName, ezConstantBufferStorageHandle hConstantBufferStorage);
@@ -311,12 +312,15 @@ private:
   bool m_bAllowAsyncShaderLoading;
   bool m_bStereoRendering = false;
 
-  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTextures2D;
-  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTextures3D;
-  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundTexturesCube;
-  ezHashTable<ezUInt64, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
+  ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTextures2D;
+  ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTextures3D;
+  ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTexturesCube;
+  ezHashTable<ezUInt64, ezGALTextureUnorderedAccessViewHandle> m_BoundTextureUAVs;
+
   ezHashTable<ezUInt64, ezGALSamplerStateHandle> m_BoundSamplers;
-  ezHashTable<ezUInt64, ezGALResourceViewHandle> m_BoundBuffer;
+
+  ezHashTable<ezUInt64, ezGALBufferResourceViewHandle> m_BoundBuffer;
+  ezHashTable<ezUInt64, ezGALBufferUnorderedAccessViewHandle> m_BoundBufferUAVs;
   ezGALSamplerStateHandle m_hFallbackSampler;
 
   struct BoundConstantBuffer

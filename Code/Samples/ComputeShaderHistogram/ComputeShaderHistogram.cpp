@@ -208,7 +208,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
     m_hHistogramTexture = device->CreateTexture(texDesc);
     m_hHistogramSRV = device->GetDefaultResourceView(m_hHistogramTexture);
 
-    ezGALUnorderedAccessViewCreationDescription uavDesc;
+    ezGALTextureUnorderedAccessViewCreationDescription uavDesc;
     uavDesc.m_hTexture = m_hHistogramTexture;
     m_hHistogramUAV = device->CreateUnorderedAccessView(uavDesc);
   }

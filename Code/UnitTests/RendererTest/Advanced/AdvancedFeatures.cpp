@@ -56,7 +56,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     desc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALMSAASampleCount::None);
     m_hTexture2D = m_pDevice->CreateTexture(desc);
 
-    ezGALResourceViewCreationDescription viewDesc;
+    ezGALTextureResourceViewCreationDescription viewDesc;
     viewDesc.m_hTexture = m_hTexture2D;
     viewDesc.m_uiMipLevelsToUse = 1;
     for (ezUInt32 i = 0; i < 4; i++)
@@ -93,7 +93,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     desc.m_ResourceAccess.m_bImmutable = false;
     m_hTexture2D = m_pDevice->CreateTexture(desc);
 
-    ezGALResourceViewCreationDescription viewDesc;
+    ezGALTextureResourceViewCreationDescription viewDesc;
     viewDesc.m_hTexture = m_hTexture2D;
     viewDesc.m_uiMipLevelsToUse = 1;
     viewDesc.m_uiMostDetailedMipLevel = 0;
@@ -470,9 +470,9 @@ void ezRendererTestAdvancedFeatures::Compute()
     {
       ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
 
-      ezGALUnorderedAccessViewHandle hFilterOutput;
+      ezGALTextureUnorderedAccessViewHandle hFilterOutput;
       {
-        ezGALUnorderedAccessViewCreationDescription desc;
+        ezGALTextureUnorderedAccessViewCreationDescription desc;
         desc.m_hTexture = m_hTexture2D;
         desc.m_uiMipLevelToUse = 0;
         desc.m_uiFirstArraySlice = 0;

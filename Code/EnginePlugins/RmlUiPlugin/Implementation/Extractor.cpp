@@ -53,7 +53,7 @@ namespace ezRmlUiInternal
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = sizeof(Vertex);
       desc.m_uiTotalSize = vertexStorage.GetCount() * desc.m_uiStructSize;
-      desc.m_BufferType = ezGALBufferType::VertexBuffer;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
 
       geometry.m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, vertexStorage.GetByteArrayPtr());
     }
@@ -63,7 +63,7 @@ namespace ezRmlUiInternal
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = sizeof(ezUInt32);
       desc.m_uiTotalSize = iNum_indices * desc.m_uiStructSize;
-      desc.m_BufferType = ezGALBufferType::IndexBuffer;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
 
       geometry.m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, ezMakeArrayPtr(pIndices, iNum_indices).ToByteArray());
     }
