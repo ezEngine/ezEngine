@@ -11,6 +11,8 @@ param(
 # Import Android utils
 . "$PSScriptRoot/Android/AndroidUtils.ps1"
 
+$ErrorActionPreference = "Stop"
+
 # Find arch
 $arch = Adb-Shell "getprop ro.product.cpu.abi"
 if (-not $arch) {

@@ -17,14 +17,22 @@ param(
 # Install app
 if ($apk) {
     Write-Host "Installing $apk..."
-    Adb-Cmd -s $deviceAdb install -r -t $apk
+    $installFunction = {
+        Adb-Cmd -ErrorAction Continue -s $deviceAdb install -r -t $apk
+        # Starting the app right after install usually fails
+        Start-Sleep -Seconds 1
+    }
+    Invoke-WithRetry -ScriptBlock $installFunction -MaxRetryCount 5
 }
 
 Write-Host "Clearing LogCat..."
 Adb-Cmd -s $deviceAdb logcat --clear
 
-Write-Host "Stating $packageName/$activityName..."
-Adb-Cmd -s $deviceAdb shell am start -n $packageName/$activityName
+Write-Host "Starting $packageName/$activityName..."
+$startFunction = {
+    Adb-Cmd -ErrorAction Continue -s $deviceAdb shell am start -n $packageName/$activityName
+}
+Invoke-WithRetry -ScriptBlock $startFunction -MaxRetryCount 5
 
 # Define the path to the output log file
 [System.IO.Directory]::CreateDirectory("$outputFolder") | Out-Null

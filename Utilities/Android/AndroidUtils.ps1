@@ -32,23 +32,23 @@ function Get-LatestSdkTools {
 	$folders = Get-ChildItem -Path $cmdTools -Directory
 
 	$highestFloat = [float]::NegativeInfinity
-    $highestFloatFolder = $null
+	$highestFloatFolder = $null
 
-    foreach ($folder in $folders) {
+	foreach ($folder in $folders) {
 		if ($folder.Name -match "latest") {
 			$highestFloatFolder = $folder
 			break;
 		}
-        # Attempt to convert the folder name to a float
+		# Attempt to convert the folder name to a float
 		$floatValue = 0.0
-        if ([float]::TryParse($folder.Name, [ref]$floatValue)) {
-            # Check if the converted float value is higher than the current highest
-            if ($floatValue -gt $highestFloat) {
-                $highestFloat = $floatValue
-                $highestFloatFolder = $folder
-            }
-        }
-    }
+		if ([float]::TryParse($folder.Name, [ref]$floatValue)) {
+			# Check if the converted float value is higher than the current highest
+			if ($floatValue -gt $highestFloat) {
+				$highestFloat = $floatValue
+				$highestFloatFolder = $folder
+			}
+		}
+	}
 	if ($null -eq $highestFloatFolder) {
 		RaiseError "Failed to find a valid cmdline-tools folder under $cmdTools. Please ensure that the ANDROID_HOME environment variable is correctly set"
 	}
@@ -56,19 +56,23 @@ function Get-LatestSdkTools {
 	return $highestFloatFolder.FullName
 }
 
-$bla = Get-LatestSdkTools
-
 function RaiseError {
 	param(
 		[string]$msg
 	)
-	if ($MessageBoxOnError -and $IsWindows) {
-		[System.Windows.Forms.MessageBox]::Show($msg)
+
+	if ($ErrorActionPreference -eq "Stop") {
+		if ($MessageBoxOnError -and $IsWindows) {
+			[System.Windows.Forms.MessageBox]::Show($msg)
+		}
+		else {
+			Write-Host $msg -foreground red
+		}
+		exit 1
 	}
 	else {
-		Write-Host $msg -foreground red
+		throw $msg
 	}
-	exit 1
 }
 
 function Adb-Shell {
@@ -83,7 +87,8 @@ function Adb-Shell {
 	try {
 		if ($deviceAdb) {
 			$($result = (& $adb -s $deviceAdb shell $cmd *>&1)) | Out-Null
-		} else {
+		}
+		else {
 			$($result = (& $adb shell $cmd *>&1)) | Out-Null
 		}
 
@@ -157,4 +162,31 @@ function Adb-CopyDirectory {
 			Start-Process -PassThru -WindowStyle Hidden -FilePath "$adb" -ArgumentList "-s $deviceAdb exec-out run-as $packageName cat `"$deviceFileChild`"" -RedirectStandardOutput $outputFileChild | Out-Null
 		}
 	}
+}
+
+function Invoke-WithRetry {
+    param(
+        [Parameter(Mandatory=$true)]
+        [ScriptBlock]$ScriptBlock,
+        [int]$MaxRetryCount = 3
+    )
+
+    $retryCount = 0
+
+    do {
+        try {
+            & $ScriptBlock
+            break
+        }
+        catch {
+			Start-Sleep -Seconds 1
+            if ($retryCount -ge $MaxRetryCount) {
+                RaiseError("Error: $_")
+            }
+            else {
+				$retryCount++
+                Write-Host "Error: $_`nRetrying ($retryCount/$MaxRetryCount)..."
+            }
+        }
+    } while ($true)
 }
