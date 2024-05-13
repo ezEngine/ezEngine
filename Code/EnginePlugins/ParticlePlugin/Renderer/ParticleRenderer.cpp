@@ -64,7 +64,7 @@ void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferHandle& inout_hBuff
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = uiDataTypeSize;
     desc.m_uiTotalSize = uiNumParticlesPerBatch * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ShaderResource;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     inout_hBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);

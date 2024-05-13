@@ -47,7 +47,7 @@ void ezSkinningState::TransformsChanged()
     ezGALBufferCreationDescription BufferDesc;
     BufferDesc.m_uiStructSize = sizeof(ezShaderTransform);
     BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_Transforms.GetCount();
-    BufferDesc.m_BufferFlags = ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ShaderResource;
+    BufferDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
     BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
     m_hGpuBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, m_Transforms.GetArrayPtr().ToByteArray());

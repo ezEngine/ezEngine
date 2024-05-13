@@ -118,7 +118,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
       }
       {
         ezGALBufferCreationDescription desc;
-        desc.m_BufferFlags = ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ByteAddressBuffer | ezGALBufferFlags::ShaderResource;
+        desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer | ezGALBufferUsageFlags::ShaderResource;
         desc.m_uiStructSize = 128;
         desc.m_uiTotalSize = 1280;
         desc.m_ResourceAccess.m_bImmutable = false;
@@ -135,7 +135,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         ezGALBufferCreationDescription desc;
         desc.m_uiStructSize = sizeof(ezUInt32);
         desc.m_uiTotalSize = 1024;
-        desc.m_BufferFlags = ezGALBufferFlags::TexelBuffer | ezGALBufferFlags::ShaderResource;
+        desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource;
         desc.m_ResourceAccess.m_bImmutable = false;
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
         s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackTexelBufferVulkan");
@@ -169,7 +169,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         ezGALBufferCreationDescription desc;
         desc.m_uiStructSize = sizeof(ezUInt32);
         desc.m_uiTotalSize = 1024;
-        desc.m_BufferFlags = ezGALBufferFlags::TexelBuffer | ezGALBufferFlags::ShaderResource | ezGALBufferFlags::UnorderedAccess;
+        desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
         desc.m_ResourceAccess.m_bImmutable = false;
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
         s_pDevice->GetBuffer(hBuffer)->SetDebugName("FallbackTexelBufferRWVulkan");
@@ -179,7 +179,7 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
       }
       {
         ezGALBufferCreationDescription desc;
-        desc.m_BufferFlags = ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ByteAddressBuffer | ezGALBufferFlags::ShaderResource | ezGALBufferFlags::UnorderedAccess;
+        desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
         desc.m_uiStructSize = 128;
         desc.m_uiTotalSize = 1280;
         desc.m_ResourceAccess.m_bImmutable = false;

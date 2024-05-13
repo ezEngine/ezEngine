@@ -20,35 +20,35 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
 
   D3D11_BUFFER_DESC BufferDesc = {};
 
-  for (ezGALBufferFlags::Enum flag : m_Description.m_BufferFlags)
+  for (ezGALBufferUsageFlags::Enum flag : m_Description.m_BufferFlags)
   {
     switch (flag)
     {
-      case ezGALBufferFlags::ConstantBuffer:
+      case ezGALBufferUsageFlags::ConstantBuffer:
         BufferDesc.BindFlags |= D3D11_BIND_CONSTANT_BUFFER;
         break;
-      case ezGALBufferFlags::IndexBuffer:
+      case ezGALBufferUsageFlags::IndexBuffer:
         BufferDesc.BindFlags |= D3D11_BIND_INDEX_BUFFER;
         m_IndexFormat = m_Description.m_uiStructSize == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
         break;
-      case ezGALBufferFlags::VertexBuffer:
+      case ezGALBufferUsageFlags::VertexBuffer:
         BufferDesc.BindFlags |= D3D11_BIND_VERTEX_BUFFER;
         break;
-      case ezGALBufferFlags::TexelBuffer:
+      case ezGALBufferUsageFlags::TexelBuffer:
         break;
-      case ezGALBufferFlags::StructuredBuffer:
+      case ezGALBufferUsageFlags::StructuredBuffer:
         BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
         break;
-      case ezGALBufferFlags::ByteAddressBuffer:
+      case ezGALBufferUsageFlags::ByteAddressBuffer:
         BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
         break;
-      case ezGALBufferFlags::ShaderResource:
+      case ezGALBufferUsageFlags::ShaderResource:
         BufferDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
         break;
-      case ezGALBufferFlags::UnorderedAccess:
+      case ezGALBufferUsageFlags::UnorderedAccess:
         BufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
         break;
-      case ezGALBufferFlags::DrawIndirect:
+      case ezGALBufferUsageFlags::DrawIndirect:
         BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
         break;
       default:
@@ -61,7 +61,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
   BufferDesc.CPUAccessFlags = 0;
   BufferDesc.StructureByteStride = m_Description.m_uiStructSize;
 
-  if (m_Description.m_BufferFlags.IsSet(ezGALBufferFlags::ConstantBuffer))
+  if (m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer))
   {
     BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -77,7 +77,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
     }
     else
     {
-      if (m_Description.m_BufferFlags.IsSet(ezGALBufferFlags::UnorderedAccess)) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
+      if (m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::UnorderedAccess)) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
       {
         BufferDesc.Usage = D3D11_USAGE_DEFAULT;
       }

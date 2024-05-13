@@ -313,7 +313,7 @@ ezResult ezGALTextureVulkan::CreateStagingBuffer(const vk::ImageCreateInfo& crea
   if (m_stagingMode == StagingMode::Buffer || m_stagingMode == StagingMode::TextureAndBuffer)
   {
     ezGALBufferCreationDescription stagingBuffer;
-    stagingBuffer.m_BufferFlags = ezGALBufferFlags::ByteAddressBuffer;
+    stagingBuffer.m_BufferFlags = ezGALBufferUsageFlags::ByteAddressBuffer;
     ezHybridArray<SubResourceOffset, 8> subResourceSizes;
     stagingBuffer.m_uiTotalSize = ComputeSubResourceOffsets(subResourceSizes);
     stagingBuffer.m_uiStructSize = 1;

@@ -19,49 +19,49 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
   m_device = m_pDeviceVulkan->GetVulkanDevice();
   m_stages = vk::PipelineStageFlagBits::eTransfer;
 
-  const bool bSRV = m_Description.m_BufferFlags.IsSet(ezGALBufferFlags::ShaderResource);
-  const bool bUAV = m_Description.m_BufferFlags.IsSet(ezGALBufferFlags::UnorderedAccess);
-  for (ezGALBufferFlags::Enum flag : m_Description.m_BufferFlags)
+  const bool bSRV = m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ShaderResource);
+  const bool bUAV = m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::UnorderedAccess);
+  for (ezGALBufferUsageFlags::Enum flag : m_Description.m_BufferFlags)
   {
     switch (flag)
     {
-      case ezGALBufferFlags::VertexBuffer:
+      case ezGALBufferUsageFlags::VertexBuffer:
         m_usage |= vk::BufferUsageFlagBits::eVertexBuffer;
         m_stages |= vk::PipelineStageFlagBits::eVertexInput;
         m_access |= vk::AccessFlagBits::eVertexAttributeRead;
         // EZ_ASSERT_DEBUG(!bSRV && !bUAV, "Not implemented");
         break;
-      case ezGALBufferFlags::IndexBuffer:
+      case ezGALBufferUsageFlags::IndexBuffer:
         m_usage |= vk::BufferUsageFlagBits::eIndexBuffer;
         m_stages |= vk::PipelineStageFlagBits::eVertexInput;
         m_access |= vk::AccessFlagBits::eIndexRead;
         m_indexType = m_Description.m_uiStructSize == 2 ? vk::IndexType::eUint16 : vk::IndexType::eUint32;
         // EZ_ASSERT_DEBUG(!bSRV && !bUAV, "Not implemented");
         break;
-      case ezGALBufferFlags::ConstantBuffer:
+      case ezGALBufferUsageFlags::ConstantBuffer:
         m_usage |= vk::BufferUsageFlagBits::eUniformBuffer;
         m_stages |= m_pDeviceVulkan->GetSupportedStages();
         m_access |= vk::AccessFlagBits::eUniformRead;
         break;
-      case ezGALBufferFlags::TexelBuffer:
+      case ezGALBufferUsageFlags::TexelBuffer:
         if (bSRV)
           m_usage |= vk::BufferUsageFlagBits::eUniformTexelBuffer;
         if (bUAV)
           m_usage |= vk::BufferUsageFlagBits::eStorageTexelBuffer;
         break;
-      case ezGALBufferFlags::StructuredBuffer:
-      case ezGALBufferFlags::ByteAddressBuffer:
+      case ezGALBufferUsageFlags::StructuredBuffer:
+      case ezGALBufferUsageFlags::ByteAddressBuffer:
         m_usage |= vk::BufferUsageFlagBits::eStorageBuffer;
         break;
-      case ezGALBufferFlags::ShaderResource:
+      case ezGALBufferUsageFlags::ShaderResource:
         m_stages |= m_pDeviceVulkan->GetSupportedStages();
         m_access |= vk::AccessFlagBits::eShaderRead;
         break;
-      case ezGALBufferFlags::UnorderedAccess:
+      case ezGALBufferUsageFlags::UnorderedAccess:
         m_stages |= m_pDeviceVulkan->GetSupportedStages();
         m_access |= vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
         break;
-      case ezGALBufferFlags::DrawIndirect:
+      case ezGALBufferUsageFlags::DrawIndirect:
         m_usage |= vk::BufferUsageFlagBits::eIndirectBuffer;
         m_stages |= vk::PipelineStageFlagBits::eDrawIndirect;
         m_access |= vk::AccessFlagBits::eIndirectCommandRead;

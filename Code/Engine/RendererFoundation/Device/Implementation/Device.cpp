@@ -603,10 +603,10 @@ ezGALBufferHandle ezGALDevice::FinalizeBufferInternal(const ezGALBufferCreationD
     ezGALBufferHandle hBuffer(m_Buffers.Insert(pBuffer));
 
     // Create default resource view
-    if (desc.m_BufferFlags.IsSet(ezGALBufferFlags::ShaderResource))
+    if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ShaderResource))
     {
       // #TODO_VULKAN TexelBuffer requires a format, should we store it in the buffer desc?
-      if (desc.m_BufferFlags.IsAnySet(ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ByteAddressBuffer))
+      if (desc.m_BufferFlags.IsAnySet(ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer))
       {
         ezGALBufferResourceViewCreationDescription viewDesc;
         viewDesc.m_hBuffer = hBuffer;
@@ -644,7 +644,7 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = uiVertexSize;
   desc.m_uiTotalSize = uiVertexSize * ezMath::Max(1u, uiVertexCount);
-  desc.m_BufferFlags = ezGALBufferFlags::VertexBuffer;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
   desc.m_ResourceAccess.m_bImmutable = !initialData.IsEmpty() && !bDataIsMutable;
 
   return CreateBuffer(desc, initialData);
@@ -655,7 +655,7 @@ ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum indexType,
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(indexType);
   desc.m_uiTotalSize = desc.m_uiStructSize * ezMath::Max(1u, uiIndexCount);
-  desc.m_BufferFlags = ezGALBufferFlags::IndexBuffer;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
   desc.m_ResourceAccess.m_bImmutable = !bDataIsMutable && !initialData.IsEmpty();
 
   return CreateBuffer(desc, initialData);
@@ -666,7 +666,7 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = 0;
   desc.m_uiTotalSize = uiBufferSize;
-  desc.m_BufferFlags = ezGALBufferFlags::ConstantBuffer;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::ConstantBuffer;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   return CreateBuffer(desc);
@@ -1167,7 +1167,7 @@ ezGALBufferUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(cons
       return ezGALBufferUnorderedAccessViewHandle();
     }
 
-    if (!pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferFlags::ByteAddressBuffer) && desc.m_bRawView)
+    if (!pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer) && desc.m_bRawView)
     {
       ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
       return ezGALBufferUnorderedAccessViewHandle();

@@ -220,7 +220,7 @@ void ezImguiRenderer::SetupRenderer()
   // Create the vertex buffer
   {
     ezGALBufferCreationDescription desc;
-    desc.m_BufferFlags = ezGALBufferFlags::VertexBuffer;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
 
     desc.m_uiStructSize = sizeof(ezImguiVertex);
     desc.m_uiTotalSize = s_uiVertexBufferSize * desc.m_uiStructSize;
@@ -234,7 +234,7 @@ void ezImguiRenderer::SetupRenderer()
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ImDrawIdx);
     desc.m_uiTotalSize = s_uiIndexBufferSize * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferFlags::IndexBuffer;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);

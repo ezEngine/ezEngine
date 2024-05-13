@@ -171,7 +171,7 @@ ezResult ezGALBufferUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   ID3D11Resource* pDXResource = static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer();
 
-  if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferFlags::StructuredBuffer))
+  if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer))
     DXUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
 
   DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;

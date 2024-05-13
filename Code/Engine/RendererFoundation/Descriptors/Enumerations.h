@@ -168,7 +168,7 @@ struct ezGALVertexAttributeSemantic
 
 /// \brief Defines for what purpose a buffer can be used for.
 /// \sa ezGALBufferCreationDescription
-struct ezGALBufferFlags
+struct ezGALBufferUsageFlags
 {
   using StorageType = ezUInt16;
 
@@ -201,7 +201,7 @@ struct ezGALBufferFlags
     StorageType DrawIndirect : 1;
   };
 };
-EZ_DECLARE_FLAGS_OPERATORS(ezGALBufferFlags);
+EZ_DECLARE_FLAGS_OPERATORS(ezGALBufferUsageFlags);
 
 /// \brief Type of GPU->CPU query.
 /// \sa ezGALQueryCreationDescription

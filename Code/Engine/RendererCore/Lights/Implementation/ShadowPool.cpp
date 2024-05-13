@@ -325,7 +325,7 @@ struct ezShadowPool::Data
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = sizeof(ezVec4);
       desc.m_uiTotalSize = desc.m_uiStructSize * MAX_SHADOW_DATA;
-      desc.m_BufferFlags = ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ShaderResource;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
       m_hShadowDataBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);

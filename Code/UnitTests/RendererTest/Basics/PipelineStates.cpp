@@ -149,7 +149,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezTestShaderData);
     desc.m_uiTotalSize = 16 * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferFlags::StructuredBuffer | ezGALBufferFlags::ShaderResource;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     // We only fill the first 8 elements with data. The rest is dynamically updated during testing.

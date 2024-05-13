@@ -179,7 +179,7 @@ ezResult ezGALBufferResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
   if (ViewFormat == ezGALResourceFormat::Invalid)
     ViewFormat = ezGALResourceFormat::RUInt;
 
-  if (!pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferFlags::ByteAddressBuffer) && m_Description.m_bRawView)
+  if (!pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer) && m_Description.m_bRawView)
   {
     ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
     return EZ_FAILURE;
@@ -210,7 +210,7 @@ ezResult ezGALBufferResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   pDXResource = static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer();
 
-  if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferFlags::StructuredBuffer))
+  if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer))
     DXSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
 
   DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
