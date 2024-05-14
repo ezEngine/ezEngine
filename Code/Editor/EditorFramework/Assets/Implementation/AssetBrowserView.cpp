@@ -13,6 +13,8 @@ ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* pParent)
   m_pDelegate = new ezQtIconViewDelegate(this);
 
   SetDialogMode(false);
+
+  setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
   setViewMode(QListView::ViewMode::IconMode);
   setUniformItemSizes(true);
   setResizeMode(QListView::ResizeMode::Adjust);
@@ -71,6 +73,122 @@ ezInt32 ezQtAssetBrowserView::GetIconScale() const
   return m_iIconSizePercentage;
 }
 
+void ezQtAssetBrowserView::dragEnterEvent(QDragEnterEvent* event)
+{
+  if (event->source())
+    event->acceptProposedAction();
+}
+
+void ezQtAssetBrowserView::dragMoveEvent(QDragMoveEvent* event)
+{
+  event->acceptProposedAction();
+}
+
+void ezQtAssetBrowserView::dragLeaveEvent(QDragLeaveEvent* event)
+{
+  event->accept();
+}
+
+void ezQtAssetBrowserView::dropEvent(QDropEvent* event)
+{
+  if (!event->mimeData()->hasUrls())
+    return;
+
+  QList<QUrl> paths = event->mimeData()->urls();
+  ezString targetPar = indexAt(event->pos()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  if (targetPar.IsEmpty())
+  {
+    return;
+  }
+
+  for (auto it = paths.begin(); it != paths.end(); it++)
+  {
+    ezStringBuilder src = it->path().toUtf8().constData();
+
+    src.Shrink(1, 0); //remove prepending '/' in name that appears for some reason
+
+    ezStringBuilder target = targetPar;
+    target.AppendFormat("/{}", qtToEzString(it->fileName()));
+
+    if (targetPar == src)
+    {
+      ezLog::Error("Can't drop a file or folder on itself");
+      continue;
+    }
+
+
+    if (!ezOSFile::ExistsDirectory(src) && !ezOSFile::ExistsFile(src))
+    {
+      ezLog::Error("Cannot find file/folder to move : {}", src);
+      return;
+    }
+    if (ezOSFile::ExistsDirectory(src))
+    {
+      if (ezOSFile::ExistsDirectory(target))  //ask to overwrite if target already exists
+      {
+        ezStringBuilder msg = ezStringBuilder();
+        msg.SetFormat("destination {} already exists", target);
+        QMessageBox msgBox;
+        msgBox.setText(msg.GetData());
+        msgBox.setInformativeText("Overwrite existing folder?");
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Cancel);
+        if (!msgBox.exec())
+          return;
+
+        if (ezOSFile::DeleteFolder(target).Failed())
+        {
+          ezLog::Error("Failed to delete folder {}", target);
+          return;
+        }
+      }
+
+      if (ezOSFile::CreateDirectoryStructure(target).Succeeded())
+      {
+        if (ezOSFile::CopyFolder(src, target).Failed())
+        {
+          ezLog::Error("Failed to copy folder {} content", src);
+        }
+        if (ezOSFile::DeleteFolder(src).Failed())
+        {
+          ezLog::Error("Failed to delete folder {}", src);
+        }
+      }
+      else
+      {
+        ezLog::Error("Failed to copy folder {} to {}", src, target);
+      }
+    }
+    else if (ezOSFile::ExistsFile(src))
+    {
+      if (ezOSFile::ExistsFile(target))   //ask to overwrite if target already exists
+      {
+        ezStringBuilder msg = ezStringBuilder();
+        msg.SetFormat("destination {} already exists", target);
+        QMessageBox msgBox;
+        msgBox.setText(msg.GetData());
+        msgBox.setInformativeText("Overwrite existing file?");
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Cancel);
+        if (!msgBox.exec())
+          continue;
+
+        if (ezOSFile::DeleteFile(target).Failed())
+        {
+          ezLog::Error("Failed to delete file {}", target);
+          return;
+        }
+      }
+      if (ezOSFile::MoveFileOrDirectory(src, target).Failed())
+      {
+        ezLog::Error("failed to move file or dir from {} to {}", src, target);
+        return;
+      }
+    }
+  }
+
+  ezAssetCurator::GetSingleton()->CheckFileSystem();
+}
 
 void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
 {

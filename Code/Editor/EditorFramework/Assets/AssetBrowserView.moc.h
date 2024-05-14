@@ -21,6 +21,11 @@ public:
   void SetIconScale(ezInt32 iIconSizePercentage);
   ezInt32 GetIconScale() const;
 
+  void dragEnterEvent(QDragEnterEvent* event) override;
+  void dragMoveEvent(QDragMoveEvent* event) override;
+  void dragLeaveEvent(QDragLeaveEvent* event) override;
+  void dropEvent(QDropEvent* event) override;
+
 Q_SIGNALS:
   void ViewZoomed(ezInt32 iIconSizePercentage);
 

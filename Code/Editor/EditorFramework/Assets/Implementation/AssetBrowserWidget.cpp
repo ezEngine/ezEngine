@@ -34,6 +34,9 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   ListAssets->setModel(m_pModel);
   ListAssets->SetIconScale(IconSizeSlider->value());
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
+  ListAssets->setDragEnabled(true);
+  ListAssets->setAcceptDrops(true);
+  ListAssets->setDropIndicatorShown(true);
   on_ButtonIconMode_clicked();
 
   splitter->setStretchFactor(0, 0);
@@ -66,6 +69,8 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserWidget::AssetCuratorEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserWidget::ProjectEventHandler, this));
+
+  setAcceptDrops(true);
 }
 
 ezQtAssetBrowserWidget::~ezQtAssetBrowserWidget()
@@ -75,6 +80,153 @@ ezQtAssetBrowserWidget::~ezQtAssetBrowserWidget()
 
 
   ListAssets->setModel(nullptr);
+}
+
+void ezQtAssetBrowserWidget::dragEnterEvent(QDragEnterEvent* event)
+{
+  if (!event->source())
+    event->acceptProposedAction();
+}
+
+void ezQtAssetBrowserWidget::dragMoveEvent(QDragMoveEvent* event)
+{
+  event->acceptProposedAction();
+}
+
+void ezQtAssetBrowserWidget::dragLeaveEvent(QDragLeaveEvent* event)
+{
+  event->accept();
+}
+
+void ezQtAssetBrowserWidget::dropEvent(QDropEvent* event)
+{
+  const QMimeData* mime = event->mimeData();
+  if (mime->hasUrls())
+  {
+    QList<QUrl> urlList = mime->urls();
+    ezHybridArray<ezString, 16> assetsToImport;
+
+    ezString pDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+
+    bool overWriteAll = false;
+    for (qsizetype i = 0, count = qMin(urlList.size(), qsizetype(32)); i < count; ++i)
+    {
+      QUrl url = urlList.at(i);
+      QFileInfo fileinfo = QFileInfo(url.toLocalFile());
+
+      if (fileinfo.exists())
+      {
+        // build source and destination paths info ===================================================================
+        ezStringBuilder srcPath = urlList.at(i).path().toUtf8().constData();
+        srcPath.Shrink(1, 0); // remove a "/" at the beginning of the sourcepath that keeps it from opening
+
+        ezStringBuilder dstPath = ezStringBuilder();
+        dstPath.Append(pDir);
+        dstPath.ReplaceFirst(ezToolsProject::GetSingleton()->GetProjectName(false), "");
+        dstPath.Append(m_pFilter->GetPathFilter());
+        if (!dstPath.EndsWith("/"))
+          dstPath.Append("/");
+        dstPath.Append(fileinfo.fileName().toUtf8().constData());
+
+        // Move the file/folder ==============================================
+        if (fileinfo.isDir())
+        {
+
+          if (!overWriteAll && ezOSFile::ExistsDirectory(dstPath))
+          {
+            QMessageBox msgBox;
+            msgBox.setText("Overwrite folder?");
+            msgBox.setInformativeText("The folder you are copying already exists, overwrite the existing one?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::Cancel);
+            int res = msgBox.exec();
+            switch (res)
+            {
+              case QMessageBox::Yes:
+                break;
+              case QMessageBox::YesToAll:
+                overWriteAll = true;
+                break;
+              case QMessageBox::Cancel:
+              default:
+                for (auto file : assetsToImport)
+                {
+                  if (ezOSFile::DeleteFile(file) == EZ_FAILURE)
+                  {
+                    ezLog::Error("failed to delete temp file {}", file);
+                  }
+                }
+                return;
+            }
+          }
+
+          if (ezOSFile::CopyFolder(srcPath, dstPath) != EZ_SUCCESS)
+          {
+            ezLog::Error("Failed to copy the folder in the project directory");
+            return;
+          }
+
+          ezDynamicArray<ezFileStats> movedFiles = ezDynamicArray<ezFileStats>();
+          ezOSFile::GatherAllItemsInFolder(movedFiles, dstPath);
+          for (int i = 0; i < movedFiles.GetCount(); i++)
+          {
+            movedFiles[i].GetFullPath(dstPath);
+            assetsToImport.PushBack(dstPath);
+          }
+        }
+        else if (fileinfo.isFile())
+        {
+          if (!overWriteAll && ezOSFile::ExistsFile(dstPath))
+          {
+            QMessageBox msgBox;
+            msgBox.setText("Overwrite file?");
+            msgBox.setInformativeText("The file you are copying already exists, overwrite the existing one?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::Cancel);
+            int res = msgBox.exec();
+            switch (res)
+            {
+              case QMessageBox::Yes:
+                break;
+              case QMessageBox::YesToAll:
+                overWriteAll = true;
+                break;
+              case QMessageBox::Cancel:
+              default:
+                for (auto file : assetsToImport)
+                {
+                  if (ezOSFile::DeleteFile(file) == EZ_FAILURE)
+                  {
+                    ezLog::Error("failed to delete temp file {}", file);
+                  }
+                }
+                return;
+            }
+          }
+          if (ezOSFile::CopyFile(srcPath, dstPath) != EZ_SUCCESS)
+          {
+            ezLog::Error("Failed to copy the file in the project directory");
+            return;
+          }
+          assetsToImport.PushBack(dstPath);
+         }
+       }
+      else
+      {
+        ezLog::Error("Couldn't find file at {} for copying", urlList.at(i).path().toUtf8().constData());
+        return;
+      }
+    }
+
+    ListAssets->update();
+
+    ezAssetDocumentGenerator::ImportAssets(assetsToImport);
+  }
+  else
+    ezLog::Dev("Ignoring unhandled MIME data received");
+
+
+  event->acceptProposedAction();
 }
 
 void ezQtAssetBrowserWidget::UpdateAssetTypes()
