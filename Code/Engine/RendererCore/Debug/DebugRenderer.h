@@ -217,7 +217,7 @@ public:
   /// \brief Renders a cylinder starting at the center position, along the +X axis.
   ///
   /// If the start and end radius are different, a cone or arrow can be created.
-  static void DrawCylinder(const ezDebugRendererContext& context, float fRadiusStart, float fRadiusEnd, float fLength, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, bool bCapStart = false, bool bCapEnd = false);
+  static void DrawCylinder(const ezDebugRendererContext& context, float fRadiusStart, float fRadiusEnd, float fLength, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, bool bCapStart = false, bool bCapEnd = false, ezBasisAxis::Enum cylinderAxis = ezBasisAxis::PositiveX);
 
   /// \brief Renders a line arrow.
   static void DrawArrow(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::MakeAxisX());

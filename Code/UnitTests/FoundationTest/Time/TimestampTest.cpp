@@ -174,8 +174,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::Default | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019-08-16 - 13:40:30 (UTC)", szTimestampFormatted);
     // no names, with UTC, with milliseconds
-    BuildString(
-      szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+    BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019-08-16 - 13:40:30.345 (UTC)", szTimestampFormatted);
     // with names, no UTC, no milliseconds
     BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday));
@@ -185,13 +184,10 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
       ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowMilliseconds));
     EZ_TEST_STRING("2019 Aug 16 (Fri) - 13:40:30.345", szTimestampFormatted);
     // no names, with UTC, no milliseconds
-    BuildString(
-      szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowTimeZone));
+    BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019 Aug 16 (Fri) - 13:40:30 (UTC)", szTimestampFormatted);
     // no names, with UTC, with milliseconds
-    BuildString(szTimestampFormatted, 256,
-      ezArgDateTime(
-        dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+    BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019 Aug 16 (Fri) - 13:40:30.345 (UTC)", szTimestampFormatted);
 
     BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::ShowDate));

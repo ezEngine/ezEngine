@@ -1224,8 +1224,11 @@ void ezDebugRenderer::DrawLimitCone(const ezDebugRendererContext& context, ezAng
   DrawLines(context, lines, lineColor, transform);
 }
 
-void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float fRadiusStart, float fRadiusEnd, float fLength, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, bool bCapStart /*= false*/, bool bCapEnd /*= false*/)
+void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float fRadiusStart, float fRadiusEnd, float fLength, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform0, bool bCapStart /*= false*/, bool bCapEnd /*= false*/, ezBasisAxis::Enum cylinderAxis /*= ezBasisAxis::PositiveX*/)
 {
+  const ezQuat tilt = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, cylinderAxis);
+  const ezTransform transform = transform0 * tilt;
+
   constexpr ezUInt32 NUM_SEGMENTS = 16;
   ezHybridArray<Line, NUM_SEGMENTS * 3> lines;
   ezHybridArray<Triangle, NUM_SEGMENTS * 2 * 2> tris;

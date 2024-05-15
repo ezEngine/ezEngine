@@ -225,9 +225,8 @@ size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
 
 void ezAngle::NormalizeRange()
 {
-  const float fTwoPi = 2.0f * Pi<float>();
-
-  const float fTwoPiTen = 10.0f * Pi<float>();
+  constexpr float fTwoPi = 2.0f * Pi<float>();
+  constexpr float fTwoPiTen = 10.0f * Pi<float>();
 
   if (m_fRadian > fTwoPiTen || m_fRadian < -fTwoPiTen)
   {
