@@ -98,135 +98,120 @@ void ezQtAssetBrowserWidget::dragLeaveEvent(QDragLeaveEvent* pEvent)
   pEvent->accept();
 }
 
+static void CleanUpFiles(ezArrayPtr<ezString> files)
+{
+  for (const auto& file : files)
+  {
+    ezOSFile::DeleteFile(file).IgnoreResult();
+  }
+}
+
 void ezQtAssetBrowserWidget::dropEvent(QDropEvent* pEvent)
 {
   const QMimeData* mime = pEvent->mimeData();
-  if (mime->hasUrls())
+  if (!mime->hasUrls())
   {
-    QList<QUrl> urlList = mime->urls();
-    ezHybridArray<ezString, 16> assetsToImport;
+    pEvent->ignore();
+  }
 
-    ezString pDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  pEvent->acceptProposedAction();
 
-    bool overWriteAll = false;
-    for (qsizetype i = 0, count = qMin(urlList.size(), qsizetype(32)); i < count; ++i)
+  ezStringBuilder sTargetDir;
+
+  if (TreeFolderFilter->currentItem() != nullptr)
+  {
+    sTargetDir = TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  }
+
+  if (sTargetDir.IsEmpty())
+  {
+    ezQtUiServices::MessageBoxInformation("Please first select a folder in the asset browser as the destination for the file import.");
+    return;
+  }
+
+  QList<QUrl> urlList = mime->urls();
+  ezHybridArray<ezString, 16> assetsToImport;
+
+  // if we leave this function prematurely, delete all these temp files
+  EZ_SCOPE_EXIT(CleanUpFiles(assetsToImport));
+
+  bool overWriteAll = false;
+  for (qsizetype i = 0, count = qMin(urlList.size(), qsizetype(32)); i < count; ++i)
+  {
+    QUrl url = urlList.at(i);
+    QFileInfo fileinfo(url.toLocalFile());
+
+    if (!fileinfo.exists())
+      continue;
+
+    // build source and destination paths info
+    ezStringBuilder srcPath = urlList.at(i).path().toUtf8().constData();
+    srcPath.TrimWordStart("/"); // remove the "/" at the beginning of the source path
+
+    ezStringBuilder dstPath = sTargetDir;
+    dstPath.AppendPath(fileinfo.fileName().toUtf8().constData());
+
+    // Move the file/folder
+    if (fileinfo.isDir())
     {
-      QUrl url = urlList.at(i);
-      QFileInfo fileinfo = QFileInfo(url.toLocalFile());
-
-      if (fileinfo.exists())
+      if (!overWriteAll && ezOSFile::ExistsDirectory(dstPath))
       {
-        // build source and destination paths info ===================================================================
-        ezStringBuilder srcPath = urlList.at(i).path().toUtf8().constData();
-        srcPath.Shrink(1, 0); // remove a "/" at the beginning of the sourcepath that keeps it from opening
+        const auto res = ezQtUiServices::MessageBoxQuestion(ezFmt("This folder already exists:\n'{}'\n\nOverwrite existing files inside it?", dstPath), QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel, QMessageBox::Cancel);
 
-        ezStringBuilder dstPath = ezStringBuilder();
-        dstPath.Append(pDir);
-        dstPath.ReplaceFirst(ezToolsProject::GetSingleton()->GetProjectName(false), "");
-        dstPath.Append(m_pFilter->GetPathFilter());
-        if (!dstPath.EndsWith("/"))
-          dstPath.Append("/");
-        dstPath.Append(fileinfo.fileName().toUtf8().constData());
-
-        // Move the file/folder ==============================================
-        if (fileinfo.isDir())
+        switch (res)
         {
+          case QMessageBox::Yes:
+            break;
 
-          if (!overWriteAll && ezOSFile::ExistsDirectory(dstPath))
-          {
-            QMessageBox msgBox;
-            msgBox.setText("Overwrite folder?");
-            msgBox.setInformativeText("The folder you are copying already exists, overwrite the existing one?");
-            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel);
-            msgBox.setDefaultButton(QMessageBox::Cancel);
-            int res = msgBox.exec();
-            switch (res)
-            {
-              case QMessageBox::Yes:
-                break;
-              case QMessageBox::YesToAll:
-                overWriteAll = true;
-                break;
-              case QMessageBox::Cancel:
-              default:
-                for (auto file : assetsToImport)
-                {
-                  if (ezOSFile::DeleteFile(file) == EZ_FAILURE)
-                  {
-                    ezLog::Error("failed to delete temp file {}", file);
-                  }
-                }
-                return;
-            }
-          }
+          case QMessageBox::YesToAll:
+            overWriteAll = true;
+            break;
 
-          if (ezOSFile::CopyFolder(srcPath, dstPath) != EZ_SUCCESS)
-          {
-            ezLog::Error("Failed to copy the folder in the project directory");
+          case QMessageBox::Cancel:
+          default:
             return;
-          }
-
-          ezDynamicArray<ezFileStats> movedFiles = ezDynamicArray<ezFileStats>();
-          ezOSFile::GatherAllItemsInFolder(movedFiles, dstPath);
-          for (int i = 0; i < movedFiles.GetCount(); i++)
-          {
-            movedFiles[i].GetFullPath(dstPath);
-            assetsToImport.PushBack(dstPath);
-          }
-        }
-        else if (fileinfo.isFile())
-        {
-          if (!overWriteAll && ezOSFile::ExistsFile(dstPath))
-          {
-            QMessageBox msgBox;
-            msgBox.setText("Overwrite file?");
-            msgBox.setInformativeText("The file you are copying already exists, overwrite the existing one?");
-            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel);
-            msgBox.setDefaultButton(QMessageBox::Cancel);
-            int res = msgBox.exec();
-            switch (res)
-            {
-              case QMessageBox::Yes:
-                break;
-              case QMessageBox::YesToAll:
-                overWriteAll = true;
-                break;
-              case QMessageBox::Cancel:
-              default:
-                for (auto file : assetsToImport)
-                {
-                  if (ezOSFile::DeleteFile(file) == EZ_FAILURE)
-                  {
-                    ezLog::Error("failed to delete temp file {}", file);
-                  }
-                }
-                return;
-            }
-          }
-          if (ezOSFile::CopyFile(srcPath, dstPath) != EZ_SUCCESS)
-          {
-            ezLog::Error("Failed to copy the file in the project directory");
-            return;
-          }
-          assetsToImport.PushBack(dstPath);
         }
       }
-      else
+
+      if (ezOSFile::CopyFolder(srcPath, dstPath, &assetsToImport) != EZ_SUCCESS)
       {
-        ezLog::Error("Couldn't find file at {} for copying", urlList.at(i).path().toUtf8().constData());
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy\n\n'{}'\n\nto\n\n'{}'\n\nCanceling operation.", srcPath, dstPath));
         return;
       }
     }
+    else if (fileinfo.isFile())
+    {
+      if (!overWriteAll && ezOSFile::ExistsFile(dstPath))
+      {
+        const auto res = ezQtUiServices::MessageBoxQuestion(ezFmt("This file already exists:\n'{}'\n\nOverwrite it?", dstPath), QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel, QMessageBox::Cancel);
 
-    ListAssets->update();
+        switch (res)
+        {
+          case QMessageBox::Yes:
+            break;
+          case QMessageBox::YesToAll:
+            overWriteAll = true;
+            break;
+          case QMessageBox::Cancel:
+          default:
+            return;
+        }
+      }
 
-    ezAssetDocumentGenerator::ImportAssets(assetsToImport);
+      if (ezOSFile::CopyFile(srcPath, dstPath) != EZ_SUCCESS)
+      {
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy\n\n'{}'\n\nto\n\n'{}'\n\nCanceling operation.", srcPath, dstPath));
+        return;
+      }
+
+      assetsToImport.PushBack(dstPath);
+    }
   }
-  else
-    ezLog::Dev("Ignoring unhandled MIME data received");
 
+  ezAssetDocumentGenerator::ImportAssets(assetsToImport);
 
-  pEvent->acceptProposedAction();
+  // now that we've successfully imported the assets, clear this list so that the files don't get deleted
+  assetsToImport.Clear();
 }
 
 void ezQtAssetBrowserWidget::UpdateAssetTypes()

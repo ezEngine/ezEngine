@@ -109,37 +109,32 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
     src.Shrink(1, 0); // remove prepending '/' in name that appears for some reason
 
     ezStringBuilder target = targetPar;
-    target.AppendFormat("/{}", qtToEzString(it->fileName()));
+    target.AppendPath(qtToEzString(it->fileName()));
 
     if (targetPar == src)
     {
-      ezLog::Error("Can't drop a file or folder on itself");
+      ezLog::Error("Can't drop a file or folder onto itself.");
       continue;
     }
 
 
     if (!ezOSFile::ExistsDirectory(src) && !ezOSFile::ExistsFile(src))
     {
-      ezLog::Error("Cannot find file/folder to move : {}", src);
+      ezLog::Error("Cannot find file/folder to move: '{}'", src);
       return;
     }
     if (ezOSFile::ExistsDirectory(src))
     {
       if (ezOSFile::ExistsDirectory(target)) // ask to overwrite if target already exists
       {
-        ezStringBuilder msg = ezStringBuilder();
-        msg.SetFormat("destination {} already exists", target);
-        QMessageBox msgBox;
-        msgBox.setText(msg.GetData());
-        msgBox.setInformativeText("Overwrite existing folder?");
-        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        msgBox.setDefaultButton(QMessageBox::Cancel);
-        if (!msgBox.exec())
+        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("Directory already exists:\n'{}'\n\nOverwrite directory?", target), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if (res == QMessageBox::Cancel)
           return;
 
         if (ezOSFile::DeleteFolder(target).Failed())
         {
-          ezLog::Error("Failed to delete folder {}", target);
+          ezLog::Error("Failed to delete folder '{}'", target);
           return;
         }
       }
@@ -148,35 +143,30 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
       {
         if (ezOSFile::CopyFolder(src, target).Failed())
         {
-          ezLog::Error("Failed to copy folder {} content", src);
+          ezLog::Error("Failed to copy folder content of '{}'", src);
         }
         if (ezOSFile::DeleteFolder(src).Failed())
         {
-          ezLog::Error("Failed to delete folder {}", src);
+          ezLog::Error("Failed to delete folder '{}'", src);
         }
       }
       else
       {
-        ezLog::Error("Failed to copy folder {} to {}", src, target);
+        ezLog::Error("Failed to copy folder '{}' to '{}'", src, target);
       }
     }
     else if (ezOSFile::ExistsFile(src))
     {
       if (ezOSFile::ExistsFile(target)) // ask to overwrite if target already exists
       {
-        ezStringBuilder msg = ezStringBuilder();
-        msg.SetFormat("destination {} already exists", target);
-        QMessageBox msgBox;
-        msgBox.setText(msg.GetData());
-        msgBox.setInformativeText("Overwrite existing file?");
-        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        msgBox.setDefaultButton(QMessageBox::Cancel);
-        if (!msgBox.exec())
+        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("The file already exists:\n'{}'\nOverwrite the existing one?", target), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if (res == QMessageBox::Cancel)
           continue;
 
         if (ezOSFile::DeleteFile(target).Failed())
         {
-          ezLog::Error("Failed to delete file {}", target);
+          ezLog::Error("Failed to delete file '{}'", target);
           return;
         }
       }
