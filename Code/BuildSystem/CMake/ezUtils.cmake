@@ -320,6 +320,8 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
 		"${ROOT_DIR}/*.ezPermVar"
 		"${ROOT_DIR}/*.ezShader"
 		"${ROOT_DIR}/*.ezShaderTemplate"
+		"${ROOT_DIR}/*.rml"
+		"${ROOT_DIR}/*.rcss"
 	)
 
 	set(${RESULT_ALL_SOURCES} ${RELEVANT_FILES} PARENT_SCOPE)
