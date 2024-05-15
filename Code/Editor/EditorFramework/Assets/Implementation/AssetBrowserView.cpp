@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/Assets/AssetBrowserView.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 
@@ -73,29 +74,29 @@ ezInt32 ezQtAssetBrowserView::GetIconScale() const
   return m_iIconSizePercentage;
 }
 
-void ezQtAssetBrowserView::dragEnterEvent(QDragEnterEvent* event)
+void ezQtAssetBrowserView::dragEnterEvent(QDragEnterEvent* pEvent)
 {
-  if (event->source())
-    event->acceptProposedAction();
+  if (pEvent->source())
+    pEvent->acceptProposedAction();
 }
 
-void ezQtAssetBrowserView::dragMoveEvent(QDragMoveEvent* event)
+void ezQtAssetBrowserView::dragMoveEvent(QDragMoveEvent* pEvent)
 {
-  event->acceptProposedAction();
+  pEvent->acceptProposedAction();
 }
 
-void ezQtAssetBrowserView::dragLeaveEvent(QDragLeaveEvent* event)
+void ezQtAssetBrowserView::dragLeaveEvent(QDragLeaveEvent* pEvent)
 {
-  event->accept();
+  pEvent->accept();
 }
 
-void ezQtAssetBrowserView::dropEvent(QDropEvent* event)
+void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
 {
-  if (!event->mimeData()->hasUrls())
+  if (!pEvent->mimeData()->hasUrls())
     return;
 
-  QList<QUrl> paths = event->mimeData()->urls();
-  ezString targetPar = indexAt(event->pos()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  QList<QUrl> paths = pEvent->mimeData()->urls();
+  ezString targetPar = indexAt(pEvent->pos()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
   if (targetPar.IsEmpty())
   {
     return;
@@ -105,7 +106,7 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* event)
   {
     ezStringBuilder src = it->path().toUtf8().constData();
 
-    src.Shrink(1, 0); //remove prepending '/' in name that appears for some reason
+    src.Shrink(1, 0); // remove prepending '/' in name that appears for some reason
 
     ezStringBuilder target = targetPar;
     target.AppendFormat("/{}", qtToEzString(it->fileName()));
@@ -124,7 +125,7 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* event)
     }
     if (ezOSFile::ExistsDirectory(src))
     {
-      if (ezOSFile::ExistsDirectory(target))  //ask to overwrite if target already exists
+      if (ezOSFile::ExistsDirectory(target)) // ask to overwrite if target already exists
       {
         ezStringBuilder msg = ezStringBuilder();
         msg.SetFormat("destination {} already exists", target);
@@ -161,7 +162,7 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* event)
     }
     else if (ezOSFile::ExistsFile(src))
     {
-      if (ezOSFile::ExistsFile(target))   //ask to overwrite if target already exists
+      if (ezOSFile::ExistsFile(target)) // ask to overwrite if target already exists
       {
         ezStringBuilder msg = ezStringBuilder();
         msg.SetFormat("destination {} already exists", target);

@@ -82,25 +82,25 @@ ezQtAssetBrowserWidget::~ezQtAssetBrowserWidget()
   ListAssets->setModel(nullptr);
 }
 
-void ezQtAssetBrowserWidget::dragEnterEvent(QDragEnterEvent* event)
+void ezQtAssetBrowserWidget::dragEnterEvent(QDragEnterEvent* pEvent)
 {
-  if (!event->source())
-    event->acceptProposedAction();
+  if (!pEvent->source())
+    pEvent->acceptProposedAction();
 }
 
-void ezQtAssetBrowserWidget::dragMoveEvent(QDragMoveEvent* event)
+void ezQtAssetBrowserWidget::dragMoveEvent(QDragMoveEvent* pEvent)
 {
-  event->acceptProposedAction();
+  pEvent->acceptProposedAction();
 }
 
-void ezQtAssetBrowserWidget::dragLeaveEvent(QDragLeaveEvent* event)
+void ezQtAssetBrowserWidget::dragLeaveEvent(QDragLeaveEvent* pEvent)
 {
-  event->accept();
+  pEvent->accept();
 }
 
-void ezQtAssetBrowserWidget::dropEvent(QDropEvent* event)
+void ezQtAssetBrowserWidget::dropEvent(QDropEvent* pEvent)
 {
-  const QMimeData* mime = event->mimeData();
+  const QMimeData* mime = pEvent->mimeData();
   if (mime->hasUrls())
   {
     QList<QUrl> urlList = mime->urls();
@@ -209,8 +209,8 @@ void ezQtAssetBrowserWidget::dropEvent(QDropEvent* event)
             return;
           }
           assetsToImport.PushBack(dstPath);
-         }
-       }
+        }
+      }
       else
       {
         ezLog::Error("Couldn't find file at {} for copying", urlList.at(i).path().toUtf8().constData());
@@ -226,7 +226,7 @@ void ezQtAssetBrowserWidget::dropEvent(QDropEvent* event)
     ezLog::Dev("Ignoring unhandled MIME data received");
 
 
-  event->acceptProposedAction();
+  pEvent->acceptProposedAction();
 }
 
 void ezQtAssetBrowserWidget::UpdateAssetTypes()
