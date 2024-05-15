@@ -225,7 +225,7 @@ public:
   /// \brief Checks whether the given file exists.
   static bool ExistsFile(ezStringView sFile); // [tested]
 
-  /// \brief Checks whether the given file exists.
+  /// \brief Checks whether the given directory exists.
   static bool ExistsDirectory(ezStringView sDirectory); // [tested]
 
   /// \brief If the given file already exists, determines a file path that doesn't exist yet.

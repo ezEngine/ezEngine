@@ -90,95 +90,95 @@ void ezQtAssetBrowserView::dragLeaveEvent(QDragLeaveEvent* pEvent)
   pEvent->accept();
 }
 
+static void NotifyFileChanges(ezArrayPtr<ezString> files)
+{
+  for (const auto& file : files)
+  {
+    ezFileSystemModel::GetSingleton()->NotifyOfChange(file);
+  }
+}
+
 void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
 {
   if (!pEvent->mimeData()->hasUrls())
     return;
 
   QList<QUrl> paths = pEvent->mimeData()->urls();
-  ezString targetPar = indexAt(pEvent->pos()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
-  if (targetPar.IsEmpty())
+  const ezString targetDirectory = indexAt(pEvent->pos()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  if (targetDirectory.IsEmpty())
   {
     return;
   }
 
+  ezHybridArray<ezString, 32> touchedFiles;
+  // make sure to notify the filesystem of files and folders that were touched
+  EZ_SCOPE_EXIT(NotifyFileChanges(touchedFiles));
+
   for (auto it = paths.begin(); it != paths.end(); it++)
   {
     ezStringBuilder src = it->path().toUtf8().constData();
+    src.TrimWordStart("/"); // remove '/' at start
+    src.MakeCleanPath();
 
-    src.Shrink(1, 0); // remove prepending '/' in name that appears for some reason
+    ezStringBuilder dst = targetDirectory;
+    dst.AppendPath(qtToEzString(it->fileName()));
+    dst.MakeCleanPath();
 
-    ezStringBuilder target = targetPar;
-    target.AppendPath(qtToEzString(it->fileName()));
-
-    if (targetPar == src)
-    {
-      ezLog::Error("Can't drop a file or folder onto itself.");
+    if (src == dst)
       continue;
-    }
 
-
-    if (!ezOSFile::ExistsDirectory(src) && !ezOSFile::ExistsFile(src))
-    {
-      ezLog::Error("Cannot find file/folder to move: '{}'", src);
-      return;
-    }
     if (ezOSFile::ExistsDirectory(src))
     {
-      if (ezOSFile::ExistsDirectory(target)) // ask to overwrite if target already exists
+      if (ezOSFile::ExistsDirectory(dst)) // ask to overwrite if target already exists
       {
-        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("Directory already exists:\n'{}'\n\nOverwrite directory?", target), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("Directory already exists:\n\n'{}'\n\nOverwrite files inside directory?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel);
 
         if (res == QMessageBox::Cancel)
           return;
 
-        if (ezOSFile::DeleteFolder(target).Failed())
-        {
-          ezLog::Error("Failed to delete folder '{}'", target);
-          return;
-        }
+        if (res == QMessageBox::No)
+          continue;
       }
 
-      if (ezOSFile::CreateDirectoryStructure(target).Succeeded())
+      if (ezOSFile::CopyFolder(src, dst, &touchedFiles).Failed())
       {
-        if (ezOSFile::CopyFolder(src, target).Failed())
-        {
-          ezLog::Error("Failed to copy folder content of '{}'", src);
-        }
-        if (ezOSFile::DeleteFolder(src).Failed())
-        {
-          ezLog::Error("Failed to delete folder '{}'", src);
-        }
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy folder:\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", src, dst));
+        return;
       }
-      else
+
+      touchedFiles.PushBack(dst);
+
+      if (ezOSFile::DeleteFolder(src).Failed())
       {
-        ezLog::Error("Failed to copy folder '{}' to '{}'", src, target);
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to remove folder:\n\n'{}'\n\nAborting operation.", src));
+        return;
       }
     }
     else if (ezOSFile::ExistsFile(src))
     {
-      if (ezOSFile::ExistsFile(target)) // ask to overwrite if target already exists
+      if (ezOSFile::ExistsFile(dst)) // ask to overwrite if target already exists
       {
-        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("The file already exists:\n'{}'\nOverwrite the existing one?", target), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("The file already exists:\n\n'{}'\n\nOverwrite file?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel);
 
         if (res == QMessageBox::Cancel)
+          return;
+
+        if (res == QMessageBox::No)
           continue;
 
-        if (ezOSFile::DeleteFile(target).Failed())
-        {
-          ezLog::Error("Failed to delete file '{}'", target);
-          return;
-        }
+        ezOSFile::DeleteFile(dst).IgnoreResult();
       }
-      if (ezOSFile::MoveFileOrDirectory(src, target).Failed())
+
+      touchedFiles.PushBack(src);
+      touchedFiles.PushBack(dst);
+
+      if (ezOSFile::MoveFileOrDirectory(src, dst).Failed())
       {
-        ezLog::Error("failed to move file or dir from {} to {}", src, target);
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to move file:\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", src, dst));
         return;
       }
     }
   }
-
-  ezAssetCurator::GetSingleton()->CheckFileSystem();
 }
 
 void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)

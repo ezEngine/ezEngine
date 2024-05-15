@@ -103,6 +103,7 @@ static void CleanUpFiles(ezArrayPtr<ezString> files)
   for (const auto& file : files)
   {
     ezOSFile::DeleteFile(file).IgnoreResult();
+    ezFileSystemModel::GetSingleton()->NotifyOfChange(file);
   }
 }
 
@@ -175,7 +176,7 @@ void ezQtAssetBrowserWidget::dropEvent(QDropEvent* pEvent)
 
       if (ezOSFile::CopyFolder(srcPath, dstPath, &assetsToImport) != EZ_SUCCESS)
       {
-        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy\n\n'{}'\n\nto\n\n'{}'\n\nCanceling operation.", srcPath, dstPath));
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", srcPath, dstPath));
         return;
       }
     }
@@ -200,12 +201,17 @@ void ezQtAssetBrowserWidget::dropEvent(QDropEvent* pEvent)
 
       if (ezOSFile::CopyFile(srcPath, dstPath) != EZ_SUCCESS)
       {
-        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy\n\n'{}'\n\nto\n\n'{}'\n\nCanceling operation.", srcPath, dstPath));
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", srcPath, dstPath));
         return;
       }
 
       assetsToImport.PushBack(dstPath);
     }
+  }
+
+  for (const auto& file : assetsToImport)
+  {
+    ezFileSystemModel::GetSingleton()->NotifyOfChange(file);
   }
 
   ezAssetDocumentGenerator::ImportAssets(assetsToImport);
