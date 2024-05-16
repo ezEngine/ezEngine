@@ -34,6 +34,9 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   ListAssets->setModel(m_pModel);
   ListAssets->SetIconScale(IconSizeSlider->value());
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
+  ListAssets->setDragEnabled(true);
+  ListAssets->setAcceptDrops(true);
+  ListAssets->setDropIndicatorShown(true);
   on_ButtonIconMode_clicked();
 
   splitter->setStretchFactor(0, 0);
@@ -66,6 +69,8 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserWidget::AssetCuratorEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserWidget::ProjectEventHandler, this));
+
+  setAcceptDrops(true);
 }
 
 ezQtAssetBrowserWidget::~ezQtAssetBrowserWidget()
@@ -75,6 +80,144 @@ ezQtAssetBrowserWidget::~ezQtAssetBrowserWidget()
 
 
   ListAssets->setModel(nullptr);
+}
+
+void ezQtAssetBrowserWidget::dragEnterEvent(QDragEnterEvent* pEvent)
+{
+  if (!pEvent->source())
+    pEvent->acceptProposedAction();
+}
+
+void ezQtAssetBrowserWidget::dragMoveEvent(QDragMoveEvent* pEvent)
+{
+  pEvent->acceptProposedAction();
+}
+
+void ezQtAssetBrowserWidget::dragLeaveEvent(QDragLeaveEvent* pEvent)
+{
+  pEvent->accept();
+}
+
+static void CleanUpFiles(ezArrayPtr<ezString> files)
+{
+  for (const auto& file : files)
+  {
+    ezOSFile::DeleteFile(file).IgnoreResult();
+    ezFileSystemModel::GetSingleton()->NotifyOfChange(file);
+  }
+}
+
+void ezQtAssetBrowserWidget::dropEvent(QDropEvent* pEvent)
+{
+  const QMimeData* mime = pEvent->mimeData();
+  if (!mime->hasUrls())
+  {
+    pEvent->ignore();
+  }
+
+  pEvent->acceptProposedAction();
+
+  ezStringBuilder sTargetDir;
+
+  if (TreeFolderFilter->currentItem() != nullptr)
+  {
+    sTargetDir = TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  }
+
+  if (sTargetDir.IsEmpty())
+  {
+    ezQtUiServices::MessageBoxInformation("Please first select a folder in the asset browser as the destination for the file import.");
+    return;
+  }
+
+  QList<QUrl> urlList = mime->urls();
+  ezHybridArray<ezString, 16> assetsToImport;
+
+  // if we leave this function prematurely, delete all these temp files
+  EZ_SCOPE_EXIT(CleanUpFiles(assetsToImport));
+
+  bool overWriteAll = false;
+  for (qsizetype i = 0, count = qMin(urlList.size(), qsizetype(32)); i < count; ++i)
+  {
+    QUrl url = urlList.at(i);
+    QFileInfo fileinfo(url.toLocalFile());
+
+    if (!fileinfo.exists())
+      continue;
+
+    // build source and destination paths info
+    ezStringBuilder srcPath = urlList.at(i).path().toUtf8().constData();
+    srcPath.TrimWordStart("/"); // remove the "/" at the beginning of the source path
+
+    ezStringBuilder dstPath = sTargetDir;
+    dstPath.AppendPath(fileinfo.fileName().toUtf8().constData());
+
+    // Move the file/folder
+    if (fileinfo.isDir())
+    {
+      if (!overWriteAll && ezOSFile::ExistsDirectory(dstPath))
+      {
+        const auto res = ezQtUiServices::MessageBoxQuestion(ezFmt("This folder already exists:\n'{}'\n\nOverwrite existing files inside it?", dstPath), QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        switch (res)
+        {
+          case QMessageBox::Yes:
+            break;
+
+          case QMessageBox::YesToAll:
+            overWriteAll = true;
+            break;
+
+          case QMessageBox::Cancel:
+          default:
+            return;
+        }
+      }
+
+      if (ezOSFile::CopyFolder(srcPath, dstPath, &assetsToImport) != EZ_SUCCESS)
+      {
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", srcPath, dstPath));
+        return;
+      }
+    }
+    else if (fileinfo.isFile())
+    {
+      if (!overWriteAll && ezOSFile::ExistsFile(dstPath))
+      {
+        const auto res = ezQtUiServices::MessageBoxQuestion(ezFmt("This file already exists:\n'{}'\n\nOverwrite it?", dstPath), QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        switch (res)
+        {
+          case QMessageBox::Yes:
+            break;
+          case QMessageBox::YesToAll:
+            overWriteAll = true;
+            break;
+          case QMessageBox::Cancel:
+          default:
+            return;
+        }
+      }
+
+      if (ezOSFile::CopyFile(srcPath, dstPath) != EZ_SUCCESS)
+      {
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", srcPath, dstPath));
+        return;
+      }
+
+      assetsToImport.PushBack(dstPath);
+    }
+  }
+
+  for (const auto& file : assetsToImport)
+  {
+    ezFileSystemModel::GetSingleton()->NotifyOfChange(file);
+  }
+
+  ezAssetDocumentGenerator::ImportAssets(assetsToImport);
+
+  // now that we've successfully imported the assets, clear this list so that the files don't get deleted
+  assetsToImport.Clear();
 }
 
 void ezQtAssetBrowserWidget::UpdateAssetTypes()

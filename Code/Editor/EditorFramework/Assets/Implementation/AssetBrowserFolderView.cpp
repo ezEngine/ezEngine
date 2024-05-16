@@ -290,9 +290,8 @@ void eqQtAssetBrowserFolderView::dropEvent(QDropEvent* e)
     return;
   }
 
-
-  QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Do you want to move {} files / folders into '{}'?", files.GetCount(), sTargetFolder), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes);
-  if (choice == QMessageBox::StandardButton::Cancel)
+  QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Move {} items into '{}'?", files.GetCount(), sTargetFolder), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No);
+  if (choice == QMessageBox::StandardButton::No)
     return;
 
   ezStringBuilder sNewLocation;
