@@ -132,4 +132,4 @@ ezResult ezGALShaderDX11::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Shader_Implementation_ShaderDX11);
+

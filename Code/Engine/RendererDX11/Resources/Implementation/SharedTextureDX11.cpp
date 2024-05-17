@@ -120,4 +120,4 @@ void ezGALSharedTextureDX11::SignalSemaphoreGPU(ezUInt64 uiValue) const
   m_pKeyedMutex->ReleaseSync(uiValue);
 }
 
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_SharedTextureDX11);
+

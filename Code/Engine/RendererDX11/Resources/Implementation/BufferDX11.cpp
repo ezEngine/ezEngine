@@ -121,4 +121,4 @@ void ezGALBufferDX11::SetDebugNamePlatform(const char* szName) const
   }
 }
 
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_BufferDX11);
+

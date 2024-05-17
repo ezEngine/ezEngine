@@ -199,4 +199,4 @@ ezResult ezGALBufferUnorderedAccessViewDX11::DeInitPlatform(ezGALDevice* pDevice
   EZ_GAL_DX11_RELEASE(m_pDXUnorderedAccessView);
   return EZ_SUCCESS;
 }
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_UnorderedAccessViewDX11);
+
