@@ -15,6 +15,7 @@ private:
 };
 
 class ezPhysicsWorldModuleInterface;
+struct ezMsgSetFloatParameter;
 
 class ezFmodEventComponentManager : public ezComponentManager<class ezFmodEventComponent, ezBlockStorageType::FreeList>
 {
@@ -27,7 +28,19 @@ public:
 private:
   friend class ezFmodEventComponent;
 
-  struct OcclusionState;
+  struct OcclusionState
+  {
+    ezFmodEventComponent* m_pComponent = nullptr;
+    ezFmodParameterId m_OcclusionParamId;
+    ezUInt32 m_uiRaycastHits = 0;
+    ezUInt8 m_uiNextRayIndex = 0;
+    ezUInt8 m_uiNumUsedRays = 0;
+    float m_fRadius = 0.0f;
+    float m_fLastOcclusionValue = -1.0f;
+
+    float GetOcclusionValue(float fThreshold) const { return ezMath::Clamp((m_fLastOcclusionValue - fThreshold) / ezMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f); }
+  };
+
   ezDynamicArray<OcclusionState> m_OcclusionStates;
 
   ezUInt32 AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius);

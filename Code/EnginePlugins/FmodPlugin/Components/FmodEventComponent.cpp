@@ -43,19 +43,6 @@ ezCVarInt cvar_FmodOcclusionNumRays("Fmod.Occlusion.NumRays", 2, ezCVarFlags::De
 static ezVec3 s_InSpherePositions[32];
 static bool s_bInSpherePositionsInitialized = false;
 
-struct ezFmodEventComponentManager::OcclusionState
-{
-  ezFmodEventComponent* m_pComponent = nullptr;
-  ezFmodParameterId m_OcclusionParamId;
-  ezUInt32 m_uiRaycastHits = 0;
-  ezUInt8 m_uiNextRayIndex = 0;
-  ezUInt8 m_uiNumUsedRays = 0;
-  float m_fRadius = 0.0f;
-  float m_fLastOcclusionValue = -1.0f;
-
-  float GetOcclusionValue(float fThreshold) const { return ezMath::Clamp((m_fLastOcclusionValue - fThreshold) / ezMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f); }
-};
-
 ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
   : ezComponentManager(pWorld)
 {
