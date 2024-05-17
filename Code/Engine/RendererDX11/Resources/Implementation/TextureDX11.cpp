@@ -259,4 +259,3 @@ ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)
 }
 
 
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_TextureDX11);

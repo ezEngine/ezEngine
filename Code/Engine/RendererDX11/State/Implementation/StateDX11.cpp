@@ -326,5 +326,3 @@ ezResult ezGALSamplerStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 }
 
 
-
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_State_Implementation_StateDX11);

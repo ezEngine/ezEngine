@@ -235,5 +235,3 @@ ezResult ezGALBufferResourceViewDX11::DeInitPlatform(ezGALDevice* pDevice)
 }
 
 
-
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_ResourceViewDX11);

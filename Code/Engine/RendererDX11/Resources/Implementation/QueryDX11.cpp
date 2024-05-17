@@ -61,5 +61,3 @@ void ezGALQueryDX11::SetDebugNamePlatform(const char* szName) const
     m_pDXQuery->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
   }
 }
-
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_QueryDX11);

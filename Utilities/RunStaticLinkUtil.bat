@@ -4,6 +4,7 @@
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\Engine\RendererCore
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\Engine\RendererFoundation
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\Engine\RendererVulkan
+..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\Engine\RendererDX11
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\Engine\Texture
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\Engine\Utilities
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\UnitTests\TestFramework
