@@ -131,5 +131,3 @@ ezResult ezGALShaderDX11::DeInitPlatform(ezGALDevice* pDevice)
 
   return EZ_SUCCESS;
 }
-
-

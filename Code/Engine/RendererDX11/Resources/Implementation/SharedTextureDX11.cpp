@@ -119,5 +119,3 @@ void ezGALSharedTextureDX11::SignalSemaphoreGPU(ezUInt64 uiValue) const
 {
   m_pKeyedMutex->ReleaseSync(uiValue);
 }
-
-

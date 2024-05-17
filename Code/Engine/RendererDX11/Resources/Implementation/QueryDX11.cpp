@@ -61,5 +61,3 @@ void ezGALQueryDX11::SetDebugNamePlatform(const char* szName) const
     m_pDXQuery->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
   }
 }
-
-
