@@ -81,6 +81,8 @@ struct ezJoltSettings
   ezUInt32 m_uiMaxSubSteps = 4;
 
   ezUInt32 m_uiMaxBodies = 1000 * 10;
+
+  float m_fSleepVelocityThreshold = 0.03f;
 };
 
 //////////////////////////////////////////////////////////////////////////
