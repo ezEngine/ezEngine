@@ -11,6 +11,7 @@ struct ezShaderPermutationBinaryVersion
     Version3 = 3,
     Version4 = 4,
     Version5 = 5,
+    Version6 = 6, // Fixed DX11 particles vanishing
 
     // Increase this version number to trigger shader recompilation
 
