@@ -93,7 +93,7 @@ void ezShaderConstant::CopyDataFormVariant(ezUInt8* pDest, ezVariant* pValue) co
   ezMemoryUtils::ZeroFill(pDest, uiSize);
 }
 
-ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArrayPtr<ezArrayPtr<const ezShaderResourceBinding>>& resourcesPerStage, ezDynamicArray<ezShaderResourceBinding>& out_bindings)
+ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArrayPtr<ezArrayPtr<const ezShaderResourceBinding>>& resourcesPerStage, ezDynamicArray<ezShaderResourceBinding>& out_bindings, bool bAllowMultipleBindingPerName)
 {
   ezUInt32 uiSize = 0;
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
@@ -103,6 +103,26 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
 
   out_bindings.Clear();
   out_bindings.Reserve(uiSize);
+
+  auto EqualBindings = [](const ezShaderResourceBinding& a, const ezShaderResourceBinding& b) -> bool
+  {
+    return a.m_ResourceType == b.m_ResourceType && a.m_TextureType == b.m_TextureType && a.m_uiArraySize == b.m_uiArraySize && a.m_iSet == b.m_iSet && a.m_iSlot == b.m_iSlot;
+  };
+
+  auto AddOrExtendBinding = [&](ezGALShaderStage::Enum stage, ezUInt32 uiStartIndex, const ezShaderResourceBinding& add)
+  {
+    for (ezUInt32 i = uiStartIndex + 1; i < out_bindings.GetCount(); i++)
+    {
+      if (EqualBindings(out_bindings[i], add))
+      {
+        out_bindings[i].m_Stages |= ezGALShaderStageFlags::MakeFromShaderStage(stage);
+        return;
+      }
+    }
+    ezShaderResourceBinding& newBinding = out_bindings.ExpandAndGetRef();
+    newBinding = add;
+    newBinding.m_Stages |= ezGALShaderStageFlags::MakeFromShaderStage(stage);
+  };
 
   ezMap<ezHashedString, ezUInt32> nameToIndex;
   ezMap<ezHashedString, ezUInt32> samplerToIndex;
@@ -126,8 +146,13 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
       if (uiIndex != ezInvalidIndex)
       {
         ezShaderResourceBinding& current = out_bindings[uiIndex];
-        if (current.m_ResourceType != res.m_ResourceType || current.m_TextureType != res.m_TextureType || current.m_uiArraySize != res.m_uiArraySize || current.m_iSet != res.m_iSet || current.m_iSlot != res.m_iSlot)
+        if (!EqualBindings(current, res))
         {
+          if (bAllowMultipleBindingPerName)
+          {
+            AddOrExtendBinding((ezGALShaderStage::Enum)stage, uiIndex, res);
+            continue;
+          }
           // #TODO_SHADER better error reporting.
           ezLog::Error("A shared shader resource '{}' has a mismatching signatures between stages", sName);
           return EZ_FAILURE;

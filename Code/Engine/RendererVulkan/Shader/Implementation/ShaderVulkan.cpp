@@ -42,7 +42,7 @@ void ezGALShaderVulkan::SetDebugName(const char* szName) const
 
 ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
 {
-  EZ_SUCCEED_OR_RETURN(CreateBindingMapping());
+  EZ_SUCCEED_OR_RETURN(CreateBindingMapping(false));
 
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
 

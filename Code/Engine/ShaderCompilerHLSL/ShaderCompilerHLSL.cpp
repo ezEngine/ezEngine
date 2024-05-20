@@ -420,7 +420,6 @@ ezResult ezShaderCompilerHLSL::ModifyShaderSource(ezShaderProgramData& inout_dat
   ezHashTable<ezHashedString, ezShaderResourceBinding> bindings;
   EZ_SUCCEED_OR_RETURN(ezShaderParser::MergeShaderResourceBindings(inout_data, bindings, pLog));
   EZ_SUCCEED_OR_RETURN(DefineShaderResourceBindings(inout_data, bindings, pLog));
-  EZ_SUCCEED_OR_RETURN(ezShaderParser::SanityCheckShaderResourceBindings(bindings, pLog));
 
   for (auto it : bindings)
   {
@@ -578,10 +577,10 @@ ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgra
 
   // EZ: We only allow constant buffers to be bound globally, so they must all have unique indices.
   // DX11: UAV are bound globally
-  // #TODO_SHADER: DX11: SRV, Samplers can be bound by stage, so indices can be re-used. But we treat them globally for now.
-  for (ezUInt32 uiIndex = 0; uiIndex < DX11ResourceCategory::ENUM_COUNT; ++uiIndex)
+  // DX11: SRV, Samplers can be bound by stage, so indices can be re-used. Thus, we don't set an index for any of them and let the compiler choose.
+  for (auto type : ezBitflags<DX11ResourceCategory>(DX11ResourceCategory::UAV | DX11ResourceCategory::ConstantBuffer))
   {
-    const ezUInt32 type = EZ_BIT(uiIndex);
+    const ezUInt32 uiIndex = ezMath::FirstBitLow((ezUInt32)type);
     ezUInt32 uiCurrentIndex = 0;
     // Workaround for this: error X4509: UAV registers live in the same name space as outputs, so they must be bound to at least u1, manual bind to slot u0 failed
     if (type == DX11ResourceCategory::UAV)
@@ -607,6 +606,13 @@ void ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration(ezStringView sPlat
   EZ_ASSERT_DEBUG(binding.m_iSet == 0, "HLSL: error X3721: space is only supported for shader targets 5.1 and higher");
   const ezBitflags<DX11ResourceCategory> type = DX11ResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
   ezStringView sResourcePrefix;
+  if (binding.m_iSlot == -1)
+  {
+    // Let the compiler choose an index.
+    out_sDeclaration.SetFormat("{}", sDeclaration);
+    return;
+  }
+
   switch (type.GetValue())
   {
     case DX11ResourceCategory::Sampler:

@@ -844,7 +844,6 @@ void ezShaderParser::ApplyShaderResourceBindings(ezStringView sPlatform, ezStrin
     bindings.TryGetValue(resources[i].m_Binding.m_sName, pBinding);
 
     EZ_ASSERT_DEV(pBinding != nullptr, "Every resource should be present in the map.");
-    EZ_ASSERT_DEV(pBinding->m_iSlot >= 0 && pBinding->m_iSet >= 0, "Unbound shader resource binding found: '{}', slot: {}, set: {}", pBinding->m_sName, pBinding->m_iSlot, pBinding->m_iSet);
     createDeclaration(sPlatform, resources[i].m_sDeclaration, *pBinding, sDeclaration);
     ezString& sStorage = partStorage.ExpandAndGetRef();
     sStorage = sDeclaration;
