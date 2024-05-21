@@ -83,6 +83,14 @@ void ezParticleEffectController::SetTransform(const ezTransform& t, const ezVec3
   }
 }
 
+void ezParticleEffectController::CombineSystemBoundingVolumes()
+{
+  if (ezParticleEffectInstance* pEffect = GetInstance())
+  {
+    pEffect->CombineSystemBoundingVolumes();
+  }
+}
+
 void ezParticleEffectController::Tick(const ezTime& diff) const
 {
   ezParticleEffectInstance* pEffect = GetInstance();

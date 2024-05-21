@@ -48,7 +48,7 @@ void ezParticleComponentManager::UpdatePfxTransformsAndBounds()
     ComponentType* pComponent = it;
     if (pComponent->IsActiveAndInitialized())
     {
-      pComponent->UpdatePfxTransform();
+      pComponent->UpdatePfxTransformAndBounds();
 
       // This function is called in the post-transform phase so the global bounds and transform have already been calculated at this point.
       // Therefore we need to manually update the global bounds again to ensure correct bounds for culling and rendering.
@@ -230,7 +230,7 @@ bool ezParticleComponent::StartEffect()
 
     m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this, m_FloatParams, m_ColorParams);
 
-    UpdatePfxTransform();
+    UpdatePfxTransformAndBounds();
 
     m_bFloatParamsChanged = false;
     m_bColorParamsChanged = false;
@@ -551,9 +551,10 @@ ezTransform ezParticleComponent::GetPfxTransform() const
   return transform;
 }
 
-void ezParticleComponent::UpdatePfxTransform()
+void ezParticleComponent::UpdatePfxTransformAndBounds()
 {
   m_EffectController.SetTransform(GetPfxTransform(), GetOwner()->GetLinearVelocity());
+  m_EffectController.CombineSystemBoundingVolumes();
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);

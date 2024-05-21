@@ -24,6 +24,8 @@ public:
 
   void SetTransform(const ezTransform& t, const ezVec3& vParticleStartVelocity) const;
 
+  void CombineSystemBoundingVolumes();
+
   void Tick(const ezTime& diff) const;
 
   void ExtractRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const;
