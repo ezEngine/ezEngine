@@ -125,7 +125,7 @@ public:
 protected:
   void Update();
   ezTransform GetPfxTransform() const;
-  void UpdatePfxTransform();
+  void UpdatePfxTransformAndBounds();
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);

@@ -518,8 +518,6 @@ bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
     }
   }
 
-  CombineSystemBoundingVolumes();
-
   m_iMinSimStepsToDo = ezMath::Max<ezInt8>(m_iMinSimStepsToDo - 1, 0);
 
   --m_uiReviveTimeout;
