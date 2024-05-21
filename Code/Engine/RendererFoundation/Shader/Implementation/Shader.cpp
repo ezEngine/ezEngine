@@ -33,7 +33,7 @@ ezArrayPtr<const ezShaderVertexInputAttribute> ezGALShader::GetVertexInputAttrib
   return {};
 }
 
-ezResult ezGALShader::CreateBindingMapping()
+ezResult ezGALShader::CreateBindingMapping(bool bAllowMultipleBindingPerName)
 {
   ezHybridArray<ezArrayPtr<const ezShaderResourceBinding>, ezGALShaderStage::ENUM_COUNT> resourceBinding;
   resourceBinding.SetCount(ezGALShaderStage::ENUM_COUNT);
@@ -44,7 +44,7 @@ ezResult ezGALShader::CreateBindingMapping()
       resourceBinding[stage] = m_Description.m_ByteCodes[stage]->m_ShaderResourceBindings;
     }
   }
-  return ezShaderResourceBinding::CreateMergedShaderResourceBinding(resourceBinding, m_BindingMapping);
+  return ezShaderResourceBinding::CreateMergedShaderResourceBinding(resourceBinding, m_BindingMapping, bAllowMultipleBindingPerName);
 }
 
 void ezGALShader::DestroyBindingMapping()

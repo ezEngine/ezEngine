@@ -85,7 +85,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceBinding
   ezHashedString m_sName;                                     //< Name under which a resource must be bound to fulfill this resource binding.
   ezScopedRefPointer<ezShaderConstantBufferLayout> m_pLayout; //< Only valid if ezGALShaderResourceType is ConstantBuffer or PushConstants. #TODO_SHADER We could also support this for StructuredBuffer / StructuredBufferRW, but currently there is no use case for that.
 
-  static ezResult CreateMergedShaderResourceBinding(const ezArrayPtr<ezArrayPtr<const ezShaderResourceBinding>>& resourcesPerStage, ezDynamicArray<ezShaderResourceBinding>& out_bindings);
+  static ezResult CreateMergedShaderResourceBinding(const ezArrayPtr<ezArrayPtr<const ezShaderResourceBinding>>& resourcesPerStage, ezDynamicArray<ezShaderResourceBinding>& out_bindings, bool bAllowMultipleBindingPerName);
 };
 
 /// \brief This class wraps shader byte code storage.

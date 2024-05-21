@@ -22,7 +22,7 @@ protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 
-  ezResult CreateBindingMapping();
+  ezResult CreateBindingMapping(bool bAllowMultipleBindingPerName);
   void DestroyBindingMapping();
 
   ezGALShader(const ezGALShaderCreationDescription& Description);
