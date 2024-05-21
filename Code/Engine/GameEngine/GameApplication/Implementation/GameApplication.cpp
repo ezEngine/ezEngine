@@ -139,6 +139,7 @@ void ezGameApplication::Run_Present()
   ezHybridArray<ezActor*, 8> allActors;
   ezActorManager::GetSingleton()->GetAllActors(allActors);
 
+  bool bExecutedFrameCapture = false;
   for (ezActor* pActor : allActors)
   {
     EZ_PROFILE_SCOPE(pActor->GetName());
@@ -160,9 +161,10 @@ void ezGameApplication::Run_Present()
 
       ExecuteTakeScreenshot(pOutput, ctxt);
 
-      if (pWindowPlugin->GetWindow())
+      if (pWindowPlugin->GetWindow() && !bExecutedFrameCapture)
       {
         ExecuteFrameCapture(pWindowPlugin->GetWindow()->GetNativeWindowHandle(), ctxt);
+        bExecutedFrameCapture = true;
       }
 
       EZ_PROFILE_SCOPE("Present");
