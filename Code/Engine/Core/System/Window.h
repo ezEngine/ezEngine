@@ -226,6 +226,9 @@ struct EZ_CORE_DLL ezWindowCreationDesc
 
   /// Whether the window is activated and focussed on Initialize()
   bool m_bSetForegroundOnInit = true;
+
+  /// Whether the window is centered on the display.
+  bool m_bCenterWindowOnDisplay = true;
 };
 
 /// \brief A simple abstraction for platform specific window creation.

@@ -167,9 +167,9 @@ ezResult ezWindow::Initialize()
 
 
   // create window
-  ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
-  const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
-  m_hWindowHandle = ezMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
+  ezStringWChar sTitleWChar(m_CreationDescription.m_Title.GetData());
+  const wchar_t* sTitleWCharRaw = sTitleWChar.GetData();
+  m_hWindowHandle = ezMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitleWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
 
   if (m_hWindowHandle == INVALID_HANDLE_VALUE)
   {
