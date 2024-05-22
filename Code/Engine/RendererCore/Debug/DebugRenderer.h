@@ -225,8 +225,11 @@ public:
 private:
   friend class ezSimpleRenderPass;
 
-  static void Render(const ezRenderViewContext& renderViewContext);
-  static void RenderInternal(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext);
+  static void RenderScreenSpace(const ezRenderViewContext& renderViewContext);
+  static void RenderInternalScreenSpace(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext);
+
+  static void RenderWorldSpace(const ezRenderViewContext& renderViewContext);
+  static void RenderInternalWorldSpace(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext);
 
   static void OnEngineStartup();
   static void OnEngineShutdown();

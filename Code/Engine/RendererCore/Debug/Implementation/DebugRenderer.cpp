@@ -1311,21 +1311,21 @@ void ezDebugRenderer::DrawArrow(const ezDebugRendererContext& context, float fSi
 }
 
 // static
-void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
+void ezDebugRenderer::RenderWorldSpace(const ezRenderViewContext& renderViewContext)
 {
   if (renderViewContext.m_pWorldDebugContext != nullptr)
   {
-    RenderInternal(*renderViewContext.m_pWorldDebugContext, renderViewContext);
+    RenderInternalWorldSpace(*renderViewContext.m_pWorldDebugContext, renderViewContext);
   }
 
   if (renderViewContext.m_pViewDebugContext != nullptr)
   {
-    RenderInternal(*renderViewContext.m_pViewDebugContext, renderViewContext);
+    RenderInternalWorldSpace(*renderViewContext.m_pViewDebugContext, renderViewContext);
   }
 }
 
 // static
-void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext)
+void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext)
 {
   {
     EZ_LOCK(s_Mutex);
@@ -1408,63 +1408,6 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
   {
     return;
   }
-
-  // draw info text
-  {
-    static_assert((int)ezDebugTextPlacement::ENUM_COUNT == 6);
-
-    ezDebugTextHAlign::Enum ha[(int)ezDebugTextPlacement::ENUM_COUNT] = {
-      ezDebugTextHAlign::Left,
-      ezDebugTextHAlign::Center,
-      ezDebugTextHAlign::Right,
-      ezDebugTextHAlign::Left,
-      ezDebugTextHAlign::Center,
-      ezDebugTextHAlign::Right};
-
-    ezDebugTextVAlign::Enum va[(int)ezDebugTextPlacement::ENUM_COUNT] = {
-      ezDebugTextVAlign::Top,
-      ezDebugTextVAlign::Top,
-      ezDebugTextVAlign::Top,
-      ezDebugTextVAlign::Bottom,
-      ezDebugTextVAlign::Bottom,
-      ezDebugTextVAlign::Bottom};
-
-    int offs[(int)ezDebugTextPlacement::ENUM_COUNT] = {20, 20, 20, -20, -20, -20};
-
-    ezInt32 resX = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.width;
-    ezInt32 resY = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.height;
-
-    ezVec2I32 anchor[(int)ezDebugTextPlacement::ENUM_COUNT] = {
-      ezVec2I32(10, 10),
-      ezVec2I32(resX / 2, 10),
-      ezVec2I32(resX - 10, 10),
-      ezVec2I32(10, resY - 10),
-      ezVec2I32(resX / 2, resY - 10),
-      ezVec2I32(resX - 10, resY - 10)};
-
-    for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugTextPlacement::ENUM_COUNT; ++corner)
-    {
-      auto& cd = pData->m_infoTextData[corner];
-
-      // InsertionSort is stable
-      ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool
-        { return lhs.m_group < rhs.m_group; });
-
-      ezVec2I32 pos = anchor[corner];
-
-      for (ezUInt32 i = 0; i < cd.GetCount(); ++i)
-      {
-        // add some space between groups
-        if (i > 0 && cd[i - 1].m_group != cd[i].m_group)
-          pos.y += offs[corner];
-
-        pos.y += offs[corner] * Draw2DText(context, cd[i].m_text.GetData(), pos, cd[i].m_color, 16, ha[corner], va[corner]);
-      }
-    }
-  }
-
-  // update the frame counter
-  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();
@@ -1586,6 +1529,162 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
     }
   }
 
+  // LineBoxes
+  {
+    ezUInt32 uiNumLineBoxes = pData->m_lineBoxes.GetCount();
+    if (uiNumLineBoxes != 0)
+    {
+      CreateDataBuffer(BufferType::LineBoxes, sizeof(BoxData));
+
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
+      renderViewContext.m_pRenderContext->BindBuffer("boxData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::LineBoxes]));
+      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hLineBoxMeshBuffer);
+
+      const BoxData* pLineBoxData = pData->m_lineBoxes.GetData();
+      while (uiNumLineBoxes > 0)
+      {
+        const ezUInt32 uiNumLineBoxesInBatch = ezMath::Min<ezUInt32>(uiNumLineBoxes, BOXES_PER_BATCH);
+        pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::LineBoxes], 0, ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch).ToByteArray());
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumLineBoxesInBatch).IgnoreResult();
+
+        uiNumLineBoxes -= uiNumLineBoxesInBatch;
+        pLineBoxData += BOXES_PER_BATCH;
+      }
+    }
+  }
+
+  // Text
+  {
+    pData->m_glyphs.Clear();
+
+    for (auto& textLine : pData->m_textLines3D)
+    {
+      ezVec3 screenPos;
+      if (renderViewContext.m_pViewData->ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded() && screenPos.z > 0.0f)
+      {
+        textLine.m_topLeftCorner.x += ezMath::Round(screenPos.x);
+        textLine.m_topLeftCorner.y += ezMath::Round(screenPos.y);
+
+        AppendGlyphs(pData->m_glyphs, textLine);
+      }
+    }
+
+    ezUInt32 uiNumGlyphs = pData->m_glyphs.GetCount();
+    if (uiNumGlyphs != 0)
+    {
+      CreateDataBuffer(BufferType::Glyphs, sizeof(GlyphData));
+
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugTextShader);
+      renderViewContext.m_pRenderContext->BindBuffer("glyphData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::Glyphs]));
+      renderViewContext.m_pRenderContext->BindTexture2D("FontTexture", s_hDebugFontTexture);
+
+      const GlyphData* pGlyphData = pData->m_glyphs.GetData();
+      while (uiNumGlyphs > 0)
+      {
+        const ezUInt32 uiNumGlyphsInBatch = ezMath::Min<ezUInt32>(uiNumGlyphs, GLYPHS_PER_BATCH);
+        pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::Glyphs], 0, ezMakeArrayPtr(pGlyphData, uiNumGlyphsInBatch).ToByteArray());
+
+        renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+
+        uiNumGlyphs -= uiNumGlyphsInBatch;
+        pGlyphData += GLYPHS_PER_BATCH;
+      }
+    }
+  }
+}
+
+// static
+void ezDebugRenderer::RenderScreenSpace(const ezRenderViewContext& renderViewContext)
+{
+  if (renderViewContext.m_pWorldDebugContext != nullptr)
+  {
+    RenderInternalScreenSpace(*renderViewContext.m_pWorldDebugContext, renderViewContext);
+  }
+
+  if (renderViewContext.m_pViewDebugContext != nullptr)
+  {
+    RenderInternalScreenSpace(*renderViewContext.m_pViewDebugContext, renderViewContext);
+  }
+}
+
+// static
+void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext)
+{
+  DoubleBufferedPerContextData* pDoubleBufferedContextData = nullptr;
+  if (!s_PerContextData.TryGetValue(context, pDoubleBufferedContextData))
+  {
+    return;
+  }
+
+  PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderWorld::GetDataIndexForRendering()].Borrow();
+  if (pData == nullptr)
+  {
+    return;
+  }
+
+  // draw info text
+  {
+    static_assert((int)ezDebugTextPlacement::ENUM_COUNT == 6);
+
+    ezDebugTextHAlign::Enum ha[(int)ezDebugTextPlacement::ENUM_COUNT] = {
+      ezDebugTextHAlign::Left,
+      ezDebugTextHAlign::Center,
+      ezDebugTextHAlign::Right,
+      ezDebugTextHAlign::Left,
+      ezDebugTextHAlign::Center,
+      ezDebugTextHAlign::Right};
+
+    ezDebugTextVAlign::Enum va[(int)ezDebugTextPlacement::ENUM_COUNT] = {
+      ezDebugTextVAlign::Top,
+      ezDebugTextVAlign::Top,
+      ezDebugTextVAlign::Top,
+      ezDebugTextVAlign::Bottom,
+      ezDebugTextVAlign::Bottom,
+      ezDebugTextVAlign::Bottom};
+
+    int offs[(int)ezDebugTextPlacement::ENUM_COUNT] = {20, 20, 20, -20, -20, -20};
+
+    ezInt32 resX = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.width;
+    ezInt32 resY = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.height;
+
+    ezVec2I32 anchor[(int)ezDebugTextPlacement::ENUM_COUNT] = {
+      ezVec2I32(10, 10),
+      ezVec2I32(resX / 2, 10),
+      ezVec2I32(resX - 10, 10),
+      ezVec2I32(10, resY - 10),
+      ezVec2I32(resX / 2, resY - 10),
+      ezVec2I32(resX - 10, resY - 10)};
+
+    for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugTextPlacement::ENUM_COUNT; ++corner)
+    {
+      auto& cd = pData->m_infoTextData[corner];
+
+      // InsertionSort is stable
+      ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool
+        { return lhs.m_group < rhs.m_group; });
+
+      ezVec2I32 pos = anchor[corner];
+
+      for (ezUInt32 i = 0; i < cd.GetCount(); ++i)
+      {
+        // add some space between groups
+        if (i > 0 && cd[i - 1].m_group != cd[i].m_group)
+          pos.y += offs[corner];
+
+        pos.y += offs[corner] * Draw2DText(context, cd[i].m_text.GetData(), pos, cd[i].m_color, 16, ha[corner], va[corner]);
+      }
+    }
+  }
+
+  // update the frame counter
+  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();
+
   // 2D Lines
   {
     ezUInt32 uiNumLineVertices = pData->m_line2DVertices.GetCount();
@@ -1609,31 +1708,6 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
         uiNumLineVertices -= uiNumLineVerticesInBatch;
         pLineData += LINE_VERTICES_PER_BATCH;
-      }
-    }
-  }
-
-  // LineBoxes
-  {
-    ezUInt32 uiNumLineBoxes = pData->m_lineBoxes.GetCount();
-    if (uiNumLineBoxes != 0)
-    {
-      CreateDataBuffer(BufferType::LineBoxes, sizeof(BoxData));
-
-      renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
-      renderViewContext.m_pRenderContext->BindBuffer("boxData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::LineBoxes]));
-      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hLineBoxMeshBuffer);
-
-      const BoxData* pLineBoxData = pData->m_lineBoxes.GetData();
-      while (uiNumLineBoxes > 0)
-      {
-        const ezUInt32 uiNumLineBoxesInBatch = ezMath::Min<ezUInt32>(uiNumLineBoxes, BOXES_PER_BATCH);
-        pGALCommandEncoder->UpdateBuffer(s_hDataBuffer[BufferType::LineBoxes], 0, ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch).ToByteArray());
-
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumLineBoxesInBatch).IgnoreResult();
-
-        uiNumLineBoxes -= uiNumLineBoxesInBatch;
-        pLineBoxData += BOXES_PER_BATCH;
       }
     }
   }
@@ -1703,23 +1777,10 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
   {
     pData->m_glyphs.Clear();
 
-    for (auto& textLine : pData->m_textLines3D)
-    {
-      ezVec3 screenPos;
-      if (renderViewContext.m_pViewData->ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded() && screenPos.z > 0.0f)
-      {
-        textLine.m_topLeftCorner.x += ezMath::Round(screenPos.x);
-        textLine.m_topLeftCorner.y += ezMath::Round(screenPos.y);
-
-        AppendGlyphs(pData->m_glyphs, textLine);
-      }
-    }
-
     for (auto& textLine : pData->m_textLines2D)
     {
       AppendGlyphs(pData->m_glyphs, textLine);
     }
-
 
     ezUInt32 uiNumGlyphs = pData->m_glyphs.GetCount();
     if (uiNumGlyphs != 0)
