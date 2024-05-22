@@ -3,7 +3,7 @@
 #include <Core/Graphics/Geometry.h>
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Core/World/World.h>
-#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Configuration/CVar.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Debug/SimpleASCIIFont.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
@@ -12,6 +12,8 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
+
+ezCVarFloat cvar_DebugTextScale("Debug.TextScale", 1.0f, ezCVarFlags::Save, "Global scale for debug text");
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -272,7 +274,7 @@ namespace
   }
 
   template <typename AddFunc>
-  static ezUInt32 AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& vPositionInPixel, float fSizeInPixel, ezDebugTextHAlign::Enum horizontalAlignment, ezDebugTextVAlign::Enum verticalAlignment, AddFunc func)
+  static ezUInt32 AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& vPositionInPixel, ezUInt32 uiSizeInPixel, ezDebugTextHAlign::Enum horizontalAlignment, ezDebugTextVAlign::Enum verticalAlignment, AddFunc func)
   {
     if (text0.IsEmpty())
       return 0;
@@ -327,9 +329,11 @@ namespace
       maxColumWidth.PushBack(maxLineLength);
     }
 
-    // Glyphs only use 8x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
-    const float fGlyphWidth = ezMath::Ceil(fSizeInPixel * (8.0f / 16.0f));
-    const float fLineHeight = ezMath::Ceil(fSizeInPixel * (20.0f / 16.0f));
+
+    const float fGlyphWidth = ezDebugRenderer::GetTextGlyphWidth(uiSizeInPixel);
+    const float fGlyphHeight = ezMath::Ceil(uiSizeInPixel * cvar_DebugTextScale);
+    const float fLineHeight = ezDebugRenderer::GetTextLineHeight(uiSizeInPixel);
+    const float fLineSpacing = fLineHeight - fGlyphHeight;
 
     float screenPosX = (float)vPositionInPixel.x;
     if (horizontalAlignment == ezDebugTextHAlign::Right)
@@ -337,9 +341,9 @@ namespace
 
     float screenPosY = (float)vPositionInPixel.y;
     if (verticalAlignment == ezDebugTextVAlign::Center)
-      screenPosY -= ezMath::Ceil(lines.GetCount() * fLineHeight * 0.5f);
+      screenPosY -= ezMath::Ceil(lines.GetCount() * fLineHeight * 0.5f) - fLineSpacing * 0.5f;
     else if (verticalAlignment == ezDebugTextVAlign::Bottom)
-      screenPosY -= lines.GetCount() * fLineHeight;
+      screenPosY -= lines.GetCount() * fLineHeight - fLineSpacing;
 
     {
       EZ_LOCK(s_Mutex);
@@ -394,7 +398,7 @@ namespace
   static void AppendGlyphs(ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper>& ref_glyphs, const TextLineData2D& textLine)
   {
     ezVec2 currentPos = textLine.m_topLeftCorner;
-    const float fGlyphWidth = ezMath::Ceil(textLine.m_uiSizeInPixel * (8.0f / 16.0f));
+    const float fGlyphWidth = ezDebugRenderer::GetTextGlyphWidth(textLine.m_uiSizeInPixel);
 
     for (ezUInt32 uiCharacter : textLine.m_text)
     {
@@ -402,7 +406,7 @@ namespace
       glyphData.m_topLeftCorner = currentPos;
       glyphData.m_color = textLine.m_color;
       glyphData.m_glyphIndex = uiCharacter < 128 ? static_cast<ezUInt16>(uiCharacter) : 0;
-      glyphData.m_sizeInPixel = (ezUInt16)textLine.m_uiSizeInPixel;
+      glyphData.m_sizeInPixel = (ezUInt16)ezMath::Ceil(textLine.m_uiSizeInPixel * cvar_DebugTextScale);
 
       currentPos.x += fGlyphWidth;
     }
@@ -986,7 +990,7 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
 
 ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, ezDebugTextHAlign::Enum horizontalAlignment /*= ezDebugTextHAlign::Left*/, ezDebugTextVAlign::Enum verticalAlignment /*= ezDebugTextVAlign::Top*/)
 {
-  return AddTextLines(context, text, vPositionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner)
+  return AddTextLines(context, text, vPositionInPixel, uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner)
     {
     auto& textLine = ref_data.m_textLines2D.ExpandAndGetRef();
     textLine.m_text = sLine;
@@ -1012,7 +1016,7 @@ void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, ezDebu
 
 ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, ezDebugTextHAlign::Enum horizontalAlignment /*= ezDebugTextHAlign::Center*/, ezDebugTextVAlign::Enum verticalAlignment /*= ezDebugTextVAlign::Bottom*/)
 {
-  return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [&](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner)
+  return AddTextLines(context, text, ezVec2I32(0), uiSizeInPixel, horizontalAlignment, verticalAlignment, [&](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner)
     {
     auto& textLine = ref_data.m_textLines3D.ExpandAndGetRef();
     textLine.m_text = sLine;
@@ -1308,6 +1312,25 @@ void ezDebugRenderer::DrawArrow(const ezDebugRendererContext& context, float fSi
   lines[8] = Line(lines[4].m_end, lines[1].m_end);
 
   DrawLines(context, lines, color, transform);
+}
+
+// static
+float ezDebugRenderer::GetTextGlyphWidth(ezUInt32 uiSizeInPixel /*= 16*/)
+{
+  // Glyphs only use 8x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
+  return ezMath::Ceil(uiSizeInPixel * cvar_DebugTextScale * (8.0f / 16.0f));
+}
+
+// static
+float ezDebugRenderer::GetTextLineHeight(ezUInt32 uiSizeInPixel /*= 16*/)
+{
+  return ezMath::Ceil(uiSizeInPixel * cvar_DebugTextScale * (20.0f / 16.0f));
+}
+
+//static
+float ezDebugRenderer::GetTextScale()
+{
+  return cvar_DebugTextScale;
 }
 
 // static
@@ -1645,7 +1668,7 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
       ezDebugTextVAlign::Bottom,
       ezDebugTextVAlign::Bottom};
 
-    int offs[(int)ezDebugTextPlacement::ENUM_COUNT] = {20, 20, 20, -20, -20, -20};
+    int lineHeight = (int)GetTextLineHeight();
 
     ezInt32 resX = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.width;
     ezInt32 resY = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.height;
@@ -1667,14 +1690,15 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
         { return lhs.m_group < rhs.m_group; });
 
       ezVec2I32 pos = anchor[corner];
+      int offset = va[corner] == ezDebugTextVAlign::Top ? lineHeight : -lineHeight;
 
       for (ezUInt32 i = 0; i < cd.GetCount(); ++i)
       {
         // add some space between groups
         if (i > 0 && cd[i - 1].m_group != cd[i].m_group)
-          pos.y += offs[corner];
+          pos.y += offset;
 
-        pos.y += offs[corner] * Draw2DText(context, cd[i].m_text.GetData(), pos, cd[i].m_color, 16, ha[corner], va[corner]);
+        pos.y += offset * Draw2DText(context, cd[i].m_text.GetData(), pos, cd[i].m_color, 16, ha[corner], va[corner]);
       }
     }
   }

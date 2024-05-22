@@ -222,6 +222,15 @@ public:
   /// \brief Renders a line arrow.
   static void DrawArrow(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::MakeAxisX());
 
+  /// \brief Returns the width of single glyph in pixels for the given text size
+  static float GetTextGlyphWidth(ezUInt32 uiSizeInPixel = 16);
+
+  /// \brief Returns the line height in pixels for the given text size
+  static float GetTextLineHeight(ezUInt32 uiSizeInPixel = 16);
+
+  /// \brief Returns the global debug text scale
+  static float GetTextScale();
+
 private:
   friend class ezSimpleRenderPass;
 
