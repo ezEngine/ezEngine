@@ -1409,9 +1409,6 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
     return;
   }
 
-  // update the frame counter
-  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
-
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();
 
@@ -1681,6 +1678,9 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
       }
     }
   }
+
+  // update the frame counter
+  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();
