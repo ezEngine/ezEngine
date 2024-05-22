@@ -2,13 +2,13 @@
 
 #include <Foundation/IO/Stream.h>
 #include <RendererCore/Debug/SimpleASCIIFont.h>
-#include <Texture/Image/Formats/TgaFileFormat.h>
+#include <Texture/Image/Formats/StbImageFileFormats.h>
 #include <Texture/Image/ImageConversion.h>
 
 #if EZ_ENABLED(EZ_EMBED_FONT_FILE)
 
-extern ezUInt32 g_FontFileTGASize;
-extern const ezUInt8 g_FontFileTGA[];
+extern ezUInt32 g_FontFilePNGSize;
+extern const ezUInt8 g_FontFilePNG[];
 
 #else
 
@@ -1176,22 +1176,13 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& ref_img, bool bSetEm
   };
 
   VariableReader reader;
-  reader.m_uiSize = g_FontFileTGASize;
-  reader.m_pData = g_FontFileTGA;
+  reader.m_uiSize = g_FontFilePNGSize;
+  reader.m_pData = g_FontFilePNG;
 
-  ezTgaFileFormat tga;
-  tga.ReadImage(reader, ref_img, "tga").IgnoreResult();
+  ezStbImageFileFormats png;
+  png.ReadImage(reader, ref_img, "png").IgnoreResult();
 
   ezImageConversion::Convert(ref_img, ref_img, ezImageFormat::R8G8B8A8_UNORM).IgnoreResult();
-
-  for (ezUInt32 y = 0; y < ref_img.GetHeight(); ++y)
-  {
-    for (ezUInt32 x = 0; x < ref_img.GetWidth(); ++x)
-    {
-      ezUInt8* pPixel = ref_img.GetPixelPointer<ezUInt8>(0, 0, 0, x, y, 0);
-      pPixel[1] = pPixel[2] = pPixel[3] = pPixel[0]; // copy R into GBA
-    }
-  }
 
 #endif
 }
