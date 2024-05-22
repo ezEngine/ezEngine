@@ -191,3 +191,12 @@ bool ezGameGrid<CellData>::GetRayIntersectionExpandedBBox(const ezVec3& vRayStar
 
   return true;
 }
+
+template <class CellData>
+void ezGameGrid<CellData>::ComputeWorldSpaceCorners(ezVec3* pCorners) const
+{
+  pCorners[0] = m_vWorldSpaceOrigin;
+  pCorners[1] = m_vWorldSpaceOrigin + m_mRotateToWorldspace * ezVec3(m_uiGridSizeX * m_vLocalSpaceCellSize.x, 0, 0);
+  pCorners[2] = m_vWorldSpaceOrigin + m_mRotateToWorldspace * ezVec3(0, m_uiGridSizeY * m_vLocalSpaceCellSize.y, 0);
+  pCorners[3] = m_vWorldSpaceOrigin + m_mRotateToWorldspace * ezVec3(m_uiGridSizeX * m_vLocalSpaceCellSize.x, m_uiGridSizeY * m_vLocalSpaceCellSize.y, 0);
+}
