@@ -455,6 +455,7 @@ void ezWorld::Update()
   }
 
   ++m_Data.m_uiUpdateCounter;
+  m_Data.m_bSimulateWorld = m_Data.m_bShouldSimulateWorld;
 
   if (!m_Data.m_bSimulateWorld)
   {
@@ -546,6 +547,9 @@ void ezWorld::Update()
 
     ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
   }
+
+  // Flush desired state again so GetSimulationState instantly returns the correct state
+  m_Data.m_bSimulateWorld = m_Data.m_bShouldSimulateWorld;
 
   // Swap our double buffered stack allocator
   m_Data.m_StackAllocator.Swap();
