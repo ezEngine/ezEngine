@@ -1182,7 +1182,5 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& ref_img, bool bSetEm
   ezStbImageFileFormats png;
   png.ReadImage(reader, ref_img, "png").IgnoreResult();
 
-  ezImageConversion::Convert(ref_img, ref_img, ezImageFormat::R8G8B8A8_UNORM).IgnoreResult();
-
 #endif
 }
