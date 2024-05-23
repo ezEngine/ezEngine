@@ -231,6 +231,9 @@ public:
   /// \brief Returns the global debug text scale
   static float GetTextScale();
 
+  /// \brief Sets the global debug text scale
+  static void SetTextScale(float fScale);
+
 private:
   friend class ezSimpleRenderPass;
 

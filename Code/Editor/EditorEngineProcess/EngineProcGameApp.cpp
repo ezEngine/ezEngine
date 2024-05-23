@@ -1,7 +1,10 @@
 #include <EditorEngineProcess/EditorEngineProcessPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Logging/ETWWriter.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/SystemInformation.h>
 
@@ -11,15 +14,14 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <shellscalingapi.h>
 #endif
-#include <Foundation/Profiling/ProfilingUtils.h>
+
 
 // Will forward assert messages and crash handler messages to the log system and then to the editor.
 // Note that this is unsafe as in some crash situation allocating memory will not be possible but it's better to have some logs compared to none.
@@ -334,6 +336,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       ezStartup::StartupHighLevelSystems();
 
       ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(true);
+      ezDebugRenderer::SetTextScale(pMsg->m_fDevicePixelRatio);
     }
 
     // after the ezSetupProjectMsgToEngine was processed, all dynamic plugins should be loaded and we can finally send the reflection

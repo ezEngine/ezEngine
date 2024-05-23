@@ -1334,6 +1334,12 @@ float ezDebugRenderer::GetTextScale()
 }
 
 // static
+void ezDebugRenderer::SetTextScale(float fScale)
+{
+  cvar_DebugTextScale = fScale;
+}
+
+// static
 void ezDebugRenderer::RenderWorldSpace(const ezRenderViewContext& renderViewContext)
 {
   if (renderViewContext.m_pWorldDebugContext != nullptr)
