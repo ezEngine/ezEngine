@@ -1327,7 +1327,7 @@ float ezDebugRenderer::GetTextLineHeight(ezUInt32 uiSizeInPixel /*= 16*/)
   return ezMath::Ceil(uiSizeInPixel * cvar_DebugTextScale * (20.0f / 16.0f));
 }
 
-//static
+// static
 float ezDebugRenderer::GetTextScale()
 {
   return cvar_DebugTextScale;

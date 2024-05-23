@@ -57,7 +57,7 @@ ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
   else
   {
     pScreen = &screens[iShowOnMonitor];
-  }  
+  }
 
   if (m_WindowMode == ezWindowMode::FullscreenBorderlessNativeResolution)
   {
