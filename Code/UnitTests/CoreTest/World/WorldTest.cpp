@@ -219,6 +219,7 @@ namespace
 
       {
         auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(SimulationTestModule::SimulationUpdate, this);
+        desc.m_DependsOn.PushBack(ezMakeHashedString("SimulationTestModule::AlwaysUpdate"));
         desc.m_bOnlyUpdateWhenSimulating = true;
         RegisterUpdateFunction(desc);
       }
@@ -226,26 +227,22 @@ namespace
 
     void SimulationUpdate(const UpdateContext&)
     {
-      m_nTimesSimulationUpdateCalled++;
-      m_bWasSimulationUpdateCalledLast = true;
+      m_iTimesSimulationUpdateCalled++;
     }
 
     void AlwaysUpdate(const UpdateContext&)
     {
-      m_nTimesAlwaysUpdateCalled++;
+      m_iTimesAlwaysUpdateCalled++;
       if (m_bToggleSimulationNextAlwaysUpdate)
       {
         GetWorld()->SetWorldSimulationEnabled(!GetWorld()->GetWorldSimulationEnabled());
         m_bToggleSimulationNextAlwaysUpdate = false;
       }
-
-      m_bWasSimulationUpdateCalledLast = false;
     }
 
-    ezInt32 m_nTimesSimulationUpdateCalled = 0;
-    ezInt32 m_nTimesAlwaysUpdateCalled = 0;
+    ezInt32 m_iTimesSimulationUpdateCalled = 0;
+    ezInt32 m_iTimesAlwaysUpdateCalled = 0;
     bool m_bToggleSimulationNextAlwaysUpdate = false;
-    bool m_bWasSimulationUpdateCalledLast = false;
   };
 
   // clang-format off
@@ -779,12 +776,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     // World simulation is active, both calls should update
     world.Update();
-    EZ_TEST_INT(pModule->m_nTimesAlwaysUpdateCalled, 1);
-    EZ_TEST_INT(pModule->m_nTimesSimulationUpdateCalled, 1);
-
-    // This is a sanity check to ensure the order of the Update() calls is AlwaysUpdate() and then SimulationUpdate()
-    // If this is no longer the case this test needs to be adapted to ensure that the order is as expected
-    EZ_TEST_BOOL(pModule->m_bWasSimulationUpdateCalledLast);
+    EZ_TEST_INT(pModule->m_iTimesAlwaysUpdateCalled, 1);
+    EZ_TEST_INT(pModule->m_iTimesSimulationUpdateCalled, 1);
 
     // World simulation is deactivated before, only Always should update
     world.SetWorldSimulationEnabled(false);
@@ -792,27 +785,27 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     // GetWorldSimulationEnabled will only reflect an up-to-date state in the beginning/at the end of an Update() call
     EZ_TEST_BOOL(world.GetWorldSimulationEnabled());
     world.Update();
-    EZ_TEST_INT(pModule->m_nTimesAlwaysUpdateCalled, 2);
-    EZ_TEST_INT(pModule->m_nTimesSimulationUpdateCalled, 1);
+    EZ_TEST_INT(pModule->m_iTimesAlwaysUpdateCalled, 2);
+    EZ_TEST_INT(pModule->m_iTimesSimulationUpdateCalled, 1);
 
     world.SetWorldSimulationEnabled(true);
     world.Update();
-    EZ_TEST_INT(pModule->m_nTimesAlwaysUpdateCalled, 3);
-    EZ_TEST_INT(pModule->m_nTimesSimulationUpdateCalled, 2);
+    EZ_TEST_INT(pModule->m_iTimesAlwaysUpdateCalled, 3);
+    EZ_TEST_INT(pModule->m_iTimesSimulationUpdateCalled, 2);
 
     // Disable world simulation during a frame before running a Simulation update - all Simulation updates should run
     pModule->m_bToggleSimulationNextAlwaysUpdate = true;
     world.Update();
     EZ_TEST_BOOL(!world.GetWorldSimulationEnabled());
-    EZ_TEST_INT(pModule->m_nTimesAlwaysUpdateCalled, 4);
-    EZ_TEST_INT(pModule->m_nTimesSimulationUpdateCalled, 3);
+    EZ_TEST_INT(pModule->m_iTimesAlwaysUpdateCalled, 4);
+    EZ_TEST_INT(pModule->m_iTimesSimulationUpdateCalled, 3);
 
     // Enable world simulation during a frame - no Simulation update should run
     pModule->m_bToggleSimulationNextAlwaysUpdate = true;
     world.Update();
     EZ_TEST_BOOL(world.GetWorldSimulationEnabled());
-    EZ_TEST_INT(pModule->m_nTimesAlwaysUpdateCalled, 5);
-    EZ_TEST_INT(pModule->m_nTimesSimulationUpdateCalled, 3);
+    EZ_TEST_INT(pModule->m_iTimesAlwaysUpdateCalled, 5);
+    EZ_TEST_INT(pModule->m_iTimesSimulationUpdateCalled, 3);
   }
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)

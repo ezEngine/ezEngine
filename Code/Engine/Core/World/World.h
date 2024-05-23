@@ -251,12 +251,12 @@ public:
   ///@}
 
   /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
-  /// Note the state returned by \link GetWorldSimulationEnabled() will not reflect state of \param bEnable immediately,
-  /// it is only updated in the beginning/end of an \link Update() call.
+  /// Note the state returned by ezWorld::GetWorldSimulationEnabled() will not reflect state of \param bEnable immediately,
+  /// it is only updated in the beginning/end of an ezWorld::Update() call.
   void SetWorldSimulationEnabled(bool bEnable);
 
   /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
-  /// \link SetWorldSimulationEnabled() for implementation specifics.
+  /// See ezWorld::SetWorldSimulationEnabled() for implementation specifics.
   bool GetWorldSimulationEnabled() const;
 
   /// \brief Updates the world by calling the various update methods on the component managers and also updates the transformation data of
