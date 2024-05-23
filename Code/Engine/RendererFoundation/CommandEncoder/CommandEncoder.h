@@ -5,11 +5,16 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoderPlatformInterface.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 
+struct ezGALRenderingSetup;
+
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoder
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGALCommandEncoder);
 
 public:
+  ezGALCommandEncoder(ezGALDevice& in_device, ezGALCommandEncoderCommonPlatformInterface& in_commonImpl);
+  virtual ~ezGALCommandEncoder();
+
   // State setting functions
 
   void SetShader(ezGALShaderHandle hShader);
@@ -70,7 +75,49 @@ public:
   void PopMarker();
   void InsertEventMarker(const char* szMarker);
 
-  virtual void ClearStatisticsCounters();
+  // Dispatch
+
+  void BeginCompute(const char* szName = "");
+  void EndCompute();
+
+  ezResult Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ);
+  ezResult DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
+
+  // Draw functions
+
+  void BeginRendering(const ezGALRenderingSetup& renderingSetup, const char* szName = "");
+  void EndRendering();
+
+  /// \brief Clears active rendertargets.
+  ///
+  /// \param uiRenderTargetClearMask
+  ///   Each bit represents a bound color target. If all bits are set, all bound color targets will be cleared.
+  void Clear(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true, float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
+
+  ezResult Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex);
+  ezResult DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex);
+  ezResult DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex);
+  ezResult DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
+  ezResult DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex);
+  ezResult DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
+
+  // State functions
+
+  void SetIndexBuffer(ezGALBufferHandle hIndexBuffer);
+  void SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer);
+  void SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
+
+  ezGALPrimitiveTopology::Enum GetPrimitiveTopology() const { return m_State.m_Topology; }
+  void SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology);
+
+  void SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& blendFactor = ezColor::White, ezUInt32 uiSampleMask = 0xFFFFFFFFu);
+  void SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue = 0xFFu);
+  void SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
+
+  void SetViewport(const ezRectFloat& rect, float fMinDepth = 0.0f, float fMaxDepth = 1.0f);
+  void SetScissorRect(const ezRectU32& rect);
+
+  // Internal
 
   EZ_ALWAYS_INLINE ezGALDevice& GetDevice() { return m_Device; }
   // Don't use light hearted ;)
@@ -79,20 +126,35 @@ public:
 protected:
   friend class ezGALDevice;
 
-  ezGALCommandEncoder(ezGALDevice& device, ezGALCommandEncoderState& state, ezGALCommandEncoderCommonPlatformInterface& commonImpl);
-  virtual ~ezGALCommandEncoder();
-
-
   void AssertRenderingThread()
   {
     EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function can only be executed on the main thread.");
   }
 
 private:
+  void ClearStatisticsCounters();
+  void CountDispatchCall() { m_uiDispatchCalls++; }
+  void CountDrawCall() { m_uiDrawCalls++; }
+
+private:
   friend class ezMemoryUtils;
+
+  // Statistic variables
+  ezUInt32 m_uiDispatchCalls = 0;
+  ezUInt32 m_uiDrawCalls = 0;
+
+  enum class CommandEncoderType
+  {
+    Invalid,
+    Render,
+    Compute
+  };
+
+  CommandEncoderType m_CurrentCommandEncoderType = CommandEncoderType::Invalid;
+  bool m_bMarker = false;
 
   // Parent Device
   ezGALDevice& m_Device;
-  ezGALCommandEncoderState& m_State;
+  ezGALCommandEncoderRenderState m_State;
   ezGALCommandEncoderCommonPlatformInterface& m_CommonImpl;
 };

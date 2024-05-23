@@ -176,6 +176,7 @@ ezResult ezWindow::Initialize()
   }
 
   glfwSetWindowUserPointer(pWindow, this);
+  glfwSetWindowIconifyCallback(pWindow, &ezWindow::IconifyCallback);
   glfwSetWindowSizeCallback(pWindow, &ezWindow::SizeCallback);
   glfwSetWindowPosCallback(pWindow, &ezWindow::PositionCallback);
   glfwSetWindowCloseCallback(pWindow, &ezWindow::CloseCallback);
@@ -269,6 +270,13 @@ void ezWindow::ProcessWindowMessages()
 void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
+}
+
+void ezWindow::IconifyCallback(GLFWwindow* window, int iconified)
+{
+  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  if (self)
+    self->OnVisibleChange(!iconified);
 }
 
 void ezWindow::SizeCallback(GLFWwindow* window, int width, int height)

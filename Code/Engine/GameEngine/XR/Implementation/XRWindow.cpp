@@ -83,18 +83,28 @@ ezWindowOutputTargetXR::~ezWindowOutputTargetXR()
   m_hCompanionConstantBuffer.Invalidate();
 }
 
-void ezWindowOutputTargetXR::Present(bool bEnableVSync)
+void ezWindowOutputTargetXR::PresentImage(bool bEnableVSync)
 {
   // Swapchain present is handled by the rendering of the view automatically and RenderCompanionView is called by the ezXRInterface now.
 }
 
-void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
+void ezWindowOutputTargetXR::CompanionViewBeginFrame(bool bThrottleCompanionView)
 {
   ezTime currentTime = ezTime::Now();
   if (bThrottleCompanionView && currentTime < (m_LastPresent + ezTime::MakeFromMilliseconds(16)))
     return;
 
   m_LastPresent = currentTime;
+  ezGALDevice::GetDefaultDevice()->EnqueueFrameSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
+  m_bRender = true;
+}
+
+void ezWindowOutputTargetXR::CompanionViewEndFrame()
+{
+  if (!m_bRender)
+    return;
+
+  m_bRender = false;
 
   EZ_PROFILE_SCOPE("RenderCompanionView");
   ezGALTextureHandle m_hColorRT = m_pXrInterface->GetCurrentTexture();
@@ -105,9 +115,7 @@ void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
   ezRenderContext* m_pRenderContext = ezRenderContext::GetDefaultInstance();
 
   {
-    pDevice->BeginPipeline("VR CompanionView", m_pCompanionWindowOutputTarget->m_hSwapChain);
-
-    auto pPass = pDevice->BeginPass("Blit CompanionView");
+    auto pEncoder = pDevice->BeginCommands("Blit CompanionView");
 
     const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
     ezGALTextureHandle hCompanionRenderTarget = pSwapChain->GetBackBufferTexture();
@@ -118,7 +126,7 @@ void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
     ezGALRenderingSetup renderingSetup;
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hRenderTargetView);
 
-    m_pRenderContext->BeginRendering(pPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+    m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
 
     m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     m_pRenderContext->BindConstantBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
@@ -133,9 +141,8 @@ void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
 
     m_pRenderContext->EndRendering();
 
-    pDevice->EndPass(pPass);
+    pDevice->EndCommands(pEncoder);
 
-    pDevice->EndPipeline(m_pCompanionWindowOutputTarget->m_hSwapChain);
     m_pRenderContext->ResetContextState();
   }
 }
@@ -144,6 +151,9 @@ ezResult ezWindowOutputTargetXR::CaptureImage(ezImage& out_image)
 {
   if (m_pCompanionWindowOutputTarget)
   {
+    // If we are capturing an image, we need to update the companion view first.
+    // If not, CompanionViewEndFrame will be called by the XR implementation.
+    CompanionViewEndFrame();
     return m_pCompanionWindowOutputTarget->CaptureImage(out_image);
   }
   return EZ_FAILURE;

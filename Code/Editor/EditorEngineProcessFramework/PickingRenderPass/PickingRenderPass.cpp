@@ -72,7 +72,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   renderingSetup.m_bClearDepth = true;
   renderingSetup.m_bClearStencil = true;
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName());
 
   ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
   if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)

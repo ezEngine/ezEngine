@@ -92,7 +92,7 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
     renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
   // Setup Permutation Vars
   ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");

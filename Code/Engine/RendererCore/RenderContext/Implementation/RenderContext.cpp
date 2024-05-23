@@ -18,6 +18,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 ezRenderContext* ezRenderContext::s_pDefaultInstance = nullptr;
+ezGALCommandEncoder* ezRenderContext::s_pCommandEncoder = nullptr;
 ezHybridArray<ezRenderContext*, 4> ezRenderContext::s_Instances;
 
 ezMap<ezRenderContext::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRenderContext::s_GALVertexDeclarations;
@@ -38,11 +39,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererContext)
   ON_CORESYSTEMS_STARTUP
   {
     ezRenderContext::RegisterImmutableSamplers();
+    ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezRenderContext::GALStaticDeviceEventHandler));
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-
+    ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezRenderContext::GALStaticDeviceEventHandler));
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
@@ -75,14 +77,15 @@ void ezRenderContext::Statistics::Reset()
 ezRenderContext* ezRenderContext::GetDefaultInstance()
 {
   if (s_pDefaultInstance == nullptr)
-    s_pDefaultInstance = CreateInstance();
+    s_pDefaultInstance = CreateInstance(s_pCommandEncoder);
 
+  EZ_ASSERT_DEBUG(s_pDefaultInstance != nullptr, "Default instance should have been created during device creation");
   return s_pDefaultInstance;
 }
 
-ezRenderContext* ezRenderContext::CreateInstance()
+ezRenderContext* ezRenderContext::CreateInstance(ezGALCommandEncoder* pCommandEncoder)
 {
-  return EZ_DEFAULT_NEW(ezRenderContext);
+  return EZ_DEFAULT_NEW(ezRenderContext, pCommandEncoder);
 }
 
 void ezRenderContext::DestroyInstance(ezRenderContext* pRenderer)
@@ -90,14 +93,11 @@ void ezRenderContext::DestroyInstance(ezRenderContext* pRenderer)
   EZ_DEFAULT_DELETE(pRenderer);
 }
 
-ezRenderContext::ezRenderContext()
+ezRenderContext::ezRenderContext(ezGALCommandEncoder* pCommandEncoder)
 {
-  if (s_pDefaultInstance == nullptr)
-  {
-    s_pDefaultInstance = this;
-  }
-
   s_Instances.PushBack(this);
+
+  m_pGALCommandEncoder = pCommandEncoder;
 
   m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
   m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
@@ -137,8 +137,10 @@ ezRenderContext::Statistics ezRenderContext::GetAndResetStatistics()
   return ret;
 }
 
-ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName, bool bStereoSupport)
+void ezRenderContext::BeginRendering(const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName, bool bStereoSupport)
 {
+  EZ_ASSERT_DEBUG(m_bRendering == false && m_bCompute == false, "Already in a scope");
+  m_bRendering = true;
   ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::None;
 
   ezGALRenderTargetViewHandle hRTV;
@@ -169,50 +171,36 @@ ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, 
   gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
   gc.NumMsaaSamples = msaaSampleCount;
 
-  auto pGALCommandEncoder = pGALPass->BeginRendering(renderingSetup, szName);
+  m_pGALCommandEncoder->BeginRendering(renderingSetup, szName);
 
-  pGALCommandEncoder->SetViewport(viewport);
+  m_pGALCommandEncoder->SetViewport(viewport);
 
-  m_pGALPass = pGALPass;
-  m_pGALCommandEncoder = pGALCommandEncoder;
-  m_bCompute = false;
   m_bStereoRendering = bStereoSupport;
-
-  return pGALCommandEncoder;
 }
 
 void ezRenderContext::EndRendering()
 {
-  m_pGALPass->EndRendering(GetRenderCommandEncoder());
+  m_pGALCommandEncoder->EndRendering();
 
-  m_pGALPass = nullptr;
-  m_pGALCommandEncoder = nullptr;
   m_bStereoRendering = false;
-
+  m_bRendering = false;
   // TODO: The render context needs to reset its state after every encoding block if we want to record to separate command buffers.
   // Although this is currently not possible since a lot of high level code binds stuff only once per frame on the render context.
   // Resetting the state after every encoding block breaks those assumptions.
   // ResetContextState();
 }
 
-ezGALComputeCommandEncoder* ezRenderContext::BeginCompute(ezGALPass* pGALPass, const char* szName /*= ""*/)
+void ezRenderContext::BeginCompute(const char* szName /*= ""*/)
 {
-  auto pGALCommandEncoder = pGALPass->BeginCompute(szName);
-
-  m_pGALPass = pGALPass;
-  m_pGALCommandEncoder = pGALCommandEncoder;
+  EZ_ASSERT_DEBUG(m_bRendering == false && m_bCompute == false, "Already in a scope");
+  m_pGALCommandEncoder->BeginCompute(szName);
   m_bCompute = true;
-
-  return pGALCommandEncoder;
 }
 
 void ezRenderContext::EndCompute()
 {
-  m_pGALPass->EndCompute(GetComputeCommandEncoder());
-
-  m_pGALPass = nullptr;
-  m_pGALCommandEncoder = nullptr;
-
+  m_pGALCommandEncoder->EndCompute();
+  m_bCompute = false;
   // TODO: See EndRendering
   // ResetContextState();
 }
@@ -559,7 +547,7 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
   uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, m_uiMeshBufferPrimitiveCount - uiFirstPrimitive);
   EZ_ASSERT_DEV(uiPrimitiveCount > 0, "Invalid primitive range: number of primitives can't be zero.");
 
-  auto pCommandEncoder = GetRenderCommandEncoder();
+  auto pCommandEncoder = GetCommandEncoder();
 
   const ezUInt32 uiVertsPerPrimitive = ezGALPrimitiveTopology::VerticesPerPrimitive(pCommandEncoder->GetPrimitiveTopology());
 
@@ -604,7 +592,7 @@ ezResult ezRenderContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThre
     return EZ_FAILURE;
   }
 
-  return GetComputeCommandEncoder()->Dispatch(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
+  return GetCommandEncoder()->Dispatch(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
 }
 
 ezResult ezRenderContext::ApplyContextStates(bool bForce)
@@ -713,7 +701,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     if (m_hActiveGALShader.IsInvalidated())
       return EZ_FAILURE;
 
-    auto pCommandEncoder = GetRenderCommandEncoder();
+    auto pCommandEncoder = GetCommandEncoder();
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
     {
@@ -995,6 +983,23 @@ void ezRenderContext::OnEngineShutdown()
 }
 
 // static
+void ezRenderContext::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
+{
+  if (e.m_Type == ezGALDeviceEvent::Type::AfterBeginCommands)
+  {
+    s_pCommandEncoder = e.m_pCommandEncoder;
+    if (s_pDefaultInstance)
+      s_pDefaultInstance->m_pGALCommandEncoder = e.m_pCommandEncoder;
+  }
+  else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndCommands)
+  {
+    s_pCommandEncoder = nullptr;
+    if (s_pDefaultInstance)
+      s_pDefaultInstance->m_pGALCommandEncoder = nullptr;
+  }
+}
+
+// static
 ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration)
 {
   ShaderVertexDecl svd;
@@ -1126,7 +1131,7 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
   // Set render state from shader
   if (!m_bCompute)
   {
-    auto pCommandEncoder = GetRenderCommandEncoder();
+    auto pCommandEncoder = GetCommandEncoder();
 
     if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoBlendState))
       pCommandEncoder->SetBlendState(pShaderPermutation->GetBlendState());

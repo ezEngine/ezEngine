@@ -67,7 +67,13 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 	RetVal.TexCoord0 = (float2(texCoordX, texCoordY) + vertexPosition) * invAtlasSize;
 	RetVal.Color0 = RGBA8ToFloat4(data.color);
 	RetVal.InstanceID = InstanceID;
-
+#if defined(CAMERA_MODE)
+#  if CAMERA_MODE == CAMERA_MODE_STEREO
+#    if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE
+    RetVal.RenderTargetArrayIndex = InstanceID % 2;
+#    endif
+#  endif
+#endif
 	return RetVal;
 }
 

@@ -131,10 +131,10 @@ void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEve
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALPass* pGALPass = pDevice->BeginPass("Update Instanced Mesh Data");
+  ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("Update Instanced Mesh Data");
 
   ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
-  pRenderContext->BeginCompute(pGALPass);
+  pRenderContext->BeginCompute();
 
   for (const auto& componentToUpdate : m_RequireUpdate)
   {
@@ -153,7 +153,7 @@ void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEve
   }
 
   pRenderContext->EndCompute();
-  pDevice->EndPass(pGALPass);
+  pDevice->EndCommands(pCommandEncoder);
 
   m_RequireUpdate.Clear();
 }

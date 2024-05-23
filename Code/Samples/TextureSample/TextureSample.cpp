@@ -286,17 +286,17 @@ public:
     // do the rendering
     {
       // Before starting to render in a frame call this function
+      m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
       m_pDevice->BeginFrame();
 
-      m_pDevice->BeginPipeline("TextureSample", m_hSwapChain);
-      ezGALPass* pGALPass = m_pDevice->BeginPass("ezTextureSampleMainPass");
+      ezGALCommandEncoder* pCommandEncoder = m_pDevice->BeginCommands("ezTextureSampleMainPass");
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
       renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
       renderingSetup.m_bClearDepth = true;
 
-      ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
+      ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
 
       ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
@@ -345,9 +345,7 @@ public:
       }
 
       ezRenderContext::GetDefaultInstance()->EndRendering();
-      m_pDevice->EndPass(pGALPass);
-
-      m_pDevice->EndPipeline(m_hSwapChain);
+      m_pDevice->EndCommands(pCommandEncoder);
 
       m_pDevice->EndFrame();
       ezRenderContext::GetDefaultInstance()->ResetContextState();

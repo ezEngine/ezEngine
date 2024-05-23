@@ -175,7 +175,7 @@ float SampleShadow(float3 shadowPosition, float2x2 randomRotation, float penumbr
 // #define SHADOW_FORCE_LAST_CASCADE
 
 float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 lightVector, float distanceToLight, uint type,
-  uint shadowDataOffset, float noise, float2x2 randomRotation, float extraPenumbraScale, out float subsurfaceShadow, out float3 debugColor)
+  uint shadowDataOffset, float noise, float2x2 randomRotation, float extraPenumbraScale, inout float subsurfaceShadow, out float3 debugColor)
 {
   float3 debugColors[] = {
     float3(1, 0, 0),

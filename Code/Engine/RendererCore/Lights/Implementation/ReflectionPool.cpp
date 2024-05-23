@@ -16,9 +16,8 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/Texture.h>
 
@@ -306,11 +305,11 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  auto pGALPass = pDevice->BeginPass("Sky Irradiance Texture Update");
+  auto pCommandEncoder = pDevice->BeginCommands("Sky Irradiance Texture Update");
   ezHybridArray<ezGALTextureHandle, 4> atlasToClear;
 
   {
-    auto pGALCommandEncoder = pGALPass->BeginCompute();
+    pCommandEncoder->BeginCompute();
     for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
     {
       if ((uiWorldHasSkyLight & EZ_BIT(i)) == 0 && (uiSkyIrradianceChanged & EZ_BIT(i)) != 0)
@@ -321,7 +320,7 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
         ezGALSystemMemoryDescription memDesc;
         memDesc.m_pData = &skyIrradianceStorage[i].m_Values[0];
         memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
-        pGALCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
+        pCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
 
         uiSkyIrradianceChanged &= ~EZ_BIT(i);
 
@@ -332,7 +331,7 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
         }
       }
     }
-    pGALPass->EndCompute(pGALCommandEncoder);
+    pCommandEncoder->EndCompute();
   }
 
   {
@@ -354,15 +353,15 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
           renderingSetup.m_ClearColor = ezColor(0, 0, 0, 1);
           renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
-          auto pGALCommandEncoder = pGALPass->BeginRendering(renderingSetup, "ClearSkySpecular");
-          pGALCommandEncoder->Clear(ezColor::Black);
-          pGALPass->EndRendering(pGALCommandEncoder);
+          pCommandEncoder->BeginRendering(renderingSetup, "ClearSkySpecular");
+          pCommandEncoder->Clear(ezColor::Black);
+          pCommandEncoder->EndRendering();
         }
       }
     }
   }
 
-  pDevice->EndPass(pGALPass);
+  pDevice->EndCommands(pCommandEncoder);
 }
 
 

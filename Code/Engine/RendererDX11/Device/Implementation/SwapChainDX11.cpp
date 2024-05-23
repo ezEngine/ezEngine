@@ -4,7 +4,7 @@
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 
 #include <Foundation/Basics/Platform/Win/HResultUtils.h>
 #include <d3d11.h>
@@ -25,13 +25,13 @@ void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)
   // If there is a "actual backbuffer" (see it's documentation for detailed explanation), copy to it.
   if (!this->m_hActualBackBufferTexture.IsInvalidated())
   {
-    pDXDevice->GetRenderCommandEncoder()->CopyTexture(this->m_hActualBackBufferTexture, this->m_hBackBufferTexture);
+    pDXDevice->GetCommandEncoder()->CopyTexture(this->m_hActualBackBufferTexture, this->m_hBackBufferTexture);
   }
 
   HRESULT result = m_pDXSwapChain->Present(m_CurrentPresentMode == ezGALPresentMode::VSync ? 1 : 0, 0);
   if (FAILED(result))
   {
-    ezLog::Error("Swap chain Present failed with {0}", (ezUInt32)result);
+    ezLog::Error("Swap chain PresentImage failed with {0}", (ezUInt32)result);
     return;
   }
 

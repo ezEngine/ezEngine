@@ -141,7 +141,7 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 void ezRmlUiRenderer::SetScissorRect(const ezRenderViewContext& renderViewContext, const ezRectFloat& rect, bool bEnable, bool bTransformRect) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALRenderCommandEncoder* pGALCommandEncoder = pRenderContext->GetRenderCommandEncoder();
+  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   ezRectFloat scissorRect = rect;
   if (!bEnable || bTransformRect)
@@ -160,7 +160,7 @@ void ezRmlUiRenderer::SetScissorRect(const ezRenderViewContext& renderViewContex
 void ezRmlUiRenderer::PrepareStencil(const ezRenderViewContext& renderViewContext, const ezRectFloat& rect) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALRenderCommandEncoder* pGALCommandEncoder = pRenderContext->GetRenderCommandEncoder();
+  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   // Clear stencil
   pGALCommandEncoder->Clear(ezColor::Black, 0, false, true, 1.0f, 0);

@@ -346,7 +346,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
 
 void ezRendererTestAdvancedFeatures::ReadRenderTarget()
 {
-  BeginPass("Offscreen");
+  BeginCommands("Offscreen");
   {
     ezGALRenderingSetup renderingSetup;
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2D));
@@ -354,7 +354,7 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
     renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
     ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
-    ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     SetClipSpace();
 
     ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
@@ -363,7 +363,7 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
   }
-  EndPass();
+  EndCommands();
 
 
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
@@ -374,7 +374,7 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
   const float fElementHeight = fHeight / uiRows;
 
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
-  BeginPass("Texture2D");
+  BeginCommands("Texture2D");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DMips[0]);
@@ -386,14 +386,14 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2DMips[0]);
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
 {
   m_bCaptureImage = true;
   const ezMat4 mMVP = CreateSimpleMVP((m_pWindow->GetClientAreaSize().width / 2.0f) / (float)m_pWindow->GetClientAreaSize().height);
-  BeginPass("Offscreen Stereo");
+  BeginCommands("Offscreen Stereo");
   {
     ezGALRenderingSetup renderingSetup;
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2DArray));
@@ -401,7 +401,7 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
     renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
     ezRectFloat viewport = ezRectFloat(0, 0, m_pWindow->GetClientAreaSize().width / 2.0f, (float)m_pWindow->GetClientAreaSize().height);
-    ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     SetClipSpace();
 
     ezRenderContext::GetDefaultInstance()->BindShader(m_hShader, ezShaderBindFlags::None);
@@ -414,14 +414,14 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
   }
-  EndPass();
+  EndCommands();
 
 
-  BeginPass("Texture2DArray");
+  BeginCommands("Texture2DArray");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
 
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
     ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hTexture2DArray));
 
@@ -436,7 +436,7 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
 
     EndRendering();
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestAdvancedFeatures::Tessellation()
@@ -444,10 +444,10 @@ void ezRendererTestAdvancedFeatures::Tessellation()
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
   const ezMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
-  BeginPass("Tessellation");
+  BeginCommands("Tessellation");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
     RenderObject(m_hSphereMesh, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
     if (m_ImgCompFrames.Contains(m_iFrame))
     {
@@ -455,18 +455,18 @@ void ezRendererTestAdvancedFeatures::Tessellation()
     }
     EndRendering();
   }
-  EndPass();
+  EndCommands();
 }
 
 
 void ezRendererTestAdvancedFeatures::Compute()
 {
-  BeginPass("Compute");
+  BeginCommands("Compute");
   {
     ezUInt32 uiWidth = 8;
     ezUInt32 uiHeight = 8;
 
-    auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginCompute(m_pPass, "Compute");
+    ezRenderContext::GetDefaultInstance()->BeginCompute("Compute");
     {
       ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
 
@@ -493,20 +493,20 @@ void ezRendererTestAdvancedFeatures::Compute()
     }
     ezRenderContext::GetDefaultInstance()->EndCompute();
   }
-  EndPass();
+  EndCommands();
 
 
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
 
   const ezMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
-  BeginPass("Texture2D");
+  BeginCommands("Texture2D");
   {
     m_bCaptureImage = true;
     ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DMips[0]);
   }
-  EndPass();
+  EndCommands();
 }
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
@@ -526,7 +526,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
   ezStringBuilder sTemp;
   sTemp.SetFormat("Render {}:{}|{}", m_uiReceivedTextures, texture.m_uiCurrentTextureIndex, texture.m_uiCurrentSemaphoreValue);
   EZ_PROFILE_SCOPE(sTemp);
-  BeginFrame(sTemp);
+  BeginFrame();
   {
     const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(m_hSharedTextures[texture.m_uiCurrentTextureIndex]);
     EZ_ASSERT_DEV(pSharedTexture != nullptr, "Shared texture did not resolve");
@@ -541,13 +541,13 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
     const float fElementHeight = fHeight / uiRows;
 
     const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
-    BeginPass("Texture2D");
+    BeginCommands("Texture2D");
     {
       ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
       m_bCaptureImage = true;
       viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
 
-      ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+      ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
       ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hSharedTextures[texture.m_uiCurrentTextureIndex]));
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
@@ -563,7 +563,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
       }
       EndRendering();
     }
-    EndPass();
+    EndCommands();
 
     texture.m_uiCurrentSemaphoreValue++;
     pSharedTexture->SignalSemaphoreGPU(texture.m_uiCurrentSemaphoreValue);

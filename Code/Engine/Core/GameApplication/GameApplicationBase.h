@@ -262,11 +262,14 @@ protected:
 
   virtual void Run_InputUpdate();
   virtual bool Run_ProcessApplicationInput();
+  /// \brief This function can be used to acquire a new window from a swap-chain or do any other update operations on windows before the multi-threaded rendering and update phase starts.
+  virtual void Run_AcquireImage();
   virtual void Run_WorldUpdateAndRender() = 0;
   virtual void Run_BeforeWorldUpdate();
   virtual void Run_AfterWorldUpdate();
   virtual void Run_UpdatePlugins();
-  virtual void Run_Present();
+  /// \brief This function can be used to present the final image to a window. It is run at the end of the rendering phase. It can also be used to inspect the swap-chain e.g. for screenshot purposes before presenting.
+  virtual void Run_PresentImage();
   virtual void Run_FinishFrame();
 
   void UpdateFrameTime();

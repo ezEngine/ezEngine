@@ -397,14 +397,9 @@ void ezGALCommandEncoder::InsertEventMarker(const char* szMarker)
   m_CommonImpl.InsertEventMarkerPlatform(szMarker);
 }
 
-void ezGALCommandEncoder::ClearStatisticsCounters()
-{
-}
-
-ezGALCommandEncoder::ezGALCommandEncoder(ezGALDevice& device, ezGALCommandEncoderState& state, ezGALCommandEncoderCommonPlatformInterface& commonImpl)
-  : m_Device(device)
-  , m_State(state)
-  , m_CommonImpl(commonImpl)
+ezGALCommandEncoder::ezGALCommandEncoder(ezGALDevice& in_device, ezGALCommandEncoderCommonPlatformInterface& in_commonImpl)
+  : m_Device(in_device)
+  , m_CommonImpl(in_commonImpl)
 {
 }
 
@@ -413,4 +408,292 @@ ezGALCommandEncoder::~ezGALCommandEncoder() = default;
 void ezGALCommandEncoder::InvalidateState()
 {
   m_State.InvalidateState();
+}
+
+ezResult ezGALCommandEncoder::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
+{
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType == CommandEncoderType::Compute, "Call BeginCompute first");
+  AssertRenderingThread();
+
+  EZ_ASSERT_DEBUG(uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0, "Thread group counts of zero are not meaningful. Did you mean 1?");
+
+  CountDispatchCall();
+  return m_CommonImpl.DispatchPlatform(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
+}
+
+ezResult ezGALCommandEncoder::DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+{
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType == CommandEncoderType::Compute, "Call BeginCompute first");
+  AssertRenderingThread();
+
+  const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndirectArgumentBuffer);
+  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
+
+  CountDispatchCall();
+  return m_CommonImpl.DispatchIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
+}
+
+void ezGALCommandEncoder::ClearStatisticsCounters()
+{
+  m_uiDrawCalls = 0;
+  m_uiDispatchCalls = 0;
+}
+
+void ezGALCommandEncoder::Clear(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask /*= 0xFFFFFFFFu*/, bool bClearDepth /*= true*/, bool bClearStencil /*= true*/, float fDepthClear /*= 1.0f*/, ezUInt8 uiStencilClear /*= 0x0u*/)
+{
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType == CommandEncoderType::Render, "Call BeginRendering first");
+  AssertRenderingThread();
+  m_CommonImpl.ClearPlatform(clearColor, uiRenderTargetClearMask, bClearDepth, bClearStencil, fDepthClear, uiStencilClear);
+}
+
+ezResult ezGALCommandEncoder::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
+{
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType == CommandEncoderType::Render, "Call BeginRendering first");
+  AssertRenderingThread();
+  CountDrawCall();
+  return m_CommonImpl.DrawPlatform(uiVertexCount, uiStartVertex);
+}
+
+ezResult ezGALCommandEncoder::DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
+{
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType == CommandEncoderType::Render, "Call BeginRendering first");
+  AssertRenderingThread();
+  CountDrawCall();
+  return m_CommonImpl.DrawIndexedPlatform(uiIndexCount, uiStartIndex);
+}
+
+ezResult ezGALCommandEncoder::DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex)
+{
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType == CommandEncoderType::Render, "Call BeginRendering first");
+  AssertRenderingThread();
+  CountDrawCall();
+  return m_CommonImpl.DrawIndexedInstancedPlatform(uiIndexCountPerInstance, uiInstanceCount, uiStartIndex);
+}
+
+ezResult ezGALCommandEncoder::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+{
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType == CommandEncoderType::Render, "Call BeginRendering first");
+  AssertRenderingThread();
+  const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndirectArgumentBuffer);
+  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
+  CountDrawCall();
+  return m_CommonImpl.DrawIndexedInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
+}
+
+ezResult ezGALCommandEncoder::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
+{
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType == CommandEncoderType::Render, "Call BeginRendering first");
+  AssertRenderingThread();
+  CountDrawCall();
+  return m_CommonImpl.DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex);
+}
+
+ezResult ezGALCommandEncoder::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+{
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType == CommandEncoderType::Render, "Call BeginRendering first");
+  AssertRenderingThread();
+  const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndirectArgumentBuffer);
+  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
+  CountDrawCall();
+  return m_CommonImpl.DrawInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
+}
+
+void ezGALCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
+{
+  if (m_State.m_hIndexBuffer == hIndexBuffer)
+  {
+    return;
+  }
+
+  const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndexBuffer);
+  /// \todo Assert on index buffer type (if non nullptr)
+  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
+
+  m_CommonImpl.SetIndexBufferPlatform(pBuffer);
+
+  m_State.m_hIndexBuffer = hIndexBuffer;
+}
+
+void ezGALCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer)
+{
+  if (m_State.m_hVertexBuffers[uiSlot] == hVertexBuffer)
+  {
+    return;
+  }
+
+  const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hVertexBuffer);
+  // Assert on vertex buffer type (if non-zero)
+  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
+
+  m_CommonImpl.SetVertexBufferPlatform(uiSlot, pBuffer);
+
+  m_State.m_hVertexBuffers[uiSlot] = hVertexBuffer;
+}
+
+void ezGALCommandEncoder::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology)
+{
+  AssertRenderingThread();
+
+  if (m_State.m_Topology == topology)
+  {
+    return;
+  }
+
+  m_CommonImpl.SetPrimitiveTopologyPlatform(topology);
+
+  m_State.m_Topology = topology;
+}
+
+void ezGALCommandEncoder::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration)
+{
+  AssertRenderingThread();
+
+  if (m_State.m_hVertexDeclaration == hVertexDeclaration)
+  {
+    return;
+  }
+
+  const ezGALVertexDeclaration* pVertexDeclaration = GetDevice().GetVertexDeclaration(hVertexDeclaration);
+  // Assert on vertex buffer type (if non-zero)
+
+  m_CommonImpl.SetVertexDeclarationPlatform(pVertexDeclaration);
+
+  m_State.m_hVertexDeclaration = hVertexDeclaration;
+}
+
+void ezGALCommandEncoder::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& blendFactor, ezUInt32 uiSampleMask)
+{
+  AssertRenderingThread();
+
+  if (m_State.m_hBlendState == hBlendState && m_State.m_BlendFactor.IsEqualRGBA(blendFactor, 0.001f) && m_State.m_uiSampleMask == uiSampleMask)
+  {
+    return;
+  }
+
+  const ezGALBlendState* pBlendState = GetDevice().GetBlendState(hBlendState);
+
+  m_CommonImpl.SetBlendStatePlatform(pBlendState, blendFactor, uiSampleMask);
+
+  m_State.m_hBlendState = hBlendState;
+  m_State.m_BlendFactor = blendFactor;
+  m_State.m_uiSampleMask = uiSampleMask;
+}
+
+void ezGALCommandEncoder::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue /*= 0xFFu*/)
+{
+  AssertRenderingThread();
+
+  if (m_State.m_hDepthStencilState == hDepthStencilState && m_State.m_uiStencilRefValue == uiStencilRefValue)
+  {
+    return;
+  }
+
+  const ezGALDepthStencilState* pDepthStencilState = GetDevice().GetDepthStencilState(hDepthStencilState);
+
+  m_CommonImpl.SetDepthStencilStatePlatform(pDepthStencilState, uiStencilRefValue);
+
+  m_State.m_hDepthStencilState = hDepthStencilState;
+  m_State.m_uiStencilRefValue = uiStencilRefValue;
+}
+
+void ezGALCommandEncoder::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState)
+{
+  AssertRenderingThread();
+
+  if (m_State.m_hRasterizerState == hRasterizerState)
+  {
+    return;
+  }
+
+  const ezGALRasterizerState* pRasterizerState = GetDevice().GetRasterizerState(hRasterizerState);
+
+  m_CommonImpl.SetRasterizerStatePlatform(pRasterizerState);
+
+  m_State.m_hRasterizerState = hRasterizerState;
+}
+
+void ezGALCommandEncoder::SetViewport(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
+{
+  AssertRenderingThread();
+
+  if (m_State.m_ViewPortRect == rect && m_State.m_fViewPortMinDepth == fMinDepth && m_State.m_fViewPortMaxDepth == fMaxDepth)
+  {
+    return;
+  }
+
+  m_CommonImpl.SetViewportPlatform(rect, fMinDepth, fMaxDepth);
+
+  m_State.m_ViewPortRect = rect;
+  m_State.m_fViewPortMinDepth = fMinDepth;
+  m_State.m_fViewPortMaxDepth = fMaxDepth;
+}
+
+void ezGALCommandEncoder::SetScissorRect(const ezRectU32& rect)
+{
+  AssertRenderingThread();
+
+  if (m_State.m_ScissorRect == rect)
+  {
+    return;
+  }
+
+  m_CommonImpl.SetScissorRectPlatform(rect);
+
+  m_State.m_ScissorRect = rect;
+}
+
+void ezGALCommandEncoder::BeginCompute(const char* szName)
+{
+  EZ_ASSERT_DEV(m_CurrentCommandEncoderType == CommandEncoderType::Invalid, "Nested Command Encoder are not allowed");
+  m_CurrentCommandEncoderType = CommandEncoderType::Compute;
+
+  m_CommonImpl.BeginComputePlatform();
+
+  m_bMarker = !ezStringUtils::IsNullOrEmpty(szName);
+  if (m_bMarker)
+  {
+    PushMarker(szName);
+  }
+}
+
+void ezGALCommandEncoder::EndCompute()
+{
+  EZ_ASSERT_DEV(m_CurrentCommandEncoderType == CommandEncoderType::Compute, "BeginCompute has not been called");
+  m_CurrentCommandEncoderType = CommandEncoderType::Invalid;
+
+  if (m_bMarker)
+  {
+    PopMarker();
+    m_bMarker = false;
+  }
+
+  m_CommonImpl.EndComputePlatform();
+}
+
+void ezGALCommandEncoder::BeginRendering(const ezGALRenderingSetup& renderingSetup, const char* szName)
+{
+  EZ_ASSERT_DEV(m_CurrentCommandEncoderType == CommandEncoderType::Invalid, "Nested Command Encoder are not allowed");
+  m_CurrentCommandEncoderType = CommandEncoderType::Render;
+
+  m_CommonImpl.BeginRenderingPlatform(renderingSetup);
+
+  m_bMarker = !ezStringUtils::IsNullOrEmpty(szName);
+  if (m_bMarker)
+  {
+    PushMarker(szName);
+  }
+}
+
+void ezGALCommandEncoder::EndRendering()
+{
+  EZ_ASSERT_DEV(m_CurrentCommandEncoderType == CommandEncoderType::Render, "BeginRendering has not been called");
+  m_CurrentCommandEncoderType = CommandEncoderType::Invalid;
+
+  if (m_bMarker)
+  {
+    PopMarker();
+    m_bMarker = false;
+  }
+
+  m_CommonImpl.EndRenderingPlatform();
 }

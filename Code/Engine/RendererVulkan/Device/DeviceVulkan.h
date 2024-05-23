@@ -12,6 +12,8 @@
 
 EZ_DEFINE_AS_POD_TYPE(vk::Format);
 
+class ezGALCommandEncoderImplVulkan;
+
 struct ezGALFormatLookupEntryVulkan
 {
   ezGALFormatLookupEntryVulkan() = default;
@@ -299,11 +301,11 @@ protected:
 
   // Pipeline & Pass functions
 
-  virtual void BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain) override;
-  virtual void EndPipelinePlatform(ezGALSwapChain* pSwapChain) override;
+  virtual void BeginPipelinePlatform(const char* szName) override;
+  virtual void EndPipelinePlatform() override;
 
-  virtual ezGALPass* BeginPassPlatform(const char* szName) override;
-  virtual void EndPassPlatform(ezGALPass* pPass) override;
+  virtual ezGALCommandEncoder* BeginCommandsPlatform(const char* szName) override;
+  virtual void EndCommandsPlatform(ezGALCommandEncoder* pPass) override;
 
   virtual void FlushPlatform() override;
 
@@ -367,8 +369,8 @@ protected:
 
   // Misc functions
 
-  virtual void BeginFramePlatform(const ezUInt64 uiRenderFrame) override;
-  virtual void EndFramePlatform() override;
+  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiRenderFrame) override;
+  virtual void EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains) override;
 
   virtual void FillCapabilitiesPlatform() override;
 
@@ -417,7 +419,9 @@ private:
   vk::PipelineStageFlags m_supportedStages;
   vk::PhysicalDeviceMemoryProperties m_memoryProperties;
 
-  ezUniquePtr<ezGALPassVulkan> m_pDefaultPass;
+  ezUniquePtr<ezGALCommandEncoderImplVulkan> m_pCommandEncoderImpl;
+  ezUniquePtr<ezGALCommandEncoder> m_pCommandEncoder;
+
   ezUniquePtr<ezPipelineBarrierVulkan> m_pPipelineBarrier;
   ezUniquePtr<ezCommandBufferPoolVulkan> m_pCommandBufferPool;
   ezUniquePtr<ezStagingBufferPoolVulkan> m_pStagingBufferPool;

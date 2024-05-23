@@ -112,7 +112,7 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
 
   // Bind render target and viewport
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
   // Determine how many LUTs are active
   ezUInt32 numLUTs = 0;

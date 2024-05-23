@@ -53,9 +53,9 @@ bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, 
   return true;
 }
 
-void ezOpaqueForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezOpaqueForwardRenderPass::SetupResources(ezGALCommandEncoder* pCommandEncoder, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  SUPER::SetupResources(pGALPass, renderViewContext, inputs, outputs);
+  SUPER::SetupResources(pCommandEncoder, renderViewContext, inputs, outputs);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 

@@ -9,7 +9,7 @@
 ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 {
   BeginFrame();
-  BeginPass("Textures2D");
+  BeginCommands("Textures2D");
 
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
@@ -122,7 +122,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 #endif
   }
   EndRendering();
-  EndPass();
+  EndCommands();
   EndFrame();
 
   return m_iFrame < (iNumFrames - 1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
@@ -132,7 +132,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 {
   BeginFrame();
-  BeginPass("Textures3D");
+  BeginCommands("Textures3D");
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
   const ezInt32 iNumFrames = 1;
@@ -152,7 +152,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 
   EZ_TEST_IMAGE(m_iFrame, 100);
   EndRendering();
-  EndPass();
+  EndCommands();
   EndFrame();
 
   return m_iFrame < (iNumFrames - 1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
@@ -162,7 +162,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 {
   BeginFrame();
-  BeginPass("TexturesCube");
+  BeginCommands("TexturesCube");
 
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
@@ -242,7 +242,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
   EZ_TEST_IMAGE(m_iFrame, 100);
 #endif
   EndRendering();
-  EndPass();
+  EndCommands();
   EndFrame();
 
   return m_iFrame < (iNumFrames - 1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;

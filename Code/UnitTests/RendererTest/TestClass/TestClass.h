@@ -48,13 +48,13 @@ protected:
   ezResult CreateWindow(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
   void DestroyWindow();
 
-  void BeginFrame(const char* szPipe = "GraphicsTest");
+  void BeginFrame();
   void EndFrame();
 
-  void BeginPass(const char* szPassName);
-  void EndPass();
+  void BeginCommands(const char* szPassName);
+  void EndCommands();
 
-  ezGALRenderCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
+  ezGALCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
   void EndRendering();
 
   /// \brief Renders a unit cube and makes an image comparison if m_bCaptureImage is set and the current frame is in m_ImgCompFrames.
@@ -76,7 +76,7 @@ protected:
 
   ezWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
-  ezGALPass* m_pPass = nullptr;
+  ezGALCommandEncoder* m_pEncoder = nullptr;
 
   ezGALSwapChainHandle m_hSwapChain;
   ezGALTextureHandle m_hDepthStencilTexture;

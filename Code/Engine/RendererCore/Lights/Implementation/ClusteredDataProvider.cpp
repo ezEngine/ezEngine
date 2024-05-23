@@ -147,7 +147,7 @@ ezClusteredDataProvider::~ezClusteredDataProvider() = default;
 
 void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
 {
-  ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetRenderCommandEncoder();
+  ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();
 
   EZ_PROFILE_AND_MARKER(pGALCommandEncoder, "Update Clustered Data");
 

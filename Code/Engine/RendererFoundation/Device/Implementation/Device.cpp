@@ -185,88 +185,58 @@ ezStringView ezGALDevice::GetRenderer()
   return GetRendererPlatform();
 }
 
-void ezGALDevice::BeginPipeline(const char* szName, ezGALSwapChainHandle hSwapChain)
+ezGALCommandEncoder* ezGALDevice::BeginCommands(const char* szName)
 {
   {
-    EZ_PROFILE_SCOPE("BeforeBeginPipeline");
+    EZ_PROFILE_SCOPE("BeforeBeginCommands");
     ezGALDeviceEvent e;
     e.m_pDevice = this;
-    e.m_Type = ezGALDeviceEvent::BeforeBeginPipeline;
-    e.m_hSwapChain = hSwapChain;
+    e.m_Type = ezGALDeviceEvent::BeforeBeginCommands;
     s_Events.Broadcast(e, 1);
   }
-
+  ezGALCommandEncoder* pCommandEncoder = nullptr;
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
 
-    EZ_ASSERT_DEV(!m_bBeginPipelineCalled, "Nested Pipelines are not allowed: You must call ezGALDevice::EndPipeline before you can call ezGALDevice::BeginPipeline again");
-    m_bBeginPipelineCalled = true;
+    EZ_ASSERT_DEV(!m_bBeginCommandsCalled, "Nested Passes are not allowed: You must call ezGALDevice::EndCommands before you can call ezGALDevice::BeginCommands again");
+    m_bBeginCommandsCalled = true;
 
-    ezGALSwapChain* pSwapChain = nullptr;
-    m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
-    BeginPipelinePlatform(szName, pSwapChain);
+    pCommandEncoder = BeginCommandsPlatform(szName);
   }
-
   {
-    EZ_PROFILE_SCOPE("AfterBeginPipeline");
+    EZ_PROFILE_SCOPE("AfterBeginCommands");
     ezGALDeviceEvent e;
     e.m_pDevice = this;
-    e.m_Type = ezGALDeviceEvent::AfterBeginPipeline;
-    e.m_hSwapChain = hSwapChain;
+    e.m_Type = ezGALDeviceEvent::AfterBeginCommands;
+    e.m_pCommandEncoder = pCommandEncoder;
     s_Events.Broadcast(e, 1);
   }
+  return pCommandEncoder;
 }
 
-void ezGALDevice::EndPipeline(ezGALSwapChainHandle hSwapChain)
+void ezGALDevice::EndCommands(ezGALCommandEncoder* pCommandEncoder)
 {
   {
-    EZ_PROFILE_SCOPE("BeforeBeginPipeline");
+    EZ_PROFILE_SCOPE("BeforeEndCommands");
     ezGALDeviceEvent e;
     e.m_pDevice = this;
-    e.m_Type = ezGALDeviceEvent::BeforeEndPipeline;
-    e.m_hSwapChain = hSwapChain;
+    e.m_Type = ezGALDeviceEvent::BeforeEndCommands;
+    e.m_pCommandEncoder = pCommandEncoder;
     s_Events.Broadcast(e, 1);
   }
-
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
-
-    EZ_ASSERT_DEV(m_bBeginPipelineCalled, "You must have called ezGALDevice::BeginPipeline before you can call ezGALDevice::EndPipeline");
-    m_bBeginPipelineCalled = false;
-
-    ezGALSwapChain* pSwapChain = nullptr;
-    m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
-    EndPipelinePlatform(pSwapChain);
+    EZ_ASSERT_DEV(m_bBeginCommandsCalled, "You must have called ezGALDevice::BeginCommands before you can call ezGALDevice::EndCommands");
+    m_bBeginCommandsCalled = false;
+    EndCommandsPlatform(pCommandEncoder);
   }
-
   {
-    EZ_PROFILE_SCOPE("AfterBeginPipeline");
+    EZ_PROFILE_SCOPE("AfterEndCommands");
     ezGALDeviceEvent e;
     e.m_pDevice = this;
-    e.m_Type = ezGALDeviceEvent::AfterEndPipeline;
-    e.m_hSwapChain = hSwapChain;
+    e.m_Type = ezGALDeviceEvent::AfterEndCommands;
     s_Events.Broadcast(e, 1);
   }
-}
-
-ezGALPass* ezGALDevice::BeginPass(const char* szName)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  EZ_ASSERT_DEV(!m_bBeginPassCalled, "Nested Passes are not allowed: You must call ezGALDevice::EndPass before you can call ezGALDevice::BeginPass again");
-  m_bBeginPassCalled = true;
-
-  return BeginPassPlatform(szName);
-}
-
-void ezGALDevice::EndPass(ezGALPass* pPass)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  EZ_ASSERT_DEV(m_bBeginPassCalled, "You must have called ezGALDevice::BeginPass before you can call ezGALDevice::EndPass");
-  m_bBeginPassCalled = false;
-
-  EndPassPlatform(pPass);
 }
 
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& desc)
@@ -1397,6 +1367,16 @@ ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChain
 
 // Misc functions
 
+void ezGALDevice::EnqueueFrameSwapChain(ezGALSwapChainHandle hSwapChain)
+{
+  EZ_ASSERT_DEV(!m_bBeginFrameCalled, "EnqueueFrameSwapChain must be called before or during ezGALDeviceEvent::BeforeBeginFrame");
+  ezGALSwapChain* pSwapChain = nullptr;
+  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
+  if (pSwapChain != nullptr)
+    // EZ_ASSERT_DEBUG(pSwapChain != nullptr, "");
+    m_FrameSwapChains.PushBack(pSwapChain);
+}
+
 void ezGALDevice::BeginFrame(const ezUInt64 uiRenderFrame)
 {
   {
@@ -1411,8 +1391,7 @@ void ezGALDevice::BeginFrame(const ezUInt64 uiRenderFrame)
     EZ_GALDEVICE_LOCK_AND_CHECK();
     EZ_ASSERT_DEV(!m_bBeginFrameCalled, "You must call ezGALDevice::EndFrame before you can call ezGALDevice::BeginFrame again");
     m_bBeginFrameCalled = true;
-
-    BeginFramePlatform(uiRenderFrame);
+    BeginFramePlatform(m_FrameSwapChains, uiRenderFrame);
   }
 
   // TODO: move to beginrendering/compute calls
@@ -1441,8 +1420,8 @@ void ezGALDevice::EndFrame()
 
     DestroyDeadObjects();
 
-    EndFramePlatform();
-
+    EndFramePlatform(m_FrameSwapChains);
+    m_FrameSwapChains.Clear();
     m_bBeginFrameCalled = false;
   }
 

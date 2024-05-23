@@ -171,7 +171,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
     return;
 
   ezRenderContext* pRenderContext = renderContext.m_pRenderContext;
-  ezGALRenderCommandEncoder* pCommandEncoder = pRenderContext->GetRenderCommandEncoder();
+  ezGALCommandEncoder* pCommandEncoder = pRenderContext->GetCommandEncoder();
 
   pRenderContext->BindShader(m_hShader);
   const auto& textures = ezImgui::GetSingleton()->m_Textures;

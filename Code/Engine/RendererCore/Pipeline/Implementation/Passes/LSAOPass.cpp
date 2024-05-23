@@ -138,8 +138,6 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
-  EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
 
   ezGALRenderingSetup renderingSetup;
   ezGALTextureHandle tempTexture;
@@ -159,7 +157,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   // Line Sweep part (compute)
   {
     EZ_PROFILE_SCOPE("Line Sweep");
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginComputeScope(pGALPass, renderViewContext, "Line Sweep");
+    auto computeScope = renderViewContext.m_pRenderContext->BeginComputeScope(renderViewContext, "Line Sweep");
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
     renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
     renderViewContext.m_pRenderContext->BindShader(m_hShaderLineSweep);
@@ -174,7 +172,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   // Gather samples.
   {
     EZ_PROFILE_SCOPE("Gather");
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Gather Samples", renderViewContext.m_pCamera->IsStereoscopic());
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "Gather Samples", renderViewContext.m_pCamera->IsStereoscopic());
 
     if (m_bDistributedGathering)
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("DISTRIBUTED_SSAO_GATHERING", "TRUE");
@@ -223,7 +221,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
 
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
 
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Averaging", renderViewContext.m_pCamera->IsStereoscopic());
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "Averaging", renderViewContext.m_pCamera->IsStereoscopic());
 
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
     renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
@@ -253,7 +251,7 @@ void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, c
   renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
   renderingSetup.m_ClearColor = ezColor::White;
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, "Clear");
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "Clear");
 }
 
 ezResult ezLSAOPass::Serialize(ezStreamWriter& inout_stream) const

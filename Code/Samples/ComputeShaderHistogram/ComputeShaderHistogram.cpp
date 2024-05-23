@@ -49,11 +49,10 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     ezGALRenderTargetViewHandle hBackbufferRTV = device->GetDefaultRenderTargetView(pPrimarySwapChain->GetRenderTargets().m_hRTs[0]);
 
     // Before starting to render in a frame call this function
+    device->EnqueueFrameSwapChain(m_hSwapChain);
     device->BeginFrame();
 
-    device->BeginPipeline("ComputeShaderHistogramSample", m_hSwapChain);
-
-    ezGALPass* pGALPass = device->BeginPass("ezComputeShaderHistogram");
+    ezGALCommandEncoder* pCommandEncoder = device->BeginCommands("ezComputeShaderHistogram");
 
     ezRenderContext& renderContext = *ezRenderContext::GetDefaultInstance();
 
@@ -74,7 +73,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     {
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hScreenRTV);
-      renderContext.BeginRendering(pGALPass, renderingSetup, viewport, "Background");
+      renderContext.BeginRendering(renderingSetup, viewport, "Background");
 
       renderContext.BindShader(m_hScreenShader);
       renderContext.BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
@@ -92,13 +91,13 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     {
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBackbufferRTV);
-      renderContext.BeginRendering(pGALPass, renderingSetup, viewport, "Dummy");
+      renderContext.BeginRendering(renderingSetup, viewport, "Dummy");
       renderContext.EndRendering();
     }
 
     // Compute histogram.
     {
-      renderContext.BeginCompute(pGALPass, "ComputeHistogram");
+      renderContext.BeginCompute("ComputeHistogram");
 
       // Reset first.
       renderContext.GetCommandEncoder()->ClearUnorderedAccessView(m_hHistogramUAV, ezVec4U32(0, 0, 0, 0));
@@ -115,7 +114,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     {
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBackbufferRTV);
-      renderContext.BeginRendering(pGALPass, renderingSetup, viewport, "DrawHistogram");
+      renderContext.BeginRendering(renderingSetup, viewport, "DrawHistogram");
 
       renderContext.BindShader(m_hHistogramDisplayShader);
       renderContext.BindMeshBuffer(m_hHistogramQuadMeshBuffer);
@@ -125,9 +124,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
       renderContext.EndRendering();
     }
 
-    device->EndPass(pGALPass);
-
-    device->EndPipeline(m_hSwapChain);
+    device->EndCommands(pCommandEncoder);
 
     device->EndFrame();
     ezRenderContext::GetDefaultInstance()->ResetContextState();

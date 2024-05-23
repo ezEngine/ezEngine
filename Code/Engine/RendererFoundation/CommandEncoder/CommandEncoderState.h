@@ -5,17 +5,11 @@
 #include <Foundation/Math/Rect.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderState
-{
-  virtual void InvalidateState();
 
+struct EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderRenderState final
+{
+  void InvalidateState();
   ezGALShaderHandle m_hShader;
-};
-
-struct EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderRenderState final : public ezGALCommandEncoderState
-{
-  virtual void InvalidateState() override;
-
   ezGALBufferHandle m_hVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   ezGALBufferHandle m_hIndexBuffer;
 
