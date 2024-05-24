@@ -6,6 +6,8 @@
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageUtils.h>
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 int lua_SetColor(lua_State* s)
 {
   ezLuaWrapper lua(s);
@@ -41,6 +43,8 @@ int lua_SetDisabledColor(lua_State* s)
 
   return lua.ReturnToScript();
 }
+
+#endif
 
 void ezQtEditorApp::SetStyleSheet()
 {
@@ -84,6 +88,7 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
   palette.setColor(QPalette::Disabled, QPalette::Highlight, ezToQtColor(highlightColorDisabled));
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
   if (false)
   {
     // when enabled, you can edit the palette with a Lua file
@@ -127,6 +132,7 @@ void ezQtEditorApp::SetStyleSheet()
       lua.ExecuteString((const char*)content.GetData(), "", ezLog::GetThreadLocalLogSystem()).IgnoreResult();
     }
   }
+#endif
 
   QApplication::setPalette(palette);
 }

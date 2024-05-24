@@ -59,15 +59,6 @@ ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
     pScreen = &screens[iShowOnMonitor];
   }
 
-  if (m_bCenterWindowOnDisplay)
-  {
-    m_Position.Set(pScreen->m_iOffsetX + (pScreen->m_iResolutionX - m_Resolution.width) / 2, pScreen->m_iOffsetY + (pScreen->m_iResolutionY - m_Resolution.height) / 2);
-  }
-  else
-  {
-    m_Position.Set(pScreen->m_iOffsetX, pScreen->m_iOffsetY);
-  }
-
   if (m_WindowMode == ezWindowMode::FullscreenBorderlessNativeResolution)
   {
     m_Resolution.width = pScreen->m_iResolutionX;
@@ -78,6 +69,15 @@ ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
     // clamp the resolution to the native resolution ?
     // m_ClientAreaSize.width = ezMath::Min<ezUInt32>(m_ClientAreaSize.width, pScreen->m_iResolutionX);
     // m_ClientAreaSize.height= ezMath::Min<ezUInt32>(m_ClientAreaSize.height,pScreen->m_iResolutionY);
+  }
+
+  if (m_bCenterWindowOnDisplay)
+  {
+    m_Position.Set(pScreen->m_iOffsetX + (pScreen->m_iResolutionX - m_Resolution.width) / 2, pScreen->m_iOffsetY + (pScreen->m_iResolutionY - m_Resolution.height) / 2);
+  }
+  else
+  {
+    m_Position.Set(pScreen->m_iOffsetX, pScreen->m_iOffsetY);
   }
 
   return EZ_SUCCESS;

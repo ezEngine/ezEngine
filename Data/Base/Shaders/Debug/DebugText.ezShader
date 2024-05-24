@@ -90,5 +90,9 @@ SamplerState FontTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-	return FontTexture.Sample(FontTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color0;
+  float glyph = FontTexture.Sample(FontTexture_AutoSampler, Input.TexCoord0.xy).r;
+  float c = saturate(glyph * 2.0 - 1.0); // 0.5 - 1 is color content
+  float a = saturate(glyph * 2.0); // 0 - 0.5 is alpha content
+
+	return float4(c, c, c, a) * Input.Color0;
 }

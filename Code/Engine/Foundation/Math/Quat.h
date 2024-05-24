@@ -128,6 +128,9 @@ public:
   /// \brief Returns the dot-product of the two quaternions (commutative, order does not matter).
   Type Dot(const ezQuatTemplate& rhs) const; // [tested]
 
+  /// \brief Returns v rotated by the quaternion. Same as operator*.
+  ezVec3Template<Type> Rotate(const ezVec3Template<Type>& v) const;
+
   // *** Euler Angle Conversions ***
 public:
   /// \brief Converts the quaternion to Euler angles

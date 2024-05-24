@@ -797,6 +797,14 @@ void ezJoltWorldModule::UpdateSettingsCfg()
 void ezJoltWorldModule::ApplySettingsCfg()
 {
   SetGravity(m_Settings.m_vObjectGravity, m_Settings.m_vCharacterGravity);
+
+  if (m_pSystem)
+  {
+    auto physicsSettings = m_pSystem->GetPhysicsSettings();
+    physicsSettings.mPointVelocitySleepThreshold = m_Settings.m_fSleepVelocityThreshold;
+
+    m_pSystem->SetPhysicsSettings(physicsSettings);
+  }
 }
 
 void ezJoltWorldModule::UpdateConstraints()

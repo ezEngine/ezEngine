@@ -93,6 +93,10 @@ public:
   /// This is a performance optimization to prevent performance spikes after loading a level.
   bool m_bStartAsleep = false; // [ property ]
 
+  /// \brief Whether this actor is allowed to go to sleep. Disabling sleeping will come with a performance impact and
+  /// should only be done in very rare cases.
+  bool m_bAllowSleeping = true; // [ property ]
+
   /// \brief How heavy the object shall be. If zero, the mass is computed from the shapes and the density.
   float m_fInitialMass = 0.0f; // [ property ]
 
