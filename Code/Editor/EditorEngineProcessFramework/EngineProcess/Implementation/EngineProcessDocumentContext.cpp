@@ -526,6 +526,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
     EZ_LOCK(m_pWorld->GetWriteMarker());
     m_bWorldSimStateBeforeThumbnail = m_pWorld->GetWorldSimulationEnabled();
     m_pWorld->SetWorldSimulationEnabled(false);
+    m_pWorld->Update();
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
