@@ -217,6 +217,7 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
       m_pWorld->GetClock().SetPaused(bWorldPaused);
       m_pWorld->GetClock().SetSpeed(fClockSpeed);
       m_pWorld->SetWorldSimulationEnabled(false);
+      m_pWorld->Update();
 
       m_pComponent->m_MinRestartDelay = restartDelay;
       m_pComponent->m_OnFinishedAction = onFinished;
@@ -312,6 +313,7 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
       m_pWorld->Update();
       m_pWorld->GetClock().SetPaused(bWorldPaused);
       m_pWorld->SetWorldSimulationEnabled(false);
+      m_pWorld->Update();
     }
   }
 
