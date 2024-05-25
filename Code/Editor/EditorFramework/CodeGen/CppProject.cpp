@@ -1004,9 +1004,8 @@ namespace
 
   void Remove(ezVariantDictionary& inout_json, ezStringView sName, ezCppProject::ModifyResult& inout_modified)
   {
-    if (inout_json.Contains(sName))
+    if (inout_json.Remove(sName))
     {
-      inout_json.Remove(sName);
       inout_modified = ezCppProject::ModifyResult::MODIFIED;
     }
   }

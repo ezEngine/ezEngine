@@ -301,6 +301,12 @@ void ezStandardInputDevice::UpdateInputSlotValues()
         --m_uiMouseButtonReceivedDown[i];
         m_InputSlotValues[slotDown[i]] = 1.0f;
       }
+      // This is a workaround for a win32 bug: Double clicking on a title bar maximizes a window but only fires a single mouse up event. If that happens, no further clicks would be recognized because the balance between up and down events is broken. So if the slot is not signaled and there is no down event but an up event instead, we just consume it.
+      else if (m_uiMouseButtonReceivedUp[i] > 0)
+      {
+        --m_uiMouseButtonReceivedUp[i];
+        m_InputSlotValues[slotDown[i]] = 0;
+      }
     }
   }
 
