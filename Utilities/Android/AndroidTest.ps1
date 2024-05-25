@@ -20,9 +20,9 @@ if ($apk) {
     $installFunction = {
         Adb-Cmd -ErrorAction Continue -s $deviceAdb install -r -t $apk
         # Starting the app right after install usually fails
-        Start-Sleep -Seconds 1
+        Start-Sleep -Seconds 2
     }
-    Invoke-WithRetry -ScriptBlock $installFunction -MaxRetryCount 5
+    Invoke-WithRetry -ScriptBlock $installFunction -MaxRetryCount 6
 }
 
 Write-Host "Clearing LogCat..."
@@ -44,7 +44,7 @@ $pinfo.FileName = "$adb"
 $pinfo.RedirectStandardError = $false
 $pinfo.RedirectStandardOutput = $true
 $pinfo.UseShellExecute = $false
-$pinfo.Arguments = "-s $deviceAdb logcat ezEngine:D *:S"
+$pinfo.Arguments = "-s $deviceAdb logcat"
 
 $process = New-Object System.Diagnostics.Process
 $process.StartInfo = $pinfo
@@ -83,7 +83,9 @@ while ((Get-Date) -lt ($startTime.AddSeconds($maxWaitTime)) -and !$process.HasEx
         $line = $stdoutTask.Result
         if ( $null -ne $line) {
             # Log to console
-            Write-Host "$line"
+            if ($line -match "ezEngine") {
+                Write-Host "$line"
+            }
 
             if ($line -match "All tests passed.") {
                 $testSuccess = $true

@@ -367,7 +367,11 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
     QProcess proc;
     proc.setWorkingDirectory(sTargetDir.GetData());
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
     proc.start("git.exe", args);
+#else
+    proc.start("git", args);
+#endif
 
     if (!proc.waitForStarted())
     {
