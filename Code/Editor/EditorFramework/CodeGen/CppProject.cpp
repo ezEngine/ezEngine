@@ -1081,7 +1081,6 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
     {
       Remove(presetDict, "architecture", result);
     }
-
   }
 
   return result;
