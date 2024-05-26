@@ -151,7 +151,6 @@ bool ezAnimationClipContext::UpdateThumbnailViewContext(ezEngineProcessViewConte
       m_pWorld->SetWorldSimulationEnabled(true);
       m_pWorld->Update();
       m_pWorld->SetWorldSimulationEnabled(false);
-      m_pWorld->Update();
     }
   }
 
