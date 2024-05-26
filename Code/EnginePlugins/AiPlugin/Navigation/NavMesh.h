@@ -14,7 +14,7 @@
 
 using ezDataBuffer = ezDynamicArray<ezUInt8>;
 
-class ezPhysicsWorldModuleInterface;
+class ezNavmeshGeoWorldModuleInterface;
 class dtNavMesh;
 
 /// \brief Stores indices for a triangle.
@@ -112,7 +112,7 @@ public:
   void FinalizeSectorUpdates();
 
   SectorID RetrieveRequestedSector();
-  void BuildSector(SectorID sectorID, const ezPhysicsWorldModuleInterface* pPhysics);
+  void BuildSector(SectorID sectorID, const ezNavmeshGeoWorldModuleInterface* pGeo);
 
   const dtNavMesh* GetDetourNavMesh() const { return m_pNavMesh; }
 

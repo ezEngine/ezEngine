@@ -1,6 +1,6 @@
 #include <AiPlugin/Navigation/Implementation/NavMeshGeneration.h>
 #include <AiPlugin/Navigation/NavMesh.h>
-#include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Interfaces/NavmeshGeoWorldModule.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <DetourNavMesh.h>
 #include <DetourNavMeshBuilder.h>
@@ -217,7 +217,7 @@ ezResult BuildDetourNavMeshData(const ezAiNavmeshConfig& config, const rcPolyMes
 
 void ezNavMeshSectorGenerationTask::Execute()
 {
-  m_pWorldNavMesh->BuildSector(m_SectorID, m_pPhysics);
+  m_pWorldNavMesh->BuildSector(m_SectorID, m_pNavGeo);
 }
 
 static ezInt8 GetSurfaceGroundType(const ezSurfaceResource* pSurf)
@@ -243,20 +243,16 @@ static ezInt8 GetSurfaceGroundType(const ezSurfaceResource* pSurf)
   return 1; // the "<Default>" ground type that is not "<None>"
 }
 
-static void QueryInputGeo(const ezPhysicsWorldModuleInterface* pPhysics, ezUInt32 uiCollisionLayer, ezBoundingBox bounds, ezAiNavMeshInputGeo& out_inputGeo)
+static void QueryInputGeo(const ezNavmeshGeoWorldModuleInterface* pGeo, ezUInt32 uiCollisionLayer, ezBoundingBox bounds, ezAiNavMeshInputGeo& out_inputGeo)
 {
   bounds.Grow(ezVec3(1.0f));
 
-  ezPhysicsQueryParameters params;
-  params.m_ShapeTypes = ezPhysicsShapeType::Static;
-  params.m_uiCollisionLayer = uiCollisionLayer;
+  ezHybridArray<ezNavmeshTriangle, 64> triangles;
 
-  ezHybridArray<ezPhysicsTriangle, 64> triangles;
-
-  pPhysics->QueryGeometryInBox(params, bounds, triangles);
+  pGeo->RetrieveGeometryInArea(uiCollisionLayer, bounds, triangles);
 
   // sort all triangles by surface (pointer)
-  triangles.Sort([](const ezPhysicsTriangle& lhs, const ezPhysicsTriangle& rhs)
+  triangles.Sort([](const ezNavmeshTriangle& lhs, const ezNavmeshTriangle& rhs)
     { return lhs.m_pSurface < rhs.m_pSurface; });
 
   const ezSurfaceResource* pPrevSurf = nullptr;
@@ -279,7 +275,7 @@ static void QueryInputGeo(const ezPhysicsWorldModuleInterface* pPhysics, ezUInt3
   // sort all triangles by ground type (we wrote the ground type ID into the surface pointer above)
   // this means triangles with ground type 0 will be first, and higher IDs will come later -> should rasterize them in that deterministic order
   // and if several triangles are in the same spot, the higher ground ID should win
-  triangles.Sort([](const ezPhysicsTriangle& lhs, const ezPhysicsTriangle& rhs)
+  triangles.Sort([](const ezNavmeshTriangle& lhs, const ezNavmeshTriangle& rhs)
     { return lhs.m_pSurface < rhs.m_pSurface; });
 
   out_inputGeo.m_Vertices.SetCount(triangles.GetCount() * 3);
@@ -310,7 +306,7 @@ static void QueryInputGeo(const ezPhysicsWorldModuleInterface* pPhysics, ezUInt3
   }
 }
 
-void ezAiNavMesh::BuildSector(SectorID sectorID, const ezPhysicsWorldModuleInterface* pPhysics)
+void ezAiNavMesh::BuildSector(SectorID sectorID, const ezNavmeshGeoWorldModuleInterface* pGeo)
 {
   const ezVec2I32 sectorCoord = CalculateSectorCoord(sectorID);
   auto& sector = m_Sectors[sectorID];
@@ -320,7 +316,7 @@ void ezAiNavMesh::BuildSector(SectorID sectorID, const ezPhysicsWorldModuleInter
   const ezBoundingBox bounds = GetSectorBounds(sectorCoord, -1000, +1000);
 
   ezAiNavMeshInputGeo inputGeo;
-  QueryInputGeo(pPhysics, m_NavmeshConfig.m_uiCollisionLayer, bounds, inputGeo);
+  QueryInputGeo(pGeo, m_NavmeshConfig.m_uiCollisionLayer, bounds, inputGeo);
 
   if (!inputGeo.m_Vertices.IsEmpty())
   {

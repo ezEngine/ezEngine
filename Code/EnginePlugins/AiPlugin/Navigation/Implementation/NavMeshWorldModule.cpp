@@ -1,6 +1,6 @@
 #include <AiPlugin/Navigation/NavMesh.h>
 #include <AiPlugin/Navigation/NavMeshWorldModule.h>
-#include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Interfaces/NavmeshGeoWorldModule.h>
 #include <Core/World/World.h>
 #include <DetourNavMesh.h>
 #include <Foundation/Configuration/CVar.h>
@@ -124,8 +124,8 @@ void ezAiNavMeshWorldModule::Update(const UpdateContext& ctxt)
   if (!ezTaskSystem::IsTaskGroupFinished(m_GenerateSectorTaskID))
     return;
 
-  auto pPhysics = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
-  if (pPhysics == nullptr)
+  auto pNavGeo = GetWorld()->GetOrCreateModule<ezNavmeshGeoWorldModuleInterface>();
+  if (pNavGeo == nullptr)
     return;
 
   for (auto& nm : m_WorldNavMeshes)
@@ -136,7 +136,7 @@ void ezAiNavMeshWorldModule::Update(const UpdateContext& ctxt)
 
     m_pGenerateSectorTask->m_pWorldNavMesh = nm.Value();
     m_pGenerateSectorTask->m_SectorID = sectorID;
-    m_pGenerateSectorTask->m_pPhysics = pPhysics;
+    m_pGenerateSectorTask->m_pNavGeo = pNavGeo;
 
     m_GenerateSectorTaskID = ezTaskSystem::StartSingleTask(m_pGenerateSectorTask, ezTaskPriority::LongRunning);
 
