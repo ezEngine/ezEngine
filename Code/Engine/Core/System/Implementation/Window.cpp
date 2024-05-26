@@ -73,7 +73,7 @@ ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
 
   if (m_bCenterWindowOnDisplay)
   {
-    m_Position.Set(pScreen->m_iOffsetX + (pScreen->m_iResolutionX - m_Resolution.width) / 2, pScreen->m_iOffsetY + (pScreen->m_iResolutionY - m_Resolution.height) / 2);
+    m_Position.Set(pScreen->m_iOffsetX + (pScreen->m_iResolutionX - (ezInt32)m_Resolution.width) / 2, pScreen->m_iOffsetY + (pScreen->m_iResolutionY - (ezInt32)m_Resolution.height) / 2);
   }
   else
   {
