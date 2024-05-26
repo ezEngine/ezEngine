@@ -316,8 +316,16 @@ void ezAiNavMesh::BuildSector(SectorID sectorID, const ezNavmeshGeoWorldModuleIn
   const ezBoundingBox bounds = GetSectorBounds(sectorCoord, -1000, +1000);
 
   ezAiNavMeshInputGeo inputGeo;
-  QueryInputGeo(pGeo, m_NavmeshConfig.m_uiCollisionLayer, bounds, inputGeo);
-
+  {
+    ezBoundingBox boundsWithBorder = bounds;
+    const float cs = m_NavmeshConfig.m_fCellSize;
+    const float borderSize = (int)ceilf(m_NavmeshConfig.m_fAgentRadius / cs) + 3;
+    boundsWithBorder.m_vMin.x -= borderSize * cs;
+    boundsWithBorder.m_vMin.y -= borderSize * cs;
+    boundsWithBorder.m_vMax.x += borderSize * cs;
+    boundsWithBorder.m_vMax.y += borderSize * cs;
+    QueryInputGeo(pGeo, m_NavmeshConfig.m_uiCollisionLayer, boundsWithBorder, inputGeo);
+  }
   if (!inputGeo.m_Vertices.IsEmpty())
   {
     rcContext recastContext;
