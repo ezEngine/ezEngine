@@ -198,59 +198,6 @@ namespace
   EZ_END_DYNAMIC_REFLECTED_TYPE;
   EZ_IMPLEMENT_WORLD_MODULE(VelocityTestModule);
   // clang-format on
-
-  class SimulationTestModule : public ezWorldModule
-  {
-    EZ_ADD_DYNAMIC_REFLECTION(SimulationTestModule, ezWorldModule);
-    EZ_DECLARE_WORLD_MODULE();
-
-  public:
-    SimulationTestModule(ezWorld* pWorld)
-      : ezWorldModule(pWorld)
-    {
-    }
-
-    virtual void Initialize() override
-    {
-      {
-        auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(SimulationTestModule::AlwaysUpdate, this);
-        RegisterUpdateFunction(desc);
-      }
-
-      {
-        auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(SimulationTestModule::SimulationUpdate, this);
-        desc.m_DependsOn.PushBack(ezMakeHashedString("SimulationTestModule::AlwaysUpdate"));
-        desc.m_bOnlyUpdateWhenSimulating = true;
-        RegisterUpdateFunction(desc);
-      }
-    }
-
-    void SimulationUpdate(const UpdateContext&)
-    {
-      m_iTimesSimulationUpdateCalled++;
-    }
-
-    void AlwaysUpdate(const UpdateContext&)
-    {
-      m_iTimesAlwaysUpdateCalled++;
-      if (m_bToggleSimulationNextAlwaysUpdate)
-      {
-        GetWorld()->SetWorldSimulationEnabled(!GetWorld()->GetWorldSimulationEnabled());
-        m_bToggleSimulationNextAlwaysUpdate = false;
-      }
-    }
-
-    ezInt32 m_iTimesSimulationUpdateCalled = 0;
-    ezInt32 m_iTimesAlwaysUpdateCalled = 0;
-    bool m_bToggleSimulationNextAlwaysUpdate = false;
-  };
-
-  // clang-format off
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SimulationTestModule, 1, ezRTTINoAllocator)
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
-  EZ_IMPLEMENT_WORLD_MODULE(SimulationTestModule);
-  // clang-format on
-
 } // namespace
 
 class ezGameObjectTest
@@ -761,51 +708,6 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     {
       EZ_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
     }
-  }
-
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Set/GetWorldSimulationEnabled behavior")
-  {
-    ezWorldDesc worldDesc("Test");
-    ezWorld world(worldDesc);
-    EZ_LOCK(world.GetWriteMarker());
-
-    world.SetWorldSimulationEnabled(true);
-
-    auto pModule = world.GetOrCreateModule<SimulationTestModule>();
-
-    // World simulation is active, both calls should update
-    world.Update();
-    EZ_TEST_INT(pModule->m_iTimesAlwaysUpdateCalled, 1);
-    EZ_TEST_INT(pModule->m_iTimesSimulationUpdateCalled, 1);
-
-    // World simulation is deactivated before, only Always should update
-    world.SetWorldSimulationEnabled(false);
-
-    // GetWorldSimulationEnabled will only reflect an up-to-date state in the beginning/at the end of an Update() call
-    EZ_TEST_BOOL(world.GetWorldSimulationEnabled());
-    world.Update();
-    EZ_TEST_INT(pModule->m_iTimesAlwaysUpdateCalled, 2);
-    EZ_TEST_INT(pModule->m_iTimesSimulationUpdateCalled, 1);
-
-    world.SetWorldSimulationEnabled(true);
-    world.Update();
-    EZ_TEST_INT(pModule->m_iTimesAlwaysUpdateCalled, 3);
-    EZ_TEST_INT(pModule->m_iTimesSimulationUpdateCalled, 2);
-
-    // Disable world simulation during a frame before running a Simulation update - all Simulation updates should run
-    pModule->m_bToggleSimulationNextAlwaysUpdate = true;
-    world.Update();
-    EZ_TEST_BOOL(!world.GetWorldSimulationEnabled());
-    EZ_TEST_INT(pModule->m_iTimesAlwaysUpdateCalled, 4);
-    EZ_TEST_INT(pModule->m_iTimesSimulationUpdateCalled, 3);
-
-    // Enable world simulation during a frame - no Simulation update should run
-    pModule->m_bToggleSimulationNextAlwaysUpdate = true;
-    world.Update();
-    EZ_TEST_BOOL(world.GetWorldSimulationEnabled());
-    EZ_TEST_INT(pModule->m_iTimesAlwaysUpdateCalled, 5);
-    EZ_TEST_INT(pModule->m_iTimesSimulationUpdateCalled, 3);
   }
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)

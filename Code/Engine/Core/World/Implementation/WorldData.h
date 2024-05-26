@@ -241,7 +241,6 @@ namespace ezInternal
     mutable ezAtomicInteger32 m_iReadCounter;
 
     ezUInt32 m_uiUpdateCounter = 0;
-    bool m_bShouldSimulateWorld = true;
     bool m_bSimulateWorld = true;
     bool m_bReportErrorWhenStaticObjectMoves = true;
 

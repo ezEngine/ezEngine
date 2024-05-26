@@ -380,7 +380,7 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezComponentHandle& hReceiverComp
 
 EZ_ALWAYS_INLINE void ezWorld::SetWorldSimulationEnabled(bool bEnable)
 {
-  m_Data.m_bShouldSimulateWorld = bEnable;
+  m_Data.m_bSimulateWorld = bEnable;
 }
 
 EZ_ALWAYS_INLINE bool ezWorld::GetWorldSimulationEnabled() const
