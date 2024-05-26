@@ -1107,10 +1107,10 @@ ezJoltNavmeshGeoWorldModule::ezJoltNavmeshGeoWorldModule(ezWorld* pWorld)
   m_pJoltModule = pWorld->GetOrCreateModule<ezJoltWorldModule>();
 }
 
-void ezJoltNavmeshGeoWorldModule::RetrieveGeometryInArea(ezUInt32 uiCollisionLayer, const ezBoundingBox& box, ezDynamicArray<ezNavmeshTriangle>& out_Triangles) const
+void ezJoltNavmeshGeoWorldModule::RetrieveGeometryInArea(ezUInt32 uiCollisionLayer, const ezBoundingBox& box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const
 {
   const ezPhysicsQueryParameters params(uiCollisionLayer, ezPhysicsShapeType::Static);
-  m_pJoltModule->QueryGeometryInBox(params, box, out_Triangles);
+  m_pJoltModule->QueryGeometryInBox(params, box, out_triangles);
 }
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltWorldModule);

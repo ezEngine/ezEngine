@@ -225,7 +225,7 @@ class EZ_JOLTPLUGIN_DLL ezJoltNavmeshGeoWorldModule : public ezNavmeshGeoWorldMo
 public:
   ezJoltNavmeshGeoWorldModule(ezWorld* pWorld);
 
-  virtual void RetrieveGeometryInArea(ezUInt32 uiCollisionLayer, const ezBoundingBox& box, ezDynamicArray<ezNavmeshTriangle>& out_Triangles) const override;
+  virtual void RetrieveGeometryInArea(ezUInt32 uiCollisionLayer, const ezBoundingBox& box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const override;
 
 private:
   ezJoltWorldModule* m_pJoltModule = nullptr;
