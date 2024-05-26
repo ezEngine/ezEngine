@@ -14,21 +14,13 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("VisualScriptAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
-      ezProjectActions::MapActions("VisualScriptAssetMenuBar");
-      ezDocumentActions::MapMenuActions("VisualScriptAssetMenuBar");
-      ezAssetActions::MapMenuActions("VisualScriptAssetMenuBar");
-      ezCommandHistoryActions::MapActions("VisualScriptAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar", "AssetMenuBar").IgnoreResult();
       ezEditActions::MapActions("VisualScriptAssetMenuBar", false, false);
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapToolbarActions("VisualScriptAssetToolBar");
-      ezCommandHistoryActions::MapActions("VisualScriptAssetToolBar", "");
-      ezAssetActions::MapToolBarActions("VisualScriptAssetToolBar", true);
+      ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar", "AssetToolbar").IgnoreResult();
     }
   }
 }

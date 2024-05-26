@@ -30,13 +30,13 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // ezActionMapManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezResult ezActionMapManager::RegisterActionMap(ezStringView sMapping)
+ezResult ezActionMapManager::RegisterActionMap(ezStringView sMapping, ezStringView sParentMapping)
 {
   auto it = s_Mappings.Find(sMapping);
   if (it.IsValid())
     return EZ_FAILURE;
 
-  s_Mappings.Insert(sMapping, EZ_DEFAULT_NEW(ezActionMap));
+  s_Mappings.Insert(sMapping, EZ_DEFAULT_NEW(ezActionMap, sParentMapping));
   return EZ_SUCCESS;
 }
 

@@ -28,20 +28,12 @@ void OnLoadPlugin()
 
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("PxCollisionMeshAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
-      ezProjectActions::MapActions("PxCollisionMeshAssetMenuBar");
-      ezDocumentActions::MapMenuActions("PxCollisionMeshAssetMenuBar");
-      ezAssetActions::MapMenuActions("PxCollisionMeshAssetMenuBar");
-      ezCommandHistoryActions::MapActions("PxCollisionMeshAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetMenuBar", "AssetMenuBar").IgnoreResult();
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapToolbarActions("PxCollisionMeshAssetToolBar");
-      ezCommandHistoryActions::MapActions("PxCollisionMeshAssetToolBar", "");
-      ezAssetActions::MapToolBarActions("PxCollisionMeshAssetToolBar", true);
+      ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetToolBar", "AssetToolbar").IgnoreResult();
       ezCommonAssetActions::MapToolbarActions("PxCollisionMeshAssetToolBar", ezCommonAssetUiState::Grid);
     }
   }

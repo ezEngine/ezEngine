@@ -8,7 +8,7 @@ class EZ_GUIFOUNDATION_DLL ezActionMapManager
 {
 public:
   /// \brief Adds a new action map with the given name. Returns EZ_FAILURE if the name was already used before.
-  static ezResult RegisterActionMap(ezStringView sMapping);
+  static ezResult RegisterActionMap(ezStringView sMapping, ezStringView sParentMapping = {});
 
   /// \brief Deletes the action map with the given name. Returns EZ_FAILURE, if no such map exists.
   static ezResult UnregisterActionMap(ezStringView sMapping);

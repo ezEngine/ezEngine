@@ -15,20 +15,12 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("RmlUiAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("RmlUiAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
-      ezProjectActions::MapActions("RmlUiAssetMenuBar");
-      ezDocumentActions::MapMenuActions("RmlUiAssetMenuBar");
-      ezAssetActions::MapMenuActions("RmlUiAssetMenuBar");
-      ezCommandHistoryActions::MapActions("RmlUiAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("RmlUiAssetMenuBar", "AssetMenuBar").IgnoreResult();
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("RmlUiAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapToolbarActions("RmlUiAssetToolBar");
-      ezCommandHistoryActions::MapActions("RmlUiAssetToolBar", "");
-      ezAssetActions::MapToolBarActions("RmlUiAssetToolBar", true);
+      ezActionMapManager::RegisterActionMap("RmlUiAssetToolBar", "AssetToolbar").IgnoreResult();
     }
   }
 }

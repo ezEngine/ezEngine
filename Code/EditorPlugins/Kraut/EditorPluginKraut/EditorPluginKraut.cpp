@@ -14,20 +14,12 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("KrautTreeAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
-      ezProjectActions::MapActions("KrautTreeAssetMenuBar");
-      ezDocumentActions::MapMenuActions("KrautTreeAssetMenuBar");
-      ezAssetActions::MapMenuActions("KrautTreeAssetMenuBar");
-      ezCommandHistoryActions::MapActions("KrautTreeAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar", "AssetMenuBar").IgnoreResult();
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("KrautTreeAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapToolbarActions("KrautTreeAssetToolBar");
-      ezCommandHistoryActions::MapActions("KrautTreeAssetToolBar", "");
-      ezAssetActions::MapToolBarActions("KrautTreeAssetToolBar", true);
+      ezActionMapManager::RegisterActionMap("KrautTreeAssetToolBar", "AssetToolbar").IgnoreResult();
     }
   }
 }

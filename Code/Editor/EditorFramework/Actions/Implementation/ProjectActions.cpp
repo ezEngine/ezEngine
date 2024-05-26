@@ -195,12 +195,10 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hPluginSelection);
 }
 
-void ezProjectActions::MapActions(ezStringView sMapping)
+void ezProjectActions::MapActions(ezStringView sMapping, const ezBitflags<ezStandardMenuTypes> menus)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
-
-  ezStringBuilder sPath;
 
   // Add categories
   pMap->MapAction(s_hCatProjectGeneral, "G.Project", 1.0f);
@@ -216,12 +214,12 @@ void ezProjectActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hCatProjectSettings, "G.Project.Config", 1.0f);
   pMap->MapAction(s_hCatPluginSettings, "G.Project.Config", 1.0f);
 
-  if (pMap->SearchPathForAction("G.File", sPath).Succeeded())
+  if (menus.IsSet(ezStandardMenuTypes::File))
   {
-    pMap->MapAction(s_hCatFilesGeneral, sPath, 1.0f);
-    pMap->MapAction(s_hCatFileCommon, sPath, 2.0f);
-    pMap->MapAction(s_hCatAssetDoc, sPath, 3.0f);
-    pMap->MapAction(s_hCatFileSpecial, sPath, 4.0f);
+    pMap->MapAction(s_hCatFilesGeneral, "G.File", 1.0f);
+    pMap->MapAction(s_hCatFileCommon, "G.File", 2.0f);
+    pMap->MapAction(s_hCatAssetDoc, "G.File", 3.0f);
+    pMap->MapAction(s_hCatFileSpecial, "G.File", 4.0f);
   }
 
   // Add actions
@@ -260,16 +258,16 @@ void ezProjectActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hShortcutEditor, "G.Editor.Settings", 1.0f);
   pMap->MapAction(s_hPreferencesDlg, "G.Editor.Settings", 2.0f);
 
-  if (pMap->SearchPathForAction("G.Help", sPath).Succeeded())
+  if (menus.IsSet(ezStandardMenuTypes::Help))
   {
-    pMap->MapAction(s_hDocsAndCommunity, sPath, 0.0f);
+    pMap->MapAction(s_hDocsAndCommunity, "G.Help", 0.0f);
   }
 
-  if (pMap->SearchPathForAction("G.File.Common", sPath).Succeeded())
+  if (menus.IsSet(ezStandardMenuTypes::File))
   {
-    pMap->MapAction(s_hCreateDocument, sPath, 1.0f);
-    pMap->MapAction(s_hOpenDocument, sPath, 2.0f);
-    pMap->MapAction(s_hRecentDocuments, sPath, 3.0f);
+    pMap->MapAction(s_hCreateDocument, "G.File", 1.0f);
+    pMap->MapAction(s_hOpenDocument, "G.File", 2.0f);
+    pMap->MapAction(s_hRecentDocuments, "G.File", 3.0f);
   }
 }
 

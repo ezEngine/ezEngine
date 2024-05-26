@@ -18,19 +18,11 @@ void OnLoadPlugin()
   // Mesh
   {
     // Menu Bar
-    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar").IgnoreResult();
-    ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
-    ezProjectActions::MapActions("SoundBankAssetMenuBar");
-    ezDocumentActions::MapMenuActions("SoundBankAssetMenuBar");
-    ezAssetActions::MapMenuActions("SoundBankAssetMenuBar");
-    ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar", "AssetMenuBar").IgnoreResult();
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapToolbarActions("SoundBankAssetToolBar");
-      ezCommandHistoryActions::MapActions("SoundBankAssetToolBar", "");
-      ezAssetActions::MapToolBarActions("SoundBankAssetToolBar", true);
+      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar", "AssetToolbar").IgnoreResult();
     }
   }
 

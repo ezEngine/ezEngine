@@ -19,28 +19,18 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("ParticleEffectAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
-      ezProjectActions::MapActions("ParticleEffectAssetMenuBar");
-      ezDocumentActions::MapMenuActions("ParticleEffectAssetMenuBar");
-      ezAssetActions::MapMenuActions("ParticleEffectAssetMenuBar");
-      ezCommandHistoryActions::MapActions("ParticleEffectAssetMenuBar");
+      ezActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar", "AssetMenuBar").IgnoreResult();
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapToolbarActions("ParticleEffectAssetToolBar");
-      ezCommandHistoryActions::MapActions("ParticleEffectAssetToolBar", "");
-      ezAssetActions::MapToolBarActions("ParticleEffectAssetToolBar", true);
+      ezActionMapManager::RegisterActionMap("ParticleEffectAssetToolBar", "AssetToolbar").IgnoreResult();
       ezParticleActions::MapActions("ParticleEffectAssetToolBar");
     }
 
     // View Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar").IgnoreResult();
-      ezViewActions::MapToolbarActions("ParticleEffectAssetViewToolBar", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
-      ezViewLightActions::MapToolbarActions("ParticleEffectAssetViewToolBar");
+      ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar", "SimpleAssetViewToolbar").IgnoreResult();
     }
 
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);
