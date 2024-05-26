@@ -1001,6 +1001,15 @@ namespace
     inout_json[sName] = sValue;
     inout_modified = ezCppProject::ModifyResult::MODIFIED;
   }
+
+  void Remove(ezVariantDictionary& inout_json, ezStringView sName, ezCppProject::ModifyResult& inout_modified)
+  {
+    if (inout_json.Remove(sName))
+    {
+      inout_modified = ezCppProject::ModifyResult::MODIFIED;
+    }
+  }
+
 } // namespace
 
 ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppSettings& cfg, ezVariantDictionary& inout_json)
@@ -1068,10 +1077,10 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
       Modify(presetDict, "architecture", "x64", result);
     }
     else
-    {
-      presetDict.Remove("architecture");
-    }
 #endif
+    {
+      Remove(presetDict, "architecture", result);
+    }
   }
 
   return result;

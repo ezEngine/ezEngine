@@ -172,14 +172,15 @@ function Invoke-WithRetry {
     )
 
     $retryCount = 0
-
+	$sleepInterval = 1
     do {
         try {
             & $ScriptBlock
             break
         }
         catch {
-			Start-Sleep -Seconds 1
+			Start-Sleep -Seconds $sleepInterval
+			$sleepInterval = $sleepInterval * 2
             if ($retryCount -ge $MaxRetryCount) {
                 RaiseError("Error: $_")
             }

@@ -559,8 +559,10 @@ function(ez_set_build_types)
 
 	# Fix for cl : Command line warning D9025 : overriding '/Ob0' with '/Ob1'
 	# We are adding /Ob1 to debug inside ./CMakeUtils/ezUtilsCppFlags.cmake
-	string(REPLACE "/Ob0" "/Ob1" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-	string(REPLACE "/Ob0" "/Ob1" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
+	if(EZ_CMAKE_COMPILER_GCC)
+		string(REPLACE "/Ob0" "/Ob1" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+		string(REPLACE "/Ob0" "/Ob1" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
+	endif ()
 
 	set(CMAKE_CXX_FLAGS_${EZ_BUILDTYPENAME_DEBUG_UPPER} ${CMAKE_CXX_FLAGS_DEBUG} CACHE STRING "" FORCE)
 	set(CMAKE_CXX_FLAGS_${EZ_BUILDTYPENAME_DEV_UPPER} ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} CACHE STRING "" FORCE)
