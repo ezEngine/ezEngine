@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Interfaces/NavmeshGeoWorldModule.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/WorldModule.h>
@@ -73,8 +74,6 @@ public:
 
   virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
 
-  virtual void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_triangles) const override;
-
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize) override;
 
   virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg) override;
@@ -115,6 +114,7 @@ public:
 
   ezSet<ezComponentHandle> m_BreakableConstraints;
 
+  void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const;
 
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
@@ -213,4 +213,20 @@ private:
 
   ezHybridArray<ezTime, 4> m_UpdateSteps;
   ezHybridArray<ezJoltCharacterControllerComponent*, 4> m_ActiveCharacters;
+};
+
+/// \brief Implementation of the ezNavmeshGeoWorldModuleInterface that uses Jolt physics to retrieve the geometry
+/// from which to generate a navmesh.
+class EZ_JOLTPLUGIN_DLL ezJoltNavmeshGeoWorldModule : public ezNavmeshGeoWorldModuleInterface
+{
+  EZ_DECLARE_WORLD_MODULE();
+  EZ_ADD_DYNAMIC_REFLECTION(ezJoltNavmeshGeoWorldModule, ezNavmeshGeoWorldModuleInterface);
+
+public:
+  ezJoltNavmeshGeoWorldModule(ezWorld* pWorld);
+
+  virtual void RetrieveGeometryInArea(ezUInt32 uiCollisionLayer, const ezBoundingBox& box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const override;
+
+private:
+  ezJoltWorldModule* m_pJoltModule = nullptr;
 };

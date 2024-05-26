@@ -365,7 +365,7 @@ void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_res
   }
 }
 
-void ezJoltWorldModule::QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_triangles) const
+void ezJoltWorldModule::QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const
 {
   JPH::AABox aabb;
   aabb.mMin = ezJoltConversionUtils::ToVec3(box.m_vMin);

@@ -110,6 +110,8 @@ public:
   bool GetRayIntersectionExpandedBBox(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength,
     float& out_fIntersection, const ezVec3& vExpandBBoxByThis) const;
 
+  void ComputeWorldSpaceCorners(ezVec3* pCorners) const;
+
 private:
   ezUInt16 m_uiGridSizeX;
   ezUInt16 m_uiGridSizeY;

@@ -43,8 +43,6 @@ public:
 
   virtual ezVec3 GetGravity() const = 0;
 
-  virtual void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_triangles) const = 0;
-
   //////////////////////////////////////////////////////////////////////////
   // ABSTRACTION HELPERS
   //
