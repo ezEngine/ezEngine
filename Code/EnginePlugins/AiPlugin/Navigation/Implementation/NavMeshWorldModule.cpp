@@ -70,11 +70,18 @@ void ezAiNavMeshWorldModule::Initialize()
 
   for (const auto& cfg : m_Config.m_NavmeshConfigs)
   {
-    m_WorldNavMeshes[cfg.m_sName] = EZ_DEFAULT_NEW(ezAiNavMesh, 64, 64, 16.0f, cfg);
+    m_WorldNavMeshes[cfg.m_sName] = EZ_DEFAULT_NEW(ezAiNavMesh, 128, 128, 16.0f, cfg);
   }
 
   m_pGenerateSectorTask = EZ_DEFAULT_NEW(ezNavMeshSectorGenerationTask);
   m_pGenerateSectorTask->ConfigureTask("Generate Navmesh Sector", ezTaskNesting::Maybe);
+}
+
+void ezAiNavMeshWorldModule::Deinitialize()
+{
+  m_pGenerateSectorTask = nullptr;
+  ezTaskSystem::CancelGroup(m_GenerateSectorTaskID);
+  ezTaskSystem::WaitForGroup(m_GenerateSectorTaskID);
 }
 
 ezAiNavMesh* ezAiNavMeshWorldModule::GetNavMesh(ezStringView sName)
