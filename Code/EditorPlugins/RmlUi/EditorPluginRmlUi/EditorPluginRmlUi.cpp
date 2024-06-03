@@ -15,12 +15,12 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("RmlUiAssetMenuBar", "AssetMenuBar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("RmlUiAssetMenuBar", "AssetMenuBar");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("RmlUiAssetToolBar", "AssetToolbar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("RmlUiAssetToolBar", "AssetToolbar");
     }
   }
 }

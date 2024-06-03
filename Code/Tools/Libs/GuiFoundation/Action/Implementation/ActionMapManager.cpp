@@ -30,25 +30,19 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // ezActionMapManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezResult ezActionMapManager::RegisterActionMap(ezStringView sMapping, ezStringView sParentMapping)
+void ezActionMapManager::RegisterActionMap(ezStringView sMapping, ezStringView sParentMapping)
 {
   auto it = s_Mappings.Find(sMapping);
-  if (it.IsValid())
-    return EZ_FAILURE;
-
+  EZ_ASSERT_ALWAYS(!it.IsValid(), "Mapping '{}' already exists", sMapping);
   s_Mappings.Insert(sMapping, EZ_DEFAULT_NEW(ezActionMap, sParentMapping));
-  return EZ_SUCCESS;
 }
 
-ezResult ezActionMapManager::UnregisterActionMap(ezStringView sMapping)
+void ezActionMapManager::UnregisterActionMap(ezStringView sMapping)
 {
   auto it = s_Mappings.Find(sMapping);
-  if (!it.IsValid())
-    return EZ_FAILURE;
-
+  EZ_ASSERT_ALWAYS(it.IsValid(), "Mapping '{}' not found", sMapping);
   EZ_DEFAULT_DELETE(it.Value());
   s_Mappings.Remove(it);
-  return EZ_SUCCESS;
 }
 
 ezActionMap* ezActionMapManager::GetActionMap(ezStringView sMapping)
@@ -67,18 +61,16 @@ ezActionMap* ezActionMapManager::GetActionMap(ezStringView sMapping)
 
 void ezActionMapManager::Startup()
 {
-  ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu").IgnoreResult();
+  ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu");
   ezDocumentActions::MapMenuActions("DocumentWindowTabMenu", "");
 }
 
 void ezActionMapManager::Shutdown()
 {
-  ezActionMapManager::UnregisterActionMap("DocumentWindowTabMenu").IgnoreResult();
+  ezActionMapManager::UnregisterActionMap("DocumentWindowTabMenu");
 
   while (!s_Mappings.IsEmpty())
   {
-    ezResult res = UnregisterActionMap(s_Mappings.GetIterator().Key());
-    EZ_ASSERT_DEV(res == EZ_SUCCESS, "Failed to call UnregisterActionMap successfully!");
-    res.IgnoreResult();
+    UnregisterActionMap(s_Mappings.GetIterator().Key());
   }
 }

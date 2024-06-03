@@ -28,12 +28,12 @@ void OnLoadPlugin()
 
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetMenuBar", "AssetMenuBar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetMenuBar", "AssetMenuBar");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetToolBar", "AssetToolbar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetToolBar", "AssetToolbar");
       ezCommonAssetActions::MapToolbarActions("PxCollisionMeshAssetToolBar", ezCommonAssetUiState::Grid);
     }
   }

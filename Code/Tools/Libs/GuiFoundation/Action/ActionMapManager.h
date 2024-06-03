@@ -7,11 +7,13 @@
 class EZ_GUIFOUNDATION_DLL ezActionMapManager
 {
 public:
-  /// \brief Adds a new action map with the given name. Returns EZ_FAILURE if the name was already used before.
-  static ezResult RegisterActionMap(ezStringView sMapping, ezStringView sParentMapping = {});
+  /// \brief Adds a new action map with the given name and an optional inherited parent mapping. Asserts if the name was already used before.
+  /// \param sMapping Name of the new mapping. This string has to be used when adding actions to the map.
+  /// \param sParentMapping If set, the new mapping will inherit all actions of this mapping. The name must exist and resolve to a valid mapping once ezActionMap::BuildActionTree is called to generate the action tree.
+  static void RegisterActionMap(ezStringView sMapping, ezStringView sParentMapping = {});
 
-  /// \brief Deletes the action map with the given name. Returns EZ_FAILURE, if no such map exists.
-  static ezResult UnregisterActionMap(ezStringView sMapping);
+  /// \brief Deletes the action map with the given name. Asserts, if no such map exists.
+  static void UnregisterActionMap(ezStringView sMapping);
 
   /// \brief Returns the action map with the given name, or nullptr, if it doesn't exist.
   static ezActionMap* GetActionMap(ezStringView sMapping);

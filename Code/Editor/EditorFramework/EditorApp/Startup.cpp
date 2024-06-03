@@ -104,7 +104,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     // All asset menu bar mappings should derive from this to allow for actions to be defined that show up in every asset document editor's menu bar.
     {
       const char* szMenuBar = "AssetMenuBar";
-      ezActionMapManager::RegisterActionMap(szMenuBar).AssertSuccess();
+      ezActionMapManager::RegisterActionMap(szMenuBar);
       ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
       ezProjectActions::MapActions(szMenuBar);
       ezDocumentActions::MapMenuActions(szMenuBar);
@@ -116,7 +116,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     // All asset toolbar mappings should derive from this to allow for actions to be defined that show up in every asset document editor's tool bar.
     {
       const char* szToolbar = "AssetToolbar";
-      ezActionMapManager::RegisterActionMap(szToolbar).AssertSuccess();
+      ezActionMapManager::RegisterActionMap(szToolbar);
 
       ezDocumentActions::MapToolbarActions(szToolbar);
       ezCommandHistoryActions::MapActions(szToolbar, "");
@@ -126,19 +126,19 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     // Default Asset View Toolbar
     // All asset view toolbar mappings should derive from this or its derived "SimpleAssetViewToolbar" to allow for actions to be defined that show up in every asset document editor's view toolbar.
     {
-      ezActionMapManager::RegisterActionMap("AssetViewToolbar").AssertSuccess();
+      ezActionMapManager::RegisterActionMap("AssetViewToolbar");
       // Convenience mapping that adds the most common view settings:
       const char* szSimpleViewToolbar = "SimpleAssetViewToolbar";
-      ezActionMapManager::RegisterActionMap(szSimpleViewToolbar, "AssetViewToolbar").AssertSuccess();
+      ezActionMapManager::RegisterActionMap(szSimpleViewToolbar, "AssetViewToolbar");
       ezViewActions::MapToolbarActions(szSimpleViewToolbar, ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
       ezViewLightActions::MapToolbarActions(szSimpleViewToolbar);
     }
 
-    ezActionMapManager::RegisterActionMap("SettingsTabMenuBar").IgnoreResult();
+    ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
     ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Default);
     ezProjectActions::MapActions("SettingsTabMenuBar");
 
-    ezActionMapManager::RegisterActionMap("AssetBrowserToolBar").IgnoreResult();
+    ezActionMapManager::RegisterActionMap("AssetBrowserToolBar");
     ezAssetActions::MapToolBarActions("AssetBrowserToolBar", false);
 
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtFilePropertyWidget(); });

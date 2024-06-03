@@ -14,13 +14,13 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar", "AssetMenuBar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar", "AssetMenuBar");
       ezEditActions::MapActions("VisualScriptAssetMenuBar", false, false);
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar", "AssetToolbar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar", "AssetToolbar");
     }
   }
 }

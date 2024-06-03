@@ -17,14 +17,14 @@ void OnLoadPlugin()
     {
       const char* szMenuBar = "SubstanceAssetMenuBar";
 
-      ezActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar");
       ezEditActions::MapActions(szMenuBar, false, false);
     }
 
     // Tool Bar
     {
       const char* szToolBar = "SubstanceAssetToolBar";
-      ezActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar");
     }
   }
 

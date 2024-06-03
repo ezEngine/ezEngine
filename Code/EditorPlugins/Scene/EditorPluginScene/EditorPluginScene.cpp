@@ -139,7 +139,7 @@ void OnLoadPlugin()
   const char* MenuBars[] = {"EditorPluginScene_DocumentMenuBar", "EditorPluginScene_Scene2MenuBar"};
   for (const char* szMenuBar : MenuBars)
   {
-    ezActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar").AssertSuccess();
+    ezActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar");
     ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Scene | ezStandardMenuTypes::View);
     ezDocumentActions::MapToolsActions(szMenuBar);
     ezTransformGizmoActions::MapMenuActions(szMenuBar);
@@ -164,7 +164,7 @@ void OnLoadPlugin()
   const char* ToolBars[] = {"EditorPluginScene_DocumentToolBar", "EditorPluginScene_Scene2ToolBar"};
   for (const char* szToolBar : ToolBars)
   {
-    ezActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar").AssertSuccess();
+    ezActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar");
 
     ezTransformGizmoActions::MapToolbarActions(szToolBar);
     ezSceneGizmoActions::MapToolbarActions(szToolBar);
@@ -180,7 +180,7 @@ void OnLoadPlugin()
   }
 
   // View Tool Bar
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar", "AssetViewToolbar").AssertSuccess();
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar", "AssetViewToolbar");
   ezViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
   ezQuadViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar");
 
@@ -193,13 +193,13 @@ void OnLoadPlugin()
     { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
 
   // SceneGraph Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu").AssertSuccess();
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu");
   ezGameObjectSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
   ezSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
   ezEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
 
   // Layer Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu").AssertSuccess();
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu");
   ezLayerActions::MapContextMenuActions("EditorPluginScene_LayerContextMenu");
 
   // component property meta states

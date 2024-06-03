@@ -28,12 +28,12 @@ void OnLoadPlugin()
 
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("JoltCollisionMeshAssetMenuBar", "AssetMenuBar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("JoltCollisionMeshAssetMenuBar", "AssetMenuBar");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("JoltCollisionMeshAssetToolBar", "AssetToolbar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("JoltCollisionMeshAssetToolBar", "AssetToolbar");
       ezCommonAssetActions::MapToolbarActions("JoltCollisionMeshAssetToolBar", ezCommonAssetUiState::Grid);
     }
   }

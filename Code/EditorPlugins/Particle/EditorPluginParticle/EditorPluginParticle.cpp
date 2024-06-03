@@ -19,18 +19,18 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar", "AssetMenuBar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar", "AssetMenuBar");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetToolBar", "AssetToolbar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("ParticleEffectAssetToolBar", "AssetToolbar");
       ezParticleActions::MapActions("ParticleEffectAssetToolBar");
     }
 
     // View Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar", "SimpleAssetViewToolbar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar", "SimpleAssetViewToolbar");
     }
 
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);

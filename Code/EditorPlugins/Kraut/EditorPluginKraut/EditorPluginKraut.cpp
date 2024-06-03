@@ -14,12 +14,12 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar", "AssetMenuBar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("KrautTreeAssetMenuBar", "AssetMenuBar");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("KrautTreeAssetToolBar", "AssetToolbar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("KrautTreeAssetToolBar", "AssetToolbar");
     }
   }
 }

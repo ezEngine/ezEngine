@@ -24,12 +24,12 @@ void OnLoadPlugin()
   {
     // Menu Bar
     {
-      ezActionMapManager::RegisterActionMap("TypeScriptAssetMenuBar", "AssetMenuBar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("TypeScriptAssetMenuBar", "AssetMenuBar");
     }
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("TypeScriptAssetToolBar", "AssetToolbar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("TypeScriptAssetToolBar", "AssetToolbar");
       ezTypeScriptActions::MapActions("TypeScriptAssetToolBar");
     }
   }

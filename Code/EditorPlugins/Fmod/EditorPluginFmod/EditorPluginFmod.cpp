@@ -18,11 +18,11 @@ void OnLoadPlugin()
   // Mesh
   {
     // Menu Bar
-    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar", "AssetMenuBar").IgnoreResult();
+    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar", "AssetMenuBar");
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar", "AssetToolbar").IgnoreResult();
+      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar", "AssetToolbar");
     }
   }
 
