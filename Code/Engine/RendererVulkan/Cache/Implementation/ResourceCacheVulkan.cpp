@@ -25,7 +25,7 @@ ezHashTable<ezGALShaderVulkan::DescriptorSetLayoutDesc, vk::DescriptorSetLayout,
 
 // #define EZ_LOG_VULKAN_RESOURCES
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt32) == sizeof(ezGALRenderTargetViewHandle));
+static_assert(sizeof(ezUInt32) == sizeof(ezGALRenderTargetViewHandle));
 namespace
 {
   EZ_ALWAYS_INLINE ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezGALRenderTargetViewHandle& Value)

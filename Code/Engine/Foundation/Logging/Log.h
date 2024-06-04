@@ -9,12 +9,12 @@
 
 /// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code
 /// analysis happy.
-#define EZ_LOG_BLOCK ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)
+#define EZ_LOG_BLOCK ezLogBlock EZ_PP_CONCAT(_logblock_, EZ_SOURCE_LINE)
 
 /// \brief Use this helper macro to easily mute all logging in a scope.
 #define EZ_LOG_BLOCK_MUTE()                            \
-  ezMuteLog EZ_CONCAT(_logmuteblock_, EZ_SOURCE_LINE); \
-  ezLogSystemScope EZ_CONCAT(_logscope_, EZ_SOURCE_LINE)(&EZ_CONCAT(_logmuteblock_, EZ_SOURCE_LINE))
+  ezMuteLog EZ_PP_CONCAT(_logmuteblock_, EZ_SOURCE_LINE); \
+  ezLogSystemScope EZ_PP_CONCAT(_logscope_, EZ_SOURCE_LINE)(&EZ_PP_CONCAT(_logmuteblock_, EZ_SOURCE_LINE))
 
 // Forward declaration, class is at the end of this file
 class ezLogBlock;

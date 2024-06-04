@@ -47,7 +47,7 @@
 
 #  define EZ_WARNING_PUSH() _Pragma("GCC diagnostic push")
 #  define EZ_WARNING_POP() _Pragma("GCC diagnostic pop")
-#  define EZ_WARNING_DISABLE_GCC(_x) _Pragma(EZ_STRINGIZE(GCC diagnostic ignored _x))
+#  define EZ_WARNING_DISABLE_GCC(_x) _Pragma(EZ_PP_STRINGIFY(GCC diagnostic ignored _x))
 
 #  define EZ_DECL_EXPORT [[gnu::visibility("default")]]
 #  define EZ_DECL_IMPORT [[gnu::visibility("default")]]

@@ -139,9 +139,9 @@ namespace ezApplicationDetails
     _declspec(dllexport) ezMinWindows::DWORD AmdPowerXpressRequestHighPerformance = 0x00000001;                            \
   }                                                                                                                        \
   EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                \
-  int EZ_WINDOWS_CALLBACK WinMain(_In_ EZ_CONCAT(_EZ_, EZ_CONCAT(APPLICATION_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hInstance, \
-    _In_opt_ EZ_CONCAT(_EZ_, EZ_CONCAT(APPLICATION_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hPrevInstance,                       \
-    _In_ EZ_CONCAT(_EZ_, EZ_CONCAT(APPLICATION_ENTRY_POINT_LPSTR, _WINDOWS_)) lpCmdLine, _In_ int nCmdShow)                \
+  int EZ_WINDOWS_CALLBACK WinMain(_In_ EZ_PP_CONCAT(_EZ_, EZ_PP_CONCAT(APPLICATION_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hInstance, \
+    _In_opt_ EZ_PP_CONCAT(_EZ_, EZ_PP_CONCAT(APPLICATION_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hPrevInstance,                       \
+    _In_ EZ_PP_CONCAT(_EZ_, EZ_PP_CONCAT(APPLICATION_ENTRY_POINT_LPSTR, _WINDOWS_)) lpCmdLine, _In_ int nCmdShow)                \
   {                                                                                                                        \
     return ezApplicationDetails::ApplicationEntry<AppClass>(__VA_ARGS__);                                                  \
   }

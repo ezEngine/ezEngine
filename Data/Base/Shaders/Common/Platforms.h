@@ -67,10 +67,10 @@ float4 select(bool4 condition, float4 yes, float4 no)
 #  undef PLATFORM_VULKAN
 #  define PLATFORM_VULKAN EZ_ON
 
-#  define BEGIN_PUSH_CONSTANTS(Name) struct EZ_SHADER_STRUCT EZ_CONCAT(Name, _PushConstants)
+#  define BEGIN_PUSH_CONSTANTS(Name) struct EZ_SHADER_STRUCT EZ_PP_CONCAT(Name, _PushConstants)
 #  define END_PUSH_CONSTANTS(Name) \
     ;                              \
-    [[vk::push_constant]] EZ_CONCAT(Name, _PushConstants) Name;
+    [[vk::push_constant]] EZ_PP_CONCAT(Name, _PushConstants) Name;
 #  define GET_PUSH_CONSTANT(Name, Constant) Name.Constant
 
 // GetRenderTargetSamplePosition does not have an equivalent function in Vulkan so these values are hard-coded.

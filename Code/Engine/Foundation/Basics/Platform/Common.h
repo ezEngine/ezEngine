@@ -30,7 +30,7 @@ EZ_WARNING_POP()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 /// \brief Macro helper to check alignment
-#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment) - 1)) == 0, "Wrong alignment.")
+#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment)-1)) == 0, "Wrong alignment.")
 #else
 /// \brief Macro helper to check alignment
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)
@@ -46,8 +46,8 @@ EZ_WARNING_POP()
 /// \brief Checks whether Windows.h has been included directly instead of through 'IncludeWindows.h'
 ///
 /// Does this by stringifying the available defines, concatenating them into one long word, which is a known #define that evaluates to 0 or 1
-#define EZ_CHECK_WINDOWS_INCLUDE(EZ_WINH_INCLUDED, WINH_INCLUDED)                         \
-  static_assert(EZ_CONCAT(EZ_WINCHECK_, EZ_CONCAT(EZ_WINH_INCLUDED, WINH_INCLUDED)) == 1, \
+#define EZ_CHECK_WINDOWS_INCLUDE(EZ_WINH_INCLUDED, WINH_INCLUDED)                               \
+  static_assert(EZ_PP_CONCAT(EZ_WINCHECK_, EZ_PP_CONCAT(EZ_WINH_INCLUDED, WINH_INCLUDED)) == 1, \
     "Windows.h has been included but not through ez. #include <Foundation/Basics/Platform/Win/IncludeWindows.h> instead of Windows.h");
 
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
@@ -102,8 +102,8 @@ struct EZ_FOUNDATION_DLL ezPluginRegister
     ezReferenceFunction_##UniqueName()
 
 /// \brief This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
-#  define EZ_STATICLINK_LIBRARY(LibraryName)                                                      \
-    ezPluginRegister ezPluginRegister_##LibraryName(EZ_PP_STRINGIFY(EZ_CONCAT(ez, LibraryName))); \
+#  define EZ_STATICLINK_LIBRARY(LibraryName)                                                         \
+    ezPluginRegister ezPluginRegister_##LibraryName(EZ_PP_STRINGIFY(EZ_PP_CONCAT(ez, LibraryName))); \
     extern "C" void ezReferenceFunction_##LibraryName(bool bReturn = true)
 
 #endif

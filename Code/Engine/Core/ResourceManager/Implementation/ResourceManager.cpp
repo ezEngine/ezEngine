@@ -684,7 +684,7 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sRe
   // redirect requested type to override type, if available
   pRtti = FindResourceTypeOverride(pRtti, sResourceID);
 
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_PP_STRINGIFY(ResourceType));
 
   if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
   {
@@ -692,7 +692,7 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sRe
     return nullptr;
   }
 
-  EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(), "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(), "There is no RTTI allocator available for the given resource type '{0}'", EZ_PP_STRINGIFY(ResourceType));
 
   ezResource* pResource = nullptr;
   ezTempHashedString sHashedResourceID(sResourceID);

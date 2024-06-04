@@ -769,19 +769,19 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 #define Check(name)                                                                  \
   {                                                                                  \
     bool valid = false;                                                              \
-    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid); \
+    const ezColor c = ezConversionUtils::GetColorByName(EZ_PP_STRINGIFY(name), &valid); \
     EZ_TEST_BOOL(valid);                                                             \
     ezString sName = ezConversionUtils::GetColorName(c);                             \
-    EZ_TEST_STRING(sName, EZ_STRINGIZE(name));                                       \
+    EZ_TEST_STRING(sName, EZ_PP_STRINGIFY(name));                                       \
   }
 
 #define Check2(name, otherName)                                                      \
   {                                                                                  \
     bool valid = false;                                                              \
-    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid); \
+    const ezColor c = ezConversionUtils::GetColorByName(EZ_PP_STRINGIFY(name), &valid); \
     EZ_TEST_BOOL(valid);                                                             \
     ezString sName = ezConversionUtils::GetColorName(c);                             \
-    EZ_TEST_STRING(sName, EZ_STRINGIZE(otherName));                                  \
+    EZ_TEST_STRING(sName, EZ_PP_STRINGIFY(otherName));                                  \
   }
 
     Check(AliceBlue);

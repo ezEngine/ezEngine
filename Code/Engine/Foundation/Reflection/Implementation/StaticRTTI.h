@@ -246,7 +246,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///
 /// \param Function
 ///   The function to be executed, must match the C++ function name.
-#define EZ_FUNCTION_PROPERTY(Function) (new ezFunctionProperty<decltype(&OwnType::Function)>(EZ_STRINGIZE(Function), &OwnType::Function))
+#define EZ_FUNCTION_PROPERTY(Function) (new ezFunctionProperty<decltype(&OwnType::Function)>(EZ_PP_STRINGIFY(Function), &OwnType::Function))
 
 /// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS; block, this adds a member or static function property stored inside the RTTI
 /// data. Use this version if you need to change the name of the function or need to cast the function to one of its overload versions.
@@ -543,7 +543,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 
 // [internal] Helper macro
-#define EZ_ENUM_VALUE_TO_CONSTANT_PROPERTY(name) EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(name), (Storage)name),
+#define EZ_ENUM_VALUE_TO_CONSTANT_PROPERTY(name) EZ_CONSTANT_PROPERTY(EZ_PP_STRINGIFY(name), (Storage)name),
 
 /// \brief Within a EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_END_STATIC_REFLECTED_ENUM block, this converts a
 /// list of enum values into constant RTTI properties.
@@ -551,7 +551,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 /// \brief Within a EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_END_STATIC_REFLECTED_ENUM block, this converts a
 /// an enum value into a constant RTTI property.
-#define EZ_ENUM_CONSTANT(Value) EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)
+#define EZ_ENUM_CONSTANT(Value) EZ_CONSTANT_PROPERTY(EZ_PP_STRINGIFY(Value), (Storage)Value)
 
 /// \brief Within a EZ_BEGIN_STATIC_REFLECTED_BITFLAGS / EZ_END_STATIC_REFLECTED_BITFLAGS block, this converts a
 /// list of bitflags into constant RTTI properties.
@@ -559,7 +559,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 /// \brief Within a EZ_BEGIN_STATIC_REFLECTED_BITFLAGS / EZ_END_STATIC_REFLECTED_BITFLAGS block, this converts a
 /// an bitflags into a constant RTTI property.
-#define EZ_BITFLAGS_CONSTANT(Value) EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)
+#define EZ_BITFLAGS_CONSTANT(Value) EZ_CONSTANT_PROPERTY(EZ_PP_STRINGIFY(Value), (Storage)Value)
 
 
 
@@ -575,7 +575,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
     using Storage = Type::StorageType;                                         \
     EZ_BEGIN_PROPERTIES                                                        \
       {                                                                        \
-        EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),
+        EZ_CONSTANT_PROPERTY(EZ_PP_STRINGIFY(Type::Default), (Storage)Type::Default),
 
 #define EZ_END_STATIC_REFLECTED_ENUM \
   }                                  \
@@ -598,7 +598,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
     using Storage = Type::StorageType;                                             \
     EZ_BEGIN_PROPERTIES                                                            \
       {                                                                            \
-        EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),
+        EZ_CONSTANT_PROPERTY(EZ_PP_STRINGIFY(Type::Default), (Storage)Type::Default),
 
 #define EZ_END_STATIC_REFLECTED_BITFLAGS \
   }                                      \

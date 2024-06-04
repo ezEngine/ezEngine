@@ -29,8 +29,8 @@ namespace
   const ezExpression::Register* name = context.m_pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode) * context.m_uiNumSimd4Instances;
 
 #define DEFINE_CONSTANT(name)                                                      \
-  const ezUInt32 EZ_CONCAT(name, Raw) = *pByteCode;                                \
-  EZ_IGNORE_UNUSED(EZ_CONCAT(name, Raw));                                          \
+  const ezUInt32 EZ_PP_CONCAT(name, Raw) = *pByteCode;                                \
+  EZ_IGNORE_UNUSED(EZ_PP_CONCAT(name, Raw));                                          \
   const ezExpression::Register tmp = ezExpressionByteCode::GetConstant(pByteCode); \
   const ezExpression::Register* name = &tmp;
 
@@ -40,7 +40,7 @@ namespace
   ++a;
 
 #define DEFINE_UNARY_OP(name, code)                                                   \
-  void EZ_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context) \
+  void EZ_PP_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context) \
   {                                                                                   \
     DEFINE_TARGET_REGISTER();                                                         \
     DEFINE_OP_REGISTER(a);                                                            \
@@ -61,7 +61,7 @@ namespace
 
 #define DEFINE_BINARY_OP(name, code)                                                                                \
   template <bool RightIsConstant>                                                                                   \
-  void EZ_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context)                               \
+  void EZ_PP_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context)                               \
   {                                                                                                                 \
     DEFINE_TARGET_REGISTER();                                                                                       \
     DEFINE_OP_REGISTER(a);                                                                                          \
@@ -94,7 +94,7 @@ namespace
   ++c;
 
 #define DEFINE_TERNARY_OP(name, code)                                                 \
-  void EZ_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context) \
+  void EZ_PP_CONCAT(name, _4)(const ByteCodeType*& pByteCode, ExecutionContext& context) \
   {                                                                                   \
     DEFINE_TARGET_REGISTER();                                                         \
     DEFINE_OP_REGISTER(a);                                                            \

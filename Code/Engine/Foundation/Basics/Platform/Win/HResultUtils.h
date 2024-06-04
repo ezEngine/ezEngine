@@ -27,7 +27,7 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezMinWindows::HRESULT result)
     ezMinWindows::HRESULT s = (code);                                                        \
     if (s < 0)                                                                               \
     {                                                                                        \
-      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), ezHRESULTtoString(s)); \
       return EZ_FAILURE;                                                                     \
     }                                                                                        \
   } while (false)
@@ -38,7 +38,7 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezMinWindows::HRESULT result)
     ezMinWindows::HRESULT s = (code);                                                        \
     if (s < 0)                                                                               \
     {                                                                                        \
-      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), ezHRESULTtoString(s)); \
     }                                                                                        \
   } while (false)
 
@@ -50,7 +50,7 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezMinWindows::HRESULT result)
     ezMinWindows::HRESULT s = (code);                                                        \
     if (s < 0)                                                                               \
     {                                                                                        \
-      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), ezHRESULTtoString(s)); \
       return ret;                                                                            \
     }                                                                                        \
   } while (false)
@@ -59,5 +59,5 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezMinWindows::HRESULT result)
   do                                                                                                \
   {                                                                                                 \
     ezMinWindows::HRESULT s = (code);                                                               \
-    EZ_ASSERT_DEV(s >= 0, "Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
+    EZ_ASSERT_DEV(s >= 0, "Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), ezHRESULTtoString(s)); \
   } while (false)

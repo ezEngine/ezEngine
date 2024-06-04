@@ -947,7 +947,7 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore)
 
   vk::TimelineSemaphoreSubmitInfo timelineInfo;
   timelineInfo.waitSemaphoreValueCount = waitSemaphoreValues.GetCount();
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == sizeof(uint64_t));
+  static_assert(sizeof(ezUInt64) == sizeof(uint64_t));
   timelineInfo.pWaitSemaphoreValues = reinterpret_cast<const uint64_t*>(waitSemaphoreValues.GetData());
   timelineInfo.signalSemaphoreValueCount = signalSemaphoreValues.GetCount();
   timelineInfo.pSignalSemaphoreValues = reinterpret_cast<const uint64_t*>(signalSemaphoreValues.GetData());

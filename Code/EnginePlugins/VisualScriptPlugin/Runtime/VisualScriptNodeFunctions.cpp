@@ -9,7 +9,7 @@ using ExecResult = ezVisualScriptGraphDescription::ExecResult;
 using ExecuteFunctionGetter = ezVisualScriptGraphDescription::ExecuteFunction (*)(ezVisualScriptDataType::Enum dataType);
 
 #define MAKE_EXEC_FUNC_GETTER(funcName)                                                                               \
-  ezVisualScriptGraphDescription::ExecuteFunction EZ_CONCAT(funcName, _Getter)(ezVisualScriptDataType::Enum dataType) \
+  ezVisualScriptGraphDescription::ExecuteFunction EZ_PP_CONCAT(funcName, _Getter)(ezVisualScriptDataType::Enum dataType) \
   {                                                                                                                   \
     static ezVisualScriptGraphDescription::ExecuteFunction functionTable[] = {                                        \
       nullptr, /* Invalid*/                                                                                           \
@@ -982,7 +982,7 @@ namespace
 
 #define MAKE_TONUMBER_EXEC_FUNC(NumberType, Name)                                                                                                              \
   template <typename T>                                                                                                                                        \
-  static ExecResult EZ_CONCAT(NodeFunction_Builtin_To, Name)(ezVisualScriptExecutionContext & inout_context, const ezVisualScriptGraphDescription::Node& node) \
+  static ExecResult EZ_PP_CONCAT(NodeFunction_Builtin_To, Name)(ezVisualScriptExecutionContext & inout_context, const ezVisualScriptGraphDescription::Node& node) \
   {                                                                                                                                                            \
     return NodeFunction_Builtin_ToNumber<NumberType, T>(inout_context, node, #Name);                                                                           \
   }

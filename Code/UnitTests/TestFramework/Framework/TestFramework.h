@@ -278,7 +278,7 @@ EZ_TEST_DLL bool ezTestBool(
 
 /// \brief Tests for a boolean condition, outputs a custom message on failure.
 #define EZ_TEST_BOOL_MSG(condition, msg, ...) \
-  ezTestBool(condition, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+  ezTestBool(condition, "Test failed: " EZ_PP_STRINGIFY(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -290,7 +290,7 @@ EZ_TEST_DLL bool ezTestResult(
 
 /// \brief Tests for a boolean condition, outputs a custom message on failure.
 #define EZ_TEST_RESULT_MSG(condition, msg, ...) \
-  ezTestResult(condition, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+  ezTestResult(condition, "Test failed: " EZ_PP_STRINGIFY(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -302,14 +302,14 @@ EZ_TEST_DLL bool ezTestResult(
 
 /// \brief Tests for a boolean condition, outputs a custom message on failure.
 #define EZ_TEST_RESULT_MSG(condition, msg, ...) \
-  ezTestResult(condition, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+  ezTestResult(condition, "Test failed: " EZ_PP_STRINGIFY(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief Tests for a ezStatus condition, outputs ezStatus message on failure
 #define EZ_TEST_STATUS(condition)                 \
-  auto EZ_CONCAT(l_, EZ_SOURCE_LINE) = condition; \
-  ezTestResult(EZ_CONCAT(l_, EZ_SOURCE_LINE).m_Result, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, EZ_CONCAT(l_, EZ_SOURCE_LINE).m_sMessage)
+  auto EZ_PP_CONCAT(l_, EZ_SOURCE_LINE) = condition; \
+  ezTestResult(EZ_PP_CONCAT(l_, EZ_SOURCE_LINE).m_Result, "Test failed: " EZ_PP_STRINGIFY(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, EZ_PP_CONCAT(l_, EZ_SOURCE_LINE).m_sMessage)
 
 inline double ToFloat(int f)
 {
@@ -335,7 +335,7 @@ EZ_TEST_DLL bool ezTestDouble(double f1, double f2, double fEps, const char* szF
 /// \brief Tests two floats for equality, within a given epsilon. On failure both actual and expected values are output, also a custom
 /// message is printed.
 #define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg, ...)                                                                                               \
-  ezTestDouble(ToFloat(f1), ToFloat(f2), ToFloat(epsilon), EZ_STRINGIZE(f1), EZ_STRINGIZE(f2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, \
+  ezTestDouble(ToFloat(f1), ToFloat(f2), ToFloat(epsilon), EZ_PP_STRINGIFY(f1), EZ_PP_STRINGIFY(f2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, \
     msg, ##__VA_ARGS__)
 
 
@@ -347,7 +347,7 @@ EZ_TEST_DLL bool ezTestDouble(double f1, double f2, double fEps, const char* szF
 /// \brief Tests two doubles for equality, within a given epsilon. On failure both actual and expected values are output, also a custom
 /// message is printed.
 #define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg, ...)                                                                                              \
-  ezTestDouble(ToFloat(f1), ToFloat(f2), ToFloat(epsilon), EZ_STRINGIZE(f1), EZ_STRINGIZE(f2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, \
+  ezTestDouble(ToFloat(f1), ToFloat(f2), ToFloat(epsilon), EZ_PP_STRINGIFY(f1), EZ_PP_STRINGIFY(f2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, \
     msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -360,7 +360,7 @@ EZ_TEST_DLL bool ezTestInt(
 
 /// \brief Tests two ints for equality. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_INT_MSG(i1, i2, msg, ...) \
-  ezTestInt(i1, i2, EZ_STRINGIZE(i1), EZ_STRINGIZE(i2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+  ezTestInt(i1, i2, EZ_PP_STRINGIFY(i1), EZ_PP_STRINGIFY(i2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -371,7 +371,7 @@ EZ_TEST_DLL bool ezTestString(ezStringView s1, ezStringView s2, const char* szSt
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                                     \
-  ezTestString(static_cast<ezStringView>(s1), static_cast<ezStringView>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, \
+  ezTestString(static_cast<ezStringView>(s1), static_cast<ezStringView>(s2), EZ_PP_STRINGIFY(s1), EZ_PP_STRINGIFY(s2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, \
     EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -384,7 +384,7 @@ EZ_TEST_DLL bool ezTestWString(std::wstring s1, std::wstring s2, const char* szS
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_WSTRING_MSG(s1, s2, msg, ...)                                                                                         \
-  ezTestWString(static_cast<const wchar_t*>(s1), static_cast<const wchar_t*>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE, \
+  ezTestWString(static_cast<const wchar_t*>(s1), static_cast<const wchar_t*>(s2), EZ_PP_STRINGIFY(s1), EZ_PP_STRINGIFY(s2), EZ_SOURCE_FILE, \
     EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -410,7 +410,7 @@ EZ_TEST_DLL bool ezTestVector(
 /// \brief Tests two ezVec2's for equality. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_VEC2_MSG(r1, r2, epsilon, msg, ...)                                                                                \
   ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), 0, 0), ezVec4d(ToFloat((r2).x), ToFloat((r2).y), 0, 0), ToFloat(epsilon), \
-    EZ_STRINGIZE(r1) " == " EZ_STRINGIZE(r2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+    EZ_PP_STRINGIFY(r1) " == " EZ_PP_STRINGIFY(r2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -420,7 +420,7 @@ EZ_TEST_DLL bool ezTestVector(
 /// \brief Tests two ezVec3's for equality. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_VEC3_MSG(r1, r2, epsilon, msg, ...)                                                                                          \
   ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), ToFloat((r1).z), 0), ezVec4d(ToFloat((r2).x), ToFloat((r2).y), ToFloat((r2).z), 0), \
-    ToFloat(epsilon), EZ_STRINGIZE(r1) " == " EZ_STRINGIZE(r2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+    ToFloat(epsilon), EZ_PP_STRINGIFY(r1) " == " EZ_PP_STRINGIFY(r2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -430,7 +430,7 @@ EZ_TEST_DLL bool ezTestVector(
 /// \brief Tests two ezVec4's for equality. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg, ...)                                                                                          \
   ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), ToFloat((r1).z), ToFloat((r1).w)),                                                  \
-    ezVec4d(ToFloat((r2).x), ToFloat((r2).y), ToFloat((r2).z), ToFloat((r2).w)), ToFloat(epsilon), EZ_STRINGIZE(r1) " == " EZ_STRINGIZE(r2), \
+    ezVec4d(ToFloat((r2).x), ToFloat((r2).y), ToFloat((r2).z), ToFloat((r2).w)), ToFloat(epsilon), EZ_PP_STRINGIFY(r1) " == " EZ_PP_STRINGIFY(r2), \
     EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////

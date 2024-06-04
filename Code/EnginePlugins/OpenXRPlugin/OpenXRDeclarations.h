@@ -6,7 +6,7 @@
     auto s = (code);                                                                                                        \
     if (s != XR_SUCCESS)                                                                                                    \
     {                                                                                                                       \
-      ezLog::Error("OpenXR call '{0}' failed with: {1} in {2}:{3}", EZ_STRINGIZE(code), s, EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
+      ezLog::Error("OpenXR call '{0}' failed with: {1} in {2}:{3}", EZ_PP_STRINGIFY(code), s, EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
     }                                                                                                                       \
   } while (false)
 
@@ -16,7 +16,7 @@
     auto s = (code);                                                                                                        \
     if (s != XR_SUCCESS)                                                                                                    \
     {                                                                                                                       \
-      ezLog::Error("OpenXR call '{0}' failed with: {1} in {2}:{3}", EZ_STRINGIZE(code), s, EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
+      ezLog::Error("OpenXR call '{0}' failed with: {1} in {2}:{3}", EZ_PP_STRINGIFY(code), s, EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
       return s;                                                                                                             \
     }                                                                                                                       \
   } while (false)
@@ -27,7 +27,7 @@
     auto s = (code);                                                                                                        \
     if (s != XR_SUCCESS)                                                                                                    \
     {                                                                                                                       \
-      ezLog::Error("OpenXR call '{0}' failed with: {1} in {2}:{3}", EZ_STRINGIZE(code), s, EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
+      ezLog::Error("OpenXR call '{0}' failed with: {1} in {2}:{3}", EZ_PP_STRINGIFY(code), s, EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
       cleanup();                                                                                                            \
       return s;                                                                                                             \
     }                                                                                                                       \

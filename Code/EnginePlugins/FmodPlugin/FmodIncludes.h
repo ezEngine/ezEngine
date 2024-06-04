@@ -6,5 +6,5 @@
   {                                                                                               \
     auto fmodErrorCode = func;                                                                    \
     if (fmodErrorCode != FMOD_OK)                                                                 \
-      ezLog::Error("FMOD call failed: '" EZ_STRINGIZE(func) "' - Error code {0}", fmodErrorCode); \
+      ezLog::Error("FMOD call failed: '" EZ_PP_STRINGIFY(func) "' - Error code {0}", fmodErrorCode); \
   }

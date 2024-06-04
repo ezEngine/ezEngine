@@ -163,7 +163,7 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 // As arguments you have to list the types of all the members of the class / struct.
 #  define EZ_DETECT_TYPE_CLASS(...)                                                                                                \
     ezCompileTimeTrueType operator%(                                                                                               \
-      const ezTraitInt<EZ_CALL_MACRO(EZ_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const \
+      const ezTraitInt<EZ_CALL_MACRO(EZ_PP_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const \
     {                                                                                                                              \
       return {};                                                                                                                   \
     }

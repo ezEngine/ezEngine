@@ -106,7 +106,7 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezResult result)
     auto s = (code);                                                      \
     if (ezToResult(s).Failed())                                           \
     {                                                                     \
-      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), s); \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), s); \
       return s;                                                           \
     }                                                                     \
   } while (false)
@@ -118,7 +118,7 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezResult result)
     auto s = (code);                                                        \
     if (ezToResult(s).Failed())                                             \
     {                                                                       \
-      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), log); \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), log); \
       return s;                                                             \
     }                                                                       \
   } while (false)
