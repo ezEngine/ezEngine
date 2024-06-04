@@ -397,9 +397,9 @@ void ezGALCommandEncoder::InsertEventMarker(const char* szMarker)
   m_CommonImpl.InsertEventMarkerPlatform(szMarker);
 }
 
-ezGALCommandEncoder::ezGALCommandEncoder(ezGALDevice& in_device, ezGALCommandEncoderCommonPlatformInterface& in_commonImpl)
-  : m_Device(in_device)
-  , m_CommonImpl(in_commonImpl)
+ezGALCommandEncoder::ezGALCommandEncoder(ezGALDevice& ref_device, ezGALCommandEncoderCommonPlatformInterface& ref_commonImpl)
+  : m_Device(ref_device)
+  , m_CommonImpl(ref_commonImpl)
 {
 }
 

@@ -12,7 +12,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoder
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGALCommandEncoder);
 
 public:
-  ezGALCommandEncoder(ezGALDevice& in_device, ezGALCommandEncoderCommonPlatformInterface& in_commonImpl);
+  ezGALCommandEncoder(ezGALDevice& ref_device, ezGALCommandEncoderCommonPlatformInterface& ref_commonImpl);
   virtual ~ezGALCommandEncoder();
 
   // State setting functions
