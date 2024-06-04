@@ -426,9 +426,9 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
 
 void ezRendererTestPipelineStates::RenderBlock(ezMeshBufferResourceHandle mesh, ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport, ezRectU32* pScissor)
 {
-  BeginPass("MostBasicTriangle");
+  BeginCommands("MostBasicTriangle");
   {
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(clearColor, uiRenderTargetClearMask, pViewport, pScissor);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(clearColor, uiRenderTargetClearMask, pViewport, pScissor);
     {
 
       if (mesh.IsValid())
@@ -452,7 +452,7 @@ void ezRendererTestPipelineStates::RenderBlock(ezMeshBufferResourceHandle mesh, 
     EndRendering();
   }
 
-  EndPass();
+  EndCommands();
 }
 
 
@@ -505,9 +505,9 @@ void ezRendererTestPipelineStates::PushConstantsTest()
   const ezUInt32 uiColumns = 4;
   const ezUInt32 uiRows = 2;
 
-  BeginPass("PushConstantsTest");
+  BeginCommands("PushConstantsTest");
   {
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
     {
       pContext->BindShader(m_hPushConstantsShader);
@@ -535,7 +535,7 @@ void ezRendererTestPipelineStates::PushConstantsTest()
     }
     EndRendering();
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestPipelineStates::SetsSlotsTest()
@@ -554,7 +554,7 @@ void ezRendererTestPipelineStates::SetsSlotsTest()
   ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
   pContext->BindConstantBuffer("ezTestPerFrame", m_hTestPerFrameConstantBuffer);
 
-  BeginPass("SetsSlots");
+  BeginCommands("SetsSlots");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D_Mip0);
@@ -566,7 +566,7 @@ void ezRendererTestPipelineStates::SetsSlotsTest()
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestPipelineStates::ConstantBufferTest()
@@ -574,9 +574,9 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
   const ezUInt32 uiColumns = 4;
   const ezUInt32 uiRows = 2;
 
-  BeginPass("ConstantBufferTest");
+  BeginCommands("ConstantBufferTest");
   {
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
     {
       pContext->BindConstantBuffer("ezTestColors", m_hTestColorsConstantBuffer);
@@ -609,16 +609,16 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
     }
     EndRendering();
   }
-  EndPass();
+  EndCommands();
 }
 
 
 void ezRendererTestPipelineStates::StructuredBufferTest()
 {
-  BeginPass("InstancingTest");
+  BeginCommands("InstancingTest");
   {
 
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Discard)
     {
       // Discard previous buffer.
@@ -667,7 +667,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
     }
     EndRendering();
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestPipelineStates::Texture2D()
@@ -681,7 +681,7 @@ void ezRendererTestPipelineStates::Texture2D()
 
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
 
-  BeginPass("Texture2D");
+  BeginCommands("Texture2D");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D_Mip0);
@@ -693,7 +693,7 @@ void ezRendererTestPipelineStates::Texture2D()
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestPipelineStates::Texture2DArray()
@@ -707,7 +707,7 @@ void ezRendererTestPipelineStates::Texture2DArray()
 
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
 
-  BeginPass("Texture2DArray");
+  BeginCommands("Texture2DArray");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DArray_Layer0_Mip0);
@@ -719,7 +719,7 @@ void ezRendererTestPipelineStates::Texture2DArray()
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2DArray_Layer1_Mip1);
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestPipelineStates::GenerateMipMaps()
@@ -732,10 +732,10 @@ void ezRendererTestPipelineStates::GenerateMipMaps()
   const float fElementHeight = fHeight / uiRows;
 
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
-  BeginPass("GenerateMipMaps");
+  BeginCommands("GenerateMipMaps");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
     pCommandEncoder->GenerateMipMaps(m_pDevice->GetDefaultResourceView(m_hTexture2D));
     EndRendering();
 
@@ -748,14 +748,14 @@ void ezRendererTestPipelineStates::GenerateMipMaps()
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestPipelineStates::Timestamps()
 {
-  BeginPass("Timestamps");
+  BeginCommands("Timestamps");
   {
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF);
 
     if (m_iFrame == 2)
     {
@@ -770,7 +770,7 @@ void ezRendererTestPipelineStates::Timestamps()
       m_timestamps[1] = pCommandEncoder->InsertTimestamp();
     EndRendering();
   }
-  EndPass();
+  EndCommands();
 
 
   if (m_iFrame > 2 && !m_bTimestampsValid)

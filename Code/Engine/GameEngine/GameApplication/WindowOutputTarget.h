@@ -7,6 +7,8 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
+struct ezGALDeviceEvent;
+
 /// \brief Creates a swapchain and keeps it up to date with the window.
 ///
 /// If the window is resized or ezGameApplication::cvar_AppVSync changes and onSwapChainChanged is valid, the swapchain is destroyed and recreated. It is up the the application to respond to the OnSwapChainChanged callback and update any references to the swap-chain, e.g. uses in ezView or uses as render targets in ezGALRenderTargetSetup.
@@ -20,7 +22,8 @@ public:
 
   void CreateSwapchain(const ezGALWindowSwapChainCreationDescription& desc);
 
-  virtual void Present(bool bEnableVSync) override;
+  virtual void PresentImage(bool bEnableVSync) override;
+  virtual void AcquireImage() override;
   virtual ezResult CaptureImage(ezImage& out_image) override;
 
   OnSwapChainChanged m_OnSwapChainChanged;

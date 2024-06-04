@@ -8,7 +8,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Profiling/Profiling.h>
@@ -17,7 +17,6 @@
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/InitContext.h>
-#include <RendererVulkan/Device/PassVulkan.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
 #include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
@@ -604,7 +603,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   ezDescriptorSetPoolVulkan::Initialize(m_device);
   ezImageCopyVulkan::Initialize(*this);
 
-  m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassVulkan, *this);
+  m_pCommandEncoderImpl = EZ_DEFAULT_NEW(ezGALCommandEncoderImplVulkan, *this);
+  m_pCommandEncoder = EZ_DEFAULT_NEW(ezGALCommandEncoder, *this, *m_pCommandEncoderImpl);
 
   ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
     { return CreateSwapChain([this, &desc](ezAllocator* pAllocator) -> ezGALSwapChain*
@@ -723,7 +723,6 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   ezGALWindowSwapChain::SetFactoryMethod({});
   if (m_lastCommandBufferFinished)
     ReclaimLater(m_lastCommandBufferFinished, m_pCommandBufferPool.Borrow());
-  auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
 
   // We couldn't create a device in the first place, so early out of shutdown
   if (!m_device)
@@ -733,7 +732,8 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
 
   WaitIdlePlatform();
 
-  m_pDefaultPass = nullptr;
+  m_pCommandEncoder = nullptr;
+  m_pCommandEncoderImpl = nullptr;
   m_pPipelineBarrier = nullptr;
   m_pCommandBufferPool->DeInitialize();
   m_pCommandBufferPool = nullptr;
@@ -779,9 +779,9 @@ vk::CommandBuffer& ezGALDeviceVulkan::GetCurrentCommandBuffer()
     VK_ASSERT_DEBUG(commandBuffer.begin(&beginInfo));
     GetCurrentPipelineBarrier().SetCommandBuffer(&commandBuffer);
 
-    m_pDefaultPass->SetCurrentCommandBuffer(&commandBuffer, m_pPipelineBarrier.Borrow());
+    m_pCommandEncoderImpl->SetCurrentCommandBuffer(&commandBuffer, m_pPipelineBarrier.Borrow());
     // We can't carry state across individual command buffers.
-    m_pDefaultPass->MarkDirty();
+    m_pCommandEncoderImpl->MarkDirty();
   }
   return commandBuffer;
 }
@@ -842,41 +842,33 @@ ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreat
   return FinalizeBufferInternal(Description, pBuffer);
 }
 
-void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain)
+void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName)
 {
   EZ_PROFILE_SCOPE("BeginPipelinePlatform");
 
   GetCurrentCommandBuffer();
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+  m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
 #endif
-
-  if (pSwapChain)
-  {
-    pSwapChain->AcquireNextRenderTarget(this);
-  }
 }
 
-void ezGALDeviceVulkan::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
+void ezGALDeviceVulkan::EndPipelinePlatform()
 {
   EZ_PROFILE_SCOPE("EndPipelinePlatform");
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPipelineTimingScope);
+  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPipelineTimingScope);
 #endif
-  if (pSwapChain)
-  {
-    pSwapChain->PresentRenderTarget(this);
-  }
 
   // Render context is reset on every end pipeline so it will re-submit all state change for the next render pass. Thus it is safe at this point to do a full reset.
   // Technically don't have to reset here, MarkDirty would also be fine but we do need to do a Reset at the end of the frame as pointers held by the ezGALCommandEncoderImplVulkan may not be valid in the next frame.
-  m_pDefaultPass->Reset();
+  m_pCommandEncoderImpl->Reset();
+  m_pCommandEncoder->InvalidateState();
 }
 
 vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore)
 {
-  m_pDefaultPass->SetCurrentCommandBuffer(nullptr, nullptr);
+  m_pCommandEncoderImpl->SetCurrentCommandBuffer(nullptr, nullptr);
 
   vk::CommandBuffer initCommandBuffer = m_pInitContext->GetFinishedCommandBuffer();
   bool bHasCmdBuffer = initCommandBuffer || m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
@@ -990,19 +982,19 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore)
   return res;
 }
 
-ezGALPass* ezGALDeviceVulkan::BeginPassPlatform(const char* szName)
+ezGALCommandEncoder* ezGALDeviceVulkan::BeginCommandsPlatform(const char* szName)
 {
   GetCurrentCommandBuffer();
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+  m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
 #endif
-  return m_pDefaultPass.Borrow();
+  return m_pCommandEncoder.Borrow();
 }
 
-void ezGALDeviceVulkan::EndPassPlatform(ezGALPass* pPass)
+void ezGALDeviceVulkan::EndCommandsPlatform(ezGALCommandEncoder* pPass)
 {
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPassTimingScope);
+  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPassTimingScope);
 #endif
 }
 
@@ -1351,9 +1343,9 @@ ezResult ezGALDeviceVulkan::GetTimestampResultPlatform(ezGALTimestampHandle hTim
 
 // Misc functions
 
-void ezGALDeviceVulkan::BeginFramePlatform(const ezUInt64 uiRenderFrame)
+void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiRenderFrame)
 {
-  auto& pCommandEncoder = m_pDefaultPass->m_pCommandEncoderImpl;
+  auto& pCommandEncoder = m_pCommandEncoderImpl;
 
   // check if fence is reached
   if (m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame != ((ezUInt64)-1))
@@ -1392,17 +1384,26 @@ void ezGALDeviceVulkan::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezStringBuilder sb;
   sb.SetFormat("Frame {}", uiRenderFrame);
-  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), sb);
+  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
 #endif
+
+  for (ezGALSwapChain* pSwapChain : swapchains)
+  {
+    pSwapChain->AcquireNextRenderTarget(this);
+  }
 }
 
-void ezGALDeviceVulkan::EndFramePlatform()
+void ezGALDeviceVulkan::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
 {
+  for (ezGALSwapChain* pSwapChain : swapchains)
+  {
+    pSwapChain->PresentRenderTarget(this);
+  }
 #if EZ_ENABLED(EZ_USE_PROFILING)
   {
     // #TODO_VULKAN This is very wasteful, in normal cases the last endPipeline will have submitted the command buffer via the swapchain. Thus, we start and submit a command buffer here with only the timestamp in it.
     GetCurrentCommandBuffer();
-    ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pFrameTimingScope);
+    ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pFrameTimingScope);
   }
 #endif
 

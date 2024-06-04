@@ -63,6 +63,11 @@ ezShaderExplorerApp::ezShaderExplorerApp()
 ezApplication::Execution ezShaderExplorerApp::Run()
 {
   m_pWindow->ProcessWindowMessages();
+  if (!m_pWindow->IsVisible())
+  {
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
+    return Execution::Continue;
+  }
 
   if (g_bWindowResized)
   {
@@ -160,11 +165,10 @@ ezApplication::Execution ezShaderExplorerApp::Run()
   // do the rendering
   {
     // Before starting to render in a frame call this function
+    m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
     m_pDevice->BeginFrame();
 
-    m_pDevice->BeginPipeline("ShaderExplorer", m_hSwapChain);
-
-    ezGALPass* pGALPass = m_pDevice->BeginPass("ezShaderExplorerMainPass");
+    ezGALCommandEncoder* pCommandEncoder = m_pDevice->BeginCommands("ezShaderExplorerMainPass");
     const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
     ezGALRenderTargetViewHandle hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetRenderTargets().m_hRTs[0]);
     ezGALRenderTargetViewHandle hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
@@ -175,7 +179,7 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     renderingSetup.m_bClearDepth = true;
     renderingSetup.m_bClearStencil = true;
 
-    ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
 
     auto& gc = ezRenderContext::GetDefaultInstance()->WriteGlobalConstants();
     ezMemoryUtils::ZeroFill(&gc, 1);
@@ -194,9 +198,7 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
-    m_pDevice->EndPass(pGALPass);
-
-    m_pDevice->EndPipeline(m_hSwapChain);
+    m_pDevice->EndCommands(pCommandEncoder);
 
     m_pDevice->EndFrame();
     ezRenderContext::GetDefaultInstance()->ResetContextState();

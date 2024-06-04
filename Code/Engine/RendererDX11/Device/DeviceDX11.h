@@ -41,7 +41,7 @@ public:
   ID3D11Device3* GetDXDevice3() const;
   ID3D11DeviceContext* GetDXImmediateContext() const;
   IDXGIFactory1* GetDXGIFactory() const;
-  ezGALRenderCommandEncoder* GetRenderCommandEncoder() const;
+  ezGALCommandEncoder* GetCommandEncoder() const;
 
   const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
 
@@ -65,11 +65,11 @@ protected:
 
   // Pipeline & Pass functions
 
-  virtual void BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain) override;
-  virtual void EndPipelinePlatform(ezGALSwapChain* pSwapChain) override;
+  virtual void BeginPipelinePlatform(const char* szName) override;
+  virtual void EndPipelinePlatform() override;
 
-  virtual ezGALPass* BeginPassPlatform(const char* szName) override;
-  virtual void EndPassPlatform(ezGALPass* pPass) override;
+  virtual ezGALCommandEncoder* BeginCommandsPlatform(const char* szName) override;
+  virtual void EndCommandsPlatform(ezGALCommandEncoder* pPass) override;
 
   virtual void FlushPlatform() override;
 
@@ -137,8 +137,8 @@ protected:
 
   // Misc functions
 
-  virtual void BeginFramePlatform(const ezUInt64 uiRenderFrame) override;
-  virtual void EndFramePlatform() override;
+  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiRenderFrame) override;
+  virtual void EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains) override;
 
   virtual void FillCapabilitiesPlatform() override;
 
@@ -194,7 +194,8 @@ private:
   // NOLINTNEXTLINE
   ezUInt32 m_uiFeatureLevel; // D3D_FEATURE_LEVEL can't be forward declared
 
-  ezUniquePtr<ezGALPassDX11> m_pDefaultPass;
+  ezUniquePtr<ezGALCommandEncoderImplDX11> m_pCommandEncoderImpl;
+  ezUniquePtr<ezGALCommandEncoder> m_pCommandEncoder;
 
   struct PerFrameData
   {

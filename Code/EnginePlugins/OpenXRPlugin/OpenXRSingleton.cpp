@@ -898,6 +898,11 @@ void ezOpenXR::BeginFrame()
   {
     pView->UpdateViewData(ezRenderWorld::GetDataIndexForRendering());
   }
+
+  if (m_pCompanion)
+  {
+    m_pCompanion->CompanionViewBeginFrame();
+  }
   m_bRenderInProgress = true;
 }
 
@@ -920,7 +925,7 @@ void ezOpenXR::Present()
 
   if (m_pCompanion)
   {
-    m_pCompanion->RenderCompanionView();
+    m_pCompanion->CompanionViewEndFrame();
     pSwapChain->PresentRenderTarget();
   }
 }

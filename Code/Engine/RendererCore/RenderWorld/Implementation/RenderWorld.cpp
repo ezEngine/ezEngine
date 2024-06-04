@@ -601,11 +601,30 @@ void ezRenderWorld::BeginFrame()
   }
 
   RebuildPipelines();
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  // On most platforms it doesn't matter that much how early this happens.
+  // But on HoloLens this executes something that needs to be done at the right time,
+  // for the reprojection to work properly.
+  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
+
+  auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
+  for (auto& pRenderPipeline : filteredRenderPipelines)
+  {
+    ezGALSwapChainHandle hSwapChain = pRenderPipeline->GetRenderData().GetViewData().m_hSwapChain;
+    if (!hSwapChain.IsInvalidated())
+    {
+      pDevice->EnqueueFrameSwapChain(hSwapChain);
+    }
+  }
+  pDevice->BeginFrame(uiRenderFrame);
 }
 
 void ezRenderWorld::EndFrame()
 {
   EZ_PROFILE_SCOPE("EndFrame");
+  ezGALDevice::GetDefaultDevice()->EndFrame();
 
   ++s_uiFrameCounter;
 

@@ -164,7 +164,7 @@ void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const e
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
   }
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName());
 }
 
 ezResult ezSourcePass::Serialize(ezStreamWriter& inout_stream) const

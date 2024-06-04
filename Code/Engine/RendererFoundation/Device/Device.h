@@ -26,13 +26,13 @@ public:
   ezResult Shutdown();
   ezStringView GetRenderer();
 
-  // Pipeline & Pass functions
+  // Commands functions
 
-  void BeginPipeline(const char* szName, ezGALSwapChainHandle hSwapChain);
-  void EndPipeline(ezGALSwapChainHandle hSwapChain);
-
-  ezGALPass* BeginPass(const char* szName);
-  void EndPass(ezGALPass* pPass);
+  /// \brief Begin recording GPU commands on the returned command encoder.
+  ezGALCommandEncoder* BeginCommands(const char* szName);
+  /// \brief Stop recording commands on the command encoder.
+  /// \param pCommandEncoder Must match the command encoder returned by BeginCommands.
+  void EndCommands(ezGALCommandEncoder* pCommandEncoder);
 
   // State creation functions
 
@@ -121,8 +121,19 @@ public:
 
   // Misc functions
 
+  /// \brief Adds a swap-chain to be used for the next frame.
+  /// Must be called before or during the ezGALDeviceEvent::BeforeBeginFrame event (BeginFrame function) and repeated for every frame the swap-chain is to be used. This approach guarantees that all swap-chains of a frame acquire and present at the same time, which improves frame pacing.
+  /// \param hSwapChain Swap-chain used in this frame. The device will ensure to acquire an image from the swap-chain during BeginFrame and present it when calling EndFrame.
+  void EnqueueFrameSwapChain(ezGALSwapChainHandle hSwapChain);
+
+  /// \brief Begins rendering of a frame. This needs to be called first before any rendering function can be called.
+  /// \param swapchains List of swap-chains used in this frame. The device will ensure to acquire an image from each swap-chain and present it when calling EndFrame.
+  /// \param uiRenderFrame Frame index for debugging purposes.
   void BeginFrame(const ezUInt64 uiRenderFrame = 0);
+
+  /// \brief Ends rendering of a frame and submits all data to the GPU. No further rendering calls are allowed until BeginFrame is called again.
   void EndFrame();
+
 
   ezGALTimestampHandle GetTimestamp();
 
@@ -270,11 +281,12 @@ protected:
 
   // Pipeline & Pass functions
 
-  virtual void BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain) = 0;
-  virtual void EndPipelinePlatform(ezGALSwapChain* pSwapChain) = 0;
 
-  virtual ezGALPass* BeginPassPlatform(const char* szName) = 0;
-  virtual void EndPassPlatform(ezGALPass* pPass) = 0;
+  virtual void BeginPipelinePlatform(const char* szName) = 0;
+  virtual void EndPipelinePlatform() = 0;
+
+  virtual ezGALCommandEncoder* BeginCommandsPlatform(const char* szName) = 0;
+  virtual void EndCommandsPlatform(ezGALCommandEncoder* pPass) = 0;
 
   // State creation functions
 
@@ -334,8 +346,8 @@ protected:
 
   // Misc functions
 
-  virtual void BeginFramePlatform(const ezUInt64 uiRenderFrame) = 0;
-  virtual void EndFramePlatform() = 0;
+  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiRenderFrame) = 0;
+  virtual void EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains) = 0;
 
   virtual void FillCapabilitiesPlatform() = 0;
 
@@ -347,8 +359,9 @@ protected:
 
 private:
   bool m_bBeginFrameCalled = false;
+  ezHybridArray<ezGALSwapChain*, 8> m_FrameSwapChains;
   bool m_bBeginPipelineCalled = false;
-  bool m_bBeginPassCalled = false;
+  bool m_bBeginCommandsCalled = false;
 };
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>

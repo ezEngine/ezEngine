@@ -106,7 +106,7 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
 ezTestAppRun ezRendererTestSwapChain::BasicRenderLoop(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   BeginFrame();
-  BeginPass("SwapChainTest");
+  BeginCommands("SwapChainTest");
   {
     const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
@@ -122,12 +122,12 @@ ezTestAppRun ezRendererTestSwapChain::BasicRenderLoop(ezInt32 iIdentifier, ezUIn
     }
     ezRectFloat viewport = ezRectFloat(0.0f, 0.0f, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
 
-    ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     m_pWindow->ProcessWindowMessages();
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
   }
-  EndPass();
+  EndCommands();
   EndFrame();
 
   return m_iFrame < 120 ? ezTestAppRun::Continue : ezTestAppRun::Quit;

@@ -67,18 +67,13 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
 
 void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
-
-  SetupResources(pGALPass, renderViewContext, inputs, outputs);
+  SetupResources(renderViewContext.m_pRenderContext->GetCommandEncoder(), renderViewContext, inputs, outputs);
   SetupPermutationVars(renderViewContext);
   SetupLighting(renderViewContext);
 
   RenderObjects(renderViewContext);
 
   renderViewContext.m_pRenderContext->EndRendering();
-  pDevice->EndPass(pGALPass);
 }
 
 ezResult ezForwardRenderPass::Serialize(ezStreamWriter& inout_stream) const
@@ -97,7 +92,7 @@ ezResult ezForwardRenderPass::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-void ezForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezForwardRenderPass::SetupResources(ezGALCommandEncoder* pCommandEncoder, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -113,7 +108,7 @@ void ezForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderView
     renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  renderViewContext.m_pRenderContext->BeginRendering(pGALPass, std::move(renderingSetup), renderViewContext.m_pViewData->m_ViewPortRect, "", renderViewContext.m_pCamera->IsStereoscopic());
+  renderViewContext.m_pRenderContext->BeginRendering(std::move(renderingSetup), renderViewContext.m_pViewData->m_ViewPortRect, "", renderViewContext.m_pCamera->IsStereoscopic());
 }
 
 void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)

@@ -19,7 +19,7 @@ struct ID3D11Query;
 
 class ezGALDeviceDX11;
 
-class EZ_RENDERERDX11_DLL ezGALCommandEncoderImplDX11 final : public ezGALCommandEncoderCommonPlatformInterface, public ezGALCommandEncoderRenderPlatformInterface, public ezGALCommandEncoderComputePlatformInterface
+class EZ_RENDERERDX11_DLL ezGALCommandEncoderImplDX11 final : public ezGALCommandEncoderCommonPlatformInterface
 {
 public:
   ezGALCommandEncoderImplDX11(ezGALDeviceDX11& ref_deviceDX11);
@@ -86,10 +86,17 @@ public:
   virtual void PopMarkerPlatform() override;
   virtual void InsertEventMarkerPlatform(const char* szMarker) override;
 
+  // ezGALCommandEncoderComputePlatformInterface
+  // Dispatch
+  virtual void BeginComputePlatform() override;
+  virtual void EndComputePlatform() override;
+
+  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
+  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
 
   // ezGALCommandEncoderRenderPlatformInterface
-  void BeginRendering(const ezGALRenderingSetup& renderingSetup);
-  void BeginCompute();
+  virtual void BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup) override;
+  virtual void EndRenderingPlatform() override;
 
   // Draw functions
 
@@ -116,15 +123,8 @@ public:
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) override;
   virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
 
-
-  // ezGALCommandEncoderComputePlatformInterface
-  // Dispatch
-
-  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
-  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
-
 private:
-  friend class ezGALPassDX11;
+  friend class ezGALDeviceDX11;
 
   bool UnsetResourceViews(const ezGALResourceBase* pResource);
   bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);

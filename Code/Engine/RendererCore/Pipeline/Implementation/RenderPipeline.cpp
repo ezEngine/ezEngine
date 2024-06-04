@@ -1078,7 +1078,6 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
 void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 {
-  // EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
   EZ_PROFILE_SCOPE(m_sName.GetData());
 
   EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
@@ -1178,95 +1177,96 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  pDevice->BeginPipeline(m_sName, renderViewContext.m_pViewData->m_hSwapChain);
-
-  if (const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(renderViewContext.m_pViewData->m_hSwapChain))
+  ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands(m_sName);
   {
-    const ezGALRenderTargets& renderTargets = pSwapChain->GetRenderTargets();
-    // Update target textures after the swap chain acquired new textures.
-    for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
+    if (const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(renderViewContext.m_pViewData->m_hSwapChain))
     {
-      TextureUsageData& textureUsageData = m_TextureUsage[i];
-      if (textureUsageData.m_iTargetTextureIndex != -1)
+      const ezGALRenderTargets& renderTargets = pSwapChain->GetRenderTargets();
+      // Update target textures after the swap chain acquired new textures.
+      for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
       {
-        ezGALTextureHandle hTexture = reinterpret_cast<const ezGALTextureHandle*>(&renderTargets)[textureUsageData.m_iTargetTextureIndex];
-        for (auto pUsedByConn : textureUsageData.m_UsedBy)
+        TextureUsageData& textureUsageData = m_TextureUsage[i];
+        if (textureUsageData.m_iTargetTextureIndex != -1)
         {
-          pUsedByConn->m_TextureHandle = hTexture;
+          ezGALTextureHandle hTexture = reinterpret_cast<const ezGALTextureHandle*>(&renderTargets)[textureUsageData.m_iTargetTextureIndex];
+          for (auto pUsedByConn : textureUsageData.m_UsedBy)
+          {
+            pUsedByConn->m_TextureHandle = hTexture;
+          }
         }
       }
     }
+
+    ezUInt32 uiCurrentFirstUsageIdx = 0;
+    ezUInt32 uiCurrentLastUsageIdx = 0;
+    for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
+    {
+      auto& pPass = m_Passes[i];
+      EZ_PROFILE_SCOPE(pPass->GetName());
+      ezLogBlock passBlock("Render Pass", pPass->GetName());
+
+      // Create pool textures
+      for (; uiCurrentFirstUsageIdx < m_TextureUsageIdxSortedByFirstUsage.GetCount();)
+      {
+        ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByFirstUsage[uiCurrentFirstUsageIdx];
+        TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
+        if (usageData.m_uiFirstUsageIdx == i)
+        {
+          ezGALTextureHandle hTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(usageData.m_UsedBy[0]->m_Desc);
+          EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "GPU pool returned an invalidated texture!");
+          for (ezRenderPipelinePassConnection* pConn : usageData.m_UsedBy)
+          {
+            pConn->m_TextureHandle = hTexture;
+          }
+          ++uiCurrentFirstUsageIdx;
+        }
+        else
+        {
+          // The current usage data blocks m_uiFirstUsageIdx isn't reached yet so wait.
+          break;
+        }
+      }
+
+      // Execute pass block
+      {
+        EZ_PROFILE_AND_MARKER(pCommandEncoder, pPass->GetName());
+
+        ConnectionData& connectionData = m_Connections[pPass.Borrow()];
+        if (pPass->m_bActive)
+        {
+          pPass->Execute(renderViewContext, connectionData.m_Inputs, connectionData.m_Outputs);
+        }
+        else
+        {
+          pPass->ExecuteInactive(renderViewContext, connectionData.m_Inputs, connectionData.m_Outputs);
+        }
+      }
+
+      // Release pool textures
+      for (; uiCurrentLastUsageIdx < m_TextureUsageIdxSortedByLastUsage.GetCount();)
+      {
+        ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByLastUsage[uiCurrentLastUsageIdx];
+        TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
+        if (usageData.m_uiLastUsageIdx == i)
+        {
+          ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(usageData.m_UsedBy[0]->m_TextureHandle);
+          for (ezRenderPipelinePassConnection* pConn : usageData.m_UsedBy)
+          {
+            pConn->m_TextureHandle.Invalidate();
+          }
+          ++uiCurrentLastUsageIdx;
+        }
+        else
+        {
+          // The current usage data blocks m_uiLastUsageIdx isn't reached yet so wait.
+          break;
+        }
+      }
+    }
+    EZ_ASSERT_DEV(uiCurrentFirstUsageIdx == m_TextureUsageIdxSortedByFirstUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
+    EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
   }
-
-  ezUInt32 uiCurrentFirstUsageIdx = 0;
-  ezUInt32 uiCurrentLastUsageIdx = 0;
-  for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
-  {
-    auto& pPass = m_Passes[i];
-    EZ_PROFILE_SCOPE(pPass->GetName());
-    ezLogBlock passBlock("Render Pass", pPass->GetName());
-
-    // Create pool textures
-    for (; uiCurrentFirstUsageIdx < m_TextureUsageIdxSortedByFirstUsage.GetCount();)
-    {
-      ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByFirstUsage[uiCurrentFirstUsageIdx];
-      TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
-      if (usageData.m_uiFirstUsageIdx == i)
-      {
-        ezGALTextureHandle hTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(usageData.m_UsedBy[0]->m_Desc);
-        EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "GPU pool returned an invalidated texture!");
-        for (ezRenderPipelinePassConnection* pConn : usageData.m_UsedBy)
-        {
-          pConn->m_TextureHandle = hTexture;
-        }
-        ++uiCurrentFirstUsageIdx;
-      }
-      else
-      {
-        // The current usage data blocks m_uiFirstUsageIdx isn't reached yet so wait.
-        break;
-      }
-    }
-
-    // Execute pass block
-    {
-      ConnectionData& connectionData = m_Connections[pPass.Borrow()];
-      if (pPass->m_bActive)
-      {
-        pPass->Execute(renderViewContext, connectionData.m_Inputs, connectionData.m_Outputs);
-      }
-      else
-      {
-        pPass->ExecuteInactive(renderViewContext, connectionData.m_Inputs, connectionData.m_Outputs);
-      }
-    }
-
-    // Release pool textures
-    for (; uiCurrentLastUsageIdx < m_TextureUsageIdxSortedByLastUsage.GetCount();)
-    {
-      ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByLastUsage[uiCurrentLastUsageIdx];
-      TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
-      if (usageData.m_uiLastUsageIdx == i)
-      {
-        ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(usageData.m_UsedBy[0]->m_TextureHandle);
-        for (ezRenderPipelinePassConnection* pConn : usageData.m_UsedBy)
-        {
-          pConn->m_TextureHandle.Invalidate();
-        }
-        ++uiCurrentLastUsageIdx;
-      }
-      else
-      {
-        // The current usage data blocks m_uiLastUsageIdx isn't reached yet so wait.
-        break;
-      }
-    }
-  }
-  EZ_ASSERT_DEV(uiCurrentFirstUsageIdx == m_TextureUsageIdxSortedByFirstUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
-  EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
-
-  pDevice->EndPipeline(renderViewContext.m_pViewData->m_hSwapChain);
+  pDevice->EndCommands(pCommandEncoder);
 
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::AfterPipelineExecution;
   {
@@ -1444,8 +1444,8 @@ void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer
 
     // upload the image to the texture
     {
-      ezGALPass* pGALPass = pDevice->BeginPass("RasterizerDebugViewUpdate");
-      auto pCommandEncoder = pGALPass->BeginCompute();
+      ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("RasterizerDebugViewUpdate");
+      pCommandEncoder->BeginCompute();
 
       ezBoundingBoxu32 destBox;
       destBox.m_vMin.SetZero();
@@ -1457,8 +1457,8 @@ void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer
 
       pCommandEncoder->UpdateTexture(m_hOcclusionDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);
 
-      pGALPass->EndCompute(pCommandEncoder);
-      pDevice->EndPass(pGALPass);
+      pCommandEncoder->EndCompute();
+      pDevice->EndCommands(pCommandEncoder);
     }
 
     ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel2, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hOcclusionDebugViewTexture), ezVec2(1, -1));

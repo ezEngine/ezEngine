@@ -14,9 +14,8 @@
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 struct ezBakedProbesComponent::RenderDebugViewTask : public ezTask
@@ -111,8 +110,8 @@ void ezBakedProbesComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent
       task->m_bHasNewData = false;
 
       ezGALDevice* pGALDevice = ezGALDevice::GetDefaultDevice();
-      ezGALPass* pGALPass = pGALDevice->BeginPass("BakingDebugViewUpdate");
-      auto pCommandEncoder = pGALPass->BeginCompute();
+      ezGALCommandEncoder* pCommandEncoder = pGALDevice->BeginCommands("BakingDebugViewUpdate");
+      pCommandEncoder->BeginCompute();
 
       ezBoundingBoxu32 destBox;
       destBox.m_vMin.SetZero();
@@ -124,8 +123,8 @@ void ezBakedProbesComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent
 
       pCommandEncoder->UpdateTexture(pComponent->m_hDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);
 
-      pGALPass->EndCompute(pCommandEncoder);
-      pGALDevice->EndPass(pGALPass);
+      pCommandEncoder->EndCompute();
+      pGALDevice->EndCommands(pCommandEncoder);
     }
   }
 }

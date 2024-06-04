@@ -6,7 +6,7 @@
 ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 {
   BeginFrame();
-  BeginPass("RasterizerStates");
+  BeginCommands("RasterizerStates");
   ezGALRasterizerStateHandle hState;
 
   ezGALRasterizerStateCreationDescription RasterStateDesc;
@@ -120,9 +120,9 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   hState = m_pDevice->CreateRasterizerState(RasterStateDesc);
   EZ_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
 
-  ezRenderContext::GetDefaultInstance()->GetRenderCommandEncoder()->SetRasterizerState(hState);
+  ezRenderContext::GetDefaultInstance()->GetCommandEncoder()->SetRasterizerState(hState);
 
-  ezRenderContext::GetDefaultInstance()->GetRenderCommandEncoder()->SetScissorRect(ezRectU32(100, 50, GetResolution().width / 2, GetResolution().height / 2));
+  ezRenderContext::GetDefaultInstance()->GetCommandEncoder()->SetScissorRect(ezRectU32(100, 50, GetResolution().width / 2, GetResolution().height / 2));
 
   RenderObjects(ezShaderBindFlags::NoRasterizerState);
 
@@ -136,7 +136,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   else
     EZ_TEST_IMAGE(m_iFrame, 200);
   EndRendering();
-  EndPass();
+  EndCommands();
   EndFrame();
 
   m_pDevice->DestroyRasterizerState(hState);

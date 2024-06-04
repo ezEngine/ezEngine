@@ -93,12 +93,10 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
     sTemp.SetFormat("Render {}|{}", action.m_Texture.m_uiCurrentTextureIndex, action.m_Texture.m_uiCurrentSemaphoreValue);
     EZ_PROFILE_SCOPE(sTemp);
 
-    // Before starting to render in a frame call this function
+    m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
     device->BeginFrame();
 
-    device->BeginPipeline(sTemp, m_hSwapChain);
-
-    ezGALPass* pGALPass = device->BeginPass("OffscreenRender");
+    ezGALCommandEncoder* pCommandEncoder = device->BeginCommands(sTemp);
 
     ezGALRenderingSetup renderingSetup;
     ezGALRenderTargetViewHandle hBackbufferRTV = device->GetDefaultRenderTargetView(pSwapChain->GetRenderTargets().m_hRTs[0]);
@@ -107,7 +105,7 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
     renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
     ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
-    ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, renderingSetup, viewport);
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     ezGraphicsTest::SetClipSpace();
 
     ezRenderContext::GetDefaultInstance()->BindShader(m_hScreenShader);
@@ -116,9 +114,7 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
 
-    device->EndPass(pGALPass);
-
-    device->EndPipeline(m_hSwapChain);
+    device->EndCommands(pCommandEncoder);
 
     device->EndFrame();
     ezRenderContext::GetDefaultInstance()->ResetContextState();

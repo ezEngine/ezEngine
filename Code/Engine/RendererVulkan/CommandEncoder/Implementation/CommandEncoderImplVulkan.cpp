@@ -593,12 +593,12 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
 
     ezImageCopyVulkan copy(m_GALDeviceVulkan);
 
+    const ezUInt32 arraySize = textureDesc.m_Type == ezGALTextureType::TextureCube ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
+    const ezUInt32 mipLevels = textureDesc.m_uiMipLevelCount;
     const bool bStereoSupport = m_GALDeviceVulkan.GetCapabilities().m_bVertexShaderRenderTargetArrayIndex || m_GALDeviceVulkan.GetCapabilities().m_bShaderStageSupported[ezGALShaderStage::GeometryShader];
-    if (bStereoSupport)
+    if (arraySize > 1 && bStereoSupport)
     {
       copy.Init(pVulkanTexture, pStagingTexture, ezShaderUtils::ezBuiltinShaderType::CopyImageArray);
-      const ezUInt32 arraySize = textureDesc.m_Type == ezGALTextureType::TextureCube ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
-      const ezUInt32 mipLevels = textureDesc.m_uiMipLevelCount;
       for (ezUInt32 uiMipLevel = 0; uiMipLevel < textureDesc.m_uiMipLevelCount; uiMipLevel++)
       {
         vk::ImageSubresourceLayers subresourceLayersSource;
@@ -620,8 +620,6 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
     else
     {
       copy.Init(pVulkanTexture, pStagingTexture, ezShaderUtils::ezBuiltinShaderType::CopyImage);
-      const ezUInt32 arraySize = textureDesc.m_Type == ezGALTextureType::TextureCube ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
-      const ezUInt32 mipLevels = textureDesc.m_uiMipLevelCount;
 
       for (ezUInt32 uiLayer = 0; uiLayer < arraySize; uiLayer++)
       {
@@ -970,8 +968,10 @@ void ezGALCommandEncoderImplVulkan::InsertEventMarkerPlatform(const char* szMark
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGALCommandEncoderImplVulkan::BeginRendering(const ezGALRenderingSetup& renderingSetup)
+void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup)
 {
+  m_GALDeviceVulkan.GetCurrentCommandBuffer();
+
   m_PipelineDesc.m_renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup);
   m_PipelineDesc.m_uiAttachmentCount = renderingSetup.m_RenderTargetSetup.GetRenderTargetCount();
   ezSizeU32 size;
@@ -1018,7 +1018,7 @@ void ezGALCommandEncoderImplVulkan::BeginRendering(const ezGALRenderingSetup& re
   m_bViewportDirty = true;
 }
 
-void ezGALCommandEncoderImplVulkan::EndRendering()
+void ezGALCommandEncoderImplVulkan::EndRenderingPlatform()
 {
   if (!m_bClearSubmitted)
   {
@@ -1251,14 +1251,16 @@ void ezGALCommandEncoderImplVulkan::SetScissorRectPlatform(const ezRectU32& rect
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGALCommandEncoderImplVulkan::BeginCompute()
+void ezGALCommandEncoderImplVulkan::BeginComputePlatform()
 {
+  m_GALDeviceVulkan.GetCurrentCommandBuffer();
+
   m_bClearSubmitted = true;
   m_bInsideCompute = true;
   m_bPipelineStateDirty = true;
 }
 
-void ezGALCommandEncoderImplVulkan::EndCompute()
+void ezGALCommandEncoderImplVulkan::EndComputePlatform()
 {
   m_bInsideCompute = false;
 }

@@ -108,14 +108,6 @@ void ezGameApplication::Run_WorldUpdateAndRender()
 
   ezRenderWorld::BeginFrame();
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  // On most platforms it doesn't matter that much how early this happens.
-  // But on HoloLens this executes something that needs to be done at the right time,
-  // for the reprojection to work properly.
-  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
-  pDevice->BeginFrame(uiRenderFrame);
-
   ezTaskGroupID updateTaskID;
   if (ezRenderWorld::GetUseMultithreadedRendering())
   {
@@ -134,7 +126,30 @@ void ezGameApplication::Run_WorldUpdateAndRender()
   }
 }
 
-void ezGameApplication::Run_Present()
+void ezGameApplication::Run_AcquireImage()
+{
+  ezHybridArray<ezActor*, 8> allActors;
+  ezActorManager::GetSingleton()->GetAllActors(allActors);
+
+  for (ezActor* pActor : allActors)
+  {
+    EZ_PROFILE_SCOPE(pActor->GetName());
+
+    ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
+
+    if (pWindowPlugin == nullptr)
+      continue;
+
+    // Ignore actors without an output target
+    if (auto pOutput = pWindowPlugin->GetOutputTarget())
+    {
+      EZ_PROFILE_SCOPE("AcquireImage");
+      pOutput->AcquireImage();
+    }
+  }
+}
+
+void ezGameApplication::Run_PresentImage()
 {
   ezHybridArray<ezActor*, 8> allActors;
   ezActorManager::GetSingleton()->GetAllActors(allActors);
@@ -167,15 +182,14 @@ void ezGameApplication::Run_Present()
         bExecutedFrameCapture = true;
       }
 
-      EZ_PROFILE_SCOPE("Present");
-      pOutput->Present(cvar_AppVSync);
+      EZ_PROFILE_SCOPE("PresentImage");
+      pOutput->PresentImage(cvar_AppVSync);
     }
   }
 }
 
 void ezGameApplication::Run_FinishFrame()
 {
-  ezGALDevice::GetDefaultDevice()->EndFrame();
   ezRenderWorld::EndFrame();
 
   SUPER::Run_FinishFrame();
@@ -448,5 +462,7 @@ bool ezGameApplication::Run_ProcessApplicationInput()
 
   return true;
 }
+
+
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);

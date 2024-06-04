@@ -91,14 +91,15 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     // Update window size
     ezActorPluginWindow* pWindowPlugin = m_pEditorWndActor->GetPlugin<ezActorPluginWindow>();
 
-    const ezSizeU32 wndSize = pWindowPlugin->GetWindow()->GetClientAreaSize();
+    auto* pWindow = static_cast<ezEditorProcessViewWindow*>(pWindowPlugin->GetWindow());
+    const ezSizeU32 wndSize = pWindow->GetClientAreaSize();
 
-    EZ_ASSERT_DEV(pWindowPlugin->GetWindow()->GetNativeWindowHandle() == hWnd, "Editor view handle must never change. View needs to be destroyed and recreated.");
+    EZ_ASSERT_DEV(pWindow->GetNativeWindowHandle() == hWnd, "Editor view handle must never change. View needs to be destroyed and recreated.");
 
     if (wndSize.width == uiWidth && wndSize.height == uiHeight)
       return;
 
-    if (static_cast<ezEditorProcessViewWindow*>(pWindowPlugin->GetWindow())->UpdateWindow(hWnd, uiWidth, uiHeight).Failed())
+    if (pWindow->UpdateWindow(hWnd, uiWidth, uiHeight).Failed())
     {
       ezLog::Error("Failed to update Editor Process View Window");
     }

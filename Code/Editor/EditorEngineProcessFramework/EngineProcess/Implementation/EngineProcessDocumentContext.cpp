@@ -10,9 +10,8 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/ImageUtils.h>
 
@@ -447,13 +446,13 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
       // Download image
       {
-        auto pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass("Thumbnail Readback");
-        EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndPass(pGALPass));
+        auto pCommandEncoder = ezGALDevice::GetDefaultDevice()->BeginCommands("Thumbnail Readback");
+        EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndCommands(pCommandEncoder));
 
-        auto pGALCommandEncoder = pGALPass->BeginRendering(ezGALRenderingSetup());
-        EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
+        pCommandEncoder->BeginRendering(ezGALRenderingSetup());
+        EZ_SCOPE_EXIT(pCommandEncoder->EndRendering());
 
-        pGALCommandEncoder->ReadbackTexture(m_hThumbnailColorRT);
+        pCommandEncoder->ReadbackTexture(m_hThumbnailColorRT);
         const ezGALTexture* pThumbnailColor = ezGALDevice::GetDefaultDevice()->GetTexture(m_hThumbnailColorRT);
         const ezEnum<ezGALResourceFormat> format = pThumbnailColor->GetDescription().m_Format;
 
@@ -477,7 +476,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         ezGALTextureSubresource sourceSubResource;
         ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
 
-        pGALCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, sourceSubResources, SysMemDescs);
+        pCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, sourceSubResources, SysMemDescs);
 
         ezImage imageSwap;
         ezImage* pImage = &image;

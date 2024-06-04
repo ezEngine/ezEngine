@@ -20,6 +20,7 @@ public:
 
   virtual ezWindowHandle GetNativeWindowHandle() const override;
 
+  virtual bool IsVisible() const override { return true; }
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode) const override;
 
   virtual void ProcessWindowMessages() override;
@@ -43,8 +44,10 @@ public:
   ezWindowOutputTargetXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutputTarget);
   ~ezWindowOutputTargetXR();
 
-  virtual void Present(bool bEnableVSync) override;
-  void RenderCompanionView(bool bThrottleCompanionView = true);
+  virtual void AcquireImage() override {}
+  virtual void PresentImage(bool bEnableVSync) override;
+  void CompanionViewBeginFrame(bool bThrottleCompanionView = true);
+  void CompanionViewEndFrame();
   virtual ezResult CaptureImage(ezImage& out_image) override;
 
   /// \brief Returns the companion window output target if present.
@@ -56,6 +59,7 @@ private:
   ezUniquePtr<ezWindowOutputTargetGAL> m_pCompanionWindowOutputTarget;
   ezConstantBufferStorageHandle m_hCompanionConstantBuffer;
   ezShaderResourceHandle m_hCompanionShader;
+  bool m_bRender = false;
 };
 
 /// \brief XR actor plugin window base implementation. Optionally wraps a companion window and output target.

@@ -83,15 +83,13 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   bool bAllowAsyncShaderLoading = renderViewContext.m_pRenderContext->GetAllowAsyncShaderLoading();
   renderViewContext.m_pRenderContext->SetAllowAsyncShaderLoading(false);
 
-  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
   EZ_SCOPE_EXIT(
-    pDevice->EndPass(pGALPass);
     renderViewContext.m_pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
 
   if (pInputCubemap->GetDescription().m_bAllowDynamicMipGeneration)
   {
-    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, ezGALRenderingSetup(), "MipMaps");
-    pCommandEncoder->GenerateMipMaps(pDevice->GetDefaultResourceView(m_hInputCubemap));
+    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, ezGALRenderingSetup(), "MipMaps");
+    renderViewContext.m_pRenderContext->GetCommandEncoder()->GenerateMipMaps(pDevice->GetDefaultResourceView(m_hInputCubemap));
   }
 
   {
@@ -103,7 +101,7 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
       ezUInt32 uiWidth = pFilteredSpecularOutput->m_Desc.m_uiWidth;
       ezUInt32 uiHeight = pFilteredSpecularOutput->m_Desc.m_uiHeight;
 
-      auto pCommandEncoder = ezRenderContext::BeginComputeScope(pGALPass, renderViewContext, "ReflectionFilter");
+      auto computeScope = ezRenderContext::BeginComputeScope(renderViewContext, "ReflectionFilter");
       renderViewContext.m_pRenderContext->BindTextureCube("InputCubemap", pDevice->GetDefaultResourceView(m_hInputCubemap));
       renderViewContext.m_pRenderContext->BindConstantBuffer("ezReflectionFilteredSpecularConstants", m_hFilteredSpecularConstantBuffer);
       renderViewContext.m_pRenderContext->BindShader(m_hFilteredSpecularShader);
@@ -138,7 +136,7 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   auto pIrradianceOutput = outputs[m_PinIrradianceData.m_uiOutputIndex];
   if (pIrradianceOutput != nullptr && !pIrradianceOutput->m_TextureHandle.IsInvalidated())
   {
-    auto pCommandEncoder = ezRenderContext::BeginComputeScope(pGALPass, renderViewContext, "Irradiance");
+    auto computeScope = ezRenderContext::BeginComputeScope(renderViewContext, "Irradiance");
 
     ezGALTextureUnorderedAccessViewHandle hIrradianceOutput;
     {

@@ -70,7 +70,7 @@ void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext, co
   }
   else
   {
-    auto pCommandEncoder = ezRenderContext::BeginPassAndComputeScope(renderViewContext, GetName());
+    auto pCommandEncoder = ezRenderContext::BeginComputeScope(renderViewContext, GetName());
 
     pCommandEncoder->CopyTexture(pOutput->m_TextureHandle, pInput->m_TextureHandle);
   }

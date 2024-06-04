@@ -6,6 +6,7 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 struct ezShaderResourceBinding;
+struct ezGALRenderingSetup;
 
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderCommonPlatformInterface
 {
@@ -67,12 +68,19 @@ public:
   virtual void PushMarkerPlatform(const char* szMarker) = 0;
   virtual void PopMarkerPlatform() = 0;
   virtual void InsertEventMarkerPlatform(const char* szMarker) = 0;
-};
 
-class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderRenderPlatformInterface
-{
-public:
+  // Compute Dispatch
+
+  virtual void BeginComputePlatform() = 0;
+  virtual void EndComputePlatform() = 0;
+
+  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) = 0;
+  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
+
   // Draw functions
+
+  virtual void BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup) = 0;
+  virtual void EndRenderingPlatform() = 0;
 
   virtual void ClearPlatform(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) = 0;
 
@@ -96,13 +104,5 @@ public:
 
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) = 0;
   virtual void SetScissorRectPlatform(const ezRectU32& rect) = 0;
-};
 
-class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderComputePlatformInterface
-{
-public:
-  // Dispatch
-
-  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) = 0;
-  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
 };

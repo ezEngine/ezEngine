@@ -2,15 +2,9 @@
 
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 
-void ezGALCommandEncoderState::InvalidateState()
-{
-  m_hShader = ezGALShaderHandle();
-}
-
 void ezGALCommandEncoderRenderState::InvalidateState()
 {
-  ezGALCommandEncoderState::InvalidateState();
-
+  m_hShader = ezGALShaderHandle();
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hVertexBuffers); ++i)
   {
     m_hVertexBuffers[i].Invalidate();

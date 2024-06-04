@@ -98,6 +98,10 @@ ezResult ezStereoTest::InitializeSubTest(ezInt32 iIdentifier)
 ezTestAppRun ezStereoTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   ++m_iFrame;
+  ezStringBuilder sb;
+  sb.SetFormat("{}", m_iFrame);
+
+  ezDebugRenderer::Draw2DText(m_pApplication->GetWorld(), sb, ezVec2I32(50, 50), ezColor::Brown, 60);
 
   if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)
     return ezTestAppRun::Quit;

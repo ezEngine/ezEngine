@@ -194,7 +194,7 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
   const bool bIsIntTexture = ezGALResourceFormat::IsIntegerFormat(m_Format);
   if (m_iFrame == 1)
   {
-    BeginPass("Offscreen");
+    BeginCommands("Offscreen");
     {
       ezGALRenderingSetup renderingSetup;
 
@@ -215,7 +215,7 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
       renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
       ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
-      ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
+      ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
       SetClipSpace();
 
       ezRenderContext::GetDefaultInstance()->BindShader(shader);
@@ -227,15 +227,15 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
 
     // Queue readback
     {
-      auto pCommandEncoder = m_pPass->BeginRendering(ezGALRenderingSetup());
-      pCommandEncoder->ReadbackTexture(m_hTexture2DReadback);
-      m_pPass->EndRendering(pCommandEncoder);
+      m_pEncoder->BeginRendering(ezGALRenderingSetup());
+      m_pEncoder->ReadbackTexture(m_hTexture2DReadback);
+      m_pEncoder->EndRendering();
     }
 
     // Readback result
     {
       m_bReadbackInProgress = false;
-      auto pCommandEncoder = m_pPass->BeginRendering(ezGALRenderingSetup());
+      m_pEncoder->BeginRendering(ezGALRenderingSetup());
 
       const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(m_hTexture2DReadback);
       const ezEnum<ezGALResourceFormat> format = pBackbuffer->GetDescription().m_Format;
@@ -255,7 +255,7 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
       ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
       ezGALTextureSubresource sourceSubResource;
       ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-      pCommandEncoder->CopyTextureReadbackResult(m_hTexture2DReadback, sourceSubResources, SysMemDescs);
+      m_pEncoder->CopyTextureReadbackResult(m_hTexture2DReadback, sourceSubResources, SysMemDescs);
 
       {
         ezGALTextureCreationDescription desc;
@@ -303,12 +303,12 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
 
 
 
-      m_pPass->EndRendering(pCommandEncoder);
+      m_pEncoder->EndRendering();
     }
-    EndPass();
+    EndCommands();
   }
 
-  BeginPass("Readback");
+  BeginCommands("Readback");
   {
     if (bIsIntTexture && !bIsDepthTexture)
     {
@@ -327,14 +327,14 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
     {
       ezRectFloat viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
 
-      ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
+      ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
       ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hTexture2DUpload));
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
       CompareUploadImage();
       EndRendering();
     }
   }
-  EndPass();
+  EndCommands();
   return m_bReadbackInProgress ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
 

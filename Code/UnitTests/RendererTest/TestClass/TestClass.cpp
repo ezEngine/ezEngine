@@ -266,10 +266,10 @@ void ezGraphicsTest::DestroyWindow()
   }
 }
 
-void ezGraphicsTest::BeginFrame(const char* szPipe)
+void ezGraphicsTest::BeginFrame()
 {
+  m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
   m_pDevice->BeginFrame(m_iFrame);
-  m_pDevice->BeginPipeline(szPipe, m_hSwapChain);
 }
 
 void ezGraphicsTest::EndFrame()
@@ -277,7 +277,6 @@ void ezGraphicsTest::EndFrame()
   m_pWindow->ProcessWindowMessages();
 
   ezRenderContext::GetDefaultInstance()->ResetContextState();
-  m_pDevice->EndPipeline(m_hSwapChain);
 
   m_pDevice->EndFrame();
 
@@ -285,21 +284,21 @@ void ezGraphicsTest::EndFrame()
 }
 
 
-void ezGraphicsTest::BeginPass(const char* szPassName)
+void ezGraphicsTest::BeginCommands(const char* szPassName)
 {
-  EZ_ASSERT_DEV(m_pPass == nullptr, "Call EndPass first before calling BeginPass again");
-  m_pPass = m_pDevice->BeginPass(szPassName);
+  EZ_ASSERT_DEV(m_pEncoder == nullptr, "Call EndCommands first before calling BeginCommands again");
+  m_pEncoder = m_pDevice->BeginCommands(szPassName);
 }
 
 
-void ezGraphicsTest::EndPass()
+void ezGraphicsTest::EndCommands()
 {
-  EZ_ASSERT_DEV(m_pPass != nullptr, "Call BeginPass first before calling EndPass");
-  m_pDevice->EndPass(m_pPass);
-  m_pPass = nullptr;
+  EZ_ASSERT_DEV(m_pEncoder != nullptr, "Call BeginCommands first before calling EndCommands");
+  m_pDevice->EndCommands(m_pEncoder);
+  m_pEncoder = nullptr;
 }
 
-ezGALRenderCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport, ezRectU32* pScissor)
+ezGALCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport, ezRectU32* pScissor)
 {
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
@@ -319,12 +318,14 @@ ezGALRenderCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ez
     viewport = *pViewport;
   }
 
-  ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
+  ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
   ezRectU32 scissor = ezRectU32(0, 0, m_pWindow->GetClientAreaSize().width, m_pWindow->GetClientAreaSize().height);
   if (pScissor)
   {
     scissor = *pScissor;
   }
+
+  auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->GetCommandEncoder();
   pCommandEncoder->SetScissorRect(scissor);
 
   SetClipSpace();
@@ -348,7 +349,7 @@ void ezGraphicsTest::SetClipSpace()
 
 void ezGraphicsTest::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureResourceViewHandle hSRV)
 {
-  ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
+  ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
 
   ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hSRV);
   RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);

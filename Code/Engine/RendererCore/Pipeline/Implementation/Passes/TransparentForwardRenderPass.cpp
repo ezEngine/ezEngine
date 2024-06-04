@@ -52,30 +52,29 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
   ezGALTextureHandle hSceneColor = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
 
-  SetupResources(pGALPass, renderViewContext, inputs, outputs);
-  SetupPermutationVars(renderViewContext);
-  SetupLighting(renderViewContext);
+  {
+    SetupResources(renderViewContext.m_pRenderContext->GetCommandEncoder(), renderViewContext, inputs, outputs);
+    SetupPermutationVars(renderViewContext);
+    SetupLighting(renderViewContext);
 
-  UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
+    UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
 
-  ezGALTextureResourceViewHandle colorResourceViewHandle = pDevice->GetDefaultResourceView(hSceneColor);
-  renderViewContext.m_pRenderContext->BindTexture2D("SceneColor", colorResourceViewHandle);
-  renderViewContext.m_pRenderContext->BindSamplerState("SceneColorSampler", m_hSceneColorSamplerState);
+    ezGALTextureResourceViewHandle colorResourceViewHandle = pDevice->GetDefaultResourceView(hSceneColor);
+    renderViewContext.m_pRenderContext->BindTexture2D("SceneColor", colorResourceViewHandle);
+    renderViewContext.m_pRenderContext->BindSamplerState("SceneColorSampler", m_hSceneColorSamplerState);
 
-  RenderObjects(renderViewContext);
+    RenderObjects(renderViewContext);
 
-  renderViewContext.m_pRenderContext->EndRendering();
-  pDevice->EndPass(pGALPass);
-
+    renderViewContext.m_pRenderContext->EndRendering();
+  }
   ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hSceneColor);
 }
 
-void ezTransparentForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext,
+void ezTransparentForwardRenderPass::SetupResources(ezGALCommandEncoder* pCommandEncoder, const ezRenderViewContext& renderViewContext,
   const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  SUPER::SetupResources(pGALPass, renderViewContext, inputs, outputs);
+  SUPER::SetupResources(pCommandEncoder, renderViewContext, inputs, outputs);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 

@@ -5,7 +5,6 @@
 #include <Foundation/Configuration/Startup.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererDX11/Device/PassDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
 #include <RendererDX11/Resources/QueryDX11.h>
@@ -17,7 +16,7 @@
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
@@ -159,7 +158,9 @@ retry:
 
 
   // Create default pass
-  m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassDX11, *this);
+  m_pCommandEncoderImpl = EZ_DEFAULT_NEW(ezGALCommandEncoderImplDX11, *this);
+  m_pCommandEncoder = EZ_DEFAULT_NEW(ezGALCommandEncoder, *this, *m_pCommandEncoderImpl);
+  m_pCommandEncoderImpl->m_pOwner = m_pCommandEncoder.Borrow();
 
   if (FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void**)&m_pDXGIDevice)))
   {
@@ -342,7 +343,8 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   }
 #endif
 
-  m_pDefaultPass = nullptr;
+  m_pCommandEncoder = nullptr;
+  m_pCommandEncoderImpl = nullptr;
 
   EZ_GAL_DX11_RELEASE(m_pImmediateContext);
   EZ_GAL_DX11_RELEASE(m_pDevice3);
@@ -359,50 +361,36 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
 
 // Pipeline & Pass functions
 
-void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain)
+void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName)
 {
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
-#endif
-
-  if (pSwapChain)
-  {
-    pSwapChain->AcquireNextRenderTarget(this);
-  }
-}
-
-void ezGALDeviceDX11::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
-{
-  if (pSwapChain)
-  {
-    pSwapChain->PresentRenderTarget(this);
-  }
-
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPipelineTimingScope);
+  m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
 #endif
 }
 
-ezGALPass* ezGALDeviceDX11::BeginPassPlatform(const char* szName)
+void ezGALDeviceDX11::EndPipelinePlatform()
 {
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPipelineTimingScope);
 #endif
-
-  m_pDefaultPass->BeginPass(szName);
-
-  return m_pDefaultPass.Borrow();
 }
 
-void ezGALDeviceDX11::EndPassPlatform(ezGALPass* pPass)
+ezGALCommandEncoder* ezGALDeviceDX11::BeginCommandsPlatform(const char* szName)
 {
-  EZ_ASSERT_DEV(m_pDefaultPass.Borrow() == pPass, "Invalid pass");
-
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPassTimingScope);
+  m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
 #endif
 
-  m_pDefaultPass->EndPass();
+  return m_pCommandEncoder.Borrow();
+}
+
+void ezGALDeviceDX11::EndCommandsPlatform(ezGALCommandEncoder* pPass)
+{
+  EZ_ASSERT_DEV(m_pCommandEncoder.Borrow() == pPass, "Invalid pass");
+
+#if EZ_ENABLED(EZ_USE_PROFILING)
+  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPassTimingScope);
+#endif
 }
 
 void ezGALDeviceDX11::FlushPlatform()
@@ -781,13 +769,13 @@ void ezGALDeviceDX11::PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVS
 
 // Misc functions
 
-void ezGALDeviceDX11::BeginFramePlatform(const ezUInt64 uiRenderFrame)
+void ezGALDeviceDX11::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiRenderFrame)
 {
   ezStringBuilder sb;
   sb.SetFormat("Frame {}", uiRenderFrame);
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), sb);
+  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
 #endif
 
   // check if fence is reached and wait if the disjoint timer is about to be re-used
@@ -810,12 +798,22 @@ void ezGALDeviceDX11::BeginFramePlatform(const ezUInt64 uiRenderFrame)
 
     perFrameData.m_fInvTicksPerSecond = -1.0f;
   }
+
+  for (ezGALSwapChain* pSwapChain : swapchains)
+  {
+    pSwapChain->AcquireNextRenderTarget(this);
+  }
 }
 
-void ezGALDeviceDX11::EndFramePlatform()
+void ezGALDeviceDX11::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
 {
+  for (ezGALSwapChain* pSwapChain : swapchains)
+  {
+    pSwapChain->PresentRenderTarget(this);
+  }
+
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pFrameTimingScope);
+  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pFrameTimingScope);
 #endif
 
   // end disjoint query
@@ -844,7 +842,7 @@ void ezGALDeviceDX11::EndFramePlatform()
 
           if (m_bSyncTimeNeeded)
           {
-            ezGALTimestampHandle hTimestamp = m_pDefaultPass->m_pRenderCommandEncoder->InsertTimestamp();
+            ezGALTimestampHandle hTimestamp = m_pCommandEncoder->InsertTimestamp();
             ID3D11Query* pQuery = GetTimestamp(hTimestamp);
 
             ezUInt64 uiTimestamp;
@@ -1344,9 +1342,9 @@ void ezGALDeviceDX11::FillFormatLookupTable()
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC7UNormalizedsRGB, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC7_TYPELESS).RV(DXGI_FORMAT_BC7_UNORM_SRGB));
 }
 
-ezGALRenderCommandEncoder* ezGALDeviceDX11::GetRenderCommandEncoder() const
+ezGALCommandEncoder* ezGALDeviceDX11::GetCommandEncoder() const
 {
-  return m_pDefaultPass->m_pRenderCommandEncoder.Borrow();
+  return m_pCommandEncoder.Borrow();
 }
 
 void ezGALDeviceDX11::InsertFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence)

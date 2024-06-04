@@ -547,7 +547,7 @@ void ezGALCommandEncoderImplDX11::InsertEventMarkerPlatform(const char* szMarker
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGALCommandEncoderImplDX11::BeginRendering(const ezGALRenderingSetup& renderingSetup)
+void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup)
 {
   if (m_RenderTargetSetup != renderingSetup.m_RenderTargetSetup)
   {
@@ -625,12 +625,19 @@ void ezGALCommandEncoderImplDX11::BeginRendering(const ezGALRenderingSetup& rend
   ClearPlatform(renderingSetup.m_ClearColor, renderingSetup.m_uiRenderTargetClearMask, renderingSetup.m_bClearDepth, renderingSetup.m_bClearStencil, renderingSetup.m_fDepthClear, renderingSetup.m_uiStencilClear);
 }
 
-void ezGALCommandEncoderImplDX11::BeginCompute()
+void ezGALCommandEncoderImplDX11::EndRenderingPlatform()
+{
+}
+
+void ezGALCommandEncoderImplDX11::BeginComputePlatform()
 {
   // We need to unbind all render targets as otherwise using them in a compute shader as input will fail:
   // DEVICE_CSSETSHADERRESOURCES_HAZARD: Resource being set to CS shader resource slot 0 is still bound on output!
   m_RenderTargetSetup = ezGALRenderTargetSetup();
   m_pDXContext->OMSetRenderTargets(0, nullptr, nullptr);
+}
+void ezGALCommandEncoderImplDX11::EndComputePlatform()
+{
 }
 
 // Draw functions

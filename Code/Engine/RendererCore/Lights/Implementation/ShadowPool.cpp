@@ -13,9 +13,8 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Utils/CoreRenderProfile.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
@@ -1054,13 +1053,13 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALPass* pGALPass = pDevice->BeginPass("Shadow Atlas");
+  ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("Shadow Atlas");
 
   ezGALRenderingSetup renderingSetup;
   renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(s_pData->m_hShadowAtlasTexture));
   renderingSetup.m_bClearDepth = true;
 
-  auto pCommandEncoder = pGALPass->BeginRendering(renderingSetup);
+  pCommandEncoder->BeginRendering(renderingSetup);
 
   ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
   auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
@@ -1071,8 +1070,8 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
     pCommandEncoder->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr());
   }
 
-  pGALPass->EndRendering(pCommandEncoder);
-  pDevice->EndPass(pGALPass);
+  pCommandEncoder->EndRendering();
+  pDevice->EndCommands(pCommandEncoder);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ShadowPool);

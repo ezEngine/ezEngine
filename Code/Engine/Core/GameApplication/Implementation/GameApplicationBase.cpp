@@ -405,6 +405,8 @@ void ezGameApplicationBase::RunOneFrame()
 
   Run_InputUpdate();
 
+  Run_AcquireImage();
+
   Run_WorldUpdateAndRender();
 
   if (!s_bUpdatePluginsExecuted)
@@ -433,8 +435,8 @@ void ezGameApplicationBase::RunOneFrame()
   }
 
   {
-    EZ_PROFILE_SCOPE("Run_Present");
-    Run_Present();
+    EZ_PROFILE_SCOPE("Run_PresentImage");
+    Run_PresentImage();
   }
   ezClock::GetGlobalClock()->Update();
   UpdateFrameTime();
@@ -469,6 +471,10 @@ void ezGameApplicationBase::Run_InputUpdate()
 bool ezGameApplicationBase::Run_ProcessApplicationInput()
 {
   return true;
+}
+
+void ezGameApplicationBase::Run_AcquireImage()
+{
 }
 
 void ezGameApplicationBase::Run_BeforeWorldUpdate()
@@ -522,7 +528,7 @@ void ezGameApplicationBase::Run_UpdatePlugins()
   }
 }
 
-void ezGameApplicationBase::Run_Present() {}
+void ezGameApplicationBase::Run_PresentImage() {}
 
 void ezGameApplicationBase::Run_FinishFrame()
 {
