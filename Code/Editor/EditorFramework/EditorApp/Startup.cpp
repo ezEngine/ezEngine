@@ -305,10 +305,10 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     ezFileSystem::CreateDirectoryStructure(sAppDir).IgnoreResult();
     ezFileSystem::CreateDirectoryStructure(sUserData).IgnoreResult();
 
-    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites).IgnoreResult();             // for absolute paths
-    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();     // writing to the binary directory
+    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezDataDirUsage::AllowWrites).IgnoreResult();           // for absolute paths
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezDataDirUsage::AllowWrites).IgnoreResult();   // writing to the binary directory
     ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app").IgnoreResult();                                  // app specific data
-    ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezFileSystem::AllowWrites).IgnoreResult(); // for writing app user data
+    ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezDataDirUsage::AllowWrites).IgnoreResult(); // for writing app user data
   }
 
   {

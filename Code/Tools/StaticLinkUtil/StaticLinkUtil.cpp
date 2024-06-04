@@ -125,7 +125,7 @@ public:
     m_sSearchDir = sSearchDir;
 
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     // use such a path to write to an absolute file
     // ':abs/C:/some/file.txt"

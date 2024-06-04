@@ -202,7 +202,7 @@ void ezGameEngineTestApplication::Init_FileSystem_ConfigureDataDirs()
     ezStringBuilder sBaseDir = ">sdk/Data/Base/";
     ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
 
-    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
     ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").IgnoreResult();
   }
 }

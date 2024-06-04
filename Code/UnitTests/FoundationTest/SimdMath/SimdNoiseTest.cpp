@@ -13,7 +13,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
   ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "SimdNoise") == EZ_SUCCESS);
-  EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "SimdNoise", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS,
+  EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "SimdNoise", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS,
     "Failed to mount data dir '%s'", sWriteDir.GetData());
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Perlin")

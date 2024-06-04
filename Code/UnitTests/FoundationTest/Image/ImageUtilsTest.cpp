@@ -19,7 +19,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
   if (addDir.Failed())
     return;
 
-  addDir = ezFileSystem::AddDataDirectory(sWriteDir.GetData(), "ImageTest", "output", ezFileSystem::AllowWrites);
+  addDir = ezFileSystem::AddDataDirectory(sWriteDir.GetData(), "ImageTest", "output", ezDataDirUsage::AllowWrites);
   EZ_TEST_BOOL(addDir == EZ_SUCCESS);
 
   if (addDir.Failed())

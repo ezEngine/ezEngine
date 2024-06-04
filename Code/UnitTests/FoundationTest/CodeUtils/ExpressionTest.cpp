@@ -474,7 +474,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
   s_uiNumByteCodeComparisons = 0;
 
   ezStringBuilder outputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
   s_pParser = EZ_DEFAULT_NEW(ezExpressionParser);
   s_pCompiler = EZ_DEFAULT_NEW(ezExpressionCompiler);

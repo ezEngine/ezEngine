@@ -100,7 +100,7 @@ void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, e
   {
     for (auto& dd : ref_ctxt.m_MountedDataDirs)
     {
-      ezFileSystem::AddDataDirectory(dd.m_sPathOnServer, "FileServe", dd.m_sRootName, ezFileSystem::AllowWrites).IgnoreResult();
+      ezFileSystem::AddDataDirectory(dd.m_sPathOnServer, "FileServe", dd.m_sRootName, ezDataDirUsage::AllowWrites).IgnoreResult();
     }
 
     auto& r = ref_msg.GetReader();

@@ -604,11 +604,11 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
   ezFileSystem::CreateDirectoryStructure(sUserData).AssertSuccess();
   ezFileSystem::CreateDirectoryStructure(">sdk/Output/").AssertSuccess();
 
-  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites).AssertSuccess();                       // for absolute paths
-  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezFileSystem::ReadOnly).AssertSuccess();                // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">sdk/Output/", "EngineProcess", "shadercache", ezFileSystem::AllowWrites).AssertSuccess(); // for shader files
+  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezDataDirUsage::AllowWrites).AssertSuccess();                       // for absolute paths
+  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezDataDirUsage::ReadOnly).AssertSuccess();                // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">sdk/Output/", "EngineProcess", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess(); // for shader files
   ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").AssertSuccess();                                 // app specific data
-  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites).AssertSuccess();          // for writing app user data
+  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezDataDirUsage::AllowWrites).AssertSuccess();        // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
 

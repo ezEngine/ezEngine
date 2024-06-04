@@ -121,7 +121,7 @@ bool ezDataDirectory::FileserveType::ExistsFile(ezStringView sFile, bool bOneSpe
   return ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir, nullptr).Succeeded();
 }
 
-ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage)
+ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage)
 {
   if (!ezFileserveClient::s_bEnableFileserve || ezFileserveClient::GetSingleton() == nullptr)
     return nullptr; // this would only happen if the functionality is switched off, but not before the factory was added

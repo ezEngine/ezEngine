@@ -8,6 +8,23 @@ class ezDataDirectoryReaderWriterBase;
 class ezDataDirectoryReader;
 class ezDataDirectoryWriter;
 struct ezFileStats;
+class ezDataDirectoryType;
+
+/// \brief Describes in which mode a data directory is mounted.
+enum class ezDataDirUsage
+{
+  ReadOnly,
+  AllowWrites,
+};
+
+struct ezDataDirectoryInfo
+{
+  ezDataDirUsage m_Usage;
+
+  ezString m_sRootName;
+  ezString m_sGroup;
+  ezDataDirectoryType* m_pDataDirType = nullptr;
+};
 
 /// \brief The base class for all data directory types.
 ///
@@ -145,7 +162,7 @@ protected:
 
   bool m_bIsReader;
   ezInt32 m_iDataDirUserData = 0;
-  ezDataDirectoryType* m_pDataDirectory;
+  ezDataDirectoryType* m_pDataDirType;
   ezString128 m_sFilePath;
 };
 

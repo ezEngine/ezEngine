@@ -211,7 +211,7 @@ public:
     // As we only need access to files through global paths, we add the "empty data directory"
     // This data dir will manage all accesses through absolute paths, unless any other data directory can handle them
     // since we don't add any further data dirs, this is it
-    ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
 
     // now we can set up the logging system (we could do it earlier, but the HTML writer needs access to the file system)

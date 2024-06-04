@@ -134,22 +134,22 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   ezFileSystem::CreateDirectoryStructure(shaderCacheRoot).AssertSuccess();
 
   // for absolute paths, read-only
-  ezFileSystem::AddDataDirectory("", "GameApplicationBase", ":", ezFileSystem::ReadOnly).AssertSuccess();
+  ezFileSystem::AddDataDirectory("", "GameApplicationBase", ":", ezDataDirUsage::ReadOnly).AssertSuccess();
 
   // ":bin/" : writing to the binary directory
-  ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplicationBase", "bin", ezFileSystem::AllowWrites).AssertSuccess();
+  ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplicationBase", "bin", ezDataDirUsage::AllowWrites).AssertSuccess();
 
   // ":shadercache/" for reading and writing shader files
-  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezFileSystem::AllowWrites).AssertSuccess();
+  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess();
 
   // ":appdata/" for reading and writing app user data
-  ezFileSystem::AddDataDirectory(sUserDataPath, "GameApplicationBase", "appdata", ezFileSystem::AllowWrites).AssertSuccess();
+  ezFileSystem::AddDataDirectory(sUserDataPath, "GameApplicationBase", "appdata", ezDataDirUsage::AllowWrites).AssertSuccess();
 
   // ":base/" for reading the core engine files
-  ezFileSystem::AddDataDirectory(GetBaseDataDirectoryPath(), "GameApplicationBase", "base", ezFileSystem::DataDirUsage::ReadOnly).IgnoreResult();
+  ezFileSystem::AddDataDirectory(GetBaseDataDirectoryPath(), "GameApplicationBase", "base", ezDataDirUsage::ReadOnly).IgnoreResult();
 
   // ":project/" for reading the project specific files
-  ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezFileSystem::DataDirUsage::ReadOnly).IgnoreResult();
+  ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezDataDirUsage::ReadOnly).IgnoreResult();
 
   // ":plugins/" for plugin specific data (optional, if it exists)
   {
@@ -157,7 +157,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
     ezFileSystem::ResolveSpecialDirectory(">sdk/Data/Plugins", dir).IgnoreResult();
     if (ezOSFile::ExistsDirectory(dir))
     {
-      ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezFileSystem::DataDirUsage::ReadOnly).IgnoreResult();
+      ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezDataDirUsage::ReadOnly).IgnoreResult();
     }
   }
 

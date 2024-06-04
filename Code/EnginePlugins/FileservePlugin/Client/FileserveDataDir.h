@@ -31,7 +31,7 @@ namespace ezDataDirectory
   {
   public:
     /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
-    static ezDataDirectoryType* Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage);
+    static ezDataDirectoryType* Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage);
 
     /// \brief [internal] Makes sure the redirection config files are up to date and then reloads them.
     virtual void ReloadExternalConfigs() override;

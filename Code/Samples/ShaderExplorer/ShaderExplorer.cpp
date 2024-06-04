@@ -235,8 +235,7 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   m_pDirectoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).AssertSuccess("Failed to watch project directory");
 #endif
 
-  ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).AssertSuccess();
-
+  ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess();
   ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").AssertSuccess();
   ezFileSystem::AddDataDirectory(">project/", "Project", "project").AssertSuccess();
 

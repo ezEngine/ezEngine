@@ -93,16 +93,13 @@ public:
       ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/Default/";
     }
 
-    ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
-    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();              // writing to the binary directory
-    ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
-    ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata",
-      ezFileSystem::AllowWrites)
-      .IgnoreResult();                                                                                                  // app user data
-
+    ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezDataDirUsage::AllowWrites).IgnoreResult();                                  // writing to the binary directory
+    ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites).IgnoreResult();                 // for shader files
+    ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata", ezDataDirUsage::AllowWrites).IgnoreResult(); // app user data
     ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").IgnoreResult();
     ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared").IgnoreResult();
-    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);

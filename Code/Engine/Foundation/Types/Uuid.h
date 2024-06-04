@@ -13,13 +13,13 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Default constructor. Constructed Uuid will be invalid.
-  EZ_ALWAYS_INLINE ezUuid(); // [tested]
+  EZ_ALWAYS_INLINE ezUuid() = default; // [tested]
 
   /// \brief Constructs the Uuid from existing values
-  EZ_ALWAYS_INLINE ezUuid(ezUInt64 uiLow, ezUInt64 uiHigh)
+  EZ_ALWAYS_INLINE constexpr ezUuid(ezUInt64 uiLow, ezUInt64 uiHigh)
+    : m_uiLow(uiLow)
+    , m_uiHigh(uiHigh)
   {
-    m_uiLow = uiLow;
-    m_uiHigh = uiHigh;
   }
 
   /// \brief Comparison operator. [tested]
@@ -43,8 +43,8 @@ public:
   /// \brief Returns the internal 128 Bit of data
   void GetValues(ezUInt64& ref_uiLow, ezUInt64& ref_uiHigh) const
   {
-    ref_uiHigh = m_uiHigh;
     ref_uiLow = m_uiLow;
+    ref_uiHigh = m_uiHigh;
   }
 
   /// \brief Creates a uuid from a string. The result is always the same for the same string.
@@ -66,8 +66,8 @@ private:
   friend EZ_FOUNDATION_DLL_FRIEND void operator>>(ezStreamReader& inout_stream, ezUuid& ref_value);
   friend EZ_FOUNDATION_DLL_FRIEND void operator<<(ezStreamWriter& inout_stream, const ezUuid& value);
 
-  ezUInt64 m_uiHigh;
-  ezUInt64 m_uiLow;
+  ezUInt64 m_uiLow = 0;
+  ezUInt64 m_uiHigh = 0;
 };
 
 #include <Foundation/Types/Implementation/Uuid_inl.h>
