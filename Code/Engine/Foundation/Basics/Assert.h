@@ -2,8 +2,6 @@
 
 /// \file
 
-#include <Foundation/Basics.h>
-
 /// ***** Assert Usage Guidelines *****
 ///
 /// For your typical code, use EZ_ASSERT_DEV to check that vital preconditions are met.
@@ -27,7 +25,7 @@
 /// is not executed anymore.
 ///
 
-
+class ezFormatString;
 
 /// \brief Assert handler callback. Should return true to trigger a break point or false if the assert should be ignored
 using ezAssertHandler = bool (*)(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);

@@ -2,6 +2,7 @@
 
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/ThreadSignal.h>
+#include <Foundation/Time/Time.h>
 
 ezThreadSignal::ezThreadSignal(Mode mode /*= Mode::AutoReset*/)
 {

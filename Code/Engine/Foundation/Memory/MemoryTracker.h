@@ -1,7 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Memory/Allocator.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Types/ArrayPtr.h>
 #include <Foundation/Types/Bitflags.h>
 
 enum class ezAllocatorTrackingMode : ezUInt32

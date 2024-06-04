@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+#include <Foundation/Math/Declarations.h>
+
 /// \brief A 16 bit IEEE float class. Often called "half"
 ///
 /// This class only contains functions to convert between float and float16. It does not support any mathematical operations.
