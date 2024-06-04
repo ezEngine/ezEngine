@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <Foundation/Strings/StringView.h>
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include FormatStringArgs.h directly, but instead include Foundation/Basics.h"
+#endif
 
 class ezStringBuilder;
 class ezVariant;

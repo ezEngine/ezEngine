@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
+#include <Foundation/Configuration/StaticSubSystem.h>
 
 struct ezTime;
 class ezThread;

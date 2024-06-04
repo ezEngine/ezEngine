@@ -1,5 +1,9 @@
 #pragma once
 
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
+#  include <intrin.h>
+#endif
+
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i()
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);

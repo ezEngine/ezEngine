@@ -1,5 +1,7 @@
 #pragma once
 
+#define EZ_INCLUDING_BASICS_H
+
 #include <Foundation/Basics/PreprocessorUtils.h>
 
 #include <Foundation/Basics/AllDefinesOff.h>
@@ -65,8 +67,18 @@
 
 #include <Foundation/Types/TypeTraits.h>
 
-#include <Foundation/Configuration/StaticSubSystem.h>
+#include <Foundation/Strings/UnicodeUtils.h>
+
+#include <Foundation/Strings/StringUtils.h>
+
+#include <Foundation/Strings/Implementation/StringIterator.h>
+
+#include <Foundation/Strings/StringView.h>
+
+#include <Foundation/Strings/Implementation/FormatStringArgs.h>
+
 #include <Foundation/Strings/FormatString.h>
+
 
 class ezAllocator;
 
@@ -105,3 +117,5 @@ private:
   static void Initialize();
   static bool s_bIsInitialized;
 };
+
+#undef EZ_INCLUDING_BASICS_H

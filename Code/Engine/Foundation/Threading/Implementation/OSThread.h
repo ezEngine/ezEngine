@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
+#include <Foundation/Threading/AtomicInteger.h>
 
 /// \brief Implementation of a thread.
 ///

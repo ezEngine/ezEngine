@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include StringView.h directly, but instead include Foundation/Basics.h"
+#endif
+
 #include <Foundation/Strings/Implementation/StringIterator.h>
 
 #include <type_traits>

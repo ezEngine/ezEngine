@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include TypeTraits.h directly, but instead include Foundation/Basics.h"
+#endif
+
 /// \file
 
 /// Type traits
