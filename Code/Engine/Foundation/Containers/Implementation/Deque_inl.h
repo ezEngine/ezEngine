@@ -46,7 +46,7 @@ ezDequeBase<T, Construct>::ezDequeBase(ezAllocator* pAllocator)
 template <typename T, bool Construct>
 ezDequeBase<T, Construct>::ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezAllocator* pAllocator)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   Constructor(pAllocator);
 
@@ -56,7 +56,7 @@ ezDequeBase<T, Construct>::ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezA
 template <typename T, bool Construct>
 ezDequeBase<T, Construct>::ezDequeBase(ezDequeBase<T, Construct>&& rhs, ezAllocator* pAllocator)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   Constructor(pAllocator);
 
@@ -72,7 +72,7 @@ ezDequeBase<T, Construct>::~ezDequeBase()
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::operator=(const ezDequeBase<T, Construct>& rhs)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   Clear();                // does not deallocate anything
   RESERVE(rhs.m_uiCount); // allocates data, if required
@@ -86,7 +86,7 @@ void ezDequeBase<T, Construct>::operator=(const ezDequeBase<T, Construct>& rhs)
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::operator=(ezDequeBase<T, Construct>&& rhs)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   if (m_pAllocator != rhs.m_pAllocator)
     operator=(static_cast<ezDequeBase<T, Construct>&>(rhs));
@@ -502,7 +502,7 @@ inline void ezDequeBase<T, Construct>::PushBack()
 template <typename T, bool Construct>
 inline void ezDequeBase<T, Construct>::PushBack(const T& element)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
@@ -513,7 +513,7 @@ inline void ezDequeBase<T, Construct>::PushBack(const T& element)
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::PushBack(T&& element)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
@@ -541,7 +541,7 @@ inline void ezDequeBase<T, Construct>::PopBack(ezUInt32 uiElements)
 template <typename T, bool Construct>
 inline void ezDequeBase<T, Construct>::PushFront(const T& element)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
@@ -553,7 +553,7 @@ inline void ezDequeBase<T, Construct>::PushFront(const T& element)
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::PushFront(T&& element)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
@@ -665,7 +665,7 @@ ezUInt32 ezDequeBase<T, Construct>::LastIndexOf(const T& value, ezUInt32 uiStart
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::RemoveAtAndSwap(ezUInt32 uiIndex)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Cannot remove element {0}, the deque only contains {1} elements.", uiIndex, m_uiCount);
 
@@ -893,7 +893,7 @@ void ezDequeBase<T, Construct>::DeallocateAll()
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::RemoveAtAndCopy(ezUInt32 uiIndex)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex);
 
@@ -908,7 +908,7 @@ void ezDequeBase<T, Construct>::RemoveAtAndCopy(ezUInt32 uiIndex)
 template <typename T, bool Construct>
 bool ezDequeBase<T, Construct>::RemoveAndCopy(const T& value)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   ezUInt32 uiIndex = IndexOf(value);
 
@@ -922,7 +922,7 @@ bool ezDequeBase<T, Construct>::RemoveAndCopy(const T& value)
 template <typename T, bool Construct>
 bool ezDequeBase<T, Construct>::RemoveAndSwap(const T& value)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   ezUInt32 uiIndex = IndexOf(value);
 
@@ -936,7 +936,7 @@ bool ezDequeBase<T, Construct>::RemoveAndSwap(const T& value)
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::InsertAt(ezUInt32 uiIndex, const T& value)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  static_assert(Construct, "This function is not supported on Deques that do not construct their data.");
 
   // Index 0 inserts before the first element, Index m_uiCount inserts after the last element.
   EZ_ASSERT_DEV(uiIndex <= m_uiCount, "The deque has {0} elements. Cannot insert an element at index {1}.", m_uiCount, uiIndex);

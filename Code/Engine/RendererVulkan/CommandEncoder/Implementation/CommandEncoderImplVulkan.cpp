@@ -271,7 +271,7 @@ void ezGALCommandEncoderImplVulkan::CopyBufferRegionPlatform(const ezGALBuffer* 
 void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData,
   ezGALUpdateMode::Enum updateMode)
 {
-  EZ_CHECK_ALIGNMENT_16(pSourceData.GetPtr());
+  EZ_CHECK_ALIGNMENT(pSourceData.GetPtr(), 16);
 
   auto pVulkanDestination = static_cast<const ezGALBufferVulkan*>(pDestination);
 

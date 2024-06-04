@@ -4,6 +4,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Memory/Allocator.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
 
 // *****************************************

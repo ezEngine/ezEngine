@@ -1,4 +1,5 @@
 #include <Foundation/FoundationPCH.h>
+#include <Foundation/Memory/Allocator.h>
 
 void* ezAllocator::Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
 {

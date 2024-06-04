@@ -278,7 +278,7 @@ void ezGALCommandEncoderImplDX11::CopyBufferRegionPlatform(const ezGALBuffer* pD
 
 void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode)
 {
-  EZ_CHECK_ALIGNMENT_16(sourceData.GetPtr());
+  EZ_CHECK_ALIGNMENT(sourceData.GetPtr(), 16);
 
   ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferDX11*>(pDestination)->GetDXBuffer();
 

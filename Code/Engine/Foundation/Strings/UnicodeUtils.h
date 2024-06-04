@@ -1,9 +1,10 @@
 #pragma once
 
-#include <Foundation/Basics.h>
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include UnicodeUtils.h directly, but instead include Foundation/Basics.h"
+#endif
+
 #include <Foundation/ThirdParty/utf8/utf8.h>
-
-
 
 /// \brief Helper functions to work with Unicode.
 class EZ_FOUNDATION_DLL ezUnicodeUtils

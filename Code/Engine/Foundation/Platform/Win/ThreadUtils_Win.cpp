@@ -3,6 +3,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
 #  include <Foundation/Threading/ThreadUtils.h>
+#  include <Foundation/Time/Time.h>
 
 static DWORD g_uiMainThreadID = 0xFFFFFFFF;
 

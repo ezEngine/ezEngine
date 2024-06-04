@@ -2,6 +2,7 @@
 
 #include <Foundation/Algorithm/Sorting.h>
 #include <Foundation/Containers/Implementation/ArrayIterator.h>
+#include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.

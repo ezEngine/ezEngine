@@ -82,7 +82,7 @@ struct ezReflectionProbeRef
   ezUInt32 m_uiWorldIndex = 0;
   ezReflectionProbeId m_Id;
 };
-EZ_CHECK_AT_COMPILETIME(sizeof(ezReflectionProbeRef) == 8);
+static_assert(sizeof(ezReflectionProbeRef) == 8);
 
 template <>
 struct ezHashHelper<ezReflectionProbeRef>

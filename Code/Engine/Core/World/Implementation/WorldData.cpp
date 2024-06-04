@@ -68,14 +68,14 @@ namespace ezInternal
     m_Objects.Insert(nullptr);
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 240);
+    static_assert(sizeof(ezGameObject::TransformationData) == 240);
 #else
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
+    static_assert(sizeof(ezGameObject::TransformationData) == 192);
 #endif
 
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128);
-    EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
-    EZ_CHECK_AT_COMPILETIME(EZ_COMPONENT_TYPE_INDEX_BITS <= sizeof(ezWorldModuleTypeId) * 8);
+    static_assert(sizeof(ezGameObject) == 128);
+    static_assert(sizeof(QueuedMsgMetaData) == 16);
+    static_assert(EZ_COMPONENT_TYPE_INDEX_BITS <= sizeof(ezWorldModuleTypeId) * 8);
 
     auto pDefaultInitBatch = EZ_NEW(&m_Allocator, InitBatch, &m_Allocator, "Default", true);
     pDefaultInitBatch->m_bIsReady = true;

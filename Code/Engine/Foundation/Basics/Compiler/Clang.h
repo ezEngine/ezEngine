@@ -1,4 +1,3 @@
-
 #pragma once
 
 #ifdef __clang__
@@ -51,7 +50,12 @@
 
 #  define EZ_WARNING_PUSH() _Pragma("clang diagnostic push")
 #  define EZ_WARNING_POP() _Pragma("clang diagnostic pop")
-#  define EZ_WARNING_DISABLE_CLANG(_x) _Pragma(EZ_STRINGIZE(clang diagnostic ignored _x))
+#  define EZ_WARNING_DISABLE_CLANG(_x) _Pragma(EZ_PP_STRINGIFY(clang diagnostic ignored _x))
+
+#  define EZ_DECL_EXPORT [[gnu::visibility("default")]]
+#  define EZ_DECL_IMPORT [[gnu::visibility("default")]]
+#  define EZ_DECL_EXPORT_FRIEND
+#  define EZ_DECL_IMPORT_FRIEND
 
 #else
 

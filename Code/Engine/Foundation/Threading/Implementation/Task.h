@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Strings/String.h>
+#include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 #include <Foundation/Types/RefCounted.h>
 

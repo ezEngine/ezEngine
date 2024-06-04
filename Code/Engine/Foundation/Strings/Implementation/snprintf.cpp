@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Math/Math.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <stdarg.h>
 

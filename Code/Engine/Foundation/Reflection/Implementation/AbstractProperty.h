@@ -407,7 +407,7 @@ struct ezFunctionParameterTypeResolver<I, R (*)(P...)>
   {
     Arguments = sizeof...(P),
   };
-  EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
+  static_assert(I < Arguments, "I needs to be smaller than the number of function parameters.");
   using ParameterType = typename getArgument<I, P...>::Type;
   using ReturnType = R;
 };
@@ -419,7 +419,7 @@ struct ezFunctionParameterTypeResolver<I, R (Class::*)(P...)>
   {
     Arguments = sizeof...(P),
   };
-  EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
+  static_assert(I < Arguments, "I needs to be smaller than the number of function parameters.");
   using ParameterType = typename getArgument<I, P...>::Type;
   using ReturnType = R;
 };
@@ -431,7 +431,7 @@ struct ezFunctionParameterTypeResolver<I, R (Class::*)(P...) const>
   {
     Arguments = sizeof...(P),
   };
-  EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
+  static_assert(I < Arguments, "I needs to be smaller than the number of function parameters.");
   using ParameterType = typename getArgument<I, P...>::Type;
   using ReturnType = R;
 };

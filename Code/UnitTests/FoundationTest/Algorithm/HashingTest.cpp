@@ -331,7 +331,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, HashableStruct)
   SimpleStruct NonAutomaticInst;
   ezMemoryUtils::ZeroFill(&NonAutomaticInst, 1);
 
-  EZ_CHECK_AT_COMPILETIME(sizeof(AutomaticInst) == sizeof(NonAutomaticInst));
+  static_assert(sizeof(AutomaticInst) == sizeof(NonAutomaticInst));
 
   EZ_TEST_INT(ezMemoryUtils::Compare<ezUInt8>((ezUInt8*)&AutomaticInst, (ezUInt8*)&NonAutomaticInst, sizeof(AutomaticInst)), 0);
 

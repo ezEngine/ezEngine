@@ -35,7 +35,7 @@ namespace
 } // namespace
 
 EZ_DEFINE_AS_POD_TYPE(AutoFlags::Enum);
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBitflags<AutoFlags>) == 4);
+static_assert(sizeof(ezBitflags<AutoFlags>) == 4);
 
 
 EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)

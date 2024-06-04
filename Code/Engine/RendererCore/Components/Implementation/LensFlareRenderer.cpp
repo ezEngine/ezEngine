@@ -11,7 +11,7 @@
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <Shaders/Materials/LensFlareData.h>
-EZ_CHECK_AT_COMPILETIME(sizeof(ezPerLensFlareData) == 48);
+static_assert(sizeof(ezPerLensFlareData) == 48);
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLensFlareRenderer, 1, ezRTTIDefaultAllocator<ezLensFlareRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

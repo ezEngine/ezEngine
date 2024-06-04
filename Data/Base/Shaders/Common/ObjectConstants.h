@@ -29,7 +29,7 @@ Buffer<uint> perInstanceVertexColors;
 
 EZ_DEFINE_AS_POD_TYPE(ezPerInstanceData);
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezPerInstanceData) == 144);
+static_assert(sizeof(ezPerInstanceData) == 144);
 #endif
 
 CONSTANT_BUFFER(ezObjectConstants, 2)

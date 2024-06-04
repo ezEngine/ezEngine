@@ -16,6 +16,6 @@ StructuredBuffer<ezBillboardQuadParticleShaderData> particleBillboardQuadData;
 
 #else // C++
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBillboardQuadParticleShaderData) == 16);
+static_assert(sizeof(ezBillboardQuadParticleShaderData) == 16);
 
 #endif

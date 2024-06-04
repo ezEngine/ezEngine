@@ -10,10 +10,10 @@ void TestConstruction(const STRING& value, const char* szStart, const char* szEn
   ezStringUtf8 sUtf8(L"A単語F");
   EZ_TEST_BOOL(value.IsEqual(sUtf8.GetData()));
   const bool bEqualForwardItTypes = ezConversionTest<typename STRING::iterator, typename STRING::const_iterator>::sameType == 1;
-  EZ_CHECK_AT_COMPILETIME_MSG(
+  static_assert(
     bEqualForwardItTypes, "As the string iterator is read-only, both const and non-const versions should be the same type.");
   const bool bEqualReverseItTypes = ezConversionTest<typename STRING::reverse_iterator, typename STRING::const_reverse_iterator>::sameType == 1;
-  EZ_CHECK_AT_COMPILETIME_MSG(
+  static_assert(
     bEqualReverseItTypes, "As the reverse string iterator is read-only, both const and non-const versions should be the same type.");
 
   typename STRING::iterator itInvalid;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Configuration/StaticSubSystem.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
 
 struct ezTime;

@@ -16,6 +16,6 @@ StructuredBuffer<ezBaseParticleShaderData> particleBaseData;
 
 #else // C++
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBaseParticleShaderData) == 16);
+static_assert(sizeof(ezBaseParticleShaderData) == 16);
 
 #endif

@@ -37,21 +37,21 @@ namespace
     };
   };
 
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALBlendStateHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALDepthStencilStateHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALRasterizerStateHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALSamplerStateHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALShaderHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALBufferHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALTextureHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALTextureResourceViewHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALBufferResourceViewHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALRenderTargetViewHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALTextureUnorderedAccessViewHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALBufferUnorderedAccessViewHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALSwapChainHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALQueryHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALVertexDeclarationHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALBlendStateHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALDepthStencilStateHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALRasterizerStateHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALSamplerStateHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALShaderHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALBufferHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALTextureHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALTextureResourceViewHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALBufferResourceViewHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALRenderTargetViewHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALTextureUnorderedAccessViewHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALBufferUnorderedAccessViewHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALSwapChainHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALQueryHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALVertexDeclarationHandle) == sizeof(ezUInt32));
 } // namespace
 
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;

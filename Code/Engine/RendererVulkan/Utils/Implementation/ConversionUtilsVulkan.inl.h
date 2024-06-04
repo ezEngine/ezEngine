@@ -352,9 +352,9 @@ EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStag
   return res;
 }
 
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eVertex == (ezUInt32)ezGALShaderStageFlags::VertexShader);
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eTessellationControl == (ezUInt32)ezGALShaderStageFlags::HullShader);
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eTessellationEvaluation == (ezUInt32)ezGALShaderStageFlags::DomainShader);
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eGeometry == (ezUInt32)ezGALShaderStageFlags::GeometryShader);
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eFragment == (ezUInt32)ezGALShaderStageFlags::PixelShader);
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eCompute == (ezUInt32)ezGALShaderStageFlags::ComputeShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eVertex == (ezUInt32)ezGALShaderStageFlags::VertexShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eTessellationControl == (ezUInt32)ezGALShaderStageFlags::HullShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eTessellationEvaluation == (ezUInt32)ezGALShaderStageFlags::DomainShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eGeometry == (ezUInt32)ezGALShaderStageFlags::GeometryShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eFragment == (ezUInt32)ezGALShaderStageFlags::PixelShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eCompute == (ezUInt32)ezGALShaderStageFlags::ComputeShader);

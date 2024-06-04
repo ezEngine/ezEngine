@@ -23,8 +23,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdQuat)
 
     // Make sure the class didn't accidentally change in size.
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezSimdQuat) == 16);
-    EZ_CHECK_AT_COMPILETIME(EZ_ALIGNMENT_OF(ezSimdQuat) == 16);
+    static_assert(sizeof(ezSimdQuat) == 16);
+    static_assert(EZ_ALIGNMENT_OF(ezSimdQuat) == 16);
 #endif
   }
 

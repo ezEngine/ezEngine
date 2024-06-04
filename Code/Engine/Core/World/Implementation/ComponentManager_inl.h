@@ -44,7 +44,7 @@ ezComponentManager<T, StorageType>::ezComponentManager(ezWorld* pWorld)
   : ezComponentManagerBase(pWorld)
   , m_ComponentStorage(GetBlockAllocator(), GetAllocator())
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>

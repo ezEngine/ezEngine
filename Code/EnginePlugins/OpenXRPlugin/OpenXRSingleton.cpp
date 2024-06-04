@@ -32,10 +32,10 @@
 
 #include <vector>
 
-EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::None == 1);
-EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::TwoSamples == 2);
-EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::FourSamples == 4);
-EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::EightSamples == 8);
+static_assert(ezGALMSAASampleCount::None == 1);
+static_assert(ezGALMSAASampleCount::TwoSamples == 2);
+static_assert(ezGALMSAASampleCount::FourSamples == 4);
+static_assert(ezGALMSAASampleCount::EightSamples == 8);
 
 EZ_IMPLEMENT_SINGLETON(ezOpenXR);
 

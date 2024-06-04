@@ -64,18 +64,18 @@ EZ_ALWAYS_INLINE const char* __tracyEzStringToConstChar(const char* szString)
 // Override the standard EZ profiling macros and inject Tracy profiling scopes
 
 #  undef EZ_PROFILE_SCOPE
-#  define EZ_PROFILE_SCOPE(ScopeName)                                                                                 \
-    ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero()); \
+#  define EZ_PROFILE_SCOPE(ScopeName)                                                                                    \
+    ezProfilingScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero()); \
     EZ_TRACY_PROFILE_SCOPE(ScopeName)
 
 #  undef EZ_PROFILE_SCOPE_WITH_TIMEOUT
-#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(ScopeName, Timeout)                                                \
-    ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, Timeout); \
+#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(ScopeName, Timeout)                                                   \
+    ezProfilingScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, Timeout); \
     EZ_TRACY_PROFILE_SCOPE(ScopeName);
 
 #  undef EZ_PROFILE_LIST_SCOPE
-#  define EZ_PROFILE_LIST_SCOPE(ListName, FirstSectionName)                                                            \
-    ezProfilingListScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ListName, FirstSectionName, EZ_SOURCE_FUNCTION); \
+#  define EZ_PROFILE_LIST_SCOPE(ListName, FirstSectionName)                                                               \
+    ezProfilingListScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ListName, FirstSectionName, EZ_SOURCE_FUNCTION); \
     EZ_TRACY_PROFILE_SCOPE(ScopeName);
 
 #  undef EZ_PROFILER_FRAME_MARKER

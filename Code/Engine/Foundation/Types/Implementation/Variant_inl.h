@@ -177,7 +177,7 @@ template <typename T>
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const T* value)
 {
   constexpr bool bla = !std::is_same<T, void>::value;
-  EZ_CHECK_AT_COMPILETIME(bla);
+  static_assert(bla);
   InitTypedPointer(const_cast<T*>(value), ezGetStaticRTTI<T>());
 }
 
@@ -452,9 +452,9 @@ T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = nullptr*/) const
 template <typename T>
 EZ_FORCE_INLINE void ezVariant::InitInplace(const T& value)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
-  EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<T>::value <= ezTypeIsMemRelocatable::value, "in place data needs to be POD or mem relocatable");
-  EZ_CHECK_AT_COMPILETIME_MSG(sizeof(T) <= sizeof(m_Data), "value of this type is too big to bestored inline in a Variant");
+  static_assert(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
+  static_assert(ezGetTypeClass<T>::value <= ezTypeIsMemRelocatable::value, "in place data needs to be POD or mem relocatable");
+  static_assert(sizeof(T) <= sizeof(m_Data), "value of this type is too big to bestored inline in a Variant");
   ezMemoryUtils::CopyConstruct(reinterpret_cast<T*>(&m_Data), value, 1);
 
   m_uiType = TypeDeduction<T>::value;
@@ -466,8 +466,8 @@ EZ_FORCE_INLINE void ezVariant::InitTypedObject(const T& value, ezTraitInt<0>)
 {
   using StorageType = typename TypeDeduction<T>::StorageType;
 
-  EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) > sizeof(InlinedStruct::DataSize)) || TypeDeduction<T>::forceSharing, "Value should be inplace instead.");
-  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value == Type::TypedObject, "value of this type cannot be stored in a Variant");
+  static_assert((sizeof(StorageType) > sizeof(InlinedStruct::DataSize)) || TypeDeduction<T>::forceSharing, "Value should be inplace instead.");
+  static_assert(TypeDeduction<T>::value == Type::TypedObject, "value of this type cannot be stored in a Variant");
   const ezRTTI* pType = ezGetStaticRTTI<T>();
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, pType);
   m_uiType = Type::TypedObject;
@@ -478,9 +478,9 @@ template <typename T>
 EZ_FORCE_INLINE void ezVariant::InitTypedObject(const T& value, ezTraitInt<1>)
 {
   using StorageType = typename TypeDeduction<T>::StorageType;
-  EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) <= InlinedStruct::DataSize) && !TypeDeduction<T>::forceSharing, "Value can't be stored inplace.");
-  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value == Type::TypedObject, "value of this type cannot be stored in a Variant");
-  EZ_CHECK_AT_COMPILETIME_MSG(ezIsPodType<T>::value, "in place data needs to be POD");
+  static_assert((sizeof(StorageType) <= InlinedStruct::DataSize) && !TypeDeduction<T>::forceSharing, "Value can't be stored inplace.");
+  static_assert(TypeDeduction<T>::value == Type::TypedObject, "value of this type cannot be stored in a Variant");
+  static_assert(ezIsPodType<T>::value, "in place data needs to be POD");
   ezMemoryUtils::CopyConstruct(reinterpret_cast<T*>(&m_Data), value, 1);
   m_Data.inlined.m_pType = ezGetStaticRTTI<T>();
   m_uiType = Type::TypedObject;
@@ -529,7 +529,7 @@ template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::class
 const T& ezVariant::Cast() const
 {
   const bool validType = ezConversionTest<T, typename TypeDeduction<T>::StorageType>::sameType;
-  EZ_CHECK_AT_COMPILETIME_MSG(validType, "Invalid Cast, can only cast to storage type");
+  static_assert(validType, "Invalid Cast, can only cast to storage type");
 
   return m_bIsShared ? *static_cast<const T*>(m_Data.shared->m_Ptr) : *reinterpret_cast<const T*>(&m_Data);
 }

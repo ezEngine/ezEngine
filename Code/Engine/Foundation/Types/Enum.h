@@ -113,7 +113,7 @@ private:
 
 #define EZ_ENUM_VALUE_TO_STRING(name) \
   case name:                          \
-    return EZ_STRINGIZE(name);
+    return EZ_PP_STRINGIFY(name);
 
 /// \brief Helper macro to generate a 'ToString' function for enum values.
 ///

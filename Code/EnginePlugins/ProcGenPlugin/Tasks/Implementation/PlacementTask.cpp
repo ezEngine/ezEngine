@@ -12,8 +12,8 @@
 
 using namespace ezProcGenInternal;
 
-EZ_CHECK_AT_COMPILETIME(sizeof(PlacementPoint) == 32);
-EZ_CHECK_AT_COMPILETIME(sizeof(PlacementTransform) == 64);
+static_assert(sizeof(PlacementPoint) == 32);
+static_assert(sizeof(PlacementTransform) == 64);
 
 PlacementTask::PlacementTask(PlacementData* pData, const char* szName)
   : m_pData(pData)

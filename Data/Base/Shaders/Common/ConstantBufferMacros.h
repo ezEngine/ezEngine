@@ -52,14 +52,14 @@ float3x3 TransformToRotation(Transform t)
 #  define COLOR4UB(Name) uint Name
 #  define BOOL1(Name) bool Name
 #  define PACKEDHALF2(Name1, Name2, CombinedName) uint CombinedName
-#  define PACKEDCOLOR4H(Name) \
-    uint EZ_CONCAT(Name, RG); \
-    uint EZ_CONCAT(Name, GB)
+#  define PACKEDCOLOR4H(Name)    \
+    uint EZ_PP_CONCAT(Name, RG); \
+    uint EZ_PP_CONCAT(Name, GB)
 
 #  define UNPACKHALF2(Name1, Name2, CombinedName) \
     float Name1 = f16tof32(CombinedName);         \
     float Name2 = f16tof32(CombinedName >> 16)
-#  define UNPACKCOLOR4H(Name) RGBA16FToFloat4(EZ_CONCAT(Name, RG), EZ_CONCAT(Name, GB))
+#  define UNPACKCOLOR4H(Name) RGBA16FToFloat4(EZ_PP_CONCAT(Name, RG), EZ_PP_CONCAT(Name, GB))
 
 #else
 

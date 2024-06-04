@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Memory/MemoryUtils.h>
+
 template <typename Type>
 ezMat3Template<Type>::ezMat3Template()
 {

@@ -1,10 +1,14 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <Foundation/Strings/Implementation/FormatStringArgs.h>
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include FormatString.h directly, but instead include Foundation/Basics.h"
+#endif
 
 class ezStringBuilder;
-struct ezStringView;
+
+#include <Foundation/Strings/StringView.h>
+
+#include <Foundation/Strings/Implementation/FormatStringArgs.h>
 
 /// \brief Implements formating of strings with placeholders and formatting options.
 ///

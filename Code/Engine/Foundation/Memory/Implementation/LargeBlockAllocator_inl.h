@@ -48,7 +48,7 @@ ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(ezStringView sName, ezAl
   , m_SuperBlocks(pParent)
   , m_FreeBlocks(pParent)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(BlockSize >= 4096, "Block size must be 4096 or bigger");
+  static_assert(BlockSize >= 4096, "Block size must be 4096 or bigger");
 
   m_Id = ezMemoryTracker::RegisterAllocator(sName, mode, ezPageAllocator::GetId());
   m_ThreadID = ezThreadUtils::GetCurrentThreadID();
@@ -83,7 +83,7 @@ EZ_FORCE_INLINE ezDataBlock<T, BlockSize> ezLargeBlockAllocator<BlockSize>::Allo
     };
   };
 
-  EZ_CHECK_AT_COMPILETIME_MSG(
+  static_assert(
     Helper::BLOCK_CAPACITY >= 1, "Type is too big for block allocation. Consider using regular heap allocation instead or increase the block size.");
 
   ezDataBlock<T, BlockSize> block(static_cast<T*>(Allocate(EZ_ALIGNMENT_OF(T))), 0);

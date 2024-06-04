@@ -766,22 +766,22 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColorByName and GetColorName")
   {
-#define Check(name)                                                                  \
-  {                                                                                  \
-    bool valid = false;                                                              \
-    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid); \
-    EZ_TEST_BOOL(valid);                                                             \
-    ezString sName = ezConversionUtils::GetColorName(c);                             \
-    EZ_TEST_STRING(sName, EZ_STRINGIZE(name));                                       \
+#define Check(name)                                                                     \
+  {                                                                                     \
+    bool valid = false;                                                                 \
+    const ezColor c = ezConversionUtils::GetColorByName(EZ_PP_STRINGIFY(name), &valid); \
+    EZ_TEST_BOOL(valid);                                                                \
+    ezString sName = ezConversionUtils::GetColorName(c);                                \
+    EZ_TEST_STRING(sName, EZ_PP_STRINGIFY(name));                                       \
   }
 
-#define Check2(name, otherName)                                                      \
-  {                                                                                  \
-    bool valid = false;                                                              \
-    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid); \
-    EZ_TEST_BOOL(valid);                                                             \
-    ezString sName = ezConversionUtils::GetColorName(c);                             \
-    EZ_TEST_STRING(sName, EZ_STRINGIZE(otherName));                                  \
+#define Check2(name, otherName)                                                         \
+  {                                                                                     \
+    bool valid = false;                                                                 \
+    const ezColor c = ezConversionUtils::GetColorByName(EZ_PP_STRINGIFY(name), &valid); \
+    EZ_TEST_BOOL(valid);                                                                \
+    ezString sName = ezConversionUtils::GetColorName(c);                                \
+    EZ_TEST_STRING(sName, EZ_PP_STRINGIFY(otherName));                                  \
   }
 
     Check(AliceBlue);

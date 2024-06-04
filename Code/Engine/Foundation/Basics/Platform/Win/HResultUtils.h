@@ -21,43 +21,43 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezMinWindows::HRESULT result)
       return EZ_FAILURE;              \
   } while (false)
 
-#define EZ_HRESULT_TO_FAILURE_LOG(code)                                                      \
-  do                                                                                         \
-  {                                                                                          \
-    ezMinWindows::HRESULT s = (code);                                                        \
-    if (s < 0)                                                                               \
-    {                                                                                        \
-      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
-      return EZ_FAILURE;                                                                     \
-    }                                                                                        \
+#define EZ_HRESULT_TO_FAILURE_LOG(code)                                                         \
+  do                                                                                            \
+  {                                                                                             \
+    ezMinWindows::HRESULT s = (code);                                                           \
+    if (s < 0)                                                                                  \
+    {                                                                                           \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), ezHRESULTtoString(s)); \
+      return EZ_FAILURE;                                                                        \
+    }                                                                                           \
   } while (false)
 
-#define EZ_HRESULT_TO_LOG(code)                                                              \
-  do                                                                                         \
-  {                                                                                          \
-    ezMinWindows::HRESULT s = (code);                                                        \
-    if (s < 0)                                                                               \
-    {                                                                                        \
-      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
-    }                                                                                        \
+#define EZ_HRESULT_TO_LOG(code)                                                                 \
+  do                                                                                            \
+  {                                                                                             \
+    ezMinWindows::HRESULT s = (code);                                                           \
+    if (s < 0)                                                                                  \
+    {                                                                                           \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), ezHRESULTtoString(s)); \
+    }                                                                                           \
   } while (false)
 
 #define EZ_NO_RETURNVALUE
 
-#define EZ_HRESULT_TO_LOG_RET(code, ret)                                                     \
-  do                                                                                         \
-  {                                                                                          \
-    ezMinWindows::HRESULT s = (code);                                                        \
-    if (s < 0)                                                                               \
-    {                                                                                        \
-      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
-      return ret;                                                                            \
-    }                                                                                        \
+#define EZ_HRESULT_TO_LOG_RET(code, ret)                                                        \
+  do                                                                                            \
+  {                                                                                             \
+    ezMinWindows::HRESULT s = (code);                                                           \
+    if (s < 0)                                                                                  \
+    {                                                                                           \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), ezHRESULTtoString(s)); \
+      return ret;                                                                               \
+    }                                                                                           \
   } while (false)
 
-#define EZ_HRESULT_TO_ASSERT(code)                                                                  \
-  do                                                                                                \
-  {                                                                                                 \
-    ezMinWindows::HRESULT s = (code);                                                               \
-    EZ_ASSERT_DEV(s >= 0, "Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
+#define EZ_HRESULT_TO_ASSERT(code)                                                                     \
+  do                                                                                                   \
+  {                                                                                                    \
+    ezMinWindows::HRESULT s = (code);                                                                  \
+    EZ_ASSERT_DEV(s >= 0, "Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), ezHRESULTtoString(s)); \
   } while (false)

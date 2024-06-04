@@ -23,36 +23,6 @@ EZ_WARNING_POP()
 #include <type_traits>
 #include <utility>
 
-#ifndef __has_cpp_attribute
-#  define __has_cpp_attribute(name) 0
-#endif
-
-// [[nodiscard]] helper
-#if __has_cpp_attribute(nodiscard)
-#  define EZ_NODISCARD [[nodiscard]]
-#else
-#  define EZ_NODISCARD
-#endif
-
-#ifndef __INTELLISENSE__
-
-// Macros to do compile-time checks, such as to ensure sizes of types
-// EZ_CHECK_AT_COMPILETIME(exp) : only checks exp
-// EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) : checks exp and displays msg
-#  define EZ_CHECK_AT_COMPILETIME(exp) static_assert(exp, EZ_STRINGIZE(exp) " is false.");
-
-#  define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) static_assert(exp, EZ_STRINGIZE(exp) " is false. Message: " msg);
-
-#else
-
-// IntelliSense often isn't smart enough to evaluate these conditions correctly
-
-#  define EZ_CHECK_AT_COMPILETIME(exp)
-
-#  define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg)
-
-#endif
-
 /// \brief Disallow the copy constructor and the assignment operator for this type.
 #define EZ_DISALLOW_COPY_AND_ASSIGN(type) \
   type(const type&) = delete;             \
@@ -66,11 +36,6 @@ EZ_WARNING_POP()
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)
 #endif
 
-#define EZ_CHECK_ALIGNMENT_16(ptr) EZ_CHECK_ALIGNMENT(ptr, 16)
-#define EZ_CHECK_ALIGNMENT_32(ptr) EZ_CHECK_ALIGNMENT(ptr, 32)
-#define EZ_CHECK_ALIGNMENT_64(ptr) EZ_CHECK_ALIGNMENT(ptr, 64)
-#define EZ_CHECK_ALIGNMENT_128(ptr) EZ_CHECK_ALIGNMENT(ptr, 128)
-
 #define EZ_WINCHECK_1 1          // EZ_INCLUDED_WINDOWS_H defined to 1, _WINDOWS_ defined (stringyfied to nothing)
 #define EZ_WINCHECK_1_WINDOWS_ 1 // EZ_INCLUDED_WINDOWS_H defined to 1, _WINDOWS_ undefined (stringyfied to "_WINDOWS_")
 #define EZ_WINCHECK_EZ_INCLUDED_WINDOWS_H \
@@ -81,21 +46,9 @@ EZ_WARNING_POP()
 /// \brief Checks whether Windows.h has been included directly instead of through 'IncludeWindows.h'
 ///
 /// Does this by stringifying the available defines, concatenating them into one long word, which is a known #define that evaluates to 0 or 1
-#define EZ_CHECK_WINDOWS_INCLUDE(EZ_WINH_INCLUDED, WINH_INCLUDED)                                       \
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_CONCAT(EZ_WINCHECK_, EZ_CONCAT(EZ_WINH_INCLUDED, WINH_INCLUDED)) == 1, \
+#define EZ_CHECK_WINDOWS_INCLUDE(EZ_WINH_INCLUDED, WINH_INCLUDED)                               \
+  static_assert(EZ_PP_CONCAT(EZ_WINCHECK_, EZ_PP_CONCAT(EZ_WINH_INCLUDED, WINH_INCLUDED)) == 1, \
     "Windows.h has been included but not through ez. #include <Foundation/Basics/Platform/Win/IncludeWindows.h> instead of Windows.h");
-
-
-/// \brief Define some macros to work with the MSVC analysis warning
-/// Note that the StaticAnalysis.h in Basics/Compiler/MSVC will define the MSVC specific versions.
-#define EZ_MSVC_ANALYSIS_WARNING_PUSH
-#define EZ_MSVC_ANALYSIS_WARNING_POP
-#define EZ_MSVC_ANALYSIS_WARNING_DISABLE(warningNumber)
-#define EZ_MSVC_ANALYSIS_ASSUME(expression)
-
-#if defined(_MSC_VER)
-#  include <Foundation/Basics/Compiler/MSVC/StaticAnalysis.h>
-#endif
 
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
@@ -149,8 +102,8 @@ struct EZ_FOUNDATION_DLL ezPluginRegister
     ezReferenceFunction_##UniqueName()
 
 /// \brief This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
-#  define EZ_STATICLINK_LIBRARY(LibraryName)                                                      \
-    ezPluginRegister ezPluginRegister_##LibraryName(EZ_PP_STRINGIFY(EZ_CONCAT(ez, LibraryName))); \
+#  define EZ_STATICLINK_LIBRARY(LibraryName)                                                         \
+    ezPluginRegister ezPluginRegister_##LibraryName(EZ_PP_STRINGIFY(EZ_PP_CONCAT(ez, LibraryName))); \
     extern "C" void ezReferenceFunction_##LibraryName(bool bReturn = true)
 
 #endif
@@ -169,18 +122,6 @@ template <class T>
 void EZ_IGNORE_UNUSED(const T&)
 {
 }
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  define EZ_DECL_EXPORT __declspec(dllexport)
-#  define EZ_DECL_IMPORT __declspec(dllimport)
-#  define EZ_DECL_EXPORT_FRIEND __declspec(dllexport)
-#  define EZ_DECL_IMPORT_FRIEND __declspec(dllimport)
-#else
-#  define EZ_DECL_EXPORT [[gnu::visibility("default")]]
-#  define EZ_DECL_IMPORT [[gnu::visibility("default")]]
-#  define EZ_DECL_EXPORT_FRIEND
-#  define EZ_DECL_IMPORT_FRIEND
-#endif
 
 #if (__cplusplus >= 202002L || _MSVC_LANG >= 202002L)
 #  undef EZ_USE_CPP20_OPERATORS

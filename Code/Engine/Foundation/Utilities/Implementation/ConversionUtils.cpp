@@ -864,8 +864,8 @@ namespace ezConversionUtils
     return result;
   }
 
-#define Check(name)                                  \
-  if (sColorName.IsEqual_NoCase(EZ_STRINGIZE(name))) \
+#define Check(name)                                     \
+  if (sColorName.IsEqual_NoCase(EZ_PP_STRINGIFY(name))) \
   return ezColor::name
 
   ezColor GetColorByName(ezStringView sColorName, bool* out_pValidColorName)

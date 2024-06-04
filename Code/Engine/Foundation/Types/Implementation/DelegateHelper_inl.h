@@ -114,7 +114,7 @@ public:
   template <typename Function>
   EZ_FORCE_INLINE ezDelegate(Function function, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(DataSize >= 16, "DataSize must be at least 16 bytes");
+    static_assert(DataSize >= 16, "DataSize must be at least 16 bytes");
 
     // Pure function pointers or lambdas that can be cast into pure functions (no captures) can be
     // copied directly into the inplace storage of the delegate.
@@ -277,8 +277,8 @@ private:
   template <typename Method>
   EZ_FORCE_INLINE void CopyMemberFunctionToInplaceStorage(Method method)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(DataSize >= 16, "DataSize must be at least 16 bytes");
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= DataSize, "Member function pointer must not be bigger than 16 bytes");
+    static_assert(DataSize >= 16, "DataSize must be at least 16 bytes");
+    static_assert(sizeof(Method) <= DataSize, "Member function pointer must not be bigger than 16 bytes");
 
     CopyFunctionToInplaceStorage(method);
 

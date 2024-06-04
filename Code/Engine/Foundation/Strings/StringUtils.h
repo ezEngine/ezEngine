@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Foundation/ThirdParty/utf8/utf8.h>
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include StringUtils.h directly, but instead include Foundation/Basics.h"
+#endif
 
-#include <Foundation/Basics.h>
 #include <Foundation/Strings/UnicodeUtils.h>
-#include <Foundation/Threading/AtomicInteger.h>
 
 /// \brief Helper functions to work with UTF-8 strings (which include pure ASCII strings)
 class EZ_FOUNDATION_DLL ezStringUtils
