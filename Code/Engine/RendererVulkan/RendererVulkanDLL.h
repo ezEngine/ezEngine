@@ -53,7 +53,7 @@
   {                                                                                                                     \
     auto s = (code);                                                                                                    \
     EZ_ASSERT_DEBUG(static_cast<vk::Result>(s) == vk::Result::eSuccess, "Vukan call '{0}' failed with: {1} in {2}:{3}", \
-      EZ_STRINGIZE(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE);            \
+      EZ_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE);            \
   } while (false)
 
 #define VK_ASSERT_DEV(code)                                                                                           \
@@ -61,7 +61,7 @@
   {                                                                                                                   \
     auto s = (code);                                                                                                  \
     EZ_ASSERT_DEV(static_cast<vk::Result>(s) == vk::Result::eSuccess, "Vukan call '{0}' failed with: {1} in {2}:{3}", \
-      EZ_STRINGIZE(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE);          \
+      EZ_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE);          \
   } while (false)
 
 #define VK_LOG_ERROR(code)                                                                                                                                                \
@@ -70,7 +70,7 @@
     auto s = (code);                                                                                                                                                      \
     if (static_cast<vk::Result>(s) != vk::Result::eSuccess)                                                                                                               \
     {                                                                                                                                                                     \
-      ezLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", EZ_STRINGIZE(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
+      ezLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", EZ_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
     }                                                                                                                                                                     \
   } while (false)
 
@@ -80,7 +80,7 @@
     auto s = (code);                                                                                                                                                      \
     if (static_cast<vk::Result>(s) != vk::Result::eSuccess)                                                                                                               \
     {                                                                                                                                                                     \
-      ezLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", EZ_STRINGIZE(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
+      ezLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", EZ_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
       return s;                                                                                                                                                           \
     }                                                                                                                                                                     \
   } while (false)
@@ -91,7 +91,7 @@
     auto s = (code);                                                                                                                                                      \
     if (static_cast<vk::Result>(s) != vk::Result::eSuccess)                                                                                                               \
     {                                                                                                                                                                     \
-      ezLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", EZ_STRINGIZE(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
+      ezLog::Error("Vukan call '{0}' failed with: {1} in {2}:{3}", EZ_PP_STRINGIFY(code), vk::to_string(static_cast<vk::Result>(s)).data(), EZ_SOURCE_FILE, EZ_SOURCE_LINE); \
       return EZ_FAILURE;                                                                                                                                                  \
     }                                                                                                                                                                     \
   } while (false)
