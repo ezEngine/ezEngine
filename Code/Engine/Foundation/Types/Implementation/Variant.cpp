@@ -123,7 +123,7 @@ struct ComputeHashFunc
   EZ_FORCE_INLINE ezUInt64 operator()(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
   {
     static_assert(sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 &&
-                                  !ezVariant::TypeDeduction<T>::forceSharing,
+                    !ezVariant::TypeDeduction<T>::forceSharing,
       "This type requires special handling! Add a specialization below.");
     return ezHashingUtils::xxHash64(pData, sizeof(T), uiSeed);
   }
