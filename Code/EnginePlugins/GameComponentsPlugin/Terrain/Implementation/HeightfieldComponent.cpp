@@ -137,7 +137,7 @@ void ezHeightfieldComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg)
   if (!m_hMesh.IsValid())
     return;
 
-  const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
+  const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().HasMirrorScaling() ? 1 : 0;
   const ezUInt32 uiUniformScale = GetOwner()->GetGlobalTransformSimd().ContainsUniformScale() ? 1 : 0;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
