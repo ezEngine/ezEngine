@@ -864,7 +864,7 @@ namespace ezConversionUtils
     return result;
   }
 
-#define Check(name)                                  \
+#define Check(name)                                     \
   if (sColorName.IsEqual_NoCase(EZ_PP_STRINGIFY(name))) \
   return ezColor::name
 

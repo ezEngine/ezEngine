@@ -307,7 +307,7 @@ EZ_TEST_DLL bool ezTestResult(
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief Tests for a ezStatus condition, outputs ezStatus message on failure
-#define EZ_TEST_STATUS(condition)                 \
+#define EZ_TEST_STATUS(condition)                    \
   auto EZ_PP_CONCAT(l_, EZ_SOURCE_LINE) = condition; \
   ezTestResult(EZ_PP_CONCAT(l_, EZ_SOURCE_LINE).m_Result, "Test failed: " EZ_PP_STRINGIFY(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, EZ_PP_CONCAT(l_, EZ_SOURCE_LINE).m_sMessage)
 
@@ -334,7 +334,7 @@ EZ_TEST_DLL bool ezTestDouble(double f1, double f2, double fEps, const char* szF
 
 /// \brief Tests two floats for equality, within a given epsilon. On failure both actual and expected values are output, also a custom
 /// message is printed.
-#define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg, ...)                                                                                               \
+#define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg, ...)                                                                                                     \
   ezTestDouble(ToFloat(f1), ToFloat(f2), ToFloat(epsilon), EZ_PP_STRINGIFY(f1), EZ_PP_STRINGIFY(f2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, \
     msg, ##__VA_ARGS__)
 
@@ -346,7 +346,7 @@ EZ_TEST_DLL bool ezTestDouble(double f1, double f2, double fEps, const char* szF
 
 /// \brief Tests two doubles for equality, within a given epsilon. On failure both actual and expected values are output, also a custom
 /// message is printed.
-#define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg, ...)                                                                                              \
+#define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg, ...)                                                                                                    \
   ezTestDouble(ToFloat(f1), ToFloat(f2), ToFloat(epsilon), EZ_PP_STRINGIFY(f1), EZ_PP_STRINGIFY(f2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, \
     msg, ##__VA_ARGS__)
 
@@ -370,7 +370,7 @@ EZ_TEST_DLL bool ezTestString(ezStringView s1, ezStringView s2, const char* szSt
 #define EZ_TEST_STRING(i1, i2) EZ_TEST_STRING_MSG(i1, i2, "")
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                                     \
+#define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                                           \
   ezTestString(static_cast<ezStringView>(s1), static_cast<ezStringView>(s2), EZ_PP_STRINGIFY(s1), EZ_PP_STRINGIFY(s2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, \
     EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
@@ -383,7 +383,7 @@ EZ_TEST_DLL bool ezTestWString(std::wstring s1, std::wstring s2, const char* szS
 #define EZ_TEST_WSTRING(i1, i2) EZ_TEST_WSTRING_MSG(i1, i2, "")
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_WSTRING_MSG(s1, s2, msg, ...)                                                                                         \
+#define EZ_TEST_WSTRING_MSG(s1, s2, msg, ...)                                                                                               \
   ezTestWString(static_cast<const wchar_t*>(s1), static_cast<const wchar_t*>(s2), EZ_PP_STRINGIFY(s1), EZ_PP_STRINGIFY(s2), EZ_SOURCE_FILE, \
     EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
@@ -428,8 +428,8 @@ EZ_TEST_DLL bool ezTestVector(
 #define EZ_TEST_VEC4(i1, i2, epsilon) EZ_TEST_VEC4_MSG(i1, i2, epsilon, "")
 
 /// \brief Tests two ezVec4's for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg, ...)                                                                                          \
-  ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), ToFloat((r1).z), ToFloat((r1).w)),                                                  \
+#define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg, ...)                                                                                                \
+  ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), ToFloat((r1).z), ToFloat((r1).w)),                                                        \
     ezVec4d(ToFloat((r2).x), ToFloat((r2).y), ToFloat((r2).z), ToFloat((r2).w)), ToFloat(epsilon), EZ_PP_STRINGIFY(r1) " == " EZ_PP_STRINGIFY(r2), \
     EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 

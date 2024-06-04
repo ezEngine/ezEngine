@@ -100,27 +100,27 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezResult result)
   } while (false)
 
 /// \brief Like EZ_SUCCEED_OR_RETURN, but with error logging.
-#define EZ_SUCCEED_OR_RETURN_LOG(code)                                    \
-  do                                                                      \
-  {                                                                       \
-    auto s = (code);                                                      \
-    if (ezToResult(s).Failed())                                           \
-    {                                                                     \
+#define EZ_SUCCEED_OR_RETURN_LOG(code)                                       \
+  do                                                                         \
+  {                                                                          \
+    auto s = (code);                                                         \
+    if (ezToResult(s).Failed())                                              \
+    {                                                                        \
       ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), s); \
-      return s;                                                           \
-    }                                                                     \
+      return s;                                                              \
+    }                                                                        \
   } while (false)
 
 /// \brief Like EZ_SUCCEED_OR_RETURN, but with custom error logging.
-#define EZ_SUCCEED_OR_RETURN_CUSTOM_LOG(code, log)                          \
-  do                                                                        \
-  {                                                                         \
-    auto s = (code);                                                        \
-    if (ezToResult(s).Failed())                                             \
-    {                                                                       \
+#define EZ_SUCCEED_OR_RETURN_CUSTOM_LOG(code, log)                             \
+  do                                                                           \
+  {                                                                            \
+    auto s = (code);                                                           \
+    if (ezToResult(s).Failed())                                                \
+    {                                                                          \
       ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), log); \
-      return s;                                                             \
-    }                                                                       \
+      return s;                                                                \
+    }                                                                          \
   } while (false)
 
 //////////////////////////////////////////////////////////////////////////

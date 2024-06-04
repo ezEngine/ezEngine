@@ -12,7 +12,7 @@
 #define EZ_LOG_BLOCK ezLogBlock EZ_PP_CONCAT(_logblock_, EZ_SOURCE_LINE)
 
 /// \brief Use this helper macro to easily mute all logging in a scope.
-#define EZ_LOG_BLOCK_MUTE()                            \
+#define EZ_LOG_BLOCK_MUTE()                               \
   ezMuteLog EZ_PP_CONCAT(_logmuteblock_, EZ_SOURCE_LINE); \
   ezLogSystemScope EZ_PP_CONCAT(_logscope_, EZ_SOURCE_LINE)(&EZ_PP_CONCAT(_logmuteblock_, EZ_SOURCE_LINE))
 

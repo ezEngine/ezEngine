@@ -58,9 +58,9 @@ private:
 
 #define EZ_CREATE_SIMPLE_TEST_GROUP(GroupName) ezSimpleTestGroup EZ_PP_CONCAT(g_SimpleTestGroup__, GroupName)(EZ_PP_STRINGIFY(GroupName));
 
-#define EZ_CREATE_SIMPLE_TEST(GroupName, TestName)                                                                       \
-  extern ezSimpleTestGroup EZ_PP_CONCAT(g_SimpleTestGroup__, GroupName);                                                    \
-  static void ezSimpleTestFunction__##GroupName##_##TestName();                                                          \
-  ezRegisterSimpleTestHelper ezRegisterSimpleTest__##GroupName##TestName(                                                \
+#define EZ_CREATE_SIMPLE_TEST(GroupName, TestName)                                                                             \
+  extern ezSimpleTestGroup EZ_PP_CONCAT(g_SimpleTestGroup__, GroupName);                                                       \
+  static void ezSimpleTestFunction__##GroupName##_##TestName();                                                                \
+  ezRegisterSimpleTestHelper ezRegisterSimpleTest__##GroupName##TestName(                                                      \
     &EZ_PP_CONCAT(g_SimpleTestGroup__, GroupName), EZ_PP_STRINGIFY(TestName), ezSimpleTestFunction__##GroupName##_##TestName); \
   static void ezSimpleTestFunction__##GroupName##_##TestName()

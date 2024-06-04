@@ -52,7 +52,7 @@ float3x3 TransformToRotation(Transform t)
 #  define COLOR4UB(Name) uint Name
 #  define BOOL1(Name) bool Name
 #  define PACKEDHALF2(Name1, Name2, CombinedName) uint CombinedName
-#  define PACKEDCOLOR4H(Name) \
+#  define PACKEDCOLOR4H(Name)    \
     uint EZ_PP_CONCAT(Name, RG); \
     uint EZ_PP_CONCAT(Name, GB)
 

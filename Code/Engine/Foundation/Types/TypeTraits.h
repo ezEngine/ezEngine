@@ -161,11 +161,11 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 // \brief embed this into a class to automatically detect which type class it belongs to
 // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
 // As arguments you have to list the types of all the members of the class / struct.
-#  define EZ_DETECT_TYPE_CLASS(...)                                                                                                \
-    ezCompileTimeTrueType operator%(                                                                                               \
+#  define EZ_DETECT_TYPE_CLASS(...)                                                                                                   \
+    ezCompileTimeTrueType operator%(                                                                                                  \
       const ezTraitInt<EZ_CALL_MACRO(EZ_PP_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const \
-    {                                                                                                                              \
-      return {};                                                                                                                   \
+    {                                                                                                                                 \
+      return {};                                                                                                                      \
     }
 #endif
 

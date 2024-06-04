@@ -5,13 +5,13 @@
 #include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 
-#define EZ_TEST_SIMD_VECTOR_EQUAL(NUM_COMPONENTS, A, B, EPSILON)                                                                                               \
-  do                                                                                                                                                           \
-  {                                                                                                                                                            \
-    auto _ezDiff = B - A;                                                                                                                                      \
+#define EZ_TEST_SIMD_VECTOR_EQUAL(NUM_COMPONENTS, A, B, EPSILON)                                                                                                        \
+  do                                                                                                                                                                    \
+  {                                                                                                                                                                     \
+    auto _ezDiff = B - A;                                                                                                                                               \
     ezTestBool((A).IsEqual((B), EPSILON).AllSet<NUM_COMPONENTS>(), "Test failed: " EZ_PP_STRINGIFY(A) ".IsEqual(" EZ_PP_STRINGIFY(B) ", " EZ_PP_STRINGIFY(EPSILON) ")", \
-      EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION,                                                                                                      \
-      "Difference %lf %lf %lf %lf", _ezDiff.x(), _ezDiff.y(), _ezDiff.z(), _ezDiff.w());                                                                       \
+      EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION,                                                                                                               \
+      "Difference %lf %lf %lf %lf", _ezDiff.x(), _ezDiff.y(), _ezDiff.z(), _ezDiff.w());                                                                                \
   } while (false)
 
 

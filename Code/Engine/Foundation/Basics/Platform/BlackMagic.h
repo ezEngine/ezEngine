@@ -133,13 +133,13 @@
 
 #define EZ_IF_0(x)
 #define EZ_IF_1(x) x
-#define EZ_IF(cond, x)                \
+#define EZ_IF(cond, x)                   \
   EZ_PP_CONCAT(EZ_IF_, EZ_TO_BOOL(cond)) \
   (x)
 
 #define EZ_IF_ELSE_0(x, y) y
 #define EZ_IF_ELSE_1(x, y) x
-#define EZ_IF_ELSE(cond, x, y)             \
+#define EZ_IF_ELSE(cond, x, y)                \
   EZ_PP_CONCAT(EZ_IF_ELSE_, EZ_TO_BOOL(cond)) \
   (x, y)
 
@@ -163,7 +163,7 @@
 #define EZ_LIST_9(x) EZ_LIST_8(x), EZ_PP_CONCAT(x, 8)
 #define EZ_LIST_10(x) EZ_LIST_9(x), EZ_PP_CONCAT(x, 9)
 
-#define EZ_LIST(x, count)    \
+#define EZ_LIST(x, count)       \
   EZ_PP_CONCAT(EZ_LIST_, count) \
   (x)
 
@@ -171,7 +171,7 @@
 
 #define EZ_PAIR_LIST_0(x, y)
 #define EZ_PAIR_LIST_1(x, y) \
-  EZ_PP_CONCAT(x, 0)            \
+  EZ_PP_CONCAT(x, 0)         \
   EZ_PP_CONCAT(y, 0)
 #define EZ_PAIR_LIST_2(x, y) EZ_PAIR_LIST_1(x, y), EZ_PP_CONCAT(x, 1) EZ_PP_CONCAT(y, 1)
 #define EZ_PAIR_LIST_3(x, y) EZ_PAIR_LIST_2(x, y), EZ_PP_CONCAT(x, 2) EZ_PP_CONCAT(y, 2)
@@ -183,6 +183,6 @@
 #define EZ_PAIR_LIST_9(x, y) EZ_PAIR_LIST_8(x, y), EZ_PP_CONCAT(x, 8) EZ_PP_CONCAT(y, 8)
 #define EZ_PAIR_LIST_10(x, y) EZ_PAIR_LIST_9(x, y), EZ_PP_CONCAT(x, 9) EZ_PP_CONCAT(y, 9)
 
-#define EZ_PAIR_LIST(x, y, count) \
+#define EZ_PAIR_LIST(x, y, count)    \
   EZ_PP_CONCAT(EZ_PAIR_LIST_, count) \
   (x, y)

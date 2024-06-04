@@ -8,40 +8,40 @@
 using ExecResult = ezVisualScriptGraphDescription::ExecResult;
 using ExecuteFunctionGetter = ezVisualScriptGraphDescription::ExecuteFunction (*)(ezVisualScriptDataType::Enum dataType);
 
-#define MAKE_EXEC_FUNC_GETTER(funcName)                                                                               \
+#define MAKE_EXEC_FUNC_GETTER(funcName)                                                                                  \
   ezVisualScriptGraphDescription::ExecuteFunction EZ_PP_CONCAT(funcName, _Getter)(ezVisualScriptDataType::Enum dataType) \
-  {                                                                                                                   \
-    static ezVisualScriptGraphDescription::ExecuteFunction functionTable[] = {                                        \
-      nullptr, /* Invalid*/                                                                                           \
-      &funcName<bool>,                                                                                                \
-      &funcName<ezUInt8>,                                                                                             \
-      &funcName<ezInt32>,                                                                                             \
-      &funcName<ezInt64>,                                                                                             \
-      &funcName<float>,                                                                                               \
-      &funcName<double>,                                                                                              \
-      &funcName<ezColor>,                                                                                             \
-      &funcName<ezVec3>,                                                                                              \
-      &funcName<ezQuat>,                                                                                              \
-      &funcName<ezTransform>,                                                                                         \
-      &funcName<ezTime>,                                                                                              \
-      &funcName<ezAngle>,                                                                                             \
-      &funcName<ezString>,                                                                                            \
-      &funcName<ezHashedString>,                                                                                      \
-      &funcName<ezGameObjectHandle>,                                                                                  \
-      &funcName<ezComponentHandle>,                                                                                   \
-      &funcName<ezTypedPointer>,                                                                                      \
-      &funcName<ezVariant>,                                                                                           \
-      &funcName<ezVariantArray>,                                                                                      \
-      &funcName<ezVariantDictionary>,                                                                                 \
-      &funcName<ezScriptCoroutineHandle>,                                                                             \
-    };                                                                                                                \
-                                                                                                                      \
-    static_assert(EZ_ARRAY_SIZE(functionTable) == ezVisualScriptDataType::Count);                                     \
-    if (dataType >= 0 && dataType < EZ_ARRAY_SIZE(functionTable))                                                     \
-      return functionTable[dataType];                                                                                 \
-                                                                                                                      \
-    ezLog::Error("Invalid data type for deducted type {}. Script needs re-transform.", dataType);                     \
-    return nullptr;                                                                                                   \
+  {                                                                                                                      \
+    static ezVisualScriptGraphDescription::ExecuteFunction functionTable[] = {                                           \
+      nullptr, /* Invalid*/                                                                                              \
+      &funcName<bool>,                                                                                                   \
+      &funcName<ezUInt8>,                                                                                                \
+      &funcName<ezInt32>,                                                                                                \
+      &funcName<ezInt64>,                                                                                                \
+      &funcName<float>,                                                                                                  \
+      &funcName<double>,                                                                                                 \
+      &funcName<ezColor>,                                                                                                \
+      &funcName<ezVec3>,                                                                                                 \
+      &funcName<ezQuat>,                                                                                                 \
+      &funcName<ezTransform>,                                                                                            \
+      &funcName<ezTime>,                                                                                                 \
+      &funcName<ezAngle>,                                                                                                \
+      &funcName<ezString>,                                                                                               \
+      &funcName<ezHashedString>,                                                                                         \
+      &funcName<ezGameObjectHandle>,                                                                                     \
+      &funcName<ezComponentHandle>,                                                                                      \
+      &funcName<ezTypedPointer>,                                                                                         \
+      &funcName<ezVariant>,                                                                                              \
+      &funcName<ezVariantArray>,                                                                                         \
+      &funcName<ezVariantDictionary>,                                                                                    \
+      &funcName<ezScriptCoroutineHandle>,                                                                                \
+    };                                                                                                                   \
+                                                                                                                         \
+    static_assert(EZ_ARRAY_SIZE(functionTable) == ezVisualScriptDataType::Count);                                        \
+    if (dataType >= 0 && dataType < EZ_ARRAY_SIZE(functionTable))                                                        \
+      return functionTable[dataType];                                                                                    \
+                                                                                                                         \
+    ezLog::Error("Invalid data type for deducted type {}. Script needs re-transform.", dataType);                        \
+    return nullptr;                                                                                                      \
   }
 
 template <typename T>
@@ -980,11 +980,11 @@ namespace
     return ExecResult::RunNext(0);
   }
 
-#define MAKE_TONUMBER_EXEC_FUNC(NumberType, Name)                                                                                                              \
-  template <typename T>                                                                                                                                        \
+#define MAKE_TONUMBER_EXEC_FUNC(NumberType, Name)                                                                                                                 \
+  template <typename T>                                                                                                                                           \
   static ExecResult EZ_PP_CONCAT(NodeFunction_Builtin_To, Name)(ezVisualScriptExecutionContext & inout_context, const ezVisualScriptGraphDescription::Node& node) \
-  {                                                                                                                                                            \
-    return NodeFunction_Builtin_ToNumber<NumberType, T>(inout_context, node, #Name);                                                                           \
+  {                                                                                                                                                               \
+    return NodeFunction_Builtin_ToNumber<NumberType, T>(inout_context, node, #Name);                                                                              \
   }
 
   MAKE_TONUMBER_EXEC_FUNC(ezUInt8, Byte);
