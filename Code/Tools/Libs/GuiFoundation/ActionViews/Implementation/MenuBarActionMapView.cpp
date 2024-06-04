@@ -37,7 +37,7 @@ void ezQtMenuBarActionMapView::CreateView()
 {
   ClearView();
 
-  auto pObject = m_pActionMap->GetRootObject();
+  auto pObject = m_pActionMap->BuildActionTree();
 
   for (auto pChild : pObject->GetChildren())
   {

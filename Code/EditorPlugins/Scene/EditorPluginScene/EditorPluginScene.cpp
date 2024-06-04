@@ -139,13 +139,9 @@ void OnLoadPlugin()
   const char* MenuBars[] = {"EditorPluginScene_DocumentMenuBar", "EditorPluginScene_Scene2MenuBar"};
   for (const char* szMenuBar : MenuBars)
   {
-    ezActionMapManager::RegisterActionMap(szMenuBar).AssertSuccess();
-    ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Scene | ezStandardMenuTypes::View);
-    ezProjectActions::MapActions(szMenuBar);
-    ezDocumentActions::MapMenuActions(szMenuBar);
-    ezAssetActions::MapMenuActions(szMenuBar);
+    ezActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar");
+    ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Scene | ezStandardMenuTypes::View);
     ezDocumentActions::MapToolsActions(szMenuBar);
-    ezCommandHistoryActions::MapActions(szMenuBar);
     ezTransformGizmoActions::MapMenuActions(szMenuBar);
     ezSceneGizmoActions::MapMenuActions(szMenuBar);
     ezGameObjectSelectionActions::MapActions(szMenuBar);
@@ -159,7 +155,7 @@ void OnLoadPlugin()
   // Scene2 Menu bar adjustments
   {
     ezActionMap* pMap = ezActionMapManager::GetActionMap(MenuBars[1]);
-    pMap->UnmapAction(ezDocumentActions::s_hSave, "G.File.Common").AssertSuccess();
+    pMap->HideAction(ezDocumentActions::s_hSave, "G.File.Common");
     pMap->MapAction(ezLayerActions::s_hSaveActiveLayer, "G.File.Common", 6.5f);
   }
 
@@ -168,9 +164,8 @@ void OnLoadPlugin()
   const char* ToolBars[] = {"EditorPluginScene_DocumentToolBar", "EditorPluginScene_Scene2ToolBar"};
   for (const char* szToolBar : ToolBars)
   {
-    ezActionMapManager::RegisterActionMap(szToolBar).AssertSuccess();
-    ezDocumentActions::MapToolbarActions(szToolBar);
-    ezCommandHistoryActions::MapActions(szToolBar, "");
+    ezActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar");
+
     ezTransformGizmoActions::MapToolbarActions(szToolBar);
     ezSceneGizmoActions::MapToolbarActions(szToolBar);
     ezGameObjectDocumentActions::MapToolbarActions(szToolBar);
@@ -179,12 +174,13 @@ void OnLoadPlugin()
   // Scene2 Tool bar adjustments
   {
     ezActionMap* pMap = ezActionMapManager::GetActionMap(ToolBars[1]);
-    pMap->UnmapAction(ezDocumentActions::s_hSave, "SaveCategory").AssertSuccess();
+    pMap->HideAction(ezDocumentActions::s_hSave, "SaveCategory");
     pMap->MapAction(ezLayerActions::s_hSaveActiveLayer, "SaveCategory", 1.0f);
+    pMap->HideAction(ezAssetActions::s_hTransformAsset, "AssetCategory");
   }
 
   // View Tool Bar
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar").AssertSuccess();
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar", "AssetViewToolbar");
   ezViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
   ezQuadViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar");
 
@@ -197,13 +193,13 @@ void OnLoadPlugin()
     { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
 
   // SceneGraph Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu").AssertSuccess();
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu");
   ezGameObjectSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
   ezSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
   ezEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
 
   // Layer Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu").AssertSuccess();
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu");
   ezLayerActions::MapContextMenuActions("EditorPluginScene_LayerContextMenu");
 
   // component property meta states

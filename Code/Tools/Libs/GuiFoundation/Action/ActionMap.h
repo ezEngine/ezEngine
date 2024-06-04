@@ -102,7 +102,7 @@ class EZ_GUIFOUNDATION_DLL ezActionMap
 {
 public:
   using TreeNode = ezTreeNode<ezActionMapDescriptor>;
-  ezActionMap();
+  ezActionMap(ezStringView sParentMapping);
   ~ezActionMap();
 
   /// \brief Adds the given action to into the category or menu identified by sPath.
@@ -133,22 +133,35 @@ public:
   /// Afterwards sSubPath is appended and the result is forwarded to MapAction() as a single path string.
   void MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, ezStringView sSubPath, float fOrder);
 
-  /// \brief Removes the named action from the action map. The same rules for 'global' names apply as for MapAction().
-  ezResult UnmapAction(ezActionDescriptorHandle hAction, ezStringView sPath);
+  /// \brief Hides an action from the action map. The same rules for 'global' names apply as for MapAction().
+  /// If the target action is in this mapping, prefer not calling MapAction in the first place. Use this for actions to be removed that might be in a parent mapping and thus can't be modified directly.
+  void HideAction(ezActionDescriptorHandle hAction, ezStringView sPath);
+
+  /// \brief Builds an action tree out of all mapped actions of this and any parent mappings.
+  const TreeNode* BuildActionTree();
+  const ezActionMapDescriptor* GetDescriptor(const ezTreeNode<ezActionMapDescriptor>* pObject) const;
+
+private:
+  struct TempActionMapDescriptor
+  {
+    ezActionDescriptorHandle m_hAction;
+    ezString m_sPath;
+    ezString m_sSubPath;
+    float m_fOrder;
+  };
 
   /// \brief Searches for an action with the given name and returns the full path to it.
   ///
   /// This is mainly meant to be used with (unique) names to categories (or menus).
   ezResult SearchPathForAction(ezStringView sUniqueName, ezStringBuilder& out_sPath) const;
 
-  const TreeNode* GetRootObject() const { return &m_Root; }
+  void MapActionInternal(ezActionDescriptorHandle hAction, ezStringView sPath, float fOrder);
+  void MapActionInternal(ezActionDescriptorHandle hAction, ezStringView sPath, ezStringView sSubPath, float fOrder);
+  ezResult UnmapActionInternal(ezActionDescriptorHandle hAction, ezStringView sPath);
 
-  const ezActionMapDescriptor* GetDescriptor(const ezTreeNode<ezActionMapDescriptor>* pObject) const;
-
-private:
-  ezUuid MapAction(const ezActionMapDescriptor& desc);
-  ezResult UnmapAction(const ezActionMapDescriptor& desc);
-  ezResult UnmapAction(const ezUuid& guid);
+  ezUuid MapActionInternal(const ezActionMapDescriptor& desc);
+  ezResult UnmapActionInternal(const ezActionMapDescriptor& desc);
+  ezResult UnmapActionInternal(const ezUuid& guid);
 
   const ezActionMapDescriptor* GetDescriptor(const ezUuid& guid) const;
 
@@ -156,6 +169,13 @@ private:
   bool FindObjectPathByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName, ezStringBuilder& out_sPath) const;
   const ezTreeNode<ezActionMapDescriptor>* GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName) const;
 
-  TreeNode m_Root;
-  ezMap<ezUuid, ezTreeNode<ezActionMapDescriptor>*> m_Descriptors;
+private:
+  ezString m_sParentMapping;
+  ezDynamicArray<TempActionMapDescriptor> m_TempActions;
+  ezDynamicArray<TempActionMapDescriptor> m_TempHiddenActions;
+  ezUInt32 m_uiEditCounter = 0;
+
+  mutable ezUInt32 m_uiTransitiveEditCounterOfRoot = 0;
+  mutable TreeNode m_Root;
+  mutable ezMap<ezUuid, ezTreeNode<ezActionMapDescriptor>*> m_Descriptors;
 };
