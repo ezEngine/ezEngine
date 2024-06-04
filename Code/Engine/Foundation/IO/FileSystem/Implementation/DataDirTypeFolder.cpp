@@ -89,7 +89,7 @@ namespace ezDataDirectory
     return m_File.GetFileSize();
   }
 
-  ezDataDirectoryType* FolderType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage)
+  ezDataDirectoryType* FolderType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage)
   {
     FolderType* pDataDir = EZ_DEFAULT_NEW(FolderType);
 

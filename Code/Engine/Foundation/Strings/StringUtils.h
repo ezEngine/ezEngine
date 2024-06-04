@@ -269,6 +269,12 @@ public:
   static void OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& ref_uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase, bool bUpperCase);
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& ref_uiWritePos, double value, ezUInt8 uiWidth, bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes = false);
+
+  /// \brief Calculates in which line number szOffset is in the given string.
+  ///
+  /// Line numbers are 1-based.
+  /// Returns 0, if szOffset is outside the given string.
+  static ezUInt32 CalculateLineNumber(const char* szString, const char* szOffset, const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>());
 };
 
 

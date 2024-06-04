@@ -114,7 +114,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
     if (ezPathUtils::IsAbsolutePath(szFileName))
     {
       // Make sure we can access raw absolute file paths
-      if (ezFileSystem::AddDataDirectory("", "jsonoutput", ":", ezFileSystem::AllowWrites).Failed())
+      if (ezFileSystem::AddDataDirectory("", "jsonoutput", ":", ezDataDirUsage::AllowWrites).Failed())
         return false;
 
       jsonFilename = szFileName;
@@ -122,7 +122,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
     else
     {
       // If this is a relative path, we use the eztest/ data directory to make sure that this works properly with the fileserver.
-      if (ezFileSystem::AddDataDirectory(">eztest/", "jsonoutput", ":", ezFileSystem::AllowWrites).Failed())
+      if (ezFileSystem::AddDataDirectory(">eztest/", "jsonoutput", ":", ezDataDirUsage::AllowWrites).Failed())
         return false;
 
       jsonFilename = ":";

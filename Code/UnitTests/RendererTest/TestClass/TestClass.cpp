@@ -70,11 +70,11 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     sReadDir.PathParentDirectory();
 
-    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites)); // for shader files
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites)); // for shader files
 
     EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sBaseDir, "Base"));
 
-    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites));
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites));
 
     EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sReadDir, "UnitTestData"));
 

@@ -19,64 +19,26 @@ public:
 
     // unfortunately using EZ_ALIGNMENT_MINIMUM doesn't work, because even on 32 Bit systems we try to do allocations with 8 Byte
     // alignment interestingly, the code that does that, seems to work fine anyway
-    EZ_ASSERT_DEBUG(
-      uiAlign <= 8, "This allocator does not guarantee alignments larger than 8. Use an aligned allocator to allocate the desired data type.");
+    EZ_ASSERT_DEBUG(uiAlign <= 8, "This allocator does not guarantee alignments larger than 8. Use an aligned allocator to allocate the desired data type.");
 
-    uiSize = PadSize(uiSize);
     void* ptr = malloc(uiSize);
     EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
-    return OffsetPtr(ptr);
+    return ptr;
   }
 
   EZ_FORCE_INLINE void* Reallocate(void* pCurrentPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
   {
-    void* orgPtr = RestorePtr(pCurrentPtr);
-    uiNewSize = PadSize(uiNewSize);
-    void* ptr = realloc(orgPtr, uiNewSize);
+    void* ptr = realloc(pCurrentPtr, uiNewSize);
     EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
-    return OffsetPtr(ptr);
+    return ptr;
   }
 
   EZ_ALWAYS_INLINE void Deallocate(void* pPtr)
   {
-    pPtr = RestorePtr(pPtr);
     free(pPtr);
   }
 
   EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return nullptr; }
-
-private:
-  EZ_ALWAYS_INLINE size_t PadSize(size_t uiSize)
-  {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    return uiSize + 2 * EZ_ALIGNMENT_MINIMUM;
-#else
-    return uiSize;
-#endif
-  }
-
-  EZ_ALWAYS_INLINE void* OffsetPtr(void* ptr)
-  {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    ezUInt32 uiOffset = ezMemoryUtils::IsAligned(ptr, 2 * EZ_ALIGNMENT_MINIMUM) ? EZ_ALIGNMENT_MINIMUM : 2 * EZ_ALIGNMENT_MINIMUM;
-    ptr = ezMemoryUtils::AddByteOffset(ptr, uiOffset - 4);
-    *static_cast<ezUInt32*>(ptr) = uiOffset;
-    return ezMemoryUtils::AddByteOffset(ptr, 4);
-#else
-    return ptr;
-#endif
-  }
-
-  EZ_ALWAYS_INLINE void* RestorePtr(void* ptr)
-  {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    ptr = ezMemoryUtils::AddByteOffset(ptr, -4);
-    ezInt32 uiOffset = *static_cast<ezUInt32*>(ptr);
-    return ezMemoryUtils::AddByteOffset(ptr, -uiOffset + 4);
-#else
-    return ptr;
-#endif
-  }
 };

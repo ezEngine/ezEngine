@@ -77,11 +77,11 @@ void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
   ezStringBuilder sScriptFile = szFile;
 
   {
-    ezDataDirectoryType* pDataDir = nullptr;
+    const ezDataDirectoryInfo* pDataDir = nullptr;
     if (ezFileSystem::ResolvePath(GetDocumentPath(), nullptr, nullptr, &pDataDir).Failed())
       return;
 
-    sScriptFile.Prepend(pDataDir->GetRedirectedDataDirectoryPath(), "/");
+    sScriptFile.Prepend(pDataDir->m_pDataDirType->GetRedirectedDataDirectoryPath(), "/");
   }
 
   const ezStringBuilder sComponentName = ezPathUtils::GetFileName(GetDocumentPath());

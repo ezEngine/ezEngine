@@ -65,7 +65,7 @@ void ezEditorTestApplication::AfterCoreSystemsStartup()
   ezQtUiServices::SetHeadless(true);
   ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
-  ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
 }
 
 void ezEditorTestApplication::BeforeHighLevelSystemsShutdown()

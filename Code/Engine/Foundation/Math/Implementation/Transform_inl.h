@@ -77,7 +77,7 @@ EZ_ALWAYS_INLINE Type ezTransformTemplate<Type>::GetMaxScale() const
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::ContainsNegativeScale() const
+EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::HasMirrorScaling() const
 {
   return (m_vScale.x * m_vScale.y * m_vScale.z) < 0.0f;
 }

@@ -284,7 +284,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
   if (false)
   {
     ezStringBuilder outputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
     ezProfilingUtils::SaveProfilingCapture(":output/profiling.json").IgnoreResult();
   }

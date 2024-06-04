@@ -289,7 +289,7 @@ void ezCustomMeshRenderData::FillBatchIdAndSortingKey()
 {
   const ezUInt32 uiAdditionalBatchData = 0;
 
-  m_uiFlipWinding = m_GlobalTransform.ContainsNegativeScale() ? 1 : 0;
+  m_uiFlipWinding = m_GlobalTransform.HasMirrorScaling() ? 1 : 0;
   m_uiUniformScale = m_GlobalTransform.ContainsUniformScale() ? 1 : 0;
 
   const ezUInt32 uiMeshIDHash = ezHashingUtils::StringHashTo32(m_hMesh.GetResourceIDHash());

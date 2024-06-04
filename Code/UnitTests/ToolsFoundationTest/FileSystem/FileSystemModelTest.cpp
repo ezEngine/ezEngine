@@ -289,8 +289,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     EZ_TEST_RESULT(ezFileSystem::CreateDirectoryStructure(sOutputFolderResolved));
 
     // for absolute paths
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder, "Clear", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder, "Clear", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
     ezFileSystemModel::GetSingleton()->Initialize(fsConfig, {}, {});
 

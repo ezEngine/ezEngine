@@ -15,7 +15,7 @@ void ezFileserverApp::AfterCoreSystemsStartup()
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   // Add the empty data directory to access files via absolute paths
-  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
   EZ_DEFAULT_NEW(ezFileserver);
 

@@ -48,7 +48,7 @@ private:
       return EZ_FAILURE;
     }
 
-    ezFileSystem::AddDataDirectory(">eztest/", "TexConvDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">eztest/", "TexConvDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     return EZ_SUCCESS;
   }

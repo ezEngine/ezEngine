@@ -142,6 +142,18 @@ private:
 
 #if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
 public:
+  struct Pointer
+  {
+    std::pair<const KeyType&, ValueType&> value;
+    const std::pair<const KeyType&, ValueType&>* operator->() const { return &value; }
+  };
+
+  EZ_ALWAYS_INLINE Pointer operator->() const
+  {
+    return Pointer{.value = {ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>::Key(), Value()}};
+  }
+
+
   // These functions are used to return the values for structured bindings.
   // The number and type of type of each slot are defined in the inl file.
 
