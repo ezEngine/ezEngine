@@ -112,7 +112,7 @@ EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod 
 template <typename ModuleType>
 EZ_ALWAYS_INLINE ModuleType* ezWorld::GetOrCreateModule()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
 
   return ezStaticCast<ModuleType*>(GetOrCreateModule(ezGetStaticRTTI<ModuleType>()));
 }
@@ -120,7 +120,7 @@ EZ_ALWAYS_INLINE ModuleType* ezWorld::GetOrCreateModule()
 template <typename ModuleType>
 EZ_ALWAYS_INLINE void ezWorld::DeleteModule()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
 
   DeleteModule(ezGetStaticRTTI<ModuleType>());
 }
@@ -128,7 +128,7 @@ EZ_ALWAYS_INLINE void ezWorld::DeleteModule()
 template <typename ModuleType>
 EZ_ALWAYS_INLINE ModuleType* ezWorld::GetModule()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
 
   return ezStaticCast<ModuleType*>(GetModule(ezGetStaticRTTI<ModuleType>()));
 }
@@ -136,7 +136,7 @@ EZ_ALWAYS_INLINE ModuleType* ezWorld::GetModule()
 template <typename ModuleType>
 EZ_ALWAYS_INLINE const ModuleType* ezWorld::GetModule() const
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
 
   return ezStaticCast<const ModuleType*>(GetModule(ezGetStaticRTTI<ModuleType>()));
 }
@@ -150,7 +150,7 @@ EZ_ALWAYS_INLINE const ModuleType* ezWorld::GetModuleReadOnly() const
 template <typename ManagerType>
 ManagerType* ezWorld::GetOrCreateComponentManager()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
 
   CheckForWriteAccess();
 
@@ -180,7 +180,7 @@ EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetOrCreateManagerForComponent
 template <typename ManagerType>
 void ezWorld::DeleteComponentManager()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
 
   CheckForWriteAccess();
 
@@ -201,7 +201,7 @@ void ezWorld::DeleteComponentManager()
 template <typename ManagerType>
 EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
 
   CheckForWriteAccess();
 
@@ -217,7 +217,7 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager()
 template <typename ManagerType>
 EZ_FORCE_INLINE const ManagerType* ezWorld::GetComponentManager() const
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
 
   CheckForReadAccess();
 
@@ -264,7 +264,7 @@ template <typename ComponentType>
 inline bool ezWorld::TryGetComponent(const ezComponentHandle& hComponent, ComponentType*& out_pComponent)
 {
   CheckForWriteAccess();
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 
   const ezWorldModuleTypeId uiTypeId = hComponent.m_InternalId.m_TypeId;
 
@@ -286,7 +286,7 @@ template <typename ComponentType>
 inline bool ezWorld::TryGetComponent(const ezComponentHandle& hComponent, const ComponentType*& out_pComponent) const
 {
   CheckForReadAccess();
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 
   const ezWorldModuleTypeId uiTypeId = hComponent.m_InternalId.m_TypeId;
 

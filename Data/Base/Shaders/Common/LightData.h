@@ -32,7 +32,7 @@ struct EZ_SHADER_STRUCT ezPerLightData
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerLightData> perLightDataBuffer;
 #else
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerLightData) == 48);
+  static_assert(sizeof(ezPerLightData) == 48);
 #endif
 
 struct EZ_SHADER_STRUCT ezPointShadowData
@@ -102,7 +102,7 @@ struct EZ_SHADER_STRUCT ezPerDecalData
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerDecalData> perDecalDataBuffer;
 #else // C++
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerDecalData) == 96);
+  static_assert(sizeof(ezPerDecalData) == 96);
 #endif
 
 #define REFLECTION_PROBE_IS_SPHERE (1 << 31)
@@ -128,7 +128,7 @@ struct EZ_SHADER_STRUCT ezPerDecalData
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerReflectionProbeData> perPerReflectionProbeDataBuffer;
 #else // C++
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerReflectionProbeData) == 160);
+  static_assert(sizeof(ezPerReflectionProbeData) == 160);
 #endif
 
   CONSTANT_BUFFER(ezClusteredDataConstants, 3)

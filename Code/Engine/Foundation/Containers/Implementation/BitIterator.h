@@ -27,7 +27,7 @@ struct ezBitIterator
 {
   using iterator_category = std::forward_iterator_tag;
   using value_type = DataType;
-  EZ_CHECK_AT_COMPILETIME(sizeof(DataType) <= 8);
+  static_assert(sizeof(DataType) <= 8);
 
   // Invalid iterator (end)
   EZ_ALWAYS_INLINE ezBitIterator() = default;

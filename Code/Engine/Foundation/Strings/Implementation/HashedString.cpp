@@ -103,8 +103,8 @@ EZ_MSVC_ANALYSIS_WARNING_DISABLE(6011) // Disable warning for null pointer deref
 
 ezHashedString::ezHashedString()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(sizeof(m_Data) == sizeof(void*), "The hashed string data should only be as large as one pointer.");
-  EZ_CHECK_AT_COMPILETIME_MSG(sizeof(*this) == sizeof(void*), "The hashed string data should only be as large as one pointer.");
+  static_assert(sizeof(m_Data) == sizeof(void*), "The hashed string data should only be as large as one pointer.");
+  static_assert(sizeof(*this) == sizeof(void*), "The hashed string data should only be as large as one pointer.");
 
   // only insert the empty string once, after that, we can just use it without the need for the mutex
   if (s_pHSData == nullptr)

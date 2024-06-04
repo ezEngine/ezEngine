@@ -121,8 +121,8 @@ namespace
   static ezMutex s_ThreadInfosMutex;
 
 #  if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezProfilingSystem::CPUScope) == 64);
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezProfilingSystem::GPUScope) == 64);
+  static_assert(sizeof(ezProfilingSystem::CPUScope) == 64);
+  static_assert(sizeof(ezProfilingSystem::GPUScope) == 64);
 #  endif
 
   static thread_local CpuScopesBufferBase* s_CpuScopes = nullptr;

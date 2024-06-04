@@ -4,10 +4,11 @@
 #  error "Please don't include FormatString.h directly, but instead include Foundation/Basics.h"
 #endif
 
-#include <Foundation/Strings/Implementation/FormatStringArgs.h>
-
 class ezStringBuilder;
-struct ezStringView;
+
+#include <Foundation/Strings/StringView.h>
+
+#include <Foundation/Strings/Implementation/FormatStringArgs.h>
 
 /// \brief Implements formating of strings with placeholders and formatting options.
 ///

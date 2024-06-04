@@ -425,6 +425,6 @@ bool operator!=(const ezColor& c1, const ezColor& c2); // [tested]
 /// \brief Strict weak ordering. Useful for sorting colors into a map.
 bool operator<(const ezColor& c1, const ezColor& c2); // [tested]
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezColor) == 16);
+static_assert(sizeof(ezColor) == 16);
 
 #include <Foundation/Math/Implementation/Color_inl.h>

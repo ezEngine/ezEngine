@@ -12,9 +12,9 @@
 #  include <Foundation/Platform/Linux/PipeChannel_Linux.h>
 #endif
 
-EZ_CHECK_AT_COMPILETIME((ezInt32)ezIpcChannel::ConnectionState::Disconnected == (ezInt32)ezIpcChannelEvent::Disconnected);
-EZ_CHECK_AT_COMPILETIME((ezInt32)ezIpcChannel::ConnectionState::Connecting == (ezInt32)ezIpcChannelEvent::Connecting);
-EZ_CHECK_AT_COMPILETIME((ezInt32)ezIpcChannel::ConnectionState::Connected == (ezInt32)ezIpcChannelEvent::Connected);
+static_assert((ezInt32)ezIpcChannel::ConnectionState::Disconnected == (ezInt32)ezIpcChannelEvent::Disconnected);
+static_assert((ezInt32)ezIpcChannel::ConnectionState::Connecting == (ezInt32)ezIpcChannelEvent::Connecting);
+static_assert((ezInt32)ezIpcChannel::ConnectionState::Connected == (ezInt32)ezIpcChannelEvent::Connected);
 
 ezIpcChannel::ezIpcChannel(ezStringView sAddress, Mode::Enum mode)
   : m_sAddress(sAddress)

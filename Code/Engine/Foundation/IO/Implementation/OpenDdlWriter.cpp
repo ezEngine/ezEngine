@@ -188,17 +188,17 @@ void ezOpenDdlWriter::OutputPrimitiveTypeNameShortest(ezOpenDdlPrimitiveType typ
 
 ezOpenDdlWriter::ezOpenDdlWriter()
 {
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesBool == (int)ezOpenDdlPrimitiveType::Bool);
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesInt8 == (int)ezOpenDdlPrimitiveType::Int8);
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesInt16 == (int)ezOpenDdlPrimitiveType::Int16);
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesInt32 == (int)ezOpenDdlPrimitiveType::Int32);
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesInt64 == (int)ezOpenDdlPrimitiveType::Int64);
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesUInt8 == (int)ezOpenDdlPrimitiveType::UInt8);
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesUInt16 == (int)ezOpenDdlPrimitiveType::UInt16);
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesUInt32 == (int)ezOpenDdlPrimitiveType::UInt32);
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesUInt64 == (int)ezOpenDdlPrimitiveType::UInt64);
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesFloat == (int)ezOpenDdlPrimitiveType::Float);
-  EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesString == (int)ezOpenDdlPrimitiveType::String);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesBool == (int)ezOpenDdlPrimitiveType::Bool);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesInt8 == (int)ezOpenDdlPrimitiveType::Int8);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesInt16 == (int)ezOpenDdlPrimitiveType::Int16);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesInt32 == (int)ezOpenDdlPrimitiveType::Int32);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesInt64 == (int)ezOpenDdlPrimitiveType::Int64);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesUInt8 == (int)ezOpenDdlPrimitiveType::UInt8);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesUInt16 == (int)ezOpenDdlPrimitiveType::UInt16);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesUInt32 == (int)ezOpenDdlPrimitiveType::UInt32);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesUInt64 == (int)ezOpenDdlPrimitiveType::UInt64);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesFloat == (int)ezOpenDdlPrimitiveType::Float);
+  static_assert((int)ezOpenDdlWriter::State::PrimitivesString == (int)ezOpenDdlPrimitiveType::String);
 
   m_StateStack.ExpandAndGetRef().m_State = State::Invalid;
   m_StateStack.ExpandAndGetRef().m_State = State::Empty;

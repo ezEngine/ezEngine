@@ -11,7 +11,7 @@
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <Shaders/Materials/SpriteData.h>
-EZ_CHECK_AT_COMPILETIME(sizeof(ezPerSpriteData) == 48);
+static_assert(sizeof(ezPerSpriteData) == 48);
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderer, 1, ezRTTIDefaultAllocator<ezSpriteRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

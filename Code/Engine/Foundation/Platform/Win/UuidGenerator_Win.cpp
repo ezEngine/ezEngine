@@ -7,7 +7,7 @@
 #  include <combaseapi.h>
 #  include <rpc.h>
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) * 2 == sizeof(UUID));
+static_assert(sizeof(ezUInt64) * 2 == sizeof(UUID));
 
 ezUuid ezUuid::MakeUuid()
 {

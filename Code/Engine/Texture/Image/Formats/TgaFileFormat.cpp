@@ -31,7 +31,7 @@ struct TgaHeader
   TgaImageDescriptor m_ImageDescriptor;
 };
 
-EZ_CHECK_AT_COMPILETIME(sizeof(TgaHeader) == 18);
+static_assert(sizeof(TgaHeader) == 18);
 
 
 static inline ezColorLinearUB GetPixelColor(const ezImageView& image, ezUInt32 x, ezUInt32 y, const ezUInt32 uiHeight)

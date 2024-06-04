@@ -30,7 +30,7 @@ public:
   template <typename TYPE>
   static TYPE* QueryPreferences(const ezDocument* pDocument = nullptr)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG((std::is_base_of<ezPreferences, TYPE>::value == true), "All preferences objects must be derived from ezPreferences");
+    static_assert((std::is_base_of<ezPreferences, TYPE>::value == true), "All preferences objects must be derived from ezPreferences");
     return static_cast<TYPE*>(QueryPreferences(ezGetStaticRTTI<TYPE>(), pDocument));
   }
 

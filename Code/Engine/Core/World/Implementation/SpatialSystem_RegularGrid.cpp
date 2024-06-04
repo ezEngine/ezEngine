@@ -616,7 +616,7 @@ ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*=
   , m_Grids(&m_Allocator)
   , m_DataTable(&m_Allocator)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(Data) == 8);
+  static_assert(sizeof(Data) == 8);
 
   m_Grids.SetCount(MAX_NUM_GRIDS);
 

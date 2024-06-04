@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessage, 1, ezRTTIDefaultAllocator<ezEven
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezEventMessageSender<ezEventMessage>) == 16);
+static_assert(sizeof(ezEventMessageSender<ezEventMessage>) == 16);
 
 namespace ezInternal
 {

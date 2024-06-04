@@ -83,5 +83,5 @@ class ezVariantTypeInfoT : public ezVariantTypeInfo
 /// Limitations: Currently only member variables are supported on custom types, no arrays, set, maps etc. For best performance, any custom type smaller than 16 bytes should be POD so it can be inlined into the ezVariant.
 /// \sa EZ_DECLARE_CUSTOM_VARIANT_TYPE, ezVariantTypeRegistry, ezVariant
 #define EZ_DEFINE_CUSTOM_VARIANT_TYPE(TYPE)                                                                                                                                       \
-  EZ_CHECK_AT_COMPILETIME_MSG(ezVariantTypeDeduction<TYPE>::value == ezVariantType::TypedObject, "EZ_DECLARE_CUSTOM_VARIANT_TYPE needs to be added to the header defining TYPE"); \
+  static_assert(ezVariantTypeDeduction<TYPE>::value == ezVariantType::TypedObject, "EZ_DECLARE_CUSTOM_VARIANT_TYPE needs to be added to the header defining TYPE"); \
   ezVariantTypeInfoT<TYPE> g_ezVariantTypeInfoT_##TYPE;

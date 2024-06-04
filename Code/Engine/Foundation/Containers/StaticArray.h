@@ -62,7 +62,7 @@ private:
   friend class ezArrayBase<T, ezStaticArray<T, Capacity>>;
 };
 
-// TODO EZ_CHECK_AT_COMPILETIME_MSG with a ',' in the expression does not work
-// EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass< ezStaticArray<int, 4> >::value == 2, "static array is not memory relocatable");
+// TODO static_assert with a ',' in the expression does not work
+// static_assert(ezGetTypeClass< ezStaticArray<int, 4> >::value == 2, "static array is not memory relocatable");
 
 #include <Foundation/Containers/Implementation/StaticArray_inl.h>

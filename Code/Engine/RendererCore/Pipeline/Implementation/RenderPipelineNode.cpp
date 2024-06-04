@@ -2,7 +2,7 @@
 
 #include <RendererCore/Pipeline/RenderPipelineNode.h>
 
-// EZ_CHECK_AT_COMPILETIME(sizeof(ezRenderPipelineNodePin) == 4);
+// static_assert(sizeof(ezRenderPipelineNodePin) == 4);
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineNode, 1, ezRTTINoAllocator)

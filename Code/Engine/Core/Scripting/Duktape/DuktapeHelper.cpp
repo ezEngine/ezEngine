@@ -7,15 +7,15 @@
 #  include <Duktape/duktape.h>
 #  include <Foundation/IO/FileSystem/FileReader.h>
 
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::None == DUK_TYPE_MASK_NONE);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Undefined == DUK_TYPE_MASK_UNDEFINED);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Null == DUK_TYPE_MASK_NULL);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Bool == DUK_TYPE_MASK_BOOLEAN);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Number == DUK_TYPE_MASK_NUMBER);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::String == DUK_TYPE_MASK_STRING);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Object == DUK_TYPE_MASK_OBJECT);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Buffer == DUK_TYPE_MASK_BUFFER);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Pointer == DUK_TYPE_MASK_POINTER);
+static_assert(ezDuktapeTypeMask::None == DUK_TYPE_MASK_NONE);
+static_assert(ezDuktapeTypeMask::Undefined == DUK_TYPE_MASK_UNDEFINED);
+static_assert(ezDuktapeTypeMask::Null == DUK_TYPE_MASK_NULL);
+static_assert(ezDuktapeTypeMask::Bool == DUK_TYPE_MASK_BOOLEAN);
+static_assert(ezDuktapeTypeMask::Number == DUK_TYPE_MASK_NUMBER);
+static_assert(ezDuktapeTypeMask::String == DUK_TYPE_MASK_STRING);
+static_assert(ezDuktapeTypeMask::Object == DUK_TYPE_MASK_OBJECT);
+static_assert(ezDuktapeTypeMask::Buffer == DUK_TYPE_MASK_BUFFER);
+static_assert(ezDuktapeTypeMask::Pointer == DUK_TYPE_MASK_POINTER);
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 

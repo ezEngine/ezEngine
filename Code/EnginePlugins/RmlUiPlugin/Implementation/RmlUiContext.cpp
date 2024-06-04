@@ -17,7 +17,7 @@ namespace
     Rml::Input::KI_END, Rml::Input::KI_DELETE, Rml::Input::KI_BACK, Rml::Input::KI_RETURN, Rml::Input::KI_RETURN,
     Rml::Input::KI_ESCAPE};
 
-  EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
+  static_assert(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
 } // namespace
 
 ezRmlUiContext::ezRmlUiContext(const Rml::String& sName)

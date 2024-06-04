@@ -53,7 +53,7 @@ ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& inout_stre
 
   if (hasPolygons)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(rcPolyMesh) == sizeof(void*) * 5 + sizeof(int) * 14, "rcPolyMesh data structure has changed");
+    static_assert(sizeof(rcPolyMesh) == sizeof(void*) * 5 + sizeof(int) * 14, "rcPolyMesh data structure has changed");
 
     const auto& mesh = *m_pNavMeshPolygons;
 
@@ -97,7 +97,7 @@ ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& inout_st
 
   if (hasPolygons)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(rcPolyMesh) == sizeof(void*) * 5 + sizeof(int) * 14, "rcPolyMesh data structure has changed");
+    static_assert(sizeof(rcPolyMesh) == sizeof(void*) * 5 + sizeof(int) * 14, "rcPolyMesh data structure has changed");
 
     m_pNavMeshPolygons = EZ_DEFAULT_NEW(rcPolyMesh);
 

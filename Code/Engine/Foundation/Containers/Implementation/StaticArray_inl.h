@@ -18,7 +18,7 @@ template <typename T, ezUInt32 C>
 template <ezUInt32 OtherCapacity>
 ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs)
 {
-  EZ_CHECK_AT_COMPILETIME(OtherCapacity <= C);
+  static_assert(OtherCapacity <= C);
 
   EZ_ASSERT_DEBUG(this->m_pElements == nullptr, "static arrays should not use m_pElements");
   this->m_uiCapacity = C;

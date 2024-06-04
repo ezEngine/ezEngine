@@ -118,7 +118,7 @@ namespace ezInternal
   };
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_CHECK_AT_COMPILETIME(sizeof(RenderDataCacheEntry) == 16);
+  static_assert(sizeof(RenderDataCacheEntry) == 16);
 #endif
 } // namespace ezInternal
 

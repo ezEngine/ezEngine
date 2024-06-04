@@ -36,7 +36,3 @@
 
 #undef EZ_PLATFORM_LITTLE_ENDIAN
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON
-
-#include <Foundation/Basics/Compiler/Clang/Clang.h>
-#include <Foundation/Basics/Compiler/GCC/GCC.h>
-#include <Foundation/Basics/Compiler/MSVC/MSVC.h>

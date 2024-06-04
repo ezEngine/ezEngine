@@ -5,9 +5,9 @@
 #include <Foundation/Types/VariantTypeRegistry.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-EZ_CHECK_AT_COMPILETIME(sizeof(ezVariant) == 24);
+static_assert(sizeof(ezVariant) == 24);
 #else
-EZ_CHECK_AT_COMPILETIME(sizeof(ezVariant) == 20);
+static_assert(sizeof(ezVariant) == 20);
 #endif
 
 /// constructors
@@ -106,8 +106,8 @@ EZ_ALWAYS_INLINE void ezVariant::InitShared(const T& value)
 {
   using StorageType = typename TypeDeduction<T>::StorageType;
 
-  EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) > sizeof(Data)) || TypeDeduction<T>::forceSharing, "value of this type should be stored inplace");
-  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
+  static_assert((sizeof(StorageType) > sizeof(Data)) || TypeDeduction<T>::forceSharing, "value of this type should be stored inplace");
+  static_assert(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
   const ezRTTI* pType = ezGetStaticRTTI<T>();
 
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, pType);
@@ -122,7 +122,7 @@ struct ComputeHashFunc
   template <typename T>
   EZ_FORCE_INLINE ezUInt64 operator()(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 &&
+    static_assert(sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 &&
                                   !ezVariant::TypeDeduction<T>::forceSharing,
       "This type requires special handling! Add a specialization below.");
     return ezHashingUtils::xxHash64(pData, sizeof(T), uiSeed);

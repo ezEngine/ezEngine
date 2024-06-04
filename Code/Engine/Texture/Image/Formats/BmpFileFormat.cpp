@@ -73,11 +73,11 @@ struct ezBmpFileInfoHeaderV4
   ezUInt32 m_gammaBlue = 0;
 };
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == 3 * 3 * 4);
+static_assert(sizeof(ezCIEXYZTRIPLE) == 3 * 3 * 4);
 
 // just to be on the safe side
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == sizeof(CIEXYZTRIPLE));
+static_assert(sizeof(ezCIEXYZTRIPLE) == sizeof(CIEXYZTRIPLE));
 #endif
 
 struct ezBmpFileInfoHeaderV5

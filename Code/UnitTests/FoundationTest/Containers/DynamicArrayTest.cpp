@@ -64,9 +64,9 @@ namespace DynamicArrayTestDetail
 } // namespace DynamicArrayTestDetail
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 24);
+static_assert(sizeof(ezDynamicArray<ezInt32>) == 24);
 #else
-EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 16);
+static_assert(sizeof(ezDynamicArray<ezInt32>) == 16);
 #endif
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Containers);

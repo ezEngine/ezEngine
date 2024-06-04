@@ -14,7 +14,7 @@ public:
     : ezAbstractMapProperty(szPropertyName)
   {
     m_Flags = ezPropertyFlags::GetParameterFlags<Type>();
-    EZ_CHECK_AT_COMPILETIME_MSG(
+    static_assert(
       !std::is_pointer<Type>::value ||
         ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferencePointerType>::value == ezVariantType::Invalid,
       "Pointer to standard types are not supported.");
