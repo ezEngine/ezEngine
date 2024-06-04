@@ -1,5 +1,6 @@
 #pragma once
 
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
 struct ezGALRenderTargets;
@@ -12,22 +13,24 @@ public:
   ezTargetPass(const char* szName = "TargetPass");
   ~ezTargetPass();
 
-  const ezGALTextureHandle* GetTextureHandle(const ezGALRenderTargets& renderTargets, const ezRenderPipelineNodePin* pPin);
-
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+  virtual ezGALTextureHandle QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc) override;
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 private:
   bool VerifyInput(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, const char* szPinName);
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinColor0;
-  ezRenderPipelineNodeInputPin m_PinColor1;
-  ezRenderPipelineNodeInputPin m_PinColor2;
-  ezRenderPipelineNodeInputPin m_PinColor3;
-  ezRenderPipelineNodeInputPin m_PinColor4;
-  ezRenderPipelineNodeInputPin m_PinColor5;
-  ezRenderPipelineNodeInputPin m_PinColor6;
-  ezRenderPipelineNodeInputPin m_PinColor7;
-  ezRenderPipelineNodeInputPin m_PinDepthStencil;
+  ezRenderPipelineNodeInputProviderPin m_PinColor0;
+  ezRenderPipelineNodeInputProviderPin m_PinColor1;
+  ezRenderPipelineNodeInputProviderPin m_PinColor2;
+  ezRenderPipelineNodeInputProviderPin m_PinColor3;
+  ezRenderPipelineNodeInputProviderPin m_PinColor4;
+  ezRenderPipelineNodeInputProviderPin m_PinColor5;
+  ezRenderPipelineNodeInputProviderPin m_PinColor6;
+  ezRenderPipelineNodeInputProviderPin m_PinColor7;
+  ezRenderPipelineNodeInputProviderPin m_PinDepthStencil;
+
+  ezGALRenderTargets m_renderTargets;
+  ezGALSwapChainHandle m_hSwapChain;
 };

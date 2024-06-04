@@ -188,11 +188,11 @@ bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString
   else
   {
     // Check that only one passthrough is connected
-    if (pPinTarget->m_Type == ezRenderPipelineNodePin::Type::PassThrough)
+    if (pPinTarget->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
     {
       for (const ezRenderPipelineNodePin* pPin : pConnection->m_Inputs)
       {
-        if (pPin->m_Type == ezRenderPipelineNodePin::Type::PassThrough)
+        if (pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
         {
           ezLog::Error("A pass through pin is already connected to the '{0}' pin!", sOutputPinName);
           return false;
@@ -479,7 +479,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
     auto inputPins = pPass->GetInputPins();
     for (const ezRenderPipelineNodePin* pPin : inputPins)
     {
-      if (pPin->m_Type == ezRenderPipelineNodePin::Type::PassThrough)
+      if (pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
       {
         if (data.m_Outputs[pPin->m_uiOutputIndex] != nullptr)
         {
@@ -525,7 +525,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
     {
       if (pConn != nullptr)
       {
-        if (pConn->m_pOutput->m_Type == ezRenderPipelineNodePin::Type::PassThrough && data.m_Inputs[pConn->m_pOutput->m_uiInputIndex] != nullptr)
+        if (pConn->m_pOutput->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough) && data.m_Inputs[pConn->m_pOutput->m_uiInputIndex] != nullptr)
         {
           ezRenderPipelinePassConnection* pCorrespondingInputConn = data.m_Inputs[pConn->m_pOutput->m_uiInputIndex];
           EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pCorrespondingInputConn), "");
@@ -541,7 +541,6 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
           m_ConnectionToTextureIndex[pConn] = m_TextureUsage.GetCount();
           TextureUsageData& texData = m_TextureUsage.ExpandAndGetRef();
 
-          texData.m_iTargetTextureIndex = -1;
           texData.m_uiFirstUsageIdx = i;
           texData.m_uiLastUsageIdx = i;
           texData.m_UsedBy.PushBack(pConn);
@@ -550,58 +549,76 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
     }
   }
 
+  // If a texture desc has this hash, it is uninitialized and no texture will be created at runtime.
   static ezUInt32 defaultTextureDescHash = ezGALTextureCreationDescription().CalculateHash();
-  // Set view's render target textures to target pass connections.
-  for (ezUInt32 i = 0; i < m_Passes.GetCount(); i++)
+  // Find pins that provide textures into the pipeline, e.g. ezTargetPass pins.
+  // There can only be up to one provider pin connected to a texture usage block or there would be an ambiguity which of them provides the texture.
+  for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
   {
-    const auto& pPass = m_Passes[i].Borrow();
-    if (pPass->IsInstanceOf<ezTargetPass>())
+    TextureUsageData& textureUsageData = m_TextureUsage[i];
+    const ezRenderPipelineNodePin* pTextureProvider = nullptr;
+    auto CheckForProvider = [&](const ezRenderPipelineNodePin* pPin) -> bool
     {
-      const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
+      if (!pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider))
+        return true;
 
-      ezTargetPass* pTargetPass = static_cast<ezTargetPass*>(pPass);
-      ConnectionData& data = m_Connections[pPass];
-      for (ezUInt32 j = 0; j < data.m_Inputs.GetCount(); j++)
+      if (!pTextureProvider)
       {
-        ezRenderPipelinePassConnection* pConn = data.m_Inputs[j];
-        if (pConn != nullptr)
+        pTextureProvider = pPin;
+        return true;
+      }
+
+      auto pPinOwner = static_cast<ezRenderPipelinePass*>(pPin->m_pParent);
+      auto pProviderOwner = static_cast<ezRenderPipelinePass*>(pTextureProvider->m_pParent);
+      ezLog::Error("Two provider pins are connected to the same texture either directly or via passthrough pins: {}.{} and {}.{}",
+        ezStringUtils::IsNullOrEmpty(pProviderOwner->GetName()) ? pProviderOwner->GetDynamicRTTI()->GetTypeName() : pProviderOwner->GetName(),
+        pProviderOwner->GetPinName(pTextureProvider).GetView(),
+        ezStringUtils::IsNullOrEmpty(pPinOwner->GetName()) ? pPinOwner->GetDynamicRTTI()->GetTypeName() : pPinOwner->GetName(),
+        pPinOwner->GetPinName(pPin).GetView());
+      return false;
+    };
+
+    for (ezRenderPipelinePassConnection* pUsedByConn : textureUsageData.m_UsedBy)
+    {
+      if (!CheckForProvider(pUsedByConn->m_pOutput))
+        return false;
+
+      for (const ezRenderPipelineNodePin* pPin : pUsedByConn->m_Inputs)
+      {
+        if (!CheckForProvider(pPin))
+          return false;
+      }
+    }
+
+    if (pTextureProvider)
+    {
+      auto pPass = ezDynamicCast<ezRenderPipelinePass*>(pTextureProvider->m_pParent);
+      ezGALTextureHandle hTexture = pPass->QueryTextureProvider(pTextureProvider, textureUsageData.m_UsedBy[0]->m_Desc);
+      if (hTexture.IsInvalidated())
+      {
+        // In this case, e.g. ezTargetPass does not provide a render target for the connection but if the descriptor is set, we can instead use the pool to supplement the missing texture later.
+        textureUsageData.m_pTextureProvider = nullptr;
+        for (auto pUsedByConn : textureUsageData.m_UsedBy)
         {
-          const ezGALTextureHandle* hTexture = pTargetPass->GetTextureHandle(renderTargets, pPass->GetInputPins()[j]);
-          EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pConn), "");
-
-          ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
-          if (!hTexture)
-          {
-            m_TextureUsage[uiDataIdx].m_iTargetTextureIndex = -1;
-            for (auto pUsedByConn : m_TextureUsage[uiDataIdx].m_UsedBy)
-            {
-              pUsedByConn->m_TextureHandle.Invalidate();
-            }
-          }
-          else if (!hTexture->IsInvalidated() || pConn->m_Desc.CalculateHash() == defaultTextureDescHash)
-          {
-            m_TextureUsage[uiDataIdx].m_iTargetTextureIndex = static_cast<ezInt32>(hTexture - reinterpret_cast<const ezGALTextureHandle*>(&renderTargets));
-            EZ_ASSERT_DEV(reinterpret_cast<const ezGALTextureHandle*>(&renderTargets)[m_TextureUsage[uiDataIdx].m_iTargetTextureIndex] == *hTexture, "Offset computation broken.");
-
-            for (auto pUsedByConn : m_TextureUsage[uiDataIdx].m_UsedBy)
-            {
-              pUsedByConn->m_TextureHandle = *hTexture;
-            }
-          }
-          else
-          {
-            // In this case, the ezTargetPass does not provide a render target for the connection but the descriptor is set so we can instead use the pool to supplement the missing texture.
-          }
+          pUsedByConn->m_TextureHandle.Invalidate();
+        }
+      }
+      else
+      {
+        textureUsageData.m_pTextureProvider = pTextureProvider;
+        for (auto pUsedByConn : textureUsageData.m_UsedBy)
+        {
+          pUsedByConn->m_TextureHandle = hTexture;
         }
       }
     }
   }
 
-  // Stupid loop to gather all TextureUsageData indices that are not view render target textures.
+  // Stupid loop to gather all TextureUsageData indices that are not provider textures and valid.
   for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
   {
     TextureUsageData& data = m_TextureUsage[i];
-    if (data.m_iTargetTextureIndex != -1)
+    if (data.m_pTextureProvider || data.m_UsedBy[0]->m_Desc.CalculateHash() == defaultTextureDescHash)
       continue;
 
     m_TextureUsageIdxSortedByFirstUsage.PushBack((ezUInt16)i);
@@ -859,7 +876,7 @@ bool ezRenderPipeline::ArePassThroughInputsDone(const ezRenderPipelinePass* pPas
   for (ezUInt32 i = 0; i < inputs.GetCount(); i++)
   {
     const ezRenderPipelineNodePin* pPin = inputs[i];
-    if (pPin->m_Type == ezRenderPipelineNodePin::Type::PassThrough)
+    if (pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
     {
       const ezRenderPipelinePassConnection* pConn = data.m_Inputs[pPin->m_uiInputIndex];
       if (pConn != nullptr)
@@ -1179,21 +1196,17 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands(m_sName);
   {
-    if (const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(renderViewContext.m_pViewData->m_hSwapChain))
+    // Update textures from texture providers as these can change every frame (e.g. swap chain textures).
+    for (TextureUsageData& textureUsageData : m_TextureUsage)
     {
-      const ezGALRenderTargets& renderTargets = pSwapChain->GetRenderTargets();
-      // Update target textures after the swap chain acquired new textures.
-      for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
+      if (!textureUsageData.m_pTextureProvider)
+        continue;
+
+      auto pPass = static_cast<ezRenderPipelinePass*>(textureUsageData.m_pTextureProvider->m_pParent);
+      ezGALTextureHandle hTexture = pPass->QueryTextureProvider(textureUsageData.m_pTextureProvider, textureUsageData.m_UsedBy[0]->m_Desc);
+      for (ezRenderPipelinePassConnection* pUsedByConn : textureUsageData.m_UsedBy)
       {
-        TextureUsageData& textureUsageData = m_TextureUsage[i];
-        if (textureUsageData.m_iTargetTextureIndex != -1)
-        {
-          ezGALTextureHandle hTexture = reinterpret_cast<const ezGALTextureHandle*>(&renderTargets)[textureUsageData.m_iTargetTextureIndex];
-          for (auto pUsedByConn : textureUsageData.m_UsedBy)
-          {
-            pUsedByConn->m_TextureHandle = hTexture;
-          }
-        }
+        pUsedByConn->m_TextureHandle = hTexture;
       }
     }
 
@@ -1316,7 +1329,7 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& ref_graph)
     for (const ezRenderPipelinePassConnection* pCon : data.m_UsedBy)
     {
       ezDGMLGraph::NodeDesc nd;
-      nd.m_Color = data.m_iTargetTextureIndex != -1 ? ezColor::Black : ezColorScheme::GetColor(static_cast<ezColorScheme::Enum>(i % ezColorScheme::Count), 4);
+      nd.m_Color = data.m_pTextureProvider ? ezColor::Black : ezColorScheme::GetColor(static_cast<ezColorScheme::Enum>(i % ezColorScheme::Count), 4);
       nd.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
 
       ezStringBuilder sFormat;
@@ -1324,7 +1337,7 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& ref_graph)
       {
         sFormat.SetFormat("Unknown Format {}", (int)pCon->m_Desc.m_Format);
       }
-      sTmp.SetFormat("{} #{}: {}x{}:{}, MSAA:{}, {}Format: {}", data.m_iTargetTextureIndex != -1 ? "RenderTarget" : "PoolTexture", i, pCon->m_Desc.m_uiWidth, pCon->m_Desc.m_uiHeight, pCon->m_Desc.m_uiArraySize, (int)pCon->m_Desc.m_SampleCount, ezGALResourceFormat::IsDepthFormat(pCon->m_Desc.m_Format) ? "Depth" : "Color", sFormat);
+      sTmp.SetFormat("{} #{}: {}x{}:{}, MSAA:{}, {}Format: {}", data.m_pTextureProvider ? "External" : "PoolTexture", i, pCon->m_Desc.m_uiWidth, pCon->m_Desc.m_uiHeight, pCon->m_Desc.m_uiArraySize, (int)pCon->m_Desc.m_SampleCount, ezGALResourceFormat::IsDepthFormat(pCon->m_Desc.m_Format) ? "Depth" : "Color", sFormat);
       ezUInt32 uiTextureNode = ref_graph.AddNode(sTmp, &nd);
 
       ezUInt32 uiOutputNode = *nodeMap.GetValue(pCon->m_pOutput->m_pParent);

@@ -32,30 +32,11 @@ ezTargetPass::ezTargetPass(const char* szName)
 
 ezTargetPass::~ezTargetPass() = default;
 
-const ezGALTextureHandle* ezTargetPass::GetTextureHandle(const ezGALRenderTargets& renderTargets, const ezRenderPipelineNodePin* pPin)
-{
-  // auto inputs = GetInputPins();
-  if (pPin->m_pParent != this)
-  {
-    ezLog::Error("ezTargetPass::GetTextureHandle: The given pin is not part of this pass!");
-    return nullptr;
-  }
-
-  ezGALTextureHandle hTarget;
-  if (pPin->m_uiInputIndex == 8)
-  {
-    return &renderTargets.m_hDSTarget;
-  }
-  else
-  {
-    return &renderTargets.m_hRTs[pPin->m_uiInputIndex];
-  }
-
-  return nullptr;
-}
-
 bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
+  m_hSwapChain = view.GetSwapChain();
+  m_renderTargets = view.GetRenderTargets();
+
   const char* pinNames[] = {
     "Color0",
     "Color1",
@@ -77,6 +58,31 @@ bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArray
   return true;
 }
 
+ezGALTextureHandle ezTargetPass::QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc)
+{
+  EZ_ASSERT_DEV(pPin->m_pParent == this, "ezTargetPass::QueryTextureProvider: The given pin is not part of this pass!");
+
+  auto GetActiveRenderTargets = [&]() -> const ezGALRenderTargets&
+  {
+    if (const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hSwapChain))
+    {
+      return pSwapChain->GetRenderTargets();
+    }
+    return m_renderTargets;
+  };
+  const ezGALRenderTargets& renderTargets = GetActiveRenderTargets();
+
+  ezGALTextureHandle hTarget;
+  if (pPin->m_uiInputIndex == 8)
+  {
+    return renderTargets.m_hDSTarget;
+  }
+  else
+  {
+    return renderTargets.m_hRTs[pPin->m_uiInputIndex];
+  }
+}
+
 void ezTargetPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) {}
 
 bool ezTargetPass::VerifyInput(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, const char* szPinName)
@@ -86,10 +92,10 @@ bool ezTargetPass::VerifyInput(const ezView& view, const ezArrayPtr<ezGALTexture
   const ezRenderPipelineNodePin* pPin = GetPinByName(szPinName);
   if (inputs[pPin->m_uiInputIndex])
   {
-    const ezGALTextureHandle* pHandle = GetTextureHandle(view.GetActiveRenderTargets(), pPin);
-    if (pHandle)
+    const ezGALTextureHandle handle = QueryTextureProvider(pPin, *inputs[pPin->m_uiInputIndex]);
+    if (!handle.IsInvalidated())
     {
-      const ezGALTexture* pTexture = pDevice->GetTexture(*pHandle);
+      const ezGALTexture* pTexture = pDevice->GetTexture(handle);
       if (pTexture)
       {
         // TODO: Need a more sophisticated check here what is considered 'matching'

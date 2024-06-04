@@ -23,8 +23,8 @@ public:
   void SetMessage(const char* szMessage);
 
 protected:
-  ezRenderPipelineNodePassThrougPin m_PinColor;
-  ezRenderPipelineNodePassThrougPin m_PinDepthStencil;
+  ezRenderPipelineNodePassThroughPin m_PinColor;
+  ezRenderPipelineNodePassThroughPin m_PinDepthStencil;
 
   ezString m_sMessage;
 };

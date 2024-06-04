@@ -2,12 +2,16 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
 
+// BC.h poisons the preprocessor, making it impossible to include algorithm afterwards, so this has to be here.
+#  include <algorithm>
+
 #  include <Texture/DirectXTex/BC.h>
+
 #  include <Texture/Image/ImageConversion.h>
 
 #  include <Foundation/Threading/TaskSystem.h>
 
-  ezImageConversionEntry g_DXTexCpuConversions[] = {
+ezImageConversionEntry g_DXTexCpuConversions[] = {
   ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::BC6H_UF16, ezImageConversionFlags::Default),
 
   ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC1_UNORM, ezImageConversionFlags::Default),

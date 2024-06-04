@@ -15,5 +15,5 @@ public:
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 protected:
-  ezRenderPipelineNodePassThrougPin m_PinDepthStencil;
+  ezRenderPipelineNodePassThroughPin m_PinDepthStencil;
 };

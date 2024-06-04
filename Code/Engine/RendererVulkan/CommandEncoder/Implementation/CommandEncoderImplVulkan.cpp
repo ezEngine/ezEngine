@@ -347,9 +347,7 @@ void ezGALCommandEncoderImplVulkan::CopyTexturePlatform(const ezGALTexture* pDes
     imageCopy.dstSubresource.baseArrayLayer = 0;
     imageCopy.dstSubresource.layerCount = destDesc.m_uiArraySize;
     imageCopy.dstSubresource.mipLevel = i;
-    imageCopy.extent.width = destDesc.m_uiWidth;
-    imageCopy.extent.height = destDesc.m_uiHeight;
-    imageCopy.extent.depth = destDesc.m_uiDepth;
+    imageCopy.extent = destination->GetMipLevelSize(i);
     imageCopy.srcOffset = vk::Offset3D();
     imageCopy.srcSubresource.aspectMask = imageAspect;
     imageCopy.srcSubresource.baseArrayLayer = 0;

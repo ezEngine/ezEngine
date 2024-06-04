@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RendererCore/Pipeline/FrameDataProvider.h"
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
 struct ezSourceFormat
@@ -22,7 +23,6 @@ struct ezSourceFormat
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSourceFormat);
 
-
 class EZ_RENDERERCORE_DLL ezSourcePass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSourcePass, ezRenderPipelinePass);
@@ -31,6 +31,7 @@ public:
   ezSourcePass(const char* szName = "SourcePass");
   ~ezSourcePass();
 
+  static ezGALTextureCreationDescription GetOutputDescription(const ezView& view, ezEnum<ezSourceFormat> format, ezEnum<ezGALMSAASampleCount> msaaMode);
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
@@ -42,5 +43,5 @@ protected:
   ezEnum<ezSourceFormat> m_Format;
   ezEnum<ezGALMSAASampleCount> m_MsaaMode;
   ezColor m_ClearColor;
-  bool m_bClear;
+  bool m_bClear = false;
 };

@@ -1,0 +1,45 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthTestFunc = CompareFunc_Less
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/ObjectConstants.h>
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include "BlendConstants.h"
+
+Texture2DArray InputA;
+Texture2DArray InputB;
+
+float4 main(PS_IN input) : SV_Target
+{
+  #if CAMERA_MODE == CAMERA_MODE_STEREO
+    s_ActiveCameraEyeIndex = input.RenderTargetArrayIndex;
+  #endif
+
+  float4 res = InputA.Sample(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex)) * (1 - BlendFactor);
+  res += InputB.Sample(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex)) * BlendFactor;
+  return res;
+}
