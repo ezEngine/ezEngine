@@ -2,8 +2,6 @@
 
 /// \file
 
-#include <Foundation/Basics.h>
-
 /// Type traits
 template <int v>
 struct ezTraitInt

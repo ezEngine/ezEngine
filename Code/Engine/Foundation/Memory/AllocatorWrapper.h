@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Memory/Allocator.h>
+
 struct ezNullAllocatorWrapper
 {
   EZ_FORCE_INLINE static ezAllocator* GetAllocator()

@@ -65,10 +65,10 @@
 
 #include <Foundation/Types/TypeTraits.h>
 
-#include <Foundation/Memory/Allocator.h>
-
 #include <Foundation/Configuration/StaticSubSystem.h>
 #include <Foundation/Strings/FormatString.h>
+
+class ezAllocator;
 
 class EZ_FOUNDATION_DLL ezFoundation
 {
