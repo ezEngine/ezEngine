@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 struct ezGALRenderTargets;
 

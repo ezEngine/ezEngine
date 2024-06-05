@@ -40,6 +40,7 @@ public:
 
   void ResetTexture(ezStringView sSourcePassName);
   ezGALTextureHandle GetOrCreateTexture(ezStringView sSourcePassName, const ezGALTextureCreationDescription& desc);
+
 public:
   ezHashTable<ezString, ezGALTextureHandle> m_Data;
 
