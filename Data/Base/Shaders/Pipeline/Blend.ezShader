@@ -25,9 +25,6 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/Common.h>
-#include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Common/ObjectConstants.h>
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include "BlendConstants.h"
 
 Texture2DArray InputA;
@@ -39,7 +36,9 @@ float4 main(PS_IN input) : SV_Target
     s_ActiveCameraEyeIndex = input.RenderTargetArrayIndex;
   #endif
 
-  float4 res = InputA.Sample(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex)) * (1 - BlendFactor);
-  res += InputB.Sample(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex)) * BlendFactor;
+  float blendFactor = GET_PUSH_CONSTANT(ezBlendConstants, BlendFactor);
+
+  float4 res = InputA.Sample(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex)) * (1 - blendFactor);
+  res += InputB.Sample(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex)) * blendFactor;
   return res;
 }

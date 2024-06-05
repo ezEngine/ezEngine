@@ -35,7 +35,7 @@ ezTargetPass::~ezTargetPass() = default;
 bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   m_hSwapChain = view.GetSwapChain();
-  m_renderTargets = view.GetRenderTargets();
+  m_RenderTargets = view.GetRenderTargets();
 
   const char* pinNames[] = {
     "Color0",
@@ -68,7 +68,7 @@ ezGALTextureHandle ezTargetPass::QueryTextureProvider(const ezRenderPipelineNode
     {
       return pSwapChain->GetRenderTargets();
     }
-    return m_renderTargets;
+    return m_RenderTargets;
   };
   const ezGALRenderTargets& renderTargets = GetActiveRenderTargets();
 

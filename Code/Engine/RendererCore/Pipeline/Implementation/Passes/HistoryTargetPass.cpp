@@ -22,7 +22,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezHistoryTargetPass::ezHistoryTargetPass(const char* szName)
   : ezRenderPipelinePass(szName, true)
 {
-  m_sSourcePassName = "HistorySourcePass";
 }
 
 ezHistoryTargetPass::~ezHistoryTargetPass() = default;
@@ -61,3 +60,7 @@ ezResult ezHistoryTargetPass::Deserialize(ezStreamReader& inout_stream)
   inout_stream >> m_sSourcePassName;
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_HistoryTargetPass);
+

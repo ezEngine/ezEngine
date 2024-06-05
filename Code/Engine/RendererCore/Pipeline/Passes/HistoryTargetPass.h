@@ -19,5 +19,5 @@ public:
 
 protected:
   ezRenderPipelineNodeInputProviderPin m_PinInput;
-  ezString m_sSourcePassName;
+  ezString m_sSourcePassName = "HistorySourcePass";
 };

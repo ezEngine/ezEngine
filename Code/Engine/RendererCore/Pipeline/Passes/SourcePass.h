@@ -1,6 +1,5 @@
 #pragma once
 
-#include "RendererCore/Pipeline/FrameDataProvider.h"
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
 struct ezSourceFormat
@@ -40,8 +39,8 @@ public:
 protected:
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  ezEnum<ezSourceFormat> m_Format;
-  ezEnum<ezGALMSAASampleCount> m_MsaaMode;
-  ezColor m_ClearColor;
+  ezEnum<ezSourceFormat> m_Format = ezSourceFormat::Default;
+  ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None;
+  ezColor m_ClearColor = ezColor::Black;
   bool m_bClear = false;
 };

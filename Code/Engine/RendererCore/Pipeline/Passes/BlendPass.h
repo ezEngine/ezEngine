@@ -27,6 +27,5 @@ protected:
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
   float m_fBlendFactor = 0.5f;
-  ezConstantBufferStorageHandle m_hBlendCB;
   ezShaderResourceHandle m_hShader;
 };

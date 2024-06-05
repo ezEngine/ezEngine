@@ -28,14 +28,9 @@ ezBlendPass::ezBlendPass()
 {
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Blend.ezShader");
   EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load blend shader!");
-  m_hBlendCB = ezRenderContext::CreateConstantBufferStorage<ezBlendConstants>();
 }
 
-ezBlendPass::~ezBlendPass()
-{
-  ezRenderContext::DeleteConstantBufferStorage(m_hBlendCB);
-  m_hBlendCB.Invalidate();
-}
+ezBlendPass::~ezBlendPass() = default;
 
 bool ezBlendPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
@@ -65,8 +60,9 @@ void ezBlendPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    ezBlendConstants* cb = ezRenderContext::GetConstantBufferData<ezBlendConstants>(m_hBlendCB);
-    cb->BlendFactor = m_fBlendFactor;
+    ezBlendConstants cb = {};
+    cb.BlendFactor = m_fBlendFactor;
+    renderViewContext.m_pRenderContext->SetPushConstants("ezBlendConstants", cb);
 
     // Setup render target
     ezGALRenderingSetup renderingSetup;
@@ -89,7 +85,6 @@ void ezBlendPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->BindTexture2D("InputA", hResourceViewA);
     renderViewContext.m_pRenderContext->BindTexture2D("InputB", hResourceViewB);
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezBlendConstants", m_hBlendCB);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
@@ -111,4 +106,4 @@ ezResult ezBlendPass::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_BlurPass);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_BlendPass);

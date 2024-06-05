@@ -39,10 +39,6 @@ EZ_END_STATIC_REFLECTED_ENUM;
 ezSourcePass::ezSourcePass(const char* szName)
   : ezRenderPipelinePass(szName, true)
 {
-  m_Format = ezSourceFormat::Default;
-  m_MsaaMode = ezGALMSAASampleCount::None;
-  m_bClear = false;
-  m_ClearColor = ezColor::Black;
 }
 
 ezSourcePass::~ezSourcePass() = default;

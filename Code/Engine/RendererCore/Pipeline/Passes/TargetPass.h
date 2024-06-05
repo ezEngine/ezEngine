@@ -31,6 +31,6 @@ protected:
   ezRenderPipelineNodeInputProviderPin m_PinColor7;
   ezRenderPipelineNodeInputProviderPin m_PinDepthStencil;
 
-  ezGALRenderTargets m_renderTargets;
+  ezGALRenderTargets m_RenderTargets;
   ezGALSwapChainHandle m_hSwapChain;
 };

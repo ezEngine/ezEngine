@@ -61,9 +61,6 @@ ezGALTextureHandle ezHistorySourcePassTextureDataProvider::GetOrCreateTexture(ez
 ezHistorySourcePass::ezHistorySourcePass(const char* szName)
   : ezRenderPipelinePass(szName, true)
 {
-  m_Format = ezSourceFormat::Default;
-  m_MsaaMode = ezGALMSAASampleCount::None;
-  m_ClearColor = ezColor::Black;
 }
 
 ezHistorySourcePass::~ezHistorySourcePass() = default;
@@ -133,3 +130,7 @@ ezResult ezHistorySourcePass::Deserialize(ezStreamReader& inout_stream)
   inout_stream >> m_ClearColor;
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_HistorySourcePass);
+

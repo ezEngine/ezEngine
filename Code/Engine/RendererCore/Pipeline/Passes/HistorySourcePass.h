@@ -23,9 +23,9 @@ public:
 
 protected:
   ezRenderPipelineNodeOutputProviderPin m_PinOutput;
-  ezEnum<ezSourceFormat> m_Format;
-  ezEnum<ezGALMSAASampleCount> m_MsaaMode;
-  ezColor m_ClearColor;
+  ezEnum<ezSourceFormat> m_Format = ezSourceFormat::Default;
+  ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None;
+  ezColor m_ClearColor = ezColor::Black;
 
   bool m_bFirstExecute = true;
 };

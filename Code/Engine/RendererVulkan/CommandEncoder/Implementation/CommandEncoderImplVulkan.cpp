@@ -335,8 +335,6 @@ void ezGALCommandEncoderImplVulkan::CopyTexturePlatform(const ezGALTexture* pDes
   m_pPipelineBarrier->EnsureImageLayout(destination, vk::ImageLayout::eTransferDstOptimal, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
   m_pPipelineBarrier->Flush();
 
-
-  // TODO need to copy every mip level
   ezHybridArray<vk::ImageCopy, 14> imageCopies;
 
   for (ezUInt32 i = 0; i < destDesc.m_uiMipLevelCount; ++i)

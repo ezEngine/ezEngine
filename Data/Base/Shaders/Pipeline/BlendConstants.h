@@ -1,12 +1,9 @@
 #pragma once
 
 #include "../Common/ConstantBufferMacros.h"
-#include "../Common/Platforms.h"
 
-CONSTANT_BUFFER(ezBlendConstants, 3)
+BEGIN_PUSH_CONSTANTS(ezBlendConstants)
 {
   FLOAT1(BlendFactor);
-  FLOAT1(BlendFactor2);
-  FLOAT1(BlendFactor3);
-  FLOAT1(BlendFactor4);
-};
+}
+END_PUSH_CONSTANTS(ezBlendConstants)
