@@ -39,16 +39,11 @@ EZ_END_STATIC_REFLECTED_ENUM;
 ezSourcePass::ezSourcePass(const char* szName)
   : ezRenderPipelinePass(szName, true)
 {
-  m_Format = ezSourceFormat::Default;
-  m_MsaaMode = ezGALMSAASampleCount::None;
-  m_bClear = true;
-  m_ClearColor = ezColor::Black;
 }
 
 ezSourcePass::~ezSourcePass() = default;
 
-bool ezSourcePass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezGALTextureCreationDescription ezSourcePass::GetOutputDescription(const ezView& view, ezEnum<ezSourceFormat> format, ezEnum<ezGALMSAASampleCount> msaaMode)
 {
   ezUInt32 uiWidth = static_cast<ezUInt32>(view.GetViewport().width);
   ezUInt32 uiHeight = static_cast<ezUInt32>(view.GetViewport().height);
@@ -59,7 +54,7 @@ bool ezSourcePass::GetRenderTargetDescriptions(
   ezGALTextureCreationDescription desc;
 
   // Color
-  if (m_Format == ezSourceFormat::Color4Channel8BitNormalized || m_Format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
+  if (format == ezSourceFormat::Color4Channel8BitNormalized || format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
   {
     ezGALResourceFormat::Enum preferredFormat = ezGALResourceFormat::Invalid;
     if (const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hRTs[0]))
@@ -74,7 +69,7 @@ bool ezSourcePass::GetRenderTargetDescriptions(
       case ezGALResourceFormat::RGBAUByteNormalized:
       case ezGALResourceFormat::RGBAUByteNormalizedsRGB:
       default:
-        if (m_Format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
+        if (format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
         {
           desc.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
         }
@@ -85,7 +80,7 @@ bool ezSourcePass::GetRenderTargetDescriptions(
         break;
       case ezGALResourceFormat::BGRAUByteNormalized:
       case ezGALResourceFormat::BGRAUByteNormalizedsRGB:
-        if (m_Format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
+        if (format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
         {
           desc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
         }
@@ -98,7 +93,7 @@ bool ezSourcePass::GetRenderTargetDescriptions(
   }
   else
   {
-    switch (m_Format)
+    switch (format)
     {
       case ezSourceFormat::Color4Channel16BitFloat:
         desc.m_Format = ezGALResourceFormat::RGBAHalf;
@@ -125,12 +120,16 @@ bool ezSourcePass::GetRenderTargetDescriptions(
 
   desc.m_uiWidth = uiWidth;
   desc.m_uiHeight = uiHeight;
-  desc.m_SampleCount = m_MsaaMode;
+  desc.m_SampleCount = msaaMode;
   desc.m_bCreateRenderTarget = true;
   desc.m_uiArraySize = view.GetCamera()->IsStereoscopic() ? 2 : 1;
+  return desc;
+}
 
-  outputs[m_PinOutput.m_uiOutputIndex] = desc;
-
+bool ezSourcePass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+{
+  outputs[m_PinOutput.m_uiOutputIndex] = GetOutputDescription(view, m_Format, m_MsaaMode);
   return true;
 }
 
@@ -188,6 +187,7 @@ ezResult ezSourcePass::Deserialize(ezStreamReader& inout_stream)
   inout_stream >> m_bClear;
   return EZ_SUCCESS;
 }
+
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

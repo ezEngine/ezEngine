@@ -24,7 +24,13 @@ EZ_END_STATIC_REFLECTED_TYPE;
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeOutputPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodePassThrougPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeInputProviderPin, ezRenderPipelineNodeInputPin, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodeOutputProviderPin, ezRenderPipelineNodeOutputPin, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineNodePassThroughPin, ezRenderPipelineNodePin, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -48,18 +54,20 @@ void ezRenderPipelineNode::InitializePins()
     ezRenderPipelineNodePin* pPin = static_cast<ezRenderPipelineNodePin*>(pPinProp->GetPropertyPointer(this));
 
     pPin->m_pParent = this;
-    if (pPin->m_Type == ezRenderPipelineNodePin::Type::Unknown)
+    const bool bMoreThanOneType = ((ezInt32)pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough) + (ezInt32)pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::Input) + (ezInt32)pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::Output)) > 1;
+    const bool bProviderOnPassThrough = pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough) && pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider);
+    if (bMoreThanOneType || bProviderOnPassThrough)
     {
       EZ_REPORT_FAILURE("Pin '{0}' has an invalid type. Do not use ezRenderPipelineNodePin directly as member but one of its derived types", pProp->GetPropertyName());
       continue;
     }
 
-    if (pPin->m_Type == ezRenderPipelineNodePin::Type::Input || pPin->m_Type == ezRenderPipelineNodePin::Type::PassThrough)
+    if (pPin->m_Type.IsAnySet(ezRenderPipelineNodePin::Type::Input | ezRenderPipelineNodePin::Type::PassThrough))
     {
       pPin->m_uiInputIndex = static_cast<ezUInt8>(m_InputPins.GetCount());
       m_InputPins.PushBack(pPin);
     }
-    if (pPin->m_Type == ezRenderPipelineNodePin::Type::Output || pPin->m_Type == ezRenderPipelineNodePin::Type::PassThrough)
+    if (pPin->m_Type.IsAnySet(ezRenderPipelineNodePin::Type::Output | ezRenderPipelineNodePin::Type::PassThrough))
     {
       pPin->m_uiOutputIndex = static_cast<ezUInt8>(m_OutputPins.GetCount());
       m_OutputPins.PushBack(pPin);

@@ -44,6 +44,13 @@ public:
   /// Outputs is already resized to the number of output pins.
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) = 0;
 
+  /// Returns the current texture this node provides at the given *ProviderPin.
+  /// This function is called every frame if this node holds a ezRenderPipelineNodeInputProviderPin or ezRenderPipelineNodeOutputProviderPin pin. The node can return a valid texture handle, or an invalid handle, in which case the missing texture will be created from the texture pool.
+  /// \param pPin The member pin for which the texture is requested.
+  /// \param desc The format of the texture that should be provided.
+  /// \return The texture to use for this pin's connections. Or invalid, in which case it reverts to a regular input / output pin.
+  virtual ezGALTextureHandle QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc) { return {}; }
+
   /// \brief After GetRenderTargetDescriptions was called successfully for each pass, this function is called
   /// with the inputs and outputs for review. Disconnected pins have a nullptr value in the passed in arrays.
   /// This is the time to create additional resources that are not covered by the pins automatically, e.g. a picking texture or eye
