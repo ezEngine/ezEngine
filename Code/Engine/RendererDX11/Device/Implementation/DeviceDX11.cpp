@@ -3,6 +3,7 @@
 #include <Core/System/Window.h>
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/System/SystemInformation.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
@@ -19,7 +20,6 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Profiling/Profiling.h>
-#include <Foundation/System/SystemInformation.h>
 
 #include <d3d11.h>
 #include <d3d11_3.h>
