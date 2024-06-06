@@ -153,6 +153,36 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
     EZ_TEST_BOOL(b.x() == 9 && b.y() == 7 && b.z() == 5 && b.w() == 3);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCombined")
+  {
+    ezSimdVec4i a(2, 4, 6, 8);
+    ezSimdVec4i b(3, 5, 7, 9);
+
+    ezSimdVec4i c = a.GetCombined<ezSwizzle::XXXX>(b);
+    EZ_TEST_BOOL(c.x() == a.x() && c.y() == a.x() && c.z() == b.x() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::YYYX>(b);
+    EZ_TEST_BOOL(c.x() == a.y() && c.y() == a.y() && c.z() == b.y() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::ZZZX>(b);
+    EZ_TEST_BOOL(c.x() == a.z() && c.y() == a.z() && c.z() == b.z() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::WWWX>(b);
+    EZ_TEST_BOOL(c.x() == a.w() && c.y() == a.w() && c.z() == b.w() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::WZYX>(b);
+    EZ_TEST_BOOL(c.x() == a.w() && c.y() == a.z() && c.z() == b.y() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::XYZW>(b);
+    EZ_TEST_BOOL(c.x() == a.x() && c.y() == a.y() && c.z() == b.z() && c.w() == b.w());
+
+    c = a.GetCombined<ezSwizzle::WZYX>(b);
+    EZ_TEST_BOOL(c.x() == a.w() && c.y() == a.z() && c.z() == b.y() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::YYYY>(b);
+    EZ_TEST_BOOL(c.x() == a.y() && c.y() == a.y() && c.z() == b.y() && c.w() == b.y());
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
   {
     {

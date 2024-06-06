@@ -1,0 +1,53 @@
+# Variable 'task.MSBuild.status' was defined in the Variables tab
+trigger:
+  branches:
+    include:
+    - dev
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: dev
+jobs:
+- job: Job_1
+  displayName: Android-x64
+  timeoutInMinutes: 180
+  pool:
+    name: Default
+    demands:
+    - Agent.OS -equals Windows_NT
+    - EMULATOR
+  steps:
+  - checkout: self
+    submodules: true
+    lfs: true
+    clean: false
+
+  - task: PowerShell@2
+    displayName: Check force clean
+    inputs:
+      targetType: inline
+      script: |
+        $pathA = Join-Path $(System.DefaultWorkingDirectory) "gitClean.txt"
+        $pathB = Join-Path $(System.DefaultWorkingDirectory) "gitCleanCopy.txt"
+        $clean = -not (Test-Path $pathB) -or (compare-object (get-content $pathA) (get-content $pathB))
+        if ($clean)
+        {
+            Write-Host "Cleaning repo!"
+            git clean -dfx
+            Copy-Item -Path $pathA -Destination $pathB
+        }
+
+  - task: CMake@1
+    displayName: CMake android-arm64-dev
+    inputs:
+      cwd: $(System.DefaultWorkingDirectory)
+      cmakeArgs: --preset android-arm64-dev
+
+  - task: CmdLine@2
+    displayName: Build
+    inputs:
+      script: |
+        cd $(System.DefaultWorkingDirectory)/Workspace/android-arm64-dev
+        ninja
+...
