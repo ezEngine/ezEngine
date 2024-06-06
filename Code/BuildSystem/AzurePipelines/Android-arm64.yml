@@ -1,0 +1,74 @@
+# Variable 'task.MSBuild.status' was defined in the Variables tab
+trigger:
+  branches:
+    include:
+    - dev
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: dev
+jobs:
+- job: Job_1
+  displayName: Android-arm64
+  timeoutInMinutes: 180
+  pool:
+    name: Default
+    demands:
+    - Agent.OS -equals Windows_NT
+    - EMULATOR
+  steps:
+  - checkout: self
+    submodules: true
+    lfs: true
+    clean: false
+
+  - task: PowerShell@2
+    displayName: Check force clean
+    inputs:
+      targetType: inline
+      script: |
+        $pathA = Join-Path $(System.DefaultWorkingDirectory) "gitClean.txt"
+        $pathB = Join-Path $(System.DefaultWorkingDirectory) "gitCleanCopy.txt"
+        $clean = -not (Test-Path $pathB) -or (compare-object (get-content $pathA) (get-content $pathB))
+        if ($clean)
+        {
+            Write-Host "Cleaning repo!"
+            git clean -dfx
+            Copy-Item -Path $pathA -Destination $pathB
+        }
+        
+  - task: CMake@1
+    displayName: CMake vs2022x64
+    inputs:
+      cwd: $(System.DefaultWorkingDirectory)
+      cmakeArgs: --preset vs2022x64
+
+  - task: CMake@1
+    displayName: CMake build vs2022x64
+    inputs:
+      cwd: $(System.DefaultWorkingDirectory)/Workspace/vs2022x64
+      cmakeArgs: --build . --target ShaderCompiler --config dev
+
+  - task: CmdLine@2
+    displayName: Compile Shaders
+    inputs:
+      script: |
+        cd $(System.DefaultWorkingDirectory)/Output/Bin/WinVs2022Dev64
+        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Base -shader Shaders/Pipeline
+        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/UnitTests -shader RendererTest/Shaders
+        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Samples/ShaderExplorer -shader Shaders
+
+  - task: CMake@1
+    displayName: CMake android-arm64-dev
+    inputs:
+      cwd: $(System.DefaultWorkingDirectory)
+      cmakeArgs: --preset android-arm64-dev
+
+  - task: CmdLine@2
+    displayName: Build
+    inputs:
+      script: |
+        cd $(System.DefaultWorkingDirectory)/Workspace/android-arm64-dev
+        ninja
+...

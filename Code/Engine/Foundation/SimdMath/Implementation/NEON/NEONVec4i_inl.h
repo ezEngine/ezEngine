@@ -142,6 +142,12 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Get() const
   return __builtin_shufflevector(m_v, m_v, EZ_TO_SHUFFLE(s));
 }
 
+template <ezSwizzle::Enum s>
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::GetCombined(const ezSimdVec4i& other) const
+{
+  return __builtin_shufflevector(m_v, other.m_v, EZ_TO_SHUFFLE(s));
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator-() const
 {
   return vnegq_s32(m_v);
