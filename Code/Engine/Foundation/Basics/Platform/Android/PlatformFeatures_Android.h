@@ -58,11 +58,11 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
 // Disabling SSE in emulator to increase FPU test coverage. Uncomment code below if performance is an issue for you.
-//#  if __SSE4_1__ && __SSSE3__
-//#    define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_SSE
-//#  else
-#    define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_FPU
-//#  endif
+// #  if __SSE4_1__ && __SSSE3__
+// #    define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_SSE
+// #  else
+#  define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_FPU
+// #  endif
 #elif EZ_ENABLED(EZ_PLATFORM_ARCH_ARM)
 #  if EZ_ENABLED(EZ_PLATFORM_64BIT)
 #    define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_NEON
