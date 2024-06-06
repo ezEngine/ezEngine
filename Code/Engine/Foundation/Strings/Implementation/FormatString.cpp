@@ -413,6 +413,11 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& a
   LocalFree(lpMsgBuf);
   return ezStringView(FullMessage);
 }
+#else
+ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& arg)
+{
+  return "NOT_SUPPORTED";
+}
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)

@@ -4,6 +4,7 @@
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererDX11/RendererDX11DLL.h>
+#include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererFoundation/Device/Device.h>
 
 // TODO: This should not be included in a header, it exposes Windows.h to the outside
