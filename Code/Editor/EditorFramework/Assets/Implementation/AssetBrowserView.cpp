@@ -104,7 +104,7 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
     return;
 
   QList<QUrl> paths = pEvent->mimeData()->urls();
-  const ezString targetDirectory = indexAt(pEvent->pos()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  const ezString targetDirectory = indexAt(pEvent->position().toPoint()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
   if (targetDirectory.IsEmpty())
   {
     return;

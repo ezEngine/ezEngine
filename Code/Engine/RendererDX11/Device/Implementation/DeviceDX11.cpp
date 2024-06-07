@@ -3,6 +3,7 @@
 #include <Core/System/Window.h>
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/System/SystemInformation.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
@@ -128,7 +129,7 @@ retry:
       if (SUCCEEDED(m_pDebug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&pInfoQueue)))
       {
         // only do this when a debugger is attached, otherwise the app would crash on every DX error
-        if (IsDebuggerPresent())
+        if (ezSystemInformation::IsDebuggerAttached())
         {
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
@@ -146,7 +147,7 @@ retry:
           };
           D3D11_INFO_QUEUE_FILTER filter;
           ezMemoryUtils::ZeroFill(&filter, 1);
-          filter.DenyList.NumIDs = _countof(hide);
+          filter.DenyList.NumIDs = EZ_ARRAY_SIZE(hide);
           filter.DenyList.pIDList = hide;
           pInfoQueue->AddStorageFilterEntries(&filter);
         }
@@ -256,7 +257,7 @@ void ezGALDeviceDX11::ReportLiveGpuObjects()
   // not implemented
   return;
 
-#else
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
   const HMODULE hDxgiDebugDLL = LoadLibraryW(L"Dxgidebug.dll");
 

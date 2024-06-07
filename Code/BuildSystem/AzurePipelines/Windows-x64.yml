@@ -200,4 +200,10 @@ jobs:
     inputs:
       PathtoPublish: $(Build.ArtifactStagingDirectory)\AssetCache
       ArtifactName: AssetCache
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: ShaderCache'
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      PathtoPublish: $(System.DefaultWorkingDirectory)\Output\ShaderCache
+      ArtifactName: ShaderCache
 ...

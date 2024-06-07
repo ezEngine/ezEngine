@@ -3,6 +3,7 @@
 
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/RendererDX11DLL.h>
 #include <RendererFoundation/Device/Device.h>
 
