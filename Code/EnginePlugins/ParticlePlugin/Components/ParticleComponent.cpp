@@ -85,6 +85,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
+    EZ_MESSAGE_HANDLER(ezMsgInterruptPlaying, OnMsgInterruptPlaying),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
@@ -256,7 +257,6 @@ bool ezParticleComponent::IsEffectActive() const
   return m_EffectController.IsAlive();
 }
 
-
 void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
 {
   if (ref_msg.m_bPlay)
@@ -267,6 +267,11 @@ void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
   {
     StopEffect();
   }
+}
+
+void ezParticleComponent::OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg)
+{
+  InterruptEffect();
 }
 
 void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle& hEffect)
