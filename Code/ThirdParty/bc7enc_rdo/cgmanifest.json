@@ -1,0 +1,15 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "Name": "bc7enc_rdo",
+          "repositoryUrl": "https://github.com/richgel999/bc7enc_rdo",
+          "commitHash": "e6990bc11829c072d9f9e37296f3335072aab4e4"
+        }
+      }
+    }
+  ],
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json"
+}

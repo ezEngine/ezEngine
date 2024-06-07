@@ -11,10 +11,11 @@ EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, InPlace);
 /// A structure describing the pairs of source/target format that may be converted using the conversion routine.
 struct ezImageConversionEntry
 {
-  ezImageConversionEntry(ezImageFormat::Enum source, ezImageFormat::Enum target, ezImageConversionFlags::Enum flags)
+  ezImageConversionEntry(ezImageFormat::Enum source, ezImageFormat::Enum target, ezImageConversionFlags::Enum flags, float additionalPenalty = 0)
     : m_sourceFormat(source)
     , m_targetFormat(target)
     , m_flags(flags)
+    , m_additionalPenalty(additionalPenalty)
   {
   }
 

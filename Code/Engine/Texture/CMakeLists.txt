@@ -28,6 +28,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_HAS_TEXTURE)
 if(EZ_CMAKE_PLATFORM_LINUX)
   set(THIRDPARTY_DIR "${EZ_ROOT}/Code/ThirdParty")
   target_include_directories(${PROJECT_NAME} PRIVATE "${THIRDPARTY_DIR}/DirectXMath/include" "${THIRDPARTY_DIR}/sal")
+  target_link_libraries(${PROJECT_NAME} PRIVATE bc7enc_rdo)
 endif()
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)

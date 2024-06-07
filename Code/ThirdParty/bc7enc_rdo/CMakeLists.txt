@@ -1,3 +1,24 @@
+###################
+## ezEngine specific additions
+###################
+
+if(EZ_CMAKE_PLATFORM_LINUX)
+	get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+
+	ez_create_target(STATIC_LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
+
+	find_package(OpenMP REQUIRED)
+	if(OpenMP_CXX_FOUND)
+		target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
+	endif()
+	target_compile_definitions(${PROJECT_NAME} PUBLIC EZ_USE_BC7ENC)
+endif()
+
+return()
+###################
+## ezEngine specific additions end
+###################
+
 project(bc7enc)
 
 cmake_minimum_required(VERSION 2.8)
