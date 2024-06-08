@@ -607,6 +607,22 @@ function(ez_set_build_types)
 endfunction()
 
 # #####################################
+# ## ez_create_link(<source> <destination-folder> <destination-name>)
+# #####################################
+function(ez_create_link SOURCE DEST_FOLDER DEST_NAME)
+	if(NOT EXISTS "${DEST_FOLDER}")
+		file(MAKE_DIRECTORY ${DEST_FOLDER})
+	endif()
+
+	# We re-create the link every time because it could become a dead link when shared between workspaces.
+	if(EXISTS "${DEST_FOLDER}/${DEST_NAME}")
+		file(REMOVE ${DEST_FOLDER}/${DEST_NAME})
+	endif()
+
+	file(CREATE_LINK ${SOURCE} ${DEST_FOLDER}/${DEST_NAME} RESULT OUT_RESULT SYMBOLIC)
+endfunction()
+
+# #####################################
 # ## ez_download_and_extract(<url-to-download> <dest-folder-path> <dest-filename-without-extension>)
 # #####################################
 function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)

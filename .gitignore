@@ -351,6 +351,9 @@ MigrationBackup/
 # Substance
 .autosave/
 
+# VSCode
+.vscode/
+
 # ez specific
 /Workspace
 /Output
