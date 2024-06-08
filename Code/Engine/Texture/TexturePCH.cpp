@@ -5,6 +5,7 @@ EZ_STATICLINK_LIBRARY(Texture)
   if (bReturn)
     return;
 
+  EZ_STATICLINK_REFERENCE(Texture_Image_Conversions_BC7EncConversions);
   EZ_STATICLINK_REFERENCE(Texture_Image_Conversions_DXTConversions);
   EZ_STATICLINK_REFERENCE(Texture_Image_Conversions_DXTexConversions);
   EZ_STATICLINK_REFERENCE(Texture_Image_Conversions_DXTexCpuConversions);
