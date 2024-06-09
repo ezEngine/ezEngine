@@ -546,4 +546,3 @@ void ezAiNavigation::DebugDrawState(const ezDebugRendererContext& context, const
       break;
   }
 }
-
