@@ -71,7 +71,7 @@ void ezAiNavMeshWorldModule::Initialize()
   for (const auto& cfg : m_Config.m_NavmeshConfigs)
   {
     // TODO: make tile size etc configurable
-    m_WorldNavMeshes[cfg.m_sName] = EZ_DEFAULT_NEW(ezAiNavMesh, 128, 128, 128.0f, cfg);
+    m_WorldNavMeshes[cfg.m_sName] = EZ_DEFAULT_NEW(ezAiNavMesh, cfg);
   }
 
   m_pGenerateSectorTask = EZ_DEFAULT_NEW(ezNavMeshSectorGenerationTask);
@@ -81,7 +81,7 @@ void ezAiNavMeshWorldModule::Initialize()
 void ezAiNavMeshWorldModule::Deinitialize()
 {
   m_pGenerateSectorTask = nullptr;
-  ezTaskSystem::CancelGroup(m_GenerateSectorTaskID);
+  ezTaskSystem::CancelGroup(m_GenerateSectorTaskID).IgnoreResult();
   ezTaskSystem::WaitForGroup(m_GenerateSectorTaskID);
 }
 

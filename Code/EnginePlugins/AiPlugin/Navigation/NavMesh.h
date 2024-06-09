@@ -71,7 +71,7 @@ class EZ_AIPLUGIN_DLL ezAiNavMesh final
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAiNavMesh);
 
 public:
-  ezAiNavMesh(ezUInt32 uiNumSectorsX, ezUInt32 uiNumSectorsY, float fSectorMetersXY, const ezAiNavmeshConfig& navmeshConfig);
+  ezAiNavMesh(const ezAiNavmeshConfig& navmeshConfig);
   ~ezAiNavMesh();
 
   using SectorID = ezUInt32;

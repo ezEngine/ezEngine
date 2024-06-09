@@ -53,7 +53,7 @@ ezResult ezAiNavigationConfig::Load(ezStringView sFile)
 
 void ezAiNavigationConfig::Save(ezStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
 
   inout_stream << uiVersion;
 
@@ -88,6 +88,11 @@ void ezAiNavigationConfig::Save(ezStreamWriter& inout_stream) const
     const auto& nc = m_NavmeshConfigs[i];
 
     inout_stream << nc.m_sName;
+
+    inout_stream << nc.m_uiNumSectorsX;
+    inout_stream << nc.m_uiNumSectorsY;
+    inout_stream << nc.m_fSectorSize;
+
     inout_stream << nc.m_uiCollisionLayer;
     inout_stream << nc.m_fCellSize;
     inout_stream << nc.m_fCellHeight;
@@ -111,7 +116,7 @@ void ezAiNavigationConfig::Load(ezStreamReader& inout_stream)
 
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= 1, "Invalid version {0} for ezAiNavigationConfig file", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 2, "Invalid version {0} for ezAiNavigationConfig file", uiVersion);
 
   ezUInt8 numGroundTypes = 0;
   inout_stream >> numGroundTypes;
@@ -152,6 +157,14 @@ void ezAiNavigationConfig::Load(ezStreamReader& inout_stream)
     auto& nc = m_NavmeshConfigs.ExpandAndGetRef();
 
     inout_stream >> nc.m_sName;
+
+    if (uiVersion >= 2)
+    {
+      inout_stream >> nc.m_uiNumSectorsX;
+      inout_stream >> nc.m_uiNumSectorsY;
+      inout_stream >> nc.m_fSectorSize;
+    }
+
     inout_stream >> nc.m_uiCollisionLayer;
     inout_stream >> nc.m_fCellSize;
     inout_stream >> nc.m_fCellHeight;
