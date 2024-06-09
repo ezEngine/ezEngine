@@ -117,29 +117,3 @@ private:
 
   bool UpdatePathSearch();
 };
-
-struct EZ_AIPLUGIN_DLL ezAiNavmeshRaycastHit
-{
-  ezVec3 m_vHitPosition;
-  float m_fHitDistanceNormalized;
-  float m_fHitDistance;
-};
-
-class EZ_AIPLUGIN_DLL ezAiNavmeshQuery
-{
-public:
-  ezAiNavmeshQuery();
-
-  void SetNavmesh(ezAiNavMesh* pNavmesh);
-  void SetQueryFilter(const dtQueryFilter& filter);
-
-  bool PrepareQueryArea(const ezVec3& vCenter, float fRadius);
-  bool Raycast(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezAiNavmeshRaycastHit& out_raycastHit);
-
-private:
-  ezUInt8 m_uiReinitQueryBit : 1;
-
-  ezAiNavMesh* m_pNavmesh = nullptr;
-  dtNavMeshQuery m_Query;
-  const dtQueryFilter* m_pFilter = nullptr;
-};
