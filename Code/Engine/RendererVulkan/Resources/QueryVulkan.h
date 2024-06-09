@@ -17,7 +17,6 @@ protected:
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
-
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
   ezUInt32 m_uiID;

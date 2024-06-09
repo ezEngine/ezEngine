@@ -314,7 +314,7 @@ namespace clang
       {
       }
 
-      llvm::Optional<RenamerClangTidyCheck::FailureInfo>
+      std::optional<RenamerClangTidyCheck::FailureInfo>
       NameCheck::getDeclFailureInfo(const NamedDecl* Decl,
         const SourceManager& SM) const
       {
@@ -583,7 +583,7 @@ namespace clang
         return std::nullopt;
       }
 
-      llvm::Optional<clang::tidy::RenamerClangTidyCheck::FailureInfo>
+      std::optional<clang::tidy::RenamerClangTidyCheck::FailureInfo>
       NameCheck::getMacroFailureInfo(const Token& MacroNameTok,
         const SourceManager& SM) const
       {
