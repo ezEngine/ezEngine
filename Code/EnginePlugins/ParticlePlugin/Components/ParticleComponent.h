@@ -15,6 +15,7 @@ struct ezMsgExtractRenderData;
 class ezParticleSystemInstance;
 class ezParticleComponent;
 struct ezMsgSetPlaying;
+struct ezMsgInterruptPlaying;
 
 using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
@@ -77,6 +78,9 @@ public:
 
   /// \brief Forwards to StartEffect() or StopEffect().
   void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg); // [ msg handler ]
+
+  /// \brief Forwards to InterruptEffect().
+  void OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg); // [ msg handler ]
 
   /// \brief Replaces the effect to be played.
   void SetParticleEffect(const ezParticleEffectResourceHandle& hEffect);

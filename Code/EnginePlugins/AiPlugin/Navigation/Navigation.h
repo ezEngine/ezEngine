@@ -67,7 +67,7 @@ public:
   void SetCurrentPosition(const ezVec3& vPosition);
   void SetTargetPosition(const ezVec3& vPosition);
   const ezVec3& GetTargetPosition() const;
-  void SetNavmesh(ezAiNavMesh& ref_navmesh);
+  void SetNavmesh(ezAiNavMesh* pNavmesh);
   void SetQueryFilter(const dtQueryFilter& filter);
 
   void ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) const;
@@ -102,7 +102,6 @@ private:
 
   ezUInt8 m_uiCurrentPositionChangedBit : 1;
   ezUInt8 m_uiTargetPositionChangedBit : 1;
-  ezUInt8 m_uiEnvironmentChangedBit : 1;
   ezUInt8 m_uiReinitQueryBit : 1;
 
   ezAiNavMesh* m_pNavmesh = nullptr;

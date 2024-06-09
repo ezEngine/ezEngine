@@ -17,23 +17,23 @@ ezAiNavMeshSector::ezAiNavMeshSector()
 
 ezAiNavMeshSector::~ezAiNavMeshSector() = default;
 
-ezAiNavMesh::ezAiNavMesh(ezUInt32 uiNumSectorsX, ezUInt32 uiNumSectorsY, float fSectorMetersXY, const ezAiNavmeshConfig& navmeshConfig)
+ezAiNavMesh::ezAiNavMesh(const ezAiNavmeshConfig& navmeshConfig)
 {
-  m_uiNumSectorsX = uiNumSectorsX;
-  m_uiNumSectorsY = uiNumSectorsY;
-  m_fSectorMetersXY = fSectorMetersXY;
-  m_fInvSectorMetersXY = 1.0f / fSectorMetersXY;
+  m_uiNumSectorsX = navmeshConfig.m_uiNumSectorsX;
+  m_uiNumSectorsY = navmeshConfig.m_uiNumSectorsY;
+  m_fSectorMetersXY = navmeshConfig.m_fSectorSize;
+  m_fInvSectorMetersXY = 1.0f / navmeshConfig.m_fSectorSize;
   m_NavmeshConfig = navmeshConfig;
 
   m_pNavMesh = EZ_DEFAULT_NEW(dtNavMesh);
 
   dtNavMeshParams np;
-  np.tileWidth = fSectorMetersXY;
-  np.tileHeight = fSectorMetersXY;
-  np.orig[0] = -(uiNumSectorsX * 0.5f) * fSectorMetersXY;
+  np.tileWidth = navmeshConfig.m_fSectorSize;
+  np.tileHeight = navmeshConfig.m_fSectorSize;
+  np.orig[0] = -(navmeshConfig.m_uiNumSectorsX * 0.5f) * navmeshConfig.m_fSectorSize;
   np.orig[1] = 0.0f;
-  np.orig[2] = -(uiNumSectorsY * 0.5f) * fSectorMetersXY;
-  np.maxTiles = uiNumSectorsX * uiNumSectorsY;
+  np.orig[2] = -(navmeshConfig.m_uiNumSectorsY * 0.5f) * navmeshConfig.m_fSectorSize;
+  np.maxTiles = navmeshConfig.m_uiNumSectorsX * navmeshConfig.m_uiNumSectorsY;
   np.maxPolys = 1 << 16;
 
   m_pNavMesh->init(&np);

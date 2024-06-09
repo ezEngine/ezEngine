@@ -12,6 +12,12 @@ struct EZ_CORE_DLL ezMsgSetPlaying : public ezMessage
   bool m_bPlay = true;
 };
 
+/// \brief Common message for components that can or need to be canceled immediately
+struct EZ_CORE_DLL ezMsgInterruptPlaying : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgInterruptPlaying, ezMessage);
+};
+
 /// \brief Basic message to set some generic parameter to a float value.
 struct EZ_CORE_DLL ezMsgSetFloatParameter : public ezMessage
 {

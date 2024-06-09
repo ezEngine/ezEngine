@@ -22,6 +22,7 @@ public:
   ~ezAiNavMeshWorldModule();
 
   virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
   ezAiNavMesh* GetNavMesh(ezStringView sName);
   const ezAiNavMesh* GetNavMesh(ezStringView sName) const;

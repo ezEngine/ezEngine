@@ -36,7 +36,6 @@ ezAiNavigation::ezAiNavigation()
 {
   m_uiCurrentPositionChangedBit = 0;
   m_uiTargetPositionChangedBit = 0;
-  m_uiEnvironmentChangedBit = 0;
   m_uiReinitQueryBit = 0;
 
   m_PathCorridor.init(MaxPathNodes);
@@ -230,13 +229,12 @@ const ezVec3& ezAiNavigation::GetTargetPosition() const
   return m_vTargetPosition;
 }
 
-void ezAiNavigation::SetNavmesh(ezAiNavMesh& ref_navmesh)
+void ezAiNavigation::SetNavmesh(ezAiNavMesh* pNavmesh)
 {
-  if (m_pNavmesh == &ref_navmesh)
+  if (m_pNavmesh == pNavmesh)
     return;
 
-  m_pNavmesh = &ref_navmesh;
-  m_uiEnvironmentChangedBit = 1;
+  m_pNavmesh = pNavmesh;
   m_uiReinitQueryBit = 1;
 }
 
@@ -246,7 +244,6 @@ void ezAiNavigation::SetQueryFilter(const dtQueryFilter& filter)
     return;
 
   m_pFilter = &filter;
-  m_uiEnvironmentChangedBit = 1;
 }
 
 void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) const

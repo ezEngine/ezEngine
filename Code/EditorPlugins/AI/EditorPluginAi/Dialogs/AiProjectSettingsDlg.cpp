@@ -355,6 +355,9 @@ void ezQtAiProjectSettingsDlg::ApplyNavmeshConfig(int index)
 
   const auto& ps = m_Config.m_NavmeshConfigs[index];
 
+  NumSectorsX->setValue(ps.m_uiNumSectorsX);
+  NumSectorsY->setValue(ps.m_uiNumSectorsY);
+  SectorSizeXY->setValue(ps.m_fSectorSize);
   NavCellSize->setValue(ps.m_fCellSize);
   NavCellHeight->setValue(ps.m_fCellHeight);
   NavAgentRadius->setValue(ps.m_fAgentRadius);
@@ -405,6 +408,10 @@ void ezQtAiProjectSettingsDlg::RetrieveNavmeshConfig(int index)
   auto& cfg = m_Config.m_NavmeshConfigs[index];
 
   cfg.m_uiCollisionLayer = (ezUInt32)CollisionLayer->currentData(Qt::UserRole).toInt();
+
+  cfg.m_uiNumSectorsX = NumSectorsX->value();
+  cfg.m_uiNumSectorsY = NumSectorsY->value();
+  cfg.m_fSectorSize = SectorSizeXY->value();
 
   cfg.m_fCellSize = NavCellSize->value();
   cfg.m_fCellHeight = NavCellHeight->value();
