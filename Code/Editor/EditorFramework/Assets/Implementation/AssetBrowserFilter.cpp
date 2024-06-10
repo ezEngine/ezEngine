@@ -253,6 +253,13 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
         return true;
     }
   }
+  else if(m_sPathFilter.IsEmpty() && !bIsFolder) // <Root> folder
+  {
+    if(!m_bShowItemsInSubFolders && m_SearchFilter.IsEmpty())
+    {
+      return true;
+    }
+  }
 
   if (!m_bShowItemsInHiddenFolders)
   {
