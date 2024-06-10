@@ -60,6 +60,7 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   EZ_VERIFY(connect(m_pFilter, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pFilter, SIGNAL(FilterChanged()), this, SLOT(OnFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, SIGNAL(modelReset()), this, SLOT(OnModelReset())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, &ezQtAssetBrowserModel::editingFinished, this, &ezQtAssetBrowserWidget::OnFileEditingFinished, Qt::QueuedConnection), "signal/slot connection failed");
 
@@ -547,6 +548,13 @@ void ezQtAssetBrowserWidget::OnTextFilterChanged()
     SearchWidget->setText(sText);
     QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
   }
+}
+
+void ezQtAssetBrowserWidget::OnFilterChanged()
+{
+  ButtonShowItemsSubFolders->blockSignals(true);
+  ButtonShowItemsSubFolders->setChecked(m_pFilter->GetShowItemsInSubFolders());
+  ButtonShowItemsSubFolders->blockSignals(false);
 }
 
 void ezQtAssetBrowserWidget::OnTypeFilterChanged()
