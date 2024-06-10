@@ -1383,6 +1383,16 @@ void ezQtAssetBrowserWidget::SetSelectedFile(ezStringView sAbsPath)
 
 void ezQtAssetBrowserWidget::OnScrollToItem(ezUuid preselectedAsset)
 {
+  const ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(preselectedAsset);
+  if(pSubAsset.isValid())
+  {
+    ezStringBuilder sPath = ezMakeQString(pSubAsset->m_pAssetInfo->m_Path.GetDataDirParentRelativePath()).toUtf8().data();
+    sPath.PathParentDirectory();
+    sPath.Trim("/");
+    m_pFilter->SetPathFilter(sPath);
+    m_pFilter->SetTextFilter("");
+  }
+
   for (ezInt32 i = 0; i < m_pModel->rowCount(); ++i)
   {
     QModelIndex idx = m_pModel->index(i, 0);
@@ -1400,6 +1410,14 @@ void ezQtAssetBrowserWidget::OnScrollToItem(ezUuid preselectedAsset)
 
 void ezQtAssetBrowserWidget::OnScrollToFile(QString sPreselectedFile)
 {
+  ezStringBuilder sPath = sPreselectedFile.toUtf8().data();
+  if(ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sPath))
+  {
+    sPath.PathParentDirectory();
+    sPath.Trim("/");
+    m_pFilter->SetPathFilter(sPath);
+  }
+
   for (ezInt32 i = 0; i < m_pModel->rowCount(); ++i)
   {
     QModelIndex idx = m_pModel->index(i, 0);
