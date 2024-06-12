@@ -139,3 +139,15 @@ void ezHashedString::Clear()
   m_Data = s_pHSData->m_Empty;
 #endif
 }
+
+ezResult ezHashedString::LookupStringHash(ezUInt64 uiHash, ezStringView& out_sResult)
+{
+  EZ_LOCK(s_pHSData->m_Mutex);
+  auto it = s_pHSData->m_Storage.Find(uiHash);
+
+  if (!it.IsValid())
+    return EZ_FAILURE;
+
+  out_sResult = it.Value().m_sString;
+  return EZ_SUCCESS;
+}
