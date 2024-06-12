@@ -63,7 +63,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
       EZ_TEST_BOOL(bf.IsBitSet(i));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCount / SetBit / ClearBit / SetBitValue / SetCountUninitialized")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCount / SetBit / FlipBit / ClearBit / SetBitValue / SetCountUninitialized")
   {
     ezHybridBitfield<512> bf; // using a hybrid array
 
@@ -114,6 +114,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
     {
       EZ_TEST_BOOL(bf.IsBitSet(i) == ((i % 3) == 0));
     }
+
+    for (ezUInt32 i = 0; i < bf.GetCount(); i += 2)
+    {
+      bf.FlipBit(i);
+    }
+
+    for (ezUInt32 i = 0; i < bf.GetCount(); ++i)
+    {
+      EZ_TEST_BOOL(bf.IsBitSet(i) == (((0b011100 >> (i % 6)) & 1) == 1));
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetBitRange")
@@ -158,6 +168,32 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
       ezUInt32 uiEnd = ezMath::Min(uiStart + (size / 3 * 2), size - 1);
 
       bf.ClearBitRange(uiStart, uiEnd - uiStart + 1);
+
+      for (ezUInt32 count = 0; count < uiStart; ++count)
+        EZ_TEST_BOOL(bf.IsBitSet(count));
+      for (ezUInt32 count = uiStart; count <= uiEnd; ++count)
+        EZ_TEST_BOOL(!bf.IsBitSet(count));
+      for (ezUInt32 count = uiEnd + 1; count < bf.GetCount(); ++count)
+        EZ_TEST_BOOL(bf.IsBitSet(count));
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FlipBitRange")
+  {
+    for (ezUInt32 size = 1; size < 1024; ++size)
+    {
+      ezBitfield<ezDeque<ezUInt32>> bf; // using a deque
+      bf.SetCount(size, true);
+
+      EZ_TEST_INT(bf.GetCount(), size);
+
+      for (ezUInt32 count = 0; count < bf.GetCount(); ++count)
+        EZ_TEST_BOOL(bf.IsBitSet(count));
+
+      ezUInt32 uiStart = size / 2;
+      ezUInt32 uiEnd = ezMath::Min(uiStart + (size / 3 * 2), size - 1);
+
+      bf.FlipBitRange(uiStart, uiEnd - uiStart + 1);
 
       for (ezUInt32 count = 0; count < uiStart; ++count)
         EZ_TEST_BOOL(bf.IsBitSet(count));
