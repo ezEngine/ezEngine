@@ -67,6 +67,26 @@
 #define STBRP_DEF extern
 #endif
 
+//////////////////////////////////////////////////////////////////////////
+// Start ezEngine edit
+// Configure the DLL Import/Export Define
+#undef STBRP_DEF
+#ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+#  ifdef _WIN32
+#    ifdef BUILDSYSTEM_BUILDING_STB_LIB
+#      define STBRP_DEF __declspec(dllexport)
+#    else
+#      define STBRP_DEF __declspec(dllimport)
+#    endif
+#  else
+#    define STBRP_DEF __attribute__ ((visibility ("default")))
+#  endif
+#else
+#  define STBRP_DEF
+#endif
+// End ezEngine edit
+//////////////////////////////////////////////////////////////////////////
+
 #ifdef __cplusplus
 extern "C" {
 #endif

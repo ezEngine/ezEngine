@@ -10,6 +10,8 @@ struct stbrp_rect;
 
 class EZ_TEXTURE_DLL ezTexturePacker
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezTexturePacker);
+
 public:
   struct Texture
   {

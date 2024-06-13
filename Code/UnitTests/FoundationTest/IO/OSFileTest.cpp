@@ -1,5 +1,6 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, OSFile)

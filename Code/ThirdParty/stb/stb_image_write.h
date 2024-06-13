@@ -171,7 +171,7 @@ LICENSE
 #undef STBIWDEF
 #ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
 #  ifdef _WIN32
-#    ifdef BUILDSYSTEM_BUILDING_STB_IMAGE_LIB
+#    ifdef BUILDSYSTEM_BUILDING_STB_LIB
 #      define STBIWDEF __declspec(dllexport)
 #    else
 #      define STBIWDEF __declspec(dllimport)

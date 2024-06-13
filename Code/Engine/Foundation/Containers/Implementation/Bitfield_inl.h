@@ -344,6 +344,7 @@ void ezBitfield<Container>::FlipBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits
     FlipBit(i);
 }
 
+template <class Container>
 void ezBitfield<Container>::Swap(ezBitfield<Container>& other)
 {
   ezMath::Swap(m_uiCount, other.m_uiCount);

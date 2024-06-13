@@ -96,8 +96,6 @@ namespace
 
   static ezHashedString s_sInstanceSeed = ezMakeHashedString("InstanceSeed");
 
-  static const ezEnum<ezExpression::RegisterType> s_GetInstanceSeedTypes = {};
-
   static void GetInstanceSeed(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
   {
     int instanceSeed = globalData.GetValue(s_sInstanceSeed)->Get<int>();
@@ -131,13 +129,13 @@ namespace
 } // namespace
 
 ezExpressionFunction ezProcGenExpressionFunctions::s_ApplyVolumesFunc = {
-  {ezMakeHashedString("ApplyVolumes"), ezMakeArrayPtr(s_ApplyVolumesTypes), 5, ezExpression::RegisterType::Float},
+  {ezMakeHashedString("ApplyVolumes"), ezExpression::FunctionDesc::TypeList(s_ApplyVolumesTypes), 5, ezExpression::RegisterType::Float},
   &ApplyVolumes,
   &ApplyVolumesValidate,
 };
 
 ezExpressionFunction ezProcGenExpressionFunctions::s_GetInstanceSeedFunc = {
-  {ezMakeHashedString("GetInstanceSeed"), ezMakeArrayPtr(&s_GetInstanceSeedTypes, 0), 0, ezExpression::RegisterType::Int},
+  {ezMakeHashedString("GetInstanceSeed"), ezExpression::FunctionDesc::TypeList(), 0, ezExpression::RegisterType::Int},
   &GetInstanceSeed,
   &GetInstanceSeedValidate,
 };
