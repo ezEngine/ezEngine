@@ -87,7 +87,26 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Truncate(const ezSimdVec4f& f)
 template <int N>
 EZ_ALWAYS_INLINE ezInt32 ezSimdVec4i::GetComponent() const
 {
-  return (&m_v.x)[N];
+  if constexpr (N == 0)
+  {
+    return m_v.x;
+  }
+  else if constexpr (N == 1)
+  {
+    return m_v.y;
+  }
+  else if constexpr (N == 2)
+  {
+    return m_v.z;
+  }
+  else if constexpr (N == 3)
+  {
+    return m_v.w;
+  }
+  else
+  {
+    return m_v.w;
+  }
 }
 
 EZ_ALWAYS_INLINE ezInt32 ezSimdVec4i::x() const

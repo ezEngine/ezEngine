@@ -326,7 +326,8 @@ static int stbrp__skyline_find_min_y(stbrp_context *c, stbrp_node *first, int x0
    min_y = 0;
    waste_area = 0;
    visited_width = 0;
-   while (node->x < x1) {
+   while (node->x < static_cast<decltype(node->x)>(x1))
+   {
       if (node->y > min_y) {
          // raise min_y higher.
          // we've accounted for all waste up to min_y,
@@ -427,7 +428,7 @@ static stbrp__findresult stbrp__skyline_find_best_pos(stbrp_context *c, int widt
       node = c->active_head;
       prev = &c->active_head;
       // find first node that's admissible
-      while (tail->x < width)
+      while (tail->x < static_cast<decltype(tail->x)>(width))
          tail = tail->next;
       while (tail) {
          int xpos = tail->x - width;
@@ -499,7 +500,8 @@ static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context *context, i
 
    // from here, traverse cur and free the nodes, until we get to one
    // that shouldn't be freed
-   while (cur->next && cur->next->x <= res.x + width) {
+   while (cur->next && cur->next->x <= static_cast<decltype(cur->next->x)>(res.x + width))
+   {
       stbrp_node *next = cur->next;
       // move the current node to the free list
       cur->next = context->free_head;
