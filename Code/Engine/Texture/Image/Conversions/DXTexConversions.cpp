@@ -256,7 +256,7 @@ namespace
 
       for (auto& entry : ezArrayPtr<ezImageConversionEntry>(s_sourceConversions))
       {
-        entry.m_additionalPenalty = devicePenalty;
+        entry.m_fAdditionalPenalty = devicePenalty;
       }
 
       m_SupportedConversions = s_sourceConversions;

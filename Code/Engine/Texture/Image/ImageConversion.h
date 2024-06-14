@@ -11,11 +11,11 @@ EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, InPlace);
 /// A structure describing the pairs of source/target format that may be converted using the conversion routine.
 struct ezImageConversionEntry
 {
-  ezImageConversionEntry(ezImageFormat::Enum source, ezImageFormat::Enum target, ezImageConversionFlags::Enum flags, float additionalPenalty = 0)
+  ezImageConversionEntry(ezImageFormat::Enum source, ezImageFormat::Enum target, ezImageConversionFlags::Enum flags, float fAdditionalPenalty = 0)
     : m_sourceFormat(source)
     , m_targetFormat(target)
     , m_flags(flags)
-    , m_additionalPenalty(additionalPenalty)
+    , m_fAdditionalPenalty(fAdditionalPenalty)
   {
   }
 
@@ -26,7 +26,7 @@ struct ezImageConversionEntry
   /// This member adds an additional amount to the cost estimate for this conversion step.
   /// It can be used to bias the choice between steps when there are comparable conversion
   /// steps available.
-  float m_additionalPenalty = 0.0f;
+  float m_fAdditionalPenalty = 0.0f;
 };
 
 /// \brief Interface for a single image conversion step.

@@ -45,7 +45,7 @@ namespace
         }
       }
 
-      m_cost += entry.m_additionalPenalty;
+      m_cost += entry.m_fAdditionalPenalty;
     }
 
     const ezImageConversionStep* m_step = nullptr;
