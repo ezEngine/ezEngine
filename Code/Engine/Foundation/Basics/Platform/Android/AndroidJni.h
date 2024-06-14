@@ -75,7 +75,7 @@ using ezJniErrorHandler = ezDelegate<void(ezJniErrorState)>;
 ///       if(attachment.GetLastError() == ezJniErrorState::NO_MATCHING_METHOD){SpecificErrorHandling();}
 ///     }
 ///   \endcode
-/// 
+///
 /// You may also call InstallErrorHandler() after creation to install your own error handler.
 /// Check out its documentation for details. This reduces boilerplate and enables method chaining:
 /// \example
@@ -84,7 +84,7 @@ using ezJniErrorHandler = ezDelegate<void(ezJniErrorState)>;
 ///     {
 ///       ezJniAttachment attachment;
 ///       attachment.InstallErrorHandler(&ThrowRuntimeError);
-/// 
+///
 ///       try{
 ///         attachment
 ///           .GetActivity()

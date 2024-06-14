@@ -37,7 +37,7 @@ private:
   ezUInt32 m_uiHeight = 0;
 
   ezDynamicArray<Texture> m_Textures;
-  
+
   ezDynamicArray<stbrp_node> m_Nodes;
   ezDynamicArray<stbrp_rect> m_Rects;
 };
