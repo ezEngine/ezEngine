@@ -30,6 +30,8 @@ ezMap<ezString, ezString> ezFileSystem::s_SpecialDirectories;
 
 void ezFileSystem::RegisterDataDirectoryFactory(ezDataDirFactory factory, float fPriority /*= 0*/)
 {
+  // This assert helps finding cases where the ezFileSystem is used without ez being properly initialized or already shutdown.
+  // The code would crash below anyways but asserts are easier to see in automated testing on e.g. CI.
   EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_pData->m_FsMutex);
