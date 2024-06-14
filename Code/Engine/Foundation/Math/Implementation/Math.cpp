@@ -81,11 +81,11 @@ ezUInt32 ezMath::GreatestCommonDivisor(ezUInt32 a, ezUInt32 b)
   // https://lemire.me/blog/2013/12/26/fastest-way-to-compute-the-greatest-common-divisor/
   if (a == 0)
   {
-    return a;
+    return b;
   }
   if (b == 0)
   {
-    return b;
+    return a;
   }
 
   ezUInt32 shift = FirstBitLow(a | b);

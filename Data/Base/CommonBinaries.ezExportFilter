@@ -31,7 +31,7 @@
 /ozz.dll
 /zstd.dll
 /Duktape.dll
-/stb_image.dll
+/stb.dll
 /enet.dll
 /TracyClient.dll
 #endif

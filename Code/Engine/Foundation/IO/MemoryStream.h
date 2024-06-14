@@ -205,14 +205,30 @@ public:
   ezMemoryStreamContainerWrapperStorage(CONTAINER* pContainer) { m_pStorage = pContainer; }
 
   virtual ezUInt64 GetStorageSize64() const override { return m_pStorage->GetCount(); }
-  virtual void Clear() override { m_pStorage->Clear(); }
-  virtual void Compact() override { m_pStorage->Compact(); }
+  virtual void Clear() override
+  {
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      m_pStorage->Clear();
+    }
+  }
+  virtual void Compact() override
+  {
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      m_pStorage->Compact();
+    }
+  }
+
   virtual ezUInt64 GetHeapMemoryUsage() const override { return m_pStorage->GetHeapMemoryUsage(); }
 
   virtual void Reserve(ezUInt64 uiBytes) override
   {
-    EZ_ASSERT_DEV(uiBytes <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports 32 bit addressable sizes.");
-    m_pStorage->Reserve(static_cast<ezUInt32>(uiBytes));
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      EZ_ASSERT_DEV(uiBytes <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports 32 bit addressable sizes.");
+      m_pStorage->Reserve(static_cast<ezUInt32>(uiBytes));
+    }
   }
 
   virtual ezResult CopyToStream(ezStreamWriter& inout_stream) const override
@@ -230,17 +246,27 @@ public:
 
   virtual ezArrayPtr<ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) override
   {
-    if (uiStartByte >= m_pStorage->GetCount())
-      return {};
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      if (uiStartByte >= m_pStorage->GetCount())
+        return {};
 
-    return ezArrayPtr<ezUInt8>(m_pStorage->GetData() + uiStartByte, m_pStorage->GetCount() - static_cast<ezUInt32>(uiStartByte));
+      return ezArrayPtr<ezUInt8>(m_pStorage->GetData() + uiStartByte, m_pStorage->GetCount() - static_cast<ezUInt32>(uiStartByte));
+    }
+    else
+    {
+      return {};
+    }
   }
 
 private:
   virtual void SetInternalSize(ezUInt64 uiSize) override
   {
-    EZ_ASSERT_DEV(uiSize <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports up to 4GB sizes.");
-    m_pStorage->SetCountUninitialized(static_cast<ezUInt32>(uiSize));
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      EZ_ASSERT_DEV(uiSize <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports up to 4GB sizes.");
+      m_pStorage->SetCountUninitialized(static_cast<ezUInt32>(uiSize));
+    }
   }
 
   CONTAINER* m_pStorage;

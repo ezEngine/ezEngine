@@ -5478,7 +5478,7 @@ static void CalculateNumTiles(std::vector<int>& numTiles,
   int toplevel_size,
   int size,
   int tile_rounding_mode) {
-  for (unsigned i = 0; i < numTiles.size(); i++) {
+  for (unsigned i = 0; i < static_cast<unsigned>(numTiles.size()); i++) {
     int l = LevelSize(toplevel_size, int(i), tile_rounding_mode);
     assert(l <= std::numeric_limits<int>::max() - size + 1);
 
@@ -5533,10 +5533,10 @@ static int InitTileOffsets(OffsetData& offset_data,
     assert(offset_data.num_x_levels == offset_data.num_y_levels);
     offset_data.offsets.resize(size_t(offset_data.num_x_levels));
 
-    for (unsigned int l = 0; l < offset_data.offsets.size(); ++l) {
+    for (unsigned int l = 0; l < static_cast<unsigned int>(offset_data.offsets.size()); ++l) {
       offset_data.offsets[l].resize(size_t(num_y_tiles[l]));
 
-      for (unsigned int dy = 0; dy < offset_data.offsets[l].size(); ++dy) {
+      for (unsigned int dy = 0; dy < static_cast<unsigned int>(offset_data.offsets[l].size()); ++dy) {
         offset_data.offsets[l][dy].resize(size_t(num_x_tiles[l]));
         num_tile_blocks += num_x_tiles[l];
       }
@@ -5567,9 +5567,9 @@ static int InitTileOffsets(OffsetData& offset_data,
 }
 
 static bool IsAnyOffsetsAreInvalid(const OffsetData& offset_data) {
-  for (unsigned int l = 0; l < offset_data.offsets.size(); ++l)
-    for (unsigned int dy = 0; dy < offset_data.offsets[l].size(); ++dy)
-      for (unsigned int dx = 0; dx < offset_data.offsets[l][dy].size(); ++dx)
+  for (unsigned int l = 0; l < static_cast<unsigned int>(offset_data.offsets.size()); ++l)
+    for (unsigned int dy = 0; dy < static_cast<unsigned int>(offset_data.offsets[l].size()); ++dy)
+      for (unsigned int dx = 0; dx < static_cast<unsigned int>(offset_data.offsets[l][dy].size()); ++dx)
         if (reinterpret_cast<const tinyexr::tinyexr_int64&>(offset_data.offsets[l][dy][dx]) <= 0)
           return true;
 
@@ -5635,9 +5635,9 @@ static void ReconstructTileOffsets(OffsetData& offset_data,
                                    bool isMultiPartFile,
                                    bool isDeep) {
   int numXLevels = offset_data.num_x_levels;
-  for (unsigned int l = 0; l < offset_data.offsets.size(); ++l) {
-    for (unsigned int dy = 0; dy < offset_data.offsets[l].size(); ++dy) {
-      for (unsigned int dx = 0; dx < offset_data.offsets[l][dy].size(); ++dx) {
+  for (unsigned int l = 0; l < static_cast<unsigned int>(offset_data.offsets.size()); ++l) {
+    for (unsigned int dy = 0; dy < static_cast<unsigned int>(offset_data.offsets[l].size()); ++dy) {
+      for (unsigned int dx = 0; dx < static_cast<unsigned int>(offset_data.offsets[l][dy].size()); ++dx) {
         tinyexr::tinyexr_uint64 tileOffset = tinyexr::tinyexr_uint64(marker - head);
 
         if (isMultiPartFile) {
@@ -5705,9 +5705,9 @@ static int ReadOffsets(OffsetData& offset_data,
                        const unsigned char*& marker,
                        const size_t size,
                        const char** err) {
-  for (unsigned int l = 0; l < offset_data.offsets.size(); ++l) {
-    for (unsigned int dy = 0; dy < offset_data.offsets[l].size(); ++dy) {
-      for (unsigned int dx = 0; dx < offset_data.offsets[l][dy].size(); ++dx) {
+  for (unsigned int l = 0; l < static_cast<unsigned int>(offset_data.offsets.size()); ++l) {
+    for (unsigned int dy = 0; dy < static_cast<unsigned int>(offset_data.offsets[l].size()); ++dy) {
+      for (unsigned int dx = 0; dx < static_cast<unsigned int>(offset_data.offsets[l][dy].size()); ++dx) {
         tinyexr::tinyexr_uint64 offset;
         if ((marker + sizeof(tinyexr_uint64)) >= (head + size)) {
           tinyexr::SetErrorMessage("Insufficient data size in offset table.", err);
@@ -8668,9 +8668,9 @@ int LoadEXRMultipartImageFromMemory(EXRImage *exr_images,
           return TINYEXR_ERROR_INVALID_DATA;
         }
       }
-      for (unsigned int l = 0; l < offset_data.offsets.size(); ++l) {
-        for (unsigned int dy = 0; dy < offset_data.offsets[l].size(); ++dy) {
-          for (unsigned int dx = 0; dx < offset_data.offsets[l][dy].size(); ++dx) {
+      for (unsigned int l = 0; l < static_cast<unsigned int>(offset_data.offsets.size()); ++l) {
+        for (unsigned int dy = 0; dy < static_cast<unsigned int>(offset_data.offsets[l].size()); ++dy) {
+          for (unsigned int dx = 0; dx < static_cast<unsigned int>(offset_data.offsets[l][dy].size()); ++dx) {
             tinyexr::tinyexr_uint64 offset;
             memcpy(&offset, marker, sizeof(tinyexr::tinyexr_uint64));
             tinyexr::swap8(&offset);
@@ -8692,9 +8692,9 @@ int LoadEXRMultipartImageFromMemory(EXRImage *exr_images,
     tinyexr::OffsetData &offset_data = chunk_offset_table_list[i];
 
     // First check 'part number' is identical to 'i'
-    for (unsigned int l = 0; l < offset_data.offsets.size(); ++l)
-      for (unsigned int dy = 0; dy < offset_data.offsets[l].size(); ++dy)
-        for (unsigned int dx = 0; dx < offset_data.offsets[l][dy].size(); ++dx) {
+    for (unsigned int l = 0; l < static_cast<unsigned int>(offset_data.offsets.size()); ++l)
+      for (unsigned int dy = 0; dy < static_cast<unsigned int>(offset_data.offsets[l].size()); ++dy)
+        for (unsigned int dx = 0; dx < static_cast<unsigned int>(offset_data.offsets[l][dy].size()); ++dx) {
 
           const unsigned char *part_number_addr =
               memory + offset_data.offsets[l][dy][dx] - 4;  // -4 to move to 'part number' field.

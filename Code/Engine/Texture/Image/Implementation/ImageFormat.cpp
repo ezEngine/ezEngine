@@ -403,23 +403,49 @@ static void SetupImageFormatTable()
   SetupSrgbPair(ezImageFormat::ASTC_12x10_UNORM, ezImageFormat::ASTC_12x10_UNORM_SRGB);
   SetupSrgbPair(ezImageFormat::ASTC_12x12_UNORM, ezImageFormat::ASTC_12x12_UNORM_SRGB);
 
-  s_formatMetaData[ezImageFormat::NV12].m_szName = "NV12";
-  s_formatMetaData[ezImageFormat::NV12].m_formatType = ezImageFormatType::PLANAR;
-  s_formatMetaData[ezImageFormat::NV12].m_uiNumChannels = 3;
+  {
+    auto& meta = s_formatMetaData[ezImageFormat::NV12];
 
-  s_formatMetaData[ezImageFormat::NV12].m_planeData.SetCount(2);
+    meta.m_szName = "NV12";
+    meta.m_formatType = ezImageFormatType::PLANAR;
+    meta.m_uiNumChannels = 3;
 
-  s_formatMetaData[ezImageFormat::NV12].m_planeData[0].m_uiBitsPerBlock = 8;
-  s_formatMetaData[ezImageFormat::NV12].m_planeData[0].m_uiBlockWidth = 1;
-  s_formatMetaData[ezImageFormat::NV12].m_planeData[0].m_uiBlockHeight = 1;
-  s_formatMetaData[ezImageFormat::NV12].m_planeData[0].m_uiBlockDepth = 1;
-  s_formatMetaData[ezImageFormat::NV12].m_planeData[0].m_subFormat = ezImageFormat::R8_UNORM;
+    meta.m_planeData.SetCount(2);
 
-  s_formatMetaData[ezImageFormat::NV12].m_planeData[1].m_uiBitsPerBlock = 16;
-  s_formatMetaData[ezImageFormat::NV12].m_planeData[1].m_uiBlockWidth = 2;
-  s_formatMetaData[ezImageFormat::NV12].m_planeData[1].m_uiBlockHeight = 2;
-  s_formatMetaData[ezImageFormat::NV12].m_planeData[1].m_uiBlockDepth = 1;
-  s_formatMetaData[ezImageFormat::NV12].m_planeData[1].m_subFormat = ezImageFormat::R8G8_UNORM;
+    meta.m_planeData[0].m_uiBitsPerBlock = 8;
+    meta.m_planeData[0].m_uiBlockWidth = 1;
+    meta.m_planeData[0].m_uiBlockHeight = 1;
+    meta.m_planeData[0].m_uiBlockDepth = 1;
+    meta.m_planeData[0].m_subFormat = ezImageFormat::R8_UNORM;
+
+    meta.m_planeData[1].m_uiBitsPerBlock = 16;
+    meta.m_planeData[1].m_uiBlockWidth = 2;
+    meta.m_planeData[1].m_uiBlockHeight = 2;
+    meta.m_planeData[1].m_uiBlockDepth = 1;
+    meta.m_planeData[1].m_subFormat = ezImageFormat::R8G8_UNORM;
+  }
+
+  {
+    auto& meta = s_formatMetaData[ezImageFormat::P010];
+
+    meta.m_szName = "P010";
+    meta.m_formatType = ezImageFormatType::PLANAR;
+    meta.m_uiNumChannels = 3;
+
+    meta.m_planeData.SetCount(2);
+
+    meta.m_planeData[0].m_uiBitsPerBlock = 10;
+    meta.m_planeData[0].m_uiBlockWidth = 1;
+    meta.m_planeData[0].m_uiBlockHeight = 1;
+    meta.m_planeData[0].m_uiBlockDepth = 1;
+    meta.m_planeData[0].m_subFormat = ezImageFormat::R16_UNORM;
+
+    meta.m_planeData[1].m_uiBitsPerBlock = 20;
+    meta.m_planeData[1].m_uiBlockWidth = 2;
+    meta.m_planeData[1].m_uiBlockHeight = 2;
+    meta.m_planeData[1].m_uiBlockDepth = 1;
+    meta.m_planeData[1].m_subFormat = ezImageFormat::R16G16_UNORM;
+  }
 }
 
 static const EZ_ALWAYS_INLINE ezImageFormatMetaData& GetImageFormatMetaData(ezImageFormat::Enum format)

@@ -188,6 +188,14 @@ void ezBitfield<Container>::ClearBit(ezUInt32 uiBit)
 }
 
 template <class Container>
+void ezBitfield<Container>::FlipBit(ezUInt32 uiBit)
+{
+  EZ_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
+
+  m_Container[GetBitInt(uiBit)] ^= GetBitMask(uiBit);
+}
+
+template <class Container>
 EZ_ALWAYS_INLINE void ezBitfield<Container>::SetBitValue(ezUInt32 uiBit, bool bValue)
 {
   if (bValue)
@@ -296,6 +304,44 @@ void ezBitfield<Container>::ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBit
   // set the bits in the last int individually
   for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
     ClearBit(i);
+}
+
+template <class Container>
+void ezBitfield<Container>::FlipBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
+{
+  if (m_uiCount == 0 || uiNumBits == 0)
+    return;
+
+  EZ_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
+
+  const ezUInt32 uiLastBit = uiFirstBit + uiNumBits - 1;
+
+  const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
+  const ezUInt32 uiLastInt = GetBitInt(uiLastBit);
+
+  // all within the same int
+  if (uiFirstInt == uiLastInt)
+  {
+    for (ezUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
+      FlipBit(i);
+
+    return;
+  }
+
+  const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
+  const ezUInt32 uiPrevIntBit = uiLastInt * 32;
+
+  // flip the bits in the first int individually
+  for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
+    FlipBit(i);
+
+  // flip the bits in the ints in between with one operation
+  for (ezUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
+    m_Container[i] = ~m_Container[i];
+
+  // flip the bits in the last int individually
+  for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
+    FlipBit(i);
 }
 
 template <class Container>

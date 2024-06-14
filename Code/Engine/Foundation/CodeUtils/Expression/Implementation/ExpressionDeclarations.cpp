@@ -177,12 +177,12 @@ namespace
 } // namespace
 
 ezExpressionFunction ezDefaultExpressionFunctions::s_RandomFunc = {
-  {ezMakeHashedString("Random"), ezMakeArrayPtr(s_RandomInputTypes), 1, RegisterType::Float},
+  {ezMakeHashedString("Random"), ezExpression::FunctionDesc::TypeList(s_RandomInputTypes), 1, RegisterType::Float},
   &Random,
 };
 
 ezExpressionFunction ezDefaultExpressionFunctions::s_PerlinNoiseFunc = {
-  {ezMakeHashedString("PerlinNoise"), ezMakeArrayPtr(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
+  {ezMakeHashedString("PerlinNoise"), ezExpression::FunctionDesc::TypeList(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
   &PerlinNoise,
 };
 

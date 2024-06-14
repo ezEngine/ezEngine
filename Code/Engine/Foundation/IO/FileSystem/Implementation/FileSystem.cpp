@@ -30,6 +30,10 @@ ezMap<ezString, ezString> ezFileSystem::s_SpecialDirectories;
 
 void ezFileSystem::RegisterDataDirectoryFactory(ezDataDirFactory factory, float fPriority /*= 0*/)
 {
+  // This assert helps finding cases where the ezFileSystem is used without ez being properly initialized or already shutdown.
+  // The code would crash below anyways but asserts are easier to see in automated testing on e.g. CI.
+  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
+
   EZ_LOCK(s_pData->m_FsMutex);
 
   auto& data = s_pData->m_DataDirFactories.ExpandAndGetRef();
@@ -151,6 +155,7 @@ bool ezFileSystem::RemoveDataDirectory(ezStringView sRootName)
   ezStringBuilder sCleanRootName = sRootName;
   CleanUpRootName(sCleanRootName);
 
+  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
   EZ_LOCK(s_pData->m_FsMutex);
 
   for (ezUInt32 i = 0; i < s_pData->m_DataDirectories.GetCount();)
@@ -245,6 +250,7 @@ const ezDataDirectoryInfo* ezFileSystem::FindDataDirectoryWithRoot(ezStringView 
   if (sRootName.IsEmpty())
     return nullptr;
 
+  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
   EZ_LOCK(s_pData->m_FsMutex);
 
   for (const auto& dd : s_pData->m_DataDirectories)
@@ -281,6 +287,7 @@ const ezDataDirectoryInfo& ezFileSystem::GetDataDirectoryInfo(ezUInt32 uiDataDir
 
 ezStringView ezFileSystem::GetDataDirRelativePath(ezStringView sPath, ezUInt32 uiDataDir)
 {
+  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
   EZ_LOCK(s_pData->m_FsMutex);
 
   // if an absolute path is given, this will check whether the absolute path would fall into this data directory
@@ -327,6 +334,7 @@ ezStringView ezFileSystem::GetDataDirRelativePath(ezStringView sPath, ezUInt32 u
 
 ezDataDirectoryInfo* ezFileSystem::GetDataDirForRoot(const ezString& sRoot)
 {
+  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
   EZ_LOCK(s_pData->m_FsMutex);
 
   for (ezInt32 i = (ezInt32)s_pData->m_DataDirectories.GetCount() - 1; i >= 0; --i)
@@ -769,6 +777,7 @@ ezResult ezFileSystem::FindFolderWithSubPath(ezStringBuilder& out_sResult, ezStr
 
 bool ezFileSystem::ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection)
 {
+  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
   EZ_LOCK(s_pData->m_FsMutex);
 
   for (auto& dd : s_pData->m_DataDirectories)
@@ -827,6 +836,7 @@ void ezFileSystem::ReloadAllExternalDataDirectoryConfigs()
 {
   EZ_LOG_BLOCK("ReloadAllExternalDataDirectoryConfigs");
 
+  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
   EZ_LOCK(s_pData->m_FsMutex);
 
   for (auto& dd : s_pData->m_DataDirectories)
@@ -843,6 +853,7 @@ void ezFileSystem::Startup()
 void ezFileSystem::Shutdown()
 {
   {
+    EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
     EZ_LOCK(s_pData->m_FsMutex);
 
     s_pData->m_DataDirFactories.Clear();
@@ -986,6 +997,7 @@ ezMutex& ezFileSystem::GetMutex()
 
 void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::Default*/)
 {
+  EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
   EZ_LOCK(s_pData->m_FsMutex);
 
   ezHybridArray<ezString, 16> folders;

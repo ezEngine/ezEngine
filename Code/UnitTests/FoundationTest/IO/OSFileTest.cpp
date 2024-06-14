@@ -1,5 +1,6 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, OSFile)
@@ -166,8 +167,8 @@ Only concrete and clocks.\n\
     // a test data folder with deterministic content
     // Therefore I tested it manually, and leave the code in, such that it is at least a 'does it compile and link' test.
 
-    ezStringBuilder sOutputFolder = ezOSFile::GetApplicationDirectory();
-    sOutputFolder.AppendPath("*");
+    ezStringBuilder sOutputFolder = ezFileSystem::GetSdkRootDirectory();
+    sOutputFolder.AppendPath("Data/Base/*");
 
     ezStringBuilder sFullPath;
 

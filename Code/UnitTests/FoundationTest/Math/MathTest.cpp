@@ -621,6 +621,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GreatestCommonDivisor")
   {
     EZ_TEST_INT(ezMath::GreatestCommonDivisor(13, 13), 13);
+    EZ_TEST_INT(ezMath::GreatestCommonDivisor(13, 0), 13);
+    EZ_TEST_INT(ezMath::GreatestCommonDivisor(0, 637), 637);
     EZ_TEST_INT(ezMath::GreatestCommonDivisor(37, 600), 1);
     EZ_TEST_INT(ezMath::GreatestCommonDivisor(20, 100), 20);
     EZ_TEST_INT(ezMath::GreatestCommonDivisor(624129, 2061517), 18913);

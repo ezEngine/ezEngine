@@ -10,6 +10,7 @@ thread_local JNIEnv* ezJniAttachment::s_env;
 thread_local bool ezJniAttachment::s_ownsEnv;
 thread_local int ezJniAttachment::s_attachCount;
 thread_local ezJniErrorState ezJniAttachment::s_lastError;
+thread_local ezJniErrorHandler s_onError;
 
 ezJniAttachment::ezJniAttachment()
 {
@@ -49,10 +50,12 @@ ezJniAttachment::ezJniAttachment()
   }
 
   s_attachCount++;
+  EZ_ASSERT_ALWAYS(s_onError.IsValid() == false, "Can't install error handler for more than one instance.");
 }
 
 ezJniAttachment::~ezJniAttachment()
 {
+  s_onError = nullptr;
   s_attachCount--;
 
   if (s_attachCount == 0)
@@ -109,6 +112,10 @@ void ezJniAttachment::ClearLastError()
 void ezJniAttachment::SetLastError(ezJniErrorState state)
 {
   s_lastError = state;
+  if (s_onError.IsValid() && s_lastError != ezJniErrorState::SUCCESS)
+  {
+    s_onError(s_lastError);
+  }
 }
 
 bool ezJniAttachment::HasPendingException()
@@ -142,6 +149,12 @@ bool ezJniAttachment::FailOnPendingErrorOrException()
   }
 
   return false;
+}
+
+void ezJniAttachment::InstallErrorHandler(ezJniErrorHandler onError)
+{
+  EZ_ASSERT_ALWAYS(s_attachCount == 1, "Can't install error handler for more than one instance.");
+  s_onError = onError;
 }
 
 void ezJniObject::DumpTypes(const ezJniClass* inputTypes, int N, const ezJniClass* returnType)
@@ -744,4 +757,18 @@ bool ezJniClass::IsPrimitive()
 {
   return UnsafeCall<bool>("isPrimitive", "()Z");
 }
+
+ezJniNullPtr::ezJniNullPtr(ezJniClass& clazz)
+{
+  m_class = clazz;
+}
+
+const ezJniString ezJniNullPtr::GetTypeSignature() const
+{
+  ezJniString jSignature = m_class.UnsafeCall<ezJniString>("getName", "()Ljava/lang/String;");
+  ezStringBuilder signature{jSignature.GetData()};
+  signature.ReplaceAll(".", "/");
+  return ezJniString{signature.GetData()};
+}
+
 #endif

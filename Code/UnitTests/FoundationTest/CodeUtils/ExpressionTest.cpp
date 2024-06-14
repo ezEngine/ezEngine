@@ -458,12 +458,12 @@ namespace
   }
 
   ezExpressionFunction s_TestFunc1 = {
-    {ezMakeHashedString("TestFunc"), ezMakeArrayPtr(s_TestFunc1InputTypes), 2, ezExpression::RegisterType::Float},
+    {ezMakeHashedString("TestFunc"), ezExpression::FunctionDesc::TypeList(s_TestFunc1InputTypes), 2, ezExpression::RegisterType::Float},
     &TestFunc1,
   };
 
   ezExpressionFunction s_TestFunc2 = {
-    {ezMakeHashedString("TestFunc"), ezMakeArrayPtr(s_TestFunc2InputTypes), 3, ezExpression::RegisterType::Float},
+    {ezMakeHashedString("TestFunc"), ezExpression::FunctionDesc::TypeList(s_TestFunc2InputTypes), 3, ezExpression::RegisterType::Float},
     &TestFunc2,
   };
 

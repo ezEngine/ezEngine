@@ -832,7 +832,7 @@ static float EvaluateAverageCoverage(ezBlobPtr<const ezColor> colors, float fAlp
 
   ezUInt64 totalPixels = colors.GetCount();
   ezUInt64 count = 0;
-  for (ezUInt32 idx = 0; idx < totalPixels; ++idx)
+  for (ezUInt64 idx = 0; idx < totalPixels; ++idx)
   {
     count += colors[idx].a >= fAlphaThreshold;
   }

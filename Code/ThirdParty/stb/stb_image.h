@@ -374,7 +374,7 @@ extern "C" {
 #undef STBIDEF
 #ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
 #  ifdef _WIN32
-#    ifdef BUILDSYSTEM_BUILDING_STB_IMAGE_LIB
+#    ifdef BUILDSYSTEM_BUILDING_STB_LIB
 #      define STBIDEF __declspec(dllexport)
 #    else
 #      define STBIDEF __declspec(dllimport)

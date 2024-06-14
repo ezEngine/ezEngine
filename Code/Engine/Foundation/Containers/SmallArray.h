@@ -50,6 +50,11 @@ public:
   bool operator==(const ezArrayPtr<const T>& rhs) const; // [tested]
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayPtr<const T>&);
 #endif
+
+  /// \brief Compares this array to another contiguous array type.
+  bool operator<(const ezSmallArrayBase<T, Size>& rhs) const; // [tested]
+  bool operator<(const ezArrayPtr<const T>& rhs) const;       // [tested]
+
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
 
@@ -226,7 +231,7 @@ public:
   ezSmallArray();
 
   ezSmallArray(const ezSmallArray<T, Size, AllocatorWrapper>& other);
-  ezSmallArray(const ezArrayPtr<const T>& other);
+  explicit ezSmallArray(const ezArrayPtr<const T>& other);
   ezSmallArray(ezSmallArray<T, Size, AllocatorWrapper>&& other);
 
   ~ezSmallArray();
