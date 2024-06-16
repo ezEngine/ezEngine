@@ -69,12 +69,14 @@ endmacro()
 macro(ez_platformhook_find_vulkan)
 	if(EZ_CMAKE_ARCHITECTURE_64BIT)
 		if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR(EZ_VULKAN_DIR STREQUAL ""))
-			set(CMAKE_FIND_DEBUG_MODE TRUE)
+			#set(CMAKE_FIND_DEBUG_MODE TRUE)
 			unset(EZ_VULKAN_DIR CACHE)
 			unset(EzVulkan_DIR CACHE)
-
-			find_path(EZ_VULKAN_DIR config/vk_layer_settings.txt
+			set(EZ_SHARED_VULKAN_DIR "${EZ_ROOT}/Workspace/shared/vulkan-sdk/${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}")
+			# Have to add `NO_DEFAULT_PATH` here or CMake prefixes every path with the Android NDK root.
+			find_path(EZ_VULKAN_DIR config/vk_layer_settings.txt NO_DEFAULT_PATH
 					PATHS
+					${EZ_SHARED_VULKAN_DIR}
 					${EZ_VULKAN_DIR}
 					$ENV{VULKAN_SDK}
 			)
@@ -84,10 +86,12 @@ macro(ez_platformhook_find_vulkan)
 				# On Linux, we just download the SDK as we would do when building for Linux directly.
 				# This is a bit wasteful as we already downloaded it and we only need a few headers, but cross workspace dependencies aren't easy to define in cmake. 
 				if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+					# To prevent race-conditions if two CMake presets are updated at the same time, we download into the local workspace and then create a link into the shared directory.
 					ez_download_and_extract("${EZ_CONFIG_VULKAN_SDK_LINUXX64_URL}" "${CMAKE_BINARY_DIR}/vulkan-sdk" "vulkan-sdk-${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}")
-					set(EZ_VULKAN_DIR "${CMAKE_BINARY_DIR}/vulkan-sdk/${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}" CACHE PATH "Directory of the Vulkan SDK" FORCE)
+					ez_create_link("${CMAKE_BINARY_DIR}/vulkan-sdk/${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}" "${EZ_ROOT}/Workspace/shared/vulkan-sdk/" "${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}")
+					set(EZ_VULKAN_DIR "${EZ_SHARED_VULKAN_DIR}" CACHE PATH "Directory of the Vulkan SDK" FORCE)
 
-					find_path(EZ_VULKAN_DIR config/vk_layer_settings.txt
+					find_path(EZ_VULKAN_DIR config/vk_layer_settings.txt NO_DEFAULT_PATH
 							PATHS
 							${EZ_VULKAN_DIR}
 							$ENV{VULKAN_SDK}
@@ -108,9 +112,10 @@ macro(ez_platformhook_find_vulkan)
 	# Download prebuilt VkLayer_khronos_validation for Android
 	if((EZ_VULKAN_VALIDATIONLAYERS_DIR STREQUAL "EZ_VULKAN_VALIDATIONLAYERS_DIR-NOTFOUND") OR (EZ_VULKAN_VALIDATIONLAYERS_DIR STREQUAL ""))
 		ez_download_and_extract("${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL}" "${CMAKE_BINARY_DIR}/vulkan-sdk" "vulkan-layers-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}")
-		set(EZ_VULKAN_VALIDATIONLAYERS_DIR "${CMAKE_BINARY_DIR}/vulkan-sdk/android-binaries-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}" CACHE PATH "Directory of the Vulkan Validation Layers" FORCE)
+		ez_create_link("${CMAKE_BINARY_DIR}/vulkan-sdk/android-binaries-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}" "${EZ_ROOT}/Workspace/shared/vulkan-sdk/" "android-binaries-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}")
+		set(EZ_VULKAN_VALIDATIONLAYERS_DIR "${EZ_ROOT}/Workspace/shared/vulkan-sdk/android-binaries-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}" CACHE PATH "Directory of the Vulkan Validation Layers" FORCE)
 
-		find_path(EZ_VULKAN_VALIDATIONLAYERS_DIR arm64-v8a/libVkLayer_khronos_validation.so
+		find_path(EZ_VULKAN_VALIDATIONLAYERS_DIR arm64-v8a/libVkLayer_khronos_validation.so NO_DEFAULT_PATH
 			PATHS
 			${EZ_VULKAN_VALIDATIONLAYERS_DIR}
 		)

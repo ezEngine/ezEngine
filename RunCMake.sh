@@ -11,18 +11,18 @@ opts=$(getopt \
 eval set --$opts
 
 RunCMake=true
-BuildType="Dev"
+BuildType="dev"
 NoUnity=""
 
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --help)
-      echo "Usage: $(basename $0) [--setup] [--clang] [--no-cmake] [--build-type Debug|Dev|Shipping] [--no-unity]"
+      echo "Usage: $(basename $0) [--setup] [--clang] [--no-cmake] [--build-type debug|dev|shipping] [--no-unity]"
       echo "  --setup       Run first time setup. This installs dependencies and makes sure the git repository is setup correctly."
       echo "  --clang       Use clang instead of gcc"
       echo "  --no-cmake    Do not invoke cmake (usefull when only --setup is needed)"
-      echo "  --build-type  Which build type cmake should be invoked with Debug|Dev|Shipping"
+      echo "  --build-type  Which build type cmake should be invoked with debug|dev|shipping"
       echo "  --no-unity    Disable unity builds. This might help to improve code completion in various editors"
       exit 0
       ;;
@@ -59,8 +59,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [ "$BuildType" != "Debug" -a "$BuildType" != "Dev" -a "$BuildType" != "Release" ]; then
-  >&2 echo "The build-type '${BuildType}' is not supported. Only Debug, Dev and Release are supported values."
+if [ "$BuildType" != "debug" -a "$BuildType" != "dev" -a "$BuildType" != "shipping" ]; then
+  >&2 echo "The build-type '${BuildType}' is not supported. Only debug, dev and shipping are supported values."
   exit 1
 fi
 
@@ -92,16 +92,12 @@ verlt() {
 }
 
 if [ "$Distribution" = "Ubuntu" -a "$Version" = "22" ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
-  packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libtinfo5)
+  packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libomp-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libtinfo5)
 
   if [ "$UseClang" = true ]; then
     packages+=(clang-14 libstdc++-12-dev)
-    c_compiler=clang-14
-    cxx_compiler=clang++-14
   else
     packages+=(gcc-12 g++-12)
-    c_compiler=gcc-12
-    cxx_compiler=g++-12
   fi
 else
   >&2 echo "Your Distribution or Distribution version is not supported by this script"
@@ -134,7 +130,7 @@ if [ "$UseClang" = true ]; then
 fi
 
 if [ "$RunCMake" = true ]; then
-  BuildDir="build-${BuildType}-${CompilerShort}"
-  cmake -B $BuildDir -S . -G Ninja -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_C_COMPILER=$c_compiler -DEZ_EXPERIMENTAL_EDITOR_ON_LINUX=ON -DEZ_BUILD_EXPERIMENTAL_VULKAN=ON -DCMAKE_BUILD_TYPE=$BuildType -DCMAKE_EXPORT_COMPILE_COMMANDS=ON $NoUnity && \
-  echo -e "\nRun 'ninja -C ${BuildDir}' to build"
+  preset="linux-${CompilerShort}-${BuildType}"
+  cmake --preset ${preset} $NoUnity && \
+  echo -e "\nRun 'ninja -C Workspace/${preset}' to build"
 fi

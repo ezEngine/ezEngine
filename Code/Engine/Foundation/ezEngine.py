@@ -209,16 +209,16 @@ class ezStringViewSynthProvider:
         self.valid = False
         try:
             self.m_pStart = self.valobj.GetChildMemberWithName('m_pStart')
-            self.m_pEnd = self.valobj.GetChildMemberWithName('m_pEnd')
+            self.m_uiElementCount = self.valobj.GetChildMemberWithName('m_uiElementCount')
 
             start = self.m_pStart.GetValueAsUnsigned(0)
-            end = self.m_pEnd.GetValueAsUnsigned(0)
-            logger >> str(start) + " " + str(end)
-            if start == 0 or end == 0 or start > end:
+            count = self.m_uiElementCount.GetValueAsUnsigned(0)
+            logger >> str(start) + " " + str(count)
+            if start == 0 or count == 0:
                 self.valid = False
             else:
                 self.valid = True
-                self.count = end - start
+                self.count = count
                 logger >> "count " + str(self.count)
             
         except Exception as inst:

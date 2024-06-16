@@ -20,19 +20,35 @@
       "environment": {}
     },
     {
-      "name": "linux-clang-base",
+      "name": "linux-base",
       "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
         "EZ_EXPERIMENTAL_EDITOR_ON_LINUX": "ON",
         "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
-        "EZ_ENABLE_FOLDER_UNITY_FILES" : "OFF",
+        "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
         "EZ_COMPILE_ENGINE_AS_DLL" : "ON",
-        "CMAKE_CXX_COMPILER" : "clang++",
-        "CMAKE_C_COMPILER" : "clang"
-      },
-      "environment": {}
+        "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON"
+      }
+    },
+    {
+      "name": "linux-clang-base",
+      "inherits" : ["linux-base"],
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER" : "clang++-14",
+        "CMAKE_C_COMPILER" : "clang-14"
+      }
+    },
+    {
+      "name": "linux-gcc-base",
+      "inherits" : ["linux-base"],
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER" : "g++-12",
+        "CMAKE_C_COMPILER" : "gcc-12" 
+      }
     },
     {
       "name": "android-base",
@@ -108,7 +124,7 @@
     {
       "name": "linux-clang-debug",
       "inherits" : ["linux-clang-base"],
-      "hidden" : true,
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
@@ -116,7 +132,7 @@
     {
       "name": "linux-clang-dev",
       "inherits" : ["linux-clang-base"],
-      "hidden" : true,
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Dev"
       }
@@ -124,7 +140,32 @@
     {
       "name": "linux-clang-shipping",
       "inherits" : ["linux-clang-base"],
-      "hidden" : true,
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Shipping"
+      }
+    },
+
+    {
+      "name": "linux-gcc-debug",
+      "inherits" : ["linux-gcc-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-gcc-dev",
+      "inherits" : ["linux-gcc-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Dev"
+      }
+    },
+    {
+      "name": "linux-gcc-shipping",
+      "inherits" : ["linux-gcc-base"],
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Shipping"
       }
