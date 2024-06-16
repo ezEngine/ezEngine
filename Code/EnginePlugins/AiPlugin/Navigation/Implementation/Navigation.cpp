@@ -364,6 +364,22 @@ bool ezAiNavigation::UpdatePathSearch()
     m_uiOptimizeVisibilityCounter = 0;
   }
 
+  // Replan if path has become invalid due to navmesh modifications
+  if (m_State == State::FullPathFound || m_State == State::PartialPathFound)
+  {
+    constexpr ezInt32 PathLookahead = 10;
+
+    dtPolyRef currentPoly = m_PathCorridor.getFirstPoly();
+    if (!m_Query.isValidPolyRef(currentPoly, m_pFilter)
+      || !m_Query.isValidPolyRef(m_PathSearchTargetPoly, m_pFilter)
+      || !m_PathCorridor.isValid(PathLookahead, &m_Query, m_pFilter))
+    {
+      CancelNavigation();
+      m_State = State::StartNewSearch;
+      return false;
+    }
+  }
+
   return true;
 }
 
