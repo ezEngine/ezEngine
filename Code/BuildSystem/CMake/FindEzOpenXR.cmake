@@ -18,7 +18,7 @@ ez_pull_compiler_and_architecture_vars()
 
 if((EZ_OPENXR_LOADER_DIR STREQUAL "EZ_OPENXR_LOADER_DIR-NOTFOUND") OR(EZ_OPENXR_LOADER_DIR STREQUAL "") OR(EZ_OPENXR_HEADERS_DIR STREQUAL "EZ_OPENXR_HEADERS_DIR-NOTFOUND") OR(EZ_OPENXR_HEADERS_DIR STREQUAL "") OR(EZ_OPENXR_REMOTING_DIR STREQUAL "EZ_OPENXR_REMOTING_DIR-NOTFOUND") OR(EZ_OPENXR_REMOTING_DIR STREQUAL ""))
 	ez_nuget_init()
-	execute_process(COMMAND ${NUGET} restore ${CMAKE_SOURCE_DIR}/Code/EnginePlugins/OpenXRPlugin/packages.config -PackagesDirectory ${CMAKE_BINARY_DIR}/packages
+	execute_process(COMMAND ${NUGET} restore ${EZ_ROOT}/Code/EnginePlugins/OpenXRPlugin/packages.config -PackagesDirectory ${CMAKE_BINARY_DIR}/packages
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 	set(EZ_OPENXR_LOADER_DIR "${CMAKE_BINARY_DIR}/packages/OpenXR.Loader.1.0.10.2" CACHE PATH "Directory of OpenXR loader installation" FORCE)
 	set(EZ_OPENXR_HEADERS_DIR "${CMAKE_BINARY_DIR}/packages/OpenXR.Headers.1.0.10.2" CACHE PATH "Directory of OpenXR headers installation" FORCE)

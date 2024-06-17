@@ -48,6 +48,12 @@ macro(ez_platform_detect_generator)
         set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC ON)
         set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Vs")
         set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
+    elseif(CMAKE_GENERATOR MATCHES "Ninja") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
+        message(STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
+
+        set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
+        set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
+        set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
     else()
         message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on UWP! Please extend ez_platform_detect_generator()")
     endif()
