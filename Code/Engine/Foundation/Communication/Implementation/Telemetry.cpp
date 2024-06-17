@@ -19,11 +19,11 @@ bool ezTelemetry::s_bAllowNetworkUpdate = true;
 ezTime ezTelemetry::s_PingToServer;
 ezString ezTelemetry::s_sServerName;
 ezString ezTelemetry::s_sServerIP;
-static bool g_bInitialized = false;
 ezTelemetry::ConnectionMode ezTelemetry::s_ConnectionMode = ezTelemetry::None;
 ezMap<ezUInt64, ezTelemetry::MessageQueue> ezTelemetry::s_SystemMessages;
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
+static bool g_bInitialized = false;
 static ENetAddress g_pServerAddress;
 static ENetHost* g_pHost = nullptr;
 static ENetPeer* g_pConnectionToServer = nullptr;

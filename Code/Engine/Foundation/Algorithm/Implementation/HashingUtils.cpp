@@ -1,6 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Algorithm/HashingUtils.h>
+#include <Foundation/Memory/MemoryUtils.h>
 
 // static
 ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
