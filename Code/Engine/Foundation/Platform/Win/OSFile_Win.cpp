@@ -391,6 +391,7 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchStart, ezBitflags<ezF
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
   m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
   m_CurFile.m_sParentPath = m_sCurPath;
+  m_CurFile.m_sParentPath.TrimRight("/\\"); // remove trailing slashes
   m_CurFile.m_sName = data.cFileName;
   m_CurFile.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
@@ -444,6 +445,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
       m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
       m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
       m_CurFile.m_sParentPath = m_sCurPath;
+      EZ_ASSERT_DEBUG(!m_CurFile.m_sParentPath.EndsWith("/") && !m_CurFile.m_sParentPath.EndsWith("\\"), "Unexpected path separator.");
       m_CurFile.m_sName = data.cFileName;
       m_CurFile.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
@@ -491,6 +493,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
   m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
   m_CurFile.m_sParentPath = m_sCurPath;
+  m_CurFile.m_sParentPath.TrimRight("/\\"); // remove trailing slashes
   m_CurFile.m_sName = data.cFileName;
   m_CurFile.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 

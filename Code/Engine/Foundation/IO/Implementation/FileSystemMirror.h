@@ -90,6 +90,7 @@ ezResult ezFileSystemMirror<T>::AddDirectory(ezStringView sPath, bool* out_pDire
   if (m_sTopLevelDirPath.IsEmpty())
   {
     m_sTopLevelDirPath = currentDirAbsPath;
+    currentDirAbsPath.Shrink(0, 1); // remove trailing /
 
     DirEntry* currentDir = &m_TopLevelDir;
 

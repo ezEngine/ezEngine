@@ -75,7 +75,7 @@ Quad CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, 
 
   float3 centerNormal = cross(axisDir, orthoDir);
   float3 cornerNormal = normalize(offsetRight);
-  quad.normal = normalize(mul((float3x3)ObjectToWorldMatrix, lerp(centerNormal, cornerNormal, NormalCurvature)));
+  quad.normal = normalize(lerp(centerNormal, cornerNormal, NormalCurvature));
 
   return quad;
 }
