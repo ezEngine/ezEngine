@@ -237,7 +237,7 @@ Only concrete and clocks.\n\
       }
 
       EZ_TEST_BOOL(sFullPath.StartsWith(sOutputFolder));
-      sFullPath.MakeRelativeTo(sOutputFolder);
+      sFullPath.MakeRelativeTo(sOutputFolder).AssertSuccess();
 
       EZ_TEST_BOOL(!sFullPath.FindSubString("/")); // no sub path
 
