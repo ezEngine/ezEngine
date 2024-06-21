@@ -113,7 +113,7 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog,
   {
     m_CurMode = ezTokenType::Unknown;
     m_uiCurLine = 1;
-    m_uiCurColumn = -1;
+    m_uiCurColumn = ezInvalidIndex;
     m_uiCurChar = '\0';
     m_uiNextChar = '\0';
     m_uiLastLine = 1;

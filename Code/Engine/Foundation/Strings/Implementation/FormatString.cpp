@@ -22,7 +22,7 @@ ezStringView ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, e
 {
   ezStringView sString = m_sString;
 
-  ezUInt32 uiLastParam = -1;
+  ezUInt32 uiLastParam = ezInvalidIndex;
 
   ref_sStorage.Clear();
   while (!sString.IsEmpty())

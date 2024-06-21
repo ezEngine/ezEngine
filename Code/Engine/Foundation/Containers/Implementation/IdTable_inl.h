@@ -91,7 +91,7 @@ ezIdTableBase<IdType, ValueType>::ezIdTableBase(ezAllocator* pAllocator)
   m_pEntries = nullptr;
   m_Count = 0;
   m_Capacity = 0;
-  m_FreelistEnqueue = -1;
+  m_FreelistEnqueue = IndexType(-1);
   m_FreelistDequeue = 0;
   m_pAllocator = pAllocator;
 }
@@ -102,7 +102,7 @@ ezIdTableBase<IdType, ValueType>::ezIdTableBase(const ezIdTableBase<IdType, Valu
   m_pEntries = nullptr;
   m_Count = 0;
   m_Capacity = 0;
-  m_FreelistEnqueue = -1;
+  m_FreelistEnqueue = IndexType(-1);
   m_FreelistDequeue = 0;
   m_pAllocator = pAllocator;
 

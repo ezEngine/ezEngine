@@ -144,7 +144,7 @@ private:
   ezStringView m_sIterator;
   ezStringView m_sRawStringMarker;
   ezUInt32 m_uiCurLine = 1;
-  ezUInt32 m_uiCurColumn = -1;
+  ezUInt32 m_uiCurColumn = ezInvalidIndex;
   ezUInt32 m_uiCurChar = '\0';
   ezUInt32 m_uiNextChar = '\0';
 

@@ -203,7 +203,7 @@ private:
     ID3D11Query* m_pFence = nullptr;
     ID3D11Query* m_pDisjointTimerQuery = nullptr;
     double m_fInvTicksPerSecond = -1.0;
-    ezUInt64 m_uiFrame = -1;
+    ezUInt64 m_uiFrame = ezUInt64(-1);
   };
 
   PerFrameData m_PerFrameData[4];
