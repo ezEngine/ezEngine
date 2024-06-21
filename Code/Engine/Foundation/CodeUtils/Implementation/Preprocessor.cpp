@@ -138,7 +138,7 @@ ezResult ezPreprocessor::Process(ezStringView sMainFile, TokenStream& ref_tokenO
     MacroDefinition md;
     md.m_MacroIdentifier = &m_TokenFile;
     md.m_bIsFunction = false;
-    md.m_iNumParameters = 0;
+    md.m_uiNumParameters = 0;
     md.m_bHasVarArgs = false;
 
     m_Macros.Insert("__FILE__", md);
@@ -152,7 +152,7 @@ ezResult ezPreprocessor::Process(ezStringView sMainFile, TokenStream& ref_tokenO
     MacroDefinition md;
     md.m_MacroIdentifier = &m_TokenLine;
     md.m_bIsFunction = false;
-    md.m_iNumParameters = 0;
+    md.m_uiNumParameters = 0;
     md.m_bHasVarArgs = false;
 
     m_Macros.Insert("__LINE__", md);

@@ -29,7 +29,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
   MacroDefinition md;
   md.m_MacroIdentifier = pMacroNameToken;
   md.m_bIsFunction = iNumParameters >= 0;
-  md.m_iNumParameters = ezMath::Max(0, iNumParameters);
+  md.m_uiNumParameters = ezMath::Max(0, iNumParameters);
   md.m_bHasVarArgs = bUsesVarArgs;
 
   // removes whitespace at start and end, skips comments, newlines, etc.

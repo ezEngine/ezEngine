@@ -265,13 +265,11 @@ private: // *** Macro Definition ***
 
   struct MacroDefinition
   {
-    MacroDefinition();
-
-    const ezToken* m_MacroIdentifier;
-    bool m_bIsFunction;
-    bool m_bCurrentlyExpanding;
-    bool m_bHasVarArgs;
-    ezInt32 m_iNumParameters;
+    const ezToken* m_MacroIdentifier = nullptr;
+    bool m_bIsFunction = false;
+    bool m_bCurrentlyExpanding = false;
+    bool m_bHasVarArgs = false;
+    ezUInt32 m_uiNumParameters = ezInvalidIndex;
     ezTokenParseUtils::TokenStream m_Replacement;
   };
 

@@ -675,7 +675,8 @@ bool ezExpressionParser::AcceptOperator(ezStringView sName)
 
   for (ezUInt32 charIndex = 0; charIndex < uiOperatorLength; ++charIndex)
   {
-    if (m_TokenStream[m_uiCurrentToken + charIndex]->m_DataView.GetCharacter() != sName.GetStartPointer()[charIndex])
+    const ezUInt32 c = sName.GetStartPointer()[charIndex];
+    if (m_TokenStream[m_uiCurrentToken + charIndex]->m_DataView.GetCharacter() != c)
     {
       return false;
     }

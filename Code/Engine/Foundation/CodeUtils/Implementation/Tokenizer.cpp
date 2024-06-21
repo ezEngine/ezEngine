@@ -301,7 +301,7 @@ void ezTokenizer::HandleString(char terminator)
   while (m_uiCurChar != '\0')
   {
     // Escaped quote \"
-    if ((m_uiCurChar == '\\') && (m_uiNextChar == terminator))
+    if ((m_uiCurChar == '\\') && (m_uiNextChar == ezUInt32(terminator)))
     {
       // skip this one
       NextChar();
@@ -352,7 +352,7 @@ void ezTokenizer::HandleString(char terminator)
       return;
     }
     // end of string
-    else if (m_uiCurChar == terminator)
+    else if (m_uiCurChar == ezUInt32(terminator))
     {
       NextChar();
       AddToken();
