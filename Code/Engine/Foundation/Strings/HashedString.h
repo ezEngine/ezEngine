@@ -130,6 +130,12 @@ public:
   /// \brief Returns a pointer to the internal Utf8 string.
   EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
+  /// \brief Attempts to find a known string for the given hash value.
+  ///
+  /// Careful, this is a slow operation (involving a mutex). It is only meant for debug output purposes.
+  /// The string hash may not be known, if the value was never assigned to any ezHashedString, in which case EZ_FAILURE is returned.
+  static ezResult LookupStringHash(ezUInt64 uiHash, ezStringView& out_sResult);
+
 private:
   static void InitHashedString();
   static HashedType AddHashedString(ezStringView sString, ezUInt64 uiHash);
@@ -204,6 +210,12 @@ public:
 
   /// \brief Returns the hash of the stored string.
   ezUInt64 GetHash() const; // [tested]
+
+  /// \brief Convenience function to call ezHashedString::LookupStringHash().
+  ezResult LookupStringHash(ezStringView& out_sResult) const
+  {
+    return ezHashedString::LookupStringHash(m_uiHash, out_sResult);
+  }
 
 private:
   ezUInt64 m_uiHash;

@@ -60,19 +60,22 @@ Quad CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, 
 {
   float stretch = -inTangentZ.x;
 
-  float3 axisDir = normalize(inTangentX);
-  float3 orthoDir = normalize(cross(inTangentX, GetCameraDirForwards()));
+  float3 inTangentXws = mul(ObjectToWorldMatrix, float4(inTangentX.xyz, 0));
+
+  float3 axisDir = normalize(inTangentXws);
+  float3 orthoDir = normalize(cross(inTangentXws, GetCameraDirForwards()));
 
   float3 offsetRight = orthoDir * ((QuadTexCoords[vertexIndex].x - 0.5) * inSize);
   float3 offsetUp = axisDir * ((1.0 - QuadTexCoords[vertexIndex].y) * inSize * stretch);
 
   Quad quad;
-  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition + offsetRight + offsetUp, 1));
+  quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition, 1));
+  quad.worldPosition.xyz += offsetRight + offsetUp;
   quad.screenPosition = mul(GetWorldToScreenMatrix(), quad.worldPosition);
 
   float3 centerNormal = cross(axisDir, orthoDir);
   float3 cornerNormal = normalize(offsetRight);
-  quad.normal = normalize(mul((float3x3)ObjectToWorldMatrix, lerp(centerNormal, cornerNormal, NormalCurvature)));
+  quad.normal = normalize(lerp(centerNormal, cornerNormal, NormalCurvature));
 
   return quad;
 }

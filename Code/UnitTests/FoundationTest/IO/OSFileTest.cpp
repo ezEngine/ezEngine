@@ -163,10 +163,6 @@ Only concrete and clocks.\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "File Iterator")
   {
-    // It is not really possible to test this stuff (with a guaranteed result), as long as we do not have
-    // a test data folder with deterministic content
-    // Therefore I tested it manually, and leave the code in, such that it is at least a 'does it compile and link' test.
-
     ezStringBuilder sOutputFolder = ezFileSystem::GetSdkRootDirectory();
     sOutputFolder.AppendPath("Data/Base/*");
 
@@ -209,6 +205,46 @@ Only concrete and clocks.\n\
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
     EZ_TEST_BOOL(uiFolders > 0);
 #  endif
+    EZ_TEST_BOOL(uiFiles > 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "File Iterator (non recursive)")
+  {
+    ezStringBuilder sOutputFolder = ezFileSystem::GetSdkRootDirectory();
+    sOutputFolder.AppendPath("Data/Base");
+
+    ezStringBuilder sFullPath;
+
+    ezUInt32 uiFolders = 0;
+    ezUInt32 uiFiles = 0;
+
+    ezFileSystemIterator it;
+    for (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFiles); it.IsValid();)
+    {
+      sFullPath = it.GetCurrentPath();
+      sFullPath.AppendPath(it.GetStats().m_sName.GetData());
+
+      it.GetStats();
+      it.GetCurrentPath();
+
+      if (it.GetStats().m_bIsDirectory)
+      {
+        ++uiFolders;
+      }
+      else
+      {
+        ++uiFiles;
+      }
+
+      EZ_TEST_BOOL(sFullPath.StartsWith(sOutputFolder));
+      sFullPath.MakeRelativeTo(sOutputFolder).AssertSuccess();
+
+      EZ_TEST_BOOL(!sFullPath.FindSubString("/")); // no sub path
+
+      it.Next();
+    }
+
+    EZ_TEST_BOOL(uiFolders == 0);
     EZ_TEST_BOOL(uiFiles > 0);
   }
 
