@@ -153,9 +153,12 @@ void ezJSONReader::OnEndArray()
   }
 }
 
-
-
 void ezJSONReader::OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
 {
+  EZ_IGNORE_UNUSED(sMessage);
+  EZ_IGNORE_UNUSED(bFatal);
+  EZ_IGNORE_UNUSED(uiLine);
+  EZ_IGNORE_UNUSED(uiColumn);
+
   m_bParsingError = true;
 }

@@ -135,10 +135,15 @@ ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& inout_stream) const
 
 bool ezArchiveBuilder::WriteNextFileCallback(ezUInt32 uiCurEntry, ezUInt32 uiMaxEntries, ezStringView sSourceFile) const
 {
+  EZ_IGNORE_UNUSED(uiCurEntry);
+  EZ_IGNORE_UNUSED(uiMaxEntries);
+  EZ_IGNORE_UNUSED(sSourceFile);
   return true;
 }
 
 bool ezArchiveBuilder::WriteFileProgressCallback(ezUInt64 bytesWritten, ezUInt64 bytesTotal) const
 {
+  EZ_IGNORE_UNUSED(bytesWritten);
+  EZ_IGNORE_UNUSED(bytesTotal);
   return true;
 }

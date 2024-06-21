@@ -236,7 +236,7 @@ private:
   static void PluginEventHandler(const ezPluginEvent& EventData);
 
   /// \brief Loads CVar values for the given vars from the given config file path. Returns the ezCVars which have actually been loaded.
-  static void LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars);
+  static void LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars);
 
   /// \brief Stores the values of the given vars to the given config file path.
   static void SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars);

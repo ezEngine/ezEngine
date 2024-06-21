@@ -157,6 +157,8 @@ bool ezScriptWorldModule::IsCoroutineFinished(ezScriptCoroutineHandle hCoroutine
 
 void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext& context)
 {
+  EZ_IGNORE_UNUSED(context);
+
   ezWorld* pWorld = GetWorld();
 
   ezTime deltaTime;

@@ -31,6 +31,7 @@ inline ezStringWChar::ezStringWChar(const wchar_t* pWChar, ezAllocator* pAllocat
 }
 
 inline ezStringWChar::ezStringWChar(ezStringView sUtf8, ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
+  : m_Data(pAllocator)
 {
   *this = sUtf8;
 }

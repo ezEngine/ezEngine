@@ -8,7 +8,7 @@
 class ezAllocPolicyAlignedHeap
 {
 public:
-  EZ_ALWAYS_INLINE ezAllocPolicyAlignedHeap(ezAllocator* pParent) {}
+  EZ_ALWAYS_INLINE ezAllocPolicyAlignedHeap(ezAllocator* pParent) { EZ_IGNORE_UNUSED(pParent); }
   EZ_ALWAYS_INLINE ~ezAllocPolicyAlignedHeap() = default;
 
   void* Allocate(size_t uiSize, size_t uiAlign);

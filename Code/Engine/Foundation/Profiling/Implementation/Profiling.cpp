@@ -901,32 +901,64 @@ void ezProfilingListScope::StartNextSection(ezStringView sNextSectionName)
 
 ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) const
 {
+  EZ_IGNORE_UNUSED(outputStream);
+
   return EZ_FAILURE;
 }
 
 void ezProfilingSystem::Clear() {}
 
-void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& out_Capture, bool bClearAfterCapture) {}
+void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& out_Capture, bool bClearAfterCapture)
+{
+  EZ_IGNORE_UNUSED(out_Capture);
+  EZ_IGNORE_UNUSED(bClearAfterCapture);
+}
 
-void ezProfilingSystem::SetDiscardThreshold(ezTime threshold) {}
+void ezProfilingSystem::SetDiscardThreshold(ezTime threshold)
+{
+  EZ_IGNORE_UNUSED(threshold);
+}
 
 void ezProfilingSystem::StartNewFrame() {}
 
-void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout) {}
+void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout)
+{
+  EZ_IGNORE_UNUSED(sName);
+  EZ_IGNORE_UNUSED(szFunctionName);
+  EZ_IGNORE_UNUSED(beginTime);
+  EZ_IGNORE_UNUSED(endTime);
+  EZ_IGNORE_UNUSED(scopeTimeout);
+}
 
 void ezProfilingSystem::Initialize() {}
 
 void ezProfilingSystem::Reset() {}
 
-void ezProfilingSystem::SetThreadName(ezStringView sThreadName) {}
+void ezProfilingSystem::SetThreadName(ezStringView sThreadName)
+{
+  EZ_IGNORE_UNUSED(sThreadName);
+}
 
 void ezProfilingSystem::RemoveThread() {}
 
-void ezProfilingSystem::InitializeGPUData(ezUInt32 gpuCount) {}
+void ezProfilingSystem::InitializeGPUData(ezUInt32 gpuCount)
+{
+  EZ_IGNORE_UNUSED(gpuCount);
+}
 
-void ezProfilingSystem::AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex) {}
+void ezProfilingSystem::AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex)
+{
+  EZ_IGNORE_UNUSED(sName);
+  EZ_IGNORE_UNUSED(beginTime);
+  EZ_IGNORE_UNUSED(endTime);
+  EZ_IGNORE_UNUSED(gpuIndex);
+}
 
-void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs) {}
+void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs)
+{
+  EZ_IGNORE_UNUSED(out_Merged);
+  EZ_IGNORE_UNUSED(inputs);
+}
 
 #endif
 

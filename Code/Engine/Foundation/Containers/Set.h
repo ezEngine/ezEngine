@@ -270,18 +270,21 @@ typename ezSetBase<KeyType, Comparer>::Iterator cbegin(const ezSetBase<KeyType, 
 template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Iterator end(ezSetBase<KeyType, Comparer>& ref_container)
 {
+  EZ_IGNORE_UNUSED(ref_container);
   return typename ezSetBase<KeyType, Comparer>::Iterator();
 }
 
 template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Iterator end(const ezSetBase<KeyType, Comparer>& container)
 {
+  EZ_IGNORE_UNUSED(container);
   return typename ezSetBase<KeyType, Comparer>::Iterator();
 }
 
 template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Iterator cend(const ezSetBase<KeyType, Comparer>& container)
 {
+  EZ_IGNORE_UNUSED(container);
   return typename ezSetBase<KeyType, Comparer>::Iterator();
 }
 

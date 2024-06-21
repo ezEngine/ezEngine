@@ -51,8 +51,18 @@ public:
 protected:
   /// Override this to get a callback when the next file is being written to the output. Return 'true' to continue, 'false' to cancel the entire archive generation.
   virtual bool WriteNextFileCallback(ezUInt32 uiCurEntry, ezUInt32 uiMaxEntries, ezStringView sSourceFile) const;
+
   /// Override this to get a progress report for writing a single file to the output
   virtual bool WriteFileProgressCallback(ezUInt64 bytesWritten, ezUInt64 bytesTotal) const;
+
   /// Override this to get a callback after a file has been processed. Gets additional information about the compression result and duration.
-  virtual void WriteFileResultCallback(ezUInt32 uiCurEntry, ezUInt32 uiMaxEntries, ezStringView sSourceFile, ezUInt64 uiSourceSize, ezUInt64 uiStoredSize, ezTime duration) const {}
+  virtual void WriteFileResultCallback(ezUInt32 uiCurEntry, ezUInt32 uiMaxEntries, ezStringView sSourceFile, ezUInt64 uiSourceSize, ezUInt64 uiStoredSize, ezTime duration) const
+  {
+    EZ_IGNORE_UNUSED(uiCurEntry);
+    EZ_IGNORE_UNUSED(uiMaxEntries);
+    EZ_IGNORE_UNUSED(sSourceFile);
+    EZ_IGNORE_UNUSED(uiSourceSize);
+    EZ_IGNORE_UNUSED(uiStoredSize);
+    EZ_IGNORE_UNUSED(duration);
+  }
 };

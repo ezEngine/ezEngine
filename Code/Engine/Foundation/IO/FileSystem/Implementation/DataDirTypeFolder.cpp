@@ -91,6 +91,10 @@ namespace ezDataDirectory
 
   ezDataDirectoryType* FolderType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage)
   {
+    EZ_IGNORE_UNUSED(sGroup);
+    EZ_IGNORE_UNUSED(sRootName);
+    EZ_IGNORE_UNUSED(usage);
+
     FolderType* pDataDir = EZ_DEFAULT_NEW(FolderType);
 
     if (pDataDir->InitializeDataDirectory(sDataDirectory) == EZ_SUCCESS)
@@ -201,6 +205,8 @@ namespace ezDataDirectory
 
   bool FolderType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
   {
+    EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
     ezStringBuilder sRedirectedAsset;
     ResolveAssetRedirection(sFile, sRedirectedAsset);
 
@@ -211,6 +217,8 @@ namespace ezDataDirectory
 
   ezResult FolderType::GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
   {
+    EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
     ezStringBuilder sRedirectedAsset;
     ResolveAssetRedirection(sFileOrFolder, sRedirectedAsset);
 
@@ -287,6 +295,8 @@ namespace ezDataDirectory
 
   ezDataDirectoryReader* FolderType::OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
   {
+    EZ_IGNORE_UNUSED(bSpecificallyThisDataDir);
+
     ezStringBuilder sFileToOpen;
     ResolveAssetRedirection(sFile, sFileToOpen);
 

@@ -176,6 +176,8 @@ void ezPropertyPath::SetValue(void* pRootObject, const ezRTTI& type, const ezVar
 
   WriteProperty(pRootObject, type, [&value](void* pLeaf, const ezRTTI& type, const ezAbstractProperty* pProp, const ezVariant& index)
     {
+      EZ_IGNORE_UNUSED(type);
+
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Member:
@@ -203,6 +205,8 @@ void ezPropertyPath::GetValue(void* pRootObject, const ezRTTI& type, ezVariant& 
 
   ReadProperty(pRootObject, type, [&out_value](void* pLeaf, const ezRTTI& type, const ezAbstractProperty* pProp, const ezVariant& index)
     {
+      EZ_IGNORE_UNUSED(type);
+
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Member:

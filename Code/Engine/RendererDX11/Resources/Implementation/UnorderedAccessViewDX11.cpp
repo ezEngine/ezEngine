@@ -119,6 +119,8 @@ ezResult ezGALTextureUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALTextureUnorderedAccessViewDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXUnorderedAccessView);
   return EZ_SUCCESS;
 }
@@ -196,6 +198,8 @@ ezResult ezGALBufferUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALBufferUnorderedAccessViewDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXUnorderedAccessView);
   return EZ_SUCCESS;
 }

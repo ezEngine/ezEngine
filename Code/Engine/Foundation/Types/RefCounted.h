@@ -11,11 +11,13 @@ public:
 
   ezRefCountingImpl(const ezRefCountingImpl& rhs) // [tested]
   {
+    EZ_IGNORE_UNUSED(rhs);
     // do not copy the ref count
   }
 
   void operator=(const ezRefCountingImpl& rhs) // [tested]
   {
+    EZ_IGNORE_UNUSED(rhs);
     // do not copy the ref count
   }
 

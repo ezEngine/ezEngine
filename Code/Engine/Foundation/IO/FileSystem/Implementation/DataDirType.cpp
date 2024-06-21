@@ -17,6 +17,8 @@ ezResult ezDataDirectoryType::InitializeDataDirectory(ezStringView sDataDirPath)
 
 bool ezDataDirectoryType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
 {
+  EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
   ezStringBuilder sRedirectedAsset;
   ResolveAssetRedirection(sFile, sRedirectedAsset);
 

@@ -18,7 +18,8 @@ EZ_ALWAYS_INLINE ezSimdBSphere ezSimdBSphere::MakeZero()
 EZ_ALWAYS_INLINE ezSimdBSphere ezSimdBSphere::MakeInvalid(const ezSimdVec4f& vCenter /*= ezSimdVec4f::MakeZero()*/)
 {
   ezSimdBSphere res;
-  res.m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -ezMath::SmallEpsilon<float>());
+  res.m_CenterAndRadius = vCenter;
+  res.m_CenterAndRadius.SetW(-ezMath::SmallEpsilon<float>());
   return res;
 }
 

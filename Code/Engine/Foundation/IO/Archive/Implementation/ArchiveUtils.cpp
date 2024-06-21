@@ -110,6 +110,8 @@ ezResult ezArchiveUtils::WriteEntry(
   ezStreamWriter& inout_stream, ezStringView sAbsSourcePath, ezUInt32 uiPathStringOffset, ezArchiveCompressionMode compression,
   ezInt32 iCompressionLevel, ezArchiveEntry& inout_tocEntry, ezUInt64& inout_uiCurrentStreamPosition, FileWriteProgressCallback progress /*= FileWriteProgressCallback()*/)
 {
+  EZ_IGNORE_UNUSED(iCompressionLevel);
+
   ezFileReader file;
   EZ_SUCCEED_OR_RETURN(file.Open(sAbsSourcePath, 1024 * 1024));
 

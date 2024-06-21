@@ -366,6 +366,8 @@ void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName)
 {
 #if EZ_ENABLED(EZ_USE_PROFILING)
   m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
+#else
+  EZ_IGNORE_UNUSED(szName);
 #endif
 }
 
@@ -380,6 +382,8 @@ ezGALCommandEncoder* ezGALDeviceDX11::BeginCommandsPlatform(const char* szName)
 {
 #if EZ_ENABLED(EZ_USE_PROFILING)
   m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
+#else
+  EZ_IGNORE_UNUSED(szName);
 #endif
 
   return m_pCommandEncoder.Borrow();
@@ -388,6 +392,7 @@ ezGALCommandEncoder* ezGALDeviceDX11::BeginCommandsPlatform(const char* szName)
 void ezGALDeviceDX11::EndCommandsPlatform(ezGALCommandEncoder* pPass)
 {
   EZ_ASSERT_DEV(m_pCommandEncoder.Borrow() == pPass, "Invalid pass");
+  EZ_IGNORE_UNUSED(pPass);
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPassTimingScope);
@@ -766,6 +771,8 @@ ezResult ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimes
 
 void ezGALDeviceDX11::PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVSync)
 {
+  EZ_IGNORE_UNUSED(pSwapChain);
+  EZ_IGNORE_UNUSED(bVSync);
 }
 
 // Misc functions

@@ -54,6 +54,8 @@ ezInternal::NewInstance<ezIpcChannel> ezIpcChannel::CreateNetworkChannel(ezStrin
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   return EZ_DEFAULT_NEW(ezIpcChannelEnet, sAddress, mode);
 #else
+  EZ_IGNORE_UNUSED(sAddress);
+  EZ_IGNORE_UNUSED(mode);
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 #endif

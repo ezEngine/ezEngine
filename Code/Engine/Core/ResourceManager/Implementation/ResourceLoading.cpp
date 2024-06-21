@@ -56,7 +56,7 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
       ezResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
     }
 
-    RunWorkerTask(pResource);
+    RunWorkerTask();
   }
 }
 
@@ -93,7 +93,7 @@ void ezResourceManager::SetupWorkerTasks()
   }
 }
 
-void ezResourceManager::RunWorkerTask(ezResource* pResource)
+void ezResourceManager::RunWorkerTask()
 {
   if (s_pState->m_bShutdown)
     return;

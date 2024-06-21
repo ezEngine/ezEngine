@@ -109,6 +109,8 @@ namespace
 
 ezResult ezStbImageFileFormats::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezStbImageFileFormats::ReadImageHeader");
 
   bool isHDR = false;
@@ -124,6 +126,8 @@ ezResult ezStbImageFileFormats::ReadImageHeader(ezStreamReader& inout_stream, ez
 
 ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezStbImageFileFormats::ReadImage");
 
   bool isHDR = false;

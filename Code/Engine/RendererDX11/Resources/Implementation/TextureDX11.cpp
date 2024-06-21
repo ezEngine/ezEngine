@@ -204,6 +204,8 @@ void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription&
 
 ezResult ezGALTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXTexture);
   EZ_GAL_DX11_RELEASE(m_pDXStagingTexture);
   return EZ_SUCCESS;

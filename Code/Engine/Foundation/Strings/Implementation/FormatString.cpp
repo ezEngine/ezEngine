@@ -136,14 +136,15 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, double fArg)
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, bool bArg)
 {
-  if (bArg)
-    return "true";
-
-  return "false";
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+  return bArg ? "true" : "false";
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const char* szArg)
 {
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
   return szArg;
 }
 
@@ -173,31 +174,43 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const wchar_t* pArg)
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezString& sArg)
 {
-  return ezStringView(sArg.GetData(), sArg.GetData() + sArg.GetElementCount());
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+  return sArg.GetView();
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezHashedString& sArg)
 {
-  return ezStringView(sArg.GetData(), sArg.GetData() + sArg.GetString().GetElementCount());
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+  return sArg.GetView();
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezStringBuilder& sArg)
 {
-  return ezStringView(sArg.GetData(), sArg.GetData() + sArg.GetElementCount());
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+  return sArg.GetView();
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezUntrackedString& sArg)
 {
-  return ezStringView(sArg.GetData(), sArg.GetData() + sArg.GetElementCount());
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+  return sArg.GetView();
 }
 
 const ezStringView& BuildString(char* szTmp, ezUInt32 uiLength, const ezStringView& sArg)
 {
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
   return sArg;
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgC& arg)
 {
+  EZ_IGNORE_UNUSED(uiLength);
+
   szTmp[0] = arg.m_Value;
   szTmp[1] = '\0';
 
@@ -212,6 +225,9 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgP& arg)
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezResult arg)
 {
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+
   if (arg.Failed())
     return "<failed>";
   else

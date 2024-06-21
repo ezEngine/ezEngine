@@ -518,6 +518,8 @@ class ezVariantHelper
   template <typename T>
   static void To(const ezVariant& value, T& result, bool& bSuccessful)
   {
+    EZ_IGNORE_UNUSED(value);
+    EZ_IGNORE_UNUSED(result);
     EZ_REPORT_FAILURE("Conversion function not implemented for target type '{0}'", ezVariant::TypeDeduction<T>::value);
     bSuccessful = false;
   }

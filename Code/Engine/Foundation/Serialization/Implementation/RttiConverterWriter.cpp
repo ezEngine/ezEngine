@@ -20,6 +20,8 @@ void ezRttiConverterContext::OnUnknownTypeError(ezStringView sTypeName)
 
 ezUuid ezRttiConverterContext::GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const
 {
+  EZ_IGNORE_UNUSED(pObject);
+
   ezUuid guid = parentGuid;
   guid.HashCombine(ezUuid::MakeStableUuidFromString(pProp->GetPropertyName()));
   if (index.IsA<ezString>())
@@ -98,6 +100,8 @@ ezRttiConverterObject ezRttiConverterContext::GetObjectByGUID(const ezUuid& guid
 
 ezUuid ezRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const
 {
+  EZ_IGNORE_UNUSED(pRtti);
+
   ezUuid guid;
 
   if (pObject != nullptr)
@@ -159,6 +163,8 @@ ezRttiConverterWriter::ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRt
 
   m_Filter = [bSerializeReadOnly, bSerializeOwnerPtrs](const void* pObject, const ezAbstractProperty* pProp)
   {
+    EZ_IGNORE_UNUSED(pObject);
+
     if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly) && !bSerializeReadOnly)
       return false;
 

@@ -121,6 +121,8 @@ ezResult ezGALShaderDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALShaderDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   DestroyBindingMapping();
   EZ_GAL_DX11_RELEASE(m_pVertexShader);
   EZ_GAL_DX11_RELEASE(m_pHullShader);

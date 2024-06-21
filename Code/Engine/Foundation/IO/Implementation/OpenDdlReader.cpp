@@ -222,6 +222,8 @@ void ezOpenDdlReader::OnPrimitiveDouble(ezUInt32 count, const double* pData, boo
 
 void ezOpenDdlReader::OnPrimitiveString(ezUInt32 count, const ezStringView* pData, bool bThisIsAll)
 {
+  EZ_IGNORE_UNUSED(bThisIsAll);
+
   const ezUInt32 uiDataSize = count * sizeof(ezStringView);
 
   const ezUInt32 offset = m_TempCache.GetCount();
@@ -239,6 +241,10 @@ void ezOpenDdlReader::OnPrimitiveString(ezUInt32 count, const ezStringView* pDat
 
 void ezOpenDdlReader::OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
 {
+  EZ_IGNORE_UNUSED(sMessage);
+  EZ_IGNORE_UNUSED(uiLine);
+  EZ_IGNORE_UNUSED(uiColumn);
+
   if (bFatal)
   {
     m_ObjectStack.Clear();

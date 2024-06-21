@@ -201,6 +201,8 @@ void ezTranslatorStorage::StoreTranslation(ezStringView sString, ezUInt64 uiStri
 
 ezStringView ezTranslatorStorage::Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
+  EZ_IGNORE_UNUSED(sString);
+
   auto it = m_Translations[(ezUInt32)usage].Find(uiStringHash);
   if (it.IsValid())
     return it.Value().GetData();

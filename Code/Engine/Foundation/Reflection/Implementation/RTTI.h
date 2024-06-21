@@ -258,6 +258,7 @@ private:
   virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) = 0;
   virtual ezInternal::NewInstance<void> CloneInternal(const void* pObject, ezAllocator* pAllocator)
   {
+    EZ_IGNORE_UNUSED(pObject);
     EZ_REPORT_FAILURE("Cloning is not supported by this allocator.");
     return ezInternal::NewInstance<void>(nullptr, pAllocator);
   }
@@ -279,6 +280,8 @@ struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
   /// \brief Will trigger an assert.
   virtual void Deallocate(void* pObject, ezAllocator* pAllocator) override // [tested]
   {
+    EZ_IGNORE_UNUSED(pObject);
+    EZ_IGNORE_UNUSED(pAllocator);
     EZ_REPORT_FAILURE("This function should never be called.");
   }
 };
@@ -306,7 +309,15 @@ struct ezRTTIDefaultAllocator : public ezRTTIAllocator
       pAllocator = AllocatorWrapper::GetAllocator();
     }
 
-    return CloneImpl(pObject, pAllocator, ezTraitInt<std::is_copy_constructible<CLASS>::value>());
+    if constexpr (std::is_copy_constructible_v<CLASS>)
+    {
+      return EZ_NEW(pAllocator, CLASS, *static_cast<const CLASS*>(pObject));
+    }
+    else
+    {
+      EZ_REPORT_FAILURE("Clone failed since the type is not copy constructible");
+      return ezInternal::NewInstance<void>(nullptr, pAllocator);
+    }
   }
 
   /// \brief Deletes the given instance with the given allocator.
@@ -319,17 +330,5 @@ struct ezRTTIDefaultAllocator : public ezRTTIAllocator
 
     CLASS* pPointer = static_cast<CLASS*>(pObject);
     EZ_DELETE(pAllocator, pPointer);
-  }
-
-private:
-  ezInternal::NewInstance<void> CloneImpl(const void* pObject, ezAllocator* pAllocator, ezTraitInt<0>)
-  {
-    EZ_REPORT_FAILURE("Clone failed since the type is not copy constructible");
-    return ezInternal::NewInstance<void>(nullptr, pAllocator);
-  }
-
-  ezInternal::NewInstance<void> CloneImpl(const void* pObject, ezAllocator* pAllocator, ezTraitInt<1>)
-  {
-    return EZ_NEW(pAllocator, CLASS, *static_cast<const CLASS*>(pObject));
   }
 };

@@ -444,6 +444,8 @@ namespace ezInternal
     template <typename T, bool UseTagsFilter>
     static ezVisitorExecution::Enum ShapeQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, ezSpatialSystem_RegularGrid::Stats& ref_stats, void* pUserData, ezVisibilityState visType)
     {
+      EZ_IGNORE_UNUSED(visType);
+
       auto pQueryData = static_cast<const ShapeQueryData<T>*>(pUserData);
       T shape = pQueryData->m_Shape;
 
@@ -757,6 +759,7 @@ void ezSpatialSystem_RegularGrid::DeleteSpatialData(const ezSpatialDataHandle& h
   ForEachGrid(oldData, hData,
     [&](Grid& ref_grid, const CellDataMapping& mapping)
     {
+      EZ_IGNORE_UNUSED(mapping);
       ref_grid.RemoveSpatialData(hData);
       return ezVisitorExecution::Continue;
     });

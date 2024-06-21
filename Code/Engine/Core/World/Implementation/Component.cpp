@@ -53,10 +53,12 @@ const ezWorld* ezComponent::GetWorld() const
 
 void ezComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
+  EZ_IGNORE_UNUSED(inout_stream);
 }
 
 void ezComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
+  EZ_IGNORE_UNUSED(inout_stream);
 }
 
 void ezComponent::EnsureInitialized()
@@ -150,11 +152,15 @@ void ezComponent::EnableUnhandledMessageHandler(bool enable)
 
 bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
+  EZ_IGNORE_UNUSED(msg);
+  EZ_IGNORE_UNUSED(bWasPostedMsg);
   return false;
 }
 
 bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
 {
+  EZ_IGNORE_UNUSED(msg);
+  EZ_IGNORE_UNUSED(bWasPostedMsg);
   return false;
 }
 
@@ -198,6 +204,7 @@ ezWorld* ezComponent::Reflection_GetWorld() const
 
 void ezComponent::Reflection_Update(ezTime deltaTime)
 {
+  EZ_IGNORE_UNUSED(deltaTime);
   // This is just a dummy function for the scripting reflection
 }
 

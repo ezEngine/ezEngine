@@ -201,6 +201,7 @@ void ezGALCommandEncoderImplDX11::SetUnorderedAccessView(const ezShaderResourceB
 
 void ezGALCommandEncoderImplDX11::SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data)
 {
+  EZ_IGNORE_UNUSED(data);
   EZ_REPORT_FAILURE("DX11 does not support push constants, this function should not have been called.");
 }
 

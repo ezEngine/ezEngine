@@ -30,6 +30,7 @@ void ezObjectSelection::RemoveDeadObjects()
 
 void ezObjectSelection::AddObject(ezGameObjectHandle hObject, bool bDontAddTwice)
 {
+  EZ_IGNORE_UNUSED(bDontAddTwice);
   EZ_ASSERT_DEV(m_pWorld != nullptr, "The world has not been set.");
 
   // only insert valid objects

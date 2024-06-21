@@ -166,6 +166,8 @@ ezResult ReadImageData(ezStreamReader& ref_stream, ezDynamicArray<ezUInt8>& ref_
 
 ezResult ezExrFileFormat::ReadImageHeader(ezStreamReader& ref_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezExrFileFormat::ReadImageHeader");
 
   EXRHeader exrHeader;
@@ -202,6 +204,8 @@ static void CopyChannel(ezUInt8* pDst, const ezUInt8* pSrc, ezUInt32 uiNumElemen
 
 ezResult ezExrFileFormat::ReadImage(ezStreamReader& ref_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezExrFileFormat::ReadImage");
 
   EXRHeader exrHeader;
@@ -305,6 +309,10 @@ ezResult ezExrFileFormat::ReadImage(ezStreamReader& ref_stream, ezImage& ref_ima
 
 ezResult ezExrFileFormat::WriteImage(ezStreamWriter& ref_stream, const ezImageView& image, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(ref_stream);
+  EZ_IGNORE_UNUSED(image);
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_ASSERT_NOT_IMPLEMENTED;
   return EZ_FAILURE;
 }
@@ -316,6 +324,8 @@ bool ezExrFileFormat::CanReadFileType(ezStringView sExtension) const
 
 bool ezExrFileFormat::CanWriteFileType(ezStringView sExtension) const
 {
+  EZ_IGNORE_UNUSED(sExtension);
+
   return false;
 }
 

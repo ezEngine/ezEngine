@@ -439,6 +439,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator cbegin(const ezM
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Iterator end(ezMapBase<KeyType, ValueType, Comparer>& ref_container)
 {
+  EZ_IGNORE_UNUSED(ref_container);
   return typename ezMapBase<KeyType, ValueType, Comparer>::Iterator();
 }
 

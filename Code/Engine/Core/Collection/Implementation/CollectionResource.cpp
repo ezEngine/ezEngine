@@ -138,6 +138,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCollectionResource, ezCollectionResourceDescr
 
 ezResourceLoadDesc ezCollectionResource::UnloadData(Unload WhatToUnload)
 {
+  EZ_IGNORE_UNUSED(WhatToUnload);
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;

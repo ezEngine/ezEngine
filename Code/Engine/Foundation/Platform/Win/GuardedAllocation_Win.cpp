@@ -32,6 +32,8 @@ struct AlloctionMetaData
 
 ezAllocPolicyGuarding::ezAllocPolicyGuarding(ezAllocator* pParent)
 {
+  EZ_IGNORE_UNUSED(pParent);
+
   SYSTEM_INFO sysInfo;
   GetSystemInfo(&sysInfo);
   m_uiPageSize = sysInfo.dwPageSize;

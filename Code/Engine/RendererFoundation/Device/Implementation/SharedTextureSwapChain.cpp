@@ -45,6 +45,8 @@ void ezGALSharedTextureSwapChain::Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurren
 
 void ezGALSharedTextureSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_ASSERT_DEV(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>(), "Acquire called without calling Arm first.");
 
   m_RenderTargets.m_hRTs[0] = m_SharedTextureHandles[m_uiCurrentTexture];
@@ -67,6 +69,9 @@ void ezGALSharedTextureSwapChain::PresentRenderTarget(ezGALDevice* pDevice)
 
 ezResult ezGALSharedTextureSwapChain::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+  EZ_IGNORE_UNUSED(newPresentMode);
+
   return EZ_SUCCESS;
 }
 

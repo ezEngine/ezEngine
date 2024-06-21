@@ -16,6 +16,7 @@ namespace ezMath
   template <typename Type>
   constexpr static bool IsNaN(Type value)
   {
+    EZ_IGNORE_UNUSED(value);
     return false;
   }
 
@@ -23,6 +24,7 @@ namespace ezMath
   template <typename Type>
   constexpr static bool IsFinite(Type value)
   {
+    EZ_IGNORE_UNUSED(value);
     return true;
   }
 

@@ -16,7 +16,7 @@ public:
 private:
   ezResult TransformAndOptimizeAST(ezExpressionAST& ast, ezStringView sDebugAstOutputPath);
   ezResult BuildNodeInstructions(const ezExpressionAST& ast);
-  ezResult UpdateRegisterLifetime(const ezExpressionAST& ast);
+  ezResult UpdateRegisterLifetime();
   ezResult AssignRegisters();
   ezResult GenerateByteCode(const ezExpressionAST& ast, ezExpressionByteCode& out_byteCode);
   ezResult GenerateConstantByteCode(const ezExpressionAST::Constant* pConstant);

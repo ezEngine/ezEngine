@@ -182,61 +182,73 @@ void ezJSONWriter::AddVariableVariant(ezStringView sName, const ezVariant& value
 
 void ezJSONWriter::WriteColor(const ezColor& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezColor is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteColorGamma(const ezColorGammaUB& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezColorGammaUB is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteVec2(const ezVec2& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezVec2 is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteVec3(const ezVec3& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezVec3 is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteVec4(const ezVec4& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezVec4 is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteVec2I32(const ezVec2I32& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezVec2I32 is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteVec3I32(const ezVec3I32& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezVec3I32 is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteVec4I32(const ezVec4I32& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezVec4I32 is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteQuat(const ezQuat& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezQuat is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteMat3(const ezMat3& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezMat3 is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteMat4(const ezMat4& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezMat4 is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteDataBuffer(const ezDataBuffer& value)
 {
+  EZ_IGNORE_UNUSED(value);
   EZ_REPORT_FAILURE("The complex data type ezDateBuffer is not supported by this JSON writer.");
 }
 

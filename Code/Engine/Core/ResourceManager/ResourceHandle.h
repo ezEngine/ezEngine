@@ -24,6 +24,9 @@ EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOld
 #else
 EZ_ALWAYS_INLINE void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner)
 {
+  EZ_IGNORE_UNUSED(pResource);
+  EZ_IGNORE_UNUSED(pOldOwner);
+  EZ_IGNORE_UNUSED(pNewOwner);
 }
 #endif
 

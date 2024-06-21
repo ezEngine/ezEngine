@@ -57,6 +57,7 @@ EZ_FORCE_INLINE const T* ezStaticArray<T, C>::GetStaticArray() const
 template <typename T, ezUInt32 C>
 EZ_FORCE_INLINE void ezStaticArray<T, C>::Reserve(ezUInt32 uiCapacity)
 {
+  EZ_IGNORE_UNUSED(uiCapacity);
   EZ_ASSERT_DEV(uiCapacity <= C, "The static array has a fixed capacity of {0}, cannot reserve more elements than that.", C);
   // Nothing to do here
 }

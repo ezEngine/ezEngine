@@ -8,11 +8,13 @@
 class ezAllocPolicyHeap
 {
 public:
-  EZ_ALWAYS_INLINE ezAllocPolicyHeap(ezAllocator* pParent) {}
+  EZ_ALWAYS_INLINE ezAllocPolicyHeap(ezAllocator* pParent) { EZ_IGNORE_UNUSED(pParent); }
   EZ_ALWAYS_INLINE ~ezAllocPolicyHeap() = default;
 
   EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
   {
+    EZ_IGNORE_UNUSED(uiAlign);
+
     // malloc has no alignment guarantees, even though on many systems it returns 16 byte aligned data
     // if these asserts fail, you need to check what container made the allocation and change it
     // to use an aligned allocator, e.g. ezAlignedAllocatorWrapper
@@ -29,6 +31,9 @@ public:
 
   EZ_FORCE_INLINE void* Reallocate(void* pCurrentPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
   {
+    EZ_IGNORE_UNUSED(uiCurrentSize);
+    EZ_IGNORE_UNUSED(uiAlign);
+
     void* ptr = realloc(pCurrentPtr, uiNewSize);
     EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 

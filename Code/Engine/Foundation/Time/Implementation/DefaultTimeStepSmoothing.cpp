@@ -9,6 +9,8 @@ ezDefaultTimeStepSmoothing::ezDefaultTimeStepSmoothing()
 
 void ezDefaultTimeStepSmoothing::Reset(const ezClock* pClock)
 {
+  EZ_IGNORE_UNUSED(pClock);
+
   m_LastTimeSteps.Clear();
 }
 

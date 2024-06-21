@@ -105,6 +105,8 @@ public:
   /// others.
   virtual void* GetPropertyPointer(const void* pInstance) const override
   {
+    EZ_IGNORE_UNUSED(pInstance);
+
     // No access to sub-properties, if we have accessors for this property
     return nullptr;
   }

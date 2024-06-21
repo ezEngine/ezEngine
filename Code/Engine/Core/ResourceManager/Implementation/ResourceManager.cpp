@@ -417,6 +417,11 @@ ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
 // Used by Fileserve, to trigger this event, even though Fileserve should not have a link dependency on Core
 EZ_ON_GLOBAL_EVENT(ezResourceManager_ReloadAllResources)
 {
+  EZ_IGNORE_UNUSED(param0);
+  EZ_IGNORE_UNUSED(param1);
+  EZ_IGNORE_UNUSED(param2);
+  EZ_IGNORE_UNUSED(param3);
+
   ezResourceManager::ReloadAllResources(false);
 }
 void ezResourceManager::ResetAllResources()
