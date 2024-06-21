@@ -31,8 +31,10 @@ if(EZ_CMAKE_PLATFORM_LINUX)
   target_link_libraries(${PROJECT_NAME} PRIVATE bc7enc_rdo)
 endif()
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-  # CMake is stupid
-else()
-  target_link_libraries(${PROJECT_NAME} PRIVATE tinyexr)
+if(EZ_3RDPARTY_TINYEXR_SUPPORT)
+  if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+    # CMake is stupid
+  else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE tinyexr)
+  endif()
 endif()
