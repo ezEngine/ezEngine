@@ -13,6 +13,7 @@
 EZ_DEFINE_AS_POD_TYPE(vk::Format);
 
 class ezGALCommandEncoderImplVulkan;
+class ezFenceQueueVulkan;
 
 struct ezGALFormatLookupEntryVulkan
 {
@@ -150,9 +151,6 @@ public:
     ezUInt32 m_uiQueueIndex = 0;
   };
 
-  ezUInt64 GetCurrentFrame() const { return m_uiFrameCounter; }
-  ezUInt64 GetSafeFrame() const { return m_uiSafeFrame; }
-
   vk::Instance GetVulkanInstance() const;
   vk::Device GetVulkanDevice() const;
   const Queue& GetGraphicsQueue() const;
@@ -167,6 +165,7 @@ public:
   vk::CommandBuffer& GetCurrentCommandBuffer();
   ezPipelineBarrierVulkan& GetCurrentPipelineBarrier();
   ezQueryPoolVulkan& GetQueryPool() const;
+  ezFenceQueueVulkan& GetFenceQueue() const;
   ezStagingBufferPoolVulkan& GetStagingBufferPool() const;
   ezInitContextVulkan& GetInitContext() const;
   ezProxyAllocator& GetAllocator();
@@ -299,10 +298,7 @@ protected:
   virtual ezResult InitPlatform() override;
   virtual ezResult ShutdownPlatform() override;
 
-  // Pipeline & Pass functions
-
-  virtual void BeginPipelinePlatform(const char* szName) override;
-  virtual void EndPipelinePlatform() override;
+  // Command encoder functions
 
   virtual ezGALCommandEncoder* BeginCommandsPlatform(const char* szName) override;
   virtual void EndCommandsPlatform(ezGALCommandEncoder* pPass) override;
@@ -354,23 +350,21 @@ protected:
   ezGALBufferUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALBuffer* pResource, const ezGALBufferUnorderedAccessViewCreationDescription& Description) override;
   virtual void DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView) override;
 
-  // Other rendering creation functions
-
-  virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) override;
-  virtual void DestroyQueryPlatform(ezGALQuery* pQuery) override;
-
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) override;
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) override;
 
-  // Timestamp functions
+  // GPU -> CPU query functions
 
-  virtual ezGALTimestampHandle GetTimestampPlatform() override;
-  virtual ezResult GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result) override;
+  virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) override;
+  virtual ezEnum<ezGALAsyncResult> ezGALDevice::GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) override;
+  virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) override;
 
   // Misc functions
 
-  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiRenderFrame) override;
+  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiAppFrame) override;
   virtual void EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains) override;
+  virtual ezUInt64 GetCurrentFramePlatform() const override;
+  virtual ezUInt64 GetSafeFramePlatform() const override;
 
   virtual void FillCapabilitiesPlatform() override;
 
@@ -385,8 +379,6 @@ private:
     ezHybridArray<vk::Fence, 2> m_CommandBufferFences;
 
     vk::CommandBuffer m_currentCommandBuffer;
-    // ID3D11Query* m_pDisjointTimerQuery = nullptr;
-    double m_fInvTicksPerSecond = -1.0;
     ezUInt64 m_uiFrame = -1;
 
     ezMutex m_pendingDeletionsMutex;
@@ -403,10 +395,11 @@ private:
 
   void FillFormatLookupTable();
 
+  static constexpr ezUInt32 FRAMES = 4;
+
   ezUInt64 m_uiFrameCounter = 1; ///< We start at 1 so m_uiFrameCounter and m_uiSafeFrame are not equal at the start.
   ezUInt64 m_uiSafeFrame = 0;
-  ezUInt8 m_uiCurrentPerFrameData = 0;
-  ezUInt8 m_uiNextPerFrameData = 1;
+  ezUInt8 m_uiCurrentPerFrameData = m_uiFrameCounter % FRAMES;
 
   vk::Instance m_instance;
   vk::PhysicalDevice m_physicalDevice;
@@ -426,12 +419,13 @@ private:
   ezUniquePtr<ezCommandBufferPoolVulkan> m_pCommandBufferPool;
   ezUniquePtr<ezStagingBufferPoolVulkan> m_pStagingBufferPool;
   ezUniquePtr<ezQueryPoolVulkan> m_pQueryPool;
+  ezUniquePtr<ezFenceQueueVulkan> m_pFenceQueue;
   ezUniquePtr<ezInitContextVulkan> m_pInitContext;
 
   // We daisy-chain all command buffers in a frame in sequential order via this semaphore for now.
   vk::Semaphore m_lastCommandBufferFinished;
 
-  PerFrameData m_PerFrameData[4];
+  PerFrameData m_PerFrameData[FRAMES];
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
   struct GPUTimingScope* m_pFrameTimingScope = nullptr;

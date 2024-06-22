@@ -27,17 +27,30 @@ public:
   void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView);
   void SetPushConstants(ezArrayPtr<const ezUInt8> data);
 
-  // Query functions
+  // GPU -> CPU query functions
 
-  void BeginQuery(ezGALQueryHandle hQuery);
-  void EndQuery(ezGALQueryHandle hQuery);
-
-  /// \return Success if retrieving the query succeeded.
-  ezResult GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& ref_uiQueryResult);
-
-  // Timestamp functions
-
+  /// Inserts a timestamp.
+  /// \return A handle to be passed into ezGALDevice::GetTimestampResult.
   ezGALTimestampHandle InsertTimestamp();
+
+  /// \brief Starts an occlusion query.
+  /// This function must be called within a render scope and EndOcclusionQuery must be called within the same scope. Only one occlusion query can be active at any given time.
+  /// \param type The type of the occlusion query.
+  /// \return A handle to be passed into EndOcclusionQuery.
+  /// \sa EndOcclusionQuery
+  ezGALOcclusionHandle BeginOcclusionQuery(ezEnum<ezGALQueryType> type);
+
+  /// \brief Ends an occlusion query.
+  /// The given handle must afterwards be passed into the ezGALDevice::GetOcclusionQueryResult function, which needs to be repeated every frame until results are ready.
+  /// \param hOcclusion Value returned by the previous call to BeginOcclusionQuery.
+  /// \sa ezGALDevice::GetOcclusionQueryResult
+  void EndOcclusionQuery(ezGALOcclusionHandle hOcclusion);
+
+  /// Inserts a fence.
+  /// You need to flush commands to the GPU in order to be able to wait for a fence by either ending a frame or calling `ezCommandEncoder::Flush` explicitly.
+  /// \return A handle to be passed into ezGALDevice::GetFenceResult.
+  /// \sa ezGALDevice::GetFenceResult
+  ezGALFenceHandle InsertFence();
 
   // Resource functions
 
@@ -67,6 +80,8 @@ public:
 
   // Misc
 
+  /// \brief Submits all pending work to the GPU.
+  /// Call this if you want to wait for a fence or some other kind of GPU synchronization to take place to ensure the work is actually submitted to the GPU.
   void Flush();
 
   // Debug helper functions
@@ -157,4 +172,6 @@ private:
   ezGALDevice& m_Device;
   ezGALCommandEncoderRenderState m_State;
   ezGALCommandEncoderCommonPlatformInterface& m_CommonImpl;
+
+  ezGALOcclusionHandle m_PendingOcclusionQuery = {};
 };

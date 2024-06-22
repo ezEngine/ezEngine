@@ -7,8 +7,9 @@
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
+#include <RendererDX11/Pools/FencePoolDX11.h>
+#include <RendererDX11/Pools/QueryPoolDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
-#include <RendererDX11/Resources/QueryDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
 #include <RendererDX11/Resources/SharedTextureDX11.h>
@@ -190,49 +191,21 @@ retry:
     return EZ_FAILURE;
   }
 
+  ezFencePoolDX11::Initialize(this);
+  m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueDX11, this);
+
   // Fill lookup table
   FillFormatLookupTable();
 
   ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
   ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 
-  // Per frame data & timer data
-  D3D11_QUERY_DESC disjointQueryDesc;
-  disjointQueryDesc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
-  disjointQueryDesc.MiscFlags = 0;
-
-  D3D11_QUERY_DESC timerQueryDesc;
-  timerQueryDesc.Query = D3D11_QUERY_TIMESTAMP;
-  timerQueryDesc.MiscFlags = 0;
-
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
+  m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolDX11);
+  if (m_pQueryPool->Initialize(this).Failed())
   {
-    auto& perFrameData = m_PerFrameData[i];
-
-    D3D11_QUERY_DESC QueryDesc;
-    QueryDesc.Query = D3D11_QUERY_EVENT;
-    QueryDesc.MiscFlags = 0;
-    if (SUCCEEDED(GetDXDevice()->CreateQuery(&QueryDesc, &perFrameData.m_pFence)))
-
-      if (FAILED(m_pDevice->CreateQuery(&disjointQueryDesc, &perFrameData.m_pDisjointTimerQuery)))
-      {
-        ezLog::Error("Creation of native DirectX query for disjoint query has failed!");
-        return EZ_FAILURE;
-      }
+    return EZ_FAILURE;
   }
 
-  // #TODO_DX11 Replace ring buffer with proper pool like in Vulkan to prevent buffer overrun.
-  m_Timestamps.SetCountUninitialized(2048);
-  for (ezUInt32 i = 0; i < m_Timestamps.GetCount(); ++i)
-  {
-    if (FAILED(m_pDevice->CreateQuery(&timerQueryDesc, &m_Timestamps[i])))
-    {
-      ezLog::Error("Creation of native DirectX query for timestamp has failed!");
-      return EZ_FAILURE;
-    }
-  }
-
-  m_SyncTimeDiff = ezTime::MakeZero();
 
   ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
     { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain*
@@ -315,21 +288,11 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
     m_UsedTempResources[type].Clear();
   }
 
-  for (auto& timestamp : m_Timestamps)
-  {
-    EZ_GAL_DX11_RELEASE(timestamp);
-  }
-  m_Timestamps.Clear();
+  m_pQueryPool->DeInitialize();
+  m_pQueryPool = nullptr;
+  m_pFenceQueue = nullptr;
+  ezFencePoolDX11::DeInitialize();
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
-  {
-    auto& perFrameData = m_PerFrameData[i];
-
-    EZ_GAL_DX11_RELEASE(perFrameData.m_pFence);
-    perFrameData.m_pFence = nullptr;
-
-    EZ_GAL_DX11_RELEASE(perFrameData.m_pDisjointTimerQuery);
-  }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   // Force immediate destruction of all objects destroyed so far.
@@ -360,23 +323,7 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   return EZ_SUCCESS;
 }
 
-// Pipeline & Pass functions
-
-void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName)
-{
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
-#else
-  EZ_IGNORE_UNUSED(szName);
-#endif
-}
-
-void ezGALDeviceDX11::EndPipelinePlatform()
-{
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPipelineTimingScope);
-#endif
-}
+// Command encoder functions
 
 ezGALCommandEncoder* ezGALDeviceDX11::BeginCommandsPlatform(const char* szName)
 {
@@ -401,7 +348,7 @@ void ezGALDeviceDX11::EndCommandsPlatform(ezGALCommandEncoder* pPass)
 
 void ezGALDeviceDX11::FlushPlatform()
 {
-  m_pImmediateContext->Flush();
+  m_pCommandEncoderImpl->FlushPlatform();
 }
 
 // State creation functions
@@ -679,26 +626,6 @@ void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAcc
 
 // Other rendering creation functions
 
-ezGALQuery* ezGALDeviceDX11::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
-{
-  ezGALQueryDX11* pQuery = EZ_NEW(&m_Allocator, ezGALQueryDX11, Description);
-
-  if (!pQuery->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pQuery);
-    return nullptr;
-  }
-
-  return pQuery;
-}
-
-void ezGALDeviceDX11::DestroyQueryPlatform(ezGALQuery* pQuery)
-{
-  ezGALQueryDX11* pQueryDX11 = static_cast<ezGALQueryDX11*>(pQuery);
-  pQueryDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pQueryDX11);
-}
-
 ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description)
 {
   ezGALVertexDeclarationDX11* pVertexDeclaration = EZ_NEW(&m_Allocator, ezGALVertexDeclarationDX11, Description);
@@ -721,50 +648,19 @@ void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* p
   EZ_DELETE(&m_Allocator, pVertexDeclarationDX11);
 }
 
-ezGALTimestampHandle ezGALDeviceDX11::GetTimestampPlatform()
+ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result)
 {
-  ezUInt32 uiIndex = m_uiNextTimestamp;
-  m_uiNextTimestamp = (m_uiNextTimestamp + 1) % m_Timestamps.GetCount();
-  return {uiIndex, m_uiFrameCounter};
+  return m_pQueryPool->GetTimestampResult(hTimestamp, out_result);
 }
 
-ezResult ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result)
+ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult)
 {
-  // Check whether frequency and sync timer are already available for the frame of the timestamp
-  ezUInt64 uiFrameCounter = hTimestamp.m_uiFrameCounter;
+  return m_pQueryPool->GetOcclusionQueryResult(hOcclusion, out_uiResult);
+}
 
-  PerFrameData* pPerFrameData = nullptr;
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
-  {
-    if (m_PerFrameData[i].m_uiFrame == uiFrameCounter && m_PerFrameData[i].m_fInvTicksPerSecond >= 0.0)
-    {
-      pPerFrameData = &m_PerFrameData[i];
-      break;
-    }
-  }
-
-  if (pPerFrameData == nullptr)
-  {
-    return EZ_FAILURE;
-  }
-
-  ID3D11Query* pQuery = GetTimestamp(hTimestamp);
-
-  ezUInt64 uiTimestamp;
-  if (FAILED(m_pImmediateContext->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), D3D11_ASYNC_GETDATA_DONOTFLUSH)))
-  {
-    return EZ_FAILURE;
-  }
-
-  if (pPerFrameData->m_fInvTicksPerSecond == 0.0)
-  {
-    result = ezTime::MakeZero();
-  }
-  else
-  {
-    result = ezTime::MakeFromSeconds(double(uiTimestamp) * pPerFrameData->m_fInvTicksPerSecond) + m_SyncTimeDiff;
-  }
-  return EZ_SUCCESS;
+ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout)
+{
+  return m_pFenceQueue->GetFenceResult(hFence, timeout);
 }
 
 // Swap chain functions
@@ -777,35 +673,45 @@ void ezGALDeviceDX11::PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVS
 
 // Misc functions
 
-void ezGALDeviceDX11::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiRenderFrame)
+void ezGALDeviceDX11::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiAppFrame)
 {
-  ezStringBuilder sb;
-  sb.SetFormat("Frame {}", uiRenderFrame);
-
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
-#endif
-
-  // check if fence is reached and wait if the disjoint timer is about to be re-used
+  // check if fence is reached
+  for (ezUInt64 uiFrame = m_uiSafeFrame + 1; uiFrame < m_uiFrameCounter; uiFrame++)
   {
-    auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
+    auto& perFrameData = m_PerFrameData[uiFrame % FRAMES];
+
+    // if we accumulate more frames than we can hold in the ring buffer, force waiting for fences.
+    const bool bForce = uiFrame % FRAMES == m_uiFrameCounter % FRAMES;
     if (perFrameData.m_uiFrame != ((ezUInt64)-1))
     {
-
-      bool bFenceReached = IsFenceReachedPlatform(GetDXImmediateContext(), perFrameData.m_pFence);
-      if (!bFenceReached && m_uiNextPerFrameData == m_uiCurrentPerFrameData)
+      EZ_ASSERT_DEBUG(uiFrame == perFrameData.m_uiFrame, "Frame data was likely overwritten and no longer matches the expected previous frame index. This should have been prevented by bForce above.");
+      bool bFenceReached = m_pFenceQueue->GetFenceResult(perFrameData.m_hFence) == ezGALAsyncResult::Ready;
+      if (!bFenceReached && bForce)
       {
-        WaitForFencePlatform(GetDXImmediateContext(), perFrameData.m_pFence);
+        m_pFenceQueue->GetFenceResult(perFrameData.m_hFence, ezTime::MakeFromHours(1));
+        bFenceReached = true;
       }
+      if (bFenceReached)
+      {
+        FreeTempResources(perFrameData.m_uiFrame);
+        perFrameData.m_hFence = {};
+        m_uiSafeFrame = uiFrame;
+      }
+      else
+        break;
     }
   }
 
-  {
-    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    m_pImmediateContext->Begin(perFrameData.m_pDisjointTimerQuery);
+  EZ_ASSERT_DEBUG((m_uiFrameCounter % FRAMES) == m_uiCurrentPerFrameData, "");
+  m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame = m_uiFrameCounter;
 
-    perFrameData.m_fInvTicksPerSecond = -1.0f;
-  }
+  m_pQueryPool->BeginFrame();
+
+#if EZ_ENABLED(EZ_USE_PROFILING)
+  ezStringBuilder sb;
+  sb.SetFormat("Frame {}", uiAppFrame);
+  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
+#endif
 
   for (ezGALSwapChain* pSwapChain : swapchains)
   {
@@ -824,62 +730,23 @@ void ezGALDeviceDX11::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
   ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pFrameTimingScope);
 #endif
 
-  // end disjoint query
-  {
-    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    m_pImmediateContext->End(perFrameData.m_pDisjointTimerQuery);
-  }
+  m_pQueryPool->EndFrame();
 
-  // check if fence is reached and update per frame data
-  {
-    auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
-    if (perFrameData.m_uiFrame != ((ezUInt64)-1))
-    {
-      if (IsFenceReachedPlatform(GetDXImmediateContext(), perFrameData.m_pFence))
-      {
-        FreeTempResources(perFrameData.m_uiFrame);
-
-        D3D11_QUERY_DATA_TIMESTAMP_DISJOINT data;
-        if (FAILED(m_pImmediateContext->GetData(perFrameData.m_pDisjointTimerQuery, &data, sizeof(data), D3D11_ASYNC_GETDATA_DONOTFLUSH)) || data.Disjoint)
-        {
-          perFrameData.m_fInvTicksPerSecond = 0.0f;
-        }
-        else
-        {
-          perFrameData.m_fInvTicksPerSecond = 1.0 / (double)data.Frequency;
-
-          if (m_bSyncTimeNeeded)
-          {
-            ezGALTimestampHandle hTimestamp = m_pCommandEncoder->InsertTimestamp();
-            ID3D11Query* pQuery = GetTimestamp(hTimestamp);
-
-            ezUInt64 uiTimestamp;
-            while (m_pImmediateContext->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), 0) != S_OK)
-            {
-              ezThreadUtils::YieldTimeSlice();
-            }
-
-            m_SyncTimeDiff = ezTime::Now() - ezTime::MakeFromSeconds(double(uiTimestamp) * perFrameData.m_fInvTicksPerSecond);
-            m_bSyncTimeNeeded = false;
-          }
-        }
-
-        m_uiCurrentPerFrameData = (m_uiCurrentPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
-      }
-    }
-  }
-
-  {
-    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    perFrameData.m_uiFrame = m_uiFrameCounter;
-
-    // insert fence
-    InsertFencePlatform(GetDXImmediateContext(), perFrameData.m_pFence);
-
-    m_uiNextPerFrameData = (m_uiNextPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
-  }
+  auto& currentFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
+  currentFrameData.m_hFence = m_pFenceQueue->SubmitCurrentFence();
 
   ++m_uiFrameCounter;
+  m_uiCurrentPerFrameData = (m_uiFrameCounter) % FRAMES;
+}
+
+ezUInt64 ezGALDeviceDX11::GetCurrentFramePlatform() const
+{
+  return m_uiFrameCounter;
+}
+
+ezUInt64 ezGALDeviceDX11::GetSafeFramePlatform() const
+{
+  return m_uiSafeFrame;
 }
 
 void ezGALDeviceDX11::FillCapabilitiesPlatform()
@@ -1355,32 +1222,14 @@ ezGALCommandEncoder* ezGALDeviceDX11::GetCommandEncoder() const
   return m_pCommandEncoder.Borrow();
 }
 
-void ezGALDeviceDX11::InsertFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence)
+ezFenceQueueDX11& ezGALDeviceDX11::GetFenceQueue() const
 {
-  pContext->End(pFence);
+  return *m_pFenceQueue.Borrow();
 }
 
-bool ezGALDeviceDX11::IsFenceReachedPlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence)
+ezQueryPoolDX11& ezGALDeviceDX11::GetQueryPool() const
 {
-  BOOL data = FALSE;
-  if (pContext->GetData(pFence, &data, sizeof(data), 0) == S_OK)
-  {
-    EZ_ASSERT_DEV(data != FALSE, "Implementation error");
-    return true;
-  }
-
-  return false;
-}
-
-void ezGALDeviceDX11::WaitForFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence)
-{
-  BOOL data = FALSE;
-  while (pContext->GetData(pFence, &data, sizeof(data), 0) != S_OK)
-  {
-    ezThreadUtils::YieldTimeSlice();
-  }
-
-  EZ_ASSERT_DEV(data != FALSE, "Implementation error");
+  return *m_pQueryPool.Borrow();
 }
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Device_Implementation_DeviceDX11);

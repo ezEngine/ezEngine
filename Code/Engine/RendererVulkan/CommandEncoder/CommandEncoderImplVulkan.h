@@ -21,6 +21,8 @@ class ezGALShaderVulkan;
 class ezGALTextureUnorderedAccessViewVulkan;
 class ezGALBufferUnorderedAccessViewVulkan;
 class ezGALDeviceVulkan;
+class ezFenceQueueVulkan;
+
 
 class EZ_RENDERERVULKAN_DLL ezGALCommandEncoderImplVulkan : public ezGALCommandEncoderCommonPlatformInterface
 {
@@ -29,8 +31,9 @@ public:
   ~ezGALCommandEncoderImplVulkan();
 
   void Reset();
-  void MarkDirty();
+
   void SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer, ezPipelineBarrierVulkan* pipelineBarrier);
+  void CommandBufferSubmitted(vk::Fence submitFence);
 
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
@@ -45,15 +48,13 @@ public:
   virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView) override;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
 
-  // Query functions
+  // GPU -> CPU query functions
 
-  virtual void BeginQueryPlatform(const ezGALQuery* pQuery) override;
-  virtual void EndQueryPlatform(const ezGALQuery* pQuery) override;
-  virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult) override;
+  virtual ezGALTimestampHandle InsertTimestampPlatform() override;
+  virtual ezGALOcclusionHandle BeginOcclusionQueryPlatform(ezEnum<ezGALQueryType> type) override;
+  virtual void EndOcclusionQueryPlatform(ezGALOcclusionHandle hOcclusion) override;
+  virtual ezGALFenceHandle InsertFencePlatform() override;
 
-  // Timestamp functions
-
-  virtual void InsertTimestampPlatform(ezGALTimestampHandle hTimestamp) override;
 
   // Resource update functions
 
@@ -133,6 +134,7 @@ public:
   virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
 
 
+
 private:
   // Map resources from sets then slots to pointer.
   struct SetResources
@@ -158,7 +160,6 @@ private:
 
   vk::CommandBuffer* m_pCommandBuffer = nullptr;
   ezPipelineBarrierVulkan* m_pPipelineBarrier = nullptr;
-
 
   // Cache flags.
   bool m_bPipelineStateDirty = true;

@@ -2,6 +2,8 @@
 
 #include <RendererVulkan/RendererVulkanDLL.h>
 
+#include <Foundation/Time/Timestamp.h>
+
 #include <vulkan/vulkan.hpp>
 
 /// \brief Simple pool for fences
@@ -28,4 +30,31 @@ public:
 private:
   static ezHybridArray<vk::Fence, 4> s_Fences;
   static vk::Device s_device;
+};
+
+// #TODO_VULKAN extend to support multiple queues.
+class EZ_RENDERERVULKAN_DLL ezFenceQueueVulkan
+{
+public:
+  ezFenceQueueVulkan(vk::Device device);
+  ~ezFenceQueueVulkan();
+
+  ezGALFenceHandle GetCurrentFenceHandle();
+  void FenceSubmitted(vk::Fence vkFence);
+  void FlushReadyFences();
+  ezEnum<ezGALAsyncResult> GetFenceResult(ezGALFenceHandle hFence, ezTime timeout = ezTime::MakeZero());
+
+private:
+  ezEnum<ezGALAsyncResult> WaitForNextFence(ezTime timeout = ezTime::MakeZero());
+
+private:
+  struct PendingFence
+  {
+    vk::Fence m_vkFence;
+    ezGALFenceHandle m_hFence;
+  };
+  ezDeque<PendingFence> m_PendingFences;
+  ezUInt64 m_uiCurrentFenceCounter = 1;
+  ezUInt64 m_uiReachedFenceCounter = 0;
+  vk::Device m_device;
 };

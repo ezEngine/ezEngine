@@ -3,8 +3,9 @@
 #include <Foundation/Containers/IterateBits.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
+#include <RendererDX11/Pools/FencePoolDX11.h>
+#include <RendererDX11/Pools/QueryPoolDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
-#include <RendererDX11/Resources/QueryDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
@@ -128,7 +129,7 @@ void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResource
 {
   if (pResourceView != nullptr && UnsetUnorderedAccessViews(pResourceView->GetResource()))
   {
-    FlushPlatform();
+    FlushDeferredStateChanges().IgnoreResult();
   }
 
   ID3D11ShaderResourceView* pResourceViewDX11 = pResourceView != nullptr ? static_cast<const ezGALTextureResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
@@ -140,7 +141,7 @@ void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResource
 {
   if (pResourceView != nullptr && UnsetUnorderedAccessViews(pResourceView->GetResource()))
   {
-    FlushPlatform();
+    FlushDeferredStateChanges().IgnoreResult();
   }
 
   ID3D11ShaderResourceView* pResourceViewDX11 = pResourceView != nullptr ? static_cast<const ezGALBufferResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
@@ -169,7 +170,7 @@ void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderR
 {
   if (pUnorderedAccessView != nullptr && UnsetResourceViews(pUnorderedAccessView->GetResource()))
   {
-    FlushPlatform();
+    FlushDeferredStateChanges().IgnoreResult();
   }
 
   ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pUnorderedAccessView != nullptr ? static_cast<const ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
@@ -180,7 +181,7 @@ void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderR
 {
   if (pUnorderedAccessView != nullptr && UnsetResourceViews(pUnorderedAccessView->GetResource()))
   {
-    FlushPlatform();
+    FlushDeferredStateChanges().IgnoreResult();
   }
 
   ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pUnorderedAccessView != nullptr ? static_cast<const ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
@@ -207,31 +208,24 @@ void ezGALCommandEncoderImplDX11::SetPushConstantsPlatform(ezArrayPtr<const ezUI
 
 // Query functions
 
-void ezGALCommandEncoderImplDX11::BeginQueryPlatform(const ezGALQuery* pQuery)
+ezGALTimestampHandle ezGALCommandEncoderImplDX11::InsertTimestampPlatform()
 {
-  m_pDXContext->Begin(static_cast<const ezGALQueryDX11*>(pQuery)->GetDXQuery());
+  return m_GALDeviceDX11.GetQueryPool().InsertTimestamp();
 }
 
-void ezGALCommandEncoderImplDX11::EndQueryPlatform(const ezGALQuery* pQuery)
+ezGALOcclusionHandle ezGALCommandEncoderImplDX11::BeginOcclusionQueryPlatform(ezEnum<ezGALQueryType> type)
 {
-  m_pDXContext->End(static_cast<const ezGALQueryDX11*>(pQuery)->GetDXQuery());
+  return m_GALDeviceDX11.GetQueryPool().BeginOcclusionQuery(type);
 }
 
-ezResult ezGALCommandEncoderImplDX11::GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& ref_uiQueryResult)
+void ezGALCommandEncoderImplDX11::EndOcclusionQueryPlatform(ezGALOcclusionHandle hOcclusion)
 {
-  return m_pDXContext->GetData(
-           static_cast<const ezGALQueryDX11*>(pQuery)->GetDXQuery(), &ref_uiQueryResult, sizeof(ezUInt64), D3D11_ASYNC_GETDATA_DONOTFLUSH) == S_FALSE
-           ? EZ_FAILURE
-           : EZ_SUCCESS;
+  m_GALDeviceDX11.GetQueryPool().EndOcclusionQuery(hOcclusion);
 }
 
-// Timestamp functions
-
-void ezGALCommandEncoderImplDX11::InsertTimestampPlatform(ezGALTimestampHandle hTimestamp)
+ezGALFenceHandle ezGALCommandEncoderImplDX11::InsertFencePlatform()
 {
-  ID3D11Query* pDXQuery = m_GALDeviceDX11.GetTimestamp(hTimestamp);
-
-  m_pDXContext->End(pDXQuery);
+  return m_GALDeviceDX11.GetFenceQueue().GetCurrentFenceHandle();
 }
 
 // Resource update functions
@@ -518,6 +512,8 @@ void ezGALCommandEncoderImplDX11::GenerateMipMapsPlatform(const ezGALTextureReso
 void ezGALCommandEncoderImplDX11::FlushPlatform()
 {
   FlushDeferredStateChanges().IgnoreResult();
+  m_GALDeviceDX11.GetFenceQueue().SubmitCurrentFence();
+  m_pDXContext->Flush();
 }
 
 // Debug helper functions
@@ -588,7 +584,7 @@ void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSet
 
     if (bFlushNeeded)
     {
-      FlushPlatform();
+      FlushDeferredStateChanges().IgnoreResult();
     }
 
     for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)

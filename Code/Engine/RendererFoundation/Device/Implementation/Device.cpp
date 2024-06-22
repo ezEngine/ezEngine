@@ -32,7 +32,6 @@ namespace
       TextureUnorderedAccessView,
       BufferUnorderedAccessView,
       SwapChain,
-      Query,
       VertexDeclaration
     };
   };
@@ -50,7 +49,6 @@ namespace
   static_assert(sizeof(ezGALTextureUnorderedAccessViewHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALBufferUnorderedAccessViewHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALSwapChainHandle) == sizeof(ezUInt32));
-  static_assert(sizeof(ezGALQueryHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALVertexDeclarationHandle) == sizeof(ezUInt32));
 } // namespace
 
@@ -105,9 +103,6 @@ ezGALDevice::~ezGALDevice()
 
     if (!m_SwapChains.IsEmpty())
       ezLog::Warning("{0} swap chains have not been cleaned up", m_SwapChains.GetCount());
-
-    if (!m_Queries.IsEmpty())
-      ezLog::Warning("{0} queries have not been cleaned up", m_Queries.GetCount());
 
     if (!m_VertexDeclarations.IsEmpty())
       ezLog::Warning("{0} vertex declarations have not been cleaned up", m_VertexDeclarations.GetCount());
@@ -1256,38 +1251,6 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
   }
 }
 
-ezGALQueryHandle ezGALDevice::CreateQuery(const ezGALQueryCreationDescription& desc)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALQuery* pQuery = CreateQueryPlatform(desc);
-
-  if (pQuery == nullptr)
-  {
-    return ezGALQueryHandle();
-  }
-  else
-  {
-    return ezGALQueryHandle(m_Queries.Insert(pQuery));
-  }
-}
-
-void ezGALDevice::DestroyQuery(ezGALQueryHandle hQuery)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALQuery* pQuery = nullptr;
-
-  if (m_Queries.TryGetValue(hQuery, pQuery))
-  {
-    AddDeadObject(GALObjectType::Query, hQuery);
-  }
-  else
-  {
-    ezLog::Warning("DestroyQuery called on invalid handle (double free?)");
-  }
-}
-
 ezGALVertexDeclarationHandle ezGALDevice::CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& desc)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
@@ -1377,7 +1340,7 @@ void ezGALDevice::EnqueueFrameSwapChain(ezGALSwapChainHandle hSwapChain)
     m_FrameSwapChains.PushBack(pSwapChain);
 }
 
-void ezGALDevice::BeginFrame(const ezUInt64 uiRenderFrame)
+void ezGALDevice::BeginFrame(const ezUInt64 uiAppFrame)
 {
   {
     EZ_PROFILE_SCOPE("BeforeBeginFrame");
@@ -1391,11 +1354,8 @@ void ezGALDevice::BeginFrame(const ezUInt64 uiRenderFrame)
     EZ_GALDEVICE_LOCK_AND_CHECK();
     EZ_ASSERT_DEV(!m_bBeginFrameCalled, "You must call ezGALDevice::EndFrame before you can call ezGALDevice::BeginFrame again");
     m_bBeginFrameCalled = true;
-    BeginFramePlatform(m_FrameSwapChains, uiRenderFrame);
+    BeginFramePlatform(m_FrameSwapChains, uiAppFrame);
   }
-
-  // TODO: move to beginrendering/compute calls
-  // m_pPrimaryContext->ClearStatisticsCounters();
 
   {
     ezGALDeviceEvent e;
@@ -1743,17 +1703,6 @@ void ezGALDevice::DestroyDeadObjects()
           pSwapChain->DeInitPlatform(this).IgnoreResult();
           EZ_DELETE(&m_Allocator, pSwapChain);
         }
-
-        break;
-      }
-      case GALObjectType::Query:
-      {
-        ezGALQueryHandle hQuery(ezGAL::ez20_12Id(deadObject.m_uiHandle));
-        ezGALQuery* pQuery = nullptr;
-
-        m_Queries.Remove(hQuery, &pQuery);
-
-        DestroyQueryPlatform(pQuery);
 
         break;
       }

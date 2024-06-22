@@ -312,7 +312,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/SetsSlots.ezShader");
       break;
     case SubTests::ST_Timestamps:
-      m_ImgCompFrames.PushBack(ImageCaptureFrames::Timestamps_MaxWaitTime);
+    case SubTests::ST_OcclusionQueries:
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -361,6 +361,12 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hTexture2D_Mip3.Invalidate();
   m_hShader.Invalidate();
 
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_queries); i++)
+  {
+    m_queries[i] = {};
+  }
+  m_fence = {};
+
   DestroyWindow();
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::DeInitializeSubTest(iIdentifier));
   return EZ_SUCCESS;
@@ -408,8 +414,19 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
       SetsSlotsTest();
       break;
     case SubTests::ST_Timestamps:
-      Timestamps();
-      break;
+    {
+      auto res = Timestamps();
+      EndFrame();
+      return res;
+    }
+    break;
+    case SubTests::ST_OcclusionQueries:
+    {
+      auto res = OcclusionQueries();
+      EndFrame();
+      return res;
+    }
+    break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
@@ -751,7 +768,7 @@ void ezRendererTestPipelineStates::GenerateMipMaps()
   EndCommands();
 }
 
-void ezRendererTestPipelineStates::Timestamps()
+ezTestAppRun ezRendererTestPipelineStates::Timestamps()
 {
   BeginCommands("Timestamps");
   {
@@ -768,21 +785,25 @@ void ezRendererTestPipelineStates::Timestamps()
 
     if (m_iFrame == 2)
       m_timestamps[1] = pCommandEncoder->InsertTimestamp();
+
     EndRendering();
+
+    if (m_iFrame == 2)
+      pCommandEncoder->Flush();
   }
   EndCommands();
 
 
   if (m_iFrame > 2 && !m_bTimestampsValid)
   {
-    if ((m_bTimestampsValid = m_pDevice->GetTimestampResult(m_timestamps[0], m_GPUTime[0]).Succeeded() && m_pDevice->GetTimestampResult(m_timestamps[1], m_GPUTime[1]).Succeeded()))
+    if ((m_bTimestampsValid = m_pDevice->GetTimestampResult(m_timestamps[0], m_GPUTime[0]) == ezGALAsyncResult::Ready && m_pDevice->GetTimestampResult(m_timestamps[1], m_GPUTime[1]) == ezGALAsyncResult::Ready))
     {
       m_CPUTime[1] = ezTime::Now();
       EZ_TEST_BOOL_MSG(m_CPUTime[0] <= m_GPUTime[0], "%.6f < %.6f", m_CPUTime[0].GetSeconds(), m_GPUTime[0].GetSeconds());
       EZ_TEST_BOOL_MSG(m_GPUTime[0] <= m_GPUTime[1], "%.6f < %.6f", m_GPUTime[0].GetSeconds(), m_GPUTime[1].GetSeconds());
       EZ_TEST_BOOL_MSG(m_GPUTime[1] <= m_CPUTime[1], "%.6f < %.6f", m_GPUTime[1].GetSeconds(), m_CPUTime[1].GetSeconds());
       ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Timestamp results received after %d frames and %.3f seconds.", m_iFrame, (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds());
-      m_ImgCompFrames.Clear();
+      return  ezTestAppRun::Quit;
     }
   }
   ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
@@ -791,6 +812,106 @@ void ezRendererTestPipelineStates::Timestamps()
     EZ_TEST_BOOL_MSG(m_bTimestampsValid, "Timestamp results are not present after 10 seconds.");
     m_ImgCompFrames.Clear();
   }
+
+  if (m_iFrame >= 100)
+  {
+    ezLog::Error("Timestamp results did not complete");
+    return ezTestAppRun::Quit;
+  }
+  return ezTestAppRun::Continue;
+}
+
+ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
+{
+  BeginCommands("OcclusionQueries");
+  {
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF);
+
+    // #TODO_VULKAN Vulkan will assert if we don't render something bogus here. The reason is that occlusion queries must be started and stopped within the same render pass. However, as we start the render pass lazily within ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges, the BeginOcclusionQuery call is actually still outside the render pass.
+    ezRenderContext::GetDefaultInstance()->BindShader(m_hNDCPositionOnlyShader);
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hTriangleMesh);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+
+    if (m_iFrame == 2)
+    {
+      EZ_TEST_BOOL(m_queries[0].IsInvalidated());
+      m_queries[0] = pCommandEncoder->BeginOcclusionQuery(ezGALQueryType::NumSamplesPassed);
+      EZ_TEST_BOOL(!m_queries[0].IsInvalidated());
+      pCommandEncoder->EndOcclusionQuery(m_queries[0]);
+
+      EZ_TEST_BOOL(m_queries[1].IsInvalidated());
+      m_queries[1] = pCommandEncoder->BeginOcclusionQuery(ezGALQueryType::AnySamplesPassed);
+      EZ_TEST_BOOL(!m_queries[1].IsInvalidated());
+      pCommandEncoder->EndOcclusionQuery(m_queries[1]);
+
+      m_queries[2] = pCommandEncoder->BeginOcclusionQuery(ezGALQueryType::NumSamplesPassed);
+    }
+    else if (m_iFrame == 3)
+    {
+      m_queries[3] = pCommandEncoder->BeginOcclusionQuery(ezGALQueryType::AnySamplesPassed);
+    }
+    
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hSphereMesh);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+
+    if (m_iFrame == 2)
+    {
+      pCommandEncoder->EndOcclusionQuery(m_queries[2]);
+    }
+    else if (m_iFrame == 3)
+    {
+      pCommandEncoder->EndOcclusionQuery(m_queries[3]);
+      m_fence = pCommandEncoder->InsertFence();
+    }
+    EndRendering();
+
+    if (m_iFrame == 3)
+      pCommandEncoder->Flush();
+  }
+  EndCommands();
+
+  if (m_iFrame >= 3)
+  {
+    ezEnum<ezGALAsyncResult> fenceResult = m_pDevice->GetFenceResult(m_fence);
+    if (fenceResult == ezGALAsyncResult::Ready)
+    {
+      ezEnum<ezGALAsyncResult> queryResults[4];
+      ezUInt64 queryValues[4];
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_queries); i++)
+      {
+        queryResults[i] = m_pDevice->GetOcclusionQueryResult(m_queries[i], queryValues[i]);
+        if (!EZ_TEST_BOOL(queryResults[i] != ezGALAsyncResult::Expired))
+        {
+          return ezTestAppRun::Quit;
+        }
+      }
+
+      bool bAllReady = true;
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_queries); i++)
+      {
+        if (queryResults[i] != ezGALAsyncResult::Ready)
+          bAllReady = false;
+      }
+
+      if (bAllReady)
+      {
+        EZ_TEST_INT(queryValues[0], 0);
+        EZ_TEST_INT(queryValues[1], 0);
+
+        EZ_TEST_BOOL(queryValues[2] >= 1);
+        EZ_TEST_BOOL(queryValues[3] >= 1);
+        return ezTestAppRun::Quit;
+      }
+    }
+  }
+
+  if (m_iFrame >= 100)
+  {
+    ezLog::Error("Fence or occlusion query results did not complete");
+    return ezTestAppRun::Quit;
+  }
+
+  return ezTestAppRun::Continue;
 }
 
 static ezRendererTestPipelineStates g_PipelineStatesTest;
