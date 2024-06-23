@@ -403,7 +403,7 @@ ezResult ezFileSystemMirror<T>::Enumerate(ezStringView sPath0, EnumerateFunc cal
 }
 
 template <typename T>
-typename ezResult ezFileSystemMirror<T>::GetType(ezStringView sPath0, Type& out_Type)
+ezResult ezFileSystemMirror<T>::GetType(ezStringView sPath0, Type& out_Type)
 {
   ezStringBuilder sPath = sPath0;
   DirEntry* dir = FindDirectory(sPath);
