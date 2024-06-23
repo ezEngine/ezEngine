@@ -47,6 +47,9 @@ public:
   // \brief Enumerates the files & directories under the given path
   ezResult Enumerate(ezStringView sPath, EnumerateFunc callbackFunc);
 
+  // \brief On success, out_Type will contains the type of the object (file or folder).
+  ezResult GetType(ezStringView sPath, Type& out_Type);
+
 private:
   DirEntry* FindDirectory(ezStringBuilder& path);
 
@@ -397,6 +400,33 @@ ezResult ezFileSystemMirror<T>::Enumerate(ezStringView sPath0, EnumerateFunc cal
   }
 
   return EZ_SUCCESS;
+}
+
+template <typename T>
+typename ezResult ezFileSystemMirror<T>::GetType(ezStringView sPath0, Type& out_Type)
+{
+  ezStringBuilder sPath = sPath0;
+  DirEntry* dir = FindDirectory(sPath);
+  if (dir == nullptr)
+  {
+    return EZ_FAILURE; // file not under top level directory
+  }
+
+  auto it = dir->m_files.Find(sPath);
+  if (it.IsValid())
+  {
+    out_Type = ezFileSystemMirror::Type::File;
+    return EZ_SUCCESS;
+  }
+
+  auto itDir = dir->m_subDirectories.Find(sPath);
+  if (itDir.IsValid())
+  {
+    out_Type = ezFileSystemMirror::Type::Directory;
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
 }
 
 template <typename T>
