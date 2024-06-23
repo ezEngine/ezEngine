@@ -49,7 +49,7 @@ namespace
 
   using ezFileSystemMirrorType = ezFileSystemMirror<bool>;
 
-  void GetChangesNTFS(ezStringView sDirectoryPath, ezHybridArray<ezUInt8, 4096>& buffer, ezDynamicArray<Change>& changes)
+  void GetChangesNTFS(ezStringView sDirectoryPath, const ezHybridArray<ezUInt8, 4096>& buffer, ezDynamicArray<Change>& ref_changes)
   {
     ezUInt32 uiChanges = 1;
     auto info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)buffer.GetData();
@@ -58,7 +58,7 @@ namespace
       uiChanges++;
       info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
     }
-    changes.Reserve(uiChanges);
+    ref_changes.Reserve(uiChanges);
     info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)buffer.GetData();
 
     while (true)
@@ -71,7 +71,7 @@ namespace
         dir.SetCountUninitialized(bytesNeeded);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
 
-        Change& currentChange = changes.ExpandAndGetRef();
+        Change& currentChange = ref_changes.ExpandAndGetRef();
         currentChange.eventFilePath = sDirectoryPath;
         currentChange.eventFilePath.AppendPath(ezStringView(dir.GetData(), dir.GetCount()));
         currentChange.eventFilePath.MakeCleanPath();
@@ -89,7 +89,7 @@ namespace
     }
   }
 
-  void GetChangesNonNTFS(ezStringView sDirectoryPath, ezFileSystemMirrorType* mirror, ezHybridArray<ezUInt8, 4096>& buffer, ezDynamicArray<Change>& changes)
+  void GetChangesNonNTFS(ezStringView sDirectoryPath, ezFileSystemMirrorType* pMirror, const ezHybridArray<ezUInt8, 4096>& buffer, ezDynamicArray<Change>& ref_changes)
   {
     ezUInt32 uiChanges = 1;
     auto info = (const FILE_NOTIFY_INFORMATION*)buffer.GetData();
@@ -98,7 +98,7 @@ namespace
       uiChanges++;
       info = (const FILE_NOTIFY_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
     }
-    changes.Reserve(changes.GetCount() + uiChanges);
+    ref_changes.Reserve(ref_changes.GetCount() + uiChanges);
     info = (const FILE_NOTIFY_INFORMATION*)buffer.GetData();
 
     while (true)
@@ -111,7 +111,7 @@ namespace
         dir.SetCountUninitialized(bytesNeeded);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
 
-        Change& currentChange = changes.ExpandAndGetRef();
+        Change& currentChange = ref_changes.ExpandAndGetRef();
         currentChange.eventFilePath = sDirectoryPath;
         currentChange.eventFilePath.AppendPath(ezStringView(dir.GetData(), dir.GetCount()));
         currentChange.eventFilePath.MakeCleanPath();
@@ -129,31 +129,31 @@ namespace
     }
   }
 
-  void PostProcessNonNTFSChanges(ezDynamicArray<Change>& changes, ezFileSystemMirrorType* mirror)
+  void PostProcessNonNTFSChanges(ezDynamicArray<Change>& ref_changes, ezFileSystemMirrorType* pMirror)
   {
     ezHybridArray<ezInt32, 4> nextOp;
     // Figure what changes belong to the same object by creating a linked list of changes. This part is tricky as we basically have to handle all the oddities that ezDirectoryWatcher::EnumerateChanges already does again to figure out which operations belong to the same object.
     {
       ezMap<ezStringView, ezUInt32> lastChangeAtPath;
-      nextOp.SetCount(changes.GetCount(), -1);
+      nextOp.SetCount(ref_changes.GetCount(), -1);
 
       ezInt32 pendingRemoveOrRename = -1;
       ezInt32 lastMoveFrom = -1;
 
-      for (ezUInt32 i = 0; i < changes.GetCount(); i++)
+      for (ezUInt32 i = 0; i < ref_changes.GetCount(); i++)
       {
-        const auto& currentChange = changes[i];
-        if (pendingRemoveOrRename != -1 && currentChange.Action == FILE_ACTION_RENAMED_OLD_NAME && changes[pendingRemoveOrRename].eventFilePath == currentChange.eventFilePath)
+        const auto& currentChange = ref_changes[i];
+        if (pendingRemoveOrRename != -1 && currentChange.Action == FILE_ACTION_RENAMED_OLD_NAME && ref_changes[pendingRemoveOrRename].eventFilePath == currentChange.eventFilePath)
         {
           // This is the bogus removed event because we changed the casing of a file / directory, ignore.
-          lastChangeAtPath.Insert(changes[pendingRemoveOrRename].eventFilePath, pendingRemoveOrRename);
+          lastChangeAtPath.Insert(ref_changes[pendingRemoveOrRename].eventFilePath, pendingRemoveOrRename);
           pendingRemoveOrRename = -1;
         }
 
         if (pendingRemoveOrRename != -1)
         {
           // An actual remove: Stop tracking the change.
-          lastChangeAtPath.Remove(changes[pendingRemoveOrRename].eventFilePath);
+          lastChangeAtPath.Remove(ref_changes[pendingRemoveOrRename].eventFilePath);
           pendingRemoveOrRename = -1;
         }
 
@@ -197,7 +197,7 @@ namespace
           case FILE_ACTION_RENAMED_NEW_NAME:
             EZ_ASSERT_DEBUG(lastMoveFrom != -1, "last move from should be present when encountering FILE_ACTION_RENAMED_NEW_NAME");
             nextOp[lastMoveFrom] = i;
-            lastChangeAtPath.Remove(changes[lastMoveFrom].eventFilePath);
+            lastChangeAtPath.Remove(ref_changes[lastMoveFrom].eventFilePath);
             lastChangeAtPath.Insert(currentChange.eventFilePath, i);
             break;
         }
@@ -207,7 +207,7 @@ namespace
     // Anything that is chained via the nextOp linked list must be given the same type.
     // Instead of building arrays of arrays, we create a bit field of all changes and then flatten the linked list at the first set bit. While iterating we remove everything we reached via the linked list so on the next call to get the first bit we will find another object that needs processing. As the operations are ordered, the first bit will always point to the very first operation of an object (nextOp can never point to a previous element).
     ezBitfield<ezHybridArray<ezUInt32, 4>> pendingChanges;
-    pendingChanges.SetCount(changes.GetCount(), true);
+    pendingChanges.SetCount(ref_changes.GetCount(), true);
 
     // Get start of first object.
     ezHybridArray<Change*, 4> objectChanges;
@@ -218,13 +218,13 @@ namespace
       {
         objectChanges.Clear();
         ezUInt32 currentIndex = it.Value();
-        objectChanges.PushBack(&changes[currentIndex]);
+        objectChanges.PushBack(&ref_changes[currentIndex]);
         pendingChanges.ClearBit(currentIndex);
         while (nextOp[currentIndex] != -1)
         {
           currentIndex = nextOp[currentIndex];
           pendingChanges.ClearBit(currentIndex);
-          objectChanges.PushBack(&changes[currentIndex]);
+          objectChanges.PushBack(&ref_changes[currentIndex]);
         }
       }
 
@@ -238,7 +238,7 @@ namespace
         for (Change* currentChange : objectChanges)
         {
           ezFileSystemMirrorType::Type type;
-          if (mirror->GetType(currentChange->eventFilePath, type).Succeeded())
+          if (pMirror->GetType(currentChange->eventFilePath, type).Succeeded())
           {
             isFile = type == ezFileSystemMirrorType::Type::File;
             typeFound = true;
@@ -303,7 +303,7 @@ ezResult ezDirectoryWatcher::OpenDirectory(ezStringView sAbsolutePath, ezBitflag
     sTemp.MakeCleanPath();
     const char* szFirst = sTemp.FindSubString("/");
     EZ_ASSERT_DEV(szFirst != nullptr, "The path '{}' is not absolute", sTemp);
-    ezStringView sRoot = sAbsolutePath.GetSubString(0, szFirst - sTemp.GetData() + 1);
+    ezStringView sRoot = sAbsolutePath.GetSubString(0, static_cast<ezUInt32>(szFirst - sTemp.GetData()) + 1);
 
     WCHAR szFileSystemName[8];
     BOOL res = GetVolumeInformationW(ezStringWChar(sRoot),
