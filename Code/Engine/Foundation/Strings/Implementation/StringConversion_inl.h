@@ -79,6 +79,7 @@ inline ezStringUtf8::ezStringUtf8(
 }
 
 inline ezStringUtf8::ezStringUtf8(const HSTRING& hstring, ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
+  : m_Data(pAllocator)
 {
   *this = hstring;
 }

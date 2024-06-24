@@ -123,6 +123,7 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
   }
 
 #else
+  EZ_IGNORE_UNUSED(FileShareMode);
 
   switch (OpenMode)
   {

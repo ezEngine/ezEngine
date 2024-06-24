@@ -87,6 +87,7 @@ ezResult ezArchiveReader::OpenArchive(ezStringView sPath)
 
   return EZ_SUCCESS;
 #else
+  EZ_IGNORE_UNUSED(sPath);
   EZ_REPORT_FAILURE("Memory mapped files are unsupported on this platform.");
   return EZ_FAILURE;
 #endif

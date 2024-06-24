@@ -872,6 +872,7 @@ ezResult ezFileSystem::DetectSdkRootDirectory(ezStringView sExpectedSubFolder /*
   ezStringBuilder sdkRoot;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  EZ_IGNORE_UNUSED(sExpectedSubFolder);
   // Probably this is what needs to be done on all mobile platforms as well
   sdkRoot = ezOSFile::GetApplicationDirectory();
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)

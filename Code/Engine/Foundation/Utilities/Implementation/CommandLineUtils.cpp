@@ -61,6 +61,8 @@ void ezCommandLineUtils::SetCommandLine(ezUInt32 uiArgc, const char** pArgv, Arg
     SetCommandLine();
     return;
   }
+#else
+  EZ_IGNORE_UNUSED(mode);
 #endif
 
   m_Commands.Clear();

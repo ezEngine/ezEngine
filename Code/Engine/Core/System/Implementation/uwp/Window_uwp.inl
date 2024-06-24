@@ -159,6 +159,7 @@ ezResult ezWindow::Destroy()
 ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
 {
   // #TODO Resizing fails on UWP already via the init code.
+  EZ_IGNORE_UNUSED(newWindowSize);
   return EZ_FAILURE;
 }
 

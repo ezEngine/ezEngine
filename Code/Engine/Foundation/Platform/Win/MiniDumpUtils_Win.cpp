@@ -123,7 +123,10 @@ ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, e
   return WriteProcessMiniDump(sDumpFile, uiProcessID, hProcess, nullptr, dumpTypeOverride);
 
 #  else
-  return ezStatus("Not implemented on UPW");
+  EZ_IGNORE_UNUSED(sDumpFile);
+  EZ_IGNORE_UNUSED(uiProcessID);
+  EZ_IGNORE_UNUSED(dumpTypeOverride);
+  return ezStatus("Not implemented on UWP");
 #  endif
 }
 
@@ -160,7 +163,9 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType 
   return ezStatus(EZ_SUCCESS);
 
 #  else
-  return ezStatus("Not implemented on UPW");
+  EZ_IGNORE_UNUSED(sDumpFile);
+  EZ_IGNORE_UNUSED(dumpTypeOverride);
+  return ezStatus("Not implemented on UWP");
 #  endif
 }
 

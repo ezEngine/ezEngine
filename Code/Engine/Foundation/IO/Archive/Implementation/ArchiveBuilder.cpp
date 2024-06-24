@@ -76,6 +76,9 @@ void ezArchiveBuilder::AddFolder(ezStringView sAbsFolderPath, ezArchiveCompressi
   }
 
 #else
+  EZ_IGNORE_UNUSED(sAbsFolderPath);
+  EZ_IGNORE_UNUSED(defaultMode);
+  EZ_IGNORE_UNUSED(callback);
   EZ_ASSERT_NOT_IMPLEMENTED;
 #endif
 }

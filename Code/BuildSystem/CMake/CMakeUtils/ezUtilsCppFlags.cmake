@@ -88,7 +88,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 		# switch Warning 4996 (deprecation warning) from warning level 3 to warning level 1
 		# since you can't mark warnings as "not errors" in MSVC, we must switch off
 		# the global warning-as-errors flag
-		# instead we could switch ON selected warnings as errors        
+		# instead we could switch ON selected warnings as errors
 		target_compile_options(${TARGET_NAME} PRIVATE "/w14996")
 	endif()
 

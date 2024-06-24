@@ -40,6 +40,12 @@ void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& ref_collection,
   }
 
 #else
+  EZ_IGNORE_UNUSED(ref_collection);
+  EZ_IGNORE_UNUSED(sAssetTypeNameView);
+  EZ_IGNORE_UNUSED(sAbsPathToFolder);
+  EZ_IGNORE_UNUSED(sFileExtension);
+  EZ_IGNORE_UNUSED(sStripPrefix);
+  EZ_IGNORE_UNUSED(sPrependPrefix);
   EZ_ASSERT_NOT_IMPLEMENTED;
 #endif
 }
