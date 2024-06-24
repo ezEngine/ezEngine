@@ -228,7 +228,7 @@ bool ezCommandLineUtils::GetBoolOption(ezStringView sOption, bool bDefault, bool
     return bDefault;
 
   const ezUInt32 uiIndex = iIndex;
-  if (uiIndex + 1 == m_Commands.GetCount())   // last command, treat this as 'on'
+  if (uiIndex + 1 == m_Commands.GetCount())    // last command, treat this as 'on'
     return true;
 
   if (m_Commands[uiIndex + 1].StartsWith("-")) // next command is the next option -> treat this as 'on' as well
