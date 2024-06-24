@@ -35,7 +35,7 @@ jobs:
 
           if($clangDiff.Length -gt 0)
           {
-            echo $clangDiff >> $env:GITHUB_OUTPUT
+            echo $clangDiff
           
             # run it a second time, and let it modify the files itself, because applying the patch appears to be impossible
             $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -i -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format"
@@ -54,9 +54,14 @@ jobs:
             git config --global user.email "ezEngineProject@gmail.com"
             git config --global user.name "ezEngine Automation"
             
-            git add `*.h | Out-Null
-            git add `*.inl | Out-Null
-            git add `*.cpp | Out-Null
+            echo "Adding .h files"
+            git add `*.h #| Out-Null
+            
+            echo "Adding .inl files"
+            git add `*.inl #| Out-Null
+            
+            echo "Adding .cpp files"
+            git add `*.cpp #| Out-Null
             
             git commit -m "Applied code formatting rules"
 
