@@ -35,6 +35,8 @@ jobs:
 
           if($clangDiff.Length -gt 0)
           {
+            echo $clangDiff >> $env:GITHUB_OUTPUT
+          
             # run it a second time, and let it modify the files itself, because applying the patch appears to be impossible
             $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -i -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format"
 
