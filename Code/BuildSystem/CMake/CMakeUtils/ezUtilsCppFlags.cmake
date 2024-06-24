@@ -164,12 +164,11 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# 4189 = local variable is initialized but not referenced *
 	# 4201 = nonstandard extension used: nameless struct/union *
 	# 4251 = class 'type' needs to have dll-interface to be used by clients of class 'type2' -> dll export / import issues (mostly with templates) *
-	# 4310 = cast truncates constant value *
 	# 4324 = structure was padded due to alignment specifier *
 	# 4345 = behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized
 	# 4714 = function 'function' marked as __forceinline not inlined
 	target_compile_options(${TARGET_NAME} PUBLIC /wd4201 /wd4251 /wd4324 /wd4345)
-	target_compile_options(${TARGET_NAME} PRIVATE /wd4100 /wd4189 /wd4127 /wd4310 /wd4714)
+	target_compile_options(${TARGET_NAME} PRIVATE /wd4100 /wd4189 /wd4127 /wd4714)
 
 	# Set Warnings as Errors: Too few/many parameters given for Macro
 	target_compile_options(${TARGET_NAME} PRIVATE /we4002 /we4003)
