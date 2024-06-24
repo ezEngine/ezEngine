@@ -320,7 +320,7 @@ HRESULT ezStandardInputDevice::OnPointerCaptureLost(ICoreWindow* coreWindow, IPo
   return S_OK;
 }
 
-HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouseDevice* mouseDevice,  ABI::Windows::Devices::Input::IMouseEventArgs* args)
+HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouseDevice* mouseDevice, ABI::Windows::Devices::Input::IMouseEventArgs* args)
 {
   EZ_IGNORE_UNUSED(mouseDevice);
 
@@ -567,7 +567,7 @@ void SetClipRect(bool bClip, HWND hWnd)
   // TODO
   EZ_IGNORE_UNUSED(bClip);
   EZ_IGNORE_UNUSED(hWnd);
-  EZ_ASSERT_NOT_IMPLEMENTED;  
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
