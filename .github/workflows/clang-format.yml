@@ -16,6 +16,7 @@ jobs:
         shell: pwsh
         run: |
           echo "push=false" >> $env:GITHUB_OUTPUT
+          echo "hasPatch=false" >> $env:GITHUB_OUTPUT
 
           git fetch origin "${env:GITHUB_BASE_REF}:refs/remotes/origin/${env:GITHUB_BASE_REF}"
           git fetch origin "${env:GITHUB_HEAD_REF}:refs/remotes/origin/${env:GITHUB_HEAD_REF}"
@@ -34,11 +35,9 @@ jobs:
           $clangDiff = $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format" -iregex ".*\.(cpp|h|inl)"
 
           if($clangDiff.Length -gt 0)
-          {
-            echo $clangDiff
-          
+          {        
             # run it a second time, and let it modify the files itself, because applying the patch appears to be impossible
-            $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -i -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format"
+            $codeDiff | python "${env:GITHUB_WORKSPACE}/Utilities/clang-format-diff.py" -style file -p1 -i -binary "${env:GITHUB_WORKSPACE}/Utilities/Ubuntu/clang-format" -iregex ".*\.(cpp|h|inl)"
 
             #Convert to linux line ending as required for a correct patch file
             $clangDiff = $clangDiff -join "`n"
@@ -46,6 +45,8 @@ jobs:
             #Write out patch file
             $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
             [System.IO.File]::WriteAllText("${env:GITHUB_WORKSPACE}/clangFormat.patch", "$clangDiff`n", $Utf8NoBomEncoding)
+            
+            echo "hasPatch=true" >> $env:GITHUB_OUTPUT
             
             # this doesn't work
             #git apply -p0 "${env:GITHUB_WORKSPACE}/clangFormat.patch"
@@ -73,13 +74,13 @@ jobs:
           }
 
       - name: Content of Patch
-        if: ${{ steps.format_files.outputs.push == 'true' }}
+        if: ${{ steps.format_files.outputs.hasPatch == 'true' }}
         shell: pwsh
         run: |
           Get-Content -Path "${env:GITHUB_WORKSPACE}/clangFormat.patch"
 
       - name: Upload Patch File
-        if: ${{ steps.format_files.outputs.push == 'true' }}
+        if: ${{ steps.format_files.outputs.hasPatch == 'true' }}
         uses: actions/upload-artifact@v2
         with:
           name: ClangFormatPatch
