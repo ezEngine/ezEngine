@@ -56,13 +56,13 @@ jobs:
             git config --global user.name "ezEngine Automation"
             
             echo "Adding .h files"
-            git add `*.h #| Out-Null
+            git add -v `*.h
             
             echo "Adding .inl files"
-            git add `*.inl #| Out-Null
+            git add -v `*.inl
             
             echo "Adding .cpp files"
-            git add `*.cpp #| Out-Null
+            git add -v `*.cpp
             
             git commit -m "Applied code formatting rules"
 
