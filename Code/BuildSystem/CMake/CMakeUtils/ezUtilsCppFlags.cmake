@@ -83,13 +83,13 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 
 	# /WX: treat warnings as errors
 	if(NOT ${ARG_NO_WARNINGS_AS_ERRORS} AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        # Deprecation warnings are not relevant at the moment, thus we enabled warnings as errors
+		# Deprecation warnings are not relevant at the moment, thus we can enable warnings as errors for now
 		target_compile_options(${TARGET_NAME} PRIVATE "/WX")
-        # switch Warning 4996 (deprecation warning) from warning level 3 to warning level 1
+		# switch Warning 4996 (deprecation warning) from warning level 3 to warning level 1
 		# since you can't mark warnings as "not errors" in MSVC, we must switch off
 		# the global warning-as-errors flag
 		# instead we could switch ON selected warnings as errors        
-        target_compile_options(${TARGET_NAME} PRIVATE "/w14996")
+		target_compile_options(${TARGET_NAME} PRIVATE "/w14996")
 	endif()
 
 	if((CMAKE_SIZEOF_VOID_P EQUAL 4) AND EZ_CMAKE_ARCHITECTURE_X86)
@@ -319,7 +319,7 @@ function(ez_enable_strict_warnings TARGET_NAME)
 	if(EZ_CMAKE_COMPILER_MSVC)
 		get_target_property(TARGET_COMPILE_OPTS ${PROJECT_NAME} COMPILE_OPTIONS)
 		list(REMOVE_ITEM TARGET_COMPILE_OPTS /W3) # In case there is W3 already, remove it so it doesn't spam warnings when using Ninja builds.
-        list(REMOVE_ITEM TARGET_COMPILE_OPTS /wd4100) # Enable 4100 = unreferenced formal parameter again
+		list(REMOVE_ITEM TARGET_COMPILE_OPTS /wd4100) # Enable 4100 = unreferenced formal parameter again
 		set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_OPTIONS "${TARGET_COMPILE_OPTS}")
 
 		target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
