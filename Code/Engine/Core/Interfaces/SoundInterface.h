@@ -3,7 +3,7 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Basics.h>
 
-class ezSoundInterface
+class EZ_CORE_DLL ezSoundInterface
 {
 public:
   /// \brief Can be called before startup to load the configs from a different file.
@@ -66,5 +66,5 @@ public:
   ///
   /// Also by default a pitch of 1 is always used. If the game speed is not 1 (ezWorld clock), a custom pitch would need to be provided,
   /// if the sound should play at the same speed.
-  EZ_CORE_DLL static ezResult PlaySound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
+  static ezResult PlaySound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
 };

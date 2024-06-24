@@ -287,7 +287,7 @@ void ezJoltClothSheetComponent::SetupCloth()
   {
     RemoveBody();
 
-    JPH::Ref<JPH::SoftBodySharedSettings> settings = CreateCloth(m_vSegments, m_vSize.CompDiv(ezVec2(m_vSegments.x - 1, m_vSegments.y - 1)), m_Flags);
+    JPH::Ref<JPH::SoftBodySharedSettings> settings = CreateCloth(m_vSegments, m_vSize.CompDiv(ezVec2(static_cast<float>(m_vSegments.x - 1), static_cast<float>(m_vSegments.y - 1))), m_Flags);
 
     settings->mVertexRadius = m_fThickness;
 

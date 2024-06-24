@@ -171,7 +171,7 @@ void ezDetourCrowdWorldModule::UpdateNavMesh(const ezWorldModule::UpdateContext&
   const dtNavMesh* pNavMesh = m_pRecastModule->GetDetourNavMesh();
 
   ezInt32 iDesiredMaxAgents = ezMath::Clamp(cvar_DetourCrowdMaxAgents.GetValue(), 8, 2048);
-  ezInt32 fDesiredMaxRadius = ezMath::Clamp(cvar_DetourCrowdMaxRadius.GetValue(), 0.01f, 5.0f);
+  float fDesiredMaxRadius = ezMath::Clamp(cvar_DetourCrowdMaxRadius.GetValue(), 0.01f, 5.0f);
 
   if (pNavMesh != nullptr && (m_pDtCrowd == nullptr || m_pDtCrowd->getNavMeshQuery()->getAttachedNavMesh() != pNavMesh || m_iMaxAgents != iDesiredMaxAgents || m_fMaxAgentRadius != fDesiredMaxRadius))
   {

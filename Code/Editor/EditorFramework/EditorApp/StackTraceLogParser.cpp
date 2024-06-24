@@ -28,9 +28,9 @@ namespace ezStackTraceLogParser
   bool ParseAssertFileNameAndLineNumber(const ezStringView& sLine, ezStringView& ref_sFileName, ezInt32& ref_iLineNumber)
   {
     const char* szFileMarker = "File: ";
-    const ezUInt32 fileMarkerLength = strlen(szFileMarker);
+    const ezUInt32 fileMarkerLength = ezStringUtils::GetStringElementCount(szFileMarker);
     const char* szLineMarker = "Line: ";
-    const ezUInt32 lineMarkerLength = strlen(szLineMarker);
+    const ezUInt32 lineMarkerLength = ezStringUtils::GetStringElementCount(szLineMarker);
 
     if (sLine.FindSubString("*** Assertion ***") == nullptr)
     {

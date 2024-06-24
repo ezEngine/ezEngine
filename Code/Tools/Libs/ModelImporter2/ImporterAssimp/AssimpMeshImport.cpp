@@ -37,7 +37,7 @@ namespace ezModelImporter2
 
     m_OptimizedMeshes.Insert(pMesh);
 
-    size_t numIndices = pMesh->mNumFaces * 3;
+    ezUInt32 numIndices = pMesh->mNumFaces * 3;
 
     ezDynamicArray<ezUInt32> indices;
     indices.Reserve(numIndices);
@@ -65,7 +65,7 @@ namespace ezModelImporter2
     else
     {
       numNewIndices = meshopt_simplify(simplifiedIndices.GetData(), indices.GetData(), numIndices, &pMesh->mVertices[0].x, pMesh->mNumVertices, sizeof(aiVector3D), numTargetIndices, fTargetError, 0, &err);
-      simplifiedIndices.SetCount(numNewIndices);
+      simplifiedIndices.SetCount(static_cast<ezUInt32>(numNewIndices));
     }
 
     ezDynamicArray<ezUInt32> remapTable;
@@ -125,14 +125,14 @@ namespace ezModelImporter2
       }
     }
 
-    pMesh->mNumVertices = numUniqueVerts;
+    pMesh->mNumVertices = static_cast<ezUInt32>(numUniqueVerts);
 
     ezDynamicArray<ezUInt32> newIndices;
-    newIndices.SetCountUninitialized(numNewIndices);
+    newIndices.SetCountUninitialized(static_cast<ezUInt32>(numNewIndices));
 
     meshopt_remapIndexBuffer(newIndices.GetData(), simplifiedIndices.GetData(), numNewIndices, remapTable.GetData());
 
-    pMesh->mNumFaces = numNewIndices / 3;
+    pMesh->mNumFaces = static_cast<ezUInt32>(numNewIndices / 3);
 
     ezUInt32 nextIdx = 0;
     for (ezUInt32 face = 0; face < pMesh->mNumFaces; ++face)

@@ -79,16 +79,17 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE "/Zc:__cplusplus")
 
 	# set high warning level
-	# target_compile_options(${TARGET_NAME} PRIVATE "/W4") # too much work to fix all warnings in ez
+	target_compile_options(${TARGET_NAME} PRIVATE "/W3")
 
 	# /WX: treat warnings as errors
 	if(NOT ${ARG_NO_WARNINGS_AS_ERRORS} AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-		# target_compile_options(${TARGET_NAME} PRIVATE "/WX")
-		# switch Warning 4996 (deprecation warning) from warning level 3 to warning level 1
+        # Deprecation warnings are not relevant at the moment, thus we enabled warnings as errors
+		target_compile_options(${TARGET_NAME} PRIVATE "/WX")
+        # switch Warning 4996 (deprecation warning) from warning level 3 to warning level 1
 		# since you can't mark warnings as "not errors" in MSVC, we must switch off
 		# the global warning-as-errors flag
-		# instead we could switch ON selected warnings as errors
-		target_compile_options(${TARGET_NAME} PRIVATE "/w14996")
+		# instead we could switch ON selected warnings as errors        
+        target_compile_options(${TARGET_NAME} PRIVATE "/w14996")
 	endif()
 
 	if((CMAKE_SIZEOF_VOID_P EQUAL 4) AND EZ_CMAKE_ARCHITECTURE_X86)

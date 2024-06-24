@@ -261,7 +261,7 @@ void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) 
 
   out_waypoints.SetCountUninitialized((ezUInt32)straightLen);
 
-  for (ezUInt32 i = 0; i < straightLen; ++i)
+  for (int i = 0; i < straightLen; ++i)
   {
     out_waypoints[i] = straightPath[i]; // automatically swaps Y and Z
   }

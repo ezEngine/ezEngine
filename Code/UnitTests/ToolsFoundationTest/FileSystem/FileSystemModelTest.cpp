@@ -237,7 +237,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     EZ_LOCK(fileEventLock);
     if (EZ_TEST_INT(expected.GetCount(), fileEvents.GetCount()))
     {
-      for (size_t i = 0; i < expected.GetCount(); i++)
+      for (ezUInt32 i = 0; i < expected.GetCount(); i++)
       {
         EZ_TEST_INT((int)expected[i].m_Type, (int)fileEvents[i].m_Type);
         EZ_TEST_STRING(expected[i].m_Path, fileEvents[i].m_Path);
@@ -259,7 +259,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     EZ_LOCK(folderEventLock);
     if (EZ_TEST_INT(expected.GetCount(), folderEvents.GetCount()))
     {
-      for (size_t i = 0; i < expected.GetCount(); i++)
+      for (ezUInt32 i = 0; i < expected.GetCount(); i++)
       {
         EZ_TEST_INT((int)expected[i].m_Type, (int)folderEvents[i].m_Type);
         EZ_TEST_STRING(expected[i].m_Path, folderEvents[i].m_Path);

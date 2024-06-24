@@ -270,7 +270,7 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   if (auto pDirectionalLight = ezDynamicCast<const ezDirectionalLightComponent*>(pLightComponent))
   {
     ezTransform localOffset = ezTransform::MakeIdentity();
-    localOffset.m_vPosition = ezVec3(pCamera->GetFarPlane() * -0.999, 0, 0);
+    localOffset.m_vPosition = ezVec3(pCamera->GetFarPlane() * -0.999f, 0, 0);
 
     globalTransform = ezTransform::MakeGlobalTransform(globalTransform, localOffset);
     globalTransform.m_vPosition += pCamera->GetCenterPosition();

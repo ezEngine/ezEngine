@@ -836,7 +836,7 @@ void ezShaderParser::ApplyShaderResourceBindings(ezStringView sPlatform, ezStrin
 
   ezStringBuilder sDeclaration;
   const char* szStart = sShaderStageSource.GetStartPointer();
-  for (int i = 0; i < resources.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < resources.GetCount(); ++i)
   {
     parts.PushBack(ezStringView(szStart, resources[i].m_sDeclarationAndRegister.GetStartPointer()));
 

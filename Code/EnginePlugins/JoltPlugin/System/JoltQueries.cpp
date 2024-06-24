@@ -401,7 +401,7 @@ void ezJoltWorldModule::QueryGeometryInBox(const ezPhysicsQueryParameters& param
 
       out_triangles.Reserve(out_triangles.GetCount() + triCount);
 
-      for (ezUInt32 i = 0; i < triCount; ++i)
+      for (int i = 0; i < triCount; ++i)
       {
         const ezJoltMaterial* pMat = static_cast<const ezJoltMaterial*>(materialsTmp[i]);
 

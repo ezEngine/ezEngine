@@ -237,7 +237,7 @@ void ezEditorAssetDocumentTest::FileOperations()
     EZ_LOCK(events->m_EventMutex);
     if (EZ_TEST_INT(expectedFiles.GetCount(), events->m_FileEvents.GetCount()))
     {
-      for (size_t i = 0; i < expectedFiles.GetCount(); i++)
+      for (ezUInt32 i = 0; i < expectedFiles.GetCount(); i++)
       {
         EZ_TEST_INT((int)expectedFiles[i].m_Type, (int)events->m_FileEvents[i].m_Type);
         EZ_TEST_STRING(expectedFiles[i].m_Path, events->m_FileEvents[i].m_Path);
@@ -247,7 +247,7 @@ void ezEditorAssetDocumentTest::FileOperations()
 
     if (EZ_TEST_INT(expectedAssets.GetCount(), events->m_AssetEvents.GetCount()))
     {
-      for (size_t i = 0; i < expectedAssets.GetCount(); i++)
+      for (ezUInt32 i = 0; i < expectedAssets.GetCount(); i++)
       {
         EZ_TEST_INT((int)expectedAssets[i].m_Type, (int)events->m_AssetEvents[i].m_Type);
         EZ_TEST_STRING(expectedAssets[i].m_sAbsPath, events->m_AssetEvents[i].m_sAbsPath);
