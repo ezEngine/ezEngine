@@ -110,7 +110,7 @@ public:
 
   /// \brief Returns a normalized version of this vector, leaves the vector itself unchanged.
   EZ_DECLARE_IF_FLOAT_TYPE
-  const ezVec3Template<Type> GetNormalized() const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> GetNormalized() const; // [tested]
 
   /// \brief Normalizes this vector.
   EZ_DECLARE_IF_FLOAT_TYPE
@@ -175,30 +175,30 @@ public:
   ezAngle GetAngleBetween(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)
-  Type Dot(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] Type Dot(const ezVec3Template<Type>& rhs) const; // [tested]
 
 
 
   /// \brief Returns the Cross-product of the two vectors (NOT commutative, order DOES matter)
-  const ezVec3Template<Type> CrossRH(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CrossRH(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise minimum of *this and rhs
-  const ezVec3Template<Type> CompMin(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CompMin(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise maximum of *this and rhs
-  const ezVec3Template<Type> CompMax(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CompMax(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise clamped value of *this between low and high.
-  const ezVec3Template<Type> CompClamp(const ezVec3Template<Type>& vLow, const ezVec3Template<Type>& vHigh) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CompClamp(const ezVec3Template<Type>& vLow, const ezVec3Template<Type>& vHigh) const; // [tested]
 
   /// \brief Returns the component-wise multiplication of *this and rhs
-  const ezVec3Template<Type> CompMul(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CompMul(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise division of *this and rhs
-  const ezVec3Template<Type> CompDiv(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CompDiv(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// brief Returns the component-wise absolute of *this.
-  const ezVec3Template<Type> Abs() const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> Abs() const; // [tested]
 
 
   // *** Other common operations ***
