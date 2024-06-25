@@ -39,9 +39,11 @@ struct ezImageConversion_NV12_sRGB : public ezImageConversionStepDeplanarize
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezArrayPtr<ezImageView> source, ezImage target, ezUInt32 uiNumPixelsX, ezUInt32 uiNumPixelsY, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezArrayPtr<ezImageView> source, ezImage target, ezUInt32 uiNumPixelsX, ezUInt32 uiNumPixelsY, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+    EZ_IGNORE_UNUSED(targetFormat);
+
     for (ezUInt32 y = 0; y < uiNumPixelsY; y += 2)
     {
       const ezUInt8* luma0 = source[0].GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);
@@ -99,9 +101,11 @@ struct ezImageConversion_sRGB_NV12 : public ezImageConversionStepPlanarize
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(const ezImageView& source, ezArrayPtr<ezImage> target, ezUInt32 uiNumPixelsX, ezUInt32 uiNumPixelsY, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(const ezImageView& source, ezArrayPtr<ezImage> target, ezUInt32 uiNumPixelsX, ezUInt32 uiNumPixelsY, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+    EZ_IGNORE_UNUSED(targetFormat);
+
     for (ezUInt32 y = 0; y < uiNumPixelsY; y += 2)
     {
       const ezUInt8* rgba0 = source.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);

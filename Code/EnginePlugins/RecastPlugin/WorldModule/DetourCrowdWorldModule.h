@@ -5,7 +5,7 @@
 #include <Core/World/WorldModule.h>
 
 class dtCrowd;
-class dtCrowdAgent;
+struct dtCrowdAgent;
 class ezRecastWorldModule;
 
 

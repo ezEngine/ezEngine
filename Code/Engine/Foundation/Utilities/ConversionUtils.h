@@ -273,6 +273,7 @@ namespace ezConversionUtils
   template <typename T>
   EZ_ALWAYS_INLINE const ezStringBuilder& ToString(const T& value, ezStringBuilder& out_sResult)
   {
+    EZ_IGNORE_UNUSED(value);
     out_sResult = "N/A";
     return out_sResult;
   }

@@ -299,7 +299,7 @@ static ezResult ReadBytesChecked(ezStreamReader& inout_stream, TYPE& ref_dest)
   return ReadBytesChecked(inout_stream, &ref_dest, sizeof(TYPE));
 }
 
-static ezResult ReadImageHeaderImpl(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension, TgaHeader& ref_tgaHeader)
+static ezResult ReadImageHeaderImpl(ezStreamReader& inout_stream, ezImageHeader& ref_header, TgaHeader& ref_tgaHeader)
 {
   EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_iImageIDLength));
   EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_Ignored1));
@@ -345,19 +345,23 @@ static ezResult ReadImageHeaderImpl(ezStreamReader& inout_stream, ezImageHeader&
 
 ezResult ezTgaFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezTgaFileFormat::ReadImageHeader");
 
   TgaHeader tgaHeader;
-  return ReadImageHeaderImpl(inout_stream, ref_header, sFileExtension, tgaHeader);
+  return ReadImageHeaderImpl(inout_stream, ref_header, tgaHeader);
 }
 
 ezResult ezTgaFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezTgaFileFormat::ReadImage");
 
   ezImageHeader imageHeader;
   TgaHeader tgaHeader;
-  EZ_SUCCEED_OR_RETURN(ReadImageHeaderImpl(inout_stream, imageHeader, sFileExtension, tgaHeader));
+  EZ_SUCCEED_OR_RETURN(ReadImageHeaderImpl(inout_stream, imageHeader, tgaHeader));
 
   const ezUInt32 uiBytesPerPixel = tgaHeader.m_iBitsPerPixel / 8;
 

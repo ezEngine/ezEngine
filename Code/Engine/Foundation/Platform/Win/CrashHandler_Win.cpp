@@ -53,6 +53,7 @@ bool ezCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData
     ezLog::Printf("WriteOwnProcessMiniDump failed: %s\n", res.m_sMessage.GetData());
   return res.Succeeded();
 #  else
+  EZ_IGNORE_UNUSED(pOsSpecificData);
   return false;
 #  endif
 }

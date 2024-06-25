@@ -393,7 +393,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   {
     for (auto& item : m_Items)
     {
-      if (m_uiMaxElements > 0 && m_pObjectAccessor->GetCount(item.m_pObject, m_pProp) >= m_uiMaxElements)
+      if (m_uiMaxElements > 0 && m_pObjectAccessor->GetCount(item.m_pObject, m_pProp) >= (int)m_uiMaxElements)
       {
         res = ezStatus("Maximum number of allowed elements reached.");
         break;
@@ -410,7 +410,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   {
     for (auto& item : m_Items)
     {
-      if (m_uiMaxElements > 0 && m_pObjectAccessor->GetCount(item.m_pObject, m_pProp) >= m_uiMaxElements)
+      if (m_uiMaxElements > 0 && m_pObjectAccessor->GetCount(item.m_pObject, m_pProp) >= (int)m_uiMaxElements)
       {
         res = ezStatus("Maximum number of allowed elements reached.");
         break;

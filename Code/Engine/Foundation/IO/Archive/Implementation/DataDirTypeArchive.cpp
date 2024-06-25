@@ -27,6 +27,10 @@ ezDataDirectory::ArchiveType::~ArchiveType() = default;
 
 ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage)
 {
+  EZ_IGNORE_UNUSED(sGroup);
+  EZ_IGNORE_UNUSED(sRootName);
+  EZ_IGNORE_UNUSED(usage);
+
   ArchiveType* pDataDir = EZ_DEFAULT_NEW(ArchiveType);
 
   if (pDataDir->InitializeDataDirectory(sDataDirectory) == EZ_SUCCESS)
@@ -38,6 +42,8 @@ ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(ezStringView sDataDir
 
 ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
 {
+  EZ_IGNORE_UNUSED(bSpecificallyThisDataDir);
+
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
   sArchivePath.AppendPath(sFile);
@@ -133,6 +139,8 @@ void ezDataDirectory::ArchiveType::RemoveDataDirectory()
 
 bool ezDataDirectory::ArchiveType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
 {
+  EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
   sArchivePath.AppendPath(sFile);
   sArchivePath.MakeCleanPath();
@@ -141,6 +149,8 @@ bool ezDataDirectory::ArchiveType::ExistsFile(ezStringView sFile, bool bOneSpeci
 
 ezResult ezDataDirectory::ArchiveType::GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
 {
+  EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
   sArchivePath.AppendPath(sFileOrFolder);
@@ -289,6 +299,7 @@ ezUInt64 ezDataDirectory::ArchiveReaderUncompressed::Read(void* pBuffer, ezUInt6
 
 ezResult ezDataDirectory::ArchiveReaderUncompressed::InternalOpen(ezFileShareMode::Enum FileShareMode)
 {
+  EZ_IGNORE_UNUSED(FileShareMode);
   EZ_ASSERT_DEBUG(FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
 
   // nothing to do
@@ -316,6 +327,7 @@ ezUInt64 ezDataDirectory::ArchiveReaderZstd::Read(void* pBuffer, ezUInt64 uiByte
 
 ezResult ezDataDirectory::ArchiveReaderZstd::InternalOpen(ezFileShareMode::Enum FileShareMode)
 {
+  EZ_IGNORE_UNUSED(FileShareMode);
   EZ_ASSERT_DEBUG(FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
 
   m_CompressedStreamReader.SetInputStream(&m_MemStreamReader);
@@ -346,6 +358,7 @@ ezUInt64 ezDataDirectory::ArchiveReaderZip::Read(void* pBuffer, ezUInt64 uiBytes
 
 ezResult ezDataDirectory::ArchiveReaderZip::InternalOpen(ezFileShareMode::Enum FileShareMode)
 {
+  EZ_IGNORE_UNUSED(FileShareMode);
   EZ_ASSERT_DEBUG(FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
 
   m_CompressedStreamReader.SetInputStream(&m_MemStreamReader, m_uiCompressedSize);

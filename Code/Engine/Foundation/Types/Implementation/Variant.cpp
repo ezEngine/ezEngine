@@ -122,6 +122,7 @@ struct ComputeHashFunc
   template <typename T>
   EZ_FORCE_INLINE ezUInt64 operator()(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
   {
+    EZ_IGNORE_UNUSED(v);
     static_assert(sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 &&
                     !ezVariant::TypeDeduction<T>::forceSharing,
       "This type requires special handling! Add a specialization below.");
@@ -132,40 +133,45 @@ struct ComputeHashFunc
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezString>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   auto pString = static_cast<const ezString*>(pData);
-
   return ezHashingUtils::xxHash64String(*pString, uiSeed);
 }
 
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezMat3>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   return ezHashingUtils::xxHash64(pData, sizeof(ezMat3), uiSeed);
 }
 
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezMat4>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   return ezHashingUtils::xxHash64(pData, sizeof(ezMat4), uiSeed);
 }
 
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezTransform>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   return ezHashingUtils::xxHash64(pData, sizeof(ezTransform), uiSeed);
 }
 
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezDataBuffer>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   auto pDataBuffer = static_cast<const ezDataBuffer*>(pData);
-
   return ezHashingUtils::xxHash64(pDataBuffer->GetData(), pDataBuffer->GetCount(), uiSeed);
 }
 
 template <>
 EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezVariantArray>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
+
   auto pVariantArray = static_cast<const ezVariantArray*>(pData);
 
   ezUInt64 uiHash = uiSeed;
@@ -180,6 +186,8 @@ EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezVariantArray>(const ezVar
 template <>
 ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
+
   auto pVariantDictionary = static_cast<const ezVariantDictionary*>(pData);
 
   ezHybridArray<ezUInt64, 128> hashes;
@@ -199,7 +207,9 @@ ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, co
 template <>
 EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezTypedPointer>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   EZ_IGNORE_UNUSED(pData);
+  EZ_IGNORE_UNUSED(uiSeed);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   return 0;

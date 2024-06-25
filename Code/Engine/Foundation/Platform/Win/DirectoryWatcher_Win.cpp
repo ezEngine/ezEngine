@@ -123,6 +123,7 @@ void ezDirectoryWatcherImpl::DoRead()
   BOOL success =
     ReadDirectoryChangesExW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_whatToWatch.IsSet(ezDirectoryWatcher::Watch::Subdirectories), m_filter, nullptr, &m_overlapped, nullptr, ReadDirectoryNotifyExtendedInformation);
   EZ_ASSERT_DEV(success, "ReadDirectoryChangesW failed.");
+  EZ_IGNORE_UNUSED(success);
 }
 
 void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo)

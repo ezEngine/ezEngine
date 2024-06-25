@@ -78,7 +78,7 @@ ezTestAppRun ezRendererTestShaderCompiler::RunSubTest(ezInt32 iIdentifier, ezUIn
     {
       auto CheckBinding = [&](ezStringView sName, ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType = ezGALShaderTextureType::Unknown, ezBitflags<ezGALShaderStageFlags> stages = ezGALShaderStageFlags::PixelShader, ezUInt32 uiArraySize = 1)
       {
-        for (int i = 0; i < bindings.GetCount(); ++i)
+        for (ezUInt32 i = 0; i < bindings.GetCount(); ++i)
         {
           if (bindings[i].m_sName.GetView() == sName)
           {

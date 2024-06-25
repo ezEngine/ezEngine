@@ -89,7 +89,7 @@ inline bool dtQueryFilter::passFilter(const dtPolyRef /*ref*/,
 									  const dtMeshTile* /*tile*/,
 									  const dtPoly* poly) const
 {
-	unsigned long long areaBit = 1 << poly->getArea(); 
+	unsigned long long areaBit = 1ull << poly->getArea(); 
 	return (poly->flags & m_includeFlags) != 0 && (poly->flags & m_excludeFlags) == 0 && (areaBit & m_includeAreaBits) != 0;
 }
 

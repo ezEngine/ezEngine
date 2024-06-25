@@ -333,7 +333,7 @@ ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execu
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     ++uiCounter;
-    if (uiCounter >= cvar_MaxNodeExecutions)
+    if (uiCounter >= ezUInt32(cvar_MaxNodeExecutions))
     {
       ezLog::Error("Maximum node executions ({}) reached, execution will be aborted. Does the script contain an infinite loop?", cvar_MaxNodeExecutions);
       return ExecResult::Error();

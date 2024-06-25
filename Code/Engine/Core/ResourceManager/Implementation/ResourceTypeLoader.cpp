@@ -62,6 +62,8 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pR
 
 void ezResourceLoaderFromFile::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
+  EZ_IGNORE_UNUSED(pResource);
+
   FileResourceLoadData* pData = static_cast<FileResourceLoadData*>(loaderData.m_pCustomLoaderData);
 
   EZ_DEFAULT_DELETE(pData);
@@ -93,6 +95,8 @@ bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResource* pResource) c
 
 ezResourceLoadData ezResourceLoaderFromMemory::OpenDataStream(const ezResource* pResource)
 {
+  EZ_IGNORE_UNUSED(pResource);
+
   m_Reader.SetStorage(&m_CustomData);
   m_Reader.SetReadPosition(0);
 
@@ -108,6 +112,9 @@ ezResourceLoadData ezResourceLoaderFromMemory::OpenDataStream(const ezResource* 
 
 void ezResourceLoaderFromMemory::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
+  EZ_IGNORE_UNUSED(pResource);
+  EZ_IGNORE_UNUSED(loaderData);
+
   m_Reader.SetStorage(nullptr);
 }
 

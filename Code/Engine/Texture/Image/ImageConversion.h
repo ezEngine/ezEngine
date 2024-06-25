@@ -130,11 +130,11 @@ public:
   ///                               A path generated with sourceEqualsTarget == true will work correctly even if source and target are not
   ///                               the same, but may not be optimal. A path generated with sourceEqualsTarget == false will not work
   ///                               correctly when source and target are the same.
-  /// \param path_out               The generated path.
-  /// \param numScratchBuffers_out The number of scratch buffers required for the conversion path.
+  /// \param out_path               The generated path.
+  /// \param out_numScratchBuffers The number of scratch buffers required for the conversion path.
   /// \returns                      ez_SUCCESS if a path was found, ez_FAILURE otherwise.
   static ezResult BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool bSourceEqualsTarget,
-    ezHybridArray<ConversionPathNode, 16>& ref_path_out, ezUInt32& ref_uiNumScratchBuffers_out);
+    ezHybridArray<ConversionPathNode, 16>& out_path, ezUInt32& out_uiNumScratchBuffers);
 
   /// \brief  Converts the source image into a target image with the given format. Source and target may be the same.
   static ezResult Convert(const ezImageView& source, ezImage& ref_target, ezImageFormat::Enum targetFormat);

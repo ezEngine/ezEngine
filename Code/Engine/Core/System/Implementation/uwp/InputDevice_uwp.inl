@@ -106,6 +106,7 @@ void ezStandardInputDevice::InitializeDevice()
 
 HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs* args)
 {
+  EZ_IGNORE_UNUSED(coreWindow);
   // Closely related to the RawInput implementation in Win32/InputDevice_win32.inl
 
   CorePhysicalKeyStatus keyStatus;
@@ -151,6 +152,8 @@ HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs
 
 HRESULT ezStandardInputDevice::OnCharacterReceived(ICoreWindow* coreWindow, ICharacterReceivedEventArgs* args)
 {
+  EZ_IGNORE_UNUSED(coreWindow);
+
   UINT32 keyCode = 0;
   EZ_SUCCEED_OR_RETURN(args->get_KeyCode(&keyCode));
   m_uiLastCharacter = keyCode;
@@ -160,6 +163,8 @@ HRESULT ezStandardInputDevice::OnCharacterReceived(ICoreWindow* coreWindow, ICha
 
 HRESULT ezStandardInputDevice::OnPointerMovePressEnter(ICoreWindow* coreWindow, IPointerEventArgs* args)
 {
+  EZ_IGNORE_UNUSED(coreWindow);
+
   using namespace ABI::Windows::Devices::Input;
 
   ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
@@ -212,6 +217,8 @@ HRESULT ezStandardInputDevice::OnPointerMovePressEnter(ICoreWindow* coreWindow, 
 
 HRESULT ezStandardInputDevice::OnPointerWheelChange(ICoreWindow* coreWindow, IPointerEventArgs* args)
 {
+  EZ_IGNORE_UNUSED(coreWindow);
+
   using namespace ABI::Windows::Devices::Input;
 
   ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
@@ -247,6 +254,8 @@ HRESULT ezStandardInputDevice::OnPointerWheelChange(ICoreWindow* coreWindow, IPo
 
 HRESULT ezStandardInputDevice::OnPointerReleasedOrExited(ICoreWindow* coreWindow, IPointerEventArgs* args)
 {
+  EZ_IGNORE_UNUSED(coreWindow);
+
   using namespace ABI::Windows::Devices::Input;
 
   ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
@@ -278,6 +287,8 @@ HRESULT ezStandardInputDevice::OnPointerReleasedOrExited(ICoreWindow* coreWindow
 
 HRESULT ezStandardInputDevice::OnPointerCaptureLost(ICoreWindow* coreWindow, IPointerEventArgs* args)
 {
+  EZ_IGNORE_UNUSED(coreWindow);
+
   using namespace ABI::Windows::Devices::Input;
 
   ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
@@ -309,9 +320,10 @@ HRESULT ezStandardInputDevice::OnPointerCaptureLost(ICoreWindow* coreWindow, IPo
   return S_OK;
 }
 
-HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouseDevice* mouseDevice,
-  ABI::Windows::Devices::Input::IMouseEventArgs* args)
+HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouseDevice* mouseDevice, ABI::Windows::Devices::Input::IMouseEventArgs* args)
 {
+  EZ_IGNORE_UNUSED(mouseDevice);
+
   ABI::Windows::Devices::Input::MouseDelta mouseDelta;
   EZ_SUCCEED_OR_RETURN(args->get_MouseDelta(&mouseDelta));
 
@@ -552,7 +564,10 @@ void ezStandardInputDevice::ResetInputSlotValues()
 
 void SetClipRect(bool bClip, HWND hWnd)
 {
-  // NOT IMPLEMENTED. TODO
+  // TODO
+  EZ_IGNORE_UNUSED(bClip);
+  EZ_IGNORE_UNUSED(hWnd);
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)

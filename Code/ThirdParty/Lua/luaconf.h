@@ -62,8 +62,8 @@
 #define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
 #else
   // system and getenv are not supported on UWP
-  inline char* getenv(const char* name) { return "NOT SUPPORTED ON UWP"; }
-  inline int system(const char* command) { return 0; }
+  inline char* getenv(const char* name) { (void)name; return "NOT SUPPORTED ON UWP"; }
+  inline int system(const char* command) { (void)command; return 0; }
 #endif
 // END EZ SPECIFIC UWP FIX
 

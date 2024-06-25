@@ -23,7 +23,7 @@ protected:
   virtual ezResult UpdateStreamBindings() override;
 
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-  virtual void Process(ezUInt64 uiNumElements) override {}
+  virtual void Process(ezUInt64 uiNumElements) override { EZ_IGNORE_UNUSED(uiNumElements); }
 
   ezHashedString m_sStreamName;
 

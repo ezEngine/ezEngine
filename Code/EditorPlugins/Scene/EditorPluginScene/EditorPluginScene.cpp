@@ -98,7 +98,7 @@ QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight
   // can use a 1D image, height doesn't need to be all used
   QImage image = QImage(uiWidth, 1, QImage::Format::Format_RGB32);
 
-  for (int x = 0; x < uiWidth; ++x)
+  for (ezUInt32 x = 0; x < uiWidth; ++x)
   {
     const double pos = (double)x / (uiWidth - 1.0);
     ezColor c = ezColor::MakeFromKelvin(static_cast<ezUInt32>((pos * (fMaxValue - fMinValue)) + fMinValue));

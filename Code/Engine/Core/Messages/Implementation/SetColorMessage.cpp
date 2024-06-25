@@ -77,6 +77,8 @@ void ezMsgSetColor::Serialize(ezStreamWriter& inout_stream) const
 
 void ezMsgSetColor::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion)
 {
+  EZ_IGNORE_UNUSED(uiTypeVersion);
+
   inout_stream >> m_Color;
   inout_stream >> m_Mode;
 }
@@ -90,6 +92,8 @@ void ezMsgSetCustomData::Serialize(ezStreamWriter& inout_stream) const
 
 void ezMsgSetCustomData::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion)
 {
+  EZ_IGNORE_UNUSED(uiTypeVersion);
+
   inout_stream >> m_vData;
 }
 

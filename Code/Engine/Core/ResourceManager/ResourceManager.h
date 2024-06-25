@@ -469,7 +469,7 @@ private:
   template <typename ResourceType>
   static ResourceType* GetResource(ezStringView sResourceID, bool bIsReloadable);
   static ezResource* GetResource(const ezRTTI* pRtti, ezStringView sResourceID, bool bIsReloadable);
-  static void RunWorkerTask(ezResource* pResource);
+  static void RunWorkerTask();
   static void UpdateLoadingDeadlines();
   static void ReverseBubbleSortStep(ezDeque<LoadingInfo>& data);
   static bool ReloadResource(ezResource* pResource, bool bForce);

@@ -249,8 +249,8 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
 
       ezGALSystemMemoryDescription MemDesc;
       MemDesc.m_pData = readBackResult.GetPixelPointer<ezUInt8>();
-      MemDesc.m_uiRowPitch = readBackResult.GetRowPitch();
-      MemDesc.m_uiSlicePitch = readBackResult.GetDepthPitch();
+      MemDesc.m_uiRowPitch = static_cast<ezUInt32>(readBackResult.GetRowPitch());
+      MemDesc.m_uiSlicePitch = static_cast<ezUInt32>(readBackResult.GetDepthPitch());
 
       ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
       ezGALTextureSubresource sourceSubResource;

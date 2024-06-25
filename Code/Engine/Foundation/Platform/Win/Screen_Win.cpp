@@ -7,6 +7,9 @@
 
 BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
 {
+  EZ_IGNORE_UNUSED(pHdcMonitor);
+  EZ_IGNORE_UNUSED(pLprcMonitor);
+
   ezHybridArray<ezScreenInfo, 2>* pScreens = (ezHybridArray<ezScreenInfo, 2>*)data;
 
   MONITORINFOEXW info;

@@ -16,6 +16,7 @@
 
 void ezGALSwapChainDX11::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
 }
 
 void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)

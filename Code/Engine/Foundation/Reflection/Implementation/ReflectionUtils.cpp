@@ -117,6 +117,7 @@ namespace
     ezVariantFromProperty(ezVariant& value, const ezAbstractProperty* pProp)
       : m_value(value)
     {
+      EZ_IGNORE_UNUSED(pProp);
     }
     ~ezVariantFromProperty()
     {
@@ -140,6 +141,7 @@ namespace
     ezVariantFromProperty(ezVariant& value, const ezAbstractProperty* pProp)
       : m_value(value)
     {
+      EZ_IGNORE_UNUSED(pProp);
     }
 
     operator void*()
@@ -211,6 +213,7 @@ namespace
   {
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
     {
+      EZ_IGNORE_UNUSED(pProp);
       m_tempValue = value.ConvertTo<typename ezPropertyValue<T>::StorageType>();
     }
 
@@ -227,6 +230,7 @@ namespace
   {
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
     {
+      EZ_IGNORE_UNUSED(pProp);
       m_sData = value.ConvertTo<ezString>();
       m_pValue = m_sData;
     }
@@ -245,6 +249,7 @@ namespace
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
       : m_value(value)
     {
+      EZ_IGNORE_UNUSED(pProp);
     }
 
     operator const void*()
@@ -260,6 +265,8 @@ namespace
   {
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
     {
+      EZ_IGNORE_UNUSED(pProp);
+
       m_ptr = value.Get<ezTypedPointer>();
       EZ_ASSERT_DEBUG(!m_ptr.m_pType || m_ptr.m_pType->IsDerivedFrom(pProp->GetSpecificType()),
         "Pointer of type '{0}' does not derive from '{}'", m_ptr.m_pType->GetTypeName(), pProp->GetSpecificType()->GetTypeName());
@@ -279,6 +286,7 @@ namespace
   {
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
     {
+      EZ_IGNORE_UNUSED(pProp);
       m_pPtr = value.GetData();
     }
 
@@ -401,7 +409,13 @@ namespace
   template <typename T>
   struct SetComponentValueImpl
   {
-    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue) { EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType()); }
+    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue)
+    {
+      EZ_IGNORE_UNUSED(pVector);
+      EZ_IGNORE_UNUSED(uiComponent);
+      EZ_IGNORE_UNUSED(fValue);
+      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType());
+    }
   };
 
   template <typename T>
@@ -485,22 +499,28 @@ namespace
   template <typename T>
   struct GetComponentValueImpl
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue) { EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType()); }
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& out_fValue)
+    {
+      EZ_IGNORE_UNUSED(pVector);
+      EZ_IGNORE_UNUSED(uiComponent);
+      EZ_IGNORE_UNUSED(out_fValue);
+      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType());
+    }
   };
 
   template <typename T>
   struct GetComponentValueImpl<ezVec2Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue)
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& out_fValue)
     {
       const auto& vec = pVector->Get<ezVec2Template<T>>();
       switch (uiComponent)
       {
         case 0:
-          ref_fValue = static_cast<double>(vec.x);
+          out_fValue = static_cast<double>(vec.x);
           break;
         case 1:
-          ref_fValue = static_cast<double>(vec.y);
+          out_fValue = static_cast<double>(vec.y);
           break;
       }
     }
@@ -509,19 +529,19 @@ namespace
   template <typename T>
   struct GetComponentValueImpl<ezVec3Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue)
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& out_fValue)
     {
       const auto& vec = pVector->Get<ezVec3Template<T>>();
       switch (uiComponent)
       {
         case 0:
-          ref_fValue = static_cast<double>(vec.x);
+          out_fValue = static_cast<double>(vec.x);
           break;
         case 1:
-          ref_fValue = static_cast<double>(vec.y);
+          out_fValue = static_cast<double>(vec.y);
           break;
         case 2:
-          ref_fValue = static_cast<double>(vec.z);
+          out_fValue = static_cast<double>(vec.z);
           break;
       }
     }
@@ -530,22 +550,22 @@ namespace
   template <typename T>
   struct GetComponentValueImpl<ezVec4Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue)
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& out_fValue)
     {
       const auto& vec = pVector->Get<ezVec4Template<T>>();
       switch (uiComponent)
       {
         case 0:
-          ref_fValue = static_cast<double>(vec.x);
+          out_fValue = static_cast<double>(vec.x);
           break;
         case 1:
-          ref_fValue = static_cast<double>(vec.y);
+          out_fValue = static_cast<double>(vec.y);
           break;
         case 2:
-          ref_fValue = static_cast<double>(vec.z);
+          out_fValue = static_cast<double>(vec.z);
           break;
         case 3:
-          ref_fValue = static_cast<double>(vec.w);
+          out_fValue = static_cast<double>(vec.w);
           break;
       }
     }
@@ -1665,6 +1685,8 @@ namespace
   {
     static EZ_ALWAYS_INLINE ezResult Func(ezVariant& value, const ezClampValueAttribute* pAttrib)
     {
+      EZ_IGNORE_UNUSED(value);
+      EZ_IGNORE_UNUSED(pAttrib);
       return EZ_FAILURE;
     }
   };

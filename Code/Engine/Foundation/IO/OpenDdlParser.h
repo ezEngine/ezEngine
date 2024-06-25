@@ -80,7 +80,13 @@ protected:
   /// If bFatal is true, the error has left the parser in an unrecoverable state and thus it will not continue parsing.
   /// In that case client code will need to clean up it's open state, as no further callbacks will be called.
   /// If bFatal is false, the document is not entirely valid, but the parser is still able to continue.
-  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) {}
+  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
+  {
+    EZ_IGNORE_UNUSED(sMessage);
+    EZ_IGNORE_UNUSED(bFatal);
+    EZ_IGNORE_UNUSED(uiLine);
+    EZ_IGNORE_UNUSED(uiColumn);
+  }
 
   /// \brief Called when a new object is encountered.
   virtual void OnBeginObject(ezStringView sType, ezStringView sName, bool bGlobalName) = 0;

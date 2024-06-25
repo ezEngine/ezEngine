@@ -101,7 +101,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
 
     // restart the next loading task (this one is about to finish)
     ezResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
-    ezResourceManager::RunWorkerTask(nullptr);
+    ezResourceManager::RunWorkerTask();
 
     pCustomLoader.Clear();
   }

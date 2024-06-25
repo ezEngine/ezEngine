@@ -302,7 +302,12 @@ public:
   /// \brief Resizes the array to uiCount.
   virtual void SetCount(void* pInstance, ezUInt32 uiCount) const = 0;
 
-  virtual void* GetValuePointer(void* pInstance, ezUInt32 uiIndex) const { return nullptr; }
+  virtual void* GetValuePointer(void* pInstance, ezUInt32 uiIndex) const
+  {
+    EZ_IGNORE_UNUSED(pInstance);
+    EZ_IGNORE_UNUSED(uiIndex);
+    return nullptr;
+  }
 };
 
 

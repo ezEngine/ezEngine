@@ -179,7 +179,7 @@ void ezLodMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
     UpdateSelectedLod(*msg.m_pView);
   }
 
-  if (m_iCurLod >= m_Meshes.GetCount())
+  if (m_iCurLod >= (ezInt32)m_Meshes.GetCount())
     return;
 
   auto hMesh = m_Meshes[m_iCurLod].m_hMesh;

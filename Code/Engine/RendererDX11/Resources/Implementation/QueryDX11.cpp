@@ -48,6 +48,8 @@ ezResult ezGALQueryDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALQueryDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXQuery);
   return EZ_SUCCESS;
 }

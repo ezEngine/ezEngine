@@ -468,6 +468,8 @@ void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEve
 
 void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
+  EZ_IGNORE_UNUSED(context);
+
   for (auto hComp : m_ComponentsToUpdate)
   {
     ezPrefabReferenceComponent* pComponent;

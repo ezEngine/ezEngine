@@ -23,6 +23,8 @@ private:
 #else
   EZ_ALWAYS_INLINE static void DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex)
   {
+    EZ_IGNORE_UNUSED(groupID);
+    EZ_IGNORE_UNUSED(mutex);
   }
 #endif
 

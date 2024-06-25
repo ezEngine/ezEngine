@@ -159,6 +159,8 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALRenderTargetViewDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pRenderTargetView);
   EZ_GAL_DX11_RELEASE(m_pDepthStencilView);
   EZ_GAL_DX11_RELEASE(m_pUnorderedAccessView);

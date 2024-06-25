@@ -79,11 +79,12 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE "/Zc:__cplusplus")
 
 	# set high warning level
-	# target_compile_options(${TARGET_NAME} PRIVATE "/W4") # too much work to fix all warnings in ez
+	target_compile_options(${TARGET_NAME} PRIVATE "/W3")
 
 	# /WX: treat warnings as errors
 	if(NOT ${ARG_NO_WARNINGS_AS_ERRORS} AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-		# target_compile_options(${TARGET_NAME} PRIVATE "/WX")
+		# Deprecation warnings are not relevant at the moment, thus we can enable warnings as errors for now
+		target_compile_options(${TARGET_NAME} PRIVATE "/WX")
 		# switch Warning 4996 (deprecation warning) from warning level 3 to warning level 1
 		# since you can't mark warnings as "not errors" in MSVC, we must switch off
 		# the global warning-as-errors flag
@@ -161,18 +162,13 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 
 	# 4100 = unreferenced formal parameter *
 	# 4127 = conditional expression is constant *
-	# 4189 = local variable is initialized but not referenced *
 	# 4201 = nonstandard extension used: nameless struct/union *
-	# 4245 = signed/unsigned mismatch *
 	# 4251 = class 'type' needs to have dll-interface to be used by clients of class 'type2' -> dll export / import issues (mostly with templates) *
-	# 4310 = cast truncates constant value *
 	# 4324 = structure was padded due to alignment specifier *
 	# 4345 = behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized
-	# 4389 = signed/unsigned mismatch *
 	# 4714 = function 'function' marked as __forceinline not inlined
-	# 6326 = Potential comparison of a constant with another constant
 	target_compile_options(${TARGET_NAME} PUBLIC /wd4201 /wd4251 /wd4324 /wd4345)
-	target_compile_options(${TARGET_NAME} PRIVATE /wd4100 /wd4189 /wd4127 /wd4245 /wd4389 /wd4310 /wd4714 /wd6326)
+	target_compile_options(${TARGET_NAME} PRIVATE /wd4100 /wd4127 /wd4714)
 
 	# Set Warnings as Errors: Too few/many parameters given for Macro
 	target_compile_options(${TARGET_NAME} PRIVATE /we4002 /we4003)
@@ -321,9 +317,9 @@ endfunction()
 # #####################################
 function(ez_enable_strict_warnings TARGET_NAME)
 	if(EZ_CMAKE_COMPILER_MSVC)
-		# In case there is W3 already, remove it so it doesn't spam warnings when using Ninja builds.
 		get_target_property(TARGET_COMPILE_OPTS ${PROJECT_NAME} COMPILE_OPTIONS)
-		list(REMOVE_ITEM TARGET_COMPILE_OPTS /W3)
+		list(REMOVE_ITEM TARGET_COMPILE_OPTS /W3) # In case there is W3 already, remove it so it doesn't spam warnings when using Ninja builds.
+		list(REMOVE_ITEM TARGET_COMPILE_OPTS /wd4100) # Enable 4100 = unreferenced formal parameter again
 		set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_OPTIONS "${TARGET_COMPILE_OPTS}")
 
 		target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)

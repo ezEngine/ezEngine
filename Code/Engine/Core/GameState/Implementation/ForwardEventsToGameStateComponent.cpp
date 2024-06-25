@@ -31,6 +31,8 @@ bool ezForwardEventsToGameStateComponent::HandlesMessage(const ezMessage& msg) c
 
 bool ezForwardEventsToGameStateComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
+  EZ_IGNORE_UNUSED(bWasPostedMsg);
+
   // if we have an active game state, forward the message to it
   if (ezGameStateBase* pGameState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
   {
@@ -42,6 +44,8 @@ bool ezForwardEventsToGameStateComponent::OnUnhandledMessage(ezMessage& msg, boo
 
 bool ezForwardEventsToGameStateComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
 {
+  EZ_IGNORE_UNUSED(bWasPostedMsg);
+
   // if we have an active game state, forward the message to it
   if (const ezGameStateBase* pGameState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
   {

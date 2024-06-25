@@ -63,6 +63,7 @@ void ezDuktapeContext::DestroyContext()
 
 void ezDuktapeContext::FatalErrorHandler(void* pUserData, const char* szMsg)
 {
+  EZ_IGNORE_UNUSED(pUserData);
   // unfortunately it is not possible to do a stack trace here
   ezLog::Error("DukTape: {}", szMsg);
   EZ_ASSERT_ALWAYS(false, "Duktape fatal error {}", szMsg);

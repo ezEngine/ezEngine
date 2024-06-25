@@ -138,7 +138,7 @@ void ezCreatureCrawlComponent::Update()
   // TODO: make step height configurable
   const ezTime tStepDuration = ezTime::MakeFromMilliseconds(150);
   const float fStepHeight = 0.3f;
-  const float fMoveAdd = ezMath::Min<float>(1.0f, GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds() / tStepDuration.GetSeconds());
+  const float fMoveAdd = ezMath::Min<float>(1.0f, GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds() / tStepDuration.AsFloatInSeconds());
 
   ezHybridArray<bool, 8> bLegMoving;
   bLegMoving.SetCount(uiNumLegs);

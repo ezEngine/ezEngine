@@ -372,6 +372,11 @@ static bool s_bUpdatePluginsExecuted = false;
 
 EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
 {
+  EZ_IGNORE_UNUSED(param0);
+  EZ_IGNORE_UNUSED(param1);
+  EZ_IGNORE_UNUSED(param2);
+  EZ_IGNORE_UNUSED(param3);
+
   s_bUpdatePluginsExecuted = true;
 }
 

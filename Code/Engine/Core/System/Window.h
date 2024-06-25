@@ -322,10 +322,14 @@ public:
   virtual void OnResize(const ezSizeU32& newWindowSize);
 
   /// \brief Called when the window position is changed. Not possible on all OSes.
-  virtual void OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY) {}
+  virtual void OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY)
+  {
+    EZ_IGNORE_UNUSED(iNewPosX);
+    EZ_IGNORE_UNUSED(iNewPosY);
+  }
 
   /// \brief Called when the window gets focus or loses focus.
-  virtual void OnFocus(bool bHasFocus) {}
+  virtual void OnFocus(bool bHasFocus) { EZ_IGNORE_UNUSED(bHasFocus); }
 
   /// \brief Called when the window gets focus or loses focus.
   virtual void OnVisibleChange(bool bVisible) { m_bVisible = bVisible; }

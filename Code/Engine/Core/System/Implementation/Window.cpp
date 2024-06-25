@@ -228,6 +228,10 @@ ezWindow::~ezWindow()
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
 {
+  EZ_IGNORE_UNUSED(hWnd);
+  EZ_IGNORE_UNUSED(msg);
+  EZ_IGNORE_UNUSED(wparam);
+  EZ_IGNORE_UNUSED(lparam);
 }
 #endif
 

@@ -62,6 +62,8 @@ ezInternal::ezAllocatorImpl<A, TrackingMode>::~ezAllocatorImpl()
 template <typename A, ezAllocatorTrackingMode TrackingMode>
 void* ezInternal::ezAllocatorImpl<A, TrackingMode>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
 {
+  EZ_IGNORE_UNUSED(destructorFunc);
+
   // zero size allocations always return nullptr without tracking (since deallocate nullptr is ignored)
   if (uiSize == 0)
     return nullptr;

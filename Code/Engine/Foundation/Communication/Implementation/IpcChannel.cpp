@@ -43,6 +43,7 @@ ezInternal::NewInstance<ezIpcChannel> ezIpcChannel::CreatePipeChannel(ezStringVi
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   return EZ_DEFAULT_NEW(ezPipeChannel_linux, sAddress, mode);
 #else
+  EZ_IGNORE_UNUSED(mode);
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 #endif
@@ -54,6 +55,8 @@ ezInternal::NewInstance<ezIpcChannel> ezIpcChannel::CreateNetworkChannel(ezStrin
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   return EZ_DEFAULT_NEW(ezIpcChannelEnet, sAddress, mode);
 #else
+  EZ_IGNORE_UNUSED(sAddress);
+  EZ_IGNORE_UNUSED(mode);
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 #endif

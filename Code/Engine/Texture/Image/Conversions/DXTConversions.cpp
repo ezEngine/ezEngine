@@ -2938,9 +2938,10 @@ class ezImageConversion_CompressBC4 : public ezImageConversionStepCompressBlocks
     return supportedConversions;
   }
 
-  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
-    ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(targetFormat);
+
     ezUInt32 stride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
     ezUInt64 rowPitch = ezImageFormat::GetRowPitch(sourceFormat, 4 * numBlocksX);
 
@@ -2995,9 +2996,10 @@ class ezImageConversion_CompressBC5 : public ezImageConversionStepCompressBlocks
     return supportedConversions;
   }
 
-  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
-    ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
+  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(targetFormat);
+
     ezUInt32 stride = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
     ezUInt64 rowPitch = ezImageFormat::GetRowPitch(sourceFormat, 4 * numBlocksX);
 

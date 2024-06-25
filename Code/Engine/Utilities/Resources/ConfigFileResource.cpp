@@ -133,6 +133,8 @@ ezStringView ezConfigFileResource::GetString(ezTempHashedString sName) const
 
 ezResourceLoadDesc ezConfigFileResource::UnloadData(Unload WhatToUnload)
 {
+  EZ_IGNORE_UNUSED(WhatToUnload);
+
   m_IntData.Clear();
   m_FloatData.Clear();
   m_StringData.Clear();
@@ -365,6 +367,8 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
 
 void ezConfigFileResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
+  EZ_IGNORE_UNUSED(pResource);
+
   LoadedData* pData = static_cast<LoadedData*>(loaderData.m_pCustomLoaderData);
 
   EZ_DEFAULT_DELETE(pData);

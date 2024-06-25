@@ -1405,7 +1405,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
         {
           case ezGALShaderResourceType::ConstantBuffer:
           {
-            const ezGALBufferVulkan* pBuffer = mapping.m_iSlot < resources.m_pBoundConstantBuffers.GetCount() ? resources.m_pBoundConstantBuffers[mapping.m_iSlot] : nullptr;
+            const ezGALBufferVulkan* pBuffer = ezUInt32(mapping.m_iSlot) < resources.m_pBoundConstantBuffers.GetCount() ? resources.m_pBoundConstantBuffers[mapping.m_iSlot] : nullptr;
             EZ_VULKAN_CHECK_STATE(pBuffer != nullptr, "No CB bound at '{}'", mapping.m_sName.GetView());
             write.pBufferInfo = &pBuffer->GetBufferInfo();
           }
@@ -1424,7 +1424,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
             if (mapping.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
             {
               // TextureAndSampler is the only one where we have to combine two resources, requiring us to create a dynamic entry for the pImageInfo field.
-              const ezGALSamplerStateVulkan* pSampler = mapping.m_iSlot < resources.m_pBoundSamplerStates.GetCount() ? resources.m_pBoundSamplerStates[mapping.m_iSlot] : nullptr;
+              const ezGALSamplerStateVulkan* pSampler = ezUInt32(mapping.m_iSlot) < resources.m_pBoundSamplerStates.GetCount() ? resources.m_pBoundSamplerStates[mapping.m_iSlot] : nullptr;
               EZ_VULKAN_CHECK_STATE(pSampler != nullptr, "No sampler bound at '{}'", mapping.m_sName.GetView());
               m_TextureAndSampler.PushBack(*write.pImageInfo);
               m_TextureAndSampler.PeekBack().sampler = pSampler->GetImageInfo().sampler;
@@ -1471,7 +1471,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
           break;
           case ezGALShaderResourceType::Sampler:
           {
-            const ezGALSamplerStateVulkan* pSampler = mapping.m_iSlot < resources.m_pBoundSamplerStates.GetCount() ? resources.m_pBoundSamplerStates[mapping.m_iSlot] : nullptr;
+            const ezGALSamplerStateVulkan* pSampler = ezUInt32(mapping.m_iSlot) < resources.m_pBoundSamplerStates.GetCount() ? resources.m_pBoundSamplerStates[mapping.m_iSlot] : nullptr;
             EZ_VULKAN_CHECK_STATE(pSampler != nullptr, "No sampler bound at '{}'", mapping.m_sName.GetView());
             write.pImageInfo = &pSampler->GetImageInfo();
           }
@@ -1515,7 +1515,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
 const ezGALTextureResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetTextureResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping)
 {
   const ezGALTextureResourceViewVulkan* pResourceView = nullptr;
-  if (mapping.m_iSlot < resources.m_pBoundTextureResourceViews.GetCount())
+  if (ezUInt32(mapping.m_iSlot) < resources.m_pBoundTextureResourceViews.GetCount())
   {
     pResourceView = resources.m_pBoundTextureResourceViews[mapping.m_iSlot];
   }
@@ -1532,7 +1532,7 @@ const ezGALTextureResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetTextureR
 const ezGALBufferResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetBufferResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping)
 {
   const ezGALBufferResourceViewVulkan* pResourceView = nullptr;
-  if (mapping.m_iSlot < resources.m_pBoundBufferResourceViews.GetCount())
+  if (ezUInt32(mapping.m_iSlot) < resources.m_pBoundBufferResourceViews.GetCount())
   {
     pResourceView = resources.m_pBoundBufferResourceViews[mapping.m_iSlot];
   }
@@ -1549,7 +1549,7 @@ const ezGALBufferResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetBufferRes
 const ezGALTextureUnorderedAccessViewVulkan* ezGALCommandEncoderImplVulkan::GetTextureUAV(const SetResources& resources, const ezShaderResourceBinding& mapping)
 {
   const ezGALTextureUnorderedAccessViewVulkan* pUAV = nullptr;
-  if (mapping.m_iSlot < resources.m_pBoundTextureUnorderedAccessViews.GetCount())
+  if (ezUInt32(mapping.m_iSlot) < resources.m_pBoundTextureUnorderedAccessViews.GetCount())
   {
     pUAV = resources.m_pBoundTextureUnorderedAccessViews[mapping.m_iSlot];
   }
@@ -1564,7 +1564,7 @@ const ezGALTextureUnorderedAccessViewVulkan* ezGALCommandEncoderImplVulkan::GetT
 const ezGALBufferUnorderedAccessViewVulkan* ezGALCommandEncoderImplVulkan::GetBufferUAV(const SetResources& resources, const ezShaderResourceBinding& mapping)
 {
   const ezGALBufferUnorderedAccessViewVulkan* pUAV = nullptr;
-  if (mapping.m_iSlot < resources.m_pBoundBufferUnorderedAccessViews.GetCount())
+  if (ezUInt32(mapping.m_iSlot) < resources.m_pBoundBufferUnorderedAccessViews.GetCount())
   {
     pUAV = resources.m_pBoundBufferUnorderedAccessViews[mapping.m_iSlot];
   }

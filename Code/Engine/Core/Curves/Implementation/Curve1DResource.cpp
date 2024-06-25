@@ -27,6 +27,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCurve1DResource, ezCurve1DResourceDescriptor)
 
 ezResourceLoadDesc ezCurve1DResource::UnloadData(Unload WhatToUnload)
 {
+  EZ_IGNORE_UNUSED(WhatToUnload);
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;

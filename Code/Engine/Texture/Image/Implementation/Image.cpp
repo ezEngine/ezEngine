@@ -149,6 +149,11 @@ ezUInt64 ezImageView::ComputeLayout()
 
 void ezImageView::ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiPlaneIndex) const
 {
+  EZ_IGNORE_UNUSED(uiMipLevel);
+  EZ_IGNORE_UNUSED(uiFace);
+  EZ_IGNORE_UNUSED(uiArrayIndex);
+  EZ_IGNORE_UNUSED(uiPlaneIndex);
+
   EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
   EZ_ASSERT_DEV(uiFace < m_uiNumFaces, "Invalid uiFace");
   EZ_ASSERT_DEV(uiArrayIndex < m_uiNumArrayIndices, "Invalid array slice");

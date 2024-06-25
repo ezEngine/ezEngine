@@ -61,6 +61,8 @@ void ezCommandLineUtils::SetCommandLine(ezUInt32 uiArgc, const char** pArgv, Arg
     SetCommandLine();
     return;
   }
+#else
+  EZ_IGNORE_UNUSED(mode);
 #endif
 
   m_Commands.Clear();
@@ -227,15 +229,16 @@ bool ezCommandLineUtils::GetBoolOption(ezStringView sOption, bool bDefault, bool
   if (iIndex < 0)
     return bDefault;
 
-  if (iIndex + 1 == m_Commands.GetCount())    // last command, treat this as 'on'
+  const ezUInt32 uiIndex = iIndex;
+  if (uiIndex + 1 == m_Commands.GetCount())    // last command, treat this as 'on'
     return true;
 
-  if (m_Commands[iIndex + 1].StartsWith("-")) // next command is the next option -> treat this as 'on' as well
+  if (m_Commands[uiIndex + 1].StartsWith("-")) // next command is the next option -> treat this as 'on' as well
     return true;
 
   // otherwise try to convert the next option to a boolean
   bool bRes = bDefault;
-  ezConversionUtils::StringToBool(m_Commands[iIndex + 1].GetData(), bRes).IgnoreResult();
+  ezConversionUtils::StringToBool(m_Commands[uiIndex + 1].GetData(), bRes).IgnoreResult();
 
   return bRes;
 }
@@ -247,12 +250,13 @@ ezInt32 ezCommandLineUtils::GetIntOption(ezStringView sOption, ezInt32 iDefault,
   if (iIndex < 0)
     return iDefault;
 
-  if (iIndex + 1 == m_Commands.GetCount()) // last command
+  const ezUInt32 uiIndex = iIndex;
+  if (uiIndex + 1 == m_Commands.GetCount()) // last command
     return iDefault;
 
   // try to convert the next option to a number
   ezInt32 iRes = iDefault;
-  ezConversionUtils::StringToInt(m_Commands[iIndex + 1].GetData(), iRes).IgnoreResult();
+  ezConversionUtils::StringToInt(m_Commands[uiIndex + 1].GetData(), iRes).IgnoreResult();
 
   return iRes;
 }
@@ -264,12 +268,13 @@ ezUInt32 ezCommandLineUtils::GetUIntOption(ezStringView sOption, ezUInt32 uiDefa
   if (iIndex < 0)
     return uiDefault;
 
-  if (iIndex + 1 == m_Commands.GetCount()) // last command
+  const ezUInt32 uiIndex = iIndex;
+  if (uiIndex + 1 == m_Commands.GetCount()) // last command
     return uiDefault;
 
   // try to convert the next option to a number
   ezUInt32 uiRes = uiDefault;
-  ezConversionUtils::StringToUInt(m_Commands[iIndex + 1].GetData(), uiRes).IgnoreResult();
+  ezConversionUtils::StringToUInt(m_Commands[uiIndex + 1].GetData(), uiRes).IgnoreResult();
 
   return uiRes;
 }
@@ -281,12 +286,13 @@ double ezCommandLineUtils::GetFloatOption(ezStringView sOption, double fDefault,
   if (iIndex < 0)
     return fDefault;
 
-  if (iIndex + 1 == m_Commands.GetCount()) // last command
+  const ezUInt32 uiIndex = iIndex;
+  if (uiIndex + 1 == m_Commands.GetCount()) // last command
     return fDefault;
 
   // try to convert the next option to a number
   double fRes = fDefault;
-  ezConversionUtils::StringToFloat(m_Commands[iIndex + 1].GetData(), fRes).IgnoreResult();
+  ezConversionUtils::StringToFloat(m_Commands[uiIndex + 1].GetData(), fRes).IgnoreResult();
 
   return fRes;
 }

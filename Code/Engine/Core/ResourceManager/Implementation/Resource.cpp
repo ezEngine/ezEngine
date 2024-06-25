@@ -22,6 +22,8 @@ EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource, const void* pOw
 
     info.m_uiNumPtrs = ezStackTracer::GetStackTrace(ptr);
   }
+#else
+  EZ_IGNORE_UNUSED(pOwner);
 #endif
 
   pResource->m_iReferenceCount.Increment();
@@ -38,6 +40,8 @@ EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource, const void* pOw
       EZ_REPORT_FAILURE("No associated stack-trace!");
     }
   }
+#else
+  EZ_IGNORE_UNUSED(pOwner);
 #endif
 
   pResource->m_iReferenceCount.Decrement();

@@ -295,6 +295,9 @@ public:
 
   virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
+    EZ_IGNORE_UNUSED(ref_context);
+    EZ_IGNORE_UNUSED(pGraph);
+
     pNode->RenameProperty("Base Surface", "BaseSurface");
     pNode->RenameProperty("Static Friction", "StaticFriction");
     pNode->RenameProperty("Dynamic Friction", "DynamicFriction");

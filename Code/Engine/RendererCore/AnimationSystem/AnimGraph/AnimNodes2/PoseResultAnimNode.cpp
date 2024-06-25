@@ -80,7 +80,7 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
   const bool bWasInterpolating = pInstance->m_PlayTime < pInstance->m_EndTime;
-  const float fNewTargetWeight = m_InTargetWeight.GetNumber(ref_graph, 1.0f);
+  const float fNewTargetWeight = static_cast<float>(m_InTargetWeight.GetNumber(ref_graph, 1.0f));
 
   if (pInstance->m_fEndWeight != fNewTargetWeight)
   {

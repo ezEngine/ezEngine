@@ -14,6 +14,8 @@ public:
 
   virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const override
   {
+    EZ_IGNORE_UNUSED(vGlobalPosition);
+
     out_coordinateSystem.m_vForwardDir = ezBasisAxis::GetBasisVector(m_ForwardAxis);
     out_coordinateSystem.m_vRightDir = ezBasisAxis::GetBasisVector(m_RightAxis);
     out_coordinateSystem.m_vUpDir = ezBasisAxis::GetBasisVector(m_UpAxis);
@@ -255,7 +257,7 @@ void ezCamera::LookAt(const ezVec3& vCameraPos0, const ezVec3& vTargetPos0, cons
   m_mViewMatrix[1] = m_mViewMatrix[0];
   m_vCameraPosition[1] = m_vCameraPosition[0] = vCameraPos;
 
-  CameraOrientationChanged(true, true);
+  CameraOrientationChanged();
 }
 
 void ezCamera::SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye)
@@ -274,7 +276,7 @@ void ezCamera::SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye)
     m_vCameraPosition[1 - iEyeIdx] = m_vCameraPosition[iEyeIdx];
   }
 
-  CameraOrientationChanged(true, true);
+  CameraOrientationChanged();
 }
 
 void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_mProjectionMatrix, ezCameraEye eye, ezClipSpaceDepthRange::Enum depthRange) const
@@ -336,7 +338,7 @@ void ezCamera::MoveLocally(float fForward, float fRight, float fUp)
 
   m_vCameraPosition[0] = m_vCameraPosition[1] = decPos;
 
-  CameraOrientationChanged(true, false);
+  CameraOrientationChanged();
 }
 
 void ezCamera::MoveGlobally(float fForward, float fRight, float fUp)
@@ -353,11 +355,14 @@ void ezCamera::MoveGlobally(float fForward, float fRight, float fUp)
 
   m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
 
-  CameraOrientationChanged(true, false);
+  CameraOrientationChanged();
 }
 
 void ezCamera::ClampRotationAngles(bool bLocalSpace, ezAngle& forwardAxis, ezAngle& rightAxis, ezAngle& upAxis)
 {
+  EZ_IGNORE_UNUSED(forwardAxis);
+  EZ_IGNORE_UNUSED(upAxis);
+
   if (bLocalSpace)
   {
     if (rightAxis.GetRadian() != 0.0f)
@@ -413,7 +418,7 @@ void ezCamera::RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axi
   m_mViewMatrix[0] = ezGraphicsUtils::CreateLookAtViewMatrix(vPos, vPos + vDirForwards, vDirUp, ezHandedness::LeftHanded);
   m_mViewMatrix[1] = m_mViewMatrix[0];
 
-  CameraOrientationChanged(false, true);
+  CameraOrientationChanged();
 }
 
 void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axis)
@@ -456,7 +461,7 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle ax
   m_mViewMatrix[0] = ezGraphicsUtils::CreateLookAtViewMatrix(vPos, vPos + vDirForwards, vDirUp, ezHandedness::LeftHanded);
   m_mViewMatrix[1] = m_mViewMatrix[0];
 
-  CameraOrientationChanged(false, true);
+  CameraOrientationChanged();
 }
 
 

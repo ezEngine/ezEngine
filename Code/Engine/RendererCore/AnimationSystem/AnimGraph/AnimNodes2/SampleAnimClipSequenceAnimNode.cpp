@@ -157,7 +157,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       {
         if (!m_Clips.IsEmpty())
         {
-          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(ref_graph, 0xFF);
+          pState->m_uiMiddleClipIdx = static_cast<ezUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -174,7 +174,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       {
         if (!m_Clips.IsEmpty())
         {
-          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(ref_graph, 0xFF);
+          pState->m_uiMiddleClipIdx = static_cast<ezUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -199,7 +199,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
 
         if (!m_Clips.IsEmpty())
         {
-          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(ref_graph, 0xFF);
+          pState->m_uiMiddleClipIdx = static_cast<ezUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -252,7 +252,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
           m_OutOnMiddleStarted.SetTriggered(ref_graph);
           pState->m_State = State::Middle;
 
-          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(ref_graph, 0xFF);
+          pState->m_uiMiddleClipIdx = static_cast<ezUInt8>(m_ClipIndexPin.GetNumber(ref_graph, 0xFF));
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());

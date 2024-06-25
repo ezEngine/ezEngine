@@ -76,6 +76,8 @@ private:
   template <ezInt32 N>
   typename std::enable_if<sizeof...(ARGS) == N>::type ReplaceString(char tmp[MaxNumParameters][TempStringLength], ezStringView* pViews) const
   {
+    EZ_IGNORE_UNUSED(tmp);
+    EZ_IGNORE_UNUSED(pViews);
   }
 
 

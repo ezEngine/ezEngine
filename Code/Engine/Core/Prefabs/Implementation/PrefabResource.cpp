@@ -213,6 +213,8 @@ void ezPrefabResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPrefabResource, ezPrefabResourceDescriptor)
 {
+  EZ_IGNORE_UNUSED(descriptor);
+
   ezResourceLoadDesc desc;
   desc.m_State = ezResourceState::Loaded;
   desc.m_uiQualityLevelsDiscardable = 0;

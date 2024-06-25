@@ -155,7 +155,7 @@ ezResult ezExpressionCompiler::Compile(ezExpressionAST& ref_ast, ezExpressionByt
 
   EZ_SUCCEED_OR_RETURN(TransformAndOptimizeAST(ref_ast, sDebugAstOutputPath));
   EZ_SUCCEED_OR_RETURN(BuildNodeInstructions(ref_ast));
-  EZ_SUCCEED_OR_RETURN(UpdateRegisterLifetime(ref_ast));
+  EZ_SUCCEED_OR_RETURN(UpdateRegisterLifetime());
   EZ_SUCCEED_OR_RETURN(AssignRegisters());
   EZ_SUCCEED_OR_RETURN(GenerateByteCode(ref_ast, out_byteCode));
 
@@ -282,7 +282,7 @@ ezResult ezExpressionCompiler::BuildNodeInstructions(const ezExpressionAST& ast)
   return EZ_SUCCESS;
 }
 
-ezResult ezExpressionCompiler::UpdateRegisterLifetime(const ezExpressionAST& ast)
+ezResult ezExpressionCompiler::UpdateRegisterLifetime()
 {
   ezUInt32 uiNumInstructions = m_NodeInstructions.GetCount();
   for (ezUInt32 uiInstructionIndex = 0; uiInstructionIndex < uiNumInstructions; ++uiInstructionIndex)

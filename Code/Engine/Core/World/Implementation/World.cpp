@@ -13,6 +13,9 @@ ezStaticArray<ezWorld*, ezWorld::GetMaxNumWorlds()> ezWorld::s_Worlds;
 
 static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, ezComponentHandle hThis, ezStringView sProperty)
 {
+  EZ_IGNORE_UNUSED(hThis);
+  EZ_IGNORE_UNUSED(sProperty);
+
   const char* szRef = reinterpret_cast<const char*>(pData);
 
   if (ezStringUtils::IsNullOrEmpty(szRef))
@@ -331,6 +334,7 @@ void ezWorld::BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle&
 void ezWorld::EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch)
 {
   EZ_ASSERT_DEV(m_Data.m_InitBatches[hBatch.GetInternalID()] == m_Data.m_pCurrentInitBatch, "Init batch with id {} is currently not active", hBatch.GetInternalID().m_Data);
+  EZ_IGNORE_UNUSED(hBatch);
   m_Data.m_pCurrentInitBatch = m_Data.m_pDefaultInitBatch;
 }
 

@@ -201,6 +201,7 @@ void ezGALCommandEncoderImplDX11::SetUnorderedAccessView(const ezShaderResourceB
 
 void ezGALCommandEncoderImplDX11::SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data)
 {
+  EZ_IGNORE_UNUSED(data);
   EZ_REPORT_FAILURE("DX11 does not support push constants, this function should not have been called.");
 }
 
@@ -304,6 +305,7 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
         D3D11_MAPPED_SUBRESOURCE MapResult;
         HRESULT hRes = m_pDXContext->Map(pDXTempBuffer, 0, D3D11_MAP_WRITE, 0, &MapResult);
         EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+        EZ_IGNORE_UNUSED(hRes);
 
         memcpy(MapResult.pData, sourceData.GetPtr(), sourceData.GetCount());
 
@@ -375,6 +377,7 @@ void ezGALCommandEncoderImplDX11::UpdateTexturePlatform(const ezGALTexture* pDes
     D3D11_MAPPED_SUBRESOURCE MapResult;
     HRESULT hRes = m_pDXContext->Map(pDXTempTexture, 0, D3D11_MAP_WRITE, 0, &MapResult);
     EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+    EZ_IGNORE_UNUSED(hRes);
 
     ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(format) / 8;
     ezUInt32 uiSlicePitch = uiRowPitch * uiHeight;

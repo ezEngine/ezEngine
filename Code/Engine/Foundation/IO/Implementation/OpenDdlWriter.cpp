@@ -419,6 +419,8 @@ void ezOpenDdlWriter::EndPrimitiveList()
 
 void ezOpenDdlWriter::WritePrimitiveType(ezOpenDdlWriter::State exp)
 {
+  EZ_IGNORE_UNUSED(exp);
+
   auto& state = m_StateStack.PeekBack();
   EZ_ASSERT_DEBUG(state.m_State == exp, "Cannot write thie primitive type without have the correct primitive list open");
 

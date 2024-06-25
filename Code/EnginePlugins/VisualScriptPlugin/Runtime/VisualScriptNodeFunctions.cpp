@@ -957,7 +957,7 @@ namespace
     NumberType res = 0;
     if constexpr (std::is_same_v<T, bool>)
     {
-      res = inout_context.GetData<T>(dataOffset) ? 1 : 0;
+      res = inout_context.GetData<T>(dataOffset) ? NumberType(1) : NumberType(0);
     }
     else if constexpr (std::is_same_v<T, ezUInt8> ||
                        std::is_same_v<T, ezInt32> ||

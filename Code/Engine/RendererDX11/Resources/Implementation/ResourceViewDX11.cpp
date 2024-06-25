@@ -148,6 +148,8 @@ ezResult ezGALTextureResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALTextureResourceViewDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXResourceView);
   return EZ_SUCCESS;
 }
@@ -230,6 +232,8 @@ ezResult ezGALBufferResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALBufferResourceViewDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXResourceView);
   return EZ_SUCCESS;
 }

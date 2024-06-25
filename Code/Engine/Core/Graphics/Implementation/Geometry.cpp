@@ -243,8 +243,14 @@ struct TangentContext
 
   static void setTSpace(const SMikkTSpaceContext* pContext, const float pTangent[], const float pBiTangent[], const float fMagS, const float fMagT, const tbool isOrientationPreserving, const int iFace, const int iVert)
   {
-    int i = 0;
-    (void)i;
+    EZ_IGNORE_UNUSED(pContext);
+    EZ_IGNORE_UNUSED(pTangent);
+    EZ_IGNORE_UNUSED(pBiTangent);
+    EZ_IGNORE_UNUSED(fMagS);
+    EZ_IGNORE_UNUSED(fMagT);
+    EZ_IGNORE_UNUSED(isOrientationPreserving);
+    EZ_IGNORE_UNUSED(iFace);
+    EZ_IGNORE_UNUSED(iVert);
   }
 
   ezGeometry* m_pGeom;

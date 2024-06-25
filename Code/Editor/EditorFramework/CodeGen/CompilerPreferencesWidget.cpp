@@ -118,7 +118,7 @@ void ezQtCompilerPreferencesWidget::on_compiler_preset_changed(int index)
 {
   auto compilerPresets = ezCppProject::GetMachineSpecificCompilers();
 
-  if (index >= 0 && index < compilerPresets.GetCount())
+  if (index >= 0 && index < (int)compilerPresets.GetCount())
   {
     const auto& preset = compilerPresets[index];
 
