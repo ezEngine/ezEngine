@@ -145,6 +145,7 @@ public:
   void SetName(ezStringView sName);
   void SetName(const ezHashedString& sName);
   ezStringView GetName() const;
+  const ezHashedString& GetNameHashed() const;
   bool HasName(const ezTempHashedString& sName) const;
 
   /// \brief Sets the global key to identify this object. Global keys must be unique within a world.
