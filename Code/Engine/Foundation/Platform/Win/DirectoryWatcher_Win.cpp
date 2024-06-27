@@ -89,7 +89,7 @@ namespace
     }
   }
 
-  void GetChangesNonNTFS(ezStringView sDirectoryPath, ezFileSystemMirrorType* pMirror, const ezHybridArray<ezUInt8, 4096>& buffer, ezDynamicArray<Change>& ref_changes)
+  void GetChangesNonNTFS(ezStringView sDirectoryPath, const ezHybridArray<ezUInt8, 4096>& buffer, ezDynamicArray<Change>& ref_changes)
   {
     ezUInt32 uiChanges = 1;
     auto info = (const FILE_NOTIFY_INFORMATION*)buffer.GetData();
@@ -143,7 +143,7 @@ namespace
       for (ezUInt32 i = 0; i < ref_changes.GetCount(); i++)
       {
         const auto& currentChange = ref_changes[i];
-        if (pendingRemoveOrRename != -1 && currentChange.Action == FILE_ACTION_RENAMED_OLD_NAME && ref_changes[pendingRemoveOrRename].eventFilePath == currentChange.eventFilePath)
+        if (pendingRemoveOrRename != -1 && (currentChange.Action == FILE_ACTION_RENAMED_OLD_NAME) && (ref_changes[pendingRemoveOrRename].eventFilePath == currentChange.eventFilePath))
         {
           // This is the bogus removed event because we changed the casing of a file / directory, ignore.
           lastChangeAtPath.Insert(ref_changes[pendingRemoveOrRename].eventFilePath, pendingRemoveOrRename);
@@ -206,7 +206,7 @@ namespace
 
     // Anything that is chained via the nextOp linked list must be given the same type.
     // Instead of building arrays of arrays, we create a bit field of all changes and then flatten the linked list at the first set bit. While iterating we remove everything we reached via the linked list so on the next call to get the first bit we will find another object that needs processing. As the operations are ordered, the first bit will always point to the very first operation of an object (nextOp can never point to a previous element).
-    ezBitfield<ezHybridArray<ezUInt32, 4>> pendingChanges;
+    ezHybridBitfield<128> pendingChanges;
     pendingChanges.SetCount(ref_changes.GetCount(), true);
 
     // Get start of first object.
@@ -399,7 +399,7 @@ void ezDirectoryWatcherImpl::DoRead()
 
 void ezDirectoryWatcherImpl::EnumerateChangesImpl(ezStringView sDirectoryPath, ezTime waitUpTo, const ezDelegate<void(const Change&)>& callback)
 {
-  ezDynamicArray<Change> changes;
+  ezHybridArray<Change, 6> changes;
 
   ezHybridArray<ezUInt8, 4096> buffer;
   while (WaitForSingleObject(m_overlappedEvent, static_cast<DWORD>(waitUpTo.GetMilliseconds())) == WAIT_OBJECT_0)
@@ -433,7 +433,7 @@ void ezDirectoryWatcherImpl::EnumerateChangesImpl(ezStringView sDirectoryPath, e
     }
     else
     {
-      GetChangesNonNTFS(sDirectoryPath, m_mirror.Borrow(), buffer, changes);
+      GetChangesNonNTFS(sDirectoryPath, buffer, changes);
     }
   }
 
