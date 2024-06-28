@@ -234,29 +234,29 @@ namespace
       // 3. If the object was created and deleted in the same enumeration, we cannot know what type it was, so we take a guess.
       {
         bool isFile = true;
-        bool typeFound = false;
-        for (Change* currentChange : objectChanges)
+        ezFileSystemMirrorType::Type type;
+        if (pMirror->GetType(objectChanges[0]->eventFilePath, type).Succeeded())
         {
-          ezFileSystemMirrorType::Type type;
-          if (pMirror->GetType(currentChange->eventFilePath, type).Succeeded())
-          {
-            isFile = type == ezFileSystemMirrorType::Type::File;
-            typeFound = true;
-            break;
-          }
-          ezFileStats stats;
-          if (ezOSFile::GetFileStats(currentChange->eventFilePath, stats).Succeeded())
-          {
-            isFile = !stats.m_bIsDirectory;
-            typeFound = true;
-            break;
-          }
+          isFile = type == ezFileSystemMirrorType::Type::File;
         }
-
-        if (!typeFound)
+        else
         {
-          // No stats and no entry in mirror: It's guessing time!
-          isFile = objectChanges[0]->eventFilePath.FindSubString(".") != nullptr;
+          bool typeFound = false;
+          for (Change* currentChange : objectChanges)
+          {
+            ezFileStats stats;
+            if (ezOSFile::GetFileStats(currentChange->eventFilePath, stats).Succeeded())
+            {
+              isFile = !stats.m_bIsDirectory;
+              typeFound = true;
+              break;
+            }
+          }
+          if (!typeFound)
+          {
+            // No stats and no entry in mirror: It's guessing time!
+            isFile = objectChanges[0]->eventFilePath.FindSubString(".") != nullptr;
+          }
         }
 
         // Apply type to all objects in the chain.
