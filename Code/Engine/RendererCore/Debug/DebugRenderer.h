@@ -197,6 +197,9 @@ public:
   /// \brief Renders a wireframe box at the given location for as many frames until \a duration has passed.
   static void AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& vHalfSize, const ezColor& color, const ezTransform& transform, ezTime duration);
 
+  /// \brief Renders lines at the given location for as many frames until \a duration has passed.
+  static void AddPersistentLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform, ezTime duration);
+
   /// \brief Renders a solid 2D cone in a plane with a given angle.
   ///
   /// The rotation goes around the given \a rotationAxis.

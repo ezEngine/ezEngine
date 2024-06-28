@@ -439,12 +439,21 @@ namespace
     ezTime m_Timeout;
   };
 
+  struct PersistentLineData
+  {
+    ezHybridArray<ezDebugRenderer::Line, 32> m_Lines;
+    ezColor m_Color;
+    ezTransform m_Transform;
+    ezTime m_Timeout;
+  };
+
   struct PersistentPerContextData
   {
     ezTime m_Now;
     ezDeque<PersistentCrossData> m_Crosses;
     ezDeque<PersistentSphereData> m_Spheres;
     ezDeque<PersistentBoxData> m_Boxes;
+    ezDeque<PersistentLineData> m_Lines;
   };
 
   static ezHashTable<ezDebugRendererContext, PersistentPerContextData> s_PersistentPerContextData;
@@ -1062,6 +1071,18 @@ void ezDebugRenderer::AddPersistentLineBox(const ezDebugRendererContext& context
   item.m_Timeout = data.m_Now + duration;
 }
 
+void ezDebugRenderer::AddPersistentLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform, ezTime duration)
+{
+  EZ_LOCK(s_Mutex);
+
+  auto& data = s_PersistentPerContextData[context];
+  auto& item = data.m_Lines.ExpandAndGetRef();
+  item.m_Transform = transform;
+  item.m_Color = color;
+  item.m_Lines = lines;
+  item.m_Timeout = data.m_Now + duration;
+}
+
 void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/, ezVec3 vRotationAxis /*= ezVec3::MakeAxisZ()*/)
 {
   ezHybridArray<Triangle, 64> tris;
@@ -1419,6 +1440,27 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
         else
         {
           ezDebugRenderer::DrawLineBox(context, ezBoundingBox::MakeFromMinMax(-item.m_vHalfSize, item.m_vHalfSize), item.m_Color, item.m_Transform);
+
+          ++i;
+        }
+      }
+    }
+
+    // persistent lines
+    {
+      ezUInt32 uiNumItems = data.m_Lines.GetCount();
+      for (ezUInt32 i = 0; i < uiNumItems;)
+      {
+        const auto& item = data.m_Lines[i];
+
+        if (data.m_Now > item.m_Timeout)
+        {
+          data.m_Lines.RemoveAtAndSwap(i);
+          --uiNumItems;
+        }
+        else
+        {
+          ezDebugRenderer::DrawLines(context, item.m_Lines.GetArrayPtr(), item.m_Color, item.m_Transform);
 
           ++i;
         }
