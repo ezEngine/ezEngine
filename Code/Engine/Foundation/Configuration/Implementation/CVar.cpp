@@ -118,7 +118,7 @@ ezCVar* ezCVar::FindCVarByName(ezStringView sName)
 
   while (pCVar)
   {
-    if (pCVar->GetName() == sName)
+    if (pCVar->GetName().IsEqual_NoCase(sName))
       return pCVar;
 
     pCVar = pCVar->GetNextInstance();
