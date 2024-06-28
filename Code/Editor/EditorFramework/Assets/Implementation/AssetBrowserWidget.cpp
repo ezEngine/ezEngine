@@ -354,7 +354,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
 
   ezDynamicArray<const ezDocumentTypeDescriptor*> documentTypes;
 
-  QMenu* pSubMenu = pMenu->addMenu("New");
+  QMenu* pSubMenu = pMenu->addMenu(QIcon(":/GuiFoundation/Icons/DocumentAdd.svg"), "New");
 
   ezStringBuilder sTypeFilter = m_pFilter->GetTypeFilter();
 
@@ -627,6 +627,15 @@ void ezQtAssetBrowserWidget::keyPressEvent(QKeyEvent* e)
   }
 }
 
+void ezQtAssetBrowserWidget::RenameCurrent()
+{
+  m_bOpenAfterRename = false;
+
+  if (ListAssets->currentIndex().isValid())
+  {
+    ListAssets->edit(ListAssets->currentIndex());
+  }
+}
 
 void ezQtAssetBrowserWidget::DeleteSelection()
 {
@@ -875,6 +884,9 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
     {
       QString sTitle = "Open Selection";
       QIcon icon = QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg"));
+
+      bool bShowOpenWith = false;
+
       if (ListAssets->selectionModel()->selectedIndexes().count() == 1)
       {
         const QModelIndex firstItem = ListAssets->selectionModel()->selectedIndexes()[0];
@@ -887,6 +899,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
         else if (itemType.IsSet(ezAssetBrowserItemFlags::File))
         {
           sTitle = "Open File";
+          bShowOpenWith = true;
         }
         else if (itemType.IsAnySet(ezAssetBrowserItemFlags::DataDirectory | ezAssetBrowserItemFlags::Folder))
         {
@@ -895,6 +908,11 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
         }
       }
       m.setDefaultAction(m.addAction(icon, sTitle, this, SLOT(OnListOpenAssetDocument())));
+
+      if (bShowOpenWith)
+      {
+        m.addAction(icon, "Open With...", this, SLOT(OnListOpenFileWith()));
+      }
     }
     else
       m.setDefaultAction(m.addAction(QLatin1String("Select"), this, SLOT(OnListOpenAssetDocument())));
@@ -931,9 +949,31 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
       }
     }
 
+    // Rename
+    {
+      bool bCanRename = true;
+
+      QModelIndex id = ListAssets->currentIndex();
+
+      const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)id.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+      if (itemType.IsAnySet(ezAssetBrowserItemFlags::SubAsset | ezAssetBrowserItemFlags::DataDirectory))
+      {
+        bCanRename = false;
+      }
+
+      QAction* pRename = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Rename.svg")), QLatin1String("Rename"), this, SLOT(RenameCurrent()));
+      pRename->setShortcut(QKeySequence("F2"));
+      if (!bCanRename)
+      {
+        pRename->setEnabled(false);
+        pRename->setToolTip("Sub-assets and data directories can't be renamed.");
+      }
+    }
+
     // Delete
     {
       QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"), this, SLOT(DeleteSelection()));
+      pDelete->setShortcut(QKeySequence("Del"));
       if (!bAllFiles)
       {
         pDelete->setEnabled(false);
@@ -979,6 +1019,16 @@ void ezQtAssetBrowserWidget::OnListOpenAssetDocument()
       continue;
     on_ListAssets_doubleClicked(index);
   }
+}
+
+void ezQtAssetBrowserWidget::OnListOpenFileWith()
+{
+  if (!ListAssets->currentIndex().isValid())
+    return;
+
+  ezString sPath = m_pModel->data(ListAssets->currentIndex(), ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+
+  ezQtUiServices::OpenWith(sPath);
 }
 
 
