@@ -14,6 +14,10 @@
 #include <QSettings>
 #include <QUrl>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <ShlObj_core.h>
+#endif
+
 EZ_IMPLEMENT_SINGLETON(ezQtUiServices);
 
 ezEvent<const ezQtUiServices::Event&> ezQtUiServices::s_Events;
@@ -383,6 +387,24 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
   args << QDir::toNativeSeparators(szPath);
 
   QProcess::startDetached("xdg-open", args);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED
+#endif
+}
+
+void ezQtUiServices::OpenWith(const char* szPath)
+{
+  ezStringBuilder sPath = szPath;
+  sPath.MakeCleanPath();
+  sPath.MakePathSeparatorsNative();
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  ezStringWChar wpath(sPath);
+  OPENASINFO oi;
+  oi.pcszFile = wpath.GetData();
+  oi.pcszClass = NULL;
+  oi.oaifInFlags = OAIF_EXEC;
+  SHOpenWithDialog(NULL, &oi);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED
 #endif
