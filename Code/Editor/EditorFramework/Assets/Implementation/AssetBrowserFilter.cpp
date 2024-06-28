@@ -234,19 +234,16 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
       return true;
   }
 
-  if (!m_sPathFilter.IsEmpty() || bIsFolder)
-  {
-    // if the string is not found in the path, ignore this asset
-    if (!sDataDirParentRelativePath.StartsWith(m_sPathFilter))
-      return true;
+  // if the string is not found in the path, ignore this asset
+  if (!sDataDirParentRelativePath.StartsWith(m_sPathFilter))
+    return true;
 
-    if (!m_bShowItemsInSubFolders || bIsFolder)
-    {
-      // do we find another path separator after the prefix path?
-      // if so, there is a sub-folder, and thus we ignore it
-      if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
-        return true;
-    }
+  if (m_SearchFilter.IsEmpty() && (!m_bShowItemsInSubFolders || bIsFolder))
+  {
+    // do we find another path separator after the prefix path?
+    // if so, there is a sub-folder, and thus we ignore it
+    if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
+      return true;
   }
 
   if (!m_bShowItemsInHiddenFolders)

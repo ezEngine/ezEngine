@@ -43,7 +43,33 @@
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
        <item>
-        <widget class="ezQtSearchWidget" name="SearchWidget" native="true"/>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <item>
+          <widget class="ezQtSearchWidget" name="SearchWidget" native="true"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="ButtonShowItemsSubFolders">
+           <property name="toolTip">
+            <string>Show/Hide items in sub-folders</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../QtResources/resources.qrc">
+             <normalon>:/EditorFramework/Icons/Perspective.svg</normalon>
+             <normaloff>:/EditorFramework/Icons/ShowHidden.svg</normaloff>
+            </iconset>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QComboBox" name="TypeFilter"/>
