@@ -3,6 +3,7 @@
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER) && EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
 #  include <Foundation/Application/Config/FileSystemConfig.h>
+#  include <Foundation/Configuration/CVar.h>
 #  include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #  include <Foundation/IO/FileSystem/FileReader.h>
 #  include <Foundation/IO/FileSystem/FileSystem.h>
@@ -157,7 +158,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
   }
 }
 
-EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
+void FileSystemModelTest()
 {
   constexpr ezUInt32 WAIT_LOOPS = 1000;
 
@@ -1059,5 +1060,20 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.RemoveEventHandler(folderId);
   }
 }
+
+EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
+{
+  FileSystemModelTest();
+}
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModelNonNTFS)
+{
+  auto* pForceNonNTFS = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("DirectoryWatcher.ForceNonNTFS"));
+  *pForceNonNTFS = true;
+  FileSystemModelTest();
+  *pForceNonNTFS = false;
+}
+#  endif
 
 #endif

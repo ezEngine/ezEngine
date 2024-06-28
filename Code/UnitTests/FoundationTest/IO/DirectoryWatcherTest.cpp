@@ -2,6 +2,7 @@
 
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
 
+#  include <Foundation/Configuration/CVar.h>
 #  include <Foundation/IO/DirectoryWatcher.h>
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Threading/ThreadUtils.h>
@@ -37,7 +38,8 @@ namespace DirectoryWatcherTestHelpers
   }
 } // namespace DirectoryWatcherTestHelpers
 
-EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
+
+void DirectoryWatcherTest()
 {
   using namespace DirectoryWatcherTestHelpers;
 
@@ -757,5 +759,20 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
 
   ezOSFile::DeleteFolder(sTestRootPath).IgnoreResult();
 }
+
+EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
+{
+  DirectoryWatcherTest();
+}
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcherNonNTFS)
+{
+  auto* pForceNonNTFS = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("DirectoryWatcher.ForceNonNTFS"));
+  *pForceNonNTFS = true;
+  DirectoryWatcherTest();
+  *pForceNonNTFS = false;
+}
+#  endif
 
 #endif
