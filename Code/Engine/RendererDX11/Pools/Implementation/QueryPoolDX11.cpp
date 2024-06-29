@@ -59,7 +59,7 @@ void ezQueryPoolDX11::EndFrame()
     m_pDevice->GetDXImmediateContext()->End(perFrameData.m_pDisjointTimerQuery);
     perFrameData.m_hFence = m_pDevice->GetFenceQueue().GetCurrentFenceHandle();
   }
-  
+
   // Get Results
   for (ezUInt32 i = 0; i < m_pendingFrames.GetCount(); i++)
   {
