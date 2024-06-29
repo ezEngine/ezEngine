@@ -144,8 +144,6 @@ ezEnum<ezGALAsyncResult> ezFenceQueueDX11::GetFenceResult(ezGALFenceHandle hFenc
 
 ezEnum<ezGALAsyncResult> ezFenceQueueDX11::WaitForNextFence(ezTime timeout /*= ezTime::MakeZero()*/)
 {
-  auto pContext = m_pDevice->GetDXImmediateContext();
-
   ezEnum<ezGALAsyncResult> fenceStatus = ezFencePoolDX11::GetFenceResult(m_PendingFences[0].m_pFence, timeout);
   if (fenceStatus == ezGALAsyncResult::Ready)
   {

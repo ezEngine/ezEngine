@@ -2,14 +2,15 @@
 
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Pools/QueryPoolDX11.h>
+#include <RendererDX11/Pools/FencePoolDX11.h>
 
 ezResult ezQueryPoolDX11::Initialize(ezGALDeviceDX11* pDevice)
 {
   m_pDevice = pDevice;
 
-  m_TimestampPool.Initialize(pDevice, D3D11_QUERY_TIMESTAMP, 2048);
-  m_OcclusionPool.Initialize(pDevice, D3D11_QUERY_OCCLUSION, 512);
-  m_OcclusionPredicatePool.Initialize(pDevice, D3D11_QUERY_OCCLUSION_PREDICATE, 512);
+  EZ_SUCCEED_OR_RETURN(m_TimestampPool.Initialize(pDevice, D3D11_QUERY_TIMESTAMP, 2048));
+  EZ_SUCCEED_OR_RETURN(m_OcclusionPool.Initialize(pDevice, D3D11_QUERY_OCCLUSION, 512));
+  EZ_SUCCEED_OR_RETURN(m_OcclusionPredicatePool.Initialize(pDevice, D3D11_QUERY_OCCLUSION_PREDICATE, 512));
 
   m_SyncTimeDiff = ezTime::MakeZero();
   return EZ_SUCCESS;
@@ -51,13 +52,14 @@ void ezQueryPoolDX11::BeginFrame()
   m_uiFirstFrameIndex = m_pendingFrames[0].m_uiFrameCounter;
 }
 
-
 void ezQueryPoolDX11::EndFrame()
 {
-  auto& perFrameData = m_pendingFrames.PeekBack();
-  m_pDevice->GetDXImmediateContext()->End(perFrameData.m_pDisjointTimerQuery);
-  perFrameData.m_hFence = m_pDevice->GetFenceQueue().GetCurrentFenceHandle();
-
+  {
+    auto& perFrameData = m_pendingFrames.PeekBack();
+    m_pDevice->GetDXImmediateContext()->End(perFrameData.m_pDisjointTimerQuery);
+    perFrameData.m_hFence = m_pDevice->GetFenceQueue().GetCurrentFenceHandle();
+  }
+  
   // Get Results
   for (ezUInt32 i = 0; i < m_pendingFrames.GetCount(); i++)
   {

@@ -40,7 +40,7 @@ private:
     ezGALFenceHandle m_hFence;
     ID3D11Query* m_pDisjointTimerQuery = nullptr;
     double m_fInvTicksPerSecond = s_fInvalid;
-    ezUInt64 m_uiFrameCounter = -1ull;
+    ezUInt64 m_uiFrameCounter = static_cast<ezUInt64>(-1ull);
   };
 
 private:
