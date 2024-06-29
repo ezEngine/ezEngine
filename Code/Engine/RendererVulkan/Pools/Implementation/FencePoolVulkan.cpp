@@ -74,12 +74,12 @@ ezFenceQueueVulkan::~ezFenceQueueVulkan()
 
 ezGALFenceHandle ezFenceQueueVulkan::GetCurrentFenceHandle()
 {
-  return {m_uiCurrentFenceCounter};
+  return m_uiCurrentFenceCounter;
 }
 
 void ezFenceQueueVulkan::FenceSubmitted(vk::Fence vkFence)
 {
-  m_PendingFences.PushBack({vkFence, {m_uiCurrentFenceCounter}});
+  m_PendingFences.PushBack({vkFence, m_uiCurrentFenceCounter});
   m_uiCurrentFenceCounter++;
 }
 

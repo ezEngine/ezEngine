@@ -97,7 +97,7 @@ ezFenceQueueDX11::~ezFenceQueueDX11()
 
 ezGALFenceHandle ezFenceQueueDX11::GetCurrentFenceHandle()
 {
-  return {m_uiCurrentFenceCounter};
+  return m_uiCurrentFenceCounter;
 }
 
 ezGALFenceHandle ezFenceQueueDX11::SubmitCurrentFence()
@@ -106,8 +106,8 @@ ezGALFenceHandle ezFenceQueueDX11::SubmitCurrentFence()
   ID3D11Query* pFence = ezFencePoolDX11::RequestFence();
   ezFencePoolDX11::InsertFence(pFence);
 
-  m_PendingFences.PushBack({pFence, {m_uiCurrentFenceCounter}});
-  ezGALFenceHandle hCurrent = {m_uiCurrentFenceCounter};
+  m_PendingFences.PushBack({pFence, m_uiCurrentFenceCounter});
+  ezGALFenceHandle hCurrent = m_uiCurrentFenceCounter;
   m_uiCurrentFenceCounter++;
   return hCurrent;
 }

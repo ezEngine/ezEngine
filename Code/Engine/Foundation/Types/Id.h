@@ -5,42 +5,42 @@
 #include <Foundation/Basics.h>
 
 /// \brief Declares an id type, see generic id below how to use this
-#define EZ_DECLARE_ID_TYPE(name, instanceIndexBits, generationBits)                                        \
-  static const StorageType MAX_INSTANCES = (1ULL << instanceIndexBits);                                    \
-  static const StorageType INVALID_INSTANCE_INDEX = MAX_INSTANCES - 1;                                     \
-  static const StorageType INDEX_AND_GENERATION_MASK = (1ULL << (instanceIndexBits + generationBits)) - 1; \
-  EZ_DECLARE_POD_TYPE();                                                                                   \
-  EZ_ALWAYS_INLINE name()                                                                                  \
-  {                                                                                                        \
-    m_Data = INVALID_INSTANCE_INDEX;                                                                       \
-  }                                                                                                        \
-  EZ_ALWAYS_INLINE explicit name(StorageType internalData)                                                 \
-  {                                                                                                        \
-    m_Data = internalData;                                                                                 \
-  }                                                                                                        \
-  EZ_ALWAYS_INLINE bool operator==(const name other) const                                                 \
-  {                                                                                                        \
-    return m_Data == other.m_Data;                                                                         \
-  }                                                                                                        \
-  EZ_ALWAYS_INLINE bool operator!=(const name other) const                                                 \
-  {                                                                                                        \
-    return m_Data != other.m_Data;                                                                         \
-  }                                                                                                        \
-  EZ_ALWAYS_INLINE bool operator<(const name other) const                                                  \
-  {                                                                                                        \
-    return m_Data < other.m_Data;                                                                          \
-  }                                                                                                        \
-  EZ_ALWAYS_INLINE void Invalidate()                                                                       \
-  {                                                                                                        \
-    m_Data = INVALID_INSTANCE_INDEX;                                                                       \
-  }                                                                                                        \
-  EZ_ALWAYS_INLINE bool IsInvalidated() const                                                              \
-  {                                                                                                        \
-    return m_Data == INVALID_INSTANCE_INDEX;                                                               \
-  }                                                                                                        \
-  EZ_ALWAYS_INLINE bool IsIndexAndGenerationEqual(const name other) const                                  \
-  {                                                                                                        \
-    return (m_Data & INDEX_AND_GENERATION_MASK) == (other.m_Data & INDEX_AND_GENERATION_MASK);             \
+#define EZ_DECLARE_ID_TYPE(name, instanceIndexBits, generationBits)                                                   \
+  static const StorageType MAX_INSTANCES = (1ULL << instanceIndexBits);                                               \
+  static const StorageType INVALID_INSTANCE_INDEX = MAX_INSTANCES - 1;                                                \
+  static const StorageType INDEX_AND_GENERATION_MASK = ((ezUInt64)-1) >> (64 - (instanceIndexBits + generationBits)); \
+  EZ_DECLARE_POD_TYPE();                                                                                              \
+  EZ_ALWAYS_INLINE name()                                                                                             \
+  {                                                                                                                   \
+    m_Data = INVALID_INSTANCE_INDEX;                                                                                  \
+  }                                                                                                                   \
+  EZ_ALWAYS_INLINE explicit name(StorageType internalData)                                                            \
+  {                                                                                                                   \
+    m_Data = internalData;                                                                                            \
+  }                                                                                                                   \
+  EZ_ALWAYS_INLINE bool operator==(const name other) const                                                            \
+  {                                                                                                                   \
+    return m_Data == other.m_Data;                                                                                    \
+  }                                                                                                                   \
+  EZ_ALWAYS_INLINE bool operator!=(const name other) const                                                            \
+  {                                                                                                                   \
+    return m_Data != other.m_Data;                                                                                    \
+  }                                                                                                                   \
+  EZ_ALWAYS_INLINE bool operator<(const name other) const                                                             \
+  {                                                                                                                   \
+    return m_Data < other.m_Data;                                                                                     \
+  }                                                                                                                   \
+  EZ_ALWAYS_INLINE void Invalidate()                                                                                  \
+  {                                                                                                                   \
+    m_Data = INVALID_INSTANCE_INDEX;                                                                                  \
+  }                                                                                                                   \
+  EZ_ALWAYS_INLINE bool IsInvalidated() const                                                                         \
+  {                                                                                                                   \
+    return m_Data == INVALID_INSTANCE_INDEX;                                                                          \
+  }                                                                                                                   \
+  EZ_ALWAYS_INLINE bool IsIndexAndGenerationEqual(const name other) const                                             \
+  {                                                                                                                   \
+    return (m_Data & INDEX_AND_GENERATION_MASK) == (other.m_Data & INDEX_AND_GENERATION_MASK);                        \
   }
 
 

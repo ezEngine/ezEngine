@@ -365,7 +365,7 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
   {
     m_queries[i] = {};
   }
-  m_fence = {};
+  m_hFence = {};
 
   DestroyWindow();
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::DeInitializeSubTest(iIdentifier));
@@ -861,7 +861,7 @@ ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
     else if (m_iFrame == 3)
     {
       pCommandEncoder->EndOcclusionQuery(m_queries[3]);
-      m_fence = pCommandEncoder->InsertFence();
+      m_hFence = pCommandEncoder->InsertFence();
     }
     EndRendering();
 
@@ -872,7 +872,7 @@ ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
 
   if (m_iFrame >= 3)
   {
-    ezEnum<ezGALAsyncResult> fenceResult = m_pDevice->GetFenceResult(m_fence);
+    ezEnum<ezGALAsyncResult> fenceResult = m_pDevice->GetFenceResult(m_hFence);
     if (fenceResult == ezGALAsyncResult::Ready)
     {
       ezEnum<ezGALAsyncResult> queryResults[4];
