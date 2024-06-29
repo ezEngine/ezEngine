@@ -24,6 +24,7 @@ protected slots:
   void OnOpenExplorer();
   void OnCustomAction();
   void OnOpenFile();
+  void OnOpenFileWith();
 
 protected:
   virtual void OnInit() override;
@@ -51,6 +52,7 @@ protected slots:
   void on_TextChanged_triggered(const QString& value);
   void OnOpenExplorer();
   void OnOpenFile();
+  void OnOpenFileWith();
 
 protected:
   virtual void OnInit() override;

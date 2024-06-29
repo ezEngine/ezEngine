@@ -53,7 +53,9 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
     ToolBarLayout->insertWidget(0, m_pToolbar);
   }
 
-
+  ButtonShowItemsSubFolders->setEnabled(true);
+  ButtonShowItemsSubFolders->setChecked(m_pFilter->GetShowItemsInSubFolders());
+  EZ_VERIFY(connect(ButtonShowItemsSubFolders, SIGNAL(toggled(bool)), this, SLOT(OnShowSubFolderItemsToggled())) != nullptr, "signal/slot connection failed");
 
   EZ_VERIFY(connect(m_pFilter, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
@@ -352,7 +354,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
 
   ezDynamicArray<const ezDocumentTypeDescriptor*> documentTypes;
 
-  QMenu* pSubMenu = pMenu->addMenu("New");
+  QMenu* pSubMenu = pMenu->addMenu(QIcon(":/GuiFoundation/Icons/DocumentAdd.svg"), "New");
 
   ezStringBuilder sTypeFilter = m_pFilter->GetTypeFilter();
 
@@ -486,8 +488,6 @@ void ezQtAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& inde
   else if (itemType.IsSet(ezAssetBrowserItemFlags::File))
   {
     Q_EMIT ItemChosen(ezUuid::MakeInvalid(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString(), itemType.GetValue());
-
-    // ezQtUiServices::OpenFileInDefaultProgram(qtToEzString(sAbsPath));
   }
   else if (itemType.IsAnySet(ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::DataDirectory))
   {
@@ -537,6 +537,11 @@ void ezQtAssetBrowserWidget::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentag
 void ezQtAssetBrowserWidget::OnTextFilterChanged()
 {
   QString sText = ezMakeQString(m_pFilter->GetTextFilter());
+  ButtonShowItemsSubFolders->setEnabled(sText.isEmpty());
+  ButtonShowItemsSubFolders->blockSignals(true);
+  ButtonShowItemsSubFolders->setChecked(!sText.isEmpty() || m_pFilter->GetShowItemsInSubFolders());
+  ButtonShowItemsSubFolders->blockSignals(false);
+
   if (SearchWidget->text() != sText)
   {
     SearchWidget->setText(sText);
@@ -622,6 +627,15 @@ void ezQtAssetBrowserWidget::keyPressEvent(QKeyEvent* e)
   }
 }
 
+void ezQtAssetBrowserWidget::RenameCurrent()
+{
+  m_bOpenAfterRename = false;
+
+  if (ListAssets->currentIndex().isValid())
+  {
+    ListAssets->edit(ListAssets->currentIndex());
+  }
+}
 
 void ezQtAssetBrowserWidget::DeleteSelection()
 {
@@ -796,12 +810,6 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
   }
 
   {
-    QAction* pAction = m.addAction(QLatin1String("Show Items in sub-folders"), this, SLOT(OnShowSubFolderItemsToggled()));
-    pAction->setCheckable(true);
-    pAction->setChecked(m_pFilter->GetShowItemsInSubFolders());
-  }
-
-  {
     QAction* pAction = m.addAction(QLatin1String("Show Items in hidden folders"), this, SLOT(OnShowHiddenFolderItemsToggled()));
     pAction->setCheckable(true);
     pAction->setChecked(m_pFilter->GetShowItemsInHiddenFolders());
@@ -870,10 +878,15 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
 
   if (ListAssets->selectionModel()->hasSelection())
   {
+    bool bShowDocumentActions = false;
+
     if (m_Mode == Mode::Browser)
     {
       QString sTitle = "Open Selection";
       QIcon icon = QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg"));
+
+      bool bShowOpenWith = false;
+
       if (ListAssets->selectionModel()->selectedIndexes().count() == 1)
       {
         const QModelIndex firstItem = ListAssets->selectionModel()->selectedIndexes()[0];
@@ -881,10 +894,12 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
         if (itemType.IsAnySet(ezAssetBrowserItemFlags::Asset | ezAssetBrowserItemFlags::SubAsset))
         {
           sTitle = "Open Document";
+          bShowDocumentActions = true;
         }
         else if (itemType.IsSet(ezAssetBrowserItemFlags::File))
         {
           sTitle = "Open File";
+          bShowOpenWith = true;
         }
         else if (itemType.IsAnySet(ezAssetBrowserItemFlags::DataDirectory | ezAssetBrowserItemFlags::Folder))
         {
@@ -893,24 +908,29 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
         }
       }
       m.setDefaultAction(m.addAction(icon, sTitle, this, SLOT(OnListOpenAssetDocument())));
+
+      if (bShowOpenWith)
+      {
+        m.addAction(icon, "Open With...", this, SLOT(OnListOpenFileWith()));
+      }
     }
     else
       m.setDefaultAction(m.addAction(QLatin1String("Select"), this, SLOT(OnListOpenAssetDocument())));
 
-    m.addAction(QIcon(QLatin1String(":/EditorFramework/Icons/AssetNeedsTransform.svg")), QLatin1String("Transform"), this, SLOT(OnTransform()));
-
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Guid.svg")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct references to this asset"), this, [&]()
-      { OnListFindAllReferences(false); });
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]()
-      { OnListFindAllReferences(true); });
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/ZoomOut.svg")), QLatin1String("Filter to this Path"), this, SLOT(OnFilterToThisPath()));
-  }
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
 
-  auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
-  pSortAction->setCheckable(true);
-  pSortAction->setChecked(m_pFilter->GetSortByRecentUse());
+    if (bShowDocumentActions)
+    {
+      m.addAction(QIcon(QLatin1String(":/EditorFramework/Icons/AssetNeedsTransform.svg")), QLatin1String("Transform"), this, SLOT(OnTransform()));
+      m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Guid.svg")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
+
+      m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct references to this asset"), this, [&]()
+        { OnListFindAllReferences(false); });
+      m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]()
+        { OnListFindAllReferences(true); });
+    }
+  }
 
 
   if (m_Mode == Mode::Browser && ListAssets->selectionModel()->hasSelection())
@@ -929,9 +949,31 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
       }
     }
 
+    // Rename
+    {
+      bool bCanRename = true;
+
+      QModelIndex id = ListAssets->currentIndex();
+
+      const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)id.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+      if (itemType.IsAnySet(ezAssetBrowserItemFlags::SubAsset | ezAssetBrowserItemFlags::DataDirectory))
+      {
+        bCanRename = false;
+      }
+
+      QAction* pRename = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Rename.svg")), QLatin1String("Rename"), this, SLOT(RenameCurrent()));
+      pRename->setShortcut(QKeySequence("F2"));
+      if (!bCanRename)
+      {
+        pRename->setEnabled(false);
+        pRename->setToolTip("Sub-assets and data directories can't be renamed.");
+      }
+    }
+
     // Delete
     {
       QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"), this, SLOT(DeleteSelection()));
+      pDelete->setShortcut(QKeySequence("Del"));
       if (!bAllFiles)
       {
         pDelete->setEnabled(false);
@@ -949,6 +991,12 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
       AddImportedViaMenu(&m);
     }
   }
+
+  m.addSeparator();
+
+  auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
+  pSortAction->setCheckable(true);
+  pSortAction->setChecked(m_pFilter->GetSortByRecentUse());
 
   m.addSeparator();
   AddAssetCreatorMenu(&m, true);
@@ -971,6 +1019,16 @@ void ezQtAssetBrowserWidget::OnListOpenAssetDocument()
       continue;
     on_ListAssets_doubleClicked(index);
   }
+}
+
+void ezQtAssetBrowserWidget::OnListOpenFileWith()
+{
+  if (!ListAssets->currentIndex().isValid())
+    return;
+
+  ezString sPath = m_pModel->data(ListAssets->currentIndex(), ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+
+  ezQtUiServices::OpenWith(sPath);
 }
 
 

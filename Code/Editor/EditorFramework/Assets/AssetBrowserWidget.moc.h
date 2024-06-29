@@ -73,6 +73,7 @@ private Q_SLOTS:
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
   void OnListOpenExplorer();
   void OnListOpenAssetDocument();
+  void OnListOpenFileWith();
   void OnTransform();
   void OnListToggleSortByRecentlyUsed();
   void OnListCopyAssetGuid();
@@ -86,6 +87,7 @@ private Q_SLOTS:
   void OnFileEditingFinished(const QString& sAbsPath, const QString& sNewName, bool bIsAsset);
   void ImportSelection();
   void OnOpenImportReferenceAsset();
+  void RenameCurrent();
   void DeleteSelection();
   void OnImportAsAboutToShow();
   void OnImportAsClicked();

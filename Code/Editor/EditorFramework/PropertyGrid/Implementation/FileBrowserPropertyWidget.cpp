@@ -31,11 +31,16 @@ ezQtFilePropertyWidget::ezQtFilePropertyWidget()
     QMenu* pMenu = new QMenu();
 
     pMenu->setDefaultAction(pMenu->addAction(QIcon(), QLatin1String("Select File"), this, SLOT(on_BrowseFile_clicked())));
-    QAction* pDocAction = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open File"), this, SLOT(OnOpenFile())) /*->setEnabled(!m_pWidget->text().isEmpty())*/;
+    QAction* pActionOpenFile = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open File"), this, SLOT(OnOpenFile()));
+    QAction* pActionOpenWith = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open With..."), this, SLOT(OnOpenFileWith()));
     pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
 
     connect(pMenu, &QMenu::aboutToShow, pMenu, [=]()
-      { pDocAction->setEnabled(!m_pWidget->text().isEmpty()); });
+      {
+        pActionOpenFile->setEnabled(!m_pWidget->text().isEmpty());
+        pActionOpenWith->setEnabled(!m_pWidget->text().isEmpty());
+        //
+      });
 
     m_pButton->setMenu(pMenu);
   }
@@ -151,6 +156,15 @@ void ezQtFilePropertyWidget::OnOpenFile()
       sPath));
 }
 
+void ezQtFilePropertyWidget::OnOpenFileWith()
+{
+  ezString sPath = m_pWidget->text().toUtf8().data();
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
+    return;
+
+  ezQtUiServices::OpenWith(sPath);
+}
+
 static ezMap<ezString, ezString> s_StartDirs;
 
 void ezQtFilePropertyWidget::on_BrowseFile_clicked()
@@ -221,11 +235,16 @@ ezQtExternalFilePropertyWidget::ezQtExternalFilePropertyWidget()
     QMenu* pMenu = new QMenu();
 
     pMenu->setDefaultAction(pMenu->addAction(QIcon(), QLatin1String("Select File"), this, SLOT(on_BrowseFile_clicked())));
-    QAction* pDocAction = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open File"), this, SLOT(OnOpenFile())) /*->setEnabled(!m_pWidget->text().isEmpty())*/;
+    QAction* pActionOpenFile = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open File"), this, SLOT(OnOpenFile()));
+    QAction* pActionOpenWith = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open With..."), this, SLOT(OnOpenFileWith()));
     pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
 
-    connect(pMenu, &QMenu::aboutToShow, pMenu, [=]() { pDocAction->setEnabled(!m_pWidget->text().isEmpty()); });
-
+    connect(pMenu, &QMenu::aboutToShow, pMenu, [=]()
+      {
+        pActionOpenFile->setEnabled(!m_pWidget->text().isEmpty());
+        pActionOpenWith->setEnabled(!m_pWidget->text().isEmpty());
+        //
+      });
     m_pButton->setMenu(pMenu);
   }
 
@@ -306,6 +325,15 @@ void ezQtExternalFilePropertyWidget::OnOpenFile()
     ezQtUiServices::MessageBoxInformation(ezFmt("File could not be opened:\n{0}\nCheck that the file exists, that a program is associated "
                                                 "with this file type and that access to this file is not denied.",
       sPath));
+}
+
+void ezQtExternalFilePropertyWidget::OnOpenFileWith()
+{
+  ezString sPath = m_pWidget->text().toUtf8().data();
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
+    return;
+
+  ezQtUiServices::OpenWith(sPath);
 }
 
 void ezQtExternalFilePropertyWidget::on_BrowseFile_clicked()

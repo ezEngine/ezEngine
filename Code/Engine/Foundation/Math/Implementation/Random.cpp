@@ -35,8 +35,11 @@ void ezRandom::Initialize(ezUInt64 uiSeed)
 
 void ezRandom::InitializeFromCurrentTime()
 {
+  // needed to fix quick calls to this function that would result in an identical timestamp (it's not high resolution enough for that)
+  static ezAtomicInteger32 rndAdd;
+
   ezTimestamp ts = ezTimestamp::CurrentTimestamp();
-  Initialize(static_cast<ezUInt64>(ts.GetInt64(ezSIUnitOfTime::Nanosecond)));
+  Initialize(static_cast<ezUInt64>(ts.GetInt64(ezSIUnitOfTime::Nanosecond)) + rndAdd.Increment());
 }
 
 void ezRandom::Save(ezStreamWriter& inout_stream) const
