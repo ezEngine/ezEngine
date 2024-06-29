@@ -1,8 +1,8 @@
 #include <RendererDX11/RendererDX11PCH.h>
 
 #include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererDX11/Pools/QueryPoolDX11.h>
 #include <RendererDX11/Pools/FencePoolDX11.h>
+#include <RendererDX11/Pools/QueryPoolDX11.h>
 
 ezResult ezQueryPoolDX11::Initialize(ezGALDeviceDX11* pDevice)
 {
@@ -59,7 +59,7 @@ void ezQueryPoolDX11::EndFrame()
     m_pDevice->GetDXImmediateContext()->End(perFrameData.m_pDisjointTimerQuery);
     perFrameData.m_hFence = m_pDevice->GetFenceQueue().GetCurrentFenceHandle();
   }
-  
+
   // Get Results
   for (ezUInt32 i = 0; i < m_pendingFrames.GetCount(); i++)
   {
