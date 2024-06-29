@@ -110,6 +110,6 @@ private:
 
   // Occlusion Queries test
   ezGALOcclusionHandle m_queries[4];
-  
+
   ezGALFenceHandle m_fence = {};
 };

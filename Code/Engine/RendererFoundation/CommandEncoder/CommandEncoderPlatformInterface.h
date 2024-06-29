@@ -3,8 +3,8 @@
 
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Rect.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Descriptors/Enumerations.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 struct ezShaderResourceBinding;
 struct ezGALRenderingSetup;

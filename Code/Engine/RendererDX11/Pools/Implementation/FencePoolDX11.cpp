@@ -67,7 +67,7 @@ void ezFencePoolDX11::InsertFence(ID3D11Query* pFence)
 ezEnum<ezGALAsyncResult> ezFencePoolDX11::GetFenceResult(ID3D11Query* pFence, ezTime timeout)
 {
   ezTimestamp start = ezTimestamp::CurrentTimestamp();
-  do 
+  do
   {
     BOOL data = FALSE;
     if (s_pDevice->GetDXImmediateContext()->GetData(pFence, &data, sizeof(data), 0) == S_OK)
@@ -82,7 +82,7 @@ ezEnum<ezGALAsyncResult> ezFencePoolDX11::GetFenceResult(ID3D11Query* pFence, ez
 }
 
 
- ezFenceQueueDX11::ezFenceQueueDX11(ezGALDeviceDX11* pDevice)
+ezFenceQueueDX11::ezFenceQueueDX11(ezGALDeviceDX11* pDevice)
   : m_pDevice(pDevice)
 {
 }

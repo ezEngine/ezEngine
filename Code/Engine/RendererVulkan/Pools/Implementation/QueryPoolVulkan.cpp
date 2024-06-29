@@ -180,7 +180,7 @@ ezQueryPoolVulkan::Query ezQueryPoolVulkan::Pool::GetQuery(ezGALPoolHandle hPool
   return {m_pCurrentFrame->m_pools[uiPoolIndex]->m_pool, uiQueryIndex};
 }
 
- ezEnum<ezGALAsyncResult> ezQueryPoolVulkan::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result, bool bForce)
+ezEnum<ezGALAsyncResult> ezQueryPoolVulkan::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result, bool bForce)
 {
   ezUInt64 out_uiResult;
   ezEnum<ezGALAsyncResult> res = m_TimestampPool.GetResult(hTimestamp, out_uiResult, bForce);

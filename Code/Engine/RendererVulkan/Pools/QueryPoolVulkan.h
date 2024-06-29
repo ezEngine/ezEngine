@@ -61,7 +61,7 @@ private:
   /// Represents a frame of queries. Depending on the number of queries, multiple QueryPools will need to be used per frame.
   struct FramePool
   {
-    ezUInt64 m_uiNextIndex = 0; // Next query index in this frame. Use % and / to find the pool / element index.
+    ezUInt64 m_uiNextIndex = 0;    // Next query index in this frame. Use % and / to find the pool / element index.
     ezUInt64 m_uiFrameCounter = 0; // ezGALDevice::GetCurrentFrame
     ezHybridArray<QueryPool*, 2> m_pools;
   };
@@ -94,7 +94,7 @@ private:
   };
 
   ezGALDeviceVulkan* m_pDevice = nullptr;
-  
+
   // Timestamp conversion and calibration data.
   double m_fNanoSecondsPerTick = 0;
   ezUInt64 m_uiValidBitsMask = 0;

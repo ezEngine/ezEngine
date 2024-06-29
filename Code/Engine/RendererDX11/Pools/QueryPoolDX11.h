@@ -56,7 +56,7 @@ private:
 
     ezGALPoolHandle CreateQuery();
     ID3D11Query* GetQuery(ezGALPoolHandle hPool);
-    template<typename T>
+    template <typename T>
     ezEnum<ezGALAsyncResult> GetResult(ezGALPoolHandle hPool, T& out_uiResult)
     {
       ID3D11Query* pQuery = GetQuery(hPool);

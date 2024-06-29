@@ -803,7 +803,7 @@ ezTestAppRun ezRendererTestPipelineStates::Timestamps()
       EZ_TEST_BOOL_MSG(m_GPUTime[0] <= m_GPUTime[1], "%.6f < %.6f", m_GPUTime[0].GetSeconds(), m_GPUTime[1].GetSeconds());
       EZ_TEST_BOOL_MSG(m_GPUTime[1] <= m_CPUTime[1], "%.6f < %.6f", m_GPUTime[1].GetSeconds(), m_CPUTime[1].GetSeconds());
       ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Timestamp results received after %d frames and %.3f seconds.", m_iFrame, (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds());
-      return  ezTestAppRun::Quit;
+      return ezTestAppRun::Quit;
     }
   }
   ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
@@ -850,7 +850,7 @@ ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
     {
       m_queries[3] = pCommandEncoder->BeginOcclusionQuery(ezGALQueryType::AnySamplesPassed);
     }
-    
+
     ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hSphereMesh);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 

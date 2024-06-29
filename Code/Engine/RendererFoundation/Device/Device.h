@@ -307,7 +307,6 @@ protected:
 
 
 
-
   // Command Encoder
 
   virtual ezGALCommandEncoder* BeginCommandsPlatform(const char* szName) = 0;

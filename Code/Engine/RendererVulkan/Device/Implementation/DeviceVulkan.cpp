@@ -781,7 +781,6 @@ vk::CommandBuffer& ezGALDeviceVulkan::GetCurrentCommandBuffer()
     GetCurrentPipelineBarrier().SetCommandBuffer(&commandBuffer);
 
     m_pCommandEncoderImpl->SetCurrentCommandBuffer(&commandBuffer, m_pPipelineBarrier.Borrow());
-
   }
   return commandBuffer;
 }
