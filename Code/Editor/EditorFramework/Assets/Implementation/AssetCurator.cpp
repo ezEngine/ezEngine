@@ -438,20 +438,31 @@ ezStatus ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transfo
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezAssetCurator::ResaveAllAssets()
+void ezAssetCurator::ResaveAllAssets(ezStringView sPrefixPath)
 {
-  ezProgressRange range("Re-saving all Assets", 1 + m_KnownAssets.GetCount(), true);
+  ezHashTable<ezUuid, ezAssetInfo*> resaveAssets;
+  resaveAssets.Reserve(m_KnownAssets.GetCount());
+
+  for (auto itAsset = m_KnownAssets.GetIterator(); itAsset.IsValid(); ++itAsset)
+  {
+    if (ezPathUtils::IsSubPath(sPrefixPath, itAsset.Value()->m_Path.GetAbsolutePath()))
+    {
+      resaveAssets.Insert(itAsset.Key(), itAsset.Value());
+    }
+  }
+
+  ezProgressRange range("Re-saving Assets", 1 + resaveAssets.GetCount(), true);
 
   EZ_LOCK(m_CuratorMutex);
 
   ezDynamicArray<ezUuid> sortedAssets;
-  sortedAssets.Reserve(m_KnownAssets.GetCount());
+  sortedAssets.Reserve(resaveAssets.GetCount());
 
   ezMap<ezUuid, ezSet<ezUuid>> dependencies;
 
   ezSet<ezUuid> accu;
 
-  for (auto itAsset = m_KnownAssets.GetIterator(); itAsset.IsValid(); ++itAsset)
+  for (auto itAsset = resaveAssets.GetIterator(); itAsset.IsValid(); ++itAsset)
   {
     auto it2 = dependencies.Insert(itAsset.Key(), ezSet<ezUuid>());
     for (const ezString& dep : itAsset.Value()->m_Info->m_TransformDependencies)
