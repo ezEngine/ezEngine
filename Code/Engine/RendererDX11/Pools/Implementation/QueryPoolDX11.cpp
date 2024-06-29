@@ -1,8 +1,8 @@
 #include <RendererDX11/RendererDX11PCH.h>
 
 #include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererDX11/Pools/QueryPoolDX11.h>
 #include <RendererDX11/Pools/FencePoolDX11.h>
+#include <RendererDX11/Pools/QueryPoolDX11.h>
 
 ezResult ezQueryPoolDX11::Initialize(ezGALDeviceDX11* pDevice)
 {
