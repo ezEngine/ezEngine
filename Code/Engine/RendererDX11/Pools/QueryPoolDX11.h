@@ -79,8 +79,8 @@ private:
   Pool m_OcclusionPredicatePool;
 
   // Disjoint timer and frame meta data needed for timestamps
-  ezDeque<PerFrameData> m_pendingFrames;
-  ezDeque<PerFrameData> m_freeFrames;
+  ezDeque<PerFrameData> m_PendingFrames;
+  ezDeque<PerFrameData> m_FreeFrames;
   ezUInt64 m_uiFirstFrameIndex = 0;
 
   ezTime m_SyncTimeDiff;

@@ -173,5 +173,5 @@ private:
   ezGALCommandEncoderRenderState m_State;
   ezGALCommandEncoderCommonPlatformInterface& m_CommonImpl;
 
-  ezGALOcclusionHandle m_PendingOcclusionQuery = {};
+  ezGALOcclusionHandle m_hPendingOcclusionQuery = {};
 };

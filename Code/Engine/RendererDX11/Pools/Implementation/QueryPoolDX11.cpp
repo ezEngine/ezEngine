@@ -22,11 +22,11 @@ void ezQueryPoolDX11::DeInitialize()
   m_OcclusionPool.DeInitialize();
   m_OcclusionPredicatePool.DeInitialize();
 
-  for (auto& perFrameData : m_freeFrames)
+  for (auto& perFrameData : m_FreeFrames)
   {
     EZ_GAL_DX11_RELEASE(perFrameData.m_pDisjointTimerQuery);
   }
-  for (auto& perFrameData : m_pendingFrames)
+  for (auto& perFrameData : m_PendingFrames)
   {
     EZ_GAL_DX11_RELEASE(perFrameData.m_pDisjointTimerQuery);
   }
@@ -41,29 +41,29 @@ void ezQueryPoolDX11::BeginFrame()
   perFrameData.m_uiFrameCounter = uiCurrentFrame;
   m_pDevice->GetDXImmediateContext()->Begin(perFrameData.m_pDisjointTimerQuery);
   perFrameData.m_fInvTicksPerSecond = -1.0f;
-  m_pendingFrames.PushBack(perFrameData);
+  m_PendingFrames.PushBack(perFrameData);
 
   // Clear out old frames
-  while (m_pendingFrames[0].m_uiFrameCounter + s_uiRetainFrames < uiSafeFrame)
+  while (m_PendingFrames[0].m_uiFrameCounter + s_uiRetainFrames < uiSafeFrame)
   {
-    m_freeFrames.PushBack(m_pendingFrames.PeekFront());
-    m_pendingFrames.PopFront();
+    m_FreeFrames.PushBack(m_PendingFrames.PeekFront());
+    m_PendingFrames.PopFront();
   }
-  m_uiFirstFrameIndex = m_pendingFrames[0].m_uiFrameCounter;
+  m_uiFirstFrameIndex = m_PendingFrames[0].m_uiFrameCounter;
 }
 
 void ezQueryPoolDX11::EndFrame()
 {
   {
-    auto& perFrameData = m_pendingFrames.PeekBack();
+    auto& perFrameData = m_PendingFrames.PeekBack();
     m_pDevice->GetDXImmediateContext()->End(perFrameData.m_pDisjointTimerQuery);
     perFrameData.m_hFence = m_pDevice->GetFenceQueue().GetCurrentFenceHandle();
   }
 
   // Get Results
-  for (ezUInt32 i = 0; i < m_pendingFrames.GetCount(); i++)
+  for (ezUInt32 i = 0; i < m_PendingFrames.GetCount(); i++)
   {
-    auto& perFrameData = m_pendingFrames[i];
+    auto& perFrameData = m_PendingFrames[i];
     if (m_pDevice->GetFenceQueue().GetFenceResult(perFrameData.m_hFence) != ezGALAsyncResult::Ready)
       break;
 
@@ -101,10 +101,10 @@ void ezQueryPoolDX11::EndFrame()
 
 ezQueryPoolDX11::PerFrameData ezQueryPoolDX11::GetFreeFrame()
 {
-  if (!m_freeFrames.IsEmpty())
+  if (!m_FreeFrames.IsEmpty())
   {
-    PerFrameData data = m_freeFrames.PeekFront();
-    m_freeFrames.PopFront();
+    PerFrameData data = m_FreeFrames.PeekFront();
+    m_FreeFrames.PopFront();
     return data;
   }
 
@@ -135,7 +135,7 @@ ezEnum<ezGALAsyncResult> ezQueryPoolDX11::GetTimestampResult(ezGALTimestampHandl
   }
 
   const ezUInt32 uiFrameIndex = static_cast<ezUInt32>(hTimestamp.m_Generation - m_uiFirstFrameIndex);
-  PerFrameData& pPerFrameData = m_pendingFrames[uiFrameIndex];
+  PerFrameData& pPerFrameData = m_PendingFrames[uiFrameIndex];
   // Check whether frequency and sync timer are already available for the frame of the timestamp
   if (pPerFrameData.m_fInvTicksPerSecond == s_fInvalid)
     return ezGALAsyncResult::Pending;

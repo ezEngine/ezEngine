@@ -15,7 +15,7 @@ public:
   static void DeInitialize();
 
   static ID3D11Query* RequestFence();
-  static void ReclaimFence(ID3D11Query*& pFence);
+  static void ReclaimFence(ID3D11Query*& ref_pFence);
 
   static void InsertFence(ID3D11Query* pFence);
   static ezEnum<ezGALAsyncResult> GetFenceResult(ID3D11Query* pFence, ezTime timeout = ezTime::MakeZero());
@@ -29,7 +29,7 @@ private:
 class EZ_RENDERERDX11_DLL ezFenceQueueDX11
 {
 public:
-  ezFenceQueueDX11(ezGALDeviceDX11* pDevice);
+  ezFenceQueueDX11();
   ~ezFenceQueueDX11();
 
   ezGALFenceHandle GetCurrentFenceHandle();
@@ -49,5 +49,4 @@ private:
   ezDeque<PendingFence> m_PendingFences;
   ezUInt64 m_uiCurrentFenceCounter = 1;
   ezUInt64 m_uiReachedFenceCounter = 0;
-  ezGALDeviceDX11* m_pDevice = nullptr;
 };

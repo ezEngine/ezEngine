@@ -95,8 +95,8 @@ ezGALOcclusionHandle ezGALCommandEncoder::BeginOcclusionQuery(ezEnum<ezGALQueryT
   AssertRenderingThread();
   ezGALOcclusionHandle hOcclusion = m_CommonImpl.BeginOcclusionQueryPlatform(type);
 
-  EZ_ASSERT_DEBUG(m_PendingOcclusionQuery.IsInvalidated(), "Only one occusion query can be active at any give time.");
-  m_PendingOcclusionQuery = hOcclusion;
+  EZ_ASSERT_DEBUG(m_hPendingOcclusionQuery.IsInvalidated(), "Only one occusion query can be active at any give time.");
+  m_hPendingOcclusionQuery = hOcclusion;
 
   return hOcclusion;
 }
@@ -106,8 +106,8 @@ void ezGALCommandEncoder::EndOcclusionQuery(ezGALOcclusionHandle hOcclusion)
   AssertRenderingThread();
   m_CommonImpl.EndOcclusionQueryPlatform(hOcclusion);
 
-  EZ_ASSERT_DEBUG(m_PendingOcclusionQuery == hOcclusion, "The EndOcclusionQuery parameter does not match the currently started query");
-  m_PendingOcclusionQuery = {};
+  EZ_ASSERT_DEBUG(m_hPendingOcclusionQuery == hOcclusion, "The EndOcclusionQuery parameter does not match the currently started query");
+  m_hPendingOcclusionQuery = {};
 }
 
 ezGALFenceHandle ezGALCommandEncoder::InsertFence()
@@ -688,7 +688,7 @@ void ezGALCommandEncoder::EndRendering()
     m_bMarker = false;
   }
 
-  EZ_ASSERT_DEBUG(m_PendingOcclusionQuery.IsInvalidated(), "An occlusion query was started and not stopped within this render scope.");
+  EZ_ASSERT_DEBUG(m_hPendingOcclusionQuery.IsInvalidated(), "An occlusion query was started and not stopped within this render scope.");
 
   m_CommonImpl.EndRenderingPlatform();
 }

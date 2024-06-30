@@ -192,7 +192,7 @@ retry:
   }
 
   ezFencePoolDX11::Initialize(this);
-  m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueDX11, this);
+  m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueDX11);
 
   // Fill lookup table
   FillFormatLookupTable();

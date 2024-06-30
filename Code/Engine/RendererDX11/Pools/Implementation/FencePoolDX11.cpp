@@ -49,14 +49,14 @@ ID3D11Query* ezFencePoolDX11::RequestFence()
   }
 }
 
-void ezFencePoolDX11::ReclaimFence(ID3D11Query*& pFence)
+void ezFencePoolDX11::ReclaimFence(ID3D11Query*& ref_pFence)
 {
-  if (pFence)
+  if (ref_pFence)
   {
     EZ_ASSERT_DEBUG(s_pDevice, "ezFencePoolVulkan::Initialize not called");
-    s_Fences.PushBack(pFence);
+    s_Fences.PushBack(ref_pFence);
   }
-  pFence = nullptr;
+  ref_pFence = nullptr;
 }
 
 void ezFencePoolDX11::InsertFence(ID3D11Query* pFence)
@@ -82,11 +82,7 @@ ezEnum<ezGALAsyncResult> ezFencePoolDX11::GetFenceResult(ID3D11Query* pFence, ez
 }
 
 
-ezFenceQueueDX11::ezFenceQueueDX11(ezGALDeviceDX11* pDevice)
-  : m_pDevice(pDevice)
-{
-}
-
+ezFenceQueueDX11::ezFenceQueueDX11() = default;
 ezFenceQueueDX11::~ezFenceQueueDX11()
 {
   while (!m_PendingFences.IsEmpty())
