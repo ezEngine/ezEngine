@@ -72,7 +72,6 @@ void ezDocumentActions::MapMenuActions(ezStringView sMapping, ezStringView sTarg
   pMap->MapAction(s_hCloseAll, sTargetMenu, 9.0f);
   pMap->MapAction(s_hCloseAllButThis, sTargetMenu, 10.0f);
   pMap->MapAction(s_hOpenContainingFolder, sTargetMenu, 11.0f);
-
   pMap->MapAction(s_hCopyAssetGuid, sTargetMenu, 12.0f);
 }
 
