@@ -70,6 +70,7 @@ private Q_SLOTS:
   void OnScrollToFile(QString sPreselectedFile);
   void OnShowSubFolderItemsToggled();
   void OnShowHiddenFolderItemsToggled();
+  void OnResaveAssets();
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
   void OnListOpenExplorer();
   void OnListOpenAssetDocument();

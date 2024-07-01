@@ -817,6 +817,11 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
     pAction->setToolTip("Whether to ignore '_data' folders when showing items in sub-folders is enabled.");
   }
 
+  {
+    QAction* pAction = m.addAction(QIcon(":/GuiFoundation/Icons/SaveAll.svg"), QLatin1String("Re-save Assets in Folder"), this, SLOT(OnResaveAssets()));
+    pAction->setToolTip("Opens every document and saves it. Used to get all documents to the latest version.");
+  }
+
   m.exec(TreeFolderFilter->viewport()->mapToGlobal(pt));
 }
 
@@ -869,6 +874,17 @@ void ezQtAssetBrowserWidget::OnShowSubFolderItemsToggled()
 void ezQtAssetBrowserWidget::OnShowHiddenFolderItemsToggled()
 {
   m_pFilter->SetShowItemsInHiddenFolders(!m_pFilter->GetShowItemsInHiddenFolders());
+}
+
+void ezQtAssetBrowserWidget::OnResaveAssets()
+{
+  if (QTreeWidgetItem* pCurrentItem = TreeFolderFilter->currentItem())
+  {
+    QModelIndex id = TreeFolderFilter->indexFromItem(pCurrentItem);
+    ezStringBuilder sAbsPath = qtToEzString(id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+
+    ezAssetCurator::GetSingleton()->ResaveAllAssets(sAbsPath);
+  }
 }
 
 void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoint& pt)

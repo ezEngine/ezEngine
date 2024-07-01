@@ -265,9 +265,9 @@ void ezProjectActions::MapActions(ezStringView sMapping, const ezBitflags<ezStan
 
   if (menus.IsSet(ezStandardMenuTypes::File))
   {
-    pMap->MapAction(s_hCreateDocument, "G.File", 1.0f);
-    pMap->MapAction(s_hOpenDocument, "G.File", 2.0f);
-    pMap->MapAction(s_hRecentDocuments, "G.File", 3.0f);
+    pMap->MapAction(s_hCreateDocument, "G.Files.General", 1.0f);
+    pMap->MapAction(s_hOpenDocument, "G.Files.General", 2.0f);
+    pMap->MapAction(s_hRecentDocuments, "G.Files.General", 3.0f);
   }
 }
 

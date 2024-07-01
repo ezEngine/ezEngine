@@ -218,9 +218,10 @@ public:
 
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
   ezStatus TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
-  void ResaveAllAssets();
   ezTransformStatus TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   ezTransformStatus CreateThumbnail(const ezUuid& assetGuid);
+
+  void ResaveAllAssets(ezStringView sPrefixPath);
 
   /// Some assets are not automatically updated by the asset dependency detection (mainly Collections) because of their transitive data dependencies.
   /// So we must update them when the user does something 'significant' like doing TransformAllAssets or a scene export.
