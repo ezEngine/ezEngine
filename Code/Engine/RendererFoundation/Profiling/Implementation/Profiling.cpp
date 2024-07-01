@@ -40,7 +40,7 @@ public:
         s_TimingScopes.PopFront();
       }
 
-      if (resBegin == ezGALAsyncResult::Ready || resEnd == ezGALAsyncResult::Ready)
+      if (resBegin == ezGALAsyncResult::Ready && resEnd == ezGALAsyncResult::Ready)
       {
         if (!beginTime.IsZero() && !endTime.IsZero())
         {
