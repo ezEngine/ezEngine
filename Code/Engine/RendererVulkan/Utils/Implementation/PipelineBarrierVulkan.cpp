@@ -25,6 +25,13 @@ namespace
   }
 } // namespace
 
+ezPipelineBarrierVulkan::ezPipelineBarrierVulkan(ezAllocator* pAllocator)
+  : m_bufferBarriers(pAllocator)
+  , m_imageBarriers(pAllocator)
+  , m_imageState(pAllocator)
+  , m_bufferState(pAllocator)
+{
+}
 
 void ezPipelineBarrierVulkan::SetCommandBuffer(vk::CommandBuffer* pCommandBuffer)
 {

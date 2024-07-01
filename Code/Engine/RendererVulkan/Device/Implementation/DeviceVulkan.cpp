@@ -587,14 +587,14 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   // https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_maintenance1.html
   ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 
-  m_pPipelineBarrier = EZ_NEW(&m_Allocator, ezPipelineBarrierVulkan);
-  m_pCommandBufferPool = EZ_NEW(&m_Allocator, ezCommandBufferPoolVulkan);
+  m_pPipelineBarrier = EZ_NEW(&m_Allocator, ezPipelineBarrierVulkan, &m_Allocator);
+  m_pCommandBufferPool = EZ_NEW(&m_Allocator, ezCommandBufferPoolVulkan, &m_Allocator);
   m_pCommandBufferPool->Initialize(m_device, m_graphicsQueue.m_uiQueueFamily);
   m_pStagingBufferPool = EZ_NEW(&m_Allocator, ezStagingBufferPoolVulkan);
   m_pStagingBufferPool->Initialize(this);
-  m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolVulkan);
-  m_pQueryPool->Initialize(this, queueFamilyProperties[m_graphicsQueue.m_uiQueueFamily].timestampValidBits);
-  m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueVulkan, m_device);
+  m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolVulkan, this);
+  m_pQueryPool->Initialize(queueFamilyProperties[m_graphicsQueue.m_uiQueueFamily].timestampValidBits);
+  m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueVulkan, this);
   m_pInitContext = EZ_NEW(&m_Allocator, ezInitContextVulkan, this);
 
   ezSemaphorePoolVulkan::Initialize(m_device);
@@ -603,8 +603,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   ezDescriptorSetPoolVulkan::Initialize(m_device);
   ezImageCopyVulkan::Initialize(*this);
 
-  m_pCommandEncoderImpl = EZ_DEFAULT_NEW(ezGALCommandEncoderImplVulkan, *this);
-  m_pCommandEncoder = EZ_DEFAULT_NEW(ezGALCommandEncoder, *this, *m_pCommandEncoderImpl);
+  m_pCommandEncoderImpl = EZ_NEW(&m_Allocator, ezGALCommandEncoderImplVulkan, *this);
+  m_pCommandEncoder = EZ_NEW(&m_Allocator, ezGALCommandEncoder, *this, *m_pCommandEncoderImpl);
 
   ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
     { return CreateSwapChain([this, &desc](ezAllocator* pAllocator) -> ezGALSwapChain*
@@ -813,11 +813,6 @@ ezStagingBufferPoolVulkan& ezGALDeviceVulkan::GetStagingBufferPool() const
 ezInitContextVulkan& ezGALDeviceVulkan::GetInitContext() const
 {
   return *m_pInitContext.Borrow();
-}
-
-ezProxyAllocator& ezGALDeviceVulkan::GetAllocator()
-{
-  return m_Allocator;
 }
 
 ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, bool bLinearCPU, bool bStaging)

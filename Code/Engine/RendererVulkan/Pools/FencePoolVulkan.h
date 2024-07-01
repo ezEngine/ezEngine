@@ -36,7 +36,7 @@ private:
 class EZ_RENDERERVULKAN_DLL ezFenceQueueVulkan
 {
 public:
-  ezFenceQueueVulkan(vk::Device device);
+  ezFenceQueueVulkan(ezGALDeviceVulkan* pDevice);
   ~ezFenceQueueVulkan();
 
   ezGALFenceHandle GetCurrentFenceHandle();

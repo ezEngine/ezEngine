@@ -29,7 +29,7 @@ private:
 class EZ_RENDERERDX11_DLL ezFenceQueueDX11
 {
 public:
-  ezFenceQueueDX11();
+  ezFenceQueueDX11(ezAllocator* pAllocator);
   ~ezFenceQueueDX11();
 
   ezGALFenceHandle GetCurrentFenceHandle();

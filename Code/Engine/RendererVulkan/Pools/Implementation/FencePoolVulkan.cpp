@@ -59,8 +59,9 @@ void ezFencePoolVulkan::ReclaimFence(vk::Fence& fence)
 }
 
 
-ezFenceQueueVulkan::ezFenceQueueVulkan(vk::Device device)
-  : m_device(device)
+ezFenceQueueVulkan::ezFenceQueueVulkan(ezGALDeviceVulkan* pDevice)
+  : m_device(pDevice->GetVulkanDevice())
+  , m_PendingFences(pDevice->GetAllocator())
 {
 }
 

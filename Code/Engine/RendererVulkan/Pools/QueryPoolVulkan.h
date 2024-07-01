@@ -10,10 +10,11 @@ class ezGALDeviceVulkan;
 class EZ_RENDERERVULKAN_DLL ezQueryPoolVulkan
 {
 public:
+  ezQueryPoolVulkan(ezGALDeviceVulkan* pDevice);
+
   /// \brief Initializes the pool.
-  /// \param pDevice Parent Vulkan device.
   /// \param uiValidBits The number of valid bits in the query result. Each queue has different query characteristics and a separate pool is needed for each queue.
-  void Initialize(ezGALDeviceVulkan* pDevice, ezUInt32 uiValidBits);
+  void Initialize(ezUInt32 uiValidBits);
   void DeInitialize();
 
   /// \brief Needs to be called every frame so the pool can figure out which queries have finished and reuse old data.
@@ -70,6 +71,8 @@ private:
   /// If the user does not retrieve the values within s_uiRetainFrames time, the result expires.
   struct Pool
   {
+    Pool(ezAllocator* pAllocator);
+
     void Initialize(vk::Device device, ezUInt32 uiPoolSize, vk::QueryType queryType);
     void DeInitialize();
 

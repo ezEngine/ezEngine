@@ -4,14 +4,20 @@
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 
-void ezQueryPoolVulkan::Initialize(ezGALDeviceVulkan* pDevice, ezUInt32 uiValidBits)
+ezQueryPoolVulkan::ezQueryPoolVulkan(ezGALDeviceVulkan* pDevice)
+  : m_pDevice(pDevice)
+  , m_TimestampPool(pDevice->GetAllocator())
+  , m_OcclusionPool(pDevice->GetAllocator())
 {
-  m_pDevice = pDevice;
-  m_TimestampPool.Initialize(pDevice->GetVulkanDevice(), 256, vk::QueryType::eTimestamp);
-  m_OcclusionPool.Initialize(pDevice->GetVulkanDevice(), 32, vk::QueryType::eOcclusion);
+}
 
-  EZ_ASSERT_DEV(pDevice->GetPhysicalDeviceProperties().limits.timestampComputeAndGraphics, "Timestamps not supported by hardware.");
-  m_fNanoSecondsPerTick = pDevice->GetPhysicalDeviceProperties().limits.timestampPeriod;
+void ezQueryPoolVulkan::Initialize(ezUInt32 uiValidBits)
+{
+  m_TimestampPool.Initialize(m_pDevice->GetVulkanDevice(), 256, vk::QueryType::eTimestamp);
+  m_OcclusionPool.Initialize(m_pDevice->GetVulkanDevice(), 32, vk::QueryType::eOcclusion);
+
+  EZ_ASSERT_DEV(m_pDevice->GetPhysicalDeviceProperties().limits.timestampComputeAndGraphics, "Timestamps not supported by hardware.");
+  m_fNanoSecondsPerTick = m_pDevice->GetPhysicalDeviceProperties().limits.timestampPeriod;
 
   m_uiValidBitsMask = uiValidBits == 64 ? ezMath::MaxValue<ezUInt64>() : ((1ull << uiValidBits) - 1);
 }
@@ -22,6 +28,12 @@ void ezQueryPoolVulkan::DeInitialize()
   m_OcclusionPool.DeInitialize();
 }
 
+ezQueryPoolVulkan::Pool::Pool(ezAllocator* pAllocator)
+  : m_pendingFrames(pAllocator)
+  , m_resetPools(pAllocator)
+  , m_freePools(pAllocator)
+{
+}
 
 void ezQueryPoolVulkan::Pool::Initialize(vk::Device device, ezUInt32 uiPoolSize, vk::QueryType queryType)
 {

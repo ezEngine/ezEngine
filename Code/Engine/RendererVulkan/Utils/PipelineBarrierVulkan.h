@@ -18,6 +18,8 @@ class ezGALBufferUnorderedAccessViewVulkan;
 class EZ_RENDERERVULKAN_DLL ezPipelineBarrierVulkan
 {
 public:
+  ezPipelineBarrierVulkan(ezAllocator* pAllocator);
+
   /// \name Barrier handling
   ///@{
 

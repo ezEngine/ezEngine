@@ -205,6 +205,9 @@ public:
   // public in case someone external needs to lock multiple operations
   mutable ezMutex m_Mutex;
 
+  /// Internal: Returns the allocator used by the device.
+  ezAllocator* GetAllocator();
+
 private:
   static ezGALDevice* s_pDefaultDevice;
 

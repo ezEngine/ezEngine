@@ -19,6 +19,7 @@
 class EZ_RENDERERVULKAN_DLL ezCommandBufferPoolVulkan
 {
 public:
+  ezCommandBufferPoolVulkan(ezAllocator* pAllocator);
   ~ezCommandBufferPoolVulkan();
 
   void Initialize(vk::Device device, ezUInt32 graphicsFamilyIndex);

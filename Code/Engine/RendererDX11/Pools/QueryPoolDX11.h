@@ -10,9 +10,10 @@ class ezGALDeviceDX11;
 class EZ_RENDERERDX11_DLL ezQueryPoolDX11
 {
 public:
+  ezQueryPoolDX11(ezGALDeviceDX11* pDevice);
+
   /// \brief Initializes the pool.
-  /// \param pDevice Parent DX11 device.
-  ezResult Initialize(ezGALDeviceDX11* pDevice);
+  ezResult Initialize();
   void DeInitialize();
 
   void BeginFrame();
@@ -51,6 +52,8 @@ private:
 
   struct Pool
   {
+    Pool(ezAllocator* pAllocator);
+
     ezResult Initialize(ezGALDeviceDX11* pDevice, D3D11_QUERY queryType, ezUInt32 uiCount);
     void DeInitialize();
 
@@ -68,7 +71,7 @@ private:
     }
 
     // #TODO_DX11 Replace ring buffer with proper pool like in Vulkan to prevent buffer overrun.
-    ezDynamicArray<ID3D11Query*, ezLocalAllocatorWrapper> m_Timestamps;
+    ezDynamicArray<ID3D11Query*, ezLocalAllocatorWrapper> m_Queries;
     ezUInt32 m_uiNextTimestamp = 0;
     ezGALDeviceDX11* m_pDevice = nullptr;
   };

@@ -192,7 +192,7 @@ retry:
   }
 
   ezFencePoolDX11::Initialize(this);
-  m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueDX11);
+  m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueDX11, &m_Allocator);
 
   // Fill lookup table
   FillFormatLookupTable();
@@ -200,8 +200,8 @@ retry:
   ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
   ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 
-  m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolDX11);
-  if (m_pQueryPool->Initialize(this).Failed())
+  m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolDX11, this);
+  if (m_pQueryPool->Initialize().Failed())
   {
     return EZ_FAILURE;
   }

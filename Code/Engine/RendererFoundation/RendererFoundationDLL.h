@@ -36,7 +36,6 @@ struct ezGALDepthStencilStateCreationDescription;
 struct ezGALBlendStateCreationDescription;
 struct ezGALRasterizerStateCreationDescription;
 struct ezGALVertexDeclarationCreationDescription;
-struct ezGALQueryCreationDescription;
 struct ezGALSamplerStateCreationDescription;
 struct ezGALTextureResourceViewCreationDescription;
 struct ezGALBufferResourceViewCreationDescription;

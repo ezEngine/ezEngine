@@ -168,7 +168,6 @@ public:
   ezFenceQueueVulkan& GetFenceQueue() const;
   ezStagingBufferPoolVulkan& GetStagingBufferPool() const;
   ezInitContextVulkan& GetInitContext() const;
-  ezProxyAllocator& GetAllocator();
 
   ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, bool bLinearCPU = false, bool bStaging = false);
   ezGALBufferHandle CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData, bool bCPU = false);

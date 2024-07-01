@@ -82,7 +82,11 @@ ezEnum<ezGALAsyncResult> ezFencePoolDX11::GetFenceResult(ID3D11Query* pFence, ez
 }
 
 
-ezFenceQueueDX11::ezFenceQueueDX11() = default;
+ezFenceQueueDX11::ezFenceQueueDX11(ezAllocator* pAllocator)
+: m_PendingFences(pAllocator)
+{
+}
+
 ezFenceQueueDX11::~ezFenceQueueDX11()
 {
   while (!m_PendingFences.IsEmpty())

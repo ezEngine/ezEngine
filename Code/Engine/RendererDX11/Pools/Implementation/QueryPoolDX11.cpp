@@ -4,13 +4,21 @@
 #include <RendererDX11/Pools/FencePoolDX11.h>
 #include <RendererDX11/Pools/QueryPoolDX11.h>
 
-ezResult ezQueryPoolDX11::Initialize(ezGALDeviceDX11* pDevice)
+ezQueryPoolDX11::ezQueryPoolDX11(ezGALDeviceDX11* pDevice)
+  : m_pDevice(pDevice)
+  , m_TimestampPool(pDevice->GetAllocator())
+  , m_OcclusionPool(pDevice->GetAllocator())
+  , m_OcclusionPredicatePool(pDevice->GetAllocator())
+  , m_PendingFrames(pDevice->GetAllocator())
+  , m_FreeFrames(pDevice->GetAllocator())
 {
-  m_pDevice = pDevice;
+}
 
-  EZ_SUCCEED_OR_RETURN(m_TimestampPool.Initialize(pDevice, D3D11_QUERY_TIMESTAMP, 2048));
-  EZ_SUCCEED_OR_RETURN(m_OcclusionPool.Initialize(pDevice, D3D11_QUERY_OCCLUSION, 512));
-  EZ_SUCCEED_OR_RETURN(m_OcclusionPredicatePool.Initialize(pDevice, D3D11_QUERY_OCCLUSION_PREDICATE, 512));
+ezResult ezQueryPoolDX11::Initialize()
+{
+  EZ_SUCCEED_OR_RETURN(m_TimestampPool.Initialize(m_pDevice, D3D11_QUERY_TIMESTAMP, 2048));
+  EZ_SUCCEED_OR_RETURN(m_OcclusionPool.Initialize(m_pDevice, D3D11_QUERY_OCCLUSION, 512));
+  EZ_SUCCEED_OR_RETURN(m_OcclusionPredicatePool.Initialize(m_pDevice, D3D11_QUERY_OCCLUSION_PREDICATE, 512));
 
   m_SyncTimeDiff = ezTime::MakeZero();
   return EZ_SUCCESS;
@@ -214,6 +222,11 @@ ezEnum<ezGALAsyncResult> ezQueryPoolDX11::GetOcclusionQueryResult(ezGALPoolHandl
   }
 }
 
+ezQueryPoolDX11::Pool::Pool(ezAllocator* pAllocator)
+  : m_Queries(pAllocator)
+{
+}
+
 ezResult ezQueryPoolDX11::Pool::Initialize(ezGALDeviceDX11* pDevice, D3D11_QUERY queryType, ezUInt32 uiCount)
 {
   m_pDevice = pDevice;
@@ -222,10 +235,10 @@ ezResult ezQueryPoolDX11::Pool::Initialize(ezGALDeviceDX11* pDevice, D3D11_QUERY
   timerQueryDesc.Query = queryType;
   timerQueryDesc.MiscFlags = 0;
 
-  m_Timestamps.SetCountUninitialized(uiCount);
-  for (ezUInt32 i = 0; i < m_Timestamps.GetCount(); ++i)
+  m_Queries.SetCountUninitialized(uiCount);
+  for (ezUInt32 i = 0; i < m_Queries.GetCount(); ++i)
   {
-    if (FAILED(pDevice->GetDXDevice()->CreateQuery(&timerQueryDesc, &m_Timestamps[i])))
+    if (FAILED(pDevice->GetDXDevice()->CreateQuery(&timerQueryDesc, &m_Queries[i])))
     {
       ezLog::Error("Creation of native DirectX query for timestamp has failed!");
       return EZ_FAILURE;
@@ -236,26 +249,26 @@ ezResult ezQueryPoolDX11::Pool::Initialize(ezGALDeviceDX11* pDevice, D3D11_QUERY
 
 void ezQueryPoolDX11::Pool::DeInitialize()
 {
-  for (auto& timestamp : m_Timestamps)
+  for (auto& timestamp : m_Queries)
   {
     EZ_GAL_DX11_RELEASE(timestamp);
   }
-  m_Timestamps.Clear();
+  m_Queries.Clear();
 }
 
 ezGALPoolHandle ezQueryPoolDX11::Pool::CreateQuery()
 {
   ezUInt32 uiIndex = m_uiNextTimestamp;
-  m_uiNextTimestamp = (m_uiNextTimestamp + 1) % m_Timestamps.GetCount();
+  m_uiNextTimestamp = (m_uiNextTimestamp + 1) % m_Queries.GetCount();
   ezGALTimestampHandle hTimestamp = {uiIndex, m_pDevice->GetCurrentFrame()};
   return hTimestamp;
 }
 
 ID3D11Query* ezQueryPoolDX11::Pool::GetQuery(ezGALPoolHandle hPool)
 {
-  if (hPool.m_InstanceIndex < m_Timestamps.GetCount())
+  if (hPool.m_InstanceIndex < m_Queries.GetCount())
   {
-    return m_Timestamps[static_cast<ezUInt32>(hPool.m_InstanceIndex)];
+    return m_Queries[static_cast<ezUInt32>(hPool.m_InstanceIndex)];
   }
 
   return nullptr;

@@ -174,3 +174,8 @@ EZ_ALWAYS_INLINE void ezGALDevice::VerifyMultithreadedAccess() const
     "This device does not support multi-threaded resource creation, therefore this function can only be executed on the main thread.");
 #endif
 }
+
+inline ezAllocator* ezGALDevice::GetAllocator()
+{
+  return &m_Allocator;
+}
