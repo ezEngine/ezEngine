@@ -3,6 +3,7 @@
 
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Rect.h>
+#include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 struct ezShaderResourceBinding;
@@ -23,15 +24,12 @@ public:
   virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView) = 0;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) = 0;
 
-  // Query functions
+  // GPU -> CPU query functions
 
-  virtual void BeginQueryPlatform(const ezGALQuery* pQuery) = 0;
-  virtual void EndQueryPlatform(const ezGALQuery* pQuery) = 0;
-  virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& ref_uiQueryResult) = 0;
-
-  // Timestamp functions
-
-  virtual void InsertTimestampPlatform(ezGALTimestampHandle hTimestamp) = 0;
+  virtual ezGALTimestampHandle InsertTimestampPlatform() = 0;
+  virtual ezGALOcclusionHandle BeginOcclusionQueryPlatform(ezEnum<ezGALQueryType> type) = 0;
+  virtual void EndOcclusionQueryPlatform(ezGALOcclusionHandle hOcclusion) = 0;
+  virtual ezGALFenceHandle InsertFencePlatform() = 0;
 
   // Resource update functions
 

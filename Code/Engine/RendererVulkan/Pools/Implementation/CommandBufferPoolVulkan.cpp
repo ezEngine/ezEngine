@@ -2,6 +2,10 @@
 
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
 
+ezCommandBufferPoolVulkan::ezCommandBufferPoolVulkan(ezAllocator* pAllocator)
+  : m_CommandBuffers(pAllocator)
+{
+}
 
 ezCommandBufferPoolVulkan::~ezCommandBufferPoolVulkan()
 {

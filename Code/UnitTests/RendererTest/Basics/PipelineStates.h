@@ -23,6 +23,7 @@ private:
     ST_PushConstants,
     ST_SetsSlots,
     ST_Timestamps,
+    ST_OcclusionQueries,
   };
 
   enum ImageCaptureFrames
@@ -48,7 +49,8 @@ private:
     AddSubTest("09 - GenerateMipMaps", SubTests::ST_GenerateMipMaps);
     AddSubTest("10 - PushConstants", SubTests::ST_PushConstants);
     AddSubTest("11 - SetsSlots", SubTests::ST_SetsSlots);
-    // AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
+    AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
+    AddSubTest("13 - OcclusionQueries", SubTests::ST_OcclusionQueries);
   }
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
@@ -68,7 +70,8 @@ private:
   void GenerateMipMaps();
   void PushConstantsTest();
   void SetsSlotsTest();
-  void Timestamps();
+  ezTestAppRun Timestamps();
+  ezTestAppRun OcclusionQueries();
 
 private:
   ezShaderResourceHandle m_hMostBasicTriangleShader;
@@ -99,8 +102,14 @@ private:
   ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
   ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
 
+  // Timestamps test
   bool m_bTimestampsValid = false;
   ezTime m_CPUTime[2];
   ezTime m_GPUTime[2];
   ezGALTimestampHandle m_timestamps[2];
+
+  // Occlusion Queries test
+  ezGALOcclusionHandle m_queries[4];
+
+  ezGALFenceHandle m_hFence = {};
 };

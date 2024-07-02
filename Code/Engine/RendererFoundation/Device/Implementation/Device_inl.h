@@ -9,14 +9,38 @@ EZ_ALWAYS_INLINE const ezGALDeviceCreationDescription* ezGALDevice::GetDescripti
   return &m_Description;
 }
 
-EZ_ALWAYS_INLINE ezResult ezGALDevice::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& ref_result)
+EZ_ALWAYS_INLINE ezUInt64 ezGALDevice::GetCurrentFrame() const
 {
-  return GetTimestampResultPlatform(hTimestamp, ref_result);
+  return GetCurrentFramePlatform();
 }
 
-EZ_ALWAYS_INLINE ezGALTimestampHandle ezGALDevice::GetTimestamp()
+EZ_ALWAYS_INLINE ezUInt64 ezGALDevice::GetSafeFrame() const
 {
-  return GetTimestampPlatform();
+  return GetSafeFramePlatform();
+}
+
+EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result)
+{
+  if (hTimestamp.IsInvalidated())
+    return ezGALAsyncResult::Expired;
+
+  return GetTimestampResultPlatform(hTimestamp, out_result);
+}
+
+EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetOcclusionQueryResult(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult)
+{
+  if (hOcclusion.IsInvalidated())
+    return ezGALAsyncResult::Expired;
+
+  return GetOcclusionResultPlatform(hOcclusion, out_uiResult);
+}
+
+EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetFenceResult(ezGALFenceHandle hFence, ezTime timeout)
+{
+  if (hFence == 0)
+    return ezGALAsyncResult::Ready;
+
+  return GetFenceResultPlatform(hFence, timeout);
 }
 
 template <typename IdTableType, typename ReturnType>
@@ -99,11 +123,6 @@ inline const ezGALBufferUnorderedAccessView* ezGALDevice::GetUnorderedAccessView
   return Get<BufferUnorderedAccessViewTable, ezGALBufferUnorderedAccessView>(hUnorderedAccessView, m_BufferUnorderedAccessViews);
 }
 
-inline const ezGALQuery* ezGALDevice::GetQuery(ezGALQueryHandle hQuery) const
-{
-  return Get<QueryTable, ezGALQuery>(hQuery, m_Queries);
-}
-
 // static
 EZ_ALWAYS_INLINE void ezGALDevice::SetDefaultDevice(ezGALDevice* pDefaultDevice)
 {
@@ -154,4 +173,9 @@ EZ_ALWAYS_INLINE void ezGALDevice::VerifyMultithreadedAccess() const
   EZ_ASSERT_DEV(m_Capabilities.m_bMultithreadedResourceCreation || ezThreadUtils::IsMainThread(),
     "This device does not support multi-threaded resource creation, therefore this function can only be executed on the main thread.");
 #endif
+}
+
+inline ezAllocator* ezGALDevice::GetAllocator()
+{
+  return &m_Allocator;
 }

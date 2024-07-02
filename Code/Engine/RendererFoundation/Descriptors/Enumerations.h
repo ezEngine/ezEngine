@@ -204,7 +204,6 @@ struct ezGALBufferUsageFlags
 EZ_DECLARE_FLAGS_OPERATORS(ezGALBufferUsageFlags);
 
 /// \brief Type of GPU->CPU query.
-/// \sa ezGALQueryCreationDescription
 struct ezGALQueryType
 {
   using StorageType = ezUInt8;
@@ -213,13 +212,10 @@ struct ezGALQueryType
   {
     /// Number of samples that passed the depth and stencil test between begin and end (on a context).
     NumSamplesPassed,
-    /// Boolean version of NumSamplesPassed.
+    /// Boolean version of NumSamplesPassed. Any number bigger than 0 equals true.
     AnySamplesPassed,
 
     Default = NumSamplesPassed
-
-    // Note:
-    // GALFence provides an implementation of "event queries".
   };
 };
 

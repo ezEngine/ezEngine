@@ -26,7 +26,6 @@
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/FallbackResourcesVulkan.h>
-#include <RendererVulkan/Resources/QueryVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/SharedTextureVulkan.h>
@@ -460,7 +459,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     {
       m_extensions.m_bDebugUtilsMarkers = false;
     }
-    // TODO call vkGetPhysicalDeviceFeatures2 with VkPhysicalDeviceTimelineSemaphoreFeatures and figure out if time
+    // TODO call vkGetPhysicalDeviceFeatures2 with VkPhysicalDeviceTimelineSemaphoreFeatures and figure out if timeline semaphores are supported
   }
 
   ezHybridArray<vk::QueueFamilyProperties, 4> queueFamilyProperties;
@@ -588,13 +587,14 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   // https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_maintenance1.html
   ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 
-  m_pPipelineBarrier = EZ_NEW(&m_Allocator, ezPipelineBarrierVulkan);
-  m_pCommandBufferPool = EZ_NEW(&m_Allocator, ezCommandBufferPoolVulkan);
+  m_pPipelineBarrier = EZ_NEW(&m_Allocator, ezPipelineBarrierVulkan, &m_Allocator);
+  m_pCommandBufferPool = EZ_NEW(&m_Allocator, ezCommandBufferPoolVulkan, &m_Allocator);
   m_pCommandBufferPool->Initialize(m_device, m_graphicsQueue.m_uiQueueFamily);
   m_pStagingBufferPool = EZ_NEW(&m_Allocator, ezStagingBufferPoolVulkan);
   m_pStagingBufferPool->Initialize(this);
-  m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolVulkan);
-  m_pQueryPool->Initialize(this, queueFamilyProperties[m_graphicsQueue.m_uiQueueFamily].timestampValidBits);
+  m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolVulkan, this);
+  m_pQueryPool->Initialize(queueFamilyProperties[m_graphicsQueue.m_uiQueueFamily].timestampValidBits);
+  m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueVulkan, this);
   m_pInitContext = EZ_NEW(&m_Allocator, ezInitContextVulkan, this);
 
   ezSemaphorePoolVulkan::Initialize(m_device);
@@ -603,8 +603,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   ezDescriptorSetPoolVulkan::Initialize(m_device);
   ezImageCopyVulkan::Initialize(*this);
 
-  m_pCommandEncoderImpl = EZ_DEFAULT_NEW(ezGALCommandEncoderImplVulkan, *this);
-  m_pCommandEncoder = EZ_DEFAULT_NEW(ezGALCommandEncoder, *this, *m_pCommandEncoderImpl);
+  m_pCommandEncoderImpl = EZ_NEW(&m_Allocator, ezGALCommandEncoderImplVulkan, *this);
+  m_pCommandEncoder = EZ_NEW(&m_Allocator, ezGALCommandEncoder, *this, *m_pCommandEncoderImpl);
 
   ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
     { return CreateSwapChain([this, &desc](ezAllocator* pAllocator) -> ezGALSwapChain*
@@ -741,6 +741,7 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   m_pStagingBufferPool = nullptr;
   m_pQueryPool->DeInitialize();
   m_pQueryPool = nullptr;
+  m_pFenceQueue = nullptr;
   m_pInitContext = nullptr;
 
   ezSemaphorePoolVulkan::DeInitialize();
@@ -780,8 +781,6 @@ vk::CommandBuffer& ezGALDeviceVulkan::GetCurrentCommandBuffer()
     GetCurrentPipelineBarrier().SetCommandBuffer(&commandBuffer);
 
     m_pCommandEncoderImpl->SetCurrentCommandBuffer(&commandBuffer, m_pPipelineBarrier.Borrow());
-    // We can't carry state across individual command buffers.
-    m_pCommandEncoderImpl->MarkDirty();
   }
   return commandBuffer;
 }
@@ -801,6 +800,11 @@ ezQueryPoolVulkan& ezGALDeviceVulkan::GetQueryPool() const
   return *m_pQueryPool.Borrow();
 }
 
+ezFenceQueueVulkan& ezGALDeviceVulkan::GetFenceQueue() const
+{
+  return *m_pFenceQueue.Borrow();
+}
+
 ezStagingBufferPoolVulkan& ezGALDeviceVulkan::GetStagingBufferPool() const
 {
   return *m_pStagingBufferPool.Borrow();
@@ -809,11 +813,6 @@ ezStagingBufferPoolVulkan& ezGALDeviceVulkan::GetStagingBufferPool() const
 ezInitContextVulkan& ezGALDeviceVulkan::GetInitContext() const
 {
   return *m_pInitContext.Borrow();
-}
-
-ezProxyAllocator& ezGALDeviceVulkan::GetAllocator()
-{
-  return m_Allocator;
 }
 
 ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, bool bLinearCPU, bool bStaging)
@@ -842,34 +841,8 @@ ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreat
   return FinalizeBufferInternal(Description, pBuffer);
 }
 
-void ezGALDeviceVulkan::BeginPipelinePlatform(const char* szName)
-{
-  EZ_PROFILE_SCOPE("BeginPipelinePlatform");
-
-  GetCurrentCommandBuffer();
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
-#endif
-}
-
-void ezGALDeviceVulkan::EndPipelinePlatform()
-{
-  EZ_PROFILE_SCOPE("EndPipelinePlatform");
-
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPipelineTimingScope);
-#endif
-
-  // Render context is reset on every end pipeline so it will re-submit all state change for the next render pass. Thus it is safe at this point to do a full reset.
-  // Technically don't have to reset here, MarkDirty would also be fine but we do need to do a Reset at the end of the frame as pointers held by the ezGALCommandEncoderImplVulkan may not be valid in the next frame.
-  m_pCommandEncoderImpl->Reset();
-  m_pCommandEncoder->InvalidateState();
-}
-
 vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore)
 {
-  m_pCommandEncoderImpl->SetCurrentCommandBuffer(nullptr, nullptr);
-
   vk::CommandBuffer initCommandBuffer = m_pInitContext->GetFinishedCommandBuffer();
   bool bHasCmdBuffer = initCommandBuffer || m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
 
@@ -973,6 +946,8 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore)
     m_graphicsQueue.m_queue.submit(1, &submitInfo, renderFence);
   }
 
+  m_pCommandEncoderImpl->CommandBufferSubmitted(renderFence);
+
   auto res = renderFence;
   ReclaimLater(renderFence);
   if (m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer)
@@ -996,6 +971,9 @@ void ezGALDeviceVulkan::EndCommandsPlatform(ezGALCommandEncoder* pPass)
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPassTimingScope);
 #endif
+  // Technically we don't need to do this here.
+  m_pCommandEncoderImpl->Reset();
+  m_pCommandEncoder->InvalidateState();
 }
 
 
@@ -1288,26 +1266,6 @@ void ezGALDeviceVulkan::DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedA
 }
 
 // Other rendering creation functions
-ezGALQuery* ezGALDeviceVulkan::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
-{
-  ezGALQueryVulkan* pQuery = EZ_NEW(&m_Allocator, ezGALQueryVulkan, Description);
-
-  if (!pQuery->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pQuery);
-    return nullptr;
-  }
-
-  return pQuery;
-}
-
-void ezGALDeviceVulkan::DestroyQueryPlatform(ezGALQuery* pQuery)
-{
-  ezGALQueryVulkan* pQueryVulkan = static_cast<ezGALQueryVulkan*>(pQuery);
-  pQueryVulkan->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pQueryVulkan);
-}
-
 ezGALVertexDeclaration* ezGALDeviceVulkan::CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description)
 {
   ezGALVertexDeclarationVulkan* pVertexDeclaration = EZ_NEW(&m_Allocator, ezGALVertexDeclarationVulkan, Description);
@@ -1331,62 +1289,94 @@ void ezGALDeviceVulkan::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration*
   EZ_DELETE(&m_Allocator, pVertexDeclarationVulkan);
 }
 
-ezGALTimestampHandle ezGALDeviceVulkan::GetTimestampPlatform()
-{
-  return m_pQueryPool->GetTimestamp();
-}
-
-ezResult ezGALDeviceVulkan::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result)
+ezEnum<ezGALAsyncResult> ezGALDeviceVulkan::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result)
 {
   return m_pQueryPool->GetTimestampResult(hTimestamp, result);
 }
 
+ezEnum<ezGALAsyncResult> ezGALDeviceVulkan::GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult)
+{
+  return m_pQueryPool->GetOcclusionQueryResult(hOcclusion, out_uiResult);
+}
+
+ezEnum<ezGALAsyncResult> ezGALDeviceVulkan::GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout)
+{
+  return m_pFenceQueue->GetFenceResult(hFence, timeout);
+}
+
 // Misc functions
 
-void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiRenderFrame)
+void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiAppFrame)
 {
   auto& pCommandEncoder = m_pCommandEncoderImpl;
 
-  // check if fence is reached
-  if (m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame != ((ezUInt64)-1))
   {
-    auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
-    for (vk::Fence fence : perFrameData.m_CommandBufferFences)
+    EZ_PROFILE_SCOPE("CheckFences");
+    // check if fence is reached
+    for (ezUInt64 uiFrame = m_uiSafeFrame + 1; uiFrame < m_uiFrameCounter; uiFrame++)
     {
-      vk::Result fenceStatus = m_device.getFenceStatus(fence);
-      if (fenceStatus == vk::Result::eNotReady)
+      auto& perFrameData = m_PerFrameData[uiFrame % FRAMES];
+
+      // if we accumulate more frames than we can hold in the ring buffer, force waiting for fences.
+      const bool bForce = uiFrame % FRAMES == m_uiFrameCounter % FRAMES;
+
+      if (perFrameData.m_uiFrame != ((ezUInt64)-1))
       {
-        m_device.waitForFences(1, &fence, true, 1000000000);
+        EZ_ASSERT_DEBUG(uiFrame == perFrameData.m_uiFrame, "Frame data was likely overwritten and no longer matches the expected previous frame index. This should have been prevented by bForce above.");
+        bool bFencesReached = true;
+        for (vk::Fence fence : perFrameData.m_CommandBufferFences)
+        {
+          vk::Result fenceStatus = m_device.getFenceStatus(fence);
+          if (fenceStatus == vk::Result::eNotReady)
+          {
+            if (bForce)
+              m_device.waitForFences(1, &fence, true, 10000000000ull);
+            else
+            {
+              bFencesReached = false;
+              break;
+            }
+          }
+        }
+
+        if (bFencesReached)
+        {
+          EZ_PROFILE_SCOPE("FrameCleanup");
+          perFrameData.m_CommandBufferFences.Clear();
+          // Not pretty, but as the fences are already in the deletion queue, we need to flush then from the fence queue before we call ReclaimResources below.
+          m_pFenceQueue->FlushReadyFences();
+
+          {
+            EZ_LOCK(perFrameData.m_pendingDeletionsMutex);
+            DeletePendingResources(perFrameData.m_pendingDeletionsPrevious);
+          }
+          {
+            EZ_LOCK(perFrameData.m_reclaimResourcesMutex);
+            ReclaimResources(perFrameData.m_reclaimResourcesPrevious);
+          }
+          m_uiSafeFrame = uiFrame;
+        }
+        else
+          break;
       }
     }
-    perFrameData.m_CommandBufferFences.Clear();
-
-    {
-      EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletionsMutex);
-      DeletePendingResources(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletionsPrevious);
-    }
-    {
-      EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_reclaimResourcesMutex);
-      ReclaimResources(m_PerFrameData[m_uiCurrentPerFrameData].m_reclaimResourcesPrevious);
-    }
-    m_uiSafeFrame = m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame;
-  }
-  {
-    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    perFrameData.m_fInvTicksPerSecond = -1.0f;
   }
 
   m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame = m_uiFrameCounter;
 
-  m_pQueryPool->BeginFrame(GetCurrentCommandBuffer());
+  {
+    EZ_PROFILE_SCOPE("QueryPool");
+    m_pQueryPool->BeginFrame(GetCurrentCommandBuffer());
+  }
   GetCurrentCommandBuffer();
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezStringBuilder sb;
-  sb.SetFormat("Frame {}", uiRenderFrame);
+  sb.SetFormat("Frame {}", uiAppFrame);
   m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
 #endif
 
+  EZ_PROFILE_SCOPE("AcquireNextRenderTargets");
   for (ezGALSwapChain* pSwapChain : swapchains)
   {
     pSwapChain->AcquireNextRenderTarget(this);
@@ -1399,9 +1389,10 @@ void ezGALDeviceVulkan::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
   {
     pSwapChain->PresentRenderTarget(this);
   }
+
 #if EZ_ENABLED(EZ_USE_PROFILING)
   {
-    // #TODO_VULKAN This is very wasteful, in normal cases the last endPipeline will have submitted the command buffer via the swapchain. Thus, we start and submit a command buffer here with only the timestamp in it.
+    // In rare cases it could be that we submitted the command buffer already and don't have a new one allocated yet.
     GetCurrentCommandBuffer();
     ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pFrameTimingScope);
   }
@@ -1424,9 +1415,17 @@ void ezGALDeviceVulkan::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
       currentFrameData.m_reclaimResourcesPrevious.Swap(currentFrameData.m_reclaimResources);
     }
   }
-  m_uiCurrentPerFrameData = (m_uiCurrentPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
-  m_uiNextPerFrameData = (m_uiCurrentPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
   ++m_uiFrameCounter;
+  m_uiCurrentPerFrameData = (m_uiFrameCounter) % FRAMES;
+}
+
+ezUInt64 ezGALDeviceVulkan::GetCurrentFramePlatform() const
+{
+  return m_uiFrameCounter;
+}
+ezUInt64 ezGALDeviceVulkan::GetSafeFramePlatform() const
+{
+  return m_uiSafeFrame;
 }
 
 void ezGALDeviceVulkan::FillCapabilitiesPlatform()
@@ -1533,7 +1532,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
 
 void ezGALDeviceVulkan::FlushPlatform()
 {
-  Submit();
+  m_pCommandEncoderImpl->FlushPlatform();
 }
 
 void ezGALDeviceVulkan::WaitIdlePlatform()
@@ -1557,8 +1556,10 @@ void ezGALDeviceVulkan::WaitIdlePlatform()
     perFrameData.m_CommandBufferFences.Clear();
   }
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
+  for (ezUInt32 i = 0; i < FRAMES; ++i)
   {
+    // Not pretty, but as the fences are already in the deletion queue, we need to flush then from the fence queue before we call ReclaimResources below.
+    m_pFenceQueue->FlushReadyFences();
     {
       EZ_LOCK(m_PerFrameData[i].m_pendingDeletionsMutex);
       DeletePendingResources(m_PerFrameData[i].m_pendingDeletionsPrevious);

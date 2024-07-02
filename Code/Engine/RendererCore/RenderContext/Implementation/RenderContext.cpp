@@ -989,7 +989,10 @@ void ezRenderContext::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
   {
     s_pCommandEncoder = e.m_pCommandEncoder;
     if (s_pDefaultInstance)
+    {
+      s_pDefaultInstance->m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
       s_pDefaultInstance->m_pGALCommandEncoder = e.m_pCommandEncoder;
+    }
   }
   else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndCommands)
   {

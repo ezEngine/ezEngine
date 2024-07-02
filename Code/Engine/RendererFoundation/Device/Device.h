@@ -102,15 +102,34 @@ public:
   ezResult UpdateSwapChain(ezGALSwapChainHandle hSwapChain, ezEnum<ezGALPresentMode> newPresentMode);
   void DestroySwapChain(ezGALSwapChainHandle hSwapChain);
 
-  ezGALQueryHandle CreateQuery(const ezGALQueryCreationDescription& description);
-  void DestroyQuery(ezGALQueryHandle hQuery);
-
   ezGALVertexDeclarationHandle CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& description);
   void DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
 
-  // Timestamp functions
+  // GPU -> CPU query functions
 
-  ezResult GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& ref_result);
+  /// \brief Queries the result of a timestamp.
+  /// Should be called every frame until ezGALAsyncResult::Ready is returned.
+  /// \param hTimestamp The timestamp handle to query.
+  /// \param out_result If ezGALAsyncResult::Ready is returned, this will be the timestamp at which this handle was inserted into the command encoder.
+  /// \return If ezGALAsyncResult::Expired is returned, the result was in a ready state for more than 4 frames and was thus deleted.
+  /// \sa ezCommandEncoder::InsertTimestamp
+  ezEnum<ezGALAsyncResult> GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result);
+
+  /// \briefQueries the result of an occlusion query.
+  /// Should be called every frame until ezGALAsyncResult::Ready is returned.
+  /// \param hOcclusion The occlusion query handle to query.
+  /// \param out_uiResult If ezGALAsyncResult::Ready is returned, this will be the number of pixels of the occlusion query.
+  /// \return If ezGALAsyncResult::Expired is returned, the result was in a ready state for more than 4 frames and was thus deleted.
+  /// \sa ezCommandEncoder::BeginOcclusionQuery, ezCommandEncoder::EndOcclusionQuery
+  ezEnum<ezGALAsyncResult> GetOcclusionQueryResult(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult);
+
+  /// \briefQueries the result of a fence.
+  /// Fences can never expire as they are just monotonically increasing numbers over time.
+  /// \param hFence The fence handle to query.
+  /// \param timeout If set to > 0, the function will block until the fence is ready or the timeout is reached.
+  /// \return Returns either Ready or Pending.
+  /// \sa ezCommandEncoder::InsertFence
+  ezEnum<ezGALAsyncResult> GetFenceResult(ezGALFenceHandle hFence, ezTime timeout = ezTime::MakeZero());
 
   /// \todo Map functions to save on memcpys
 
@@ -127,15 +146,21 @@ public:
   void EnqueueFrameSwapChain(ezGALSwapChainHandle hSwapChain);
 
   /// \brief Begins rendering of a frame. This needs to be called first before any rendering function can be called.
-  /// \param swapchains List of swap-chains used in this frame. The device will ensure to acquire an image from each swap-chain and present it when calling EndFrame.
-  /// \param uiRenderFrame Frame index for debugging purposes.
-  void BeginFrame(const ezUInt64 uiRenderFrame = 0);
+  /// \param uiAppFrame Frame index for debugging purposes, has no effect on GetCurrentFrame.
+  void BeginFrame(const ezUInt64 uiAppFrame = 0);
 
   /// \brief Ends rendering of a frame and submits all data to the GPU. No further rendering calls are allowed until BeginFrame is called again.
   void EndFrame();
 
+  /// \brief The current rendering frame.
+  /// This is a monotonically increasing number which changes +1 every time EndFrame is called. You can use this to synchronize read/writes between CPU and GPU, see GetSafeFrame.
+  /// \sa GetSafeFrame
+  ezUInt64 GetCurrentFrame() const;
+  /// \brief The latest frame that has been fully executed on the GPU.
+  /// Whenever you execute any work that requires synchronization between CPU and GPU, remember the GetCurrentFrame result in which the operation was done. When GetSafeFrame reaches this number, you know for sure that the GPU has completed all operations of that frame.
+  /// \sa GetCurrentFrame
+  ezUInt64 GetSafeFrame() const;
 
-  ezGALTimestampHandle GetTimestamp();
 
   const ezGALDeviceCreationDescription* GetDescription() const;
 
@@ -160,7 +185,6 @@ public:
   const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
   const ezGALTextureUnorderedAccessView* GetUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView) const;
   const ezGALBufferUnorderedAccessView* GetUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView) const;
-  const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
 
   const ezGALDeviceCapabilities& GetCapabilities() const;
 
@@ -171,13 +195,18 @@ public:
   static ezGALDevice* GetDefaultDevice();
   static bool HasDefaultDevice();
 
-  // Sends the queued up commands to the GPU
+  // \brief Sends the queued up commands to the GPU.
+  // Same as ezCommandEncoder:Flush.
   void Flush();
+
   /// \brief Waits for the GPU to be idle and destroys any pending resources and GPU objects.
   void WaitIdle();
 
   // public in case someone external needs to lock multiple operations
   mutable ezMutex m_Mutex;
+
+  /// Internal: Returns the allocator used by the device.
+  ezAllocator* GetAllocator();
 
 private:
   static ezGALDevice* s_pDefaultDevice;
@@ -225,7 +254,6 @@ protected:
   using TextureUnorderedAccessViewTable = ezIdTable<ezGALTextureUnorderedAccessViewHandle::IdType, ezGALTextureUnorderedAccessView*, ezLocalAllocatorWrapper>;
   using BufferUnorderedAccessViewTable = ezIdTable<ezGALBufferUnorderedAccessViewHandle::IdType, ezGALBufferUnorderedAccessView*, ezLocalAllocatorWrapper>;
   using SwapChainTable = ezIdTable<ezGALSwapChainHandle::IdType, ezGALSwapChain*, ezLocalAllocatorWrapper>;
-  using QueryTable = ezIdTable<ezGALQueryHandle::IdType, ezGALQuery*, ezLocalAllocatorWrapper>;
   using VertexDeclarationTable = ezIdTable<ezGALVertexDeclarationHandle::IdType, ezGALVertexDeclaration*, ezLocalAllocatorWrapper>;
 
   ShaderTable m_Shaders;
@@ -241,7 +269,6 @@ protected:
   TextureUnorderedAccessViewTable m_TextureUnorderedAccessViews;
   BufferUnorderedAccessViewTable m_BufferUnorderedAccessViews;
   SwapChainTable m_SwapChains;
-  QueryTable m_Queries;
   VertexDeclarationTable m_VertexDeclarations;
 
 
@@ -282,8 +309,8 @@ protected:
   // Pipeline & Pass functions
 
 
-  virtual void BeginPipelinePlatform(const char* szName) = 0;
-  virtual void EndPipelinePlatform() = 0;
+
+  // Command Encoder
 
   virtual ezGALCommandEncoder* BeginCommandsPlatform(const char* szName) = 0;
   virtual void EndCommandsPlatform(ezGALCommandEncoder* pPass) = 0;
@@ -333,21 +360,22 @@ protected:
 
   // Other rendering creation functions
 
-  virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) = 0;
-  virtual void DestroyQueryPlatform(ezGALQuery* pQuery) = 0;
-
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) = 0;
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) = 0;
 
-  // Timestamp functions
+  // GPU -> CPU query functions
 
-  virtual ezGALTimestampHandle GetTimestampPlatform() = 0;
-  virtual ezResult GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result) = 0;
+  virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) = 0;
+  virtual ezEnum<ezGALAsyncResult> GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) = 0;
+  virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) = 0;
 
   // Misc functions
 
-  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiRenderFrame) = 0;
+  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiAppFrame) = 0;
   virtual void EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains) = 0;
+
+  virtual ezUInt64 GetCurrentFramePlatform() const = 0;
+  virtual ezUInt64 GetSafeFramePlatform() const = 0;
 
   virtual void FillCapabilitiesPlatform() = 0;
 

@@ -139,7 +139,7 @@ ezImageCopyVulkan::~ezImageCopyVulkan() = default;
 
 void ezImageCopyVulkan::Initialize(ezGALDeviceVulkan& GALDeviceVulkan)
 {
-  s_cache = EZ_NEW(&GALDeviceVulkan.GetAllocator(), ezImageCopyVulkan::Cache, &GALDeviceVulkan.GetAllocator());
+  s_cache = EZ_NEW(GALDeviceVulkan.GetAllocator(), ezImageCopyVulkan::Cache, GALDeviceVulkan.GetAllocator());
 
   s_cache->m_onBeforeImageDeletedSubscription = GALDeviceVulkan.OnBeforeImageDestroyed.AddEventHandler(ezMakeDelegate(OnBeforeImageDestroyed));
 }

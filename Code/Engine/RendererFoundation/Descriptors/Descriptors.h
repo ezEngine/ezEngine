@@ -248,15 +248,6 @@ struct ezGALBufferUnorderedAccessViewCreationDescription : public ezHashableStru
   bool m_bRawView = false;
 };
 
-struct ezGALQueryCreationDescription : public ezHashableStruct<ezGALQueryCreationDescription>
-{
-  ezEnum<ezGALQueryType> m_type = ezGALQueryType::NumSamplesPassed;
-
-  /// In case this query is used for occlusion culling (type AnySamplesPassed), this determines whether drawing should be done if the query
-  /// status is still unknown.
-  bool m_bDrawIfUnknown = true;
-};
-
 /// \brief Type for important GAL events.
 struct ezGALDeviceEvent
 {

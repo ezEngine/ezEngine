@@ -3,7 +3,6 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
-#include <RendererFoundation/Resources/Query.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -84,43 +83,36 @@ void ezGALCommandEncoder::SetPushConstants(ezArrayPtr<const ezUInt8> data)
   m_CommonImpl.SetPushConstantsPlatform(data);
 }
 
-void ezGALCommandEncoder::BeginQuery(ezGALQueryHandle hQuery)
-{
-  AssertRenderingThread();
-
-  auto query = m_Device.GetQuery(hQuery);
-  EZ_ASSERT_DEV(!query->m_bStarted, "Can't stat ezGALQuery because it is already running.");
-
-  m_CommonImpl.BeginQueryPlatform(query);
-}
-
-void ezGALCommandEncoder::EndQuery(ezGALQueryHandle hQuery)
-{
-  AssertRenderingThread();
-
-  auto query = m_Device.GetQuery(hQuery);
-  EZ_ASSERT_DEV(query->m_bStarted, "Can't end ezGALQuery, query hasn't started yet.");
-
-  m_CommonImpl.EndQueryPlatform(query);
-}
-
-ezResult ezGALCommandEncoder::GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& ref_uiQueryResult)
-{
-  AssertRenderingThread();
-
-  auto query = m_Device.GetQuery(hQuery);
-  EZ_ASSERT_DEV(!query->m_bStarted, "Can't retrieve data from ezGALQuery while query is still running.");
-
-  return m_CommonImpl.GetQueryResultPlatform(query, ref_uiQueryResult);
-}
-
 ezGALTimestampHandle ezGALCommandEncoder::InsertTimestamp()
 {
-  ezGALTimestampHandle hTimestamp = m_Device.GetTimestamp();
+  AssertRenderingThread();
+  return m_CommonImpl.InsertTimestampPlatform();
+}
 
-  m_CommonImpl.InsertTimestampPlatform(hTimestamp);
+ezGALOcclusionHandle ezGALCommandEncoder::BeginOcclusionQuery(ezEnum<ezGALQueryType> type)
+{
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType == CommandEncoderType::Render, "Occlusion queries can only be started within a render scope");
+  AssertRenderingThread();
+  ezGALOcclusionHandle hOcclusion = m_CommonImpl.BeginOcclusionQueryPlatform(type);
 
-  return hTimestamp;
+  EZ_ASSERT_DEBUG(m_hPendingOcclusionQuery.IsInvalidated(), "Only one occusion query can be active at any give time.");
+  m_hPendingOcclusionQuery = hOcclusion;
+
+  return hOcclusion;
+}
+
+void ezGALCommandEncoder::EndOcclusionQuery(ezGALOcclusionHandle hOcclusion)
+{
+  AssertRenderingThread();
+  m_CommonImpl.EndOcclusionQueryPlatform(hOcclusion);
+
+  EZ_ASSERT_DEBUG(m_hPendingOcclusionQuery == hOcclusion, "The EndOcclusionQuery parameter does not match the currently started query");
+  m_hPendingOcclusionQuery = {};
+}
+
+ezGALFenceHandle ezGALCommandEncoder::InsertFence()
+{
+  return m_CommonImpl.InsertFencePlatform();
 }
 
 void ezGALCommandEncoder::ClearUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 vClearValues)
@@ -366,6 +358,7 @@ void ezGALCommandEncoder::GenerateMipMaps(ezGALTextureResourceViewHandle hResour
 void ezGALCommandEncoder::Flush()
 {
   AssertRenderingThread();
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType != CommandEncoderType::Render, "Flush can't be called inside a rendering scope");
 
   m_CommonImpl.FlushPlatform();
 }
@@ -694,6 +687,8 @@ void ezGALCommandEncoder::EndRendering()
     PopMarker();
     m_bMarker = false;
   }
+
+  EZ_ASSERT_DEBUG(m_hPendingOcclusionQuery.IsInvalidated(), "An occlusion query was started and not stopped within this render scope.");
 
   m_CommonImpl.EndRenderingPlatform();
 }

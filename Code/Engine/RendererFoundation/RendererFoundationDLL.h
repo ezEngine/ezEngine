@@ -36,7 +36,6 @@ struct ezGALDepthStencilStateCreationDescription;
 struct ezGALBlendStateCreationDescription;
 struct ezGALRasterizerStateCreationDescription;
 struct ezGALVertexDeclarationCreationDescription;
-struct ezGALQueryCreationDescription;
 struct ezGALSamplerStateCreationDescription;
 struct ezGALTextureResourceViewCreationDescription;
 struct ezGALBufferResourceViewCreationDescription;
@@ -55,7 +54,6 @@ class ezGALBlendState;
 class ezGALRasterizerState;
 class ezGALRenderTargetSetup;
 class ezGALVertexDeclaration;
-class ezGALQuery;
 class ezGALSamplerState;
 class ezGALTextureResourceView;
 class ezGALBufferResourceView;
@@ -342,6 +340,20 @@ struct ezGALUpdateMode
   };
 };
 
+/// \brief The current state of an async operations in the renderer
+struct ezGALAsyncResult
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Ready,   ///< The async operation has finished and the result is ready.
+    Pending, ///< The async operation is still running, retry later.
+    Expired, ///< The async operation is too old and the result was thrown away. Pending results should be queried every frame until they are ready.
+    Default = Expired
+  };
+};
+
 // Basic structs
 struct ezGALTextureSubresource
 {
@@ -378,6 +390,7 @@ namespace ezGAL
   using ez16_16Id = ezGenericId<16, 16>;
   using ez18_14Id = ezGenericId<18, 14>;
   using ez20_12Id = ezGenericId<20, 12>;
+  using ez20_44Id = ezGenericId<20, 44>;
 } // namespace ezGAL
 
 class ezGALSwapChainHandle
@@ -478,20 +491,10 @@ class ezGALVertexDeclarationHandle
   friend class ezGALDevice;
 };
 
-class ezGALQueryHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALQueryHandle, ezGAL::ez20_12Id);
-
-  friend class ezGALDevice;
-};
-
-struct ezGALTimestampHandle
-{
-  EZ_DECLARE_POD_TYPE();
-
-  ezUInt64 m_uiIndex;
-  ezUInt64 m_uiFrameCounter;
-};
+using ezGALPoolHandle = ezGAL::ez20_44Id;
+using ezGALTimestampHandle = ezGALPoolHandle;
+using ezGALOcclusionHandle = ezGALPoolHandle;
+using ezGALFenceHandle = ezUInt64;
 
 namespace ezGAL
 {

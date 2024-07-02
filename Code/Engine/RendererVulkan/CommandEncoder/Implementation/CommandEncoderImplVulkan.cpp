@@ -4,11 +4,11 @@
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
+#include <RendererVulkan/Pools/FencePoolVulkan.h>
 #include <RendererVulkan/Pools/QueryPoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/FallbackResourcesVulkan.h>
-#include <RendererVulkan/Resources/QueryVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
@@ -20,13 +20,17 @@
 #include <RendererVulkan/Utils/ImageCopyVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
+#include <Foundation/Profiling/Profiling.h>
+
 ezGALCommandEncoderImplVulkan::ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device)
   : m_GALDeviceVulkan(device)
 {
   m_vkDevice = device.GetVulkanDevice();
 }
 
-ezGALCommandEncoderImplVulkan::~ezGALCommandEncoderImplVulkan() = default;
+ezGALCommandEncoderImplVulkan::~ezGALCommandEncoderImplVulkan()
+{
+}
 
 void ezGALCommandEncoderImplVulkan::Reset()
 {
@@ -74,8 +78,12 @@ void ezGALCommandEncoderImplVulkan::Reset()
   m_clearValues.Clear();
 }
 
-void ezGALCommandEncoderImplVulkan::MarkDirty()
+void ezGALCommandEncoderImplVulkan::CommandBufferSubmitted(vk::Fence submitFence)
 {
+  m_pCommandBuffer = nullptr;
+  m_pPipelineBarrier = nullptr;
+
+  // We can't carry state across individual command buffers, so mark all state as dirty.
   EZ_ASSERT_DEBUG(!m_bRenderPassActive, "Render pass was not closed");
 
   m_bPipelineStateDirty = true;
@@ -88,6 +96,9 @@ void ezGALCommandEncoderImplVulkan::MarkDirty()
     if (m_pBoundVertexBuffers[i])
       m_BoundVertexBuffersRange.SetToIncludeValue(i);
   }
+
+  // Fence logic
+  m_GALDeviceVulkan.GetFenceQueue().FenceSubmitted(submitFence);
 }
 
 void ezGALCommandEncoderImplVulkan::SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer, ezPipelineBarrierVulkan* pipelineBarrier)
@@ -172,34 +183,26 @@ void ezGALCommandEncoderImplVulkan::SetPushConstantsPlatform(ezArrayPtr<const ez
 
 // Query functions
 
-void ezGALCommandEncoderImplVulkan::BeginQueryPlatform(const ezGALQuery* pQuery)
+ezGALTimestampHandle ezGALCommandEncoderImplVulkan::InsertTimestampPlatform()
 {
-  auto pVulkanQuery = static_cast<const ezGALQueryVulkan*>(pQuery);
-
-  // TODO how to decide the query type etc in Vulkan?
-
-  m_pCommandBuffer->beginQuery(pVulkanQuery->GetPool(), pVulkanQuery->GetID(), {});
+  return m_GALDeviceVulkan.GetQueryPool().InsertTimestamp(*m_pCommandBuffer);
 }
 
-void ezGALCommandEncoderImplVulkan::EndQueryPlatform(const ezGALQuery* pQuery)
+ezGALOcclusionHandle ezGALCommandEncoderImplVulkan::BeginOcclusionQueryPlatform(ezEnum<ezGALQueryType> type)
 {
-  auto pVulkanQuery = static_cast<const ezGALQueryVulkan*>(pQuery);
-
-  m_pCommandBuffer->endQuery(pVulkanQuery->GetPool(), pVulkanQuery->GetID());
+  return m_GALDeviceVulkan.GetQueryPool().BeginOcclusionQuery(*m_pCommandBuffer, type);
 }
 
-ezResult ezGALCommandEncoderImplVulkan::GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult)
+void ezGALCommandEncoderImplVulkan::EndOcclusionQueryPlatform(ezGALOcclusionHandle hOcclusion)
 {
-  auto pVulkanQuery = static_cast<const ezGALQueryVulkan*>(pQuery);
-  vk::Result result = m_vkDevice.getQueryPoolResults(pVulkanQuery->GetPool(), pVulkanQuery->GetID(), 1u, sizeof(ezUInt64), &uiQueryResult, 0, vk::QueryResultFlagBits::e64);
-
-  return result == vk::Result::eSuccess ? EZ_SUCCESS : EZ_FAILURE;
+  m_GALDeviceVulkan.GetQueryPool().EndOcclusionQuery(*m_pCommandBuffer, hOcclusion);
 }
 
-void ezGALCommandEncoderImplVulkan::InsertTimestampPlatform(ezGALTimestampHandle hTimestamp)
+ezGALFenceHandle ezGALCommandEncoderImplVulkan::InsertFencePlatform()
 {
-  m_GALDeviceVulkan.GetQueryPool().InsertTimestamp(m_GALDeviceVulkan.GetCurrentCommandBuffer(), hTimestamp);
+  return m_GALDeviceVulkan.GetFenceQueue().GetCurrentFenceHandle();
 }
+
 
 // Resource update functions
 
@@ -662,8 +665,7 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
   // #TODO_VULKAN readback fence
   m_GALDeviceVulkan.Submit();
   m_vkDevice.waitIdle();
-  m_pPipelineBarrier = &m_GALDeviceVulkan.GetCurrentPipelineBarrier();
-  m_pCommandBuffer = &m_GALDeviceVulkan.GetCurrentCommandBuffer();
+  SetCurrentCommandBuffer(&m_GALDeviceVulkan.GetCurrentCommandBuffer(), &m_GALDeviceVulkan.GetCurrentPipelineBarrier());
 }
 
 ezUInt32 GetMipSize(ezUInt32 uiSize, ezUInt32 uiMipLevel)
@@ -925,6 +927,8 @@ void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALTextureRe
 
 void ezGALCommandEncoderImplVulkan::FlushPlatform()
 {
+  m_GALDeviceVulkan.Submit();
+  SetCurrentCommandBuffer(&m_GALDeviceVulkan.GetCurrentCommandBuffer(), &m_GALDeviceVulkan.GetCurrentPipelineBarrier());
 }
 
 // Debug helper functions
@@ -1291,6 +1295,7 @@ ezResult ezGALCommandEncoderImplVulkan::DispatchIndirectPlatform(const ezGALBuff
 
 ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
 {
+  EZ_PROFILE_SCOPE("FlushDeferredStateChanges");
   if (m_bPipelineStateDirty)
   {
     if (!m_PipelineDesc.m_pCurrentShader)

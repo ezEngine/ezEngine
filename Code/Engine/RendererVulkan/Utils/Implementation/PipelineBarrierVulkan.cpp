@@ -10,6 +10,8 @@
 #include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
+#include <Foundation/Profiling/Profiling.h>
+
 namespace
 {
   vk::ImageSubresourceRange CreateSubRange(const vk::ImageSubresourceRange& fullRange, ezUInt32 uiLayer, ezUInt32 uiMipLevel)
@@ -23,6 +25,13 @@ namespace
   }
 } // namespace
 
+ezPipelineBarrierVulkan::ezPipelineBarrierVulkan(ezAllocator* pAllocator)
+  : m_bufferBarriers(pAllocator)
+  , m_imageBarriers(pAllocator)
+  , m_imageState(pAllocator)
+  , m_bufferState(pAllocator)
+{
+}
 
 void ezPipelineBarrierVulkan::SetCommandBuffer(vk::CommandBuffer* pCommandBuffer)
 {
@@ -31,6 +40,8 @@ void ezPipelineBarrierVulkan::SetCommandBuffer(vk::CommandBuffer* pCommandBuffer
 
 void ezPipelineBarrierVulkan::Flush()
 {
+  EZ_PROFILE_SCOPE("Flush");
+
   if (m_srcStageMask || m_dstStageMask)
   {
     if (!m_srcStageMask)
