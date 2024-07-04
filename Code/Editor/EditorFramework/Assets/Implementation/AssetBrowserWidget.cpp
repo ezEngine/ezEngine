@@ -537,12 +537,9 @@ void ezQtAssetBrowserWidget::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentag
 
 void ezQtAssetBrowserWidget::OnTextFilterChanged()
 {
-  QString sText = ezMakeQString(m_pFilter->GetTextFilter());
-  ButtonShowItemsSubFolders->setEnabled(sText.isEmpty());
-  ButtonShowItemsSubFolders->blockSignals(true);
-  ButtonShowItemsSubFolders->setChecked(!sText.isEmpty() || m_pFilter->GetShowItemsInSubFolders());
-  ButtonShowItemsSubFolders->blockSignals(false);
+  OnFilterChanged();
 
+  const QString sText = ezMakeQString(m_pFilter->GetTextFilter());
   if (SearchWidget->text() != sText)
   {
     SearchWidget->setText(sText);
@@ -552,8 +549,10 @@ void ezQtAssetBrowserWidget::OnTextFilterChanged()
 
 void ezQtAssetBrowserWidget::OnFilterChanged()
 {
+  const QString sText = ezMakeQString(m_pFilter->GetTextFilter());
+  ButtonShowItemsSubFolders->setEnabled(sText.isEmpty());
   ButtonShowItemsSubFolders->blockSignals(true);
-  ButtonShowItemsSubFolders->setChecked(m_pFilter->GetShowItemsInSubFolders());
+  ButtonShowItemsSubFolders->setChecked(!sText.isEmpty() || m_pFilter->GetShowItemsInSubFolders());
   ButtonShowItemsSubFolders->blockSignals(false);
 }
 
