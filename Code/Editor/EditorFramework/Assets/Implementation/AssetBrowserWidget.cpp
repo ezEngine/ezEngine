@@ -821,7 +821,6 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
     QAction* pAction = m.addAction(QLatin1String("Show Items in hidden folders"), this, SLOT(OnShowHiddenFolderItemsToggled()));
     pAction->setCheckable(true);
     pAction->setChecked(m_pFilter->GetShowItemsInHiddenFolders());
-    pAction->setEnabled(m_pFilter->GetShowItemsInSubFolders());
     pAction->setToolTip("Whether to ignore '_data' folders when showing items in sub-folders is enabled.");
   }
 
