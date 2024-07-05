@@ -1382,7 +1382,7 @@ void ezQtAssetBrowserWidget::SetSelectedFile(ezStringView sAbsPath)
 void ezQtAssetBrowserWidget::OnScrollToItem(ezUuid preselectedAsset)
 {
   const ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(preselectedAsset);
-  if(pSubAsset.isValid())
+  if (pSubAsset.isValid())
   {
     ezStringBuilder sPath = ezMakeQString(pSubAsset->m_pAssetInfo->m_Path.GetDataDirParentRelativePath()).toUtf8().data();
     sPath.PathParentDirectory();
@@ -1409,7 +1409,7 @@ void ezQtAssetBrowserWidget::OnScrollToItem(ezUuid preselectedAsset)
 void ezQtAssetBrowserWidget::OnScrollToFile(QString sPreselectedFile)
 {
   ezStringBuilder sPath = sPreselectedFile.toUtf8().data();
-  if(ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sPath))
+  if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sPath))
   {
     sPath.PathParentDirectory();
     sPath.Trim("/");
