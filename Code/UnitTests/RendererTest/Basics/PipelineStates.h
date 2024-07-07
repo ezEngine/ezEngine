@@ -103,7 +103,7 @@ private:
   ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
 
   // Timestamps / Occlusion Queries test
-  ezInt32 m_uiDelay = 0;
+  ezInt32 m_iDelay = 0;
   ezTime m_CPUTime[2];
   ezTime m_GPUTime[2];
   ezGALTimestampHandle m_timestamps[2];

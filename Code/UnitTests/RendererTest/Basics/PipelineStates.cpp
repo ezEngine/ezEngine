@@ -92,7 +92,7 @@ namespace
 ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 {
   {
-    m_uiDelay = 0;
+    m_iDelay = 0;
     m_CPUTime[0] = {};
     m_CPUTime[1] = {};
     m_GPUTime[0] = {};
@@ -813,12 +813,12 @@ ezTestAppRun ezRendererTestPipelineStates::Timestamps()
         EZ_TEST_BOOL_MSG(m_CPUTime[0] <= (m_GPUTime[0] + epsilon), "%.4f < %.4f", m_CPUTime[0].GetMilliseconds(), m_GPUTime[0].GetMilliseconds());
         EZ_TEST_BOOL_MSG(m_GPUTime[0] <= m_GPUTime[1], "%.4f < %.4f", m_GPUTime[0].GetMilliseconds(), m_GPUTime[1].GetMilliseconds());
         EZ_TEST_BOOL_MSG(m_GPUTime[1] <= (m_CPUTime[1] + epsilon), "%.4f < %.4f", m_GPUTime[1].GetMilliseconds(), m_CPUTime[1].GetMilliseconds());
-        ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Timestamp results received after %d frames or %.2f ms (%d frames after fence)", m_iFrame - 2, (ezTime::Now() - m_CPUTime[0]).GetMilliseconds(), m_uiDelay);
+        ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Timestamp results received after %d frames or %.2f ms (%d frames after fence)", m_iFrame - 2, (ezTime::Now() - m_CPUTime[0]).GetMilliseconds(), m_iDelay);
         return ezTestAppRun::Quit;
       }
       else
       {
-        m_uiDelay++;
+        m_iDelay++;
       }
     }
   }
@@ -908,7 +908,7 @@ ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
 
       if (bAllReady)
       {
-        ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Occlusion query results received after %d frames or %.2f ms (%d frames after fence)", m_iFrame - 3, (ezTime::Now() - m_CPUTime[0]).GetMilliseconds(), m_uiDelay);
+        ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Occlusion query results received after %d frames or %.2f ms (%d frames after fence)", m_iFrame - 3, (ezTime::Now() - m_CPUTime[0]).GetMilliseconds(), m_iDelay);
 
         EZ_TEST_INT(queryValues[0], 0);
         EZ_TEST_INT(queryValues[1], 0);
@@ -919,7 +919,7 @@ ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
       }
       else
       {
-        m_uiDelay++;
+        m_iDelay++;
       }
     }
   }
