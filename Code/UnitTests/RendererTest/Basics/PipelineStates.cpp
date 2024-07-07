@@ -89,18 +89,21 @@ namespace
 
 } // namespace
 
-
-
 ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 {
   {
-    m_bTimestampsValid = false;
+    m_uiDelay = 0;
     m_CPUTime[0] = {};
     m_CPUTime[1] = {};
     m_GPUTime[0] = {};
     m_GPUTime[1] = {};
     m_timestamps[0] = {};
     m_timestamps[1] = {};
+    m_queries[0] = {};
+    m_queries[1] = {};
+    m_queries[2] = {};
+    m_queries[3] = {};
+    m_hFence = {};
   }
 
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
@@ -789,33 +792,40 @@ ezTestAppRun ezRendererTestPipelineStates::Timestamps()
     EndRendering();
 
     if (m_iFrame == 2)
+    {
+      m_hFence = pCommandEncoder->InsertFence();
       pCommandEncoder->Flush();
+    }
   }
   EndCommands();
 
 
-  if (m_iFrame > 2 && !m_bTimestampsValid)
+  if (m_iFrame >= 2)
   {
-    if ((m_bTimestampsValid = m_pDevice->GetTimestampResult(m_timestamps[0], m_GPUTime[0]) == ezGALAsyncResult::Ready && m_pDevice->GetTimestampResult(m_timestamps[1], m_GPUTime[1]) == ezGALAsyncResult::Ready))
+    // #TODO_VULKAN Our CPU / GPU timestamp calibration is not precise enough to allow comparing between zones reliably. Need to implement VK_KHR_calibrated_timestamps.
+    const ezTime epsilon = ezTime::MakeFromMilliseconds(16);
+    ezEnum<ezGALAsyncResult> fenceResult = m_pDevice->GetFenceResult(m_hFence);
+    if (fenceResult == ezGALAsyncResult::Ready)
     {
-      m_CPUTime[1] = ezTime::Now();
-      EZ_TEST_BOOL_MSG(m_CPUTime[0] <= m_GPUTime[0], "%.6f < %.6f", m_CPUTime[0].GetSeconds(), m_GPUTime[0].GetSeconds());
-      EZ_TEST_BOOL_MSG(m_GPUTime[0] <= m_GPUTime[1], "%.6f < %.6f", m_GPUTime[0].GetSeconds(), m_GPUTime[1].GetSeconds());
-      EZ_TEST_BOOL_MSG(m_GPUTime[1] <= m_CPUTime[1], "%.6f < %.6f", m_GPUTime[1].GetSeconds(), m_CPUTime[1].GetSeconds());
-      ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Timestamp results received after %d frames and %.3f seconds.", m_iFrame, (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds());
-      return ezTestAppRun::Quit;
+      if (m_pDevice->GetTimestampResult(m_timestamps[0], m_GPUTime[0]) == ezGALAsyncResult::Ready && m_pDevice->GetTimestampResult(m_timestamps[1], m_GPUTime[1]) == ezGALAsyncResult::Ready)
+      {
+        m_CPUTime[1] = ezTime::Now();
+        EZ_TEST_BOOL_MSG(m_CPUTime[0] <= (m_GPUTime[0] + epsilon), "%.4f < %.4f", m_CPUTime[0].GetMilliseconds(), m_GPUTime[0].GetMilliseconds());
+        EZ_TEST_BOOL_MSG(m_GPUTime[0] <= m_GPUTime[1], "%.4f < %.4f", m_GPUTime[0].GetMilliseconds(), m_GPUTime[1].GetMilliseconds());
+        EZ_TEST_BOOL_MSG(m_GPUTime[1] <= (m_CPUTime[1] + epsilon), "%.4f < %.4f", m_GPUTime[1].GetMilliseconds(), m_CPUTime[1].GetMilliseconds());
+        ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Timestamp results received after %d frames or %.2f ms (%d frames after fence)", m_iFrame - 2, (ezTime::Now() - m_CPUTime[0]).GetMilliseconds(), m_uiDelay);
+        return ezTestAppRun::Quit;
+      }
+      else
+      {
+        m_uiDelay++;
+      }
     }
-  }
-  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
-  if (m_iFrame > 2 && (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds() > 10.0f)
-  {
-    EZ_TEST_BOOL_MSG(m_bTimestampsValid, "Timestamp results are not present after 10 seconds.");
-    m_ImgCompFrames.Clear();
   }
 
   if (m_iFrame >= 100)
   {
-    ezLog::Error("Timestamp results did not complete");
+    ezLog::Error("Timestamp results did not complete in 100 frames / {} seconds", (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds());
     return ezTestAppRun::Quit;
   }
   return ezTestAppRun::Continue;
@@ -861,12 +871,15 @@ ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
     else if (m_iFrame == 3)
     {
       pCommandEncoder->EndOcclusionQuery(m_queries[3]);
-      m_hFence = pCommandEncoder->InsertFence();
     }
     EndRendering();
 
     if (m_iFrame == 3)
+    {
+      m_CPUTime[0] = ezTime::Now();
+      m_hFence = pCommandEncoder->InsertFence();
       pCommandEncoder->Flush();
+    }
   }
   EndCommands();
 
@@ -895,6 +908,8 @@ ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
 
       if (bAllReady)
       {
+        ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Occlusion query results received after %d frames or %.2f ms (%d frames after fence)", m_iFrame - 3, (ezTime::Now() - m_CPUTime[0]).GetMilliseconds(), m_uiDelay);
+
         EZ_TEST_INT(queryValues[0], 0);
         EZ_TEST_INT(queryValues[1], 0);
 
@@ -902,12 +917,16 @@ ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
         EZ_TEST_BOOL(queryValues[3] >= 1);
         return ezTestAppRun::Quit;
       }
+      else
+      {
+        m_uiDelay++;
+      }
     }
   }
 
   if (m_iFrame >= 100)
   {
-    ezLog::Error("Fence or occlusion query results did not complete");
+    ezLog::Error("Occlusion query results did not complete in 100 frames / {} seconds", (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds());
     return ezTestAppRun::Quit;
   }
 

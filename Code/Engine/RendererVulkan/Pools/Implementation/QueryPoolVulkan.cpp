@@ -62,6 +62,7 @@ void ezQueryPoolVulkan::Pool::DeInitialize()
 
 void ezQueryPoolVulkan::Calibrate()
 {
+  // #TODO_VULKAN Replace with VK_KHR_calibrated_timestamps
   // To correlate CPU to GPU time, we create an event, wait a bit for the GPU to get stuck on it and then signal it.
   // We then observe the time right after on the CPU and on the GPU via a timestamp query.
   vk::EventCreateInfo eventCreateInfo;
@@ -111,14 +112,18 @@ void ezQueryPoolVulkan::Pool::BeginFrame(vk::CommandBuffer commandBuffer, ezUInt
   // Get results
   for (FramePool& framePool : m_pendingFrames)
   {
+    // Skip checking if the corresponding frame fence has not been reached.
     if (framePool.m_uiFrameCounter > uiSafeFrame)
       break;
+
+    bool bAllCompleted = true;
     for (ezUInt32 i = 0; i < framePool.m_pools.GetCount(); i++)
     {
       QueryPool* pPool = framePool.m_pools[i];
 
       if (!pPool->m_bReady)
       {
+        bAllCompleted = false;
         ezUInt32 uiQueryCount = m_uiPoolSize;
         if (i + 1 == m_pendingFrames[0].m_pools.GetCount())
           uiQueryCount = framePool.m_uiNextIndex % m_uiPoolSize;
@@ -132,14 +137,21 @@ void ezQueryPoolVulkan::Pool::BeginFrame(vk::CommandBuffer commandBuffer, ezUInt
         }
       }
     }
+
+    if (bAllCompleted)
+    {
+      framePool.m_uiReadyFrames++;
+    }
   }
 
   // Clear out old frames
-  while (m_pendingFrames[0].m_uiFrameCounter + s_uiRetainFrames < uiSafeFrame)
+  while (m_pendingFrames[0].m_uiReadyFrames > s_uiRetainFrames)
   {
     for (QueryPool* pPool : m_pendingFrames[0].m_pools)
     {
       pPool->m_bReady = false;
+      pPool->m_queryResults.Clear();
+      pPool->m_queryResults.SetCount(m_uiPoolSize, 0);
       m_freePools.PushBack(pPool);
       m_resetPools.PushBack(pPool->m_pool);
     }
@@ -266,8 +278,6 @@ ezQueryPoolVulkan::QueryPool* ezQueryPoolVulkan::Pool::GetFreePool()
   {
     QueryPool* pPool = m_freePools.PeekBack();
     m_freePools.PopBack();
-    pPool->m_queryResults.Clear();
-    pPool->m_queryResults.SetCount(m_uiPoolSize, 0);
     return pPool;
   }
 

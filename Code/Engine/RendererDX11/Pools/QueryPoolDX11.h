@@ -41,6 +41,7 @@ private:
     ezGALFenceHandle m_hFence;
     ID3D11Query* m_pDisjointTimerQuery = nullptr;
     double m_fInvTicksPerSecond = s_fInvalid;
+    ezUInt32 m_uiReadyFrames = 0; ///< How many frames ago the m_pDisjointTimerQuery result was ready. Used to retain data for s_uiRetainFrames.
     ezUInt64 m_uiFrameCounter = ezUInt64(-1);
   };
 
@@ -63,11 +64,19 @@ private:
     ezEnum<ezGALAsyncResult> GetResult(ezGALPoolHandle hPool, T& out_uiResult)
     {
       ID3D11Query* pQuery = GetQuery(hPool);
-      if (FAILED(m_pDevice->GetDXImmediateContext()->GetData(pQuery, &out_uiResult, sizeof(out_uiResult), D3D11_ASYNC_GETDATA_DONOTFLUSH)))
+      HRESULT res = m_pDevice->GetDXImmediateContext()->GetData(pQuery, &out_uiResult, sizeof(out_uiResult), D3D11_ASYNC_GETDATA_DONOTFLUSH);
+      if (res == S_FALSE)
       {
         return ezGALAsyncResult::Pending;
       }
-      return ezGALAsyncResult::Ready;
+      else if (res == S_OK)
+      {
+        return ezGALAsyncResult::Ready;
+      }
+      else
+      {
+        return ezGALAsyncResult::Expired;
+      }
     }
 
     // #TODO_DX11 Replace ring buffer with proper pool like in Vulkan to prevent buffer overrun.
