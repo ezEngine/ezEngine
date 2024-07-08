@@ -243,8 +243,38 @@ struct CellKeyHashHelper
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezUInt64 value)
   {
-    // return ezUInt32(value * 2654435761U);
-    return ezHashHelper<ezUInt64>::Hash(value);
+    // manually unrolled MurmurHash32
+    const ezUInt32 m = ezInternal::MURMUR_M;
+    const ezUInt32 r = ezInternal::MURMUR_R;
+
+    ezUInt32 h = 8;
+    {
+      ezUInt32 k = ezUInt32(value);
+
+      k *= m;
+      k ^= k >> r;
+      k *= m;
+
+      h *= m;
+      h ^= k;
+    }
+
+    {
+      ezUInt32 k = ezUInt32(value >> 32);
+
+      k *= m;
+      k ^= k >> r;
+      k *= m;
+
+      h *= m;
+      h ^= k;
+    }
+
+    h ^= h >> 13;
+    h *= m;
+    h ^= h >> 15;
+
+    return h;
   }
 
   EZ_ALWAYS_INLINE static bool Equal(ezUInt64 a, ezUInt64 b) { return a == b; }
@@ -376,30 +406,47 @@ struct ezSpatialSystem_RegularGrid::Grid
     const ezInt32 iDiffZ = diff.z();
     const ezInt32 iNumIterations = iDiffX * iDiffY * iDiffZ;
 
-    for (ezInt32 i = 0; i < iNumIterations; ++i)
+    // The hash grid approach below is about 10 times slower than simply iterating over all cells
+    // and doing an AABB overlap test
+    const ezUInt64 uiHashGridCost = ezUInt64(iNumIterations) * 10;
+    if (uiHashGridCost > m_Cells.GetCount())
     {
-      ezInt32 index = i;
-      ezInt32 z = i / (iDiffX * iDiffY);
-      index -= z * iDiffX * iDiffY;
-      ezInt32 y = index / iDiffX;
-      ezInt32 x = index - (y * iDiffX);
-
-      x += iMinX;
-      y += iMinY;
-      z += iMinZ;
-
-      ezUInt64 cellKey = GetCellKey(x, y, z);
-      ezUInt32 cellIndex = 0;
-      if (m_CellKeyToCellIndex.TryGetValue(cellKey, cellIndex))
+      for (auto& pCell : m_Cells)
       {
-        const Cell& constCell = *m_Cells[cellIndex];
-        if (func(constCell) == ezVisitorExecution::Stop)
+        if (box.Overlaps(pCell->m_Bounds.GetBox()) == false)
+          continue;
+
+        if (func(*pCell) == ezVisitorExecution::Stop)
           return;
       }
     }
+    else
+    {
+      for (ezInt32 i = 0; i < iNumIterations; ++i)
+      {
+        ezInt32 index = i;
+        ezInt32 z = i / (iDiffX * iDiffY);
+        index -= z * iDiffX * iDiffY;
+        ezInt32 y = index / iDiffX;
+        ezInt32 x = index - (y * iDiffX);
 
-    const Cell& overflowCell = *m_Cells[m_uiOverflowCellIndex];
-    func(overflowCell);
+        x += iMinX;
+        y += iMinY;
+        z += iMinZ;
+
+        ezUInt64 cellKey = GetCellKey(x, y, z);
+        ezUInt32 cellIndex = 0;
+        if (m_CellKeyToCellIndex.TryGetValue(cellKey, cellIndex))
+        {
+          const Cell& constCell = *m_Cells[cellIndex];
+          if (func(constCell) == ezVisitorExecution::Stop)
+            return;
+        }
+      }
+
+      const Cell& overflowCell = *m_Cells[m_uiOverflowCellIndex];
+      func(overflowCell);
+    }
   }
 
   ezSpatialSystem_RegularGrid& m_System;
