@@ -64,6 +64,7 @@ private:
   {
     ezUInt64 m_uiNextIndex = 0;    // Next query index in this frame. Use % and / to find the pool / element index.
     ezUInt64 m_uiFrameCounter = 0; // ezGALDevice::GetCurrentFrame
+    ezUInt8 m_uiReadyFrames = 0;   ///< How many frames ago m_bReady was set on the last QueryPool in m_pools. Used to make sure frames are retained for s_uiRetainFrames after results become available.
     ezHybridArray<QueryPool*, 2> m_pools;
   };
 

@@ -102,14 +102,11 @@ private:
   ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
   ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
 
-  // Timestamps test
-  bool m_bTimestampsValid = false;
+  // Timestamps / Occlusion Queries test
+  ezInt32 m_iDelay = 0;
   ezTime m_CPUTime[2];
   ezTime m_GPUTime[2];
   ezGALTimestampHandle m_timestamps[2];
-
-  // Occlusion Queries test
   ezGALOcclusionHandle m_queries[4];
-
   ezGALFenceHandle m_hFence = {};
 };

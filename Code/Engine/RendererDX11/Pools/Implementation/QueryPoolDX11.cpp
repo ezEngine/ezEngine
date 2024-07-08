@@ -43,7 +43,6 @@ void ezQueryPoolDX11::DeInitialize()
 void ezQueryPoolDX11::BeginFrame()
 {
   ezUInt64 uiCurrentFrame = m_pDevice->GetCurrentFrame();
-  ezUInt64 uiSafeFrame = m_pDevice->GetSafeFrame();
 
   auto perFrameData = GetFreeFrame();
   perFrameData.m_uiFrameCounter = uiCurrentFrame;
@@ -51,10 +50,22 @@ void ezQueryPoolDX11::BeginFrame()
   perFrameData.m_fInvTicksPerSecond = -1.0f;
   m_PendingFrames.PushBack(perFrameData);
 
-  // Clear out old frames
-  while (m_PendingFrames[0].m_uiFrameCounter + s_uiRetainFrames < uiSafeFrame)
+  for (PerFrameData& data : m_PendingFrames)
   {
-    m_FreeFrames.PushBack(m_PendingFrames.PeekFront());
+    if (data.m_fInvTicksPerSecond != s_fInvalid)
+      data.m_uiReadyFrames++;
+  }
+
+  // Clear out old frames
+  while (m_PendingFrames[0].m_uiReadyFrames > s_uiRetainFrames)
+  {
+    PerFrameData& data = m_PendingFrames.PeekFront();
+    data.m_hFence = {};
+    data.m_fInvTicksPerSecond = s_fInvalid;
+    data.m_uiReadyFrames = 0;
+    data.m_uiFrameCounter = ezUInt64(-1);
+
+    m_FreeFrames.PushBack(data);
     m_PendingFrames.PopFront();
   }
   m_uiFirstFrameIndex = m_PendingFrames[0].m_uiFrameCounter;
@@ -78,7 +89,8 @@ void ezQueryPoolDX11::EndFrame()
     if (perFrameData.m_fInvTicksPerSecond == s_fInvalid)
     {
       D3D11_QUERY_DATA_TIMESTAMP_DISJOINT data = {};
-      if (SUCCEEDED(m_pDevice->GetDXImmediateContext()->GetData(perFrameData.m_pDisjointTimerQuery, &data, sizeof(data), D3D11_ASYNC_GETDATA_DONOTFLUSH)))
+      HRESULT res = m_pDevice->GetDXImmediateContext()->GetData(perFrameData.m_pDisjointTimerQuery, &data, sizeof(data), D3D11_ASYNC_GETDATA_DONOTFLUSH);
+      if (res == S_OK)
       {
         if (data.Disjoint)
         {
