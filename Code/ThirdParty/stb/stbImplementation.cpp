@@ -13,11 +13,15 @@
 #define STBI_ONLY_JPEG
 #define STBI_ONLY_HDR
 
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4505)  // Unreferenced local function has been removed
+#endif
 
 #include "stb_image.h"
 #include "stb_image_write.h"
 #include "stb_rect_pack.h"
 
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif

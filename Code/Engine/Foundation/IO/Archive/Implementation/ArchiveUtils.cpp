@@ -119,8 +119,6 @@ ezResult ezArchiveUtils::WriteEntry(
 
   constexpr ezUInt32 uiMaxNumWorkerThreads = 12u;
 
-  ezUInt8 buf[1024 * 32];
-
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   ezUInt32 uiWorkerThreadCount;
   if (uiMaxBytes > ezMath::MaxValue<ezUInt32>())
@@ -166,9 +164,11 @@ ezResult ezArchiveUtils::WriteEntry(
   inout_tocEntry.m_CompressionMode = compression;
 
   ezUInt64 uiRead = 0;
+  ezDynamicArray<ezUInt8> buf;
+  buf.SetCountUninitialized(1024 * 32);
   while (true)
   {
-    uiRead = file.ReadBytes(buf, EZ_ARRAY_SIZE(buf));
+    uiRead = file.ReadBytes(buf.GetData(), buf.GetCount());
 
     if (uiRead == 0)
       break;
@@ -181,7 +181,7 @@ ezResult ezArchiveUtils::WriteEntry(
         return EZ_FAILURE;
     }
 
-    EZ_SUCCEED_OR_RETURN(pWriter->WriteBytes(buf, uiRead));
+    EZ_SUCCEED_OR_RETURN(pWriter->WriteBytes(buf.GetData(), uiRead));
   }
 
 

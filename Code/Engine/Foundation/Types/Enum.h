@@ -77,12 +77,12 @@ public:
   EZ_ALWAYS_INLINE bool operator>=(const SelfType& rhs) const { return m_Value >= rhs.m_Value; }
   EZ_ALWAYS_INLINE bool operator<=(const SelfType& rhs) const { return m_Value <= rhs.m_Value; }
 
-  EZ_ALWAYS_INLINE bool operator==(typename Derived::Enum value) const { return m_Value == value; }
-  EZ_ALWAYS_INLINE bool operator!=(typename Derived::Enum value) const { return m_Value != value; }
-  EZ_ALWAYS_INLINE bool operator>(typename Derived::Enum value) const { return m_Value > value; }
-  EZ_ALWAYS_INLINE bool operator<(typename Derived::Enum value) const { return m_Value < value; }
-  EZ_ALWAYS_INLINE bool operator>=(typename Derived::Enum value) const { return m_Value >= value; }
-  EZ_ALWAYS_INLINE bool operator<=(typename Derived::Enum value) const { return m_Value <= value; }
+  EZ_ALWAYS_INLINE bool operator==(typename Derived::Enum value) const { return m_Value == (StorageType)value; }
+  EZ_ALWAYS_INLINE bool operator!=(typename Derived::Enum value) const { return m_Value != (StorageType)value; }
+  EZ_ALWAYS_INLINE bool operator>(typename Derived::Enum value) const { return m_Value > (StorageType)value; }
+  EZ_ALWAYS_INLINE bool operator<(typename Derived::Enum value) const { return m_Value < (StorageType)value; }
+  EZ_ALWAYS_INLINE bool operator>=(typename Derived::Enum value) const { return m_Value >= (StorageType)value; }
+  EZ_ALWAYS_INLINE bool operator<=(typename Derived::Enum value) const { return m_Value <= (StorageType)value; }
 
   /// brief Bitwise operators
   EZ_ALWAYS_INLINE SelfType operator|(const SelfType& rhs) const { return static_cast<typename Derived::Enum>(m_Value | rhs.m_Value); } // [tested]

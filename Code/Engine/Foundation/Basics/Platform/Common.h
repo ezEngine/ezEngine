@@ -30,7 +30,7 @@ EZ_WARNING_POP()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 /// \brief Macro helper to check alignment
-#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment) - 1)) == 0, "Wrong alignment.")
+#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment)-1)) == 0, "Wrong alignment.")
 #else
 /// \brief Macro helper to check alignment
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)
@@ -87,12 +87,15 @@ struct EZ_FOUNDATION_DLL ezPluginRegister
 /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
 /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
 /// they then end up in the final application, where they will do what they are meant for.
-#  define EZ_STATICLINK_FILE(LibraryName, UniqueName)        \
-    extern "C"                                               \
-    {                                                        \
-      void ezReferenceFunction_##UniqueName(bool bReturn) {} \
-      void ezReferenceFunction_##LibraryName(bool bReturn);  \
-    }                                                        \
+#  define EZ_STATICLINK_FILE(LibraryName, UniqueName)       \
+    extern "C"                                              \
+    {                                                       \
+      void ezReferenceFunction_##UniqueName(bool bReturn)   \
+      {                                                     \
+        (void)bReturn;                                      \
+      }                                                     \
+      void ezReferenceFunction_##LibraryName(bool bReturn); \
+    }                                                       \
     static ezStaticLinkHelper StaticLinkHelper_##UniqueName(ezReferenceFunction_##LibraryName);
 
 /// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
