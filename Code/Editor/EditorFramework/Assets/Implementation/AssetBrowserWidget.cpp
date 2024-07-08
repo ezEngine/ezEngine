@@ -60,6 +60,7 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   EZ_VERIFY(connect(m_pFilter, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pFilter, SIGNAL(FilterChanged()), this, SLOT(OnFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, SIGNAL(modelReset()), this, SLOT(OnModelReset())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, &ezQtAssetBrowserModel::editingFinished, this, &ezQtAssetBrowserWidget::OnFileEditingFinished, Qt::QueuedConnection), "signal/slot connection failed");
 
@@ -536,17 +537,23 @@ void ezQtAssetBrowserWidget::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentag
 
 void ezQtAssetBrowserWidget::OnTextFilterChanged()
 {
-  QString sText = ezMakeQString(m_pFilter->GetTextFilter());
-  ButtonShowItemsSubFolders->setEnabled(sText.isEmpty());
-  ButtonShowItemsSubFolders->blockSignals(true);
-  ButtonShowItemsSubFolders->setChecked(!sText.isEmpty() || m_pFilter->GetShowItemsInSubFolders());
-  ButtonShowItemsSubFolders->blockSignals(false);
+  OnFilterChanged();
 
+  const QString sText = ezMakeQString(m_pFilter->GetTextFilter());
   if (SearchWidget->text() != sText)
   {
     SearchWidget->setText(sText);
     QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
   }
+}
+
+void ezQtAssetBrowserWidget::OnFilterChanged()
+{
+  const QString sText = ezMakeQString(m_pFilter->GetTextFilter());
+  ButtonShowItemsSubFolders->setEnabled(sText.isEmpty());
+  ButtonShowItemsSubFolders->blockSignals(true);
+  ButtonShowItemsSubFolders->setChecked(!sText.isEmpty() || m_pFilter->GetShowItemsInSubFolders());
+  ButtonShowItemsSubFolders->blockSignals(false);
 }
 
 void ezQtAssetBrowserWidget::OnTypeFilterChanged()
@@ -813,7 +820,6 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
     QAction* pAction = m.addAction(QLatin1String("Show Items in hidden folders"), this, SLOT(OnShowHiddenFolderItemsToggled()));
     pAction->setCheckable(true);
     pAction->setChecked(m_pFilter->GetShowItemsInHiddenFolders());
-    pAction->setEnabled(m_pFilter->GetShowItemsInSubFolders());
     pAction->setToolTip("Whether to ignore '_data' folders when showing items in sub-folders is enabled.");
   }
 
@@ -1375,6 +1381,16 @@ void ezQtAssetBrowserWidget::SetSelectedFile(ezStringView sAbsPath)
 
 void ezQtAssetBrowserWidget::OnScrollToItem(ezUuid preselectedAsset)
 {
+  const ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(preselectedAsset);
+  if (pSubAsset.isValid())
+  {
+    ezStringBuilder sPath = ezMakeQString(pSubAsset->m_pAssetInfo->m_Path.GetDataDirParentRelativePath()).toUtf8().data();
+    sPath.PathParentDirectory();
+    sPath.Trim("/");
+    m_pFilter->SetPathFilter(sPath);
+    m_pFilter->SetTextFilter("");
+  }
+
   for (ezInt32 i = 0; i < m_pModel->rowCount(); ++i)
   {
     QModelIndex idx = m_pModel->index(i, 0);
@@ -1392,6 +1408,14 @@ void ezQtAssetBrowserWidget::OnScrollToItem(ezUuid preselectedAsset)
 
 void ezQtAssetBrowserWidget::OnScrollToFile(QString sPreselectedFile)
 {
+  ezStringBuilder sPath = sPreselectedFile.toUtf8().data();
+  if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sPath))
+  {
+    sPath.PathParentDirectory();
+    sPath.Trim("/");
+    m_pFilter->SetPathFilter(sPath);
+  }
+
   for (ezInt32 i = 0; i < m_pModel->rowCount(); ++i)
   {
     QModelIndex idx = m_pModel->index(i, 0);

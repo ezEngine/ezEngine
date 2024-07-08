@@ -245,6 +245,13 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
       return true;
   }
+  else if(m_sPathFilter.IsEmpty() && !bIsFolder) // <Root> folder
+  {
+    if(!m_bShowItemsInSubFolders && m_SearchFilter.IsEmpty())
+    {
+      return true;
+    }
+  }
 
   if (!m_bShowItemsInHiddenFolders)
   {

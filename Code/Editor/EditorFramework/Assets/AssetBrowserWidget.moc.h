@@ -56,6 +56,7 @@ private Q_SLOTS:
   void OnTextFilterChanged();
   void OnTypeFilterChanged();
   void OnPathFilterChanged();
+  void OnFilterChanged();
   void on_ListAssets_doubleClicked(const QModelIndex& index);
   void on_ListAssets_activated(const QModelIndex& index);
   void on_ListAssets_clicked(const QModelIndex& index);
