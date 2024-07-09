@@ -31,6 +31,9 @@ Q_SIGNALS:
 
 protected:
   virtual void wheelEvent(QWheelEvent* pEvent) override;
+  virtual void mousePressEvent(QMouseEvent* pEvent) override;
+  virtual void mouseDoubleClickEvent(QMouseEvent* pEvent) override;
+  virtual void mouseMoveEvent(QMouseEvent* pEvent) override;
 
 private:
   bool m_bDialogMode;

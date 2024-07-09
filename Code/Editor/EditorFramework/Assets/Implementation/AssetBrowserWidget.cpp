@@ -634,6 +634,24 @@ void ezQtAssetBrowserWidget::keyPressEvent(QKeyEvent* e)
   }
 }
 
+void ezQtAssetBrowserWidget::mousePressEvent(QMouseEvent* e)
+{
+  if (e->button() == Qt::MouseButton::BackButton)
+  {
+    e->accept();
+    ezStringBuilder sPath = m_pFilter->GetPathFilter();
+    if (sPath.IsEmpty())
+      return;
+    sPath.PathParentDirectory();
+    sPath.Trim("/");
+
+    m_pFilter->SetPathFilter(sPath);
+    return;
+  }
+
+  QWidget::mousePressEvent(e);
+}
+
 void ezQtAssetBrowserWidget::RenameCurrent()
 {
   m_bOpenAfterRename = false;

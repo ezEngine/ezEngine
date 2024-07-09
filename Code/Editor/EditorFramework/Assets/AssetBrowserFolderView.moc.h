@@ -56,6 +56,7 @@ public:
   /// \brief In dialog mode, any modifications (folder movement, creation and deletion) are disabled.
   void SetDialogMode(bool bDialogMode);
 
+  virtual void mouseDoubleClickEvent(QMouseEvent* e) override;
   virtual void mousePressEvent(QMouseEvent* e) override;
 
 public Q_SLOTS:
@@ -74,6 +75,7 @@ private Q_SLOTS:
 
 protected:
   virtual void dragMoveEvent(QDragMoveEvent* e) override;
+  virtual void mouseMoveEvent(QMouseEvent* e) override;
   virtual void dropEvent(QDropEvent* event) override;
   virtual Qt::DropActions supportedDropActions() const override;
   ezStatus canDrop(QDropEvent* e, ezDynamicArray<ezString>& out_files, ezString& out_sTargetFolder);
