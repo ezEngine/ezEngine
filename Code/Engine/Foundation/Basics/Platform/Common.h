@@ -113,12 +113,25 @@ struct EZ_FOUNDATION_DLL ezPluginRegister
 
 namespace ezInternal
 {
+  template <typename T>
+  constexpr bool AlwaysFalse = false;
+
+  template <typename T>
+  struct ArraySizeHelper
+  {
+    static_assert(AlwaysFalse<T>, "Cannot take compile time array size of given type");
+  };
+
   template <typename T, size_t N>
-  char (*ArraySizeHelper(T (&)[N]))[N];
-}
+  struct ArraySizeHelper<T[N]>
+  {
+    static constexpr size_t value = N;
+  };
+
+} // namespace ezInternal
 
 /// \brief Macro to determine the size of a static array
-#define EZ_ARRAY_SIZE(a) (sizeof(*ezInternal::ArraySizeHelper(a)) + 0)
+#define EZ_ARRAY_SIZE(a) (ezInternal::ArraySizeHelper<decltype(a)>::value)
 
 /// \brief Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
 template <class T>
