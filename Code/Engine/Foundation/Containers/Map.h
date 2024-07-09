@@ -446,12 +446,14 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator end(ezMapBase<KeyType
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator end(const ezMapBase<KeyType, ValueType, Comparer>& container)
 {
+  EZ_IGNORE_UNUSED(container);
   return typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator();
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator cend(const ezMapBase<KeyType, ValueType, Comparer>& container)
 {
+  EZ_IGNORE_UNUSED(container);
   return typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator();
 }
 

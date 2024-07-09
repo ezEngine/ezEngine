@@ -299,13 +299,13 @@ namespace DirectX
         _In_reads_bytes_(size) const void* pSource, _In_ size_t size,
         _In_ WIC_FLAGS flags,
         _Out_ TexMetadata& metadata,
-        _In_opt_ std::function<void __cdecl(IWICMetadataQueryReader*)> getMQR = nullptr);
+        _In_ std::function<void __cdecl(IWICMetadataQueryReader*)> getMQR = nullptr);
 
     HRESULT __cdecl GetMetadataFromWICFile(
         _In_z_ const wchar_t* szFile,
         _In_ WIC_FLAGS flags,
         _Out_ TexMetadata& metadata,
-        _In_opt_ std::function<void __cdecl(IWICMetadataQueryReader*)> getMQR = nullptr);
+        _In_ std::function<void __cdecl(IWICMetadataQueryReader*)> getMQR = nullptr);
 #endif
 
     // Compatability helpers
@@ -466,31 +466,31 @@ namespace DirectX
         _In_reads_bytes_(size) const void* pSource, _In_ size_t size,
         _In_ WIC_FLAGS flags,
         _Out_opt_ TexMetadata* metadata, _Out_ ScratchImage& image,
-        _In_opt_ std::function<void __cdecl(IWICMetadataQueryReader*)> getMQR = nullptr);
+        _In_ std::function<void __cdecl(IWICMetadataQueryReader*)> getMQR = nullptr);
     HRESULT __cdecl LoadFromWICFile(
         _In_z_ const wchar_t* szFile, _In_ WIC_FLAGS flags,
         _Out_opt_ TexMetadata* metadata, _Out_ ScratchImage& image,
-        _In_opt_ std::function<void __cdecl(IWICMetadataQueryReader*)> getMQR = nullptr);
+        _In_ std::function<void __cdecl(IWICMetadataQueryReader*)> getMQR = nullptr);
 
     HRESULT __cdecl SaveToWICMemory(
         _In_ const Image& image, _In_ WIC_FLAGS flags, _In_ REFGUID guidContainerFormat,
         _Out_ Blob& blob, _In_opt_ const GUID* targetFormat = nullptr,
-        _In_opt_ std::function<void __cdecl(IPropertyBag2*)> setCustomProps = nullptr);
+        _In_ std::function<void __cdecl(IPropertyBag2*)> setCustomProps = nullptr);
     HRESULT __cdecl SaveToWICMemory(
         _In_count_(nimages) const Image* images, _In_ size_t nimages,
         _In_ WIC_FLAGS flags, _In_ REFGUID guidContainerFormat,
         _Out_ Blob& blob, _In_opt_ const GUID* targetFormat = nullptr,
-        _In_opt_ std::function<void __cdecl(IPropertyBag2*)> setCustomProps = nullptr);
+        _In_ std::function<void __cdecl(IPropertyBag2*)> setCustomProps = nullptr);
 
     HRESULT __cdecl SaveToWICFile(
         _In_ const Image& image, _In_ WIC_FLAGS flags, _In_ REFGUID guidContainerFormat,
         _In_z_ const wchar_t* szFile, _In_opt_ const GUID* targetFormat = nullptr,
-        _In_opt_ std::function<void __cdecl(IPropertyBag2*)> setCustomProps = nullptr);
+        _In_ std::function<void __cdecl(IPropertyBag2*)> setCustomProps = nullptr);
     HRESULT __cdecl SaveToWICFile(
         _In_count_(nimages) const Image* images, _In_ size_t nimages,
         _In_ WIC_FLAGS flags, _In_ REFGUID guidContainerFormat,
         _In_z_ const wchar_t* szFile, _In_opt_ const GUID* targetFormat = nullptr,
-        _In_opt_ std::function<void __cdecl(IPropertyBag2*)> setCustomProps = nullptr);
+        _In_ std::function<void __cdecl(IPropertyBag2*)> setCustomProps = nullptr);
 #endif // WIN32
 
     // Compatability helpers

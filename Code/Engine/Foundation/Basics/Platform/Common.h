@@ -87,12 +87,15 @@ struct EZ_FOUNDATION_DLL ezPluginRegister
 /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
 /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
 /// they then end up in the final application, where they will do what they are meant for.
-#  define EZ_STATICLINK_FILE(LibraryName, UniqueName)        \
-    extern "C"                                               \
-    {                                                        \
-      void ezReferenceFunction_##UniqueName(bool bReturn) {} \
-      void ezReferenceFunction_##LibraryName(bool bReturn);  \
-    }                                                        \
+#  define EZ_STATICLINK_FILE(LibraryName, UniqueName)       \
+    extern "C"                                              \
+    {                                                       \
+      void ezReferenceFunction_##UniqueName(bool bReturn)   \
+      {                                                     \
+        (void)bReturn;                                      \
+      }                                                     \
+      void ezReferenceFunction_##LibraryName(bool bReturn); \
+    }                                                       \
     static ezStaticLinkHelper StaticLinkHelper_##UniqueName(ezReferenceFunction_##LibraryName);
 
 /// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
@@ -110,12 +113,25 @@ struct EZ_FOUNDATION_DLL ezPluginRegister
 
 namespace ezInternal
 {
+  template <typename T>
+  constexpr bool AlwaysFalse = false;
+
+  template <typename T>
+  struct ArraySizeHelper
+  {
+    static_assert(AlwaysFalse<T>, "Cannot take compile time array size of given type");
+  };
+
   template <typename T, size_t N>
-  char (*ArraySizeHelper(T (&)[N]))[N];
-}
+  struct ArraySizeHelper<T[N]>
+  {
+    static constexpr size_t value = N;
+  };
+
+} // namespace ezInternal
 
 /// \brief Macro to determine the size of a static array
-#define EZ_ARRAY_SIZE(a) (sizeof(*ezInternal::ArraySizeHelper(a)) + 0)
+#define EZ_ARRAY_SIZE(a) (ezInternal::ArraySizeHelper<decltype(a)>::value)
 
 /// \brief Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
 template <class T>

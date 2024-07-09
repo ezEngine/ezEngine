@@ -9,6 +9,17 @@
 ezFrustum::ezFrustum() = default;
 ezFrustum::~ezFrustum() = default;
 
+ezFrustum ezFrustum::MakeInvalid()
+{
+  ezFrustum frustum;
+  for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
+  {
+    frustum.m_Planes[i] = ezPlane::MakeInvalid();
+  }
+
+  return frustum;
+}
+
 const ezPlane& ezFrustum::GetPlane(ezUInt8 uiPlane) const
 {
   EZ_ASSERT_DEBUG(uiPlane < PLANE_COUNT, "Invalid plane index.");
