@@ -313,7 +313,7 @@ ezResult ezDirectoryWatcher::OpenDirectory(ezStringView sAbsolutePath, ezBitflag
       nullptr,
       nullptr,
       szFileSystemName,
-      sizeof(szFileSystemName));
+      EZ_ARRAY_SIZE(szFileSystemName));
     m_pImpl->m_bNTFS = res == TRUE && ezStringUtf8(szFileSystemName).GetView() == "NTFS" && !cvar_ForceNonNTFS.GetValue();
   }
 
