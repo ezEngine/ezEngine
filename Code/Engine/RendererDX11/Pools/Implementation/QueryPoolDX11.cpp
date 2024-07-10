@@ -134,6 +134,7 @@ ezQueryPoolDX11::PerFrameData ezQueryPoolDX11::GetFreeFrame()
   disjointQueryDesc.MiscFlags = 0;
   HRESULT res = m_pDevice->GetDXDevice()->CreateQuery(&disjointQueryDesc, &perFrameData.m_pDisjointTimerQuery);
   EZ_ASSERT_DEV(SUCCEEDED(res), "Creation of native DirectX query for disjoint query has failed!");
+  EZ_IGNORE_UNUSED(res);
   return perFrameData;
 }
 

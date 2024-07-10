@@ -711,6 +711,8 @@ void ezGALDeviceDX11::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains,
   ezStringBuilder sb;
   sb.SetFormat("Frame {}", uiAppFrame);
   m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
+#else
+  EZ_IGNORE_UNUSED(uiAppFrame);
 #endif
 
   for (ezGALSwapChain* pSwapChain : swapchains)
