@@ -14,7 +14,7 @@
 #endif
 
 ezGALSharedTextureVulkan::ezGALSharedTextureVulkan(const ezGALTextureCreationDescription& Description, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle hSharedHandle)
-  : ezGALTextureVulkan(Description, false, false)
+  : ezGALTextureVulkan(Description)
   , m_SharedType(sharedType)
   , m_hSharedHandle(hSharedHandle)
 {
@@ -31,13 +31,9 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
   vk::ImageFormatListCreateInfo imageFormats;
   vk::ImageCreateInfo createInfo = {};
 
-  m_imageFormat = ComputeImageFormat(m_pDevice, m_Description.m_Format, createInfo, imageFormats, m_bStaging);
+  m_imageFormat = ComputeImageFormat(m_pDevice, m_Description.m_Format, createInfo, imageFormats);
 
   ComputeCreateInfo(m_pDevice, m_Description, createInfo, m_stages, m_access, m_preferredLayout);
-  if (m_bLinearCPU)
-  {
-    ComputeCreateInfoLinear(createInfo, m_stages, m_access);
-  }
 
   if (m_Description.m_pExisitingNativeObject == nullptr)
   {
@@ -59,7 +55,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
     {
 
       ezVulkanAllocationCreateInfo allocInfo;
-      ComputeAllocInfo(m_bLinearCPU, allocInfo);
+      ComputeAllocInfo(allocInfo);
 
       if (m_SharedType == ezGALSharedTextureType::Exported)
       {
@@ -314,6 +310,9 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       vk::ImportMemoryWin32HandleInfoKHR fdInfo{vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32, reinterpret_cast<HANDLE>(m_hSharedHandle.m_hSharedTexture)};
       vk::MemoryAllocateInfo allocateInfo{imageMemoryRequirements.memoryRequirements.size, m_hSharedHandle.m_uiMemoryTypeIndex, &fdInfo};
 
+     //vk::MemoryWin32HandlePropertiesKHR handleProperties;
+     // device.getMemoryWin32HandlePropertiesKHR(vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32, reinterpret_cast<HANDLE>(m_hSharedHandle.m_hSharedTexture), m_pDevice->GetDispatchContext());
+
       m_allocInfo = {};
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.allocateMemory(&allocateInfo, nullptr, &m_allocInfo.m_deviceMemory));
       m_allocInfo.m_offset = 0;
@@ -331,11 +330,6 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
     m_image = static_cast<VkImage>(m_Description.m_pExisitingNativeObject);
   }
   m_pDevice->GetInitContext().InitTexture(this, createInfo, pInitialData);
-
-  if (m_Description.m_ResourceAccess.m_bReadBack)
-  {
-    return CreateStagingBuffer(createInfo);
-  }
 
   return EZ_SUCCESS;
 }

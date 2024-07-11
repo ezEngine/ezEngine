@@ -104,7 +104,10 @@ bool LocalToModelJob::Run() const {
       const int parent = parents[i];
       const math::Float4x4* parent_matrix =
           parent == Skeleton::kNoParent ? root_matrix : &output[parent];
-      output[i] = *parent_matrix * local_aos_matrices[i & 3];
+
+      // EZ Workaround for Visual Studio debug build compiler bug.
+      auto parent_matrix_cpy = *parent_matrix;
+      output[i] = parent_matrix_cpy * local_aos_matrices[i & 3];
     }
   }
   return true;

@@ -197,6 +197,7 @@ void ezReflectionPool::UpdateSkyLight(const ezWorld* pWorld, ezReflectionProbeId
 // static
 void ezReflectionPool::SetConstantSkyIrradiance(const ezWorld* pWorld, const ezAmbientCube<ezColor>& skyIrradiance)
 {
+  EZ_LOCK(s_pData->m_Mutex);
   ezUInt32 uiWorldIndex = pWorld->GetIndex();
   ezAmbientCube<ezColorLinear16f> skyIrradiance16f = skyIrradiance;
 
@@ -211,6 +212,7 @@ void ezReflectionPool::SetConstantSkyIrradiance(const ezWorld* pWorld, const ezA
 
 void ezReflectionPool::ResetConstantSkyIrradiance(const ezWorld* pWorld)
 {
+  EZ_LOCK(s_pData->m_Mutex);
   ezUInt32 uiWorldIndex = pWorld->GetIndex();
 
   auto& skyIrradianceStorage = s_pData->m_SkyIrradianceStorage;
@@ -316,8 +318,8 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
       destBox.m_vMin.Set(0, i, 0);
       destBox.m_vMax.Set(6, i + 1, 1);
       ezGALSystemMemoryDescription memDesc;
-      memDesc.m_pData = &skyIrradianceStorage[i].m_Values[0];
       memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
+      memDesc.m_pData = ezMakeByteBlobPtr(&skyIrradianceStorage[i].m_Values[0], memDesc.m_uiRowPitch * 1);
       pCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
 
       uiSkyIrradianceChanged &= ~EZ_BIT(i);

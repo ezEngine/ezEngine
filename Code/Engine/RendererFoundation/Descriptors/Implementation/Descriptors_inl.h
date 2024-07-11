@@ -32,8 +32,7 @@ inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth,
   m_bAllowUAV = false;
   m_bCreateRenderTarget = true;
   m_bAllowDynamicMipGeneration = false;
-  m_ResourceAccess.m_bReadBack = false;
-  m_ResourceAccess.m_bImmutable = true;
+  m_ResourceAccess.m_bImmutable = false;
   m_pExisitingNativeObject = nullptr;
 }
 

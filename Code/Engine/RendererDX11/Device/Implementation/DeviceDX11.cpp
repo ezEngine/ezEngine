@@ -10,6 +10,8 @@
 #include <RendererDX11/Pools/FencePoolDX11.h>
 #include <RendererDX11/Pools/QueryPoolDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
+#include <RendererDX11/Resources/ReadbackBufferDX11.h>
+#include <RendererDX11/Resources/ReadbackTextureDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
 #include <RendererDX11/Resources/SharedTextureDX11.h>
@@ -523,6 +525,48 @@ void ezGALDeviceDX11::DestroySharedTexturePlatform(ezGALTexture* pTexture)
   EZ_DELETE(&m_Allocator, pDX11Texture);
 }
 
+ezGALReadbackBuffer* ezGALDeviceDX11::CreateReadbackBufferPlatform(const ezGALBufferCreationDescription& Description)
+{
+  ezGALReadbackBufferDX11* pReadbackBuffer = EZ_NEW(&m_Allocator, ezGALReadbackBufferDX11, Description);
+  
+  if (!pReadbackBuffer->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pReadbackBuffer);
+    return nullptr;
+  }
+
+  return pReadbackBuffer;
+}
+
+void ezGALDeviceDX11::DestroyReadbackBufferPlatform(ezGALReadbackBuffer* pReadbackBuffer)
+{
+  ezGALReadbackBufferDX11* pDX11ReadbackBuffer = static_cast<ezGALReadbackBufferDX11*>(pReadbackBuffer);
+
+  pDX11ReadbackBuffer->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11ReadbackBuffer);
+}
+
+ezGALReadbackTexture* ezGALDeviceDX11::CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description)
+{
+  ezGALReadbackTextureDX11* pReadbackTexture = EZ_NEW(&m_Allocator, ezGALReadbackTextureDX11, Description);
+  
+  if (!pReadbackTexture->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pReadbackTexture);
+    return nullptr;
+  }
+
+  return pReadbackTexture;
+}
+
+void ezGALDeviceDX11::DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture)
+{
+  ezGALReadbackTextureDX11* pDX11ReadbackTexture = static_cast<ezGALReadbackTextureDX11*>(pReadbackTexture);
+  
+  pDX11ReadbackTexture->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11ReadbackTexture);
+}
+
 ezGALTextureResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description)
 {
   ezGALTextureResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALTextureResourceViewDX11, pResource, Description);
@@ -659,7 +703,89 @@ ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetOcclusionResultPlatform(ezGALOcclus
 
 ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout)
 {
+  if (m_pFenceQueue->GetCurrentFenceHandle() == hFence && timeout.IsPositive())
+  {
+    // Fence has not been submitted yet, force submit of the command buffer or we would deadlock here.
+    Flush();
+  }
+
   return m_pFenceQueue->GetFenceResult(hFence, timeout);
+}
+
+ezResult ezGALDeviceDX11::LockBufferPlatform(const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const
+{
+  const ezGALReadbackBufferDX11* pDXBuffer = static_cast<const ezGALReadbackBufferDX11*>(pBuffer);
+
+  D3D11_MAPPED_SUBRESOURCE Mapped;
+  HRESULT hr = GetDXImmediateContext()->Map(pDXBuffer->GetDXBuffer(), 0, D3D11_MAP_READ, 0, &Mapped);
+  if (FAILED(hr))
+  {
+    return EZ_FAILURE;
+  }
+  out_Memory = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(Mapped.pData), pBuffer->GetDescription().m_uiTotalSize);
+  return EZ_SUCCESS;
+}
+
+void ezGALDeviceDX11::UnlockBufferPlatform(const ezGALReadbackBuffer* pBuffer) const
+{
+  const ezGALReadbackBufferDX11* pDXBuffer = static_cast<const ezGALReadbackBufferDX11*>(pBuffer);
+  GetDXImmediateContext()->Unmap(pDXBuffer->GetDXBuffer(), 0);
+}
+
+ezResult ezGALDeviceDX11::LockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const
+{
+  out_Memory.Clear();
+  const ezGALReadbackTextureDX11* pDXTexture = static_cast<const ezGALReadbackTextureDX11*>(pTexture);
+
+  const ezUInt32 uiSubResources = subResources.GetCount();
+  for (ezUInt32 i = 0; i < uiSubResources; i++)
+  {
+    const ezGALTextureSubresource& subRes = subResources[i];
+    ezGALSystemMemoryDescription& memDesc = out_Memory.ExpandAndGetRef();
+    const ezUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
+
+    D3D11_MAPPED_SUBRESOURCE Mapped;
+    if (FAILED(GetDXImmediateContext()->Map(pDXTexture->GetDXTexture(), uiSubResourceIndex, D3D11_MAP_READ, 0, &Mapped)))
+    {
+      ezLog::Error("Failed to map sub resource with miplevel {} and array slice {}.", subRes.m_uiMipLevel, subRes.m_uiArraySlice);
+    }
+    else
+    {
+      switch (pTexture->GetDescription().m_Type)
+      {
+        case ezGALTextureType::Texture2D:
+        case ezGALTextureType::Texture2DProxy:
+        case ezGALTextureType::Texture2DShared:
+        case ezGALTextureType::TextureCube:
+          memDesc.m_pData = ezMakeByteBlobPtr(Mapped.pData, Mapped.RowPitch * pTexture->GetDescription().m_uiHeight);
+          memDesc.m_uiRowPitch = Mapped.RowPitch;
+          memDesc.m_uiSlicePitch = 0;
+        case ezGALTextureType::Texture3D:
+          memDesc.m_pData = ezMakeByteBlobPtr(Mapped.pData, Mapped.DepthPitch * pTexture->GetDescription().m_uiDepth);
+          memDesc.m_uiRowPitch = Mapped.RowPitch;
+          memDesc.m_uiSlicePitch = Mapped.DepthPitch;
+          break;
+        default:
+          break;
+      }
+
+    }
+  }
+  return EZ_SUCCESS;
+}
+
+void ezGALDeviceDX11::UnlockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const
+{
+  const ezGALReadbackTextureDX11* pDXTexture = static_cast<const ezGALReadbackTextureDX11*>(pTexture);
+
+  const ezUInt32 uiSubResources = subResources.GetCount();
+  for (ezUInt32 i = 0; i < uiSubResources; i++)
+  {
+    const ezGALTextureSubresource& subRes = subResources[i];
+    const ezUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
+
+    GetDXImmediateContext()->Unmap(pDXTexture->GetDXTexture(), uiSubResourceIndex);
+  }
 }
 
 // Swap chain functions

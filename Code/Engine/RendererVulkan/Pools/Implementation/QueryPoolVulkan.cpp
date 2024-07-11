@@ -102,6 +102,12 @@ void ezQueryPoolVulkan::BeginFrame(vk::CommandBuffer commandBuffer)
   }
 }
 
+void ezQueryPoolVulkan::EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer)
+{
+  m_OcclusionPool.EnsureFreeQueryPoolSize(commandBuffer, 1);
+  m_TimestampPool.EnsureFreeQueryPoolSize(commandBuffer, 3);
+}
+
 void ezQueryPoolVulkan::Pool::BeginFrame(vk::CommandBuffer commandBuffer, ezUInt64 uiCurrentFrame, ezUInt64 uiSafeFrame)
 {
   m_pCurrentFrame = &m_pendingFrames.ExpandAndGetRef();
@@ -160,6 +166,19 @@ void ezQueryPoolVulkan::Pool::BeginFrame(vk::CommandBuffer commandBuffer, ezUInt
 
   m_uiFirstFrameIndex = m_pendingFrames[0].m_uiFrameCounter;
 
+  for (vk::QueryPool pool : m_resetPools)
+  {
+    commandBuffer.resetQueryPool(pool, 0, m_uiPoolSize);
+  }
+  m_resetPools.Clear();
+}
+
+void ezQueryPoolVulkan::Pool::EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer, ezUInt32 uiFreePools)
+{
+  while (m_freePools.GetCount() < uiFreePools)
+  {
+    m_freePools.PushBack(CreatePool());
+  }
   for (vk::QueryPool pool : m_resetPools)
   {
     commandBuffer.resetQueryPool(pool, 0, m_uiPoolSize);
@@ -281,6 +300,11 @@ ezQueryPoolVulkan::QueryPool* ezQueryPoolVulkan::Pool::GetFreePool()
     return pPool;
   }
 
+  return CreatePool();
+}
+
+ezQueryPoolVulkan::QueryPool* ezQueryPoolVulkan::Pool::CreatePool()
+{
   vk::QueryPoolCreateInfo info;
   info.queryType = m_QueryType;
   info.queryCount = m_uiPoolSize;

@@ -208,7 +208,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     for (ezUInt32 m = 0; m < desc.m_uiMipLevelCount; m++)
     {
       ezGALSystemMemoryDescription& memoryDesc = initialData[m];
-      memoryDesc.m_pData = coloredMips.GetPixelPointer<ezUInt8>(m);
+      memoryDesc.m_pData = coloredMips.GetSubImageView(m).GetByteBlobPtr();
       memoryDesc.m_uiRowPitch = static_cast<ezUInt32>(coloredMips.GetRowPitch(m));
       memoryDesc.m_uiSlicePitch = static_cast<ezUInt32>(coloredMips.GetDepthPitch(m));
     }
@@ -248,7 +248,8 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       for (ezUInt32 m = 0; m < desc.m_uiMipLevelCount; m++)
       {
         ezGALSystemMemoryDescription& memoryDesc = initialData[m + l * desc.m_uiMipLevelCount];
-        memoryDesc.m_pData = coloredMips[l].GetPixelPointer<ezUInt8>(m);
+
+        memoryDesc.m_pData = coloredMips[l].GetSubImageView(m).GetByteBlobPtr();
         memoryDesc.m_uiRowPitch = static_cast<ezUInt32>(coloredMips[l].GetRowPitch(m));
         memoryDesc.m_uiSlicePitch = static_cast<ezUInt32>(coloredMips[l].GetDepthPitch(m));
       }
@@ -465,11 +466,11 @@ void ezRendererTestPipelineStates::RenderBlock(ezMeshBufferResourceHandle mesh, 
       }
     }
 
+    EndRendering();
     if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
     {
       EZ_TEST_IMAGE(m_iFrame, 100);
     }
-    EndRendering();
   }
 
   EndCommands();
@@ -549,11 +550,11 @@ void ezRendererTestPipelineStates::PushConstantsTest()
         }
       }
     }
+    EndRendering();
     if (m_ImgCompFrames.Contains(m_iFrame))
     {
       EZ_TEST_IMAGE(m_iFrame, 100);
     }
-    EndRendering();
   }
   EndCommands();
 }
@@ -623,11 +624,11 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
         }
       }
     }
+    EndRendering();
     if (m_ImgCompFrames.Contains(m_iFrame))
     {
       EZ_TEST_IMAGE(m_iFrame, 100);
     }
-    EndRendering();
   }
   EndCommands();
 }
@@ -681,11 +682,11 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
         pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
       }
     }
-    if (m_ImgCompFrames.Contains(m_iFrame))
-    {
-      EZ_TEST_IMAGE(m_iFrame, 100);
-    }
-    EndRendering();
+  }
+  EndRendering();
+  if (m_ImgCompFrames.Contains(m_iFrame))
+  {
+    EZ_TEST_IMAGE(m_iFrame, 100);
   }
   EndCommands();
 }

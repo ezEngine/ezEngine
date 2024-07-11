@@ -33,7 +33,6 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::ProbeUpdateInfo()
     desc.m_Type = ezGALTextureType::TextureCube;
     desc.m_bCreateRenderTarget = true;
     desc.m_bAllowDynamicMipGeneration = true;
-    desc.m_ResourceAccess.m_bReadBack = true;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     m_hCubemap = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);

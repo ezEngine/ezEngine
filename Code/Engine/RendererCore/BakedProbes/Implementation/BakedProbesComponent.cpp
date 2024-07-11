@@ -118,7 +118,7 @@ void ezBakedProbesComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent
       destBox.m_vMax = ezVec3U32(task->m_uiWidth, task->m_uiHeight, 1);
 
       ezGALSystemMemoryDescription sourceData;
-      sourceData.m_pData = task->m_PixelData.GetData();
+      sourceData.m_pData = task->m_PixelData.GetByteArrayPtr();
       sourceData.m_uiRowPitch = task->m_uiWidth * sizeof(ezColorGammaUB);
 
       pCommandEncoder->UpdateTexture(pComponent->m_hDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);

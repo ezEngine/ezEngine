@@ -114,10 +114,9 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
   if (bSupported)
   {
     RenderObjects(ezShaderBindFlags::Default);
-
-    EZ_TEST_IMAGE(m_iFrame, 300);
   }
   EndRendering();
+  EZ_TEST_IMAGE(m_iFrame, 300);
   EndCommands();
   EndFrame();
 
@@ -232,9 +231,8 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 
   RenderObjects(ezShaderBindFlags::Default);
 
-  EZ_TEST_IMAGE(m_iFrame, 200);
-
   EndRendering();
+  EZ_TEST_IMAGE(m_iFrame, 200);
   EndCommands();
   EndFrame();
 

@@ -53,7 +53,7 @@ ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<e
     return EZ_SUCCESS;
   }
 
-  D3D11_TEXTURE2D_DESC Tex2DDesc;
+  D3D11_TEXTURE2D_DESC Tex2DDesc = {};
   EZ_SUCCEED_OR_RETURN(Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
 
   if (m_SharedType == ezGALSharedTextureType::Exported)
@@ -91,9 +91,6 @@ ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<e
     }
     m_hSharedHandle.m_hSharedTexture = (ezUInt64)hTexture;
   }
-
-  if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
-    return CreateStagingTexture(pDXDevice);
 
   return EZ_SUCCESS;
 }

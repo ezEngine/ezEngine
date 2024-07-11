@@ -35,14 +35,6 @@ EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetOcclusionQueryResult(e
   return GetOcclusionResultPlatform(hOcclusion, out_uiResult);
 }
 
-EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetFenceResult(ezGALFenceHandle hFence, ezTime timeout)
-{
-  if (hFence == 0)
-    return ezGALAsyncResult::Ready;
-
-  return GetFenceResultPlatform(hFence, timeout);
-}
-
 template <typename IdTableType, typename ReturnType>
 EZ_ALWAYS_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const
 {
@@ -71,6 +63,16 @@ inline const ezGALTexture* ezGALDevice::GetTexture(ezGALTextureHandle hTexture) 
 inline const ezGALBuffer* ezGALDevice::GetBuffer(ezGALBufferHandle hBuffer) const
 {
   return Get<BufferTable, ezGALBuffer>(hBuffer, m_Buffers);
+}
+
+inline const ezGALReadbackBuffer* ezGALDevice::GetReadbackBuffer(ezGALReadbackBufferHandle hBuffer) const
+{
+  return Get<ReadbackBufferTable, ezGALReadbackBuffer>(hBuffer, m_ReadbackBuffers);
+}
+
+inline const ezGALReadbackTexture* ezGALDevice::GetReadbackTexture(ezGALReadbackTextureHandle hTexture) const
+{
+  return Get<ReadbackTextureTable, ezGALReadbackTexture>(hTexture, m_ReadbackTextures);
 }
 
 inline const ezGALDepthStencilState* ezGALDevice::GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const

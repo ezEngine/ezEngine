@@ -4,6 +4,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/RefCounted.h>
+#include <Foundation/Containers/Blob.h>
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
@@ -49,6 +50,8 @@ class ezGALResourceBase;
 class ezGALTexture;
 class ezGALSharedTexture;
 class ezGALBuffer;
+class ezGALReadbackBuffer;
+class ezGALReadbackTexture;
 class ezGALDepthStencilState;
 class ezGALBlendState;
 class ezGALRasterizerState;
@@ -365,7 +368,7 @@ struct ezGALTextureSubresource
 
 struct ezGALSystemMemoryDescription
 {
-  void* m_pData = nullptr;
+  ezConstByteBlobPtr m_pData;
   ezUInt32 m_uiRowPitch = 0;
   ezUInt32 m_uiSlicePitch = 0;
 };
@@ -416,9 +419,23 @@ class ezGALTextureHandle
   friend class ezGALDevice;
 };
 
+class ezGALReadbackTextureHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALReadbackTextureHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
 class ezGALBufferHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALBufferHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALReadbackBufferHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALReadbackBufferHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };

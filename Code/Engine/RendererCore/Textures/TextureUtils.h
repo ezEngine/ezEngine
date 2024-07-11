@@ -14,6 +14,13 @@ struct EZ_RENDERERCORE_DLL ezTextureUtils
 
   static void ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGALSamplerStateCreationDescription& out_sampler);
 
+  /// \brief Copies the given texture subresource from `memory` into `out_Image` according to the texture description.
+  static void CreateSubResourceImage(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& out_Image, bool bRemoveSRGB);
+  /// \brief Returns an image view of the texture subresource in `memory`. If the format allows for it, the memory will be aliased, removing the need to copy the data but the view becomes invalid once the memory does. If this is not possible, the function reverts to calling CreateSubResourceImage with `ref_Temp` used as the data storage. You can check if `ref_Temp` is valid to figure out which code path was taken.
+  static ezImageView CreateSubResourceView(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& ref_Temp, bool bRemoveSRGB);
+  /// \brief Copies a texture subresource memory to a new location with a different row pitch.
+  static void CopySubResource(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, const ezGALSystemMemoryDescription& sourceMemory, ezArrayPtr<ezUInt8> targetData, ezUInt32 uiTargetRowPitch);
+
   /// \brief If enabled, textures are always loaded to full quality immediately. Mostly necessary for image comparison unit tests.
   static bool s_bForceFullQualityAlways;
 };

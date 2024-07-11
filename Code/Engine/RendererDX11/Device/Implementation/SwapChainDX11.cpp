@@ -238,19 +238,14 @@ ezResult ezGALSwapChainDX11::CreateBackBufferInternal(ezGALDeviceDX11* pDXDevice
 
   TexDesc.m_ResourceAccess.m_bImmutable = true;
 
-
-
-  TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots && m_bCanMakeDirectScreenshots;
-
   // And create the ez texture object wrapping the backbuffer texture
   m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
   EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create native backbuffer texture object!");
 
   // Create extra texture to be used as "practical backbuffer" if we can't do the screenshots the user wants.
-  if (!m_bCanMakeDirectScreenshots && m_WindowDesc.m_bAllowScreenshots)
+  if (!m_bCanMakeDirectScreenshots)
   {
     TexDesc.m_pExisitingNativeObject = nullptr;
-    TexDesc.m_ResourceAccess.m_bReadBack = true;
 
     m_hActualBackBufferTexture = m_hBackBufferTexture;
     m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);

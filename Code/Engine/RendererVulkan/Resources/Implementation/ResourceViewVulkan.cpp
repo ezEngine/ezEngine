@@ -155,7 +155,7 @@ ezResult ezGALBufferResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
   }
 
   auto pParentBuffer = static_cast<const ezGALBufferVulkan*>(pBuffer);
-  if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer))
+  if (pBuffer->GetDescription().m_BufferFlags.IsAnySet(ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer))
   {
     m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
     m_resourceBufferInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;

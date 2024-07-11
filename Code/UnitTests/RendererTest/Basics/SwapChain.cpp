@@ -28,7 +28,6 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     ezGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    swapChainDesc.m_bAllowScreenshots = true;
     swapChainDesc.m_InitialPresentMode = (iIdentifier == SubTests::ST_NoVSync) ? ezGALPresentMode::Immediate : ezGALPresentMode::VSync;
     m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
   }

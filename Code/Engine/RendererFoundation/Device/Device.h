@@ -8,6 +8,7 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/DeviceCapabilities.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererFoundation/Device/ReadbackLock.h>
 
 class ezColor;
 
@@ -72,6 +73,12 @@ public:
   ezGALTextureHandle OpenSharedTexture(const ezGALTextureCreationDescription& description, ezGALPlatformSharedHandle hSharedHandle);
   void DestroySharedTexture(ezGALTextureHandle hTexture);
 
+  ezGALReadbackBufferHandle CreateReadbackBuffer(const ezGALBufferCreationDescription& description);
+  void DestroyReadbackBuffer(ezGALReadbackBufferHandle hBuffer);
+  
+  ezGALReadbackTextureHandle CreateReadbackTexture(const ezGALTextureCreationDescription& description);
+  void DestroyReadbackTexture(ezGALReadbackTextureHandle hTexture);
+    
   // Resource views
   ezGALTextureResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
   ezGALBufferResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
@@ -115,7 +122,7 @@ public:
   /// \sa ezCommandEncoder::InsertTimestamp
   ezEnum<ezGALAsyncResult> GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result);
 
-  /// \briefQueries the result of an occlusion query.
+  /// \brief Queries the result of an occlusion query.
   /// Should be called every frame until ezGALAsyncResult::Ready is returned.
   /// \param hOcclusion The occlusion query handle to query.
   /// \param out_uiResult If ezGALAsyncResult::Ready is returned, this will be the number of pixels of the occlusion query.
@@ -123,7 +130,7 @@ public:
   /// \sa ezCommandEncoder::BeginOcclusionQuery, ezCommandEncoder::EndOcclusionQuery
   ezEnum<ezGALAsyncResult> GetOcclusionQueryResult(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult);
 
-  /// \briefQueries the result of a fence.
+  /// \brief Queries the result of a fence.
   /// Fences can never expire as they are just monotonically increasing numbers over time.
   /// \param hFence The fence handle to query.
   /// \param timeout If set to > 0, the function will block until the fence is ready or the timeout is reached.
@@ -131,7 +138,19 @@ public:
   /// \sa ezCommandEncoder::InsertFence
   ezEnum<ezGALAsyncResult> GetFenceResult(ezGALFenceHandle hFence, ezTime timeout = ezTime::MakeZero());
 
-  /// \todo Map functions to save on memcpys
+  /// \brief Tries to lock a readback buffer for reading. Only fails if the handle is invalid.
+  /// \param hReadbackBuffer The buffer to lock.
+  /// \param out_Memory If successful, contains the memory of the buffer. Only allowed to be accessed within the lifetime of the returns lock object.
+  /// \return Returns the lock. ezReadbackBufferLock::IsValid needs to be called to ensure the locking was successful.
+  ezReadbackBufferLock LockBuffer(ezGALReadbackBufferHandle hReadbackBuffer, ezArrayPtr<const ezUInt8>& out_Memory);
+
+  /// \brief Tries to lock a readback texture for reading. Only fails if the handle is invalid.
+  /// \param hReadbackTexture The texture to lock.
+  /// \param subResources The sub-resources that should to be locked.
+  /// \param out_Memory If successful, contains the memory locations of each sub-resource. Only allowed to be accessed within the lifetime of the returns lock object.
+  /// \return Returns the lock. ezReadbackTextureLock::IsValid needs to be called to ensure the locking was successful.
+  ezReadbackTextureLock LockTexture(ezGALReadbackTextureHandle hReadbackTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory);
+
 
   // Swap chain functions
 
@@ -175,6 +194,8 @@ public:
   const ezGALTexture* GetTexture(ezGALTextureHandle hTexture) const;
   virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const = 0;
   const ezGALBuffer* GetBuffer(ezGALBufferHandle hBuffer) const;
+  const ezGALReadbackBuffer* GetReadbackBuffer(ezGALReadbackBufferHandle hBuffer) const;
+  const ezGALReadbackTexture* GetReadbackTexture(ezGALReadbackTextureHandle hTexture) const;
   const ezGALDepthStencilState* GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const;
   const ezGALBlendState* GetBlendState(ezGALBlendStateHandle hBlendState) const;
   const ezGALRasterizerState* GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const;
@@ -247,6 +268,8 @@ protected:
   using RasterizerStateTable = ezIdTable<ezGALRasterizerStateHandle::IdType, ezGALRasterizerState*, ezLocalAllocatorWrapper>;
   using BufferTable = ezIdTable<ezGALBufferHandle::IdType, ezGALBuffer*, ezLocalAllocatorWrapper>;
   using TextureTable = ezIdTable<ezGALTextureHandle::IdType, ezGALTexture*, ezLocalAllocatorWrapper>;
+  using ReadbackBufferTable = ezIdTable<ezGALReadbackBufferHandle::IdType, ezGALReadbackBuffer*, ezLocalAllocatorWrapper>;
+  using ReadbackTextureTable = ezIdTable<ezGALReadbackTextureHandle::IdType, ezGALReadbackTexture*, ezLocalAllocatorWrapper>;
   using TextureResourceViewTable = ezIdTable<ezGALTextureResourceViewHandle::IdType, ezGALTextureResourceView*, ezLocalAllocatorWrapper>;
   using BufferResourceViewTable = ezIdTable<ezGALBufferResourceViewHandle::IdType, ezGALBufferResourceView*, ezLocalAllocatorWrapper>;
   using SamplerStateTable = ezIdTable<ezGALSamplerStateHandle::IdType, ezGALSamplerState*, ezLocalAllocatorWrapper>;
@@ -262,6 +285,8 @@ protected:
   RasterizerStateTable m_RasterizerStates;
   BufferTable m_Buffers;
   TextureTable m_Textures;
+  ReadbackBufferTable m_ReadbackBuffers;
+  ReadbackTextureTable m_ReadbackTextures;
   TextureResourceViewTable m_TextureResourceViews;
   BufferResourceViewTable m_BufferResourceViews;
   SamplerStateTable m_SamplerStates;
@@ -299,6 +324,8 @@ protected:
   // These functions need to be implemented by a render API abstraction
 protected:
   friend class ezMemoryUtils;
+  friend class ezReadbackBufferLock;
+  friend class ezReadbackTextureLock;
 
   // Init & shutdown functions
 
@@ -343,6 +370,12 @@ protected:
   virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) = 0;
   virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) = 0;
 
+  virtual ezGALReadbackBuffer* CreateReadbackBufferPlatform(const ezGALBufferCreationDescription& Description) = 0;
+  virtual void DestroyReadbackBufferPlatform(ezGALReadbackBuffer* pReadbackBuffer) = 0;
+  
+  virtual ezGALReadbackTexture* CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description) = 0;
+  virtual void DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture) = 0;
+  
   virtual ezGALTextureResourceView* CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description) = 0;
   virtual void DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView) = 0;
 
@@ -368,6 +401,10 @@ protected:
   virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) = 0;
   virtual ezEnum<ezGALAsyncResult> GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) = 0;
   virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) = 0;
+  virtual ezResult LockBufferPlatform(const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const = 0;
+  virtual void UnlockBufferPlatform(const ezGALReadbackBuffer* pBuffer) const = 0;
+  virtual ezResult LockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const = 0;
+  virtual void UnlockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const = 0;
 
   // Misc functions
 
@@ -389,7 +426,7 @@ private:
   bool m_bBeginFrameCalled = false;
   ezHybridArray<ezGALSwapChain*, 8> m_FrameSwapChains;
   bool m_bBeginPipelineCalled = false;
-  bool m_bBeginCommandsCalled = false;
+  ezGALCommandEncoder* m_pCommandEncoder = nullptr;
 };
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>

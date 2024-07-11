@@ -1465,7 +1465,7 @@ void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer
       destBox.m_vMax = ezVec3U32(uiImgWidth, uiImgHeight, 1);
 
       ezGALSystemMemoryDescription sourceData;
-      sourceData.m_pData = fb.GetData();
+      sourceData.m_pData = fb.GetByteArrayPtr();
       sourceData.m_uiRowPitch = uiImgWidth * sizeof(ezColorLinearUB);
 
       pCommandEncoder->UpdateTexture(m_hOcclusionDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);
@@ -1484,7 +1484,7 @@ void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer
     d.m_DescGAL.m_Format = ezGALResourceFormat::RGBAByteNormalized;
 
     ezGALSystemMemoryDescription content[1];
-    content[0].m_pData = fb.GetData();
+    content[0].m_pData = fb.GetByteArrayPtr();
     content[0].m_uiRowPitch = sizeof(ezColorLinearUB) * d.m_DescGAL.m_uiWidth;
     content[0].m_uiSlicePitch = content[0].m_uiRowPitch * d.m_DescGAL.m_uiHeight;
     d.m_InitialContent = content;

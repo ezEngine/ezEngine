@@ -107,7 +107,6 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
       ezGALWindowSwapChainCreationDescription desc;
       desc.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
       desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-      desc.m_bAllowScreenshots = true;
 
       pOutput->CreateSwapchain(desc);
 

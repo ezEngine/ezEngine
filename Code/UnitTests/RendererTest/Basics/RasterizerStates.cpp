@@ -126,6 +126,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 
   RenderObjects(ezShaderBindFlags::NoRasterizerState);
 
+  EndRendering();
   if (RasterStateDesc.m_bWireFrame)
   {
     ezStringView sRendererName = m_pDevice->GetRenderer();
@@ -135,7 +136,6 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   }
   else
     EZ_TEST_IMAGE(m_iFrame, 200);
-  EndRendering();
   EndCommands();
   EndFrame();
 

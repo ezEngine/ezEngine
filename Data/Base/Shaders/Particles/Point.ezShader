@@ -15,7 +15,12 @@ DepthWrite = true
 
 [SHADER]
 
+#include <Shaders/Common/Common.h>
+
 #define USE_COLOR0
+#if EZ_ENABLED(PLATFORM_VULKAN)
+  #define CUSTOM_INTERPOLATOR [[vk::builtin("PointSize")]] float PointSize : PSIZE;
+#endif
 
 [VERTEXSHADER]
 
@@ -46,11 +51,17 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
   ret.Position = screenPosition;
   ret.Color0 = UNPACKCOLOR4H(baseParticle.Color);
-
+#if EZ_ENABLED(PLATFORM_VULKAN)
+  ret.PointSize = 1.0;
+#endif
   return ret;
 }
 
 [GEOMETRYSHADER]
+
+#if EZ_ENABLED(PLATFORM_VULKAN)
+  #define CopyCustomInterpolators(output, input) output.PointSize = input.PointSize;
+#endif 
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 

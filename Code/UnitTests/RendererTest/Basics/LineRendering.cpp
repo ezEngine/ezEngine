@@ -12,8 +12,8 @@ ezTestAppRun ezRendererTestBasics::SubtestLineRendering()
 
   RenderLineObjects(ezShaderBindFlags::Default);
 
-  EZ_TEST_LINE_IMAGE(0, 150);
   EndRendering();
+  EZ_TEST_LINE_IMAGE(0, 150);
   EndCommands();
   EndFrame();
 

@@ -510,11 +510,11 @@ void ezRendererTestAdvancedFeatures::FloatSampling()
     {
       ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+      EndRendering();
       if (m_ImgCompFrames.Contains(m_iFrame))
       {
         EZ_TEST_IMAGE(m_iFrame, 100);
       }
-      EndRendering();
     }
   }
   EndCommands();
@@ -608,12 +608,11 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
     ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
+    EndRendering();
     if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
     {
       EZ_TEST_IMAGE(m_iFrame, 100);
     }
-
-    EndRendering();
   }
   EndCommands();
 }
@@ -628,11 +627,12 @@ void ezRendererTestAdvancedFeatures::Tessellation()
     ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
     RenderObject(m_hSphereMesh, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+
+    EndRendering();
     if (m_ImgCompFrames.Contains(m_iFrame))
     {
       EZ_TEST_IMAGE(m_iFrame, 100);
     }
-    EndRendering();
   }
   EndCommands();
 }
@@ -731,7 +731,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
       ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hSharedTextures[texture.m_uiCurrentTextureIndex]));
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
 
-
+      EndRendering();
       if (!m_bExiting && m_uiReceivedTextures > 10)
       {
         EZ_TEST_IMAGE(0, 10);
@@ -740,7 +740,6 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
         EZ_TEST_BOOL(m_pProtocol->Send(&msg));
         m_bExiting = true;
       }
-      EndRendering();
     }
     EndCommands();
 

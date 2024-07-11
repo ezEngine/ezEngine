@@ -71,9 +71,7 @@ ezResult ezRendererTestReadback::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_Format = (ezGALResourceFormat::Enum)iIdentifier;
     ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(8, 8, m_Format,
-      ezGALMSAASampleCount::None);
-    desc.m_ResourceAccess.m_bReadBack = true;
+    desc.SetAsRenderTarget(8, 8, m_Format, ezGALMSAASampleCount::None);
     m_hTexture2DReadback = m_pDevice->CreateTexture(desc);
 
     EZ_ASSERT_DEBUG(!m_hTexture2DReadback.IsInvalidated(), "Failed to create readback texture");
@@ -84,6 +82,7 @@ ezResult ezRendererTestReadback::InitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezRendererTestReadback::DeInitializeSubTest(ezInt32 iIdentifier)
 {
+  m_Readback.Reset();
   m_ReadBackResult.Clear();
   if (!m_hTexture2DReadback.IsInvalidated())
   {
@@ -237,37 +236,37 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
 
     // Queue readback
     {
-      m_pEncoder->BeginRendering(ezGALRenderingSetup());
-      m_pEncoder->ReadbackTexture(m_hTexture2DReadback);
-      m_pEncoder->EndRendering();
+      m_Readback.ReadbackTexture(*m_pEncoder, m_hTexture2DReadback);
+    }
+
+    // Wait for results
+    {
+      ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
+      EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
     }
 
     // Readback result
     {
       m_bReadbackInProgress = false;
-      m_pEncoder->BeginRendering(ezGALRenderingSetup());
 
       const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(m_hTexture2DReadback);
-      const ezEnum<ezGALResourceFormat> format = pBackbuffer->GetDescription().m_Format;
-
-      ezImageHeader header;
-      header.SetWidth(pBackbuffer->GetDescription().m_uiWidth);
-      header.SetHeight(pBackbuffer->GetDescription().m_uiHeight);
-      header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, false));
       ezImage readBackResult;
-      readBackResult.ResetAndAlloc(header);
-
-      ezGALSystemMemoryDescription MemDesc;
-      MemDesc.m_pData = readBackResult.GetPixelPointer<ezUInt8>();
-      MemDesc.m_uiRowPitch = static_cast<ezUInt32>(readBackResult.GetRowPitch());
-      MemDesc.m_uiSlicePitch = static_cast<ezUInt32>(readBackResult.GetDepthPitch());
-
-      ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-      ezGALTextureSubresource sourceSubResource;
-      ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-      m_pEncoder->CopyTextureReadbackResult(m_hTexture2DReadback, sourceSubResources, SysMemDescs);
+      {
+        ezGALTextureSubresource sourceSubResource;
+        ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+        ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
+        ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
+        EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+        ezTextureUtils::CreateSubResourceImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], readBackResult, false);
+      }
 
       {
+        ezGALSystemMemoryDescription MemDesc;
+        MemDesc.m_pData = readBackResult.GetByteBlobPtr();
+        MemDesc.m_uiRowPitch = static_cast<ezUInt32>(readBackResult.GetRowPitch());
+        MemDesc.m_uiSlicePitch = static_cast<ezUInt32>(readBackResult.GetDepthPitch());
+        ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
+
         ezGALTextureCreationDescription desc;
         desc.m_uiWidth = 8;
         desc.m_uiHeight = 8;
@@ -310,10 +309,6 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
         }
       }
       CompareReadbackImage(std::move(readBackResult));
-
-
-
-      m_pEncoder->EndRendering();
     }
     EndCommands();
   }
@@ -340,8 +335,8 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
       ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
       ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hTexture2DUpload));
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
-      CompareUploadImage();
       EndRendering();
+      CompareUploadImage();
     }
   }
   EndCommands();

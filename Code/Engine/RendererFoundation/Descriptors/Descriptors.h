@@ -27,7 +27,6 @@ struct ezGALWindowSwapChainCreationDescription : public ezHashableStruct<ezGALWi
   ezEnum<ezGALPresentMode> m_InitialPresentMode = ezGALPresentMode::VSync;
 
   bool m_bDoubleBuffered = true;
-  bool m_bAllowScreenshots = false;
 };
 
 struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChainCreationDescription>
@@ -153,23 +152,20 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : pub
   ezStaticArray<ezGALVertexAttribute, 16> m_VertexAttributes;
 };
 
-// Need to add: immutable (GPU only), default(GPU only, but allows CopyToTempStorage updates), transient (allows ezGALUpdateMode::Discard), staging: read(back), staging: write (constantly mapped), unified memory (mobile, onboard GPU, allows all ops)
-// Or use VmaMemoryUsage  + read write flags?
 struct ezGALResourceAccess
 {
   EZ_ALWAYS_INLINE bool IsImmutable() const { return m_bImmutable; }
 
-  bool m_bReadBack = false;
   bool m_bImmutable = true;
 };
 
 struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
 {
-  ezUInt32 m_uiTotalSize = 0;
-  ezUInt32 m_uiStructSize = 0;                                         // Struct or texel size
+  ezUInt32 m_uiTotalSize = 0; // Total size in bytes
+  ezUInt32 m_uiStructSize = 0;                                         // Struct or texel size in bytes
   ezBitflags<ezGALBufferUsageFlags> m_BufferFlags;
   ezGALResourceAccess m_ResourceAccess;
-  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid; // Only relevant for TexelBuffer
+  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid; // Only relevant for TexelBuffer to create default views
 };
 
 struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCreationDescription>

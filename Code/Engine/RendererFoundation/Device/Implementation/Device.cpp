@@ -5,13 +5,16 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/ProxyTexture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
+#include <RendererFoundation/Resources/ReadbackTexture.h>
 #include <RendererFoundation/Shader/VertexDeclaration.h>
 #include <RendererFoundation/State/State.h>
+#include <Foundation/Time/Stopwatch.h>
 
 namespace
 {
@@ -26,6 +29,8 @@ namespace
       Shader,
       Buffer,
       Texture,
+      ReadbackTexture,
+      ReadbackBuffer,
       TextureResourceView,
       BufferResourceView,
       RenderTargetView,
@@ -189,24 +194,21 @@ ezGALCommandEncoder* ezGALDevice::BeginCommands(const char* szName)
     e.m_Type = ezGALDeviceEvent::BeforeBeginCommands;
     s_Events.Broadcast(e, 1);
   }
-  ezGALCommandEncoder* pCommandEncoder = nullptr;
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
 
-    EZ_ASSERT_DEV(!m_bBeginCommandsCalled, "Nested Passes are not allowed: You must call ezGALDevice::EndCommands before you can call ezGALDevice::BeginCommands again");
-    m_bBeginCommandsCalled = true;
-
-    pCommandEncoder = BeginCommandsPlatform(szName);
+    EZ_ASSERT_DEV(m_pCommandEncoder == nullptr, "Nested Passes are not allowed: You must call ezGALDevice::EndCommands before you can call ezGALDevice::BeginCommands again");
+    m_pCommandEncoder = BeginCommandsPlatform(szName);
   }
   {
     EZ_PROFILE_SCOPE("AfterBeginCommands");
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::AfterBeginCommands;
-    e.m_pCommandEncoder = pCommandEncoder;
+    e.m_pCommandEncoder = m_pCommandEncoder;
     s_Events.Broadcast(e, 1);
   }
-  return pCommandEncoder;
+  return m_pCommandEncoder;
 }
 
 void ezGALDevice::EndCommands(ezGALCommandEncoder* pCommandEncoder)
@@ -221,8 +223,8 @@ void ezGALDevice::EndCommands(ezGALCommandEncoder* pCommandEncoder)
   }
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
-    EZ_ASSERT_DEV(m_bBeginCommandsCalled, "You must have called ezGALDevice::BeginCommands before you can call ezGALDevice::EndCommands");
-    m_bBeginCommandsCalled = false;
+    EZ_ASSERT_DEV(m_pCommandEncoder != nullptr, "You must have called ezGALDevice::BeginCommands before you can call ezGALDevice::EndCommands");
+    m_pCommandEncoder = nullptr;
     EndCommandsPlatform(pCommandEncoder);
   }
   {
@@ -857,6 +859,60 @@ void ezGALDevice::DestroySharedTexture(ezGALTextureHandle hSharedTexture)
   }
 }
 
+ezGALReadbackTextureHandle ezGALDevice::CreateReadbackTexture(const ezGALTextureCreationDescription& description)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  if (description.m_uiWidth == 0 || description.m_uiHeight == 0)
+  {
+    ezLog::Error("Trying to create a texture with width or height == 0 is not possible!");
+    return ezGALReadbackTextureHandle();
+  }
+
+  ezGALReadbackTexture* pReadbackTexture = CreateReadbackTexturePlatform(description);
+  ezGALReadbackTextureHandle hTexture(m_ReadbackTextures.Insert(pReadbackTexture));
+  return hTexture;
+}
+
+void ezGALDevice::DestroyReadbackTexture(ezGALReadbackTextureHandle hTexture)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALReadbackTexture* pTexture = nullptr;
+  if (m_ReadbackTextures.TryGetValue(hTexture, pTexture))
+  {
+    AddDeadObject(GALObjectType::ReadbackTexture, hTexture);
+  }
+  else
+  {
+    ezLog::Warning("DestroyReadbackTexture called on invalid handle (double free?)");
+  }
+}
+
+ezGALReadbackBufferHandle ezGALDevice::CreateReadbackBuffer(const ezGALBufferCreationDescription& description)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALReadbackBuffer* pReadbackBuffer = CreateReadbackBufferPlatform(description);
+  ezGALReadbackBufferHandle hBuffer(m_ReadbackBuffers.Insert(pReadbackBuffer));
+  return hBuffer;
+}
+
+void ezGALDevice::DestroyReadbackBuffer(ezGALReadbackBufferHandle hBuffer)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+  
+  ezGALReadbackBuffer* pBuffer = nullptr;
+  if (m_ReadbackBuffers.TryGetValue(hBuffer, pBuffer))
+  {
+    AddDeadObject(GALObjectType::ReadbackBuffer, hBuffer);
+  }
+  else
+  {
+    ezLog::Warning("DestroyReadbackBuffer called on invalid handle (double free?)");
+  }
+}
+
 ezGALTextureResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALTextureHandle hTexture)
 {
   if (const ezGALTexture* pTexture = GetTexture(hTexture))
@@ -1309,6 +1365,40 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
   }
 }
 
+ezEnum<ezGALAsyncResult> ezGALDevice::GetFenceResult(ezGALFenceHandle hFence, ezTime timeout)
+{
+  if (hFence == 0)
+    return ezGALAsyncResult::Expired;
+
+  EZ_ASSERT_DEBUG(timeout.IsZero() || m_pCommandEncoder == nullptr || !m_pCommandEncoder->IsInRenderingScope(), "Waiting for a fence is only allowed outside of a rendering scope");
+
+  ezEnum<ezGALAsyncResult> res = GetFenceResultPlatform(hFence, timeout);
+
+  return res;
+}
+
+ezReadbackBufferLock ezGALDevice::LockBuffer(ezGALReadbackBufferHandle hReadbackBuffer, ezArrayPtr<const ezUInt8>& out_Memory)
+{
+  if (hReadbackBuffer.IsInvalidated())
+    return {};
+  const ezGALReadbackBuffer* pReadbackBuffer = GetReadbackBuffer(hReadbackBuffer);
+  if (pReadbackBuffer == nullptr)
+    return {};
+
+  return ezReadbackBufferLock(this, pReadbackBuffer, out_Memory);
+}
+
+ezReadbackTextureLock ezGALDevice::LockTexture(ezGALReadbackTextureHandle hReadbackTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory)
+{
+  if (hReadbackTexture.IsInvalidated())
+    return {};
+  const ezGALReadbackTexture* pReadbackTexture = GetReadbackTexture(hReadbackTexture);
+  if (pReadbackTexture == nullptr)
+    return {};
+
+  return ezReadbackTextureLock(this, pReadbackTexture, subResources, out_Memory);
+}
+
 ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain)
 {
   ezGALSwapChain* pSwapChain = nullptr;
@@ -1605,6 +1695,22 @@ void ezGALDevice::DestroyDeadObjects()
             DestroyTexturePlatform(pTexture);
             break;
         }
+        break;
+      }
+      case GALObjectType::ReadbackBuffer:
+      {
+        ezGALReadbackBufferHandle hBuffer(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALReadbackBuffer* pBuffer = nullptr;
+        EZ_VERIFY(m_ReadbackBuffers.Remove(hBuffer, &pBuffer), "");
+        DestroyReadbackBufferPlatform(pBuffer);
+        break;
+      }
+      case GALObjectType::ReadbackTexture:
+      {
+        ezGALReadbackTextureHandle hTexture(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALReadbackTexture* pTexture = nullptr;
+        EZ_VERIFY(m_ReadbackTextures.Remove(hTexture, &pTexture), "");
+        DestroyReadbackTexturePlatform(pTexture);
         break;
       }
       case GALObjectType::TextureResourceView:

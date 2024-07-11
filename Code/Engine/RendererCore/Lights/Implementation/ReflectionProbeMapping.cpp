@@ -24,7 +24,6 @@ ezReflectionProbeMapping::ezReflectionProbeMapping(ezUInt32 uiAtlasSize)
   desc.m_Type = ezGALTextureType::TextureCubeArray;
   desc.m_bCreateRenderTarget = true;
   desc.m_bAllowUAV = true;
-  desc.m_ResourceAccess.m_bReadBack = true;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   m_hReflectionSpecularTexture = pDevice->CreateTexture(desc);

@@ -73,8 +73,8 @@ public:
 
   void ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, ezGALTextureHandle hSource, const ezGALTextureSubresource& sourceSubResource);
 
-  void ReadbackTexture(ezGALTextureHandle hTexture);
-  void CopyTextureReadbackResult(ezGALTextureHandle hTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData);
+  void ReadbackTexture(ezGALReadbackTextureHandle hDestination, ezGALTextureHandle hSource);
+  void ReadbackBuffer(ezGALReadbackBufferHandle hDestination, ezGALBufferHandle hSource);
 
   void GenerateMipMaps(ezGALTextureResourceViewHandle hResourceView);
 
@@ -102,6 +102,7 @@ public:
 
   void BeginRendering(const ezGALRenderingSetup& renderingSetup, const char* szName = "");
   void EndRendering();
+  bool IsInRenderingScope() const;
 
   /// \brief Clears active rendertargets.
   ///

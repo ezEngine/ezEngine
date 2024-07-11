@@ -28,7 +28,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
     case ezGALTextureType::TextureCube:
     case ezGALTextureType::TextureCubeArray:
     {
-      D3D11_TEXTURE2D_DESC Tex2DDesc;
+      D3D11_TEXTURE2D_DESC Tex2DDesc = {};
       EZ_SUCCEED_OR_RETURN(Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
 
       ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
@@ -43,7 +43,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
 
     case ezGALTextureType::Texture3D:
     {
-      D3D11_TEXTURE3D_DESC Tex3DDesc;
+      D3D11_TEXTURE3D_DESC Tex3DDesc = {};
       EZ_SUCCEED_OR_RETURN(Create3DDesc(m_Description, pDXDevice, Tex3DDesc));
 
       ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
@@ -61,26 +61,15 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       return EZ_FAILURE;
   }
 
-  if (m_Description.m_ResourceAccess.m_bReadBack)
-    return CreateStagingTexture(pDXDevice);
-
   return EZ_SUCCESS;
 }
 
 
 ezResult ezGALTextureDX11::InitFromNativeObject(ezGALDeviceDX11* pDXDevice)
 {
+  EZ_IGNORE_UNUSED(pDXDevice);
   /// \todo Validation if interface of corresponding texture object exists
   m_pDXTexture = static_cast<ID3D11Resource*>(m_Description.m_pExisitingNativeObject);
-  if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
-  {
-    ezResult res = CreateStagingTexture(pDXDevice);
-    if (res == EZ_FAILURE)
-    {
-      m_pDXTexture = nullptr;
-      return res;
-    }
-  }
   return EZ_SUCCESS;
 }
 
@@ -129,7 +118,6 @@ ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& d
   if (description.m_bCreateRenderTarget || description.m_bAllowDynamicMipGeneration)
     out_Tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
-  out_Tex2DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
   out_Tex2DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
 
   if (description.m_bCreateRenderTarget || description.m_bAllowUAV)
@@ -152,6 +140,7 @@ ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& d
 
   out_Tex2DDesc.SampleDesc.Count = description.m_SampleCount;
   out_Tex2DDesc.SampleDesc.Quality = 0;
+
   return EZ_SUCCESS;
 }
 
@@ -191,9 +180,6 @@ ezResult ezGALTextureDX11::Create3DDesc(const ezGALTextureCreationDescription& d
   if (description.m_bAllowDynamicMipGeneration)
     out_Tex3DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-  if (description.m_Type == ezGALTextureType::TextureCube)
-    out_Tex3DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
-
   return EZ_SUCCESS;
 }
 
@@ -232,7 +218,7 @@ void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription&
 
     for (ezUInt32 i = 0; i < uiInitialDataCount; i++)
     {
-      out_InitialData[i].pSysMem = pInitialData[i].m_pData;
+      out_InitialData[i].pSysMem = pInitialData[i].m_pData.GetPtr();
       out_InitialData[i].SysMemPitch = pInitialData[i].m_uiRowPitch;
       out_InitialData[i].SysMemSlicePitch = pInitialData[i].m_uiSlicePitch;
     }
@@ -244,7 +230,6 @@ ezResult ezGALTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
   EZ_IGNORE_UNUSED(pDevice);
 
   EZ_GAL_DX11_RELEASE(m_pDXTexture);
-  EZ_GAL_DX11_RELEASE(m_pDXStagingTexture);
   return EZ_SUCCESS;
 }
 
@@ -258,43 +243,4 @@ void ezGALTextureDX11::SetDebugNamePlatform(const char* szName) const
   }
 }
 
-ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)
-{
 
-  switch (m_Description.m_Type)
-  {
-    case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DArray:
-    case ezGALTextureType::TextureCube:
-    case ezGALTextureType::TextureCubeArray:
-    {
-      D3D11_TEXTURE2D_DESC Desc;
-      static_cast<ID3D11Texture2D*>(m_pDXTexture)->GetDesc(&Desc);
-      Desc.BindFlags = 0;
-      Desc.CPUAccessFlags = 0;
-      // Need to remove this flag on the staging resource or texture readback no longer works.
-      Desc.MiscFlags &= ~D3D11_RESOURCE_MISC_GENERATE_MIPS;
-      Desc.Usage = D3D11_USAGE_STAGING;
-      Desc.SampleDesc.Count = 1; // We need to disable MSAA for the readback texture, the conversion needs to happen during readback!
-
-      if (m_Description.m_ResourceAccess.m_bReadBack)
-        Desc.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
-      if (!m_Description.m_ResourceAccess.IsImmutable())
-        Desc.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
-
-      if (FAILED(pDevice->GetDXDevice()->CreateTexture2D(&Desc, nullptr, reinterpret_cast<ID3D11Texture2D**>(&m_pDXStagingTexture))))
-      {
-        ezLog::Error("Couldn't create staging resource for data upload and/or read back!");
-        return EZ_FAILURE;
-      }
-    }
-    break;
-
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-  }
-
-
-
-  return EZ_SUCCESS;
-}

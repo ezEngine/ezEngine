@@ -390,7 +390,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
   static ezInt32 s_iMouseCaptureCount = 0;
 #  endif
 
-  if (m_bFirstWndMsg)
+  if (m_bFirstWndMsg && m_ClipCursorMode != ezMouseCursorClipMode::NoClip)
   {
     // hack fix to make sure the mouse is in the window center and gets clipped to the window, on startup
 

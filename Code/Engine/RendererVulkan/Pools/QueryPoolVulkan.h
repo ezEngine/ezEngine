@@ -20,6 +20,9 @@ public:
   /// \brief Needs to be called every frame so the pool can figure out which queries have finished and reuse old data.
   void BeginFrame(vk::CommandBuffer commandBuffer);
 
+  /// \brief We have to call this before each begin rendering call as if we run out of queries inside a render pass, we can't recover given that resetQueryPool can only be called outside a render pass which is necessary to be called on every new pool.
+  void EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer);
+
   /// \brief Inserts a timestamp into the given command buffer.
   /// \param commandBuffer Target command buffer to insert the timestamp into.
   /// \param hTimestamp Timestamp to insert. After insertion the only valid option is to call GetTimestampResult.
@@ -78,7 +81,9 @@ private:
     void DeInitialize();
 
     QueryPool* GetFreePool();
+    QueryPool* CreatePool();
     void BeginFrame(vk::CommandBuffer commandBuffer, ezUInt64 uiCurrentFrame, ezUInt64 uiSafeFrame);
+    void EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer, ezUInt32 uiFreePools);
     ezGALPoolHandle CreateQuery(vk::CommandBuffer commandBuffer);
     Query GetQuery(ezGALPoolHandle hPool);
     ezEnum<ezGALAsyncResult> GetResult(ezGALPoolHandle hPool, ezUInt64& out_uiResult, bool bForce);

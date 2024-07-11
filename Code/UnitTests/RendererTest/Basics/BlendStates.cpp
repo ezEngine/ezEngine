@@ -41,8 +41,8 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
 
   RenderObjects(ezShaderBindFlags::NoBlendState);
 
-  EZ_TEST_IMAGE(m_iFrame, 150);
   EndRendering();
+  EZ_TEST_IMAGE(m_iFrame, 150);
   EndCommands();
   EndFrame();
 

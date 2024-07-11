@@ -487,7 +487,6 @@ ezUniquePtr<ezWindowOutputTargetGAL> ezGameState::CreateMainOutputTarget(ezWindo
   ezGALWindowSwapChainCreationDescription desc;
   desc.m_pWindow = pMainWindow;
   desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-  desc.m_bAllowScreenshots = true;
 
   pOutput->CreateSwapchain(desc);
 

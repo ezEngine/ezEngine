@@ -153,7 +153,7 @@ namespace ezRmlUiInternal
     if (!hTexture.IsValid())
     {
       ezGALSystemMemoryDescription memoryDesc;
-      memoryDesc.m_pData = const_cast<Rml::byte*>(pSource);
+      memoryDesc.m_pData = ezMakeByteBlobPtr(pSource, uiSizeInBytes);
       memoryDesc.m_uiRowPitch = uiWidth * 4;
       memoryDesc.m_uiSlicePitch = uiSizeInBytes;
 

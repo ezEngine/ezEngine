@@ -48,6 +48,7 @@ ezResult ezGraphicsTest::InitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezGraphicsTest::DeInitializeSubTest(ezInt32 iIdentifier)
 {
+  m_Readback.Reset();
   ShutdownRenderer();
   // shut down completely
   ezStartup::ShutdownCoreSystems();
@@ -177,6 +178,7 @@ ezResult ezGraphicsTest::SetupRenderer()
 
 void ezGraphicsTest::ShutdownRenderer()
 {
+  m_Readback.Reset();
   EZ_ASSERT_DEV(m_pWindow == nullptr, "DestroyWindow needs to be called before ShutdownRenderer");
   m_hShader.Invalidate();
   m_hCubeUV.Invalidate();
@@ -205,6 +207,9 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     WindowCreationDesc.m_Resolution.width = uiResolutionX;
     WindowCreationDesc.m_Resolution.height = uiResolutionY;
     WindowCreationDesc.m_bShowMouseCursor = true;
+    WindowCreationDesc.m_bClipMouseCursor = false;
+    WindowCreationDesc.m_bSetForegroundOnInit = false;
+
     m_pWindow = EZ_DEFAULT_NEW(ezWindow);
     if (m_pWindow->Initialize(WindowCreationDesc).Failed())
       return EZ_FAILURE;
@@ -215,7 +220,6 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     ezGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    swapChainDesc.m_bAllowScreenshots = true;
     m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
     if (m_hSwapChain.IsInvalidated())
     {
@@ -353,11 +357,11 @@ void ezGraphicsTest::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRe
 
   ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hSRV);
   RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+  EndRendering();
   if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
   {
     EZ_TEST_IMAGE(m_iFrame, 100);
   }
-  EndRendering();
 };
 
 
@@ -380,24 +384,20 @@ ezResult ezGraphicsTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTes
 
   ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_hSwapChain)->GetBackBufferTexture();
   const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBBTexture);
-  pCommandEncoder->ReadbackTexture(hBBTexture);
-  const ezEnum<ezGALResourceFormat> format = pBackbuffer->GetDescription().m_Format;
+  m_Readback.ReadbackTexture(*pCommandEncoder, hBBTexture);
+  pCommandEncoder->Flush();
+  // Wait for results
+  {
+    ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
+    EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
+  }
 
-  ezImageHeader header;
-  header.SetWidth(m_pWindow->GetClientAreaSize().width);
-  header.SetHeight(m_pWindow->GetClientAreaSize().height);
-  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
-  ref_img.ResetAndAlloc(header);
-
-  ezGALSystemMemoryDescription MemDesc;
-  MemDesc.m_pData = ref_img.GetPixelPointer<ezUInt8>();
-  MemDesc.m_uiRowPitch = 4 * m_pWindow->GetClientAreaSize().width;
-  MemDesc.m_uiSlicePitch = 4 * m_pWindow->GetClientAreaSize().width * m_pWindow->GetClientAreaSize().height;
-
-  ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
   ezGALTextureSubresource sourceSubResource;
   ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-  pCommandEncoder->CopyTextureReadbackResult(hBBTexture, sourceSubResources, SysMemDescs);
+  ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
+  ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
+  EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+  ezTextureUtils::CreateSubResourceImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], ref_img, true);
 
   return EZ_SUCCESS;
 }

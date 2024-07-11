@@ -111,7 +111,7 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
             (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
           ezGALSystemMemoryDescription data;
-          data.m_pData = tempData.GetData();
+          data.m_pData = tempData.GetByteArrayPtr();
           data.m_uiRowPitch = uiBlockSize * blockCount.width;
           data.m_uiSlicePitch = data.m_uiRowPitch * blockCount.height;
           initialData.PushBack(data);

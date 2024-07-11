@@ -26,6 +26,8 @@
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
+#include <RendererVulkan/Resources/ReadbackBufferVulkan.h>
+#include <RendererVulkan/Resources/ReadbackTextureVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/SharedTextureVulkan.h>
@@ -650,11 +652,18 @@ void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingB
   ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
   ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(pData), pInitialData.GetPtr(), pInitialData.GetCount());
   ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);
+  VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(stagingBuffer.m_alloc, 0, pInitialData.GetCount()));
 
   vk::BufferCopy region;
   region.srcOffset = 0;
   region.dstOffset = dstOffset;
   region.size = pInitialData.GetCount();
+
+  pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer.m_buffer, 0, pInitialData.GetCount(), vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+
+  pPipelineBarrier->AccessBuffer(pBuffer, region.dstOffset, region.size, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask(), vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+
+  pPipelineBarrier->Flush();
 
   // #TODO_VULKAN atomic min size violation?
   commandBuffer.copyBuffer(stagingBuffer.m_buffer, pBuffer->GetVkBuffer(), 1, &region);
@@ -682,11 +691,10 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
   };
 
   pPipelineBarrier->EnsureImageLayout(pTexture, getRange(subResource), vk::ImageLayout::eTransferDstOptimal, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
-  pPipelineBarrier->Flush();
 
   for (ezUInt32 i = 0; i < subResource.layerCount; i++)
   {
-    auto pLayerData = reinterpret_cast<const ezUInt8*>(data.m_pData) + i * data.m_uiSlicePitch;
+    auto pLayerData = data.m_pData.GetPtr() + i * data.m_uiSlicePitch;
     const vk::Format format = pTexture->GetImageFormat();
     const ezUInt8 uiBlockSize = vk::blockSize(format);
     const auto blockExtent = vk::blockExtent(format);
@@ -697,6 +705,7 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
 
     const vk::DeviceSize uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
     ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(0, uiTotalSize);
+    EZ_SCOPE_EXIT(pStagingBufferPool->ReclaimBuffer(stagingBuffer));
 
     const ezUInt32 uiBufferRowPitch = uiBlockSize * blockCount.width;
     const ezUInt32 uiBufferSlicePitch = uiBufferRowPitch * blockCount.height;
@@ -707,6 +716,7 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
     ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
     ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(pData), pLayerData, uiTotalSize);
     ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);
+    VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(stagingBuffer.m_alloc, 0, uiTotalSize));
 
     vk::BufferImageCopy region = {};
     region.imageSubresource = subResource;
@@ -717,9 +727,12 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
     region.bufferRowLength = blockExtent[0] * uiBufferRowPitch / uiBlockSize;
     region.bufferImageHeight = blockExtent[1] * uiBufferSlicePitch / uiBufferRowPitch;
 
+    pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer.m_buffer, 0, uiTotalSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+
+    pPipelineBarrier->Flush();
+
     // #TODO_VULKAN atomic min size violation?
     commandBuffer.copyBufferToImage(stagingBuffer.m_buffer, pTexture->GetImage(), pTexture->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal), 1, &region);
-    pStagingBufferPool->ReclaimBuffer(stagingBuffer);
   }
 
   pPipelineBarrier->EnsureImageLayout(pTexture, getRange(subResource), pTexture->GetPreferredLayout(), pTexture->GetUsedByPipelineStage(), pTexture->GetAccessMask());
@@ -742,13 +755,14 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
 
   WaitIdlePlatform();
 
+  m_pStagingBufferPool->DeInitialize();
+  m_pStagingBufferPool = nullptr;
   m_pCommandEncoder = nullptr;
   m_pCommandEncoderImpl = nullptr;
   m_pPipelineBarrier = nullptr;
   m_pCommandBufferPool->DeInitialize();
   m_pCommandBufferPool = nullptr;
-  m_pStagingBufferPool->DeInitialize();
-  m_pStagingBufferPool = nullptr;
+
   m_pQueryPool->DeInitialize();
   m_pQueryPool = nullptr;
   m_pFenceQueue = nullptr;
@@ -758,7 +772,6 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   ezFencePoolVulkan::DeInitialize();
   ezResourceCacheVulkan::DeInitialize();
   ezDescriptorSetPoolVulkan::DeInitialize();
-
   ezMemoryAllocatorVulkan::DeInitialize();
 
   m_device.waitIdle();
@@ -825,9 +838,9 @@ ezInitContextVulkan& ezGALDeviceVulkan::GetInitContext() const
   return *m_pInitContext.Borrow();
 }
 
-ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, bool bLinearCPU, bool bStaging)
+ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
-  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description, bLinearCPU, bStaging);
+  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description);
 
   if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
   {
@@ -981,7 +994,8 @@ void ezGALDeviceVulkan::EndCommandsPlatform(ezGALCommandEncoder* pPass)
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPassTimingScope);
 #endif
-  // Technically we don't need to do this here.
+  // Submit();
+  //  Technically we don't need to do this here.
   m_pCommandEncoderImpl->Reset();
   m_pCommandEncoder->InvalidateState();
 }
@@ -1128,7 +1142,7 @@ void ezGALDeviceVulkan::DestroyBufferPlatform(ezGALBuffer* pBuffer)
 
 ezGALTexture* ezGALDeviceVulkan::CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
-  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description, false, false);
+  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description);
 
   if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
   {
@@ -1170,6 +1184,48 @@ void ezGALDeviceVulkan::DestroySharedTexturePlatform(ezGALTexture* pTexture)
 
   pVulkanTexture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanTexture);
+}
+
+ezGALReadbackBuffer* ezGALDeviceVulkan::CreateReadbackBufferPlatform(const ezGALBufferCreationDescription& Description)
+{
+  ezGALReadbackBufferVulkan* pReadbackBuffer = EZ_NEW(&m_Allocator, ezGALReadbackBufferVulkan, Description);
+
+  if (!pReadbackBuffer->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pReadbackBuffer);
+    return nullptr;
+  }
+
+  return pReadbackBuffer;
+}
+
+void ezGALDeviceVulkan::DestroyReadbackBufferPlatform(ezGALReadbackBuffer* pReadbackBuffer)
+{
+  ezGALReadbackBufferVulkan* pVulkanReadbackBuffer = static_cast<ezGALReadbackBufferVulkan*>(pReadbackBuffer);
+
+  pVulkanReadbackBuffer->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pVulkanReadbackBuffer);
+}
+
+ezGALReadbackTexture* ezGALDeviceVulkan::CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description)
+{
+  ezGALReadbackTextureVulkan* pReadbackTexture = EZ_NEW(&m_Allocator, ezGALReadbackTextureVulkan, Description);
+
+  if (!pReadbackTexture->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pReadbackTexture);
+    return nullptr;
+  }
+
+  return pReadbackTexture;
+}
+
+void ezGALDeviceVulkan::DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture)
+{
+  ezGALReadbackTextureVulkan* pVulkanReadbackTexture = static_cast<ezGALReadbackTextureVulkan*>(pReadbackTexture);
+
+  pVulkanReadbackTexture->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pVulkanReadbackTexture);
 }
 
 ezGALTextureResourceView* ezGALDeviceVulkan::CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description)
@@ -1311,7 +1367,77 @@ ezEnum<ezGALAsyncResult> ezGALDeviceVulkan::GetOcclusionResultPlatform(ezGALOccl
 
 ezEnum<ezGALAsyncResult> ezGALDeviceVulkan::GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout)
 {
+  if (m_pFenceQueue->GetCurrentFenceHandle() == hFence && timeout.IsPositive())
+  {
+    // Fence has not been submitted yet, force submit of the command buffer or we would deadlock here.
+    Flush();
+  }
+
   return m_pFenceQueue->GetFenceResult(hFence, timeout);
+}
+
+ezResult ezGALDeviceVulkan::LockBufferPlatform(const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const
+{
+  const ezGALReadbackBufferVulkan* pBufferVulkan = static_cast<const ezGALReadbackBufferVulkan*>(pBuffer);
+
+  void* pData = nullptr;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::MapMemory(pBufferVulkan->GetAllocation(), &pData));
+
+  out_Memory = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(pData), pBuffer->GetDescription().m_uiTotalSize);
+  return EZ_SUCCESS;
+}
+
+void ezGALDeviceVulkan::UnlockBufferPlatform(const ezGALReadbackBuffer* pBuffer) const
+{
+  const ezGALReadbackBufferVulkan* pBufferVulkan = static_cast<const ezGALReadbackBufferVulkan*>(pBuffer);
+  ezMemoryAllocatorVulkan::UnmapMemory(pBufferVulkan->GetAllocation());
+}
+
+ezResult ezGALDeviceVulkan::LockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const
+{
+  out_Memory.Clear();
+  // #TODO_VULKAN readback fence
+  auto pVulkanTexture = static_cast<const ezGALReadbackTextureVulkan*>(pTexture->GetParentResource());
+  const ezGALTextureCreationDescription& textureDesc = pVulkanTexture->GetDescription();
+
+  const vk::Format stagingFormat = GetFormatLookupTable().GetFormatInfo(pVulkanTexture->GetDescription().m_Format).m_readback;
+
+  ezHybridArray<ezGALTextureVulkan::SubResourceOffset, 8> subResourceOffsets;
+  const ezUInt32 uiBufferSize = ezGALTextureVulkan::ComputeSubResourceOffsets(this, pVulkanTexture->GetDescription(), subResourceOffsets);
+
+  const ezUInt32 uiSubResources = subResources.GetCount();
+
+  void* pData = nullptr;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::MapMemory(pVulkanTexture->GetBufferAllocation(), &pData));
+
+  const ezUInt32 uiMipLevels = textureDesc.m_uiMipLevelCount;
+  for (ezUInt32 i = 0; i < uiSubResources; i++)
+  {
+    const ezGALTextureSubresource& subRes = subResources[i];
+    const ezUInt32 uiSubresourceIndex = subRes.m_uiMipLevel + subRes.m_uiArraySlice * uiMipLevels;
+    const ezGALTextureVulkan::SubResourceOffset offset = subResourceOffsets[uiSubresourceIndex];
+    ezGALSystemMemoryDescription& memDesc = out_Memory.ExpandAndGetRef();
+    const auto blockExtent = vk::blockExtent(stagingFormat);
+    const ezUInt8 uiBlockSize = vk::blockSize(stagingFormat);
+
+    const ezUInt32 uiRowPitch = offset.m_uiRowLength * blockExtent[0] * uiBlockSize;
+
+    ezUInt8* pSubResourceData = reinterpret_cast<ezUInt8*>(pData) + offset.m_uiOffset;
+
+    memDesc.m_pData = ezMakeByteBlobPtr(pSubResourceData, offset.m_uiSize);
+    memDesc.m_uiRowPitch = uiRowPitch;
+    memDesc.m_uiSlicePitch = uiRowPitch * offset.m_uiImageHeight;
+    EZ_ASSERT_DEBUG(memDesc.m_uiSlicePitch == offset.m_uiSize, "");
+  }
+
+  return EZ_SUCCESS;
+}
+
+void ezGALDeviceVulkan::UnlockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const
+{
+  auto pVulkanTexture = static_cast<const ezGALReadbackTextureVulkan*>(pTexture->GetParentResource());
+
+  ezMemoryAllocatorVulkan::UnmapMemory(pVulkanTexture->GetBufferAllocation());
 }
 
 // Misc functions

@@ -13,9 +13,12 @@ EZ_DEFINE_AS_POD_TYPE(D3D11_SUBRESOURCE_DATA);
 class ezGALTextureDX11 : public ezGALTexture
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const;
+  static ezResult Create2DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE2D_DESC& out_Tex2DDesc);
+  static ezResult Create3DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE3D_DESC& out_Tex3DDesc);
+  static void ConvertInitialData(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezHybridArray<D3D11_SUBRESOURCE_DATA, 16>& out_InitialData);
 
-  EZ_ALWAYS_INLINE ID3D11Resource* GetDXStagingTexture() const;
+public:
+  EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const;
 
 protected:
   friend class ezGALDeviceDX11;
@@ -30,14 +33,9 @@ protected:
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
   ezResult InitFromNativeObject(ezGALDeviceDX11* pDXDevice);
-  static ezResult Create2DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE2D_DESC& out_Tex2DDesc);
-  static ezResult Create3DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE3D_DESC& out_Tex3DDesc);
-  static void ConvertInitialData(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezHybridArray<D3D11_SUBRESOURCE_DATA, 16>& out_InitialData);
-  ezResult CreateStagingTexture(ezGALDeviceDX11* pDevice);
 
 protected:
   ID3D11Resource* m_pDXTexture = nullptr;
-  ID3D11Resource* m_pDXStagingTexture = nullptr;
 };
 
 

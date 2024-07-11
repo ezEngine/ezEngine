@@ -81,7 +81,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALResourceAccess, ezNoBase, 1, ezRTTIDefaultAl
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ReadBack", m_bReadBack),
     EZ_MEMBER_PROPERTY("Immutable", m_bImmutable),
   }
   EZ_END_PROPERTIES;

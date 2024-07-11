@@ -129,7 +129,7 @@ ezEnum<ezGALAsyncResult> ezFenceQueueVulkan::WaitForNextFence(ezTime timeout /*=
   }
 
   EZ_ASSERT_DEBUG(fenceStatus == vk::Result::eNotReady, "getFenceStatus returned {}", vk::to_string(fenceStatus).c_str());
-  if (fenceStatus == vk::Result::eNotReady && timeout > ezTime::MakeZero())
+  if (fenceStatus == vk::Result::eNotReady && !timeout.IsZero())
   {
     fenceStatus = m_device.waitForFences(1, &m_PendingFences[0].m_vkFence, true, static_cast<ezUInt64>(timeout.GetNanoseconds()));
     if (fenceStatus == vk::Result::eTimeout)
@@ -139,6 +139,7 @@ ezEnum<ezGALAsyncResult> ezFenceQueueVulkan::WaitForNextFence(ezTime timeout /*=
 
     m_uiReachedFenceCounter = m_PendingFences[0].m_hFence;
     m_PendingFences.PopFront();
+    return ezGALAsyncResult::Ready;
   }
   return ezGALAsyncResult::Pending;
 }

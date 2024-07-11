@@ -446,7 +446,6 @@ void ezShaderExplorerApp::UpdateSwapChain()
     ezGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    swapChainDesc.m_bAllowScreenshots = true;
     swapChainDesc.m_InitialPresentMode = ezGALPresentMode::VSync;
     m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
   }

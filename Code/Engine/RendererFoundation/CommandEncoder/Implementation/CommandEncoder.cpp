@@ -4,6 +4,8 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
+#include <RendererFoundation/Resources/ReadbackBuffer.h>
+#include <RendererFoundation/Resources/ReadbackTexture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -310,33 +312,46 @@ void ezGALCommandEncoder::ResolveTexture(ezGALTextureHandle hDest, const ezGALTe
   }
 }
 
-void ezGALCommandEncoder::ReadbackTexture(ezGALTextureHandle hTexture)
+void ezGALCommandEncoder::ReadbackTexture(ezGALReadbackTextureHandle hDestination, ezGALTextureHandle hSource)
 {
   AssertRenderingThread();
 
-  const ezGALTexture* pTexture = m_Device.GetTexture(hTexture);
+  const ezGALReadbackTexture* pDestination = m_Device.GetReadbackTexture(hDestination);
+  const ezGALTexture* pSource = m_Device.GetTexture(hSource);
 
-  if (pTexture != nullptr)
+  EZ_ASSERT_DEBUG(pDestination != nullptr && pSource != nullptr, "Invalid handle provided");
+
+  const ezGALTextureCreationDescription& sourceDesc = pSource->GetDescription();
+  const ezGALTextureCreationDescription& destinationDesc = pDestination->GetDescription();
+
+  bool bMissmatch = sourceDesc.m_uiWidth != destinationDesc.m_uiWidth || sourceDesc.m_uiHeight != destinationDesc.m_uiHeight || sourceDesc.m_uiDepth != destinationDesc.m_uiDepth || sourceDesc.m_uiMipLevelCount != destinationDesc.m_uiMipLevelCount || sourceDesc.m_uiArraySize != destinationDesc.m_uiArraySize || sourceDesc.m_Format != destinationDesc.m_Format || sourceDesc.m_Type != destinationDesc.m_Type || sourceDesc.m_Format != destinationDesc.m_Format || sourceDesc.m_SampleCount != destinationDesc.m_SampleCount;
+  EZ_IGNORE_UNUSED(bMissmatch);
+  EZ_ASSERT_DEBUG(!bMissmatch, "Source and destination formats do not match");
+
+  if (pDestination != nullptr && pSource != nullptr)
   {
-    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
-      "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
-
-    m_CommonImpl.ReadbackTexturePlatform(pTexture);
+    m_CommonImpl.ReadbackTexturePlatform(pDestination, pSource);
   }
 }
 
-void ezGALCommandEncoder::CopyTextureReadbackResult(ezGALTextureHandle hTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData)
+
+void ezGALCommandEncoder::ReadbackBuffer(ezGALReadbackBufferHandle hDestination, ezGALBufferHandle hSource)
 {
   AssertRenderingThread();
 
-  const ezGALTexture* pTexture = m_Device.GetTexture(hTexture);
+  const ezGALReadbackBuffer* pDestination = m_Device.GetReadbackBuffer(hDestination);
+  const ezGALBuffer* pSource = m_Device.GetBuffer(hSource);
 
-  if (pTexture != nullptr)
+  EZ_ASSERT_DEBUG(pDestination != nullptr && pSource != nullptr, "Invalid handle provided");
+
+  const ezGALBufferCreationDescription& sourceDesc = pSource->GetDescription();
+  const ezGALBufferCreationDescription& destinationDesc = pDestination->GetDescription();
+
+  EZ_ASSERT_DEBUG(sourceDesc.m_uiTotalSize == destinationDesc.m_uiTotalSize, "Source and destination size do not match");
+
+  if (pDestination != nullptr && pSource != nullptr)
   {
-    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
-      "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
-
-    m_CommonImpl.CopyTextureReadbackResultPlatform(pTexture, sourceSubResource, targetData);
+    m_CommonImpl.ReadbackBufferPlatform(pDestination, pSource);
   }
 }
 
@@ -694,4 +709,9 @@ void ezGALCommandEncoder::EndRendering()
   EZ_ASSERT_DEBUG(m_hPendingOcclusionQuery.IsInvalidated(), "An occlusion query was started and not stopped within this render scope.");
 
   m_CommonImpl.EndRenderingPlatform();
+}
+
+bool ezGALCommandEncoder::IsInRenderingScope() const
+{
+  return m_CurrentCommandEncoderType == CommandEncoderType::Render;
 }
