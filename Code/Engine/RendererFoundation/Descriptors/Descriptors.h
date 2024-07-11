@@ -155,10 +155,25 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : pub
 
 // Need to add: immutable (GPU only), default(GPU only, but allows CopyToTempStorage updates), transient (allows ezGALUpdateMode::Discard), staging: read(back), staging: write (constantly mapped), unified memory (mobile, onboard GPU, allows all ops)
 // Or use VmaMemoryUsage  + read write flags?
+struct ezGALMemoryUsage
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : ezUInt8
+  {
+    GPU, ///< Memory resides on the GPU and is inaccessible via the CPU
+    Staging, ///< CPU buffer to transfer data to the GPU.
+    Readback, ///< CPU buffer to readback data from the GPU.
+    ENUM_COUNT,
+    Default = GPU
+  };
+};
+
 struct ezGALResourceAccess
 {
   EZ_ALWAYS_INLINE bool IsImmutable() const { return m_bImmutable; }
 
+  ezEnum<ezGALMemoryUsage> m_MemoryUsage;
   bool m_bReadBack = false;
   bool m_bImmutable = true;
 };
