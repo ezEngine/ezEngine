@@ -231,6 +231,17 @@ void eqQtAssetBrowserFolderView::dragMoveEvent(QDragMoveEvent* e)
   }
 }
 
+void eqQtAssetBrowserFolderView::mouseMoveEvent(QMouseEvent* e)
+{
+  // only allow dragging with left mouse button
+  if (state() == DraggingState && !e->buttons().testFlag(Qt::MouseButton::LeftButton))
+  {
+    return;
+  }
+
+  QTreeWidget::mouseMoveEvent(e);
+}
+
 ezStatus eqQtAssetBrowserFolderView::canDrop(QDropEvent* e, ezDynamicArray<ezString>& out_files, ezString& out_sTargetFolder)
 {
   if (!e->mimeData()->hasFormat("application/ezEditor.files"))
@@ -422,8 +433,25 @@ void eqQtAssetBrowserFolderView::OnFlushFileSystemEvents()
   m_QueuedFolderEvents.Clear();
 }
 
+void eqQtAssetBrowserFolderView::mouseDoubleClickEvent(QMouseEvent* e)
+{
+  if (e->button() == Qt::MouseButton::BackButton)
+  {
+    e->ignore();
+    return;
+  }
+
+  QTreeWidget::mouseDoubleClickEvent(e);
+}
+
 void eqQtAssetBrowserFolderView::mousePressEvent(QMouseEvent* e)
 {
+  if (e->button() == Qt::MouseButton::BackButton)
+  {
+    e->ignore();
+    return;
+  }
+
   QModelIndex inx = indexAt(e->pos());
   if (!inx.isValid())
     return;
@@ -477,6 +505,7 @@ bool eqQtAssetBrowserFolderView::SelectPathFilter(QTreeWidgetItem* pParent, cons
   if (pParent->data(0, ezQtAssetBrowserModel::UserRoles::RelativePath).toString() == sPath)
   {
     pParent->setSelected(true);
+    setCurrentIndex(indexFromItem(pParent));
     return true;
   }
 

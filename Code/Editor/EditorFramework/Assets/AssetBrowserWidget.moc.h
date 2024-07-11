@@ -97,6 +97,7 @@ private Q_SLOTS:
 
 private:
   virtual void keyPressEvent(QKeyEvent* e) override;
+  virtual void mousePressEvent(QMouseEvent* e) override;
 
 private:
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
