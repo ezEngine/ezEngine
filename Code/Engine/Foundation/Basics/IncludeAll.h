@@ -44,12 +44,19 @@
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Containers/StaticRingBuffer.h>
 
+#include <Foundation/IO/Archive/Archive.h>
+#include <Foundation/IO/Archive/DataDirTypeArchive.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/DeduplicationReadContext.h>
 #include <Foundation/IO/DeduplicationWriteContext.h>
 #include <Foundation/IO/DependencyFile.h>
 #include <Foundation/IO/DirectoryWatcher.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/JSONParser.h>
 #include <Foundation/IO/JSONReader.h>
 #include <Foundation/IO/JSONWriter.h>
@@ -62,16 +69,8 @@
 #include <Foundation/IO/SerializationContext.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/IO/StreamUtils.h>
+#include <Foundation/IO/StreamWithStats.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
-
-#include <Foundation/IO/Archive/Archive.h>
-#include <Foundation/IO/Archive/DataDirTypeArchive.h>
-
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/HTMLWriter.h>
