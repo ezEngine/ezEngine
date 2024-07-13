@@ -29,6 +29,7 @@
 /Imgui.dll
 /Lua.dll
 /ozz.dll
+/zlib.dll
 /zstd.dll
 /Duktape.dll
 /stb.dll

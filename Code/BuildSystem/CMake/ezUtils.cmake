@@ -316,6 +316,7 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
 		"${ROOT_DIR}/*.cmake"
 		"${ROOT_DIR}/*.natvis"
 		"${ROOT_DIR}/*.txt"
+		"${ROOT_DIR}/*.ezPluginBundle"
 		"${ROOT_DIR}/*.ddl"
 		"${ROOT_DIR}/*.ezPermVar"
 		"${ROOT_DIR}/*.ezShader"
