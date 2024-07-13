@@ -42,7 +42,7 @@ namespace ezJoltCollisionFiltering
 }; // namespace ezJoltCollisionFiltering
 
 
-class ezJoltObjectToBroadphaseLayer final : public JPH::BroadPhaseLayerInterface
+class EZ_JOLTPLUGIN_DLL ezJoltObjectToBroadphaseLayer final : public JPH::BroadPhaseLayerInterface
 {
 public:
   virtual ezUInt32 GetNumBroadPhaseLayers() const override;
@@ -54,7 +54,7 @@ public:
 #endif
 };
 
-class ezJoltBroadPhaseLayerFilter final : public JPH::BroadPhaseLayerFilter
+class EZ_JOLTPLUGIN_DLL ezJoltBroadPhaseLayerFilter final : public JPH::BroadPhaseLayerFilter
 {
 public:
   ezJoltBroadPhaseLayerFilter(ezBitflags<ezPhysicsShapeType> shapeTypes)
@@ -70,7 +70,7 @@ public:
   }
 };
 
-class ezJoltObjectLayerFilter final : public JPH::ObjectLayerFilter
+class EZ_JOLTPLUGIN_DLL ezJoltObjectLayerFilter final : public JPH::ObjectLayerFilter
 {
 public:
   ezUInt32 m_uiCollisionLayer = 0;
@@ -83,7 +83,7 @@ public:
   virtual bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
 };
 
-class ezJoltObjectVsBroadPhaseLayerFilter final : public JPH::ObjectVsBroadPhaseLayerFilter
+class EZ_JOLTPLUGIN_DLL ezJoltObjectVsBroadPhaseLayerFilter final : public JPH::ObjectVsBroadPhaseLayerFilter
 {
 public:
   ezJoltObjectVsBroadPhaseLayerFilter() = default;
@@ -91,7 +91,7 @@ public:
   virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const override;
 };
 
-class ezJoltObjectLayerPairFilter final : public JPH::ObjectLayerPairFilter
+class EZ_JOLTPLUGIN_DLL ezJoltObjectLayerPairFilter final : public JPH::ObjectLayerPairFilter
 {
 public:
   ezJoltObjectLayerPairFilter() = default;
@@ -99,7 +99,7 @@ public:
   virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::ObjectLayer inLayer2) const override;
 };
 
-class ezJoltBodyFilter final : public JPH::BodyFilter
+class EZ_JOLTPLUGIN_DLL ezJoltBodyFilter final : public JPH::BodyFilter
 {
 public:
   ezUInt32 m_uiObjectFilterIDToIgnore = ezInvalidIndex - 1;

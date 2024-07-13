@@ -30,6 +30,7 @@
 #include <Jolt/Core/JobSystem.h>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Core/QuickSort.h>
+#include <Jolt/Core/ScopeExit.h>
 #ifdef JPH_DEBUG_RENDERER
 	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
@@ -109,7 +110,7 @@ void PhysicsSystem::AddStepListener(PhysicsStepListener *inListener)
 {
 	lock_guard lock(mStepListenersMutex);
 
-	JPH_ASSERT(find(mStepListeners.begin(), mStepListeners.end(), inListener) == mStepListeners.end());
+	JPH_ASSERT(std::find(mStepListeners.begin(), mStepListeners.end(), inListener) == mStepListeners.end());
 	mStepListeners.push_back(inListener);
 }
 
@@ -117,7 +118,7 @@ void PhysicsSystem::RemoveStepListener(PhysicsStepListener *inListener)
 {
 	lock_guard lock(mStepListenersMutex);
 
-	StepListeners::iterator i = find(mStepListeners.begin(), mStepListeners.end(), inListener);
+	StepListeners::iterator i = std::find(mStepListeners.begin(), mStepListeners.end(), inListener);
 	JPH_ASSERT(i != mStepListeners.end());
 	*i = mStepListeners.back();
 	mStepListeners.pop_back();
@@ -387,10 +388,10 @@ EPhysicsUpdateError PhysicsSystem::Update(float inDeltaTime, int inCollisionStep
 				PhysicsUpdateContext::Step *next_step = &context.mSteps[step_idx + 1];
 				step.mStartNextStep = inJobSystem->CreateJob("StartNextStep", cColorStartNextStep, [this, next_step]()
 					{
-					#ifdef _DEBUG
+					#ifdef JPH_DEBUG
 						// Validate that the cached bounds are correct
 						mBodyManager.ValidateActiveBodyBounds();
-					#endif // _DEBUG
+					#endif // JPH_DEBUG
 
 						// Store the number of active bodies at the start of the step
 						next_step->mNumActiveBodiesAtStepStart = mBodyManager.GetNumActiveBodies(EBodyType::RigidBody);
@@ -568,10 +569,10 @@ EPhysicsUpdateError PhysicsSystem::Update(float inDeltaTime, int inCollisionStep
 	// We're done with the barrier for this update
 	inJobSystem->DestroyBarrier(barrier);
 
-#ifdef _DEBUG
+#ifdef JPH_DEBUG
 	// Validate that the cached bounds are correct
 	mBodyManager.ValidateActiveBodyBounds();
-#endif // _DEBUG
+#endif // JPH_DEBUG
 
 	// Clear the large island splitter
 	mLargeIslandSplitter.Reset(inTempAllocator);
@@ -998,10 +999,13 @@ void PhysicsSystem::ProcessBodyPair(ContactAllocator &ioContactAllocator, const 
 		if (body_pair_handle == nullptr)
 			return; // Out of cache space
 
+		// If we want enhanced active edge detection for this body pair
+		bool enhanced_active_edges = body1->GetEnhancedInternalEdgeRemovalWithBody(*body2);
+
 		// Create the query settings
 		CollideShapeSettings settings;
 		settings.mCollectFacesMode = ECollectFacesMode::CollectFaces;
-		settings.mActiveEdgeMode = mPhysicsSettings.mCheckActiveEdges? EActiveEdgeMode::CollideOnlyWithActive : EActiveEdgeMode::CollideWithAll;
+		settings.mActiveEdgeMode = mPhysicsSettings.mCheckActiveEdges && !enhanced_active_edges? EActiveEdgeMode::CollideOnlyWithActive : EActiveEdgeMode::CollideWithAll;
 		settings.mMaxSeparationDistance = body1->IsSensor() || body2->IsSensor()? 0.0f : mPhysicsSettings.mSpeculativeContactDistance;
 		settings.mActiveEdgeMovementDirection = body1->GetLinearVelocity() - body2->GetLinearVelocity();
 
@@ -1125,7 +1129,7 @@ void PhysicsSystem::ProcessBodyPair(ContactAllocator &ioContactAllocator, const 
 
 			// Perform collision detection between the two shapes
 			SubShapeIDCreator part1, part2;
-			auto f = body1->GetEnhancedInternalEdgeRemovalWithBody(*body2)? InternalEdgeRemovingCollector::sCollideShapeVsShape : CollisionDispatch::sCollideShapeVsShape;
+			auto f = enhanced_active_edges? InternalEdgeRemovingCollector::sCollideShapeVsShape : CollisionDispatch::sCollideShapeVsShape;
 			f(body1->GetShape(), body2->GetShape(), Vec3::sReplicate(1.0f), Vec3::sReplicate(1.0f), transform1, transform2, part1, part2, settings, collector, { });
 
 			// Add the contacts
@@ -1226,7 +1230,7 @@ void PhysicsSystem::ProcessBodyPair(ContactAllocator &ioContactAllocator, const 
 
 			// Perform collision detection between the two shapes
 			SubShapeIDCreator part1, part2;
-			auto f = body1->GetEnhancedInternalEdgeRemovalWithBody(*body2)? InternalEdgeRemovingCollector::sCollideShapeVsShape : CollisionDispatch::sCollideShapeVsShape;
+			auto f = enhanced_active_edges? InternalEdgeRemovingCollector::sCollideShapeVsShape : CollisionDispatch::sCollideShapeVsShape;
 			f(body1->GetShape(), body2->GetShape(), Vec3::sReplicate(1.0f), Vec3::sReplicate(1.0f), transform1, transform2, part1, part2, settings, collector, { });
 
 			constraint_created = collector.mConstraintCreated;
@@ -1951,6 +1955,7 @@ void PhysicsSystem::JobResolveCCDContacts(PhysicsUpdateContext *ioContext, Physi
 		// between body pairs if an earlier hit was found involving the body by another CCD body
 		// (if it's body ID < this CCD body's body ID - see filtering logic in CCDBroadPhaseCollector)
 		CCDBody **sorted_ccd_bodies = (CCDBody **)temp_allocator->Allocate(num_ccd_bodies * sizeof(CCDBody *));
+		JPH_SCOPE_EXIT([temp_allocator, sorted_ccd_bodies, num_ccd_bodies]{ temp_allocator->Free(sorted_ccd_bodies, num_ccd_bodies * sizeof(CCDBody *)); });
 		{
 			JPH_PROFILE("Sort");
 
@@ -2191,9 +2196,6 @@ void PhysicsSystem::JobResolveCCDContacts(PhysicsUpdateContext *ioContext, Physi
 		// Notify change bounds on requested bodies
 		if (num_bodies_to_update_bounds > 0)
 			mBroadPhase->NotifyBodiesAABBChanged(bodies_to_update_bounds, num_bodies_to_update_bounds, false);
-
-		// Free the sorted ccd bodies
-		temp_allocator->Free(sorted_ccd_bodies, num_ccd_bodies * sizeof(CCDBody *));
 	}
 
 	// Ensure we free the CCD bodies array now, will not call the destructor!
