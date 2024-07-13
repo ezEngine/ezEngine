@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/World/ComponentManager.h>
+#include <GameComponentsPlugin/GameComponentsDLL.h>
 
 using ezCameraShakeComponentManager = ezComponentManagerSimple<class ezCameraShakeComponent, ezComponentUpdateType::WhenSimulating>;
 
@@ -34,7 +35,7 @@ public:
   ezAngle m_MinShake; // [ property ]
 
   /// \brief How much shake to apply at shake strength 1.
-  ezAngle m_MaxShake; // [ property ]
+  ezAngle m_MaxShake = ezAngle::MakeFromDegree(5); // [ property ]
 
 public:
   ezCameraShakeComponent();

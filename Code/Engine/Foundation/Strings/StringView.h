@@ -204,7 +204,7 @@ public:
   void ChopAwayFirstCharacterAscii(); // [tested]
 
   /// \brief Removes all characters from the start and end that appear in the given strings by adjusting the begin and end of the view.
-  void Trim(const char* szTrimChars); // [tested]
+  void Trim(const char* szTrimChars = " \f\n\r\t\v"); // [tested]
 
   /// \brief Removes all characters from the start and/or end that appear in the given strings by adjusting the begin and end of the view.
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]

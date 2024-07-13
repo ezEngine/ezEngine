@@ -40,6 +40,9 @@ public:
   /// It is possible to make an invalid rect valid using ExpandToInclude().
   [[nodiscard]] static ezRectTemplate<Type> MakeInvalid();
 
+  /// \brief Creates a rect that is located at the origin and has zero size. This is a 'valid' rect.
+  [[nodiscard]] static ezRectTemplate<Type> MakeZero();
+
   /// \brief Creates a rect that is the intersection of the two provided rects.
   ///
   /// If the two rects don't overlap, the result will be a valid rect, but have zero area.

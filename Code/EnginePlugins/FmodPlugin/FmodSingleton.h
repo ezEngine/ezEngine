@@ -119,7 +119,7 @@ public:
 
   /// \brief Returns the current value of the given global parameter.
   ///
-  /// This may be different from what was set via SetGlobalParameter(), since FMOD may modify the value when playing events. 
+  /// This may be different from what was set via SetGlobalParameter(), since FMOD may modify the value when playing events.
   float GetGlobalParameter(const char* szName);
 
 

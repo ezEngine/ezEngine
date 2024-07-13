@@ -868,6 +868,47 @@ namespace ezConversionUtils
   if (sColorName.IsEqual_NoCase(EZ_PP_STRINGIFY(name))) \
   return ezColor::name
 
+  ezResult ConvertHexStringToColor(ezStringView sText, ezColorGammaUB& color)
+  {
+    color = ezColorGammaUB(0, 0, 0);
+
+    auto twoCharsToByte = [](ezStringView& text, ezUInt8& out_uiByte) -> ezResult
+    {
+      if (text.IsEmpty())
+        return EZ_SUCCESS;
+
+      ezInt8 firstChar = 0;
+      ezInt8 secondChar = 0;
+
+      firstChar = HexCharacterToIntValue(text.GetCharacter());
+      text.ChopAwayFirstCharacterUtf8();
+
+      if (!text.IsEmpty())
+      {
+        secondChar = HexCharacterToIntValue(text.GetCharacter());
+        text.ChopAwayFirstCharacterUtf8();
+      }
+
+      if (firstChar < 0 || secondChar < 0)
+      {
+        return EZ_FAILURE;
+      }
+
+      out_uiByte = (static_cast<ezUInt8>(firstChar) << 4) | static_cast<ezUInt8>(secondChar);
+      return EZ_SUCCESS;
+    };
+
+    sText.Trim();             // remove whitespace around the text
+    sText.TrimWordStart("#"); // remove optional hash at the beginning
+
+    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, color.r));
+    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, color.g));
+    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, color.b));
+    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, color.a));
+
+    return EZ_SUCCESS;
+  }
+
   ezColor GetColorByName(ezStringView sColorName, bool* out_pValidColorName)
   {
     if (out_pValidColorName)
@@ -876,46 +917,11 @@ namespace ezConversionUtils
     if (sColorName.IsEmpty())
       return ezColor::Black; // considered not to be a valid color name
 
-    const ezUInt32 uiLen = sColorName.GetElementCount();
-
-    auto twoCharsToByte = [](const char* szColorChars, ezUInt8& out_uiByte) -> ezResult
-    {
-      ezInt8 firstChar = HexCharacterToIntValue(szColorChars[0]);
-      ezInt8 secondChar = HexCharacterToIntValue(szColorChars[1]);
-      if (firstChar < 0 || secondChar < 0)
-      {
-        return EZ_FAILURE;
-      }
-      out_uiByte = (static_cast<ezUInt8>(firstChar) << 4) | static_cast<ezUInt8>(secondChar);
-      return EZ_SUCCESS;
-    };
-
     if (sColorName.StartsWith("#"))
     {
-      if (uiLen == 7 || uiLen == 9) // #RRGGBB or #RRGGBBAA
-      {
-        ezUInt8 cv[4] = {0, 0, 0, 255};
-
-        const char* szColorName = sColorName.GetStartPointer();
-
-        if (twoCharsToByte(szColorName + 1, cv[0]).Failed())
-          return ezColor::Black;
-        if (twoCharsToByte(szColorName + 3, cv[1]).Failed())
-          return ezColor::Black;
-        if (twoCharsToByte(szColorName + 5, cv[2]).Failed())
-          return ezColor::Black;
-
-        if (uiLen == 9)
-        {
-          if (twoCharsToByte(szColorName + 7, cv[3]).Failed())
-            return ezColor::Black;
-        }
-
-        if (out_pValidColorName)
-          *out_pValidColorName = true;
-
-        return ezColorGammaUB(cv[0], cv[1], cv[2], cv[3]);
-      }
+      ezColorGammaUB res;
+      if (ConvertHexStringToColor(sColorName, res).Succeeded())
+        return res;
 
       // else RebeccaPurple !
     }

@@ -19,6 +19,8 @@ struct ezHashTableBaseConstIterator
 
   EZ_DECLARE_POD_TYPE();
 
+  ezHashTableBaseConstIterator() = default;
+
   /// \brief Checks whether this iterator points to a valid element.
   bool IsValid() const; // [tested]
 

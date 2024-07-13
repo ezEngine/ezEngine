@@ -174,7 +174,7 @@ void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
   const AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
 
   ezUInt32 uiLiveAllocations = data.m_Allocations.GetCount();
-  if (uiLiveAllocations != 0)
+  if (uiLiveAllocations != 0 && data.m_TrackingMode > ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks)
   {
     for (auto it = data.m_Allocations.GetIterator(); it.IsValid(); ++it)
     {
