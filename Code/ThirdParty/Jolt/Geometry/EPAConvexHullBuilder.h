@@ -152,7 +152,7 @@ public:
 		{
 			// Destruct triangle
 			inT->~Triangle();
-#ifdef _DEBUG
+#ifdef JPH_DEBUG
 			memset(inT, 0xcd, sizeof(Triangle));
 #endif
 
@@ -692,9 +692,9 @@ public:
 #endif
 
 private:
-	TriangleFactory 	mFactory;							///< Factory to create new triangles and remove old ones
+	TriangleFactory		mFactory;							///< Factory to create new triangles and remove old ones
 	const Points &		mPositions;							///< List of positions (some of them are part of the hull)
-	TriangleQueue 		mTriangleQueue;						///< List of triangles that are part of the hull that still need to be checked (if !mRemoved)
+	TriangleQueue		mTriangleQueue;						///< List of triangles that are part of the hull that still need to be checked (if !mRemoved)
 
 #if defined(JPH_EPA_CONVEX_BUILDER_VALIDATE) || defined(JPH_EPA_CONVEX_BUILDER_DRAW)
 	Triangles			mTriangles;							///< The list of all triangles in this hull (for debug purposes)

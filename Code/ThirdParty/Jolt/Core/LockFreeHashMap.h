@@ -145,7 +145,7 @@ public:
 		bool				operator != (const Iterator &inRHS) const	{ return !(*this == inRHS); }
 
 		/// Convert to key value pair
-		KeyValue & 			operator * ();
+		KeyValue &			operator * ();
 
 		/// Next item
 		Iterator &			operator ++ ();
@@ -160,7 +160,7 @@ public:
 	Iterator				begin();
 	Iterator				end();
 
-#ifdef _DEBUG
+#ifdef JPH_DEBUG
 	/// Output stats about this map to the log
 	void					TraceStats() const;
 #endif
