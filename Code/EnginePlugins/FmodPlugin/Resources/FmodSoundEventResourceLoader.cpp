@@ -16,7 +16,7 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
 
   if (ezFmod::GetSingleton()->GetStudioSystem() == nullptr)
   {
-    ezLog::Warning("Fmod not initialized, ignoring sound event.");
+    ezLog::Warning("FMOD not initialized, ignoring sound event.");
     return res;
   }
 
@@ -27,7 +27,7 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
 
   if (szSeperator == nullptr)
   {
-    ezLog::Error("Fmod event resource ID is invalid or could not be resolved: '{0}'", sResID);
+    ezLog::Error("FMOD event resource ID is invalid or could not be resolved: '{0}'", sResID);
     return res;
   }
 
@@ -37,7 +37,7 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
 
   pData->m_hSoundBank = ezResourceManager::LoadResource<ezFmodSoundBankResource>(sBankPath);
 
-  // make sure the sound bank is fully loaded before trying to get the event descriptor (even though we go through the Fmod 'system' the
+  // make sure the sound bank is fully loaded before trying to get the event descriptor (even though we go through the FMOD 'system' the
   // bank resource must be loaded first)
   {
     ezResourceLock<ezFmodSoundBankResource> pBank(pData->m_hSoundBank, ezResourceAcquireMode::BlockTillLoaded);
@@ -49,7 +49,7 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
 
       if (ezFmod::GetSingleton()->GetStudioSystem()->getEventByID(fmodGuid, &pData->m_pEventDescription) != FMOD_OK)
       {
-        ezLog::Error("Fmod event could not be found. GUID: '{0}'", sSubPath);
+        ezLog::Error("FMOD event could not be found. GUID: '{0}'", sSubPath);
         return res;
       }
     }
@@ -57,7 +57,7 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
     {
       if (ezFmod::GetSingleton()->GetStudioSystem()->getEvent(sSubPath.GetData(), &pData->m_pEventDescription) != FMOD_OK)
       {
-        ezLog::Error("Fmod event could not be found. Path: '{0}'", sSubPath);
+        ezLog::Error("FMOD event could not be found. Path: '{0}'", sSubPath);
         return res;
       }
     }
@@ -66,7 +66,7 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
   // make sure to load the sample data (on this thread)
   if (pData->m_pEventDescription->loadSampleData() != FMOD_OK)
   {
-    ezLog::Error("Fmod event sample data could not be loaded. Event: '{0}'", sSubPath);
+    ezLog::Error("FMOD event sample data could not be loaded. Event: '{0}'", sSubPath);
     return res;
   }
 

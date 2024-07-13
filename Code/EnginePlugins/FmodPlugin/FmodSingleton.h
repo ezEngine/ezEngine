@@ -22,11 +22,11 @@ enum class ezFmodSpeakerMode : ezUInt8
   Mode7Point1,
 };
 
-/// \brief The Fmod configuration to be used on a specific platform
+/// \brief The FMOD configuration to be used on a specific platform
 struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
 {
   ezString m_sMasterSoundBank;
-  ezFmodSpeakerMode m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1; ///< This must be set to what is configured in Fmod Studio for the
+  ezFmodSpeakerMode m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1; ///< This must be set to what is configured in FMOD Studio for the
                                                                     ///< target platform. Using anything else is incorrect.
   ezUInt16 m_uiVirtualChannels = 32;                                ///< See FMOD::Studio::System::initialize
   ezUInt32 m_uiSamplerRate = 0;                                     ///< See FMOD::System::setSoftwareFormat
@@ -38,7 +38,7 @@ struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
   bool operator!=(const ezFmodConfiguration& rhs) const { return !operator==(rhs); }
 };
 
-/// \brief All available Fmod platform configurations
+/// \brief All available FMOD platform configurations
 struct EZ_FMODPLUGIN_DLL ezFmodAssetProfiles
 {
   static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/FmodConfig.ddl"_ezsv;
@@ -62,11 +62,11 @@ public:
   FMOD::Studio::System* GetStudioSystem() const { return m_pStudioSystem; }
   FMOD::System* GetLowLevelSystem() const { return m_pLowLevelSystem; }
 
-  /// \brief Can be called before startup to load the Fmod configs from a different file.
-  /// Otherwise will automatically be loaded by Fmod startup with the default path.
+  /// \brief Can be called before startup to load the FMOD configs from a different file.
+  /// Otherwise will automatically be loaded by FMOD startup with the default path.
   virtual void LoadConfiguration(ezStringView sFile) override;
 
-  /// \brief By default the Fmod integration will auto-detect the platform (and thus the config) to use.
+  /// \brief By default the FMOD integration will auto-detect the platform (and thus the config) to use.
   /// Calling this before startup allows to override which configuration is used.
   virtual void SetOverridePlatform(ezStringView sPlatform) override;
 
@@ -89,7 +89,7 @@ public:
   /// \brief Specifies the volume for a VCA ('Voltage Control Amplifier').
   ///
   /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance or 'Speech'.
-  /// Note that the Fmod strings banks are never loaded, so the given string must be a GUID (Fmod Studio -> Copy GUID).
+  /// Note that the FMOD strings banks are never loaded, so the given string must be a GUID (FMOD Studio -> Copy GUID).
   virtual void SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume) override;
   virtual float GetSoundGroupVolume(ezStringView sVcaGroupGuid) const override;
   void UpdateSoundGroupVolumes();
@@ -110,6 +110,17 @@ public:
 
   /// \brief See SetNumBlendedReverbVolumes()
   ezUInt8 GetNumBlendedReverbVolumes() const { return m_uiNumBlendedVolumes; }
+
+  /// \brief Sets the global parameter with the given name to a the desired value.
+  ///
+  /// Global parameters affect any sound event that uses them, no matter on which instance they play.
+  /// They are convenient to use for general things like passing the game state to the sound system.
+  void SetGlobalParameter(const char* szName, float fValue);
+
+  /// \brief Returns the current value of the given global parameter.
+  ///
+  /// This may be different from what was set via SetGlobalParameter(), since FMOD may modify the value when playing events. 
+  float GetGlobalParameter(const char* szName);
 
 
   virtual void SetListenerOverrideMode(bool bEnabled) override;

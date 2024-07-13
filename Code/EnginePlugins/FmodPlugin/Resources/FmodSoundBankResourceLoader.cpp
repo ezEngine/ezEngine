@@ -39,7 +39,7 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
     }
     else
     {
-      // otherwise we assume it is directly an Fmod sound bank file
+      // otherwise we assume it is directly an FMOD sound bank file
       uiSoundBankSize = (ezUInt32)SoundBankAssetFile.GetFileSize();
     }
 
@@ -51,20 +51,20 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
 
       SoundBankAssetFile.ReadBytes(pAlignedData, uiSoundBankSize);
 
-      // The Fmod documentation says it is fully thread-safe, so I assume we can call loadBankMemory at any time
+      // The FMOD documentation says it is fully thread-safe, so I assume we can call loadBankMemory at any time
       auto pStudio = ezFmod::GetSingleton()->GetStudioSystem();
 
-      // this happens when Fmod is not properly configured
+      // this happens when FMOD is not properly configured
       if (pStudio == nullptr)
         return res;
 
       auto fmodRes = pStudio->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
 
-      // if this fails with res == FMOD_ERR_NOTREADY, that might be because two processes using Fmod are running and both have the
-      // FMOD_STUDIO_INIT_LIVEUPDATE flag set somehow Fmod cannot handle this and bank loading then fails
+      // if this fails with res == FMOD_ERR_NOTREADY, that might be because two processes using FMOD are running and both have the
+      // FMOD_STUDIO_INIT_LIVEUPDATE flag set somehow FMOD cannot handle this and bank loading then fails
       if (fmodRes != FMOD_OK)
       {
-        ezLog::Error("Error '{1}' loading Fmod sound bank '{0}'", SoundBankAssetFile.GetFilePathRelative().GetData(), (ezInt32)fmodRes);
+        ezLog::Error("Error '{1}' loading FMOD sound bank '{0}'", SoundBankAssetFile.GetFilePathRelative().GetData(), (ezInt32)fmodRes);
 
         EZ_DEFAULT_DELETE(pData->m_pSoundbankData);
         EZ_DEFAULT_DELETE(pData);
