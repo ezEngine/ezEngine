@@ -33,7 +33,7 @@ public:
   /// \brief Specifies the volume for a VCA ('Voltage Control Amplifier').
   ///
   /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance' or 'Speech'.
-  /// Note that the Fmod strings banks are never loaded, so the given string must be a GUID (Fmod Studio -> Copy GUID).
+  /// Note that the FMOD strings banks are never loaded, so the given string must be a GUID (FMOD Studio -> Copy GUID).
   virtual void SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume) = 0;
   virtual float GetSoundGroupVolume(ezStringView sVcaGroupGuid) const = 0;
 

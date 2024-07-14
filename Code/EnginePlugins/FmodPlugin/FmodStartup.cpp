@@ -16,7 +16,7 @@ static ezFmodSoundBankResourceLoader s_SoundBankResourceLoader;
 static ezFmodSoundEventResourceLoader s_SoundEventResourceLoader;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(FMOD, FmodPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",

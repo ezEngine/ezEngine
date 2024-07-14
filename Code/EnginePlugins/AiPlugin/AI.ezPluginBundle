@@ -8,7 +8,7 @@ PluginInfo
 	string %EditorPlugins{"ezEditorPluginAi"}
 	string %EditorEnginePlugins{}
 	string %RuntimePlugins{"ezAiPlugin"}
-	string %PackageDependencies{}
+	string %PackageDependencies{"Recast.dll"}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{}
 	string %EnabledInTemplates{"General3D"}

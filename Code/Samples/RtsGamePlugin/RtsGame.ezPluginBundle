@@ -9,7 +9,7 @@ PluginInfo
 	string %EditorEnginePlugins{}
 	string %RuntimePlugins{"ezRtsGamePlugin"}
 	string %PackageDependencies{}
-	string %RequiredPlugins{"Particles", "Fmod", "RmlUi"}
+	string %RequiredPlugins{"Particles", "FMOD", "RmlUi"}
 	string %ExclusiveFeatures{"Sample"}
 	string %EnabledInTemplates{}
 }

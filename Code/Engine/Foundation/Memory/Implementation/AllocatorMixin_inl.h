@@ -70,7 +70,12 @@ void* ezInternal::ezAllocatorImpl<A, TrackingMode>::Allocate(size_t uiSize, size
 
   EZ_ASSERT_DEBUG(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
-  ezTime fAllocationTime = ezTime::Now();
+  [[maybe_unused]] ezTime fAllocationTime;
+
+  if constexpr (TrackingMode >= ezAllocatorTrackingMode::AllocationStats)
+  {
+    fAllocationTime = ezTime::Now();
+  }
 
   void* ptr = m_allocator.Allocate(uiSize, uiAlign);
   EZ_ASSERT_DEV(ptr != nullptr, "Could not allocate {0} bytes. Out of memory?", uiSize);
@@ -147,12 +152,13 @@ ezInternal::ezAllocatorMixinReallocate<A, TrackingMode, true>::ezAllocatorMixinR
 template <typename A, ezAllocatorTrackingMode TrackingMode>
 void* ezInternal::ezAllocatorMixinReallocate<A, TrackingMode, true>::Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
 {
+  [[maybe_unused]] ezTime fAllocationTime;
+
   if constexpr (TrackingMode >= ezAllocatorTrackingMode::AllocationStats)
   {
     ezMemoryTracker::RemoveAllocation(this->m_Id, pPtr);
+    fAllocationTime = ezTime::Now();
   }
-
-  ezTime fAllocationTime = ezTime::Now();
 
   void* pNewMem = this->m_allocator.Reallocate(pPtr, uiCurrentSize, uiNewSize, uiAlign);
 

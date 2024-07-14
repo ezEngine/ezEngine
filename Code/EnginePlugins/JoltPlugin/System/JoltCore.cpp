@@ -39,8 +39,6 @@ std::unique_ptr<JPH::JobSystem> ezJoltCore::s_pJobSystem;
 ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocator;
 ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocatorAligned;
 
-ezHashTable<void*, size_t, ezHashHelper<void*>, ezStaticsAllocatorWrapper> ezJoltCore::s_AllocSizes;
-
 ezJoltMaterial::ezJoltMaterial() = default;
 ezJoltMaterial::~ezJoltMaterial() = default;
 
@@ -79,36 +77,25 @@ void ezJoltCore::DebugDraw(ezWorld* pWorld)
 #endif
 }
 
-ezMutex s_AllocSizeMutex;
-
 void* ezJoltCore::JoltMalloc(size_t inSize)
 {
-  void* ptr = ezJoltCore::s_pAllocator->Allocate(inSize, 8);
-
-  EZ_LOCK(s_AllocSizeMutex);
-  s_AllocSizes[ptr] = inSize;
-  return ptr;
+  return ezJoltCore::s_pAllocator->Allocate(inSize, 8);
 }
 
 void ezJoltCore::JoltFree(void* inBlock)
 {
-  EZ_ASSERT_DEBUG(inBlock != nullptr, "");
   ezJoltCore::s_pAllocator->Deallocate(inBlock);
 }
 
-void* ezJoltCore::JoltReallocate(void* inBlock, size_t inSize)
+void* ezJoltCore::JoltReallocate(void* inBlock, size_t inOldSize, size_t inNewSize)
 {
   if (inBlock == nullptr)
   {
-    return JoltMalloc(inSize);
+    return JoltMalloc(inNewSize);
   }
   else
   {
-    void* ptr = ezJoltCore::s_pAllocator->Reallocate(inBlock, s_AllocSizes[inBlock], inSize, 8);
-
-    EZ_LOCK(s_AllocSizeMutex);
-    s_AllocSizes[ptr] = inSize;
-    return ptr;
+    return ezJoltCore::s_pAllocator->Reallocate(inBlock, inOldSize, inNewSize, 8);
   }
 }
 

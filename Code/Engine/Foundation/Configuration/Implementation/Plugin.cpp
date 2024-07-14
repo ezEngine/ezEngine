@@ -212,6 +212,8 @@ static ezResult UnloadPluginInternal(ezStringView sPluginFile)
   return EZ_SUCCESS;
 }
 
+#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+
 static ezResult LoadPluginInternal(ezStringView sPluginFile, ezBitflags<ezPluginLoadFlags> flags)
 {
   ezUInt8 uiFileNumber = 0;
@@ -300,6 +302,8 @@ success:
   return EZ_SUCCESS;
 }
 
+#endif
+
 bool ezPlugin::ExistsPluginFile(ezStringView sPluginFile)
 {
   ezStringBuilder sOriginalFile, sCopiedFile;
@@ -324,7 +328,7 @@ ezResult ezPlugin::LoadPlugin(ezStringView sPluginFile, ezBitflags<ezPluginLoadF
 #if EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
   // #TODO EZ_COMPILE_ENGINE_AS_DLL and being able to load plugins are not necessarily the same thing.
   return EZ_FAILURE;
-#endif
+#else
 
   if (flags.IsSet(ezPluginLoadFlags::PluginIsOptional))
   {
@@ -351,6 +355,7 @@ ezResult ezPlugin::LoadPlugin(ezStringView sPluginFile, ezBitflags<ezPluginLoadF
   }
 
   return res;
+#endif
 }
 
 void ezPlugin::UnloadAllPlugins()

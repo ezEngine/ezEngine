@@ -70,7 +70,7 @@ struct EZ_FMODPLUGIN_DLL ezMsgFmodSoundFinished : public ezEventMessage
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Represents a sound (called an 'event') in the Fmod sound system.
+/// \brief Represents a sound (called an 'event') in the FMOD sound system.
 ///
 /// Provides functions to start, pause, stop a sound, set parameters, change volume, pitch etc.
 class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
@@ -133,6 +133,13 @@ public:
   void SetShowDebugInfo(bool bShow);                      // [ property ]
   bool GetShowDebugInfo() const;                          // [ property ]
 
+  /// \brief If set, the global game speed does not affect the pitch of this event.
+  ///
+  /// This is important for global sounds, such as music or UI effects, so that they always play at their regular speed,
+  /// even when the game is in slow motion.
+  void SetNoGlobalPitch(bool bEnable); // [ property ]
+  bool GetNoGlobalPitch() const;       // [ property ]
+
   /// \brief Will start the sound, if it was not playing. Will restart the sound, if it was already playing.
   /// If the sound was paused so far, this will change the paused state to playing.
   void Restart(); // [ scriptable ]
@@ -141,23 +148,23 @@ public:
   ///
   /// Pitch, volume, position, direction and velocity are copied to the new sound instance.
   /// The new sound event then plays to the end and cannot be controlled through this component any further.
-  /// If the referenced Fmod sound event is not a "one shot" event, this function is ignored.
+  /// If the referenced FMOD sound event is not a "one shot" event, this function is ignored.
   /// The event that is controlled through this component is unaffected by this.
   void StartOneShot(); // [ scriptable ]
 
   /// Stops the current sound from playing. Typically allows the sound to fade out briefly, unless specified otherwise.
   void StopSound(bool bImmediate); // [ scriptable ]
 
-  /// \brief Triggers an Fmod sound cue. Whatever that is useful for.
+  /// \brief Triggers an FMOD sound cue. Whatever that is useful for.
   void SoundCue(); // [ scriptable ]
 
-  /// \brief Tries to find the Fmod event parameter by name. Returns the parameter id or -1, if no such parameter exists.
+  /// \brief Tries to find the FMOD event parameter by name. Returns the parameter id or -1, if no such parameter exists.
   ezFmodParameterId FindParameter(const char* szName) const;
 
-  /// \brief Sets an Fmod event parameter value. See FindParameter() for the index.
+  /// \brief Sets an FMOD event parameter value. See FindParameter() for the index.
   void SetParameter(ezFmodParameterId paramId, float fValue);
 
-  /// \brief Gets an Fmod event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
+  /// \brief Gets an FMOD event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
   float GetParameter(ezFmodParameterId paramId) const;
 
   /// \brief Sets an event parameter via name lookup, so this is less efficient than SetParameter()

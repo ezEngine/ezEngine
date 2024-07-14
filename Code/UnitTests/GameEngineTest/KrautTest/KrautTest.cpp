@@ -54,7 +54,9 @@ ezTestAppRun ezGameEngineTestKraut::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiI
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, 200);
+    // wind simulation is done during rendering, which seems to introduce very slight differences due to threading
+    // which, over many frames, can result in slightly different results
+    EZ_TEST_IMAGE(m_uiImgCompIdx, 1300);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())

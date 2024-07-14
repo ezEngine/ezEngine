@@ -38,7 +38,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezCVarInt cvar_FmodOcclusionNumRays("Fmod.Occlusion.NumRays", 2, ezCVarFlags::Default, "Number of occlusion rays per component per frame");
+ezCVarInt cvar_FmodOcclusionNumRays("FMOD.Occlusion.NumRays", 2, ezCVarFlags::Default, "Number of occlusion rays per component per frame");
 
 static ezVec3 s_InSpherePositions[32];
 static bool s_bInSpherePositionsInitialized = false;
@@ -221,6 +221,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
     EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
+    EZ_ACCESSOR_PROPERTY("NoGlobalPitch", GetNoGlobalPitch, SetNoGlobalPitch),
     EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Fmod_Event", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("UseOcclusion", GetUseOcclusion, SetUseOcclusion),
     EZ_ACCESSOR_PROPERTY("OcclusionThreshold", GetOcclusionThreshold, SetOcclusionThreshold)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
@@ -256,7 +257,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 enum
 {
-  ShowDebugInfoFlag = 0
+  ShowDebugInfoFlag = 0,
+  NoGlobalPitch = 1,
 };
 
 ezFmodEventComponent::ezFmodEventComponent()
@@ -393,8 +395,14 @@ void ezFmodEventComponent::SetPitch(float f)
 
   if (m_pEventInstance != nullptr)
   {
-    /// \todo Global pitch might better be a bus setting
-    EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+    if (GetNoGlobalPitch())
+    {
+      EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch));
+    }
+    else
+    {
+      EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+    }
   }
 }
 
@@ -453,6 +461,16 @@ void ezFmodEventComponent::SetShowDebugInfo(bool bShow)
 bool ezFmodEventComponent::GetShowDebugInfo() const
 {
   return GetUserFlag(ShowDebugInfoFlag);
+}
+
+void ezFmodEventComponent::SetNoGlobalPitch(bool bEnable)
+{
+  SetUserFlag(NoGlobalPitch, bEnable);
+}
+
+bool ezFmodEventComponent::GetNoGlobalPitch() const
+{
+  return GetUserFlag(NoGlobalPitch);
 }
 
 void ezFmodEventComponent::OnSimulationStarted()
@@ -625,8 +643,9 @@ float ezFmodEventComponent::GetParameter(ezFmodParameterId paramId) const
     return 0.0f;
 
   float value = 0;
-  m_pEventInstance->getParameterByID(ConvertEzToFmodId(paramId), &value, nullptr);
-  return value;
+  float fFinalValue = 0.0f;
+  m_pEventInstance->getParameterByID(ConvertEzToFmodId(paramId), &value, &fFinalValue);
+  return fFinalValue;
 }
 
 void ezFmodEventComponent::SetEventParameter(const char* szParamName, float fValue)
@@ -770,8 +789,16 @@ void ezFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstan
   attr.velocity.y = vel.y;
   attr.velocity.z = vel.z;
 
-  // have to update pitch every time, in case the clock speed changes
-  EZ_FMOD_ASSERT(pInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+  if (GetNoGlobalPitch())
+  {
+    EZ_FMOD_ASSERT(pInstance->setPitch(m_fPitch));
+  }
+  else
+  {
+    // have to update pitch every time, in case the clock speed changes
+    EZ_FMOD_ASSERT(pInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+  }
+
   EZ_FMOD_ASSERT(pInstance->setVolume(m_fVolume));
   EZ_FMOD_ASSERT(pInstance->set3DAttributes(&attr));
 }
@@ -783,7 +810,7 @@ void ezFmodEventComponent::UpdateOcclusion()
     ezFmodParameterId occlusionParamId = FindParameter("Occlusion");
     if (occlusionParamId.IsInvalidated())
     {
-      ezLog::Warning("'Occlusion' Fmod Event Parameter could not be found.");
+      ezLog::Warning("'Occlusion' FMOD Event Parameter could not be found.");
       m_bUseOcclusion = false;
       return;
     }
@@ -837,7 +864,7 @@ void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
     // pointer is no longer valid!
     m_pEventInstance = nullptr;
 
-    // ezLog::Debug("Fmod instance pointer has been invalidated.");
+    // ezLog::Debug("FMOD instance pointer has been invalidated.");
   }
 }
 

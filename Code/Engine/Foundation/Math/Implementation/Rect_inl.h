@@ -47,6 +47,12 @@ ezRectTemplate<Type> ezRectTemplate<Type>::MakeInvalid()
 }
 
 template <typename Type>
+ezRectTemplate<Type> ezRectTemplate<Type>::MakeZero()
+{
+  return ezRectTemplate<Type>(0, 0, 0, 0);
+}
+
+template <typename Type>
 ezRectTemplate<Type> ezRectTemplate<Type>::MakeIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1)
 {
   /// \test This is new
