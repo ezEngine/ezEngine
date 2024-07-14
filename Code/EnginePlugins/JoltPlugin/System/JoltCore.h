@@ -37,7 +37,7 @@ private:
 
   static void* JoltMalloc(size_t inSize);
   static void JoltFree(void* inBlock);
-  static void* JoltReallocate(void* inBlock, size_t inSize);
+  static void* JoltReallocate(void* inBlock, size_t inOldSize, size_t inNewSize);
   static void* JoltAlignedMalloc(size_t inSize, size_t inAlignment);
   static void JoltAlignedFree(void* inBlock);
 
@@ -46,5 +46,4 @@ private:
 
   static ezUniquePtr<ezProxyAllocator> s_pAllocator;
   static ezUniquePtr<ezProxyAllocator> s_pAllocatorAligned;
-  static ezHashTable<void*, size_t, ezHashHelper<void*>, ezStaticsAllocatorWrapper> s_AllocSizes;
 };

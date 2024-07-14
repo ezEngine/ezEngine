@@ -39,11 +39,8 @@ protected:
   bool m_bInitializedModuleSupport = false;
 
 private:
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  // Careful! We always need AllocationStats, because DukRealloc calls AllocatedSize, which only works with these stats.
   ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::AllocationStats> m_Allocator;
-#  else
-  ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing> m_Allocator;
-#  endif
 };
 
 #endif // BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
