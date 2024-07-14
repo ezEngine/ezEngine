@@ -8,8 +8,8 @@ class EZ_FOUNDATION_DLL ezStreamReaderWithStats : public ezStreamReader
 {
 public:
   ezStreamReaderWithStats() = default;
-  ezStreamReaderWithStats(ezStreamReader* stream)
-    : m_pStream(stream)
+  ezStreamReaderWithStats(ezStreamReader* pStream)
+    : m_pStream(pStream)
   {
   }
 
@@ -43,8 +43,8 @@ class EZ_FOUNDATION_DLL ezStreamWriterWithStats : public ezStreamWriter
 {
 public:
   ezStreamWriterWithStats() = default;
-  ezStreamWriterWithStats(ezStreamWriter* stream)
-    : m_pStream(stream)
+  ezStreamWriterWithStats(ezStreamWriter* pStream)
+    : m_pStream(pStream)
   {
   }
 

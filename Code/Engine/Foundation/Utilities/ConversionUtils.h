@@ -283,7 +283,7 @@ namespace ezConversionUtils
   /// The # at the start is optional.
   /// If fewer characters are given, e.g. only "RRGGBB" or "RRGG" or even just "R" or "RRG", the remaining values are default initialized
   /// with black (alpha = FF).
-  EZ_FOUNDATION_DLL ezResult ConvertHexStringToColor(ezStringView sText, ezColorGammaUB& color);
+  EZ_FOUNDATION_DLL ezResult ConvertHexStringToColor(ezStringView sText, ezColorGammaUB& ref_color);
 
   /// \brief Returns the color with the given name.
   ///

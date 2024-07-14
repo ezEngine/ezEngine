@@ -868,9 +868,9 @@ namespace ezConversionUtils
   if (sColorName.IsEqual_NoCase(EZ_PP_STRINGIFY(name))) \
   return ezColor::name
 
-  ezResult ConvertHexStringToColor(ezStringView sText, ezColorGammaUB& color)
+  ezResult ConvertHexStringToColor(ezStringView sText, ezColorGammaUB& ref_color)
   {
-    color = ezColorGammaUB(0, 0, 0);
+    ref_color = ezColorGammaUB(0, 0, 0);
 
     auto twoCharsToByte = [](ezStringView& text, ezUInt8& out_uiByte) -> ezResult
     {
@@ -901,10 +901,10 @@ namespace ezConversionUtils
     sText.Trim();             // remove whitespace around the text
     sText.TrimWordStart("#"); // remove optional hash at the beginning
 
-    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, color.r));
-    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, color.g));
-    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, color.b));
-    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, color.a));
+    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.r));
+    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.g));
+    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.b));
+    EZ_SUCCEED_OR_RETURN(twoCharsToByte(sText, ref_color.a));
 
     return EZ_SUCCESS;
   }
