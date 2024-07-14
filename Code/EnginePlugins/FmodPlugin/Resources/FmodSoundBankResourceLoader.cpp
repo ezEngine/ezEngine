@@ -64,7 +64,12 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
       // FMOD_STUDIO_INIT_LIVEUPDATE flag set somehow FMOD cannot handle this and bank loading then fails
       if (fmodRes != FMOD_OK)
       {
-        ezLog::Error("Error '{1}' loading FMOD sound bank '{0}'", SoundBankAssetFile.GetFilePathRelative().GetData(), (ezInt32)fmodRes);
+        // if this fails with FMOD_ERR_EVENT_ALREADY_LOADED we might have attempted to load the bank multiple times in parallel
+        // this is not a problem, we just discard the failed second attempt
+        if (fmodRes != FMOD_ERR_EVENT_ALREADY_LOADED)
+        {
+          ezLog::Error("Error '{1}' loading FMOD sound bank '{0}'", SoundBankAssetFile.GetFilePathRelative().GetData(), (ezInt32)fmodRes);
+        }
 
         EZ_DEFAULT_DELETE(pData->m_pSoundbankData);
         EZ_DEFAULT_DELETE(pData);
