@@ -401,7 +401,6 @@ void ezFmodEventComponent::SetPitch(float f)
     }
     else
     {
-      /// \todo Global pitch might better be a bus setting
       EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
     }
   }
@@ -797,7 +796,6 @@ void ezFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstan
   else
   {
     // have to update pitch every time, in case the clock speed changes
-    /// \todo Global pitch might better be a bus setting
     EZ_FMOD_ASSERT(pInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
   }
 
