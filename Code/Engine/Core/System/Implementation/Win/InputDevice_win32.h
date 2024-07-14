@@ -43,6 +43,10 @@ private:
   bool m_bShowCursor = true;
   ezMouseCursorClipMode::Enum m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
   bool m_bApplyClipRect = false;
+  // m_bFirstWndMsg and m_bFirstClick are used to fix issues Windows not giving focus to applications that have been launched
+  // through a parent process
+  bool m_bFirstWndMsg = true;
+  bool m_bFirstClick = true;
   ezUInt8 m_uiMouseButtonReceivedDown[5] = {0, 0, 0, 0, 0};
   ezUInt8 m_uiMouseButtonReceivedUp[5] = {0, 0, 0, 0, 0};
 };

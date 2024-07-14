@@ -6,8 +6,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/System/Process.h>
 
-ezResult ezEditorProcessCommunicationChannel::StartClientProcess(
-  const char* szProcess, const QStringList& args, bool bRemote, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
+ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szProcess, const QStringList& args, bool bRemote, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
 {
   EZ_LOG_BLOCK("ezProcessCommunicationChannel::StartClientProcess");
 

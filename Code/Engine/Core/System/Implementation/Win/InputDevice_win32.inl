@@ -380,12 +380,23 @@ void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 // When this is enabled, mouse clicks are retrieved via standard WM_LBUTTONDOWN.
 #define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
 
-void ezStandardInputDevice::WindowMessage(
-  ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
+void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
 {
 #if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
   static ezInt32 s_iMouseCaptureCount = 0;
 #endif
+
+  if (m_bFirstWndMsg)
+  {
+    // hack fix to make sure the mouse is in the window center and gets clipped to the window, on startup
+
+    m_bFirstWndMsg = false;
+    ApplyClipRect(m_ClipCursorMode, hWnd);
+
+    RECT r;
+    GetWindowRect(ezMinWindows::ToNative(hWnd), &r);
+    SetCursorPos(ezMath::Lerp(r.left, r.right, 0.5f), ezMath::Lerp(r.bottom, r.top, 0.5f));
+  }
 
   switch (msg)
   {
@@ -472,6 +483,8 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_LBUTTONUP:
       m_uiMouseButtonReceivedUp[0]++;
+      m_bApplyClipRect |= m_bFirstClick;
+      m_bFirstClick = false;
       ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
@@ -491,6 +504,7 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_RBUTTONUP:
       m_uiMouseButtonReceivedUp[1]++;
+      m_bApplyClipRect |= m_bFirstClick;
       ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
@@ -510,6 +524,9 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_MBUTTONUP:
       m_uiMouseButtonReceivedUp[2]++;
+
+      m_bApplyClipRect |= m_bFirstClick;
+      ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -548,7 +565,7 @@ void ezStandardInputDevice::WindowMessage(
 #else
 
     case WM_LBUTTONUP:
-      ApplyClipRect(m_bClipCursor, hWnd);
+      ApplyClipRect(m_ClipCursorMode, hWnd);
       return;
 
 #endif
