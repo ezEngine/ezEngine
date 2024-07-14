@@ -114,6 +114,9 @@ public:
 
   void ComputeWorldSpaceCorners(ezVec3* pCorners) const;
 
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
+
 private:
   ezUInt16 m_uiGridSizeX;
   ezUInt16 m_uiGridSizeY;

@@ -29,14 +29,29 @@ namespace ezMath
     return floorf(f);
   }
 
+  EZ_ALWAYS_INLINE ezInt32 ezMath::FloorToInt(float f)
+  {
+    return static_cast<ezInt32>(floorf(f));
+  }
+
   EZ_ALWAYS_INLINE float Ceil(float f)
   {
     return ceilf(f);
   }
 
+  EZ_ALWAYS_INLINE ezInt32 CeilToInt(float f)
+  {
+    return static_cast<ezInt32>(ceilf(f));
+  }
+
   EZ_ALWAYS_INLINE float Round(float f)
   {
     return Floor(f + 0.5f);
+  }
+
+  EZ_ALWAYS_INLINE ezInt32 RoundToInt(float f)
+  {
+    return FloorToInt(f + 0.5f);
   }
 
   EZ_ALWAYS_INLINE float RoundToMultiple(float f, float fMultiple)
