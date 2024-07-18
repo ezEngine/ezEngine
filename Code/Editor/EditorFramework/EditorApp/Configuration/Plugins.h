@@ -54,7 +54,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundle
 /// \brief Contains multiple ezPluginBundle's.
 struct EZ_EDITORFRAMEWORK_DLL ezPluginBundleSet
 {
-  ezMap<ezString, ezPluginBundle> m_Plugins;
+  ezMap<ezString, ezPluginBundle, ezCompareString_NoCase> m_Plugins;
 
   /// \brief Writes the state of all bundles to a DDL file.
   void WriteStateToDDL(ezOpenDdlWriter& ref_ddl) const;
