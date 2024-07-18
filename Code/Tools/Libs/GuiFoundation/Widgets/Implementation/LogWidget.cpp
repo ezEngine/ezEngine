@@ -76,6 +76,8 @@ bool ezQtLogWidget::eventFilter(QObject* pObject, QEvent* pEvent)
       if (keyEvent->matches(QKeySequence::StandardKey::Copy))
       {
         QModelIndexList selection = ListViewLog->selectionModel()->selectedRows(0);
+        std::sort(selection.begin(), selection.end());
+
         QStringList sTemp;
         sTemp.reserve(selection.count());
         for (const QModelIndex& index : selection)
