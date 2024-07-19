@@ -65,7 +65,7 @@ namespace ezModelImporter2
       }
     }
 
-
+    uiAssimpFlags |= aiProcess_RemoveRedundantMaterials;
 
     m_pScene = m_Importer.ReadFile(m_Options.m_sSourceFile, uiAssimpFlags);
     if (m_pScene == nullptr)
