@@ -56,7 +56,6 @@ protected:
   ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
   vk::Device m_device;
 
-  bool m_bCPU = false;
   mutable ezString m_sDebugName;
 };
 

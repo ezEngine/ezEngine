@@ -527,7 +527,6 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   tcd.m_bAllowUAV = false;
   tcd.m_bCreateRenderTarget = true;
   tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-  tcd.m_ResourceAccess.m_bReadBack = true;
   tcd.m_Type = ezGALTextureType::Texture2D;
   tcd.m_uiWidth = m_uiThumbnailWidth;
   tcd.m_uiHeight = m_uiThumbnailHeight;
@@ -535,7 +534,6 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   m_hThumbnailColorRT = pDevice->CreateTexture(tcd);
 
   tcd.m_Format = ezGALResourceFormat::DFloat;
-  tcd.m_ResourceAccess.m_bReadBack = false;
 
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 

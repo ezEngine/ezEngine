@@ -149,3 +149,10 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
     m_pPipelineBarrier->EnsureImageLayout(pTexture, pTexture->GetPreferredLayout(), pTexture->GetUsedByPipelineStage(), pTexture->GetAccessMask(), true);
   }
 }
+
+void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData)
+{
+  EZ_LOCK(m_Lock);
+
+  EnsureCommandBufferExists();
+}

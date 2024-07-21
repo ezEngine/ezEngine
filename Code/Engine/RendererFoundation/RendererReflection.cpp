@@ -77,11 +77,15 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALTextureType, 1)
   EZ_ENUM_CONSTANTS(ezGALTextureType::Invalid, ezGALTextureType::Texture2D, ezGALTextureType::TextureCube, ezGALTextureType::Texture3D, ezGALTextureType::Texture2DProxy, ezGALTextureType::Texture2DShared)
 EZ_END_STATIC_REFLECTED_ENUM;
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALMemoryUsage, 1)
+  EZ_ENUM_CONSTANTS(ezGALMemoryUsage::GPU, ezGALMemoryUsage::Staging, ezGALMemoryUsage::Readback, ezGALMemoryUsage::Dynamic)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALResourceAccess, ezNoBase, 1, ezRTTIDefaultAllocator<ezGALResourceAccess>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ReadBack", m_bReadBack),
+    EZ_ENUM_MEMBER_PROPERTY("MemoryUsage", ezGALMemoryUsage, m_MemoryUsage),
     EZ_MEMBER_PROPERTY("Immutable", m_bImmutable),
   }
   EZ_END_PROPERTIES;

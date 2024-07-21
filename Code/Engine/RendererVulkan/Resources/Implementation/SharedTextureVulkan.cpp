@@ -332,11 +332,6 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
   }
   m_pDevice->GetInitContext().InitTexture(this, createInfo, pInitialData);
 
-  if (m_Description.m_ResourceAccess.m_bReadBack)
-  {
-    return CreateStagingBuffer(createInfo);
-  }
-
   return EZ_SUCCESS;
 }
 

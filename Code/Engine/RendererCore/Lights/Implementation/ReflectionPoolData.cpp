@@ -307,7 +307,6 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
     desc.m_Type = ezGALTextureType::TextureCube;
     desc.m_bCreateRenderTarget = true;
     desc.m_bAllowUAV = true;
-    desc.m_ResourceAccess.m_bReadBack = true;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     m_hFallbackReflectionSpecularTexture = pDevice->CreateTexture(desc);

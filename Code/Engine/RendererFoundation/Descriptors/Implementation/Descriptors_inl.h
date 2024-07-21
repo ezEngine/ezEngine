@@ -33,8 +33,8 @@ inline void ezGALTextureCreationDescription::SetAsRenderTarget(
   m_bAllowUAV = false;
   m_bCreateRenderTarget = true;
   m_bAllowDynamicMipGeneration = false;
-  m_ResourceAccess.m_bReadBack = false;
-  m_ResourceAccess.m_bImmutable = true;
+  m_ResourceAccess.m_MemoryUsage = ezGALMemoryUsage::GPU;
+  m_ResourceAccess.m_bImmutable = false;
   m_pExisitingNativeObject = nullptr;
 }
 

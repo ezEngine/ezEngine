@@ -70,9 +70,7 @@ ezResult ezRendererTestReadback::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_Format = (ezGALResourceFormat::Enum)iIdentifier;
     ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(8, 8, m_Format,
-      ezGALMSAASampleCount::None);
-    desc.m_ResourceAccess.m_bReadBack = true;
+    desc.SetAsRenderTarget(8, 8, m_Format, ezGALMSAASampleCount::None);
     m_hTexture2DReadback = m_pDevice->CreateTexture(desc);
 
     EZ_ASSERT_DEBUG(!m_hTexture2DReadback.IsInvalidated(), "Failed to create readback texture");

@@ -318,9 +318,6 @@ void ezGALCommandEncoder::ReadbackTexture(ezGALTextureHandle hTexture)
 
   if (pTexture != nullptr)
   {
-    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
-      "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
-
     m_CommonImpl.ReadbackTexturePlatform(pTexture);
   }
 }
@@ -333,9 +330,6 @@ void ezGALCommandEncoder::CopyTextureReadbackResult(ezGALTextureHandle hTexture,
 
   if (pTexture != nullptr)
   {
-    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack,
-      "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
-
     m_CommonImpl.CopyTextureReadbackResultPlatform(pTexture, sourceSubResource, targetData);
   }
 }

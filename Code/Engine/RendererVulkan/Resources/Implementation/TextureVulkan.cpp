@@ -76,11 +76,6 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   }
   m_pDevice->GetInitContext().InitTexture(this, createInfo, pInitialData);
 
-  if (m_Description.m_ResourceAccess.m_bReadBack)
-  {
-    return CreateStagingBuffer(createInfo);
-  }
-
   return EZ_SUCCESS;
 }
 
@@ -118,8 +113,9 @@ void ezGALTextureVulkan::ComputeCreateInfo(ezGALDeviceVulkan* m_pDevice, const e
   createInfo.queueFamilyIndexCount = 0;
   createInfo.tiling = vk::ImageTiling::eOptimal;
   createInfo.usage |= vk::ImageUsageFlagBits::eTransferDst;
-  if (m_Description.m_ResourceAccess.m_bReadBack)
-    createInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
+  // eTransferSrc can be set on everything without any negative effects.
+  // #TODO_VULKAN eSampled not needed if we only allow buffer readback or is it necessary for depth?
+  createInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
 
   createInfo.extent.width = m_Description.m_uiWidth;
   createInfo.extent.height = m_Description.m_uiHeight;
@@ -224,8 +220,8 @@ void ezGALTextureVulkan::ComputeAllocInfo(bool m_bLinearCPU, ezVulkanAllocationC
 
 ezGALTextureVulkan::StagingMode ezGALTextureVulkan::ComputeStagingMode(ezGALDeviceVulkan* m_pDevice, const ezGALTextureCreationDescription& m_Description, const vk::ImageCreateInfo& createInfo)
 {
-  if (!m_Description.m_ResourceAccess.m_bReadBack)
-    return StagingMode::None;
+  //if (!m_Description.m_ResourceAccess.m_bReadBack)
+  //  return StagingMode::None;
 
   // We want the staging texture to always have the intended format and not the override format given by the parent texture.
   vk::Format stagingFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_readback;
@@ -297,7 +293,6 @@ ezResult ezGALTextureVulkan::CreateStagingBuffer(const vk::ImageCreateInfo& crea
     stagingDesc.m_bAllowUAV = false;
     stagingDesc.m_bCreateRenderTarget = true;
     stagingDesc.m_bAllowDynamicMipGeneration = false;
-    stagingDesc.m_ResourceAccess.m_bReadBack = false;
     stagingDesc.m_ResourceAccess.m_bImmutable = false;
     stagingDesc.m_pExisitingNativeObject = nullptr;
 

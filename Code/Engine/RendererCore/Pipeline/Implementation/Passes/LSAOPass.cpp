@@ -404,7 +404,6 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       bufferDesc.m_uiStructSize = 4;
       bufferDesc.m_uiTotalSize = imageResolution.z * 2 * totalNumberOfSamples;
       bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
-      bufferDesc.m_ResourceAccess.m_bReadBack = false;
       bufferDesc.m_ResourceAccess.m_bImmutable = false;
 
       m_hLineSweepOutputBuffer = device->CreateBuffer(bufferDesc);
@@ -430,7 +429,6 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       bufferDesc.m_uiStructSize = sizeof(LineInstruction);
       bufferDesc.m_uiTotalSize = sizeof(LineInstruction) * m_uiNumSweepLines;
       bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
-      bufferDesc.m_ResourceAccess.m_bReadBack = false;
       bufferDesc.m_ResourceAccess.m_bImmutable = true;
 
       m_hLineInfoBuffer = device->CreateBuffer(bufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(lineInstructions.GetData()), lineInstructions.GetCount() * sizeof(LineInstruction)));

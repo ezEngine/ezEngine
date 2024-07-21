@@ -61,6 +61,33 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
   BufferDesc.CPUAccessFlags = 0;
   BufferDesc.StructureByteStride = m_Description.m_uiStructSize;
 
+  switch (m_Description.m_ResourceAccess.m_MemoryUsage)
+  {
+    case ezGALMemoryUsage::GPU:
+      BufferDesc.CPUAccessFlags = 0;
+      BufferDesc.Usage = D3D11_USAGE_DEFAULT;
+      if (m_Description.m_ResourceAccess.IsImmutable())
+      {
+        BufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+      }
+      break;
+    case ezGALMemoryUsage::Staging:
+      BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+      BufferDesc.Usage = D3D11_USAGE_STAGING;
+      break;
+    case ezGALMemoryUsage::Readback:
+      BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+      BufferDesc.Usage = D3D11_USAGE_STAGING;
+      break;
+    case ezGALMemoryUsage::Dynamic:
+      BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+      BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
+  }
+
   if (m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer))
   {
     BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;

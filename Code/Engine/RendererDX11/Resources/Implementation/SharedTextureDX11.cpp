@@ -92,9 +92,6 @@ ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<e
     m_hSharedHandle.m_hSharedTexture = (ezUInt64)hTexture;
   }
 
-  if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
-    return CreateStagingTexture(pDXDevice);
-
   return EZ_SUCCESS;
 }
 

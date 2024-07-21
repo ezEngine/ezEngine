@@ -383,7 +383,6 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     TexDesc.m_bAllowShaderResourceView = false;
     TexDesc.m_bCreateRenderTarget = true;
     TexDesc.m_ResourceAccess.m_bImmutable = true;
-    TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots;
     m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
   }
   m_CurrentSize = ezSizeU32(swapChainCreateInfo.imageExtent.width, swapChainCreateInfo.imageExtent.height);

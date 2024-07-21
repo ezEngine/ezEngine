@@ -7,7 +7,6 @@
 
 ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description, bool bCPU)
   : ezGALBuffer(Description)
-  , m_bCPU(bCPU)
 {
 }
 
@@ -78,6 +77,8 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
     m_access |= vk::AccessFlagBits::eTransferRead;
   }
 
+
+
   m_usage |= vk::BufferUsageFlagBits::eTransferDst;
   m_access |= vk::AccessFlagBits::eTransferWrite;
 
@@ -92,6 +93,8 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 
   if (!pInitialData.IsEmpty())
   {
+    //
+
     void* pData = nullptr;
     VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(m_currentBuffer.m_alloc, &pData));
     EZ_ASSERT_DEV(pData, "Implementation error");
@@ -166,14 +169,25 @@ void ezGALBufferVulkan::CreateBuffer() const
 
   ezVulkanAllocationCreateInfo allocCreateInfo;
   allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
-  if (m_bCPU)
+
+  switch (m_Description.m_ResourceAccess.m_MemoryUsage)
   {
-    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom;
+    case ezGALMemoryUsage::GPU:
+      break;
+    case ezGALMemoryUsage::Staging:
+      allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessSequentialWrite | ezVulkanAllocationCreateFlags::Mapped;
+      break;
+    case ezGALMemoryUsage::Readback:
+      allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom | ezVulkanAllocationCreateFlags::Mapped;
+      break;
+    case ezGALMemoryUsage::Dynamic:
+      // #TODO_VULKAN don't actually create anything here, dynamic can only be used for transient buffers via new API function
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
   }
-  else
-  {
-    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessSequentialWrite;
-  }
+
   VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_currentBuffer.m_buffer, m_currentBuffer.m_alloc, &m_allocInfo));
 }
 

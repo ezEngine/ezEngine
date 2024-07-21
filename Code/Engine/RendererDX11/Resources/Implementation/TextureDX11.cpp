@@ -70,15 +70,6 @@ ezResult ezGALTextureDX11::InitFromNativeObject(ezGALDeviceDX11* pDXDevice)
 {
   /// \todo Validation if interface of corresponding texture object exists
   m_pDXTexture = static_cast<ID3D11Resource*>(m_Description.m_pExisitingNativeObject);
-  if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
-  {
-    ezResult res = CreateStagingTexture(pDXDevice);
-    if (res == EZ_FAILURE)
-    {
-      m_pDXTexture = nullptr;
-      return res;
-    }
-  }
   return EZ_SUCCESS;
 }
 
@@ -238,8 +229,8 @@ ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)
       Desc.Usage = D3D11_USAGE_STAGING;
       Desc.SampleDesc.Count = 1; // We need to disable MSAA for the readback texture, the conversion needs to happen during readback!
 
-      if (m_Description.m_ResourceAccess.m_bReadBack)
-        Desc.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
+      //if (m_Description.m_ResourceAccess.m_bReadBack)
+      //  Desc.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
       if (!m_Description.m_ResourceAccess.IsImmutable())
         Desc.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
 

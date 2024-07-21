@@ -201,7 +201,6 @@ void ezPickingRenderPass::CreateTarget()
   tcd.m_bAllowUAV = false;
   tcd.m_bCreateRenderTarget = true;
   tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-  tcd.m_ResourceAccess.m_bReadBack = true;
   tcd.m_Type = ezGALTextureType::Texture2D;
   tcd.m_uiWidth = (ezUInt32)m_TargetRect.width;
   tcd.m_uiHeight = (ezUInt32)m_TargetRect.height;
@@ -209,7 +208,6 @@ void ezPickingRenderPass::CreateTarget()
   m_hPickingIdRT = pDevice->CreateTexture(tcd);
 
   tcd.m_Format = ezGALResourceFormat::DFloat;
-  tcd.m_ResourceAccess.m_bReadBack = true;
 
   m_hPickingDepthRT = pDevice->CreateTexture(tcd);
 

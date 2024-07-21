@@ -27,6 +27,7 @@ struct ezGALWindowSwapChainCreationDescription : public ezHashableStruct<ezGALWi
   ezEnum<ezGALPresentMode> m_InitialPresentMode = ezGALPresentMode::VSync;
 
   bool m_bDoubleBuffered = true;
+  // #TODO_VULKAN remove
   bool m_bAllowScreenshots = false;
 };
 
@@ -162,8 +163,9 @@ struct ezGALMemoryUsage
   enum Enum : ezUInt8
   {
     GPU, ///< Memory resides on the GPU and is inaccessible via the CPU
-    Staging, ///< CPU buffer to transfer data to the GPU.
-    Readback, ///< CPU buffer to readback data from the GPU.
+    Staging, ///< CPU buffer to transfer data to the GPU. Can not be mapped as a resource, copy operations only.
+    Readback, ///< CPU buffer to readback data from the GPU. Can not be mapped as a resource, copy operations only.
+    Dynamic, ///< Memory can be written by the CPU and read be the GPU. Use for frequent dynamic updates. Does not persist across frames.
     ENUM_COUNT,
     Default = GPU
   };
