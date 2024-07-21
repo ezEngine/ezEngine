@@ -70,7 +70,7 @@ public:
           m_sOutput.Append("Warning: ");
           break;
         case ezPreprocessor::ProcessingEvent::BeginExpansion:
-          if(event.m_pToken != nullptr)
+          if (event.m_pToken != nullptr)
             m_sOutput.AppendFormat("In Macro: '{0}'", ezString(event.m_pToken->m_DataView));
           break;
         case ezPreprocessor::ProcessingEvent::EndExpansion:

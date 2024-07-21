@@ -117,7 +117,7 @@ namespace
     // and we don't get any callstacks
     // the multi-step approach below has worked in known problematic scenarios, but no guarantee that there isn't a better "right way" to do it
 
-    if(s_pImplementation->symbolInitialize == nullptr || s_pImplementation->symRefreshModuleList == nullptr || s_pImplementation->symCleanup == nullptr)
+    if (s_pImplementation->symbolInitialize == nullptr || s_pImplementation->symRefreshModuleList == nullptr || s_pImplementation->symCleanup == nullptr)
     {
       return false;
     }
