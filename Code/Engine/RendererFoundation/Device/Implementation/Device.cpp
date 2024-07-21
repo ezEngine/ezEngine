@@ -1614,7 +1614,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALTextureResourceViewHandle hResourceView(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALTextureResourceView* pResourceView = nullptr;
 
-        m_TextureResourceViews.Remove(hResourceView, &pResourceView);
+        EZ_VERIFY(m_TextureResourceViews.Remove(hResourceView, &pResourceView), "");
 
         ezGALTexture* pResource = pResourceView->m_pResource;
         EZ_ASSERT_DEBUG(pResource != nullptr, "");
@@ -1631,7 +1631,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALBufferResourceViewHandle hResourceView(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALBufferResourceView* pResourceView = nullptr;
 
-        m_BufferResourceViews.Remove(hResourceView, &pResourceView);
+        EZ_VERIFY(m_BufferResourceViews.Remove(hResourceView, &pResourceView), "");
 
         ezGALBuffer* pResource = pResourceView->m_pResource;
         EZ_ASSERT_DEBUG(pResource != nullptr, "");
@@ -1664,7 +1664,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALTextureUnorderedAccessViewHandle hUnorderedAccessViewHandle(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALTextureUnorderedAccessView* pUnorderedAccesssView = nullptr;
 
-        m_TextureUnorderedAccessViews.Remove(hUnorderedAccessViewHandle, &pUnorderedAccesssView);
+        EZ_VERIFY(m_TextureUnorderedAccessViews.Remove(hUnorderedAccessViewHandle, &pUnorderedAccesssView), "");
 
         ezGALTexture* pResource = pUnorderedAccesssView->m_pResource;
         EZ_ASSERT_DEBUG(pResource != nullptr, "");
@@ -1680,7 +1680,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALBufferUnorderedAccessViewHandle hUnorderedAccessViewHandle(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALBufferUnorderedAccessView* pUnorderedAccesssView = nullptr;
 
-        m_BufferUnorderedAccessViews.Remove(hUnorderedAccessViewHandle, &pUnorderedAccesssView);
+        EZ_VERIFY(m_BufferUnorderedAccessViews.Remove(hUnorderedAccessViewHandle, &pUnorderedAccesssView), "");
 
         ezGALBuffer* pResource = pUnorderedAccesssView->m_pResource;
         EZ_ASSERT_DEBUG(pResource != nullptr, "");
