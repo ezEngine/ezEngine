@@ -456,9 +456,12 @@ void ezRenderContext::SetPushConstants(const ezTempHashedString& sSlotName, ezAr
     EZ_ASSERT_DEBUG(data.GetCount() <= 128, "Push constants are not allowed to be bigger than 128 bytes.");
     ezConstantBufferStorageBase* pStorage = nullptr;
     bool bResult = TryGetConstantBufferStorage(m_hPushConstantsStorage, pStorage);
-    ezArrayPtr<ezUInt8> targetStorage = pStorage->GetRawDataForWriting();
-    ezMemoryUtils::Copy(targetStorage.GetPtr(), data.GetPtr(), data.GetCount());
-    BindConstantBuffer(sSlotName, m_hPushConstantsStorage);
+    if(bResult)
+    {
+      ezArrayPtr<ezUInt8> targetStorage = pStorage->GetRawDataForWriting();
+      ezMemoryUtils::Copy(targetStorage.GetPtr(), data.GetPtr(), data.GetCount());
+      BindConstantBuffer(sSlotName, m_hPushConstantsStorage);
+    }
   }
   else
   {

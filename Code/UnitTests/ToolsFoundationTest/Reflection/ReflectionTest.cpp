@@ -185,7 +185,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor, const ez
 {
   ezUInt32 uiPropertiesSet = 0;
   if(!EZ_TEST_BOOL(pType != nullptr))
-    return;
+    return 0;
 
   EZ_ANALYSIS_ASSUME(pType != nullptr);
 

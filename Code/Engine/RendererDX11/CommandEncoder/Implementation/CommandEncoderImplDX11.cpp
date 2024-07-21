@@ -67,7 +67,14 @@ void ezGALCommandEncoderImplDX11::SetShaderPlatform(const ezGALShader* pShader)
   {
     m_pDXContext->HSSetShader(pHS, nullptr, 0);
     m_pBoundShaders[ezGALShaderStage::HullShader] = pHS;
-    m_uiTessellationPatchControlPoints = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::HullShader]->m_uiTessellationPatchControlPoints;
+    if (pShader)
+    {
+      m_uiTessellationPatchControlPoints = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::HullShader]->m_uiTessellationPatchControlPoints;
+    }
+    else
+    {
+      m_uiTessellationPatchControlPoints = 0;
+    }
   }
 
   if (pDS != m_pBoundShaders[ezGALShaderStage::DomainShader])
