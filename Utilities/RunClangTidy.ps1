@@ -200,7 +200,7 @@ if($DiffTo)
     }
 }
 
-& $ClangTidy --checks=$Checks,$ChecksGroup1 --list-checks
+& $ClangTidy "--checks=$Checks,$ChecksGroup1" --list-checks
 if($lastexitcode -ne 0)
 {
     Write-Error "Inital clang-tidy test run failed"
