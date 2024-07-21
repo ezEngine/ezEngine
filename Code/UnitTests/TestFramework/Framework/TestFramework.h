@@ -270,7 +270,7 @@ struct ezTestBlock
 
 //////////////////////////////////////////////////////////////////////////
 
-bool ezTestBool(
+EZ_TEST_DLL bool ezTestBool(
   bool bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests for a boolean condition, does not output an extra message.
