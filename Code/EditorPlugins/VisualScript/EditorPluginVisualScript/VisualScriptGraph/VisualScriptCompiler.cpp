@@ -899,6 +899,7 @@ ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
         branchNode.m_Next.PushBack(pNode->m_Next[1]);
 
         compareNode.m_Next.PushBack(&branchNode);
+        EZ_ASSERT_DEBUG(connection.m_pSource != nullptr, "");
         connection.m_pSource->m_Next[connection.m_uiSourcePinIndex] = &compareNode;
         connection.m_pTarget = &branchNode;
       }

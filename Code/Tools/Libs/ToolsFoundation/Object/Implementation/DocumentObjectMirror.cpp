@@ -439,6 +439,8 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
     // EZ_ASSERT_DEV(object.m_pObject != nullptr, "Root object does not exist in mirrored native object!");
   }
 
+  EZ_ASSERT_DEBUG(object.m_pType != nullptr, "Object must have valid type");
+
   ezPropertyPath propPath;
   if (propPath.InitializeFromPath(object.m_pType, change.m_Steps).Failed())
   {

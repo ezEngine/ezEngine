@@ -530,7 +530,7 @@ class ezVariantHelper
     EZ_ALWAYS_INLINE void operator()()
     {
       ezStringBuilder tmp;
-      *m_pResult = ezConversionUtils::ToString(m_pThis->Cast<T>(), tmp);
+      *m_pResult = ezConversionUtils::ToString(m_pThis->Cast<T>(), tmp); // NOLINT (clang-analyzer-core.CallAndMessage)
     }
 
     const ezVariant* m_pThis;

@@ -415,6 +415,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
     }
     else if (m_Orientation == ezQuadParticleOrientation::FixedAxis_ParticleDir)
     {
+      EZ_ASSERT_DEBUG(pLastPosition != nullptr, "FixedAxis_ParticleDir needs the last position attribute");
       for (ezUInt32 p = 0; p < numParticles; ++p)
       {
         SetTangentDataAligned_ParticleDir(p, redirect(p, pSorted));

@@ -95,6 +95,7 @@ ezResult ezEditorSceneDocumentTest::CreateSimpleScene(const char* szSceneName)
     if (!EZ_TEST_BOOL(m_pDoc != nullptr))
       return EZ_FAILURE;
 
+    EZ_ANALYSIS_ASSUME(m_pDoc != nullptr);
     m_SceneGuid = m_pDoc->GetGuid();
     ProcessEvents();
     EZ_TEST_STATUS(m_pDoc->CreateLayer("Layer1", m_LayerGuid));
@@ -157,6 +158,7 @@ void ezEditorSceneDocumentTest::LayerOperations()
     if (!EZ_TEST_BOOL(pDoc != nullptr))
       return;
 
+    EZ_ANALYSIS_ASSUME(pDoc != nullptr);
     sceneGuid = pDoc->GetGuid();
     layerEventsID = pDoc->m_LayerEvents.AddEventHandler(TestLayerEvents);
     ProcessEvents();
@@ -228,6 +230,8 @@ void ezEditorSceneDocumentTest::LayerOperations()
     pDoc = static_cast<ezScene2Document*>(m_pApplication->m_pEditorApp->OpenDocument(sName, ezDocumentFlags::RequestWindow));
     if (!EZ_TEST_BOOL(pDoc != nullptr))
       return;
+
+    EZ_ANALYSIS_ASSUME(pDoc != nullptr);
     layerEventsID = pDoc->m_LayerEvents.AddEventHandler(TestLayerEvents);
     ProcessEvents();
 

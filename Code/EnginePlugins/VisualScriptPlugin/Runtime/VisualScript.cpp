@@ -255,9 +255,9 @@ ezScriptMessageDesc ezVisualScriptGraphDescription::GetMessageDesc() const
 {
   auto pEntryNode = GetNode(0);
   EZ_ASSERT_DEBUG(pEntryNode != nullptr &&
-                      pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler ||
-                    pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler_Coroutine ||
-                    pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::SendMessage,
+                    (pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler ||
+                      pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler_Coroutine ||
+                      pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::SendMessage),
     "Entry node is invalid or not a message handler");
 
   auto& userData = pEntryNode->GetUserData<NodeUserData_TypeAndProperties>();
