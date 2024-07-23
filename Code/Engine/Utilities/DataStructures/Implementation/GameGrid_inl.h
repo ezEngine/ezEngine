@@ -203,8 +203,10 @@ void ezGameGrid<CellData>::ComputeWorldSpaceCorners(ezVec3* pCorners) const
 
 
 template <class CellData>
-ezResult ezGameGrid<CellData>::Serialize(ezStreamWriter& stream) const
+ezResult ezGameGrid<CellData>::Serialize(ezStreamWriter& ref_stream) const
 {
+  auto& stream = ref_stream;
+
   stream.WriteVersion(1);
 
   stream << m_uiGridSizeX;
@@ -220,8 +222,10 @@ ezResult ezGameGrid<CellData>::Serialize(ezStreamWriter& stream) const
 }
 
 template <class CellData>
-ezResult ezGameGrid<CellData>::Deserialize(ezStreamReader& stream)
+ezResult ezGameGrid<CellData>::Deserialize(ezStreamReader& ref_stream)
 {
+  auto& stream = ref_stream;
+
   const ezTypeVersion version = stream.ReadVersion(1);
   EZ_IGNORE_UNUSED(version);
 
