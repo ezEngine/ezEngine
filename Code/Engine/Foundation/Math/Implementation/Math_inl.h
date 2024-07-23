@@ -493,3 +493,40 @@ EZ_ALWAYS_INLINE size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
   return uiValue;
 }
 #endif
+
+EZ_ALWAYS_INLINE constexpr ezUInt32 ezMath::WrapUInt(ezUInt32 uiValue, ezUInt32 uiExcludedMaxValue)
+{
+  return uiValue % uiExcludedMaxValue;
+}
+
+EZ_ALWAYS_INLINE constexpr ezInt32 ezMath::WrapInt(ezInt32 iValue, ezUInt32 uiExcludedMaxValue)
+{
+  const ezInt32 wrapped = (iValue % static_cast<ezInt32>(uiExcludedMaxValue));
+  return wrapped >= 0 ? wrapped : (wrapped + uiExcludedMaxValue);
+}
+
+EZ_ALWAYS_INLINE constexpr ezInt32 ezMath::WrapInt(ezInt32 iValue, ezInt32 iMinValue, ezInt32 iExcludedMaxValue)
+{
+  EZ_ASSERT_DEBUG(iMinValue < iExcludedMaxValue, "Invalid range to wrap integer around.");
+  return iMinValue + WrapInt(iValue - iMinValue, static_cast<ezUInt32>(iExcludedMaxValue - iMinValue));
+}
+
+EZ_ALWAYS_INLINE float ezMath::WrapFloat01(float fValue)
+{
+  if (fValue < 0.0f)
+  {
+    return fValue + Ceil(-fValue);
+  }
+  else if (fValue > 1.0f)
+  {
+    return fValue - Ceil(fValue - 1.0f);
+  }
+
+  return fValue;
+}
+
+EZ_ALWAYS_INLINE float ezMath::WrapFloat(float fValue, float fMinValue, float fMaxValue)
+{
+  const float range = fMaxValue - fMinValue;
+  return fMinValue + WrapFloat01((fValue - fMinValue) / range) * range;
+}

@@ -347,6 +347,18 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(-12 == ezMath::Ceil(-12.34f));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloorToInt")
+  {
+    EZ_TEST_BOOL(12 == ezMath::FloorToInt(12.34f));
+    EZ_TEST_BOOL(-13 == ezMath::FloorToInt(-12.34f));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CeilToInt")
+  {
+    EZ_TEST_BOOL(13 == ezMath::CeilToInt(12.34f));
+    EZ_TEST_BOOL(-12 == ezMath::CeilToInt(-12.34f));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundDown (float)")
   {
     EZ_TEST_FLOAT(10.0f, ezMath::RoundDown(12.34f, 5.0f), 0.0000001f);
@@ -395,6 +407,15 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
     EZ_TEST_BOOL(ezMath::Round(12.54f) == 13);
     EZ_TEST_BOOL(ezMath::Round(-12.54f) == -13);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundToInt")
+  {
+    EZ_TEST_BOOL(ezMath::RoundToInt(12.34f) == 12);
+    EZ_TEST_BOOL(ezMath::RoundToInt(-12.34f) == -12);
+
+    EZ_TEST_BOOL(ezMath::RoundToInt(12.54f) == 13);
+    EZ_TEST_BOOL(ezMath::RoundToInt(-12.54f) == -13);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RoundClosest (float)")
@@ -1023,5 +1044,100 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, a, a));
     EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, c, b));
     EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, a, b) == false);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WrapUInt")
+  {
+    EZ_TEST_INT(ezMath::WrapUInt(0, 5), 0);
+    EZ_TEST_INT(ezMath::WrapUInt(1, 5), 1);
+    EZ_TEST_INT(ezMath::WrapUInt(2, 5), 2);
+    EZ_TEST_INT(ezMath::WrapUInt(3, 5), 3);
+    EZ_TEST_INT(ezMath::WrapUInt(4, 5), 4);
+    EZ_TEST_INT(ezMath::WrapUInt(5, 5), 0);
+    EZ_TEST_INT(ezMath::WrapUInt(6, 5), 1);
+
+    EZ_TEST_INT(ezMath::WrapUInt(0, 1), 0);
+    EZ_TEST_INT(ezMath::WrapUInt(1, 1), 0);
+    EZ_TEST_INT(ezMath::WrapUInt(2, 1), 0);
+
+    EZ_TEST_INT(ezMath::WrapUInt(0, 2), 0);
+    EZ_TEST_INT(ezMath::WrapUInt(1, 2), 1);
+    EZ_TEST_INT(ezMath::WrapUInt(2, 2), 0);
+    EZ_TEST_INT(ezMath::WrapUInt(3, 2), 1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WrapInt")
+  {
+    EZ_TEST_INT(ezMath::WrapInt(0, 5), 0);
+    EZ_TEST_INT(ezMath::WrapInt(1, 5), 1);
+    EZ_TEST_INT(ezMath::WrapInt(2, 5), 2);
+    EZ_TEST_INT(ezMath::WrapInt(3, 5), 3);
+    EZ_TEST_INT(ezMath::WrapInt(4, 5), 4);
+    EZ_TEST_INT(ezMath::WrapInt(5, 5), 0);
+    EZ_TEST_INT(ezMath::WrapInt(6, 5), 1);
+    EZ_TEST_INT(ezMath::WrapInt(7, 5), 2);
+
+    EZ_TEST_INT(ezMath::WrapInt(-1, 5), 4);
+    EZ_TEST_INT(ezMath::WrapInt(-2, 5), 3);
+    EZ_TEST_INT(ezMath::WrapInt(-4, 5), 1);
+    EZ_TEST_INT(ezMath::WrapInt(-5, 5), 0);
+    EZ_TEST_INT(ezMath::WrapInt(-6, 5), 4);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WrapInt (min, max)")
+  {
+    EZ_TEST_INT(ezMath::WrapInt(0, 1, 5), 4);
+    EZ_TEST_INT(ezMath::WrapInt(1, 1, 5), 1);
+    EZ_TEST_INT(ezMath::WrapInt(2, 1, 5), 2);
+    EZ_TEST_INT(ezMath::WrapInt(3, 1, 5), 3);
+    EZ_TEST_INT(ezMath::WrapInt(4, 1, 5), 4);
+    EZ_TEST_INT(ezMath::WrapInt(5, 1, 5), 1);
+    EZ_TEST_INT(ezMath::WrapInt(6, 1, 5), 2);
+    EZ_TEST_INT(ezMath::WrapInt(7, 1, 5), 3);
+
+    EZ_TEST_INT(ezMath::WrapInt(-1, 1, 5), 3);
+    EZ_TEST_INT(ezMath::WrapInt(-2, 1, 5), 2);
+    EZ_TEST_INT(ezMath::WrapInt(-3, 1, 5), 1);
+    EZ_TEST_INT(ezMath::WrapInt(-4, 1, 5), 4);
+    EZ_TEST_INT(ezMath::WrapInt(-5, 1, 5), 3);
+    EZ_TEST_INT(ezMath::WrapInt(-6, 1, 5), 2);
+
+    EZ_TEST_INT(ezMath::WrapInt(-5, -5, -2), -5);
+    EZ_TEST_INT(ezMath::WrapInt(-6, -5, -2), -3);
+    EZ_TEST_INT(ezMath::WrapInt(-7, -5, -2), -4);
+    EZ_TEST_INT(ezMath::WrapInt(-8, -5, -2), -5);
+
+    EZ_TEST_INT(ezMath::WrapInt(0, -5, -2), -3);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WrapFloat01")
+  {
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(0.0f), 0.0f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(0.5f), 0.5f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(1.0f), 1.0f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(1.1f), 0.1f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(1.7f), 0.7f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(2.0f), 1.0f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(2.2f), 0.2f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(-0.2f), 0.8f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(-0.9f), 0.1f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(-1.0f), 0.0f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(-1.1f), 0.9f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(-1.01f), 0.99f, 0.0000001f);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WrapFloat")
+  {
+    EZ_TEST_FLOAT(ezMath::WrapFloat(3.5f, 3.5f, 5.7f), 3.5f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat(5.0f, 3.5f, 5.7f), 5.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat(5.7f, 3.5f, 5.7f), 5.7f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat(5.8f, 3.5f, 5.7f), 3.6f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat(3.4f, 3.5f, 5.7f), 5.6f, 0.00001f);
+
+    EZ_TEST_FLOAT(ezMath::WrapFloat(-1.2f, -1.2f, 0.5f), -1.2f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat(0.0f, -1.2f, 0.5f), 0.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat(0.5f, -1.2f, 0.5f), 0.5f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat(0.6f, -1.2f, 0.5f), -1.1f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::WrapFloat(-1.3f, -1.2f, 0.5f), 0.4f, 0.00001f);
   }
 }

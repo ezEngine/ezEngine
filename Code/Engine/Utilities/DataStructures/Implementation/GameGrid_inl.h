@@ -200,3 +200,43 @@ void ezGameGrid<CellData>::ComputeWorldSpaceCorners(ezVec3* pCorners) const
   pCorners[2] = m_vWorldSpaceOrigin + m_mRotateToWorldspace * ezVec3(0, m_uiGridSizeY * m_vLocalSpaceCellSize.y, 0);
   pCorners[3] = m_vWorldSpaceOrigin + m_mRotateToWorldspace * ezVec3(m_uiGridSizeX * m_vLocalSpaceCellSize.x, m_uiGridSizeY * m_vLocalSpaceCellSize.y, 0);
 }
+
+
+template <class CellData>
+ezResult ezGameGrid<CellData>::Serialize(ezStreamWriter& ref_stream) const
+{
+  auto& stream = ref_stream;
+
+  stream.WriteVersion(1);
+
+  stream << m_uiGridSizeX;
+  stream << m_uiGridSizeY;
+  stream << m_mRotateToWorldspace;
+  stream << m_mRotateToGridspace;
+  stream << m_vWorldSpaceOrigin;
+  stream << m_vLocalSpaceCellSize;
+  stream << m_vInverseLocalSpaceCellSize;
+  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Cells));
+
+  return EZ_SUCCESS;
+}
+
+template <class CellData>
+ezResult ezGameGrid<CellData>::Deserialize(ezStreamReader& ref_stream)
+{
+  auto& stream = ref_stream;
+
+  const ezTypeVersion version = stream.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
+
+  stream >> m_uiGridSizeX;
+  stream >> m_uiGridSizeY;
+  stream >> m_mRotateToWorldspace;
+  stream >> m_mRotateToGridspace;
+  stream >> m_vWorldSpaceOrigin;
+  stream >> m_vLocalSpaceCellSize;
+  stream >> m_vInverseLocalSpaceCellSize;
+  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Cells));
+
+  return EZ_SUCCESS;
+}

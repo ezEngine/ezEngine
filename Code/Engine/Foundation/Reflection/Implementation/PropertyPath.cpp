@@ -128,20 +128,20 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI* pRootObjectRtti, const
   return EZ_SUCCESS;
 }
 
-ezResult ezPropertyPath::WriteToLeafObject(void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const
+ezResult ezPropertyPath::WriteToLeafObject(void* pRootObject, const ezRTTI* pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const
 {
   EZ_ASSERT_DEBUG(
     m_PathSteps.IsEmpty() || m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::Class),
     "To resolve the leaf object the path needs to be empty or end in a class.");
-  return ResolvePath(pRootObject, &type, m_PathSteps.GetArrayPtr(), true, func);
+  return ResolvePath(pRootObject, pType, m_PathSteps.GetArrayPtr(), true, func);
 }
 
-ezResult ezPropertyPath::ReadFromLeafObject(void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const
+ezResult ezPropertyPath::ReadFromLeafObject(void* pRootObject, const ezRTTI* pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const
 {
   EZ_ASSERT_DEBUG(
     m_PathSteps.IsEmpty() || m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::Class),
     "To resolve the leaf object the path needs to be empty or end in a class.");
-  return ResolvePath(pRootObject, &type, m_PathSteps.GetArrayPtr(), false, func);
+  return ResolvePath(pRootObject, pType, m_PathSteps.GetArrayPtr(), false, func);
 }
 
 ezResult ezPropertyPath::WriteProperty(
