@@ -628,7 +628,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
 
   ezVec3 vRootVelocity = GetInverseUpdateTimeDelta() * (GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
 
-  if (!m_vVelocityLateral.IsZero())
+  if (!m_vVelocityLateral.IsZero(ezMath::FloatEpsilon<float>()))
   {
     // remove the lateral velocity component from the root motion
     // to prevent root motion being amplified when both values are active
