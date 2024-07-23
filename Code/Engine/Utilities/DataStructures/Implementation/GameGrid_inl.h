@@ -223,6 +223,7 @@ template <class CellData>
 ezResult ezGameGrid<CellData>::Deserialize(ezStreamReader& stream)
 {
   const ezTypeVersion version = stream.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
 
   stream >> m_uiGridSizeX;
   stream >> m_uiGridSizeY;
