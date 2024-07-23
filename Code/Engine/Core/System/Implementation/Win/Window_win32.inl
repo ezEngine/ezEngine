@@ -115,6 +115,14 @@ ezResult ezWindow::Initialize()
   DWORD dwExStyle = WS_EX_APPWINDOW;
   DWORD dwWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
+  if (m_CreationDescription.m_bSetForegroundOnInit)
+  {
+    // use WS_EX_TOPMOST to force that the window shows up on top
+    // this is the only thing that seems to be working reliably
+    // but to prevent the window from staying on top, we need to remove this flag later again (see SetWindowPos)
+    dwExStyle |= WS_EX_TOPMOST;
+  }
+
   if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution || m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
   {
     ezLog::Dev("Window is not fullscreen.");
@@ -297,6 +305,14 @@ void ezWindow::ProcessWindowMessages()
 
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
+  }
+
+  if (m_CreationDescription.m_bSetForegroundOnInit)
+  {
+    // remove the WS_EX_TOPMOST flag again
+    m_CreationDescription.m_bSetForegroundOnInit = false;
+    HWND hWindow = ezMinWindows::ToNative(GetNativeWindowHandle());
+    SetWindowPos(hWindow, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
   }
 }
 
