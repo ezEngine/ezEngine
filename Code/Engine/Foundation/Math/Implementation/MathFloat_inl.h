@@ -29,7 +29,7 @@ namespace ezMath
     return floorf(f);
   }
 
-  EZ_ALWAYS_INLINE ezInt32 ezMath::FloorToInt(float f)
+  EZ_ALWAYS_INLINE ezInt32 FloorToInt(float f)
   {
     return static_cast<ezInt32>(floorf(f));
   }
