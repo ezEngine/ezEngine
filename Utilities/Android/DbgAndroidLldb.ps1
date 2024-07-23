@@ -8,8 +8,10 @@ param(
 	[switch]$StartLogcat
 )
 
+#Requires -Version 7.0
+
 # Import Android utils
-. "$PSScriptRoot/Android/AndroidUtils.ps1"
+. "$PSScriptRoot/AndroidUtils.ps1"
 
 $ErrorActionPreference = "Stop"
 

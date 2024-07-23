@@ -621,6 +621,10 @@ function(ez_create_link SOURCE DEST_FOLDER DEST_NAME)
 	endif()
 
 	file(CREATE_LINK ${SOURCE} ${DEST_FOLDER}/${DEST_NAME} RESULT OUT_RESULT SYMBOLIC)
+
+	if (NOT ${OUT_RESULT} EQUAL 0)
+		message(FATAL_ERROR "Failed to run: file(CREATE_LINK ${SOURCE} ${DEST_FOLDER}/${DEST_NAME} RESULT OUT_RESULT SYMBOLIC) \nRe-run with admin rights:\n${OUT_RESULT}")
+	endif ()
 endfunction()
 
 # #####################################
