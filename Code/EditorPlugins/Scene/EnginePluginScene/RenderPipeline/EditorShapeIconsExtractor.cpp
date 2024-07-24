@@ -35,6 +35,9 @@ ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor() = default;
 void ezEditorShapeIconsExtractor::Extract(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
+  ezFrustum frustum;
+  view.ComputeCullingFrustum(frustum);
+
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
   /// \todo Once we have a solution for objects that only have a shape icon we can switch this loop to use visibleObjects instead.
@@ -42,6 +45,10 @@ void ezEditorShapeIconsExtractor::Extract(
   {
     const ezGameObject* pObject = it;
     if (FilterByViewTags(view, pObject))
+      continue;
+
+    ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pObject->GetGlobalPosition(), 0.1f);
+    if (frustum.GetObjectPosition(sphere) == ezVolumePosition::Outside)
       continue;
 
     ExtractShapeIcon(pObject, view, ref_extractedRenderData, ezDefaultRenderDataCategories::SimpleOpaque);
@@ -57,6 +64,10 @@ void ezEditorShapeIconsExtractor::Extract(
       if (view.GetWorld()->TryGetObject(hObject, pObject))
       {
         if (FilterByViewTags(view, pObject))
+          continue;
+
+        ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pObject->GetGlobalPosition(), 0.1f);
+        if (frustum.GetObjectPosition(sphere) == ezVolumePosition::Outside)
           continue;
 
         ExtractShapeIcon(pObject, view, ref_extractedRenderData, ezDefaultRenderDataCategories::Selection);

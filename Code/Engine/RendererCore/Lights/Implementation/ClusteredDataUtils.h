@@ -2,6 +2,7 @@
 
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/FillLightComponent.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
@@ -161,50 +162,68 @@ namespace
     }
   }
 
-  EZ_ALWAYS_INLINE void FillLightData(ezPerLightData& ref_perLightData, const ezLightRenderData* pLightRenderData, ezUInt8 uiType)
+  EZ_ALWAYS_INLINE void FillLightData(ezPerLightData& out_perLightData, const ezLightRenderData* pLightRenderData, ezUInt8 uiType)
   {
-    ezMemoryUtils::ZeroFill(&ref_perLightData, 1);
+    ezMemoryUtils::ZeroFill(&out_perLightData, 1);
 
     ezColorLinearUB lightColor = pLightRenderData->m_LightColor;
     lightColor.a = uiType;
 
-    ref_perLightData.colorAndType = *reinterpret_cast<ezUInt32*>(&lightColor.r);
-    ref_perLightData.intensity = pLightRenderData->m_fIntensity;
-    ref_perLightData.specularMultiplier = pLightRenderData->m_fSpecularMultiplier;
-    ref_perLightData.shadowDataOffset = pLightRenderData->m_uiShadowDataOffset;
+    out_perLightData.colorAndType = *reinterpret_cast<ezUInt32*>(&lightColor.r);
+    out_perLightData.intensity = pLightRenderData->m_fIntensity;
+    out_perLightData.specularMultiplier = pLightRenderData->m_fSpecularMultiplier;
+    out_perLightData.shadowDataOffset = pLightRenderData->m_uiShadowDataOffset;
   }
 
-  void FillPointLightData(ezPerLightData& ref_perLightData, const ezPointLightRenderData* pPointLightRenderData)
+  void FillPointLightData(ezPerLightData& out_perLightData, const ezPointLightRenderData* pPointLightRenderData)
   {
-    FillLightData(ref_perLightData, pPointLightRenderData, LIGHT_TYPE_POINT);
+    FillLightData(out_perLightData, pPointLightRenderData, LIGHT_TYPE_POINT);
 
-    ref_perLightData.position = pPointLightRenderData->m_GlobalTransform.m_vPosition;
-    ref_perLightData.invSqrAttRadius = 1.0f / (pPointLightRenderData->m_fRange * pPointLightRenderData->m_fRange);
+    out_perLightData.position = pPointLightRenderData->m_GlobalTransform.m_vPosition;
+    out_perLightData.invSqrAttRadius = 1.0f / (pPointLightRenderData->m_fRange * pPointLightRenderData->m_fRange);
   }
 
-  void FillSpotLightData(ezPerLightData& ref_perLightData, const ezSpotLightRenderData* pSpotLightRenderData)
+  void FillSpotLightData(ezPerLightData& out_perLightData, const ezSpotLightRenderData* pSpotLightRenderData)
   {
-    FillLightData(ref_perLightData, pSpotLightRenderData, LIGHT_TYPE_SPOT);
+    FillLightData(out_perLightData, pSpotLightRenderData, LIGHT_TYPE_SPOT);
 
-    ref_perLightData.direction = ezShaderUtils::Float3ToRGB10(pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
-    ref_perLightData.position = pSpotLightRenderData->m_GlobalTransform.m_vPosition;
-    ref_perLightData.invSqrAttRadius = 1.0f / (pSpotLightRenderData->m_fRange * pSpotLightRenderData->m_fRange);
+    out_perLightData.direction = ezShaderUtils::Float3ToRGB10(pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
+    out_perLightData.position = pSpotLightRenderData->m_GlobalTransform.m_vPosition;
+    out_perLightData.invSqrAttRadius = 1.0f / (pSpotLightRenderData->m_fRange * pSpotLightRenderData->m_fRange);
 
     const float fCosInner = ezMath::Cos(pSpotLightRenderData->m_InnerSpotAngle * 0.5f);
     const float fCosOuter = ezMath::Cos(pSpotLightRenderData->m_OuterSpotAngle * 0.5f);
     const float fSpotParamScale = 1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter));
     const float fSpotParamOffset = -fCosOuter * fSpotParamScale;
-    ref_perLightData.spotParams = ezShaderUtils::Float2ToRG16F(ezVec2(fSpotParamScale, fSpotParamOffset));
+    out_perLightData.spotOrFillParams = ezShaderUtils::Float2ToRG16F(ezVec2(fSpotParamScale, fSpotParamOffset));
   }
 
-  void FillDirLightData(ezPerLightData& ref_perLightData, const ezDirectionalLightRenderData* pDirLightRenderData)
+  void FillDirLightData(ezPerLightData& out_perLightData, const ezDirectionalLightRenderData* pDirLightRenderData)
   {
-    FillLightData(ref_perLightData, pDirLightRenderData, LIGHT_TYPE_DIR);
+    FillLightData(out_perLightData, pDirLightRenderData, LIGHT_TYPE_DIR);
 
-    ref_perLightData.direction = ezShaderUtils::Float3ToRGB10(pDirLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
+    out_perLightData.direction = ezShaderUtils::Float3ToRGB10(pDirLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
   }
 
-  void FillDecalData(ezPerDecalData& ref_perDecalData, const ezDecalRenderData* pDecalRenderData)
+  void FillFillLightData(ezPerLightData& out_perLightData, const ezFillLightRenderData* pFillLightRenderData)
+  {
+    ezMemoryUtils::ZeroFill(&out_perLightData, 1);
+
+    ezColorLinearUB lightColor = pFillLightRenderData->m_LightColor;
+    lightColor.a = LIGHT_TYPE_FILL;
+
+    out_perLightData.colorAndType = *reinterpret_cast<ezUInt32*>(&lightColor.r);
+    out_perLightData.intensity = pFillLightRenderData->m_fIntensity;
+    out_perLightData.specularMultiplier = 0.0f; // no specular for fill lights
+
+    out_perLightData.position = pFillLightRenderData->m_GlobalTransform.m_vPosition;
+    out_perLightData.invSqrAttRadius = 1.0f / pFillLightRenderData->m_fRange;
+
+    const float fFalloffExponent = ezMath::Max(pFillLightRenderData->m_fFalloffExponent, 0.001f);
+    out_perLightData.spotOrFillParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFalloffExponent, pFillLightRenderData->m_fDirectionality));
+  }
+
+  void FillDecalData(ezPerDecalData& out_perDecalData, const ezDecalRenderData* pDecalRenderData)
   {
     ezVec3 position = pDecalRenderData->m_GlobalTransform.m_vPosition;
     ezVec3 dirForwards = pDecalRenderData->m_GlobalTransform.m_qRotation * ezVec3(1.0f, 0.0, 0.0f);
@@ -218,22 +237,22 @@ namespace
     const ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(position, position + dirForwards, dirUp);
     ezMat4 scaleMat = ezMat4::MakeScaling(ezVec3(scale.y, -scale.z, scale.x));
 
-    ref_perDecalData.worldToDecalMatrix = scaleMat * lookAt;
-    ref_perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;
-    ref_perDecalData.decalFlags = pDecalRenderData->m_uiFlags;
-    ref_perDecalData.angleFadeParams = pDecalRenderData->m_uiAngleFadeParams;
-    ref_perDecalData.baseColor = *reinterpret_cast<const ezUInt32*>(&pDecalRenderData->m_BaseColor.r);
-    ref_perDecalData.emissiveColorRG = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.r, pDecalRenderData->m_EmissiveColor.g);
-    ref_perDecalData.emissiveColorBA = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.b, pDecalRenderData->m_EmissiveColor.a);
-    ref_perDecalData.baseColorAtlasScale = pDecalRenderData->m_uiBaseColorAtlasScale;
-    ref_perDecalData.baseColorAtlasOffset = pDecalRenderData->m_uiBaseColorAtlasOffset;
-    ref_perDecalData.normalAtlasScale = pDecalRenderData->m_uiNormalAtlasScale;
-    ref_perDecalData.normalAtlasOffset = pDecalRenderData->m_uiNormalAtlasOffset;
-    ref_perDecalData.ormAtlasScale = pDecalRenderData->m_uiORMAtlasScale;
-    ref_perDecalData.ormAtlasOffset = pDecalRenderData->m_uiORMAtlasOffset;
+    out_perDecalData.worldToDecalMatrix = scaleMat * lookAt;
+    out_perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;
+    out_perDecalData.decalFlags = pDecalRenderData->m_uiFlags;
+    out_perDecalData.angleFadeParams = pDecalRenderData->m_uiAngleFadeParams;
+    out_perDecalData.baseColor = *reinterpret_cast<const ezUInt32*>(&pDecalRenderData->m_BaseColor.r);
+    out_perDecalData.emissiveColorRG = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.r, pDecalRenderData->m_EmissiveColor.g);
+    out_perDecalData.emissiveColorBA = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.b, pDecalRenderData->m_EmissiveColor.a);
+    out_perDecalData.baseColorAtlasScale = pDecalRenderData->m_uiBaseColorAtlasScale;
+    out_perDecalData.baseColorAtlasOffset = pDecalRenderData->m_uiBaseColorAtlasOffset;
+    out_perDecalData.normalAtlasScale = pDecalRenderData->m_uiNormalAtlasScale;
+    out_perDecalData.normalAtlasOffset = pDecalRenderData->m_uiNormalAtlasOffset;
+    out_perDecalData.ormAtlasScale = pDecalRenderData->m_uiORMAtlasScale;
+    out_perDecalData.ormAtlasOffset = pDecalRenderData->m_uiORMAtlasOffset;
   }
 
-  void FillReflectionProbeData(ezPerReflectionProbeData& ref_perReflectionProbeData, const ezReflectionProbeRenderData* pReflectionProbeRenderData)
+  void FillReflectionProbeData(ezPerReflectionProbeData& out_perReflectionProbeData, const ezReflectionProbeRenderData* pReflectionProbeRenderData)
   {
     ezVec3 position = pReflectionProbeRenderData->m_GlobalTransform.m_vPosition;
     ezVec3 scale = pReflectionProbeRenderData->m_GlobalTransform.m_vScale.CompMul(pReflectionProbeRenderData->m_vHalfExtents);
@@ -246,17 +265,17 @@ namespace
     // the CompMax prevents division by zero (thus inf, thus NaN later, then crash)
     // if negative scaling should be allowed, this would need to be changed
     scale = ezVec3(1.0f).CompDiv(scale.CompMax(ezVec3(0.00001f)));
-    ref_perReflectionProbeData.WorldToProbeProjectionMatrix = inverse;
+    out_perReflectionProbeData.WorldToProbeProjectionMatrix = inverse;
 
-    ref_perReflectionProbeData.ProbePosition = pReflectionProbeRenderData->m_vProbePosition.GetAsVec4(1.0f); // W isn't used.
-    ref_perReflectionProbeData.Scale = scale.GetAsVec4(0.0f);                                                // W isn't used.
+    out_perReflectionProbeData.ProbePosition = pReflectionProbeRenderData->m_vProbePosition.GetAsVec4(1.0f); // W isn't used.
+    out_perReflectionProbeData.Scale = scale.GetAsVec4(0.0f);                                                // W isn't used.
 
-    ref_perReflectionProbeData.InfluenceScale = pReflectionProbeRenderData->m_vInfluenceScale.GetAsVec4(0.0f);
-    ref_perReflectionProbeData.InfluenceShift = pReflectionProbeRenderData->m_vInfluenceShift.CompMul(ezVec3(1.0f) - pReflectionProbeRenderData->m_vInfluenceScale).GetAsVec4(0.0f);
+    out_perReflectionProbeData.InfluenceScale = pReflectionProbeRenderData->m_vInfluenceScale.GetAsVec4(0.0f);
+    out_perReflectionProbeData.InfluenceShift = pReflectionProbeRenderData->m_vInfluenceShift.CompMul(ezVec3(1.0f) - pReflectionProbeRenderData->m_vInfluenceScale).GetAsVec4(0.0f);
 
-    ref_perReflectionProbeData.PositiveFalloff = pReflectionProbeRenderData->m_vPositiveFalloff.GetAsVec4(0.0f);
-    ref_perReflectionProbeData.NegativeFalloff = pReflectionProbeRenderData->m_vNegativeFalloff.GetAsVec4(0.0f);
-    ref_perReflectionProbeData.Index = pReflectionProbeRenderData->m_uiIndex;
+    out_perReflectionProbeData.PositiveFalloff = pReflectionProbeRenderData->m_vPositiveFalloff.GetAsVec4(0.0f);
+    out_perReflectionProbeData.NegativeFalloff = pReflectionProbeRenderData->m_vNegativeFalloff.GetAsVec4(0.0f);
+    out_perReflectionProbeData.Index = pReflectionProbeRenderData->m_uiIndex;
   }
 
 

@@ -492,8 +492,9 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
     float3 lightVector = lightDir;
     float attenuation = 1.0f;
     float distanceToLight = 1.0f;
+    float directionality = 1.0f;
 
-    [branch] if (type != LIGHT_TYPE_DIR)
+    [branch] if (type <= LIGHT_TYPE_SPOT)
     {
       lightVector = lightData.position - matData.worldPosition;
       float sqrDistance = dot(lightVector, lightVector);
@@ -505,12 +506,23 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 
       [branch] if (type == LIGHT_TYPE_SPOT)
       {
-        float2 spotParams = RG16FToFloat2(lightData.spotParams);
+        float2 spotParams = RG16FToFloat2(lightData.spotOrFillParams);
         attenuation *= SpotAttenuation(lightVector, lightDir, spotParams);
       }
     }
+    else if (type == LIGHT_TYPE_FILL)
+    {
+      lightVector = NormalizeAndGetLength(lightData.position - matData.worldPosition, distanceToLight);
+
+      attenuation = saturate(1.0 - distanceToLight * lightData.invSqrAttRadius);
+
+      float2 fillParams = RG16FToFloat2(lightData.spotOrFillParams);
+      attenuation = pow(attenuation, fillParams.x);
+      directionality = fillParams.y;
+    }
 
     float NdotL = saturate(dot(matData.worldNormal, lightVector));
+    NdotL = lerp(1.0, NdotL, directionality);
 
 #if !defined(USE_MATERIAL_SUBSURFACE_COLOR)
     [branch] if (attenuation * NdotL > 0.0f)
@@ -539,7 +551,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
       lightColor = lerp(1.0f, debugColor, 0.5f);
 #endif
 
-      AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector), lightColor * (attenuation * shadowTerm), lightData.specularMultiplier);
+      AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector, NdotL), lightColor * (attenuation * shadowTerm), lightData.specularMultiplier);
 
 #if defined(USE_MATERIAL_SUBSURFACE_COLOR)
       AccumulateLight(totalLight, SubsurfaceShading(matData, lightVector, viewVector), lightColor * (attenuation * subsurfaceShadow));

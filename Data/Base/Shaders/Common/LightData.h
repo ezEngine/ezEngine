@@ -12,6 +12,7 @@
 #define LIGHT_TYPE_POINT 0
 #define LIGHT_TYPE_SPOT 1
 #define LIGHT_TYPE_DIR 2
+#define LIGHT_TYPE_FILL 3
 
 struct EZ_SHADER_STRUCT ezPerLightData
 {
@@ -23,7 +24,7 @@ struct EZ_SHADER_STRUCT ezPerLightData
   FLOAT3(position);
   FLOAT1(invSqrAttRadius);
 
-  UINT1(spotParams); // scale and offset as 16 bit floats
+  UINT1(spotOrFillParams); // spot: scale and offset as 16 bit floats, fill: falloff exponent and directionality as 16 bit floats
   UINT1(projectorAtlasOffset); // xy as 16 bit floats
   UINT1(projectorAtlasScale); // xy as 16 bit floats
   FLOAT1(specularMultiplier);

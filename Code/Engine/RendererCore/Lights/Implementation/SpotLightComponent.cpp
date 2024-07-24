@@ -43,11 +43,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezSpotLightComponent::ezSpotLightComponent()
-{
-  m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
-}
-
+ezSpotLightComponent::ezSpotLightComponent() = default;
 ezSpotLightComponent::~ezSpotLightComponent() = default;
 
 ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
@@ -140,25 +136,24 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   if (m_fIntensity <= 0.0f || m_fEffectiveRange <= 0.0f || m_OuterSpotAngle.GetRadian() <= 0.0f)
     return;
 
-  ezTransform t = GetOwner()->GetGlobalTransform();
-  ezBoundingSphere bs = CalculateBoundingSphere(t, m_fEffectiveRange * 0.5f);
+  const ezTransform t = GetOwner()->GetGlobalTransform();
+  const ezBoundingSphere bs = CalculateBoundingSphere(t, m_fEffectiveRange * 0.5f);
 
-  float fScreenSpaceSize = CalculateScreenSpaceSize(bs, *msg.m_pView->GetCullingCamera());
+  const float fScreenSpaceSize = CalculateScreenSpaceSize(bs, *msg.m_pView->GetCullingCamera());
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (cvar_RenderingLightingVisScreenSpaceSize)
   {
-    ezStringBuilder sb;
-    sb.SetFormat("{0}", fScreenSpaceSize);
-    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, t.m_vPosition, ezColor::Olive);
-    ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, ezColor::Olive);
+    ezColor c = ezColorScheme::LightUI(ezColorScheme::Cyan);
+    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), ezFmt("{0}", fScreenSpaceSize), t.m_vPosition, c);
+    ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, c);
   }
 #endif
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = t;
-  pRenderData->m_LightColor = GetLightColor();
+  pRenderData->m_LightColor = GetEffectiveColor();
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
   pRenderData->m_fRange = m_fEffectiveRange;

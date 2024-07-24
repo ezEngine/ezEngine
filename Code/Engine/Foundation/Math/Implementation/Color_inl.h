@@ -51,12 +51,11 @@ inline ezColor ezColor::MakeFromKelvin(ezUInt32 uiKelvin)
   float kelvin = ezMath::Clamp(uiKelvin, 1000u, 40000u) / 1000.0f;
   float kelvin2 = kelvin * kelvin;
 
-  // Red
-  finalColor.r = kelvin < 6.570f ? 1.0f : ezMath::Clamp((1.35651f + 0.216422f * kelvin + 0.000633715f * kelvin2) / (-3.24223f + 0.918711f * kelvin), 0.0f, 1.0f);
-  // Green
-  finalColor.g = kelvin < 6.570f ? ezMath::Clamp((-399.809f + 414.271f * kelvin + 111.543f * kelvin2) / (2779.24f + 164.143f * kelvin + 84.7356f * kelvin2), 0.0f, 1.0f) : ezMath::Clamp((1370.38f + 734.616f * kelvin + 0.689955f * kelvin2) / (-4625.69f + 1699.87f * kelvin), 0.0f, 1.0f);
-  // Blue
-  finalColor.b = kelvin > 6.570f ? 1.0f : ezMath::Clamp((348.963f - 523.53f * kelvin + 183.62f * kelvin2) / (2848.82f - 214.52f * kelvin + 78.8614f * kelvin2), 0.0f, 1.0f);
+  finalColor.r = kelvin < 6.570f ? 1.0f : ezMath::Saturate((1.35651f + 0.216422f * kelvin + 0.000633715f * kelvin2) / (-3.24223f + 0.918711f * kelvin));
+  finalColor.g = kelvin < 6.570f ?
+    ezMath::Saturate((-399.809f + 414.271f * kelvin + 111.543f * kelvin2) / (2779.24f + 164.143f * kelvin + 84.7356f * kelvin2)) :
+    ezMath::Saturate((1370.38f + 734.616f * kelvin + 0.689955f * kelvin2) / (-4625.69f + 1699.87f * kelvin));
+  finalColor.b = kelvin > 6.570f ? 1.0f : ezMath::Saturate((348.963f - 523.53f * kelvin + 183.62f * kelvin2) / (2848.82f - 214.52f * kelvin + 78.8614f * kelvin2));
 
   return finalColor;
 }

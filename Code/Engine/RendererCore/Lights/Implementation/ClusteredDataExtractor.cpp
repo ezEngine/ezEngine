@@ -219,10 +219,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(
         {
           FillPointLightData(m_TempLightData.ExpandAndGetRef(), pPointLightRenderData);
 
-          ezSimdBSphere pointLightSphere =
-            ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_GlobalTransform.m_vPosition), pPointLightRenderData->m_fRange);
-          RasterizeSphere(
-            pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_GlobalTransform.m_vPosition), pPointLightRenderData->m_fRange);
+          RasterizeSphere(pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
           if (false)
           {
@@ -254,6 +252,13 @@ void ezClusteredDataExtractor::PostSortAndBatch(
           FillDirLightData(m_TempLightData.ExpandAndGetRef(), pDirLightRenderData);
 
           RasterizeDirLight(pDirLightRenderData, uiLightIndex, m_TempLightsClusters.GetArrayPtr());
+        }
+        else if (auto pFillLightRenderData = ezDynamicCast<const ezFillLightRenderData*>(it))
+        {
+          FillFillLightData(m_TempLightData.ExpandAndGetRef(), pFillLightRenderData);
+
+          ezSimdBSphere fillLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pFillLightRenderData->m_GlobalTransform.m_vPosition), pFillLightRenderData->m_fRange);
+          RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
         }
         else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))
         {
