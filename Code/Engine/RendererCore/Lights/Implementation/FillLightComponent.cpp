@@ -10,6 +10,10 @@ extern ezCVarBool cvar_RenderingLightingVisScreenSpaceSize;
 #endif
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFillLightMode, 1)
+  EZ_ENUM_CONSTANTS(ezFillLightMode::Additive, ezFillLightMode::ModulateIndirect)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFillLightRenderData, 1, ezRTTIDefaultAllocator<ezFillLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -25,6 +29,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFillLightComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY_READ_ONLY("EffectiveColor", GetEffectiveColor)->AddAttributes(new ezHiddenAttribute),
+    EZ_ENUM_ACCESSOR_PROPERTY("LightMode", ezFillLightMode, GetLightMode, SetLightMode),
     EZ_ACCESSOR_PROPERTY("UseColorTemperature", GetUsingColorTemperature, SetUsingColorTemperature),
     EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
     EZ_ACCESSOR_PROPERTY("Temperature", GetTemperature, SetTemperature)->AddAttributes(new ezImageSliderUiAttribute("LightTemperature"), new ezDefaultValueAttribute(6550), new ezClampValueAttribute(1000, 15000)),
@@ -58,7 +63,14 @@ void ezFillLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   SUPER::SerializeComponent(inout_stream);
   ezStreamWriter& s = inout_stream.GetStream();
 
+  s << m_LightColor;
+  s << m_uiTemperature;
+  s << m_fIntensity;
   s << m_fRange;
+  s << m_fFalloffExponent;
+  s << m_fDirectionality;
+  s << m_LightMode;
+  s << m_bUseColorTemperature;
 }
 
 void ezFillLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -67,13 +79,27 @@ void ezFillLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
+  s >> m_LightColor;
+  s >> m_uiTemperature;
+  s >> m_fIntensity;
   s >> m_fRange;
+  s >> m_fFalloffExponent;
+  s >> m_fDirectionality;
+  s >> m_LightMode;
+  s >> m_bUseColorTemperature;
 }
 
 ezResult ezFillLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRange);
   return EZ_SUCCESS;
+}
+
+void ezFillLightComponent::SetLightMode(ezEnum<ezFillLightMode> mode)
+{
+  m_LightMode = mode;
+
+  InvalidateCachedRenderData();
 }
 
 void ezFillLightComponent::SetUsingColorTemperature(bool bUseColorTemperature)
@@ -148,7 +174,7 @@ void ezFillLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
-  if (ezMath::IsZero(m_fIntensity, ezMath::DefaultEpsilon<float>()) || m_fRange <= 0.0f)
+  if ((m_LightMode == ezFillLightMode::Additive && ezMath::IsZero(m_fIntensity, ezMath::DefaultEpsilon<float>())) || m_fRange <= 0.0f)
     return;
 
   const ezTransform t = GetOwner()->GetGlobalTransform();
@@ -168,7 +194,8 @@ void ezFillLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   auto pRenderData = ezCreateRenderDataForThisFrame<ezFillLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = t;
-  pRenderData->m_LightColor = GetLightColor();
+  pRenderData->m_LightColor = GetEffectiveColor();
+  pRenderData->m_LightMode = m_LightMode;
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fRange = m_fRange;
   pRenderData->m_fFalloffExponent = m_fFalloffExponent;

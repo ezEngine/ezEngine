@@ -107,10 +107,11 @@ float3 FresnelSchlick(float3 specularColor, float u)
 }
 
 // note that 1/PI is applied later
-AccumulatedLight DefaultShading(ezMaterialData matData, float3 L, float3 V, float NdotL)
+AccumulatedLight DefaultShading(ezMaterialData matData, float3 L, float3 V)
 {
   float3 N = matData.worldNormal;
   float3 H = normalize(V + L);
+  float NdotL = saturate(dot(N, L));
   float NdotV = max(dot(N, V), 1e-5f);
   float NdotH = saturate(dot(N, H));
   float VdotH = saturate(dot(V, H));

@@ -210,7 +210,7 @@ namespace
     ezMemoryUtils::ZeroFill(&out_perLightData, 1);
 
     ezColorLinearUB lightColor = pFillLightRenderData->m_LightColor;
-    lightColor.a = LIGHT_TYPE_FILL;
+    lightColor.a = pFillLightRenderData->m_LightMode == ezFillLightMode::Additive ? LIGHT_TYPE_FILL_ADDITIVE : LIGHT_TYPE_FILL_MODULATE_INDIRECT;
 
     out_perLightData.colorAndType = *reinterpret_cast<ezUInt32*>(&lightColor.r);
     out_perLightData.intensity = pFillLightRenderData->m_fIntensity;

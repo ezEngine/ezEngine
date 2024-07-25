@@ -5,7 +5,20 @@
 
 struct ezMsgSetColor;
 
-using ezFillLightComponentManager = ezComponentManager<class ezFillLightComponent, ezBlockStorageType::Compact>;
+struct ezFillLightMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Additive,
+    ModulateIndirect,
+
+    Default = Additive
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezFillLightMode);
 
 /// \brief The render data object for fill lights.
 class EZ_RENDERERCORE_DLL ezFillLightRenderData : public ezRenderData
@@ -16,13 +29,17 @@ public:
   void FillBatchIdAndSortingKey(float fScreenSpaceSize);
 
   ezColorLinearUB m_LightColor;
+  ezEnum<ezFillLightMode> m_LightMode;
   float m_fIntensity;
   float m_fRange;
   float m_fFalloffExponent;
   float m_fDirectionality;
 };
 
-/// \brief Adds a fill light to the scene.
+using ezFillLightComponentManager = ezComponentManager<class ezFillLightComponent, ezBlockStorageType::Compact>;
+
+/// \brief Adds a fill light to the scene. This can be used to simulate bounced light or to light up dark areas.
+/// It can also be used to modulate the indirect lighting.
 class EZ_RENDERERCORE_DLL ezFillLightComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezFillLightComponent, ezRenderComponent, ezFillLightComponentManager);
@@ -47,6 +64,9 @@ public:
 public:
   ezFillLightComponent();
   ~ezFillLightComponent();
+
+  void SetLightMode(ezEnum<ezFillLightMode> mode);                     // [ property ]
+  ezEnum<ezFillLightMode> GetLightMode() const { return m_LightMode; } // [ property ]
 
   /// \brief Used to enable kelvin color values. This is a physical representation of light color using.
   /// for more detail: https://wikipedia.org/wiki/Color_temperature
@@ -85,5 +105,6 @@ protected:
   float m_fRange = 5.0f;
   float m_fFalloffExponent = 1.0f;
   float m_fDirectionality = 1.0f;
+  ezEnum<ezFillLightMode> m_LightMode;
   bool m_bUseColorTemperature = false;
 };
