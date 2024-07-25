@@ -27,8 +27,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
 
           float fIntersection;
           ezVec3 vIntersection;
-          EZ_TEST_BOOL(ezIntersectionUtils::RayPolygonIntersection(
-                         vRayStart, vRayDir, Vertices, 4, &fIntersection, &vIntersection, sizeof(ezVec3) * 2) == bIntersects);
+          EZ_TEST_BOOL(ezIntersectionUtils::RayPolygonIntersection(vRayStart, vRayDir, Vertices, 4, &fIntersection, &vIntersection, sizeof(ezVec3) * 2) == bIntersects);
 
           if (bIntersects)
           {
@@ -117,6 +116,77 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
           EZ_TEST_VEC2(vIntersection, vSegmentPos, 0.0001f);
         }
       };
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RayTriangleIntersection")
+  {
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      ezMat4 m;
+      m = ezMat4::MakeAxisRotation(ezVec3(i + 1.0f, i * 3.0f, i * 7.0f).GetNormalized(), ezAngle::MakeFromDegree((float)i));
+      m.SetTranslationVector(ezVec3((float)i, i * 2.0f, i * 3.0f));
+
+      ezVec3 Vertices[4] = {m.TransformPosition(ezVec3(-10, -10, 0)), m.TransformPosition(ezVec3(10, -10, 0)),
+        m.TransformPosition(ezVec3(10, 10, 0)), m.TransformPosition(ezVec3(-10, 10, 0))};
+
+      for (float y = -14.5; y <= 14.5f; y += 2.0f)
+      {
+        for (float x = -14.5; x <= 14.5f; x += 2.0f)
+        {
+          const ezVec3 vRayDir = m.TransformDirection(ezVec3(x, y, -10.0f));
+          const ezVec3 vRayStart = m.TransformPosition(ezVec3(x, y, 0.0f)) - vRayDir * 3.0f;
+
+          const bool bInRect = (x >= -10.0f && x <= 10.0f && y >= -10.0f && y <= 10.0f);
+
+          ezVec3 vPlaneIntersection;
+          ezPlane plane = ezPlane::MakeFromPoints(Vertices[0], Vertices[1], Vertices[2]);
+          EZ_TEST_BOOL(plane.GetRayIntersection(vRayStart, vRayDir, nullptr, &vPlaneIntersection));
+          const bool bIsOnEdge = ezIntersectionUtils::IsPointOnLine(Vertices[0], Vertices[2], vPlaneIntersection);
+
+          float fIntersection1 = 0;
+          ezVec3 vIntersection1(0.0f);
+          float fIntersection2 = 0;
+          ezVec3 vIntersection2(0.0f);
+
+          const bool bHit1a = ezIntersectionUtils::RayPolygonIntersection(vRayStart, vRayDir, Vertices, 3);
+
+          const bool bHit1 = ezIntersectionUtils::RayTriangleIntersection(vRayStart, vRayDir, Vertices[0], Vertices[1], Vertices[2], &fIntersection1, &vIntersection1);
+
+          EZ_TEST_BOOL(bHit1 == bHit1a);
+
+          const bool bHit2 = ezIntersectionUtils::RayTriangleIntersection(vRayStart, vRayDir, Vertices[0], Vertices[2], Vertices[3], &fIntersection2, &vIntersection2);
+
+          if (!bInRect)
+          {
+            // outside rect, neither should hit
+            EZ_TEST_BOOL(bHit1 == false);
+            EZ_TEST_BOOL(bHit2 == false);
+            EZ_TEST_BOOL(bHit1a == false);
+          }
+          else
+          {
+            if (!bIsOnEdge) // anything can happen close to the edge
+            {
+              // inside rect, exactly one triangle should hit
+              EZ_TEST_BOOL(bHit1 || bHit2);
+              EZ_TEST_BOOL(bHit1 != bHit2);
+            }
+
+            if (bHit1)
+            {
+              EZ_TEST_FLOAT(fIntersection1, 3.0f, 0.0001f);
+              EZ_TEST_VEC3(vIntersection1, m.TransformPosition(ezVec3(x, y, 0.0f)), 0.0001f);
+            }
+
+            if (bHit2)
+            {
+              EZ_TEST_FLOAT(fIntersection2, 3.0f, 0.0001f);
+              EZ_TEST_VEC3(vIntersection2, m.TransformPosition(ezVec3(x, y, 0.0f)), 0.0001f);
+            }
+          }
+        }
+      }
     }
   }
 }
