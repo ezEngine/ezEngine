@@ -560,8 +560,8 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
       attenuation = pow(attenuation, fillParams.x);
 
       float directionality = fillParams.y;
-      float NdotL = saturate(dot(matData.worldNormal, lightVector));
-      attenuation *= lerp(1.0, NdotL, directionality);
+      float NdotL = dot(matData.worldNormal, lightVector);
+      attenuation *= saturate(lerp(1.0, NdotL, directionality));
 
       float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
       if (type == LIGHT_TYPE_FILL_ADDITIVE)
@@ -570,7 +570,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
       }
       else if (type == LIGHT_TYPE_FILL_MODULATE_INDIRECT)
       {
-        indirectLightModulation *= lerp(1.0, lightColor * lightData.intensity, attenuation);
+        indirectLightModulation = lerp(indirectLightModulation, lightColor * lightData.intensity, attenuation);
       }
     }
   }
@@ -589,10 +589,10 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 
   // sky light in ambient cube basis
   float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, matData.worldNormal).rgb;
-  totalLight.diffuseLight += matData.diffuseColor * indirectLightModulation * skyLight * occlusion;
+  totalLight.diffuseLight += max(matData.diffuseColor * indirectLightModulation * skyLight * occlusion, 0.0);
 
   // indirect specular
-  totalLight.specularLight += matData.specularColor * indirectLightModulation * ComputeReflection(matData, viewVector, clusterData) * occlusion;
+  totalLight.specularLight += max(matData.specularColor * indirectLightModulation * ComputeReflection(matData, viewVector, clusterData) * occlusion, 0.0);
 
   // enable once we have proper sky visibility
   /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
