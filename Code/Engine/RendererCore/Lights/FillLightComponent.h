@@ -65,6 +65,8 @@ public:
   ezFillLightComponent();
   ~ezFillLightComponent();
 
+  /// \brief In Additive mode the fill light adds light to scene like a regular light source.
+  /// In ModulateIndirect mode it acts as a multiplier to the indirect light.
   void SetLightMode(ezEnum<ezFillLightMode> mode);                     // [ property ]
   ezEnum<ezFillLightMode> GetLightMode() const { return m_LightMode; } // [ property ]
 
@@ -81,7 +83,9 @@ public:
 
   ezColorGammaUB GetEffectiveColor() const;
 
-  /// \brief Sets the brightness of the light source.
+  /// \brief In Additive mode this controls the brightness of the light source.
+  /// In ModulateIndirect mode light color times intensity is multiplied with the indirect light,
+  /// thus values below 1 darken the indirect light, values above 1 brighten the indirect light.
   void SetIntensity(float fIntensity);                // [ property ]
   float GetIntensity() const { return m_fIntensity; } // [ property ]
 
@@ -92,8 +96,11 @@ public:
   void SetFalloffExponent(float fFalloffExponent);                // [ property ]
   float GetFalloffExponent() const { return m_fFalloffExponent; } // [ property ]
 
-  void SetDirectionality(float fDirectionality);                  // [ property ]
-  float GetDirectionality() const { return m_fDirectionality; }   // [ property ]
+  /// \brief Controls how much the light wraps to the backside of lit objects.
+  /// A directionality of 1 means no light will wrap to the backside and
+  /// with a directionality of 0 light will equaly lit front and backsides.
+  void SetDirectionality(float fDirectionality);                // [ property ]
+  float GetDirectionality() const { return m_fDirectionality; } // [ property ]
 
 protected:
   void OnMsgSetColor(ezMsgSetColor& ref_msg);
