@@ -30,7 +30,7 @@ namespace ezIntersectionUtils
 
   /// \brief Checks whether a ray intersects with a polygon.
   ///
-  /// The vertex winding order does not matter, triangles will be hit from both sides.
+  /// The vertex winding order does not matter, polygons will be hit from both sides.
   ///
   /// \param vRayStartPos
   ///   The start position of the ray.
