@@ -466,6 +466,60 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
   return ref.rgb;
 }
 
+// Returns unsaturated NdotL
+float EvaluatePBRLight(float3 worldPosition, float3 worldNormal, ezPerLightData lightData, uint type, out float3 lightVector, out float attenuation, out float distanceToLight)
+{
+  float3 lightDir = normalize(RGB10ToFloat3(lightData.direction) * 2.0 - 1.0);
+  lightVector = lightDir;
+  attenuation = 1.0;
+  distanceToLight = 1.0;
+
+  [branch] if (type <= LIGHT_TYPE_SPOT)
+  {
+    lightVector = lightData.position - worldPosition;
+    float sqrDistance = dot(lightVector, lightVector);
+
+    attenuation = DistanceAttenuation(sqrDistance, lightData.invSqrAttRadius);
+
+    distanceToLight = sqrDistance * lightData.invSqrAttRadius;
+    lightVector *= rsqrt(sqrDistance);
+
+    if (type == LIGHT_TYPE_SPOT)
+    {
+      float2 spotParams = RG16FToFloat2(lightData.spotOrFillParams);
+      attenuation *= SpotAttenuation(lightVector, lightDir, spotParams);
+    }
+  }
+
+  float NdotL = dot(worldNormal, lightVector);
+  return NdotL;
+}
+
+void EvaluateFillLight(float3 worldPosition, float3 worldNormal, float3 diffuseColor, float directionality, ezPerLightData lightData, uint type, inout float3 diffuseLight, inout float3 indirectLightModulation)
+{
+  float distanceToLight = 1.0f;
+  float3 lightVector = NormalizeAndGetLength(lightData.position - worldPosition, distanceToLight);
+
+  float attenuation = saturate(1.0 - distanceToLight * lightData.invSqrAttRadius);
+
+  float2 fillParams = RG16FToFloat2(lightData.spotOrFillParams);
+  attenuation = pow(attenuation, fillParams.x);
+
+  directionality = min(directionality, fillParams.y);
+  float NdotL = dot(worldNormal, lightVector);
+  attenuation *= saturate(lerp(1.0, NdotL, directionality));
+
+  float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
+  if (type == LIGHT_TYPE_FILL_ADDITIVE)
+  {
+    diffuseLight += diffuseColor * lightColor * (lightData.intensity * attenuation);
+  }
+  else if (type == LIGHT_TYPE_FILL_MODULATE_INDIRECT)
+  {
+    indirectLightModulation *= max(lerp(1.0, lightColor * lightData.intensity, attenuation), 0.0);
+  }
+}
+
 AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool applySSAO)
 {
   float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
@@ -491,29 +545,10 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 
     [branch] if (type <= LIGHT_TYPE_DIR)
     {
-      float3 lightDir = normalize(RGB10ToFloat3(lightData.direction) * 2.0f - 1.0f);
-      float3 lightVector = lightDir;
-      float attenuation = 1.0f;
-      float distanceToLight = 1.0f;
-
-      [branch] if (type <= LIGHT_TYPE_SPOT)
-      {
-        lightVector = lightData.position - matData.worldPosition;
-        float sqrDistance = dot(lightVector, lightVector);
-
-        attenuation = DistanceAttenuation(sqrDistance, lightData.invSqrAttRadius);
-
-        distanceToLight = sqrDistance * lightData.invSqrAttRadius;
-        lightVector *= rsqrt(sqrDistance);
-
-        if (type == LIGHT_TYPE_SPOT)
-        {
-          float2 spotParams = RG16FToFloat2(lightData.spotOrFillParams);
-          attenuation *= SpotAttenuation(lightVector, lightDir, spotParams);
-        }
-      }
-
-      float NdotL = saturate(dot(matData.worldNormal, lightVector));
+      float3 lightVector;
+      float attenuation = 1.0;
+      float distanceToLight = 1.0;
+      float NdotL = saturate(EvaluatePBRLight(matData.worldPosition, matData.worldNormal, lightData, type, lightVector, attenuation, distanceToLight));
 
 #if !defined(USE_MATERIAL_SUBSURFACE_COLOR)
       [branch] if (attenuation * NdotL > 0.0f)
@@ -551,27 +586,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
     }
     else // Fill Light
     {
-      float distanceToLight = 1.0f;
-      float3 lightVector = NormalizeAndGetLength(lightData.position - matData.worldPosition, distanceToLight);
-
-      float attenuation = saturate(1.0 - distanceToLight * lightData.invSqrAttRadius);
-
-      float2 fillParams = RG16FToFloat2(lightData.spotOrFillParams);
-      attenuation = pow(attenuation, fillParams.x);
-
-      float directionality = fillParams.y;
-      float NdotL = dot(matData.worldNormal, lightVector);
-      attenuation *= saturate(lerp(1.0, NdotL, directionality));
-
-      float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
-      if (type == LIGHT_TYPE_FILL_ADDITIVE)
-      {
-        totalLight.diffuseLight += matData.diffuseColor * lightColor * (lightData.intensity * attenuation);
-      }
-      else if (type == LIGHT_TYPE_FILL_MODULATE_INDIRECT)
-      {
-        indirectLightModulation = lerp(indirectLightModulation, lightColor * lightData.intensity, attenuation);
-      }
+      EvaluateFillLight(matData.worldPosition, matData.worldNormal, matData.diffuseColor, 1.0, lightData, type, totalLight.diffuseLight, indirectLightModulation);
     }
   }
 
@@ -589,10 +604,10 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 
   // sky light in ambient cube basis
   float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, matData.worldNormal).rgb;
-  totalLight.diffuseLight += max(matData.diffuseColor * indirectLightModulation * skyLight * occlusion, 0.0);
+  totalLight.diffuseLight += matData.diffuseColor * indirectLightModulation * skyLight * occlusion;
 
   // indirect specular
-  totalLight.specularLight += max(matData.specularColor * indirectLightModulation * ComputeReflection(matData, viewVector, clusterData) * occlusion, 0.0);
+  totalLight.specularLight += matData.specularColor * indirectLightModulation * ComputeReflection(matData, viewVector, clusterData) * occlusion;
 
   // enable once we have proper sky visibility
   /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)

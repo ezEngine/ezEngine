@@ -47,6 +47,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFillLightComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
+    new ezCategoryAttribute("Lighting"),
     new ezSphereManipulatorAttribute("Range"),
     new ezSphereVisualizerAttribute("Range", ezColor::White, "LightColor"),
   }
