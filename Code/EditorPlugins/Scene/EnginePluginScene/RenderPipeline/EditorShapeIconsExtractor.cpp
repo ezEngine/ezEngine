@@ -44,7 +44,7 @@ void ezEditorShapeIconsExtractor::Extract(
   for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
   {
     const ezGameObject* pObject = it;
-    if (FilterByViewTags(view, pObject))
+    if (!pObject->IsActive() || FilterByViewTags(view, pObject))
       continue;
 
     ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pObject->GetGlobalPosition(), 0.1f);
@@ -63,7 +63,7 @@ void ezEditorShapeIconsExtractor::Extract(
       const ezGameObject* pObject = nullptr;
       if (view.GetWorld()->TryGetObject(hObject, pObject))
       {
-        if (FilterByViewTags(view, pObject))
+        if (!pObject->IsActive() || FilterByViewTags(view, pObject))
           continue;
 
         ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pObject->GetGlobalPosition(), 0.1f);
