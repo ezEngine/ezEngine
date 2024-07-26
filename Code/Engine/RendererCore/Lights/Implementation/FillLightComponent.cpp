@@ -3,7 +3,10 @@
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/FillLightComponent.h>
+#include <RendererCore/Lights/LightComponent.h>
+#include <RendererCore/Pipeline/View.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 extern ezCVarBool cvar_RenderingLightingVisScreenSpaceSize;
