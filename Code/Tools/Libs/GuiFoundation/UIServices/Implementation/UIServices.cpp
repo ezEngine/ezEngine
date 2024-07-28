@@ -118,12 +118,13 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
       const ezColorGammaUB color8 = svgTintColor;
 
       ezStringBuilder rep;
-      rep.SetFormat("#{}{}{}", ezArgI((int)color8.r, 2, true, 16), ezArgI((int)color8.g, 2, true, 16), ezArgI((int)color8.b, 2, true, 16));
+      rep.SetFormat("#{}{}{}", ezArgU(color8.r, 2, true, 16), ezArgU(color8.g, 2, true, 16), ezArgU(color8.b, 2, true, 16));
 
       sContent.ReplaceAll_NoCase("#ffffff", rep);
 
       rep.Append(";");
       sContent.ReplaceAll_NoCase("#fff;", rep);
+      sContent.ReplaceAll_NoCase("white;", rep);
       rep.Shrink(0, 1);
 
       rep.Prepend("\"");

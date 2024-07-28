@@ -90,7 +90,7 @@
     <file>ezPathNodeComponent.svg</file>
     <file>ezFollowPathComponent.svg</file>
     <file>ezLocalBlackboardComponent.svg</file>
-	<file>ezGlobalBlackboardComponent.svg</file>
+    <file>ezGlobalBlackboardComponent.svg</file>
     <file>ezPostProcessingComponent.svg</file>
     <file>ezVolumeBoxComponent.svg</file>
     <file>ezVolumeSphereComponent.svg</file>
@@ -98,6 +98,7 @@
     <file>ezLodMeshComponent.svg</file>
     <file>ezAimIKComponent.svg</file>
     <file>ezTwoBoneIKComponent.svg</file>
+    <file>ezFillLightComponent.svg</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.svg</file>

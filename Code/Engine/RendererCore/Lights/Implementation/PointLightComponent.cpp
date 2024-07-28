@@ -2,9 +2,14 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+extern ezCVarBool cvar_RenderingLightingVisScreenSpaceSize;
+#endif
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPointLightRenderData, 1, ezRTTIDefaultAllocator<ezPointLightRenderData>)
@@ -33,11 +38,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 2, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezPointLightComponent::ezPointLightComponent()
-{
-  m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
-}
-
+ezPointLightComponent::ezPointLightComponent() = default;
 ezPointLightComponent::~ezPointLightComponent() = default;
 
 ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
@@ -106,14 +107,24 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   if (m_fIntensity <= 0.0f || m_fEffectiveRange <= 0.0f)
     return;
 
-  ezTransform t = GetOwner()->GetGlobalTransform();
+  const ezTransform t = GetOwner()->GetGlobalTransform();
+  const ezBoundingSphere bs = ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fEffectiveRange * 0.5f);
 
-  float fScreenSpaceSize = CalculateScreenSpaceSize(ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
+  const float fScreenSpaceSize = CalculateScreenSpaceSize(bs, *msg.m_pView->GetCullingCamera());
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (cvar_RenderingLightingVisScreenSpaceSize)
+  {
+    ezColor c = ezColorScheme::LightUI(ezColorScheme::Cyan);
+    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), ezFmt("{0}", fScreenSpaceSize), t.m_vPosition, c);
+    ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, c);
+  }
+#endif
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = t;
-  pRenderData->m_LightColor = GetLightColor();
+  pRenderData->m_LightColor = GetEffectiveColor();
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
   pRenderData->m_fRange = m_fEffectiveRange;

@@ -333,20 +333,28 @@ void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& 
 
 void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezLightComponent");
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
-
-  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom(pRtti))
-    return;
+  static const ezRTTI* pLightComponentRtti = ezRTTI::FindTypeByName("ezLightComponent");
+  static const ezRTTI* pFillLightComponentRtti = ezRTTI::FindTypeByName("ezFillLightComponent");
+  EZ_ASSERT_DEBUG(pLightComponentRtti != nullptr && pFillLightComponentRtti != nullptr, "Did the typename change?");
 
   auto& props = *e.m_pPropertyStates;
 
-  const bool bUseColorTemperature = e.m_pObject->GetTypeAccessor().GetValue("UseColorTemperature").ConvertTo<bool>();
-  props["Temperature"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["LightColor"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  const ezRTTI* pObjectType = e.m_pObject->GetTypeAccessor().GetType();
+  const bool bIsLight = pObjectType->IsDerivedFrom(pLightComponentRtti);
+  const bool bIsFillLight = pObjectType->IsDerivedFrom(pFillLightComponentRtti);
 
-  const bool bCastShadows = e.m_pObject->GetTypeAccessor().GetValue("CastShadows").ConvertTo<bool>();
-  props["PenumbraSize"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["SlopeBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["ConstantBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  if (bIsLight || bIsFillLight)
+  {
+    const bool bUseColorTemperature = e.m_pObject->GetTypeAccessor().GetValue("UseColorTemperature").ConvertTo<bool>();
+    props["Temperature"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["LightColor"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  }
+
+  if (bIsLight)
+  {
+    const bool bCastShadows = e.m_pObject->GetTypeAccessor().GetValue("CastShadows").ConvertTo<bool>();
+    props["PenumbraSize"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SlopeBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["ConstantBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
 }

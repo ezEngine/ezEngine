@@ -116,7 +116,7 @@ void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   auto pRenderData = ezCreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_LightColor = GetLightColor();
+  pRenderData->m_LightColor = GetEffectiveColor();
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
   pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddDirectionalLight(this, msg.m_pView) : ezInvalidIndex;

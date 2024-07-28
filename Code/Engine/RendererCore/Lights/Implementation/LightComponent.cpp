@@ -23,7 +23,8 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 5)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("UseColorTemperature", GetUsingColorTemperature, SetUsingColorTemperature),
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("EffectiveColor", GetEffectiveColor)->AddAttributes(new ezHiddenAttribute),
+    EZ_ACCESSOR_PROPERTY("UseColorTemperature", GetUsingColorTemperature, SetUsingColorTemperature),    
     EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
     EZ_ACCESSOR_PROPERTY("Temperature", GetTemperature, SetTemperature)->AddAttributes(new ezImageSliderUiAttribute("LightTemperature"), new ezDefaultValueAttribute(6550), new ezClampValueAttribute(1000, 15000)),
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
@@ -63,6 +64,18 @@ bool ezLightComponent::GetUsingColorTemperature() const
   return m_bUseColorTemperature;
 }
 
+void ezLightComponent::SetTemperature(ezUInt32 uiTemperature)
+{
+  m_uiTemperature = ezMath::Clamp(uiTemperature, 1500u, 40000u);
+
+  InvalidateCachedRenderData();
+}
+
+ezUInt32 ezLightComponent::GetTemperature() const
+{
+  return m_uiTemperature;
+}
+
 void ezLightComponent::SetLightColor(ezColorGammaUB lightColor)
 {
   m_LightColor = lightColor;
@@ -70,12 +83,12 @@ void ezLightComponent::SetLightColor(ezColorGammaUB lightColor)
   InvalidateCachedRenderData();
 }
 
-ezColorGammaUB ezLightComponent::GetBaseLightColor() const
+ezColorGammaUB ezLightComponent::GetLightColor() const
 {
   return m_LightColor;
 }
 
-ezColorGammaUB ezLightComponent::GetLightColor() const
+ezColorGammaUB ezLightComponent::GetEffectiveColor() const
 {
   if (m_bUseColorTemperature)
   {
@@ -92,18 +105,6 @@ void ezLightComponent::SetIntensity(float fIntensity)
   m_fIntensity = ezMath::Max(fIntensity, 0.0f);
 
   TriggerLocalBoundsUpdate();
-}
-
-void ezLightComponent::SetTemperature(ezUInt32 uiTemperature)
-{
-  m_uiTemperature = ezMath::Clamp(uiTemperature, 1500u, 40000u);
-
-  InvalidateCachedRenderData();
-}
-
-ezUInt32 ezLightComponent::GetTemperature() const
-{
-  return m_uiTemperature;
 }
 
 float ezLightComponent::GetIntensity() const

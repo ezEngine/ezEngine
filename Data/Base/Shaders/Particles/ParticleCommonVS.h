@@ -60,7 +60,7 @@ Quad CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, 
 {
   float stretch = -inTangentZ.x;
 
-  float3 inTangentXws = mul(ObjectToWorldMatrix, float4(inTangentX.xyz, 0));
+  float3 inTangentXws = mul((float3x3)ObjectToWorldMatrix, inTangentX);
 
   float3 axisDir = normalize(inTangentXws);
   float3 orthoDir = normalize(cross(inTangentXws, GetCameraDirForwards()));
@@ -133,9 +133,10 @@ float2 ComputeAtlasTexCoordRandomAnimated(float2 baseTexCoord, uint numVarsX, ui
   return texCoordOffsetAndSize.xy + baseTexCoord * texCoordOffsetAndSize.zw;
 }
 
-float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, float3 normal)
+float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, float3 worldNormal)
 {
   float3 totalLight = 0.0f;
+  float3 indirectLightModulation = 1.0f;
 
 #if SHADING_QUALITY == SHADING_QUALITY_NORMAL
   float2 normalizedScreenPos = (screenPosition.xy / screenPosition.w) * float2(0.5, -0.5) + 0.5;
@@ -155,57 +156,45 @@ float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, fl
     ezPerLightData lightData = perLightDataBuffer[lightIndex];
     uint type = (lightData.colorAndType >> 24) & 0xFF;
 
-    float3 lightDir = normalize(RGB10ToFloat3(lightData.direction) * 2.0f - 1.0f);
-    float3 lightVector = lightDir;
-    float attenuation = 1.0f;
-    float distanceToLight = 1.0f;
-
-    [branch] if (type != LIGHT_TYPE_DIR)
+    [branch] if (type <= LIGHT_TYPE_DIR)
     {
-      lightVector = lightData.position - worldPosition;
-      float sqrDistance = dot(lightVector, lightVector);
+      float3 lightVector;
+      float attenuation = 1.0;
+      float distanceToLight = 1.0;
+      float NdotL = EvaluatePBRLight(worldPosition, worldNormal, lightData, type, lightVector, attenuation, distanceToLight);
+      attenuation *= saturate(lerp(1, NdotL, LightDirectionality));
 
-      attenuation = DistanceAttenuation(sqrDistance, lightData.invSqrAttRadius);
-
-      distanceToLight = sqrDistance * lightData.invSqrAttRadius;
-      lightVector *= rsqrt(sqrDistance);
-
-      [branch] if (type == LIGHT_TYPE_SPOT)
+      [branch] if (attenuation > 0.0f)
       {
-        float2 spotParams = RG16FToFloat2(lightData.spotParams);
-        attenuation *= SpotAttenuation(lightVector, lightDir, spotParams);
+        float3 debugColor = 1.0f;
+        float shadowTerm = 1.0;
+        float subsurfaceShadow = 1.0;
+
+        [branch] if (lightData.shadowDataOffset != 0xFFFFFFFF)
+        {
+          uint shadowDataOffset = lightData.shadowDataOffset;
+
+          // Zero normal effectively disables normal offset bias. Since our particles may have curved normals the
+          // normal offset bias can create weird artifacts and we don't need this bias on particles as they can't have self-shadow issues.
+          // Our usual noise also doesn't make sense with vertex lighting so we use a fixed shadow filter kernel rotation here.
+          float3 vertexNormal = float3(0, 0, 0);
+          float noise = 0.0;
+          float2x2 fixedRotation = {1, 0, 0, 1};
+          float extraPenumbraScale = 4.0;
+
+          shadowTerm = CalculateShadowTerm(worldPosition, vertexNormal, lightVector, distanceToLight, type,
+            shadowDataOffset, noise, fixedRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
+        }
+
+        attenuation *= lightData.intensity;
+        float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
+
+        totalLight += lightColor * (attenuation * shadowTerm);
       }
     }
-
-    float nDotL = dot(normal, lightVector);
-    attenuation *= saturate(lerp(1, nDotL, LightDirectionality));
-
-    [branch] if (attenuation > 0.0f)
+    else // Fill Light
     {
-      float3 debugColor = 1.0f;
-      float shadowTerm = 1.0;
-      float subsurfaceShadow = 1.0;
-
-      [branch] if (lightData.shadowDataOffset != 0xFFFFFFFF)
-      {
-        uint shadowDataOffset = lightData.shadowDataOffset;
-
-        // Zero normal effectively disables normal offset bias. Since our particles may have curved normals the
-        // normal offset bias can create weird artifacts and we don't need this bias on particles as they can't have self-shadow issues.
-        // Our usual noise also doesn't make sense with vertex lighting so we use a fixed shadow filter kernel rotation here.
-        float3 vertexNormal = float3(0, 0, 0);
-        float noise = 0.0;
-        float2x2 fixedRotation = {1, 0, 0, 1};
-        float extraPenumbraScale = 4.0;
-
-        shadowTerm = CalculateShadowTerm(worldPosition, vertexNormal, lightVector, distanceToLight, type,
-          shadowDataOffset, noise, fixedRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
-      }
-
-      attenuation *= lightData.intensity;
-      float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
-
-      totalLight += lightColor * (attenuation * shadowTerm);
+      EvaluateFillLight(worldPosition, worldNormal, 1.0, LightDirectionality, lightData, type, totalLight, indirectLightModulation);
     }
   }
 
@@ -214,7 +203,7 @@ float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, fl
 #endif
 
   // sky light in ambient cube basis
-  float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, normal).rgb;
+  float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, worldNormal).rgb * indirectLightModulation;
   totalLight += skyLight;
 
   return totalLight;
