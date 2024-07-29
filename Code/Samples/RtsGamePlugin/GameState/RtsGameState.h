@@ -55,6 +55,8 @@ public:
 protected:
   virtual void ConfigureMainCamera() override;
 
+  virtual void OnChangedMainWorld() override;
+
   //////////////////////////////////////////////////////////////////////////
   // Game Mode
 public:

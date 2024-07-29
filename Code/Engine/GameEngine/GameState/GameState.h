@@ -102,6 +102,12 @@ protected:
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);
 
+  /// \brief Executed when ChangeMainWorld() is used to switch to a new world.
+  ///
+  /// Override this to be informed about this. This mainly happens when the game state switches to a different
+  /// world after loading it in the background.
+  virtual void OnChangedMainWorld() {}
+
   /// \brief Sets up m_MainCamera for first use
   virtual void ConfigureMainCamera();
 

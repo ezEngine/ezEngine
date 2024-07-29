@@ -40,6 +40,6 @@ public:
   ezGameObjectHandle GetObject(ezUInt32 uiIndex) const { return m_Objects[uiIndex]; }
 
 private:
-  ezWorld* m_pWorld;
+  ezWorld* m_pWorld = nullptr;
   ezDeque<ezGameObjectHandle> m_Objects;
 };
