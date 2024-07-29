@@ -117,9 +117,9 @@ ezResult ezArchiveUtils::WriteEntry(
 
   const ezUInt64 uiMaxBytes = file.GetFileSize();
 
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   constexpr ezUInt32 uiMaxNumWorkerThreads = 12u;
 
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   ezUInt32 uiWorkerThreadCount;
   if (uiMaxBytes > ezMath::MaxValue<ezUInt32>())
   {
