@@ -285,6 +285,9 @@ ezResult ezGameState::SpawnPlayer(const ezTransform* pStartPosition)
 
 void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld)
 {
+  if (m_pMainWorld == pNewMainWorld)
+    return;
+
   m_pMainWorld = pNewMainWorld;
 
   ezView* pView = nullptr;
@@ -292,6 +295,8 @@ void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld)
   {
     pView->SetWorld(m_pMainWorld);
   }
+
+  OnChangedMainWorld();
 }
 
 void ezGameState::ConfigureMainCamera()

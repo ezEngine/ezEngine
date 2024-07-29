@@ -9,7 +9,7 @@ ezObjectSelection::ezObjectSelection()
 
 void ezObjectSelection::SetWorld(ezWorld* pWorld)
 {
-  EZ_ASSERT_DEV((m_pWorld == nullptr) || (m_pWorld == pWorld) || m_Objects.IsEmpty(), "You cannot change the world for this selection.");
+  EZ_ASSERT_DEV((m_pWorld == pWorld) || m_Objects.IsEmpty(), "The selection has to be empty to change the world.");
 
   m_pWorld = pWorld;
 }

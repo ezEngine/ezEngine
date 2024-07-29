@@ -3,6 +3,7 @@
 #include <Core/System/Window.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/System/SystemInformation.h>
 
 static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -115,7 +116,7 @@ ezResult ezWindow::Initialize()
   DWORD dwExStyle = WS_EX_APPWINDOW;
   DWORD dwWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
-  if (m_CreationDescription.m_bSetForegroundOnInit)
+  if (m_CreationDescription.m_bSetForegroundOnInit && !ezSystemInformation::IsDebuggerAttached())
   {
     // use WS_EX_TOPMOST to force that the window shows up on top
     // this is the only thing that seems to be working reliably

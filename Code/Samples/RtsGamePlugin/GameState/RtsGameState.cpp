@@ -163,6 +163,13 @@ void RtsGameState::ConfigureMainCamera()
   m_MainCamera.LookAt(vCameraPos, vCameraPos - coordSys.m_vUpDir, coordSys.m_vForwardDir);
 }
 
+
+void RtsGameState::OnChangedMainWorld()
+{
+  m_SelectedUnits.Clear();
+  m_SelectedUnits.SetWorld(m_pMainWorld);
+}
+
 void RtsGameState::SwitchToGameMode(RtsActiveGameMode mode)
 {
   // can't just switch game modes in the middle of a frame, so delay this to the next frame

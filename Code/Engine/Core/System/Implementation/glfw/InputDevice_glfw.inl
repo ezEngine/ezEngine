@@ -434,6 +434,8 @@ void ezStandardInputDevice::OnKey(int key, int scancode, int action, int mods)
     m_uiLastCharacter = 0x00000008;
   }
 
+  // TODO: if (key != scancode) -> use scancode, (ConvertScanCodeToEngineName), only if they are the same, use ConvertGLFWKeyToEngineName
+
   const char* szInputSlotName = ConvertGLFWKeyToEngineName(key);
   if (szInputSlotName)
   {
