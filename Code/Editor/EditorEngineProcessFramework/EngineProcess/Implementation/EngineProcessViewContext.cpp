@@ -183,6 +183,7 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapCha
         pView->SetSwapChain(hSwapChain);
       else
         pView->SetRenderTargets(*pRenderTargets);
+
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
     }
   }
@@ -190,15 +191,6 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapCha
 
 void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
 {
-  auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(GetDocumentContext()->GetWorld());
-
-  if (pState != nullptr)
-  {
-    pState->ScheduleRendering();
-  }
-  // setting to only update one view ?
-  // else
-
   ezView* pView = nullptr;
   if (ezRenderWorld::TryGetView(m_hView, pView))
   {

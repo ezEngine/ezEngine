@@ -24,11 +24,11 @@ void SampleGameState::ConFunc_Print(ezString sText)
 }
 // END-DOCS-CODE-SNIPPET
 
-void SampleGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
+void SampleGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld, pStartPosition);
+  SUPER::OnActivation(pWorld, sStartPosition, pStartPosition);
 
 // BEGIN-DOCS-CODE-SNIPPET: imgui-alloc
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
@@ -118,11 +118,6 @@ void SampleGameState::BeforeWorldUpdate()
     // END-DOCS-CODE-SNIPPET
   }
 #endif
-}
-
-ezGameStatePriority SampleGameState::DeterminePriority(ezWorld* pWorld) const
-{
-  return ezGameStatePriority::Default;
 }
 
 void SampleGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)

@@ -259,7 +259,11 @@ void ezTypeScriptComponent::OnSimulationStarted()
   if (binding.LoadComponent(m_TypeScriptComponentGuid, m_ComponentTypeInfo).Failed())
   {
     SetUserFlag(UserFlag::ScriptFailure, true);
-    ezLog::Error("Failed to load TS component type.");
+
+    ezStringBuilder guid;
+    ezConversionUtils::ToString(m_TypeScriptComponentGuid, guid);
+
+    ezLog::Error("Failed to load TS component type with GUID '{}'.", guid);
     return;
   }
 

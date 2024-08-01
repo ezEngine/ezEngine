@@ -19,6 +19,7 @@ void ezSceneLoadUtility::StartSceneLoading(ezStringView sSceneFile, ezStringView
 
   m_LoadingState = LoadingState::Ongoing;
 
+  m_sRequestedFile = sSceneFile;
   ezStringBuilder sFinalSceneFile = sSceneFile;
 
   if (sFinalSceneFile.IsEmpty())
@@ -57,7 +58,7 @@ void ezSceneLoadUtility::StartSceneLoading(ezStringView sSceneFile, ezStringView
     ezLog::Dev("Redirecting scene file from '{}' to '{}'", sSceneFile, sFinalSceneFile);
   }
 
-  m_sFile = sFinalSceneFile;
+  m_sRedirectedFile = sFinalSceneFile;
 
   if (!sPreloadCollectionFile.IsEmpty())
   {
@@ -68,6 +69,8 @@ void ezSceneLoadUtility::StartSceneLoading(ezStringView sSceneFile, ezStringView
 ezUniquePtr<ezWorld> ezSceneLoadUtility::RetrieveLoadedScene()
 {
   EZ_ASSERT_DEV(m_LoadingState == LoadingState::FinishedSuccessfully, "Can't retrieve a scene when loading hasn't finished successfully.");
+
+  m_pWorld->SetWorldSimulationEnabled(true);
 
   return std::move(m_pWorld);
 }
@@ -134,14 +137,15 @@ void ezSceneLoadUtility::TickSceneLoading()
   // if we haven't created a world yet, do so now, and set up an instantiation context
   if (m_pWorld == nullptr)
   {
-    EZ_LOG_BLOCK("LoadObjectGraph", m_sFile);
+    EZ_LOG_BLOCK("LoadObjectGraph", m_sRedirectedFile);
 
-    ezWorldDesc desc(m_sFile);
+    ezWorldDesc desc(m_sRedirectedFile);
     m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
+    m_pWorld->SetWorldSimulationEnabled(false);
 
     EZ_LOCK(m_pWorld->GetWriteMarker());
 
-    if (m_FileReader.Open(m_sFile).Failed())
+    if (m_FileReader.Open(m_sRedirectedFile).Failed())
     {
       LoadingFailed("Failed to open the file.");
       return;
@@ -167,6 +171,7 @@ void ezSceneLoadUtility::TickSceneLoading()
         return;
       }
 
+      // TODO: make frame time configurable ?
       m_pInstantiationContext = m_WorldReader.InstantiateWorld(*m_pWorld, nullptr, ezTime::MakeFromMilliseconds(1), &m_InstantiationProgress);
     }
   }

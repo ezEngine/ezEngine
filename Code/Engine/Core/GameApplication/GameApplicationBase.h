@@ -135,7 +135,7 @@ public:
   ///
   /// Broadcasts local event: ezGameApplicationStaticEvent::AfterGameStateActivated
   /// Broadcasts global event: AfterGameStateActivation(ezGameStateBase*)
-  ezResult ActivateGameState(ezWorld* pWorld = nullptr, const ezTransform* pStartPosition = nullptr);
+  void ActivateGameState(ezWorld* pWorld = nullptr, ezStringView sStartPosition = {}, const ezTransform* pStartPosition = nullptr);
 
   /// \brief Deactivates and destroys the active game state.
   ///
@@ -146,20 +146,12 @@ public:
   /// \brief Returns the currently active game state. Could be nullptr.
   ezGameStateBase* GetActiveGameState() const { return m_pGameState.Borrow(); }
 
-  /// \brief Returns the currently active game state IF it was created for the given world.
-  ///
-  /// This is mostly for editor use cases, where some documents want to handle the game state, but only
-  /// it it was set up for a particular document.
-  ezGameStateBase* GetActiveGameStateLinkedToWorld(const ezWorld* pWorld) const;
-
 protected:
   /// \brief Creates a game state for the application to use.
   ///
-  /// \a pWorld is typically nullptr in a stand-alone app, but may be existing already when called from the editor.
-  ///
   /// The default implementation will query all available game states for the best match.
   /// By overriding this, one can also just create a specific game state directly.
-  virtual ezUniquePtr<ezGameStateBase> CreateGameState(ezWorld* pWorld);
+  virtual ezUniquePtr<ezGameStateBase> CreateGameState();
 
   /// \brief Allows to override whether a game state is created and activated at application startup.
   ///
@@ -168,7 +160,6 @@ protected:
   virtual void ActivateGameStateAtStartup();
 
   ezUniquePtr<ezGameStateBase> m_pGameState;
-  ezWorld* m_pWorldLinkedWithGameState = nullptr;
 
   ///@}
   /// \name Platform Profile

@@ -136,4 +136,6 @@ private:
   ezHybridArray<ezTag, 1> m_InvisibleLayerTags;
 
   ezDynamicArray<TagGameObject> m_ObjectsToTag;
+
+  static ezWorld* s_pWorldLinkedWithGameState;
 };

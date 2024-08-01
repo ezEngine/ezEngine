@@ -112,8 +112,15 @@ ezResult ezTypeScriptBinding::Initialize(ezWorld& ref_world)
 
 ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_typeInfo)
 {
-  if (!m_bInitialized || !typeGuid.IsValid())
+  if (!m_bInitialized)
   {
+    ezLog::Error("TypeScript binding not initialized.");
+    return EZ_FAILURE;
+  }
+
+  if (!typeGuid.IsValid())
+  {
+    ezLog::Error("Invalid TS component GUID.");
     return EZ_FAILURE;
   }
 
@@ -136,12 +143,14 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentT
   ezResourceLock<ezScriptCompendiumResource> pCompendium(m_hScriptCompendium, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pCompendium.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
+    ezLog::Error("Failed to acquire TS script compendium.");
     return EZ_FAILURE;
   }
 
   auto itType = pCompendium->GetDescriptor().m_AssetGuidToInfo.Find(typeGuid);
   if (!itType.IsValid())
   {
+    ezLog::Error("Unknown TS component GUID");
     return EZ_FAILURE;
   }
 
@@ -156,7 +165,7 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentT
   req.SetFormat("var {} = require(\"./{}\");", sCompModule, itType.Value().m_sComponentFilePath);
   if (m_Duk.ExecuteString(req).Failed())
   {
-    ezLog::Error("Could not load component");
+    ezLog::Error("Could not load TS component");
     return EZ_FAILURE;
   }
 

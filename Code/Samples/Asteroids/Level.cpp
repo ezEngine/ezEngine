@@ -56,9 +56,6 @@ void Level::SetupLevel(ezUniquePtr<ezWorld> pWorld)
 
   for (ezInt32 iAsteroid = 0; iAsteroid < MaxAsteroids; ++iAsteroid)
     CreateAsteroid();
-
-  m_Camera.LookAt(ezVec3(0.0f, 0.0f, 100.0f), ezVec3(0.0f), ezVec3(0, 1, 0));
-  m_Camera.SetCameraMode(ezCameraMode::OrthoFixedWidth, 45.0f, 0.0f, 500.0f);
 }
 
 void Level::UpdatePlayerInput(ezInt32 iPlayer)

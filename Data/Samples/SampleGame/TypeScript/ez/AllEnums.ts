@@ -4,9 +4,10 @@ export enum AnimationInvisibleUpdateRate {  FullUpdate = 0, Max60FPS = 1, Max30F
 export enum BasisAxis {  PositiveX = 0, PositiveY = 1, PositiveZ = 2, NegativeX = 3, NegativeY = 4, NegativeZ = 5 }
 export enum CameraMode {  PerspectiveFixedFovX = 1, PerspectiveFixedFovY = 2, OrthoFixedWidth = 3, OrthoFixedHeight = 4 }
 export enum CameraUsageHint {  None = 0, MainView = 1, EditorView = 2, RenderTarget = 3, Culling = 4, Thumbnail = 7 }
+export enum FillLightMode {  Additive = 0, ModulateIndirect = 1 }
 export enum FollowPathMode {  OnlyPosition = 0, AlignUpZ = 1, FullRotation = 2 }
 export enum GlobalBlackboardInitMode {  EnsureEntriesExist = 0, ResetEntryValues = 1, ClearEntireBlackboard = 2 }
-export enum GreyBoxShape {  Box = 0, RampX = 1, RampY = 2, Column = 3, StairsX = 4, StairsY = 5, ArchX = 6, ArchY = 7, SpiralStairs = 8 }
+export enum GreyBoxShape {  Box = 0, RampPosX = 1, RampNegX = 2, RampPosY = 3, RampNegY = 4, Column = 5, StairsPosX = 6, StairsNegX = 7, StairsPosY = 8, StairsNegY = 9, ArchX = 10, ArchY = 11, SpiralStairs = 12 }
 export enum InputMessageGranularity {  PressOnly = 0, PressAndRelease = 1, PressReleaseAndDown = 2 }
 export enum OnComponentFinishedAction {  None = 0, DeleteComponent = 1, DeleteGameObject = 2 }
 export enum OnComponentFinishedAction2 {  None = 0, DeleteComponent = 1, DeleteGameObject = 2, Restart = 3 }

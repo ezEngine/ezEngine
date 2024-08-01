@@ -37,7 +37,7 @@ ezStereoTestApplication::ezStereoTestApplication(const char* szProjectDirName)
 {
 }
 
-ezUniquePtr<ezGameStateBase> ezStereoTestApplication::CreateGameState(ezWorld* pWorld)
+ezUniquePtr<ezGameStateBase> ezStereoTestApplication::CreateGameState()
 {
   return EZ_DEFAULT_NEW(ezStereoTestGameState);
 }
