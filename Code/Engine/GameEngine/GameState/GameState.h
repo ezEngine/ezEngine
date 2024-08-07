@@ -85,6 +85,41 @@ public:
   /// \brief The ezGameState doesn't implement any input logic, but it forwards to UpdateBackgroundSceneLoading().
   virtual void ProcessInput() override;
 
+  /// \brief Convenience function to immediately switch to a loading screen and start loading a level.
+  ///
+  /// When the level is finished loading, `OnBackgroundSceneLoadingFinished()` typically switches to it immediately.
+  void LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection);
+
+  /// \brief Convenience function to switch to a loading screen.
+  ///
+  /// Nothing actually gets loaded. Without further logic, the app will stay in the loading screen indefinitely.
+  /// sTargetSceneFile is only passed in, so that the loading screen can be customized accordingly,
+  /// for example it may show a screenshot of the target scene.
+  void SwitchToLoadingScreen(ezStringView sTargetSceneFile);
+
+  /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
+  ///
+  /// Calls OnChangedMainWorld() afterwards, so that you can follow up on a scene change as needed.
+  /// Calls ConfigureMainCamera() as well.
+  void ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition = {}, const ezTransform* pStartPosition = nullptr);
+
+  /// \brief Starts loading a scene in the background.
+  ///
+  /// If available, a collection can be provided. Resources referenced in the collection will be fully preloaded first and then
+  /// the scene is loaded. This is the only way to get a proper estimation of loading progress and is necessary to get a smooth
+  /// start, otherwise the engine will have to load resources on-demand, many of which will be needed during the first frame.
+  ///
+  /// Once finished, one of these hooks is executed:
+  ///   `OnBackgroundSceneLoadingFinished()`
+  ///   `OnBackgroundSceneLoadingFailed()`
+  ///   `OnBackgroundSceneLoadingCanceled()`
+  void StartBackgroundSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection);
+
+  /// \brief If a scene is currently being loaded in the background, cancel the loading.
+  ///
+  /// Calls `OnBackgroundSceneLoadingCanceled()` if a scene was loading.
+  void CancelBackgroundSceneLoading();
+
 protected:
   /// \brief Creates an actor with a default window (ezGameStateWindow) adds it to the application
   ///
@@ -112,12 +147,6 @@ protected:
 
   /// \brief Creates a default main view.
   ezView* CreateMainView();
-
-  /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
-  ///
-  /// Calls OnChangedMainWorld() afterwards, so that you can follow up on a scene change as needed.
-  /// Calls ConfigureMainCamera() as well.
-  void ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition = {}, const ezTransform* pStartPosition = nullptr);
 
   /// \brief Executed when ChangeMainWorld() is used to switch to a new world.
   ///
@@ -150,40 +179,11 @@ protected:
   /// Override this function to define a custom startup scene (e.g. for the main menu) or load a saved state.
   virtual ezString GetStartupSceneFile();
 
-  /// \brief Convenience function to immediately switch to a loading screen and start loading a level.
-  ///
-  /// When the level is finished loading, `OnBackgroundSceneLoadingFinished()` typically switches to it immediately.
-  void LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection);
-
-  /// \brief Convenience function to switch to a loading screen.
-  ///
-  /// Nothing actually gets loaded. Without further logic, the app will stay in the loading screen indefinitely.
-  /// sTargetSceneFile is only passed in, so that the loading screen can be customized accordingly,
-  /// for example it may show a screenshot of the target scene.
-  void SwitchToLoadingScreen(ezStringView sTargetSceneFile);
-
   /// \brief Called by SwitchToLoadingScreen() to set up a new loading screen world.
   ///
   /// A loading screen uses a separate ezWorld. It can be fully set up in code or loaded from disk,
   /// but it should be very light-weight, so that it is quick to set up.
   virtual ezUniquePtr<ezWorld> CreateLoadingScreenWorld(ezStringView sTargetSceneFile);
-
-  /// \brief Starts loading a scene in the background.
-  ///
-  /// If available, a collection can be provided. Resources referenced in the collection will be fully preloaded first and then
-  /// the scene is loaded. This is the only way to get a proper estimation of loading progress and is necessary to get a smooth
-  /// start, otherwise the engine will have to load resources on-demand, many of which will be needed during the first frame.
-  ///
-  /// Once finished, one of these hooks is executed:
-  ///   `OnBackgroundSceneLoadingFinished()`
-  ///   `OnBackgroundSceneLoadingFailed()`
-  ///   `OnBackgroundSceneLoadingCanceled()`
-  void StartBackgroundSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection);
-
-  /// \brief If a scene is currently being loaded in the background, cancel the loading.
-  ///
-  /// Calls `OnBackgroundSceneLoadingCanceled()` if a scene was loading.
-  void CancelBackgroundSceneLoading();
 
   /// \brief If a scene is being loaded in the background, this advanced the loading.
   ///
