@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{12190214090615373549}
+		u4 %Hash{14969685274824721554}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -7430,7 +7430,7 @@ o
 			Uuid{u4{4108636486383446707,4947924753554365181}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000030C0,0x0000403F,0x0000C03F}}
+		Vec3 %LocalPosition{f{0xCDCC2CC0,0x0000803F,0x9A99193F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}

@@ -66,7 +66,7 @@ public:
   /// Finally switches to pWorld (if available) or starts loading the scene that GetStartupSceneFile() returns.
   ///
   /// Override any of the above functions to customize them.
-  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition) override;
+  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
 
   /// \brief Cleans up the main window before the game is shut down.
   virtual void OnDeactivation() override;
@@ -88,7 +88,7 @@ public:
   /// \brief Convenience function to immediately switch to a loading screen and start loading a level.
   ///
   /// When the level is finished loading, `OnBackgroundSceneLoadingFinished()` typically switches to it immediately.
-  void LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection);
+  void LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection, ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Convenience function to switch to a loading screen.
   ///
@@ -101,7 +101,7 @@ public:
   ///
   /// Calls OnChangedMainWorld() afterwards, so that you can follow up on a scene change as needed.
   /// Calls ConfigureMainCamera() as well.
-  void ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition = {}, const ezTransform* pStartPosition = nullptr);
+  void ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Starts loading a scene in the background.
   ///
@@ -140,7 +140,7 @@ protected:
   /// sStartPosition allows to spawn the player at another named location, but there is no default implementation for such logic.
   ///
   /// Returns EZ_SUCCESS if a prefab was spawned, EZ_FAILURE if nothing was done.
-  virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform* pStartPosition);
+  virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Creates an XR Actor, if XR is configured and available for the project.
   ezUniquePtr<ezActor> CreateXRActor();
@@ -153,7 +153,7 @@ protected:
   /// Override this to be informed about scene changes.
   /// This happens right at startup (both for given worlds and custom created ones)
   /// and when the game needs to switch to a new level.
-  virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform* pStartPosition);
+  virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Searches for a "Main View" ezCameraComponent in the world and uses that for the camera position, if available.
   ///
@@ -216,4 +216,7 @@ protected:
   ezUniquePtr<ezSceneLoadUtility> m_pBackgroundSceneLoad;
   ezUniquePtr<ezWorld> m_pLoadingScreenWorld;
   ezUniquePtr<ezWorld> m_pLoadedWorld;
+
+  ezString m_sTargetSceneSpawnPoint;
+  ezTransform m_TargetSceneSpawnOffset;
 };

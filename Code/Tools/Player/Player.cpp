@@ -67,7 +67,7 @@ void ezPlayerApplication::AfterCoreSystemsStartup()
   // if no custom game state is available, ezFallbackGameState will be used
   // the game state is also responsible for either creating a world, or loading it
   // the ezFallbackGameState inspects the command line to figure out which scene to load
-  ActivateGameState(nullptr);
+  ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
 }
 
 void ezPlayerApplication::Run_InputUpdate()

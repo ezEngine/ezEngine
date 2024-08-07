@@ -31,4 +31,5 @@ protected:
   void OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg);
 
   ezHashedString m_sTargetScene;
+  ezHashedString m_sSpawnPoint;
 };

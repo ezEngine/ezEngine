@@ -21,9 +21,9 @@ ezFallbackGameState::ezFallbackGameState()
   m_iActiveCameraComponentIndex = -3;
 }
 
-void ezFallbackGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void ezFallbackGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
-  SUPER::OnActivation(pWorld, sStartPosition, pStartPosition);
+  SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   // if we already have a scene (editor use case), just use that and don't create any other world
   if (pWorld != nullptr)
@@ -59,16 +59,19 @@ bool ezFallbackGameState::IsFallbackGameState() const
   return ezGetStaticRTTI<ezFallbackGameState>() == GetDynamicRTTI();
 }
 
-ezResult ezFallbackGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform* pStartPosition)
+ezResult ezFallbackGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
-  if (SUPER::SpawnPlayer(sStartPosition, pStartPosition).Succeeded())
+  if (SUPER::SpawnPlayer(sStartPosition, startPositionOffset).Succeeded())
     return EZ_SUCCESS;
 
-  if (m_pMainWorld && pStartPosition)
+  if (m_pMainWorld)
   {
     m_iActiveCameraComponentIndex = -1; // set free camera
-    m_MainCamera.LookAt(pStartPosition->m_vPosition, pStartPosition->m_vPosition + pStartPosition->m_qRotation * ezVec3(1, 0, 0),
-      pStartPosition->m_qRotation * ezVec3(0, 0, 1));
+
+    // TODO: find sStartPosition as base location
+
+    m_MainCamera.LookAt(startPositionOffset.m_vPosition, startPositionOffset.m_vPosition + startPositionOffset.m_qRotation * ezVec3(1, 0, 0),
+      startPositionOffset.m_qRotation * ezVec3(0, 0, 1));
   }
 
   return EZ_FAILURE;

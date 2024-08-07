@@ -46,21 +46,21 @@ ezGameState::ezGameState()
 
 ezGameState::~ezGameState() = default;
 
-void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   CreateActors();
   ConfigureInputActions();
 
   if (pWorld)
   {
-    ChangeMainWorld(pWorld, sStartPosition, pStartPosition);
+    ChangeMainWorld(pWorld, sStartPosition, startPositionOffset);
   }
   else
   {
     ezStringBuilder sSceneFile = GetStartupSceneFile();
 
     // TODO: also pass along a preload collection
-    LoadScene(sSceneFile, {});
+    LoadScene(sSceneFile, {}, sStartPosition, startPositionOffset);
   }
 }
 
@@ -285,7 +285,7 @@ ezView* ezGameState::CreateMainView()
   return pView;
 }
 
-ezResult ezGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform* pStartPosition)
+ezResult ezGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   if (m_pMainWorld == nullptr)
     return EZ_FAILURE;
@@ -296,38 +296,61 @@ ezResult ezGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform
   if (pMan == nullptr)
     return EZ_FAILURE;
 
+  ezPlayerStartPointComponent* pBestComp = nullptr;
+
   for (auto it = pMan->GetComponents(); it.IsValid(); ++it)
   {
     if (it->IsActive() && it->GetPlayerPrefab().IsValid())
     {
-      ezResourceLock<ezPrefabResource> pPrefab(it->GetPlayerPrefab(), ezResourceAcquireMode::BlockTillLoaded);
-
-      if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
+      if (pBestComp == nullptr)
       {
-        const ezUInt16 uiTeamID = it->GetOwner()->GetTeamID();
-        ezTransform startPos = it->GetOwner()->GetGlobalTransform();
-
-        if (pStartPosition)
-        {
-          startPos = *pStartPosition;
-          startPos.m_vScale.Set(1.0f);
-          startPos.m_vPosition.z += 1.0f; // do not spawn player prefabs on the ground, they may not have their origin there
-        }
-
-        ezPrefabInstantiationOptions options;
-        options.m_pOverrideTeamID = &uiTeamID;
-
-        pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, options, &(it->m_Parameters));
-
-        return EZ_SUCCESS;
+        // take the first one, no matter what
+        pBestComp = it;
       }
+      else if (it->GetOwner()->GetName().IsEqual_NoCase(sStartPosition))
+      {
+        // if we find one by exact name match, take that one
+        pBestComp = it;
+      }
+      else if (!pBestComp->GetOwner()->GetName().IsEqual_NoCase(sStartPosition) && it->GetOwner()->GetName().IsEmpty())
+      {
+        // if the name of the best one isn't identical to the searched name, yet
+        // and this one is nameless, prefer the nameless one
+        pBestComp = it;
+      }
+    }
+  }
+
+  if (pBestComp)
+  {
+    ezResourceLock<ezPrefabResource> pPrefab(pBestComp->GetPlayerPrefab(), ezResourceAcquireMode::BlockTillLoaded);
+
+    if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
+    {
+      const ezUInt16 uiTeamID = pBestComp->GetOwner()->GetTeamID();
+      ezTransform startPos = ezTransform::MakeGlobalTransform(pBestComp->GetOwner()->GetGlobalTransform(), startPositionOffset);
+
+      if (sStartPosition.IsEqual_NoCase("GlobalOverride"))
+      {
+        startPos = startPositionOffset;
+      }
+
+      startPos.m_vScale.Set(1.0f);
+      // startPos.m_vPosition.z += 0.1f; // do not spawn player prefabs on the ground, they may not have their origin there
+
+      ezPrefabInstantiationOptions options;
+      options.m_pOverrideTeamID = &uiTeamID;
+
+      pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, options, &(pBestComp->m_Parameters));
+
+      return EZ_SUCCESS;
     }
   }
 
   return EZ_FAILURE;
 }
 
-void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   if (m_pMainWorld == pNewMainWorld)
     return;
@@ -342,20 +365,20 @@ void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPos
     pView->SetWorld(m_pMainWorld);
   }
 
-  OnChangedMainWorld(pPrevWorld, pNewMainWorld, sStartPosition, pStartPosition);
+  OnChangedMainWorld(pPrevWorld, pNewMainWorld, sStartPosition, startPositionOffset);
 
   // make sure the camera gets re-initialized for the new world
   ConfigureMainCamera();
 }
 
-void ezGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void ezGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   if (pNewWorld != m_pLoadingScreenWorld)
   {
     // can get rid of the loading screen world, or we could also keep it around for later, if that has any use
     m_pLoadingScreenWorld.Clear();
 
-    SpawnPlayer(sStartPosition, pStartPosition).IgnoreResult();
+    SpawnPlayer(sStartPosition, startPositionOffset).IgnoreResult();
   }
 }
 
@@ -463,12 +486,15 @@ ezString ezGameState::GetStartupSceneFile()
   return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
 }
 
-void ezGameState::LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection)
+void ezGameState::LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   SwitchToLoadingScreen(sSceneFile);
 
   if (!sSceneFile.IsEmpty())
   {
+    m_sTargetSceneSpawnPoint = sStartPosition;
+    m_TargetSceneSpawnOffset = startPositionOffset;
+
     StartBackgroundSceneLoading(sSceneFile, sPreloadCollection);
   }
 }
@@ -477,7 +503,7 @@ void ezGameState::SwitchToLoadingScreen(ezStringView sTargetSceneFile)
 {
   m_pLoadingScreenWorld = CreateLoadingScreenWorld(sTargetSceneFile);
 
-  ChangeMainWorld(m_pLoadingScreenWorld.Borrow());
+  ChangeMainWorld(m_pLoadingScreenWorld.Borrow(), {}, ezTransform::MakeIdentity());
 }
 
 ezUniquePtr<ezWorld> ezGameState::CreateLoadingScreenWorld(ezStringView sTargetSceneFile)
@@ -543,7 +569,9 @@ void ezGameState::OnBackgroundSceneLoadingFinished(ezUniquePtr<ezWorld>&& pWorld
   // if (IsInLoadingScreen())
   {
     m_pLoadedWorld = std::move(pWorld);
-    ChangeMainWorld(m_pLoadedWorld.Borrow());
+    ChangeMainWorld(m_pLoadedWorld.Borrow(), m_sTargetSceneSpawnPoint, m_TargetSceneSpawnOffset);
+    m_sTargetSceneSpawnPoint.Clear();
+    m_TargetSceneSpawnOffset = ezTransform::MakeIdentity();
   }
 }
 

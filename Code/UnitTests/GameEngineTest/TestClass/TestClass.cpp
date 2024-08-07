@@ -174,7 +174,7 @@ void ezGameEngineTestApplication::AfterCoreSystemsStartup()
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   m_pWorld->GetClock().SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 30.0));
 
-  ActivateGameState(m_pWorld.Borrow());
+  ActivateGameState(m_pWorld.Borrow(), {}, ezTransform::MakeIdentity());
 }
 
 void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()

@@ -34,7 +34,7 @@ public:
   /// \param pStartPosition
   /// An optional transform for the 'player object' to start at.
   /// Usually nullptr, but may be set by the editor to relocate or create the player object at the given destination.
-  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition) = 0;
+  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) = 0;
 
   /// \brief Called when the game state is being shut down.
   ///

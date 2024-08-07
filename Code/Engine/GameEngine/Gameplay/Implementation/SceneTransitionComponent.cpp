@@ -13,7 +13,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSceneTransitionComponent, 1 /* version */, ezComponent
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("TargetScene", m_sTargetScene)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Scene",  ezDependencyFlags::Package))
+    EZ_MEMBER_PROPERTY("TargetScene", m_sTargetScene)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Scene",  ezDependencyFlags::Package)),
+    EZ_MEMBER_PROPERTY("SpawnPoint", m_sSpawnPoint),
   }
   EZ_END_PROPERTIES;
 
@@ -32,6 +33,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezSceneTransitionComponent, 1 /* version */, ezComponent
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
+// TODO: move scene loading interface to ezGameStateBase
+// TODO: allow scene preloading
+// TODO: add preloading collection
+// TODO: include relative position offset (+ flag to enable)
+// TODO: option to cancel preload
+// TODO: option mode (preload, load, cancel)
+
 ezSceneTransitionComponent::ezSceneTransitionComponent() = default;
 ezSceneTransitionComponent::~ezSceneTransitionComponent() = default;
 
@@ -41,7 +49,7 @@ void ezSceneTransitionComponent::StartTransition()
   {
     if (ezGameState* pGameState = ezDynamicCast<ezGameState*>(pGameStateBase))
     {
-      pGameState->LoadScene(m_sTargetScene, {});
+      pGameState->LoadScene(m_sTargetScene, {}, m_sSpawnPoint, ezTransform::MakeIdentity());
     }
   }
 }
@@ -52,6 +60,7 @@ void ezSceneTransitionComponent::SerializeComponent(ezWorldWriter& inout_stream)
   auto& s = inout_stream.GetStream();
 
   s << m_sTargetScene;
+  s << m_sSpawnPoint;
 }
 
 void ezSceneTransitionComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -61,6 +70,7 @@ void ezSceneTransitionComponent::DeserializeComponent(ezWorldReader& inout_strea
   auto& s = inout_stream.GetStream();
 
   s >> m_sTargetScene;
+  s >> m_sSpawnPoint;
 }
 
 void ezSceneTransitionComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)

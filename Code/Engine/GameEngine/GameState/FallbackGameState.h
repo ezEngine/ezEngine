@@ -24,7 +24,7 @@ public:
 
   virtual void ProcessInput() override;
 
-  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition) override;
+  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
 
   /// \brief Reports true for ezFallbackGameState only, not for derived types.
   virtual bool IsFallbackGameState() const override;
@@ -32,7 +32,7 @@ public:
 protected:
   /// \brief Called by SwitchToLoadingScreen() to setup a new world that acts as the loading screen while waiting for another scene to finish loading.
   virtual void ConfigureInputActions() override;
-  virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform* pStartPosition) override;
+  virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
 
   virtual const ezCameraComponent* FindActiveCameraComponent();
 

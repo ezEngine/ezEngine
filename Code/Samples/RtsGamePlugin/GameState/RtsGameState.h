@@ -34,7 +34,7 @@ public:
   // Initialization & Setup
 public:
 private:
-  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition) override;
+  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
   virtual void OnDeactivation() override;
   void PreloadAssets();
 
@@ -56,7 +56,7 @@ public:
 protected:
   virtual void ConfigureMainCamera() override;
 
-  virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform* pStartPosition) override;
+  virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
 
   //////////////////////////////////////////////////////////////////////////
   // Game Mode
