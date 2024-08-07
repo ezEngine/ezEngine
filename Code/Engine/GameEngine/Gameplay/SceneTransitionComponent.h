@@ -25,13 +25,13 @@ public:
   ezSceneTransitionComponent();
   ~ezSceneTransitionComponent();
 
-  ezHashedString m_sTargetScene;
-  ezHashedString m_sSpawnPoint;
-  bool m_bRelativeSpawnPosition = true;
+  ezHashedString m_sTargetScene;           // [ property ]
+  ezHashedString m_sSpawnPoint;            // [ property ]
+  bool m_bRelativeSpawnPosition = true;    // [ property ]
+  ezHashedString m_sPreloadCollectionFile; // [ property ]
 
   void StartTransition(const ezTransform& relativePosition);
 
 protected:
   void OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg);
-
 };

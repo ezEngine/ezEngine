@@ -69,6 +69,8 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
+  // ezResourceManager::RegisterResourceForAssetType("Scene", nullptr);
+  // ezResourceManager::RegisterResourceForAssetType("Layer", nullptr);
 }
 
 void ezGameApplication::Init_SetupDefaultResources()

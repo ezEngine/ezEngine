@@ -218,5 +218,5 @@ protected:
   ezUniquePtr<ezWorld> m_pLoadedWorld;
 
   ezString m_sTargetSceneSpawnPoint;
-  ezTransform m_TargetSceneSpawnOffset;
+  ezTransform m_TargetSceneSpawnOffset = ezTransform::MakeIdentity();
 };

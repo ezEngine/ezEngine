@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17667524089653157185,10077979337985443456}}
-		u4 %Hash{14167245575636798027}
+		u4 %Hash{11041896327541069999}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -43,6 +43,7 @@ o
 	p
 	{
 		b %Active{1}
+		HashedString %PreloadCollection{s{"{ ded099d5-7aa3-439c-a4dc-af6dc1364a45 }"}}
 		b %RelativeSpawnPosition{0}
 		HashedString %SpawnPoint{s{""}}
 		HashedString %TargetScene{s{"{ f190737b-8d97-47d9-8081-94ff436e4765 }"}}
@@ -112,6 +113,7 @@ o
 	p
 	{
 		b %Active{1}
+		HashedString %PreloadCollection{s{""}}
 		b %RelativeSpawnPosition{1}
 		HashedString %SpawnPoint{s{"Spawn2"}}
 		HashedString %TargetScene{s{"{ 9c2baf6b-33a5-4b20-adc0-cdc1b4e99d04 }"}}
@@ -148,6 +150,7 @@ o
 	p
 	{
 		b %Active{1}
+		HashedString %PreloadCollection{s{"{ 50e3a4b1-2387-40b8-a1df-ad0d969785f8 }"}}
 		b %RelativeSpawnPosition{0}
 		HashedString %SpawnPoint{s{""}}
 		HashedString %TargetScene{s{"{ 7d0fb4f4-06f4-9050-2324-8e346fff75c4 }"}}
