@@ -32,6 +32,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezScen
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+ezWorld* ezSceneContext::s_pWorldLinkedWithGameState = nullptr;
+
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
   pObj->UpdateGlobalTransformAndBounds();
@@ -487,7 +489,12 @@ void ezSceneContext::OnSimulationDisabled()
 
 ezGameStateBase* ezSceneContext::GetGameState() const
 {
-  return ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(m_pWorld);
+  if (s_pWorldLinkedWithGameState == m_pWorld)
+  {
+    return ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState();
+  }
+
+  return nullptr;
 }
 
 ezUInt32 ezSceneContext::RegisterLayer(ezLayerContext* pLayer)
@@ -638,7 +645,8 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld, pStartPosition).IgnoreResult();
+  s_pWorldLinkedWithGameState = m_pWorld;
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld, {}, pStartPosition);
 
   ezGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
@@ -917,16 +925,23 @@ void ezSceneContext::OnDestroyThumbnailViewContext()
 void ezSceneContext::UpdateDocumentContext()
 {
   SUPER::UpdateDocumentContext();
-  ezGameStateBase* pState = GetGameState();
-  if (pState && pState->WasQuitRequested())
+
+  if (ezGameStateBase* pState = GetGameState())
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->DeactivateGameState();
+    // If we have a running game state we always want to render it (e.g. play the game).
+    pState->AddMainViewsToRender();
 
-    ezGameModeMsgToEditor msgToEd;
-    msgToEd.m_DocumentGuid = GetDocumentGuid();
-    msgToEd.m_bRunningPTG = false;
+    if (pState->WasQuitRequested())
+    {
+      ezGameApplicationBase::GetGameApplicationBaseInstance()->DeactivateGameState();
+      s_pWorldLinkedWithGameState = nullptr;
 
-    SendProcessMessage(&msgToEd);
+      ezGameModeMsgToEditor msgToEd;
+      msgToEd.m_DocumentGuid = GetDocumentGuid();
+      msgToEd.m_bRunningPTG = false;
+
+      SendProcessMessage(&msgToEd);
+    }
   }
 }
 

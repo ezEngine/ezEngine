@@ -51,6 +51,12 @@ public:
   /// Afterwards there is no point in keeping the ezSceneLoadUtility around anymore and it should be deleted.
   ezUniquePtr<ezWorld> RetrieveLoadedScene();
 
+  /// \brief Returns the path to the scene file as it was originally requested.
+  ezStringView GetRequestedScene() const { return m_sRequestedFile; }
+
+  /// \brief Returns the path to the scene file after it was redirected.
+  ezStringView GetRedirectedScene() const { return m_sRedirectedFile; }
+
 private:
   void LoadingFailed(const ezFormatString& reason);
 
@@ -58,7 +64,8 @@ private:
   float m_fLoadingProgress = 0.0f;
   ezString m_sFailureReason;
 
-  ezString m_sFile;
+  ezString m_sRequestedFile;
+  ezString m_sRedirectedFile;
   ezCollectionResourceHandle m_hPreloadCollection;
   ezFileReader m_FileReader;
   ezWorldReader m_WorldReader;

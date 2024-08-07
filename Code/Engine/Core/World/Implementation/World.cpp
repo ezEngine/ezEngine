@@ -353,13 +353,34 @@ bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& hB
   {
     if (pInitBatch->m_ComponentsToInitialize.IsEmpty())
     {
-      double fStartSimCompletion = pInitBatch->m_ComponentsToStartSimulation.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToStartSimulation / pInitBatch->m_ComponentsToStartSimulation.GetCount();
-      *pCompletionFactor = fStartSimCompletion * 0.5 + 0.5;
+      if (m_Data.m_bSimulateWorld)
+      {
+        double fStartSimCompletion = pInitBatch->m_ComponentsToStartSimulation.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToStartSimulation / pInitBatch->m_ComponentsToStartSimulation.GetCount();
+        *pCompletionFactor = fStartSimCompletion * 0.5 + 0.5;
+      }
+      else
+      {
+        *pCompletionFactor = 1.0;
+
+        EZ_ASSERT_DEV(m_Data.m_pDefaultInitBatch != pInitBatch, "");
+
+        m_Data.m_pDefaultInitBatch->m_ComponentsToStartSimulation.PushBackRange(pInitBatch->m_ComponentsToStartSimulation);
+        pInitBatch->m_ComponentsToStartSimulation.Clear();
+        return true;
+      }
     }
     else
     {
       double fInitCompletion = pInitBatch->m_ComponentsToInitialize.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToInitialize / pInitBatch->m_ComponentsToInitialize.GetCount();
-      *pCompletionFactor = fInitCompletion * 0.5;
+
+      if (m_Data.m_bSimulateWorld)
+      {
+        *pCompletionFactor = fInitCompletion * 0.5;
+      }
+      else
+      {
+        *pCompletionFactor = fInitCompletion;
+      }
     }
   }
 
@@ -576,7 +597,15 @@ ezWorldModule* ezWorld::GetOrCreateModule(const ezRTTI* pRtti)
     pModule->Initialize();
 
     m_Data.m_Modules[uiTypeId] = pModule;
-    m_Data.m_ModulesToStartSimulation.PushBack(pModule);
+
+    if (m_Data.m_bSimulateWorld)
+    {
+      pModule->OnSimulationStarted();
+    }
+    else
+    {
+      m_Data.m_ModulesToStartSimulation.PushBack(pModule);
+    }
   }
 
   return pModule;

@@ -28,18 +28,11 @@ float RtsGameState::SetCameraZoom(float fZoom)
   return m_fCameraZoom;
 }
 
-ezGameStatePriority RtsGameState::DeterminePriority(ezWorld* pWorld) const
-{
-  return ezGameStatePriority::Default;
-}
-
-void RtsGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
+void RtsGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld, pStartPosition);
-
-  m_SelectedUnits.SetWorld(m_pMainWorld);
+  SUPER::OnActivation(pWorld, sStartPosition, pStartPosition);
 
   if (ezImgui::GetSingleton() == nullptr)
   {
@@ -92,7 +85,7 @@ void RtsGameState::PreloadAssets()
 
 void RtsGameState::BeforeWorldUpdate()
 {
-  if (IsLoadingScene())
+  if (IsLoadingSceneInBackground())
     return;
 
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
@@ -164,10 +157,12 @@ void RtsGameState::ConfigureMainCamera()
 }
 
 
-void RtsGameState::OnChangedMainWorld()
+void RtsGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
 {
+  SUPER::OnChangedMainWorld(pPrevWorld, pNewWorld, sStartPosition, pStartPosition);
+
   m_SelectedUnits.Clear();
-  m_SelectedUnits.SetWorld(m_pMainWorld);
+  m_SelectedUnits.SetWorld(pNewWorld);
 }
 
 void RtsGameState::SwitchToGameMode(RtsActiveGameMode mode)

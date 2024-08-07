@@ -210,7 +210,10 @@ ezUniquePtr<ezScriptInstance> ezTypeScriptClassResource::Instantiate(ezReflected
   ezTypeScriptBinding::TsComponentTypeInfo componentTypeInfo;
   if (binding.LoadComponent(m_Guid, componentTypeInfo).Failed())
   {
-    ezLog::Error("Failed to load TS component type.");
+    ezStringBuilder guid;
+    ezConversionUtils::ToString(m_Guid, guid);
+
+    ezLog::Error("Failed to load TS component type with GUID '{}'.", guid);
     return nullptr;
   }
 

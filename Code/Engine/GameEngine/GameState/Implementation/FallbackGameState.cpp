@@ -21,37 +21,15 @@ ezFallbackGameState::ezFallbackGameState()
   m_iActiveCameraComponentIndex = -3;
 }
 
-void ezFallbackGameState::EnableSceneSelectionMenu(bool bEnable)
+void ezFallbackGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
 {
-  m_bEnableSceneSelectionMenu = bEnable;
-}
-
-void ezFallbackGameState::EnableFreeCameras(bool bEnable)
-{
-  m_bEnableFreeCameras = bEnable;
-}
-
-void ezFallbackGameState::EnableAutoSwitchToLoadedScene(bool bEnable)
-{
-  m_bAutoSwitchToLoadedScene = bEnable;
-}
-
-ezGameStatePriority ezFallbackGameState::DeterminePriority(ezWorld* pWorld) const
-{
-  return ezGameStatePriority::Fallback;
-}
-
-void ezFallbackGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
-{
-  SUPER::OnActivation(pWorld, pStartPosition);
+  SUPER::OnActivation(pWorld, sStartPosition, pStartPosition);
 
   // if we already have a scene (editor use case), just use that and don't create any other world
   if (pWorld != nullptr)
     return;
 
   // otherwise we need to load a scene
-
-  SwitchToLoadingScreen();
 
   if (!ezFileSystem::ExistsFile(":project/ezProject"))
   {
@@ -72,95 +50,18 @@ void ezFallbackGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStar
       m_bShowMenu = true;
       m_State = State::NoScene;
     }
-    else if (StartSceneLoading(sScenePath, {}).Failed())
-    {
-      m_bShowMenu = true;
-      m_State = State::BadScene;
-    }
   }
 }
 
-void ezFallbackGameState::OnDeactivation()
+bool ezFallbackGameState::IsFallbackGameState() const
 {
-  CancelSceneLoading();
-
-  SUPER::OnDeactivation();
+  // only this class is a fallback, derived ones are not
+  return ezGetStaticRTTI<ezFallbackGameState>() == GetDynamicRTTI();
 }
 
-ezString ezFallbackGameState::GetStartupSceneFile()
+ezResult ezFallbackGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform* pStartPosition)
 {
-  return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
-}
-
-void ezFallbackGameState::SwitchToLoadingScreen()
-{
-  m_sTitleOfActiveScene = "Loading Screen";
-  m_bIsInLoadingScreen = true;
-
-  m_pActiveWorld = std::move(CreateLoadingScreenWorld());
-  ChangeMainWorld(m_pActiveWorld.Borrow());
-}
-
-ezUniquePtr<ezWorld> ezFallbackGameState::CreateLoadingScreenWorld()
-{
-  ezWorldDesc desc("LoadingScreen");
-
-  return EZ_DEFAULT_NEW(ezWorld, desc);
-}
-
-ezResult ezFallbackGameState::StartSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection)
-{
-  if (m_pSceneToLoad != nullptr && m_sTitleOfLoadingScene == sSceneFile)
-  {
-    // already being loaded
-    return EZ_SUCCESS;
-  }
-
-  m_sTitleOfLoadingScene = sSceneFile;
-
-  m_pSceneToLoad = EZ_DEFAULT_NEW(ezSceneLoadUtility);
-  m_pSceneToLoad->StartSceneLoading(sSceneFile, sPreloadCollection);
-
-  if (m_pSceneToLoad->GetLoadingState() == ezSceneLoadUtility::LoadingState::Failed)
-  {
-    ezLog::Error("Scene loading failed: {}", m_pSceneToLoad->GetLoadingFailureReason());
-    CancelSceneLoading();
-    return EZ_FAILURE;
-  }
-
-  return EZ_SUCCESS;
-}
-
-void ezFallbackGameState::CancelSceneLoading()
-{
-  m_sTitleOfLoadingScene.Clear();
-  m_pSceneToLoad.Clear();
-}
-
-bool ezFallbackGameState::IsLoadingScene() const
-{
-  return m_pSceneToLoad != nullptr;
-}
-
-void ezFallbackGameState::SwitchToLoadedScene()
-{
-  EZ_ASSERT_DEV(IsLoadingScene(), "Can't switch to loaded scene, if no scene is currently being loaded.");
-  EZ_ASSERT_DEV(m_pSceneToLoad->GetLoadingState() == ezSceneLoadUtility::LoadingState::FinishedSuccessfully, "Can't switch to loaded scene before it has finished loading.");
-
-  m_State = State::Ok;
-  m_sTitleOfActiveScene = m_sTitleOfLoadingScene;
-  m_pActiveWorld = m_pSceneToLoad->RetrieveLoadedScene();
-  ChangeMainWorld(m_pActiveWorld.Borrow());
-  SpawnPlayer(nullptr).IgnoreResult();
-
-  CancelSceneLoading();
-
-  m_bIsInLoadingScreen = false;
-}
-
-ezResult ezFallbackGameState::SpawnPlayer(const ezTransform* pStartPosition)
-{
-  if (SUPER::SpawnPlayer(pStartPosition).Succeeded())
+  if (SUPER::SpawnPlayer(sStartPosition, pStartPosition).Succeeded())
     return EZ_SUCCESS;
 
   if (m_pMainWorld && pStartPosition)
@@ -293,30 +194,8 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
 
 void ezFallbackGameState::ProcessInput()
 {
-  if (IsLoadingScene())
-  {
-    m_pSceneToLoad->TickSceneLoading();
+  SUPER::ProcessInput();
 
-    switch (m_pSceneToLoad->GetLoadingState())
-    {
-      case ezSceneLoadUtility::LoadingState::FinishedSuccessfully:
-        if (m_bAutoSwitchToLoadedScene)
-        {
-          SwitchToLoadedScene();
-        }
-        break;
-
-      case ezSceneLoadUtility::LoadingState::Failed:
-        ezLog::Error("Scene loading failed: {}", m_pSceneToLoad->GetLoadingFailureReason());
-        CancelSceneLoading();
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  if (m_bEnableSceneSelectionMenu)
   {
     if (ezInputManager::GetExclusiveInputSet().IsEmpty() || ezInputManager::GetExclusiveInputSet() == "ezPlayer")
     {
@@ -333,7 +212,6 @@ void ezFallbackGameState::ProcessInput()
     }
   }
 
-  if (m_bEnableFreeCameras)
   {
     EZ_LOCK(m_pMainWorld->GetReadMarker());
 
@@ -380,7 +258,7 @@ void ezFallbackGameState::ProcessInput()
   }
 }
 
-void ezFallbackGameState::AfterWorldUpdate()
+void ezFallbackGameState::ConfigureMainCamera()
 {
   EZ_LOCK(m_pMainWorld->GetReadMarker());
 
@@ -431,7 +309,7 @@ void ezFallbackGameState::FindAvailableScenes()
 
 bool ezFallbackGameState::DisplayMenu()
 {
-  if (IsLoadingScene() || m_pMainWorld == nullptr)
+  if (IsLoadingSceneInBackground() || m_pMainWorld == nullptr)
     return false;
 
   auto pWorld = m_pMainWorld;
@@ -466,11 +344,11 @@ bool ezFallbackGameState::DisplayMenu()
   }
   else if (m_State == State::BadScene)
   {
-    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", ezFmt("Failed to load scene: '{}'", m_sTitleOfLoadingScene), ezColor::Red);
+    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", ezFmt("Failed to load scene: '{}'", m_sTitleOfScene), ezColor::Red);
   }
   else
   {
-    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", ezFmt("Scene: '{}'", m_sTitleOfActiveScene), ezColor::White);
+    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", ezFmt("Scene: '{}'", m_sTitleOfScene), ezColor::White);
   }
 
   if (m_bShowMenu)
@@ -519,15 +397,8 @@ bool ezFallbackGameState::DisplayMenu()
 
       if (ezInputManager::GetInputSlotState(ezInputSlot_KeyReturn) == ezKeyState::Pressed || ezInputManager::GetInputSlotState(ezInputSlot_KeyNumpadEnter) == ezKeyState::Pressed)
       {
-        if (StartSceneLoading(m_AvailableScenes[m_uiSelectedScene], {}).Succeeded())
-        {
-          m_bShowMenu = false;
-        }
-        else
-        {
-          m_bShowMenu = true;
-          m_State = State::BadScene;
-        }
+        StartBackgroundSceneLoading(m_AvailableScenes[m_uiSelectedScene], {});
+        m_bShowMenu = false;
       }
 
       return true;
@@ -537,9 +408,31 @@ bool ezFallbackGameState::DisplayMenu()
   return false;
 }
 
-bool ezFallbackGameState::IsInLoadingScreen() const
+
+void ezFallbackGameState::OnBackgroundSceneLoadingFinished(ezUniquePtr<ezWorld>&& pWorld)
 {
-  return m_bIsInLoadingScreen;
+  m_State = State::Ok;
+  m_bShowMenu = false;
+
+  if (m_pBackgroundSceneLoad)
+  {
+    m_sTitleOfScene = m_pBackgroundSceneLoad->GetRequestedScene();
+  }
+
+  SUPER::OnBackgroundSceneLoadingFinished(std::move(pWorld));
+}
+
+void ezFallbackGameState::OnBackgroundSceneLoadingFailed(ezStringView sReason)
+{
+  m_State = State::BadScene;
+  m_bShowMenu = true;
+
+  if (m_pBackgroundSceneLoad)
+  {
+    m_sTitleOfScene = m_pBackgroundSceneLoad->GetRequestedScene();
+  }
+
+  SUPER::OnBackgroundSceneLoadingFailed(sReason);
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_FallbackGameState);

@@ -20,8 +20,6 @@ public:
   void UpdatePlayerInput(ezInt32 iPlayer);
 
   ezWorld* GetWorld() const { return m_pWorld.Borrow(); }
-  const ezCamera* GetCamera() const { return &m_Camera; }
-
 private:
   void CreatePlayerShip(ezInt32 iPlayer);
   void CreateAsteroid();
@@ -29,5 +27,4 @@ private:
   ezCollectionResourceHandle m_hAssetCollection;
   ezUniquePtr<ezWorld> m_pWorld;
   ezGameObjectHandle m_hPlayerShips[MaxPlayers];
-  ezCamera m_Camera;
 };
