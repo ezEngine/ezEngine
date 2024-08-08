@@ -43,6 +43,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSceneTransitionComponent, 1 /* version */, ezComponent
   EZ_BEGIN_FUNCTIONS
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(StartTransition, In, "PositionOffset", In, "RotationOffset"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(StartTransitionWithOffsetTo, In, "GlobalPosition", In, "GlobalRotation"),
     EZ_SCRIPT_FUNCTION_PROPERTY(StartPreload),
     EZ_SCRIPT_FUNCTION_PROPERTY(CancelPreload),
   }
@@ -54,7 +55,7 @@ EZ_END_COMPONENT_TYPE
 ezSceneTransitionComponent::ezSceneTransitionComponent() = default;
 ezSceneTransitionComponent::~ezSceneTransitionComponent() = default;
 
-void ezSceneTransitionComponent::StartTransition(const ezVec3& positionOffset, const ezQuat& rotationOffset)
+void ezSceneTransitionComponent::StartTransition(const ezVec3& vPositionOffset, const ezQuat& qRotationOffset)
 {
   if (auto pGameStateBase = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
   {
@@ -62,9 +63,17 @@ void ezSceneTransitionComponent::StartTransition(const ezVec3& positionOffset, c
     // there is no good reason to have this functionality on the base class
     if (ezGameState* pGameState = ezDynamicCast<ezGameState*>(pGameStateBase))
     {
-      pGameState->LoadScene(m_sTargetScene, m_sPreloadCollectionFile, m_sSpawnPoint, ezTransform(positionOffset, rotationOffset));
+      pGameState->LoadScene(m_sTargetScene, m_sPreloadCollectionFile, m_sSpawnPoint, ezTransform(vPositionOffset, qRotationOffset));
     }
   }
+}
+
+void ezSceneTransitionComponent::StartTransitionWithOffsetTo(const ezVec3& vGlobalPosition, const ezQuat& qGlobalRotation)
+{
+  const ezTransform ownGlobal(vGlobalPosition, qGlobalRotation);
+  const ezTransform rel = ezTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), ownGlobal);
+
+  StartTransition(rel.m_vPosition, rel.m_qRotation);
 }
 
 void ezSceneTransitionComponent::StartPreload()
@@ -114,9 +123,9 @@ void ezSceneTransitionComponent::DeserializeComponent(ezWorldReader& inout_strea
   s >> m_sPreloadCollectionFile;
 }
 
-void ezSceneTransitionComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)
+void ezSceneTransitionComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& ref_msg)
 {
-  if (msg.m_TriggerState == ezTriggerState::Activated)
+  if (ref_msg.m_TriggerState == ezTriggerState::Activated)
   {
     if (m_Mode == ezSceneLoadMode::None)
     {
@@ -130,7 +139,7 @@ void ezSceneTransitionComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& ms
       if (m_bRelativeSpawnPosition)
       {
         ezGameObject* pPlayer;
-        if (GetWorld()->TryGetObject(msg.m_hTriggeringObject, pPlayer))
+        if (GetWorld()->TryGetObject(ref_msg.m_hTriggeringObject, pPlayer))
         {
           rel = ezTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), pPlayer->GetGlobalTransform());
         }
