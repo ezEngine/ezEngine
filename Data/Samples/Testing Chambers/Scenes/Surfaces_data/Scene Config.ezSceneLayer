@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3872236734607355539,5264883800516172798}}
-		u4 %Hash{12819910172719976855}
+		u4 %Hash{3498419777030611125}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -358,7 +358,6 @@ o
 			Uuid{u4{8879419160969702863,16011214671175622890}}
 			Uuid{u4{8660032542305141384,5613653219092725934}}
 			Uuid{u4{17885882858618202016,4877938718706073346}}
-			Uuid{u4{18141036768364461788,15767503851739013011}}
 		}
 		Uuid %Settings{u4{11107344262128903097,4992207398067766230}}
 	}
@@ -579,48 +578,6 @@ o
 		Angle %MaxDeviation{f{0}}
 		s %MaxWindStrength{"ezWindStrength::LightBreeze"}
 		s %MinWindStrength{"ezWindStrength::LightBreeze"}
-	}
-}
-o
-{
-	Uuid %id{u4{18141036768364461788,15767503851739013011}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{16712576226282031587,15815075011321909549}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00007041,0x00006041,0xCECCCC3E}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Spawn2"}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{16712576226282031587,15815075011321909549}}
-	s %t{"ezPlayerStartPointComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		VarDict %Parameters
-		{
-			b %GiveAllWeapons{1}
-		}
-		s %PlayerPrefab{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 	}
 }
 o

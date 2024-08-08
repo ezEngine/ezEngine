@@ -36,7 +36,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSceneTransitionComponent, 1 /* version */, ezComponent
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic"),
+    new ezCategoryAttribute("Gameplay"),
   }
   EZ_END_ATTRIBUTES;
 

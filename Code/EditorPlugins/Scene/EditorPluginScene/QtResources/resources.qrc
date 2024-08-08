@@ -99,6 +99,7 @@
     <file>ezAimIKComponent.svg</file>
     <file>ezTwoBoneIKComponent.svg</file>
     <file>ezFillLightComponent.svg</file>
+    <file>ezSceneTransitionComponent.svg</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.svg</file>
