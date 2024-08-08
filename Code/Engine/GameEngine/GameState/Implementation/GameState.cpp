@@ -113,8 +113,24 @@ void ezGameState::ProcessInput()
   UpdateBackgroundSceneLoading();
 }
 
-bool ezGameState::IsLoadingSceneInBackground() const
+bool ezGameState::IsLoadingSceneInBackground(float* out_pProgress) const
 {
+  if (out_pProgress)
+  {
+    *out_pProgress = 0.0f;
+
+    if (m_pBackgroundSceneLoad != nullptr)
+    {
+      *out_pProgress = m_pBackgroundSceneLoad->GetLoadingProgress();
+
+      auto state = m_pBackgroundSceneLoad->GetLoadingState();
+      if (state != ezSceneLoadUtility::LoadingState::FinishedSuccessfully)
+      {
+        *out_pProgress = ezMath::Max(*out_pProgress, 0.99f);
+      }
+    }
+  }
+
   return m_pBackgroundSceneLoad != nullptr;
 }
 
@@ -488,14 +504,19 @@ ezString ezGameState::GetStartupSceneFile()
 
 void ezGameState::LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
-  SwitchToLoadingScreen(sSceneFile);
+  m_sTargetSceneSpawnPoint = sStartPosition;
+  m_TargetSceneSpawnOffset = startPositionOffset;
 
-  if (!sSceneFile.IsEmpty())
+  StartBackgroundSceneLoading(sSceneFile, sPreloadCollection);
+  m_bTransitionWhenReady = true;
+
+  auto state = m_pBackgroundSceneLoad->GetLoadingState();
+  EZ_ASSERT_DEBUG(state != ezSceneLoadUtility::LoadingState::FinishedAndRetrieved, "Scene already loaded and retrieved.");
+
+  if (state != ezSceneLoadUtility::LoadingState::FinishedSuccessfully)
   {
-    m_sTargetSceneSpawnPoint = sStartPosition;
-    m_TargetSceneSpawnOffset = startPositionOffset;
-
-    StartBackgroundSceneLoading(sSceneFile, sPreloadCollection);
+    // switch to loading screen only if we can't immediately switch to the target scene
+    SwitchToLoadingScreen(sSceneFile);
   }
 }
 
@@ -514,7 +535,9 @@ ezUniquePtr<ezWorld> ezGameState::CreateLoadingScreenWorld(ezStringView sTargetS
 
 void ezGameState::StartBackgroundSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection)
 {
-  if (m_pBackgroundSceneLoad != nullptr && m_pBackgroundSceneLoad->GetRequestedScene() == sSceneFile)
+  m_bTransitionWhenReady = false;
+
+  if ((m_pBackgroundSceneLoad != nullptr) && (m_pBackgroundSceneLoad->GetRequestedScene() == sSceneFile))
   {
     // already being loaded
     return;
@@ -543,14 +566,20 @@ void ezGameState::UpdateBackgroundSceneLoading()
 
     switch (state)
     {
+      case ezSceneLoadUtility::LoadingState::FinishedAndRetrieved:
+        return;
+
       case ezSceneLoadUtility::LoadingState::NotStarted:
       case ezSceneLoadUtility::LoadingState::Ongoing:
         m_pBackgroundSceneLoad->TickSceneLoading();
         break;
 
       case ezSceneLoadUtility::LoadingState::FinishedSuccessfully:
-        OnBackgroundSceneLoadingFinished(m_pBackgroundSceneLoad->RetrieveLoadedScene());
-        m_pBackgroundSceneLoad.Clear();
+        if (m_bTransitionWhenReady)
+        {
+          OnBackgroundSceneLoadingFinished(m_pBackgroundSceneLoad->RetrieveLoadedScene());
+          m_pBackgroundSceneLoad.Clear();
+        }
         break;
 
       case ezSceneLoadUtility::LoadingState::Failed:
@@ -563,19 +592,20 @@ void ezGameState::UpdateBackgroundSceneLoading()
 
 void ezGameState::OnBackgroundSceneLoadingFinished(ezUniquePtr<ezWorld>&& pWorld)
 {
-  ezLog::Success("Scene loading finished.");
+  ezLog::Success("Finished loading scene '{}'.", m_pBackgroundSceneLoad->GetRequestedScene());
 
-  // TODO: allow to keep the loaded scene around and switch to it only on demand
-  // if (IsInLoadingScreen())
-  {
-    m_pLoadedWorld = std::move(pWorld);
-    ChangeMainWorld(m_pLoadedWorld.Borrow(), m_sTargetSceneSpawnPoint, m_TargetSceneSpawnOffset);
-    m_sTargetSceneSpawnPoint.Clear();
-    m_TargetSceneSpawnOffset = ezTransform::MakeIdentity();
-  }
+  m_pLoadedWorld = std::move(pWorld);
+  ChangeMainWorld(m_pLoadedWorld.Borrow(), m_sTargetSceneSpawnPoint, m_TargetSceneSpawnOffset);
+  m_sTargetSceneSpawnPoint.Clear();
+  m_TargetSceneSpawnOffset = ezTransform::MakeIdentity();
 }
 
 void ezGameState::OnBackgroundSceneLoadingFailed(ezStringView sReason)
 {
   ezLog::Error("Scene loading failed: {}", sReason);
+}
+
+void ezGameState::OnBackgroundSceneLoadingCanceled()
+{
+  ezLog::Dev("Cancelled background loading of scene '{}'.", m_pBackgroundSceneLoad->GetRequestedScene());
 }

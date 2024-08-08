@@ -199,6 +199,14 @@ void ezFallbackGameState::ProcessInput()
 {
   SUPER::ProcessInput();
 
+  if (IsInLoadingScreen())
+  {
+    float fProgress = 0.0f;
+    IsLoadingSceneInBackground(&fProgress);
+
+    ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Loading", ezFmt("Loading: {}%%", ezMath::RoundToInt(fProgress * 100.0f)));
+  }
+
   {
     if (ezInputManager::GetExclusiveInputSet().IsEmpty() || ezInputManager::GetExclusiveInputSet() == "ezPlayer")
     {
@@ -410,7 +418,6 @@ bool ezFallbackGameState::DisplayMenu()
 
   return false;
 }
-
 
 void ezFallbackGameState::OnBackgroundSceneLoadingFinished(ezUniquePtr<ezWorld>&& pWorld)
 {

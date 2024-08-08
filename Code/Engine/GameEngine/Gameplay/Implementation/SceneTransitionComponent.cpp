@@ -9,10 +9,18 @@
 #include <GameEngine/Gameplay/SceneTransitionComponent.h>
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSceneLoadMode, 1)
+  EZ_ENUM_CONSTANT(ezSceneLoadMode::None),
+  EZ_ENUM_CONSTANT(ezSceneLoadMode::LoadAndSwitch),
+  EZ_ENUM_CONSTANT(ezSceneLoadMode::Preload),
+  EZ_ENUM_CONSTANT(ezSceneLoadMode::CancelPreload),
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_COMPONENT_TYPE(ezSceneTransitionComponent, 1 /* version */, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ENUM_MEMBER_PROPERTY("Mode", ezSceneLoadMode, m_Mode),
     EZ_MEMBER_PROPERTY("TargetScene", m_sTargetScene)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Scene",  ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("PreloadCollection", m_sPreloadCollectionFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_AssetCollection", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("SpawnPoint", m_sSpawnPoint),
@@ -31,26 +39,52 @@ EZ_BEGIN_COMPONENT_TYPE(ezSceneTransitionComponent, 1 /* version */, ezComponent
     new ezCategoryAttribute("Logic"),
   }
   EZ_END_ATTRIBUTES;
+
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(StartTransition, In, "PositionOffset", In, "RotationOffset"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(StartPreload),
+    EZ_SCRIPT_FUNCTION_PROPERTY(CancelPreload),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-// TODO: move scene loading interface to ezGameStateBase
-// TODO: allow scene preloading
-// TODO: option to cancel preload
-// TODO: option mode (preload, load, cancel)
-
 ezSceneTransitionComponent::ezSceneTransitionComponent() = default;
 ezSceneTransitionComponent::~ezSceneTransitionComponent() = default;
 
-void ezSceneTransitionComponent::StartTransition(const ezTransform& relativePosition)
+void ezSceneTransitionComponent::StartTransition(const ezVec3& positionOffset, const ezQuat& rotationOffset)
+{
+  if (auto pGameStateBase = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
+  {
+    // we could move these functions into ezGameStateBase, but for now the dynamic cast should be fine
+    // there is no good reason to have this functionality on the base class
+    if (ezGameState* pGameState = ezDynamicCast<ezGameState*>(pGameStateBase))
+    {
+      pGameState->LoadScene(m_sTargetScene, m_sPreloadCollectionFile, m_sSpawnPoint, ezTransform(positionOffset, rotationOffset));
+    }
+  }
+}
+
+void ezSceneTransitionComponent::StartPreload()
 {
   if (auto pGameStateBase = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
   {
     if (ezGameState* pGameState = ezDynamicCast<ezGameState*>(pGameStateBase))
     {
       pGameState->StartBackgroundSceneLoading(m_sTargetScene, m_sPreloadCollectionFile);
-      // pGameState->LoadScene(m_sTargetScene, m_sPreloadCollectionFile, m_sSpawnPoint, relativePosition);
+    }
+  }
+}
+
+void ezSceneTransitionComponent::CancelPreload()
+{
+  if (auto pGameStateBase = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState())
+  {
+    if (ezGameState* pGameState = ezDynamicCast<ezGameState*>(pGameStateBase))
+    {
+      pGameState->CancelBackgroundSceneLoading();
     }
   }
 }
@@ -60,6 +94,7 @@ void ezSceneTransitionComponent::SerializeComponent(ezWorldWriter& inout_stream)
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
 
+  s << m_Mode;
   s << m_sTargetScene;
   s << m_sSpawnPoint;
   s << m_bRelativeSpawnPosition;
@@ -72,6 +107,7 @@ void ezSceneTransitionComponent::DeserializeComponent(ezWorldReader& inout_strea
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
+  s >> m_Mode;
   s >> m_sTargetScene;
   s >> m_sSpawnPoint;
   s >> m_bRelativeSpawnPosition;
@@ -82,17 +118,39 @@ void ezSceneTransitionComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& ms
 {
   if (msg.m_TriggerState == ezTriggerState::Activated)
   {
-    ezTransform rel = ezTransform::MakeIdentity();
-
-    if (m_bRelativeSpawnPosition)
+    if (m_Mode == ezSceneLoadMode::None)
     {
-      ezGameObject* pPlayer;
-      if (GetWorld()->TryGetObject(msg.m_hTriggeringObject, pPlayer))
-      {
-        rel = ezTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), pPlayer->GetGlobalTransform());
-      }
+      return;
     }
 
-    StartTransition(rel);
+    if (m_Mode == ezSceneLoadMode::LoadAndSwitch)
+    {
+      ezTransform rel = ezTransform::MakeIdentity();
+
+      if (m_bRelativeSpawnPosition)
+      {
+        ezGameObject* pPlayer;
+        if (GetWorld()->TryGetObject(msg.m_hTriggeringObject, pPlayer))
+        {
+          rel = ezTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), pPlayer->GetGlobalTransform());
+        }
+      }
+
+      StartTransition(rel.m_vPosition, rel.m_qRotation);
+
+      return;
+    }
+
+    if (m_Mode == ezSceneLoadMode::Preload)
+    {
+      StartPreload();
+      return;
+    }
+
+    if (m_Mode == ezSceneLoadMode::CancelPreload)
+    {
+      CancelPreload();
+      return;
+    }
   }
 }

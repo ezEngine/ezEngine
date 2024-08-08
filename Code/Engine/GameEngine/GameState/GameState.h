@@ -54,7 +54,7 @@ public:
   ezCamera* GetMainCamera() { return &m_MainCamera; }
 
   /// \brief Whether a scene is currently being loaded.
-  bool IsLoadingSceneInBackground() const;
+  bool IsLoadingSceneInBackground(float* out_pProgress = nullptr) const;
 
   /// \brief Whether the game state currently displays a loading screen. This usually implies that a scene is being loaded as well.
   bool IsInLoadingScreen() const;
@@ -85,9 +85,10 @@ public:
   /// \brief The ezGameState doesn't implement any input logic, but it forwards to UpdateBackgroundSceneLoading().
   virtual void ProcessInput() override;
 
-  /// \brief Convenience function to immediately switch to a loading screen and start loading a level.
+  /// \brief Immediately switches to a loading screen and starts loading a level.
   ///
-  /// When the level is finished loading, `OnBackgroundSceneLoadingFinished()` typically switches to it immediately.
+  /// When the level is finished loading, `OnBackgroundSceneLoadingFinished()` is called, which switches to it immediately, unless overridden.
+  /// If the scene was already fully preloaded, the switch happens immediately, without showing a loading screen.
   void LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection, ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Convenience function to switch to a loading screen.
@@ -201,18 +202,19 @@ protected:
   virtual void OnBackgroundSceneLoadingFailed(ezStringView sReason);
 
   /// \brief Called by `CancelBackgroundSceneLoading()` when scene loading gets canceled.
-  virtual void OnBackgroundSceneLoadingCanceled() {}
+  virtual void OnBackgroundSceneLoadingCanceled();
 
   ezViewHandle m_hMainView;
 
   ezWorld* m_pMainWorld = nullptr;
 
   ezCamera m_MainCamera;
+  ezUniquePtr<ezDummyXR> m_pDummyXR;
   bool m_bStateWantsToQuit = false;
   bool m_bXREnabled = false;
   bool m_bXRRemotingEnabled = false;
-  ezUniquePtr<ezDummyXR> m_pDummyXR;
 
+  bool m_bTransitionWhenReady = false;
   ezUniquePtr<ezSceneLoadUtility> m_pBackgroundSceneLoad;
   ezUniquePtr<ezWorld> m_pLoadingScreenWorld;
   ezUniquePtr<ezWorld> m_pLoadedWorld;

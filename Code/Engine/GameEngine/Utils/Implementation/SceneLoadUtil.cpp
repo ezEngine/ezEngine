@@ -70,6 +70,8 @@ ezUniquePtr<ezWorld> ezSceneLoadUtility::RetrieveLoadedScene()
 {
   EZ_ASSERT_DEV(m_LoadingState == LoadingState::FinishedSuccessfully, "Can't retrieve a scene when loading hasn't finished successfully.");
 
+  m_LoadingState = LoadingState::FinishedAndRetrieved;
+
   m_pWorld->SetWorldSimulationEnabled(true);
 
   return std::move(m_pWorld);
