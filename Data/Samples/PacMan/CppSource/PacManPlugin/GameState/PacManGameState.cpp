@@ -20,14 +20,14 @@ ezHashedString PacManGameState::s_sStats = ezMakeHashedString("Stat");
 ezHashedString PacManGameState::s_sCoinsEaten = ezMakeHashedString("CoinsEaten");
 ezHashedString PacManGameState::s_sPacManState = ezMakeHashedString("PacManState");
 
-void PacManGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void PacManGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   // this is called shortly after the game state was created, and before the game starts to properly run
   // so here you could do general startup stuff
 
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld, sStartPosition, pStartPosition);
+  SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   ResetState();
 }
@@ -98,7 +98,7 @@ void PacManGameState::AfterWorldUpdate()
 }
 
 
-ezResult PacManGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform* pStartPosition)
+ezResult PacManGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   // this is called every time we switch to a new scene
   // some games may want to create the 'player object' here
@@ -155,7 +155,7 @@ void PacManGameState::ProcessInput()
     ResetState();
 
     // We just kick off a scene load. The 'scene file' is the asset GUID of the 'Level1.ezScene' document.
-    StartBackgroundSceneLoading("{ 92c25a40-7218-9708-2da5-4b75040dc3bd }", {});
+    LoadScene("{ 92c25a40-7218-9708-2da5-4b75040dc3bd }", {}, {}, ezTransform::MakeIdentity());
 
     // scene loading happens in the background, and once it is ready, will switch automatically to the new scene
   }

@@ -213,7 +213,7 @@ void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandl
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGameApplicationBase::ActivateGameState(ezWorld* pWorld /*= nullptr*/, ezStringView sStartPosition /*= {}*/, const ezTransform* pStartPosition /*= nullptr*/)
+void ezGameApplicationBase::ActivateGameState(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_ASSERT_DEBUG(m_pGameState == nullptr, "ActivateGameState cannot be called when another GameState is already active");
 
@@ -221,7 +221,7 @@ void ezGameApplicationBase::ActivateGameState(ezWorld* pWorld /*= nullptr*/, ezS
 
   EZ_ASSERT_ALWAYS(m_pGameState != nullptr, "Failed to create a game state.");
 
-  m_pGameState->OnActivation(pWorld, sStartPosition, pStartPosition);
+  m_pGameState->OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   ezGameApplicationStaticEvent e;
   e.m_Type = ezGameApplicationStaticEvent::Type::AfterGameStateActivated;
@@ -297,7 +297,7 @@ ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState()
 
 void ezGameApplicationBase::ActivateGameStateAtStartup()
 {
-  ActivateGameState();
+  ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
 }
 
 ezResult ezGameApplicationBase::BeforeCoreSystemsStartup()

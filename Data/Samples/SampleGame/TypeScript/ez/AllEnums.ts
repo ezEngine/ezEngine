@@ -15,6 +15,7 @@ export enum PathNodeTangentMode {  Auto = 0, Linear = 1 }
 export enum PropertyAnimMode {  Once = 0, Loop = 1, BackAndForth = 2 }
 export enum ReflectionProbeMode {  Static = 0, Dynamic = 1 }
 export enum RootMotionMode {  Ignore = 0, ApplyToOwner = 1, SendMoveCharacterMsg = 2 }
+export enum SceneLoadMode {  None = 0, LoadAndSwitch = 1, Preload = 2, CancelPreload = 3 }
 export enum SetColorMode {  SetRGBA = 0, SetRGB = 1, SetAlpha = 2, AlphaBlend = 3, Additive = 4, Modulate = 5 }
 export enum SkeletonPoseMode {  CustomPose = 0, RestPose = 1, Disabled = 2 }
 export enum SpriteBlendMode {  Masked = 0, Transparent = 1, Additive = 2 }

@@ -23,6 +23,7 @@ public:
     NotStarted,
     Ongoing,
     FinishedSuccessfully,
+    FinishedAndRetrieved, ///< Loading succeeded and someone already called RetrieveLoadedScene()
     Failed,
   };
 

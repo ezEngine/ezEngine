@@ -46,21 +46,21 @@ ezGameState::ezGameState()
 
 ezGameState::~ezGameState() = default;
 
-void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   CreateActors();
   ConfigureInputActions();
 
   if (pWorld)
   {
-    ChangeMainWorld(pWorld, sStartPosition, pStartPosition);
+    ChangeMainWorld(pWorld, sStartPosition, startPositionOffset);
   }
   else
   {
     ezStringBuilder sSceneFile = GetStartupSceneFile();
 
     // TODO: also pass along a preload collection
-    LoadScene(sSceneFile, {});
+    LoadScene(sSceneFile, {}, sStartPosition, startPositionOffset);
   }
 }
 
@@ -113,8 +113,24 @@ void ezGameState::ProcessInput()
   UpdateBackgroundSceneLoading();
 }
 
-bool ezGameState::IsLoadingSceneInBackground() const
+bool ezGameState::IsLoadingSceneInBackground(float* out_pProgress) const
 {
+  if (out_pProgress)
+  {
+    *out_pProgress = 0.0f;
+
+    if (m_pBackgroundSceneLoad != nullptr)
+    {
+      *out_pProgress = m_pBackgroundSceneLoad->GetLoadingProgress();
+
+      auto state = m_pBackgroundSceneLoad->GetLoadingState();
+      if (state != ezSceneLoadUtility::LoadingState::FinishedSuccessfully)
+      {
+        *out_pProgress = ezMath::Min(*out_pProgress, 0.99f);
+      }
+    }
+  }
+
   return m_pBackgroundSceneLoad != nullptr;
 }
 
@@ -285,7 +301,7 @@ ezView* ezGameState::CreateMainView()
   return pView;
 }
 
-ezResult ezGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform* pStartPosition)
+ezResult ezGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   if (m_pMainWorld == nullptr)
     return EZ_FAILURE;
@@ -296,38 +312,60 @@ ezResult ezGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform
   if (pMan == nullptr)
     return EZ_FAILURE;
 
+  ezPlayerStartPointComponent* pBestComp = nullptr;
+
   for (auto it = pMan->GetComponents(); it.IsValid(); ++it)
   {
     if (it->IsActive() && it->GetPlayerPrefab().IsValid())
     {
-      ezResourceLock<ezPrefabResource> pPrefab(it->GetPlayerPrefab(), ezResourceAcquireMode::BlockTillLoaded);
-
-      if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
+      if (pBestComp == nullptr)
       {
-        const ezUInt16 uiTeamID = it->GetOwner()->GetTeamID();
-        ezTransform startPos = it->GetOwner()->GetGlobalTransform();
-
-        if (pStartPosition)
-        {
-          startPos = *pStartPosition;
-          startPos.m_vScale.Set(1.0f);
-          startPos.m_vPosition.z += 1.0f; // do not spawn player prefabs on the ground, they may not have their origin there
-        }
-
-        ezPrefabInstantiationOptions options;
-        options.m_pOverrideTeamID = &uiTeamID;
-
-        pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, options, &(it->m_Parameters));
-
-        return EZ_SUCCESS;
+        // take the first one, no matter what
+        pBestComp = it;
       }
+      else if (it->GetOwner()->GetName().IsEqual_NoCase(sStartPosition))
+      {
+        // if we find one by exact name match, take that one
+        pBestComp = it;
+      }
+      else if (!pBestComp->GetOwner()->GetName().IsEqual_NoCase(sStartPosition) && it->GetOwner()->GetName().IsEmpty())
+      {
+        // if the name of the best one isn't identical to the searched name, yet
+        // and this one is nameless, prefer the nameless one
+        pBestComp = it;
+      }
+    }
+  }
+
+  if (pBestComp)
+  {
+    ezResourceLock<ezPrefabResource> pPrefab(pBestComp->GetPlayerPrefab(), ezResourceAcquireMode::BlockTillLoaded);
+
+    if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
+    {
+      const ezUInt16 uiTeamID = pBestComp->GetOwner()->GetTeamID();
+      ezTransform startPos = ezTransform::MakeGlobalTransform(pBestComp->GetOwner()->GetGlobalTransform(), startPositionOffset);
+
+      if (sStartPosition.IsEqual_NoCase("GlobalOverride"))
+      {
+        startPos = startPositionOffset;
+      }
+
+      startPos.m_vScale.Set(1.0f);
+
+      ezPrefabInstantiationOptions options;
+      options.m_pOverrideTeamID = &uiTeamID;
+
+      pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, options, &(pBestComp->m_Parameters));
+
+      return EZ_SUCCESS;
     }
   }
 
   return EZ_FAILURE;
 }
 
-void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   if (m_pMainWorld == pNewMainWorld)
     return;
@@ -342,20 +380,20 @@ void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPos
     pView->SetWorld(m_pMainWorld);
   }
 
-  OnChangedMainWorld(pPrevWorld, pNewMainWorld, sStartPosition, pStartPosition);
+  OnChangedMainWorld(pPrevWorld, pNewMainWorld, sStartPosition, startPositionOffset);
 
   // make sure the camera gets re-initialized for the new world
   ConfigureMainCamera();
 }
 
-void ezGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void ezGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   if (pNewWorld != m_pLoadingScreenWorld)
   {
     // can get rid of the loading screen world, or we could also keep it around for later, if that has any use
     m_pLoadingScreenWorld.Clear();
 
-    SpawnPlayer(sStartPosition, pStartPosition).IgnoreResult();
+    SpawnPlayer(sStartPosition, startPositionOffset).IgnoreResult();
   }
 }
 
@@ -463,13 +501,21 @@ ezString ezGameState::GetStartupSceneFile()
   return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
 }
 
-void ezGameState::LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection)
+void ezGameState::LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
-  SwitchToLoadingScreen(sSceneFile);
+  m_sTargetSceneSpawnPoint = sStartPosition;
+  m_TargetSceneSpawnOffset = startPositionOffset;
 
-  if (!sSceneFile.IsEmpty())
+  StartBackgroundSceneLoading(sSceneFile, sPreloadCollection);
+  m_bTransitionWhenReady = true;
+
+  auto state = m_pBackgroundSceneLoad->GetLoadingState();
+  EZ_ASSERT_DEBUG(state != ezSceneLoadUtility::LoadingState::FinishedAndRetrieved, "Scene already loaded and retrieved.");
+
+  if (state != ezSceneLoadUtility::LoadingState::FinishedSuccessfully)
   {
-    StartBackgroundSceneLoading(sSceneFile, sPreloadCollection);
+    // switch to loading screen only if we can't immediately switch to the target scene
+    SwitchToLoadingScreen(sSceneFile);
   }
 }
 
@@ -477,7 +523,7 @@ void ezGameState::SwitchToLoadingScreen(ezStringView sTargetSceneFile)
 {
   m_pLoadingScreenWorld = CreateLoadingScreenWorld(sTargetSceneFile);
 
-  ChangeMainWorld(m_pLoadingScreenWorld.Borrow());
+  ChangeMainWorld(m_pLoadingScreenWorld.Borrow(), {}, ezTransform::MakeIdentity());
 }
 
 ezUniquePtr<ezWorld> ezGameState::CreateLoadingScreenWorld(ezStringView sTargetSceneFile)
@@ -488,7 +534,9 @@ ezUniquePtr<ezWorld> ezGameState::CreateLoadingScreenWorld(ezStringView sTargetS
 
 void ezGameState::StartBackgroundSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection)
 {
-  if (m_pBackgroundSceneLoad != nullptr && m_pBackgroundSceneLoad->GetRequestedScene() == sSceneFile)
+  m_bTransitionWhenReady = false;
+
+  if ((m_pBackgroundSceneLoad != nullptr) && (m_pBackgroundSceneLoad->GetRequestedScene() == sSceneFile))
   {
     // already being loaded
     return;
@@ -517,14 +565,20 @@ void ezGameState::UpdateBackgroundSceneLoading()
 
     switch (state)
     {
+      case ezSceneLoadUtility::LoadingState::FinishedAndRetrieved:
+        return;
+
       case ezSceneLoadUtility::LoadingState::NotStarted:
       case ezSceneLoadUtility::LoadingState::Ongoing:
         m_pBackgroundSceneLoad->TickSceneLoading();
         break;
 
       case ezSceneLoadUtility::LoadingState::FinishedSuccessfully:
-        OnBackgroundSceneLoadingFinished(m_pBackgroundSceneLoad->RetrieveLoadedScene());
-        m_pBackgroundSceneLoad.Clear();
+        if (m_bTransitionWhenReady)
+        {
+          OnBackgroundSceneLoadingFinished(m_pBackgroundSceneLoad->RetrieveLoadedScene());
+          m_pBackgroundSceneLoad.Clear();
+        }
         break;
 
       case ezSceneLoadUtility::LoadingState::Failed:
@@ -537,17 +591,20 @@ void ezGameState::UpdateBackgroundSceneLoading()
 
 void ezGameState::OnBackgroundSceneLoadingFinished(ezUniquePtr<ezWorld>&& pWorld)
 {
-  ezLog::Success("Scene loading finished.");
+  ezLog::Success("Finished loading scene '{}'.", m_pBackgroundSceneLoad->GetRequestedScene());
 
-  // TODO: allow to keep the loaded scene around and switch to it only on demand
-  // if (IsInLoadingScreen())
-  {
-    m_pLoadedWorld = std::move(pWorld);
-    ChangeMainWorld(m_pLoadedWorld.Borrow());
-  }
+  m_pLoadedWorld = std::move(pWorld);
+  ChangeMainWorld(m_pLoadedWorld.Borrow(), m_sTargetSceneSpawnPoint, m_TargetSceneSpawnOffset);
+  m_sTargetSceneSpawnPoint.Clear();
+  m_TargetSceneSpawnOffset = ezTransform::MakeIdentity();
 }
 
 void ezGameState::OnBackgroundSceneLoadingFailed(ezStringView sReason)
 {
   ezLog::Error("Scene loading failed: {}", sReason);
+}
+
+void ezGameState::OnBackgroundSceneLoadingCanceled()
+{
+  ezLog::Dev("Cancelled background loading of scene '{}'.", m_pBackgroundSceneLoad->GetRequestedScene());
 }

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{12190214090615373549}
+		u4 %Hash{16755033294588116062}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -7430,7 +7430,7 @@ o
 			Uuid{u4{4108636486383446707,4947924753554365181}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000030C0,0x0000403F,0x0000C03F}}
+		Vec3 %LocalPosition{f{0xCDCC2CC0,0x0000803F,0x9A99193F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -14864,6 +14864,8 @@ o
 			Uuid{u4{1172313384781028535,16337097420684725227}}
 			Uuid{u4{9616601475446977452,4753305133286341451}}
 			Uuid{u4{4656057195403548042,5480615887265037466}}
+			Uuid{u4{1549936818781279289,9940792065740930554}}
+			Uuid{u4{12171801923888789859,10002228581407278372}}
 		}
 		Uuid %Settings{u4{11204937990389899402,5417500911553874876}}
 	}
@@ -18244,6 +18246,22 @@ o
 }
 o
 {
+	Uuid %id{u4{5935250708589500727,9880332140901725930}}
+	s %t{"ezPlayerStartPointComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters
+		{
+			b %GiveAllWeapons{0}
+			b %Invincible{0}
+		}
+		s %PlayerPrefab{"{ 8044a36f-e313-4204-973d-796231798973 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{17435503307133776949,9898338476309123188}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -18463,6 +18481,49 @@ o
 		f %Range{0x0000A040}
 		u3 %Temperature{6550}
 		b %UseColorTemperature{0}
+	}
+}
+o
+{
+	Uuid %id{u4{1549936818781279289,9940792065740930554}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5935250708589500727,9880332140901725930}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0100A041,0x0000803F,0x0000B040}}
+		Quat %LocalRotation{f{0,0,0xF30435BF,0xF304353F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Balcony"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16557115813697011297,9941768656568073748}}
+	s %t{"ezPlayerStartPointComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters
+		{
+			b %GiveAllWeapons{0}
+			b %Invincible{0}
+		}
+		s %PlayerPrefab{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 	}
 }
 o
@@ -18807,6 +18868,33 @@ o
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
 		b %UseAsOccluder{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12171801923888789859,10002228581407278372}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16557115813697011297,9941768656568073748}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x666646C0,0x00004041,0x0000003F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Outside"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o

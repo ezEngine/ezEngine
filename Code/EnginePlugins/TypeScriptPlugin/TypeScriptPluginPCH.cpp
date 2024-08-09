@@ -15,7 +15,7 @@ END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORESYSTEMS_STARTUP
 {
-  //ezResourceManager::RegisterResourceForAssetType("TypeScript", nullptr);
+  // ezResourceManager::RegisterResourceForAssetType("TypeScript", nullptr);
 }
 
 ON_CORESYSTEMS_SHUTDOWN

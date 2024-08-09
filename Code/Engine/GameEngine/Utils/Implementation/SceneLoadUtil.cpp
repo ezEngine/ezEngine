@@ -70,6 +70,8 @@ ezUniquePtr<ezWorld> ezSceneLoadUtility::RetrieveLoadedScene()
 {
   EZ_ASSERT_DEV(m_LoadingState == LoadingState::FinishedSuccessfully, "Can't retrieve a scene when loading hasn't finished successfully.");
 
+  m_LoadingState = LoadingState::FinishedAndRetrieved;
+
   m_pWorld->SetWorldSimulationEnabled(true);
 
   return std::move(m_pWorld);
@@ -109,7 +111,10 @@ void ezSceneLoadUtility::TickSceneLoading()
 
       if (pCollection.GetAcquireResult() == ezResourceAcquireResult::Final)
       {
-        pCollection->PreloadResources();
+        if (pCollection->PreloadResources())
+        {
+          EZ_REPORT_FAILURE("Failed to start preloading all resources.");
+        }
 
         float progress = 0.0f;
         if (pCollection->IsLoadingFinished(&progress))

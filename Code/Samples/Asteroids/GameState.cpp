@@ -43,11 +43,11 @@ AsteroidGameState::AsteroidGameState()
   m_pLevel = nullptr;
 }
 
-void AsteroidGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void AsteroidGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_LOG_BLOCK("AsteroidGameState::Activate");
 
-  SUPER::OnActivation(pWorld, sStartPosition, pStartPosition);
+  SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   CreateGameLevel();
 }
@@ -112,7 +112,7 @@ void AsteroidGameState::CreateGameLevel()
   ezWorldDesc desc("Asteroids - World");
   m_pLevel->SetupLevel(EZ_DEFAULT_NEW(ezWorld, desc));
 
-  ChangeMainWorld(m_pLevel->GetWorld());
+  ChangeMainWorld(m_pLevel->GetWorld(), {}, ezTransform::MakeIdentity());
 }
 
 void AsteroidGameState::DestroyLevel()

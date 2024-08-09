@@ -48,9 +48,7 @@ bool ezCollectionResource::PreloadResources(ezUInt32 uiNumResourcesToPreload)
       }
       else
       {
-        ezLog::Error("There was no valid RTTI available for assets with type name '{}'. Could not pre-load resource '{}'. Did you forget to register "
-                     "the resource type with the ezResourceManager?",
-          e.m_sAssetTypeName, ezArgSensitive(e.m_sResourceID, "ResourceID"));
+        ezLog::Warning("There was no valid RTTI available for assets with type name '{}'. Could not pre-load resource '{}'. Did you forget to register the resource type with the ezResourceManager?", e.m_sAssetTypeName, ezArgSensitive(e.m_sResourceID, "ResourceID"));
       }
     }
     else
@@ -76,6 +74,8 @@ bool ezCollectionResource::IsLoadingFinished(float* out_pProgress) const
   ezUInt64 loadedWeight = 0;
   ezUInt64 totalWeight = 0;
 
+  ezUInt32 uiPoked = 0;
+
   for (ezUInt32 i = 0; i < m_PreloadedResources.GetCount(); i++)
   {
     const ezTypelessResourceHandle& hResource = m_PreloadedResources[i];
@@ -90,10 +90,21 @@ bool ezCollectionResource::IsLoadingFinished(float* out_pProgress) const
     {
       loadedWeight += thisWeight;
     }
-
-    if (state != ezResourceState::Invalid)
+    else if (state != ezResourceState::Invalid)
     {
       totalWeight += thisWeight;
+    }
+    else
+    {
+      if (uiPoked < 3)
+      {
+        // there's a bug or race condition somewhere when unloading resources, which means resources that should be queued
+        // for preloading don't get preloaded and then the entire preloading system gets stuck
+        // to prevent this, we'll make sure that the next few unloaded resources do get requeued for preload
+
+        ++uiPoked;
+        ezResourceManager::PreloadResource(hResource);
+      }
     }
   }
 

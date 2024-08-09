@@ -29,10 +29,10 @@ protected:
   virtual void ConfigureMainCamera() override;
 
 private:
-  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition) override;
+  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
   virtual void OnDeactivation() override;
   virtual void AfterWorldUpdate() override;
-  virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform* pStartPosition) override;
+  virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
 
   void ResetState();
 

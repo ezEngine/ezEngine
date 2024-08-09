@@ -103,7 +103,7 @@ private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
   void OnSimulationEnabled();
   void OnSimulationDisabled();
-  void OnPlayTheGameModeStarted(const ezTransform* pStartPosition);
+  void OnPlayTheGameModeStarted(ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   void OnResourceManagerEvent(const ezResourceManagerEvent& e);
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);

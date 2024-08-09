@@ -17,11 +17,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 CppProjectGameState::CppProjectGameState() = default;
 CppProjectGameState::~CppProjectGameState() = default;
 
-void CppProjectGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void CppProjectGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld, sStartPosition, pStartPosition);
+  SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   // the main entry point when the game starts
   // could do some setup here, but in a lot of cases it is better to leave this as is
@@ -51,15 +51,15 @@ void CppProjectGameState::BeforeWorldUpdate()
   // if you need to modify the world, this is a good place to do it
 }
 
-ezResult CppProjectGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform* pStartPosition)
+ezResult CppProjectGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   // replace this to create a custom player object or load a prefab
-  return SUPER::SpawnPlayer(sStartPosition, pStartPosition);
+  return SUPER::SpawnPlayer(sStartPosition, startPositionOffset);
 }
 
-void CppProjectGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void CppProjectGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
-  SUPER::OnChangedMainWorld(pPrevWorld, pNewWorld, sStartPosition, pStartPosition);
+  SUPER::OnChangedMainWorld(pPrevWorld, pNewWorld, sStartPosition, startPositionOffset);
 
   // called whenever the main world is changed, ie when transitioning between levels
   // may need to update references to the world here or reset some state

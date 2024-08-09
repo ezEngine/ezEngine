@@ -135,7 +135,7 @@ public:
   ///
   /// Broadcasts local event: ezGameApplicationStaticEvent::AfterGameStateActivated
   /// Broadcasts global event: AfterGameStateActivation(ezGameStateBase*)
-  void ActivateGameState(ezWorld* pWorld = nullptr, ezStringView sStartPosition = {}, const ezTransform* pStartPosition = nullptr);
+  void ActivateGameState(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Deactivates and destroys the active game state.
   ///

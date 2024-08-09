@@ -626,7 +626,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   }
 }
 
-void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
+void ezSceneContext::OnPlayTheGameModeStarted(ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   if (ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState() != nullptr)
   {
@@ -646,7 +646,7 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
   s_pWorldLinkedWithGameState = m_pWorld;
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld, {}, pStartPosition);
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld, sStartPosition, startPositionOffset);
 
   ezGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
@@ -727,11 +727,11 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
 
       ezTransform tStart(pMsg->m_vStartPosition, qRot);
 
-      OnPlayTheGameModeStarted(&tStart);
+      OnPlayTheGameModeStarted("GlobalOverride", tStart);
     }
     else
     {
-      OnPlayTheGameModeStarted(nullptr);
+      OnPlayTheGameModeStarted({}, ezTransform::MakeIdentity());
     }
   }
   else

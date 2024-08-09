@@ -54,7 +54,7 @@ public:
   ezCamera* GetMainCamera() { return &m_MainCamera; }
 
   /// \brief Whether a scene is currently being loaded.
-  bool IsLoadingSceneInBackground() const;
+  bool IsLoadingSceneInBackground(float* out_pProgress = nullptr) const;
 
   /// \brief Whether the game state currently displays a loading screen. This usually implies that a scene is being loaded as well.
   bool IsInLoadingScreen() const;
@@ -66,7 +66,7 @@ public:
   /// Finally switches to pWorld (if available) or starts loading the scene that GetStartupSceneFile() returns.
   ///
   /// Override any of the above functions to customize them.
-  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition) override;
+  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
 
   /// \brief Cleans up the main window before the game is shut down.
   virtual void OnDeactivation() override;
@@ -84,6 +84,42 @@ public:
 
   /// \brief The ezGameState doesn't implement any input logic, but it forwards to UpdateBackgroundSceneLoading().
   virtual void ProcessInput() override;
+
+  /// \brief Immediately switches to a loading screen and starts loading a level.
+  ///
+  /// When the level is finished loading, `OnBackgroundSceneLoadingFinished()` is called, which switches to it immediately, unless overridden.
+  /// If the scene was already fully preloaded, the switch happens immediately, without showing a loading screen.
+  void LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection, ezStringView sStartPosition, const ezTransform& startPositionOffset);
+
+  /// \brief Convenience function to switch to a loading screen.
+  ///
+  /// Nothing actually gets loaded. Without further logic, the app will stay in the loading screen indefinitely.
+  /// sTargetSceneFile is only passed in, so that the loading screen can be customized accordingly,
+  /// for example it may show a screenshot of the target scene.
+  void SwitchToLoadingScreen(ezStringView sTargetSceneFile);
+
+  /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
+  ///
+  /// Calls OnChangedMainWorld() afterwards, so that you can follow up on a scene change as needed.
+  /// Calls ConfigureMainCamera() as well.
+  void ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset);
+
+  /// \brief Starts loading a scene in the background.
+  ///
+  /// If available, a collection can be provided. Resources referenced in the collection will be fully preloaded first and then
+  /// the scene is loaded. This is the only way to get a proper estimation of loading progress and is necessary to get a smooth
+  /// start, otherwise the engine will have to load resources on-demand, many of which will be needed during the first frame.
+  ///
+  /// Once finished, one of these hooks is executed:
+  ///   `OnBackgroundSceneLoadingFinished()`
+  ///   `OnBackgroundSceneLoadingFailed()`
+  ///   `OnBackgroundSceneLoadingCanceled()`
+  void StartBackgroundSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection);
+
+  /// \brief If a scene is currently being loaded in the background, cancel the loading.
+  ///
+  /// Calls `OnBackgroundSceneLoadingCanceled()` if a scene was loading.
+  void CancelBackgroundSceneLoading();
 
 protected:
   /// \brief Creates an actor with a default window (ezGameStateWindow) adds it to the application
@@ -105,7 +141,7 @@ protected:
   /// sStartPosition allows to spawn the player at another named location, but there is no default implementation for such logic.
   ///
   /// Returns EZ_SUCCESS if a prefab was spawned, EZ_FAILURE if nothing was done.
-  virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform* pStartPosition);
+  virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Creates an XR Actor, if XR is configured and available for the project.
   ezUniquePtr<ezActor> CreateXRActor();
@@ -113,18 +149,12 @@ protected:
   /// \brief Creates a default main view.
   ezView* CreateMainView();
 
-  /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
-  ///
-  /// Calls OnChangedMainWorld() afterwards, so that you can follow up on a scene change as needed.
-  /// Calls ConfigureMainCamera() as well.
-  void ChangeMainWorld(ezWorld* pNewMainWorld, ezStringView sStartPosition = {}, const ezTransform* pStartPosition = nullptr);
-
   /// \brief Executed when ChangeMainWorld() is used to switch to a new world.
   ///
   /// Override this to be informed about scene changes.
   /// This happens right at startup (both for given worlds and custom created ones)
   /// and when the game needs to switch to a new level.
-  virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform* pStartPosition);
+  virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Searches for a "Main View" ezCameraComponent in the world and uses that for the camera position, if available.
   ///
@@ -150,40 +180,11 @@ protected:
   /// Override this function to define a custom startup scene (e.g. for the main menu) or load a saved state.
   virtual ezString GetStartupSceneFile();
 
-  /// \brief Convenience function to immediately switch to a loading screen and start loading a level.
-  ///
-  /// When the level is finished loading, `OnBackgroundSceneLoadingFinished()` typically switches to it immediately.
-  void LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection);
-
-  /// \brief Convenience function to switch to a loading screen.
-  ///
-  /// Nothing actually gets loaded. Without further logic, the app will stay in the loading screen indefinitely.
-  /// sTargetSceneFile is only passed in, so that the loading screen can be customized accordingly,
-  /// for example it may show a screenshot of the target scene.
-  void SwitchToLoadingScreen(ezStringView sTargetSceneFile);
-
   /// \brief Called by SwitchToLoadingScreen() to set up a new loading screen world.
   ///
   /// A loading screen uses a separate ezWorld. It can be fully set up in code or loaded from disk,
   /// but it should be very light-weight, so that it is quick to set up.
   virtual ezUniquePtr<ezWorld> CreateLoadingScreenWorld(ezStringView sTargetSceneFile);
-
-  /// \brief Starts loading a scene in the background.
-  ///
-  /// If available, a collection can be provided. Resources referenced in the collection will be fully preloaded first and then
-  /// the scene is loaded. This is the only way to get a proper estimation of loading progress and is necessary to get a smooth
-  /// start, otherwise the engine will have to load resources on-demand, many of which will be needed during the first frame.
-  ///
-  /// Once finished, one of these hooks is executed:
-  ///   `OnBackgroundSceneLoadingFinished()`
-  ///   `OnBackgroundSceneLoadingFailed()`
-  ///   `OnBackgroundSceneLoadingCanceled()`
-  void StartBackgroundSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollection);
-
-  /// \brief If a scene is currently being loaded in the background, cancel the loading.
-  ///
-  /// Calls `OnBackgroundSceneLoadingCanceled()` if a scene was loading.
-  void CancelBackgroundSceneLoading();
 
   /// \brief If a scene is being loaded in the background, this advanced the loading.
   ///
@@ -201,19 +202,23 @@ protected:
   virtual void OnBackgroundSceneLoadingFailed(ezStringView sReason);
 
   /// \brief Called by `CancelBackgroundSceneLoading()` when scene loading gets canceled.
-  virtual void OnBackgroundSceneLoadingCanceled() {}
+  virtual void OnBackgroundSceneLoadingCanceled();
 
   ezViewHandle m_hMainView;
 
   ezWorld* m_pMainWorld = nullptr;
 
   ezCamera m_MainCamera;
+  ezUniquePtr<ezDummyXR> m_pDummyXR;
   bool m_bStateWantsToQuit = false;
   bool m_bXREnabled = false;
   bool m_bXRRemotingEnabled = false;
-  ezUniquePtr<ezDummyXR> m_pDummyXR;
 
+  bool m_bTransitionWhenReady = false;
   ezUniquePtr<ezSceneLoadUtility> m_pBackgroundSceneLoad;
   ezUniquePtr<ezWorld> m_pLoadingScreenWorld;
   ezUniquePtr<ezWorld> m_pLoadedWorld;
+
+  ezString m_sTargetSceneSpawnPoint;
+  ezTransform m_TargetSceneSpawnOffset = ezTransform::MakeIdentity();
 };

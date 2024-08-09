@@ -1,5 +1,6 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
+#include <Foundation/Logging/Log.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
@@ -234,7 +235,8 @@ void ezGALCommandEncoder::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestO
   }
   else
   {
-    EZ_REPORT_FAILURE("UpdateBuffer failed, buffer handle invalid");
+    ezLog::Error("UpdateBuffer failed, buffer handle invalid");
+    // EZ_REPORT_FAILURE("UpdateBuffer failed, buffer handle invalid");
   }
 }
 

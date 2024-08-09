@@ -24,11 +24,11 @@ void SampleGameState::ConFunc_Print(ezString sText)
 }
 // END-DOCS-CODE-SNIPPET
 
-void SampleGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void SampleGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld, sStartPosition, pStartPosition);
+  SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
 // BEGIN-DOCS-CODE-SNIPPET: imgui-alloc
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT

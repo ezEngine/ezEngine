@@ -28,11 +28,11 @@ float RtsGameState::SetCameraZoom(float fZoom)
   return m_fCameraZoom;
 }
 
-void RtsGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void RtsGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld, sStartPosition, pStartPosition);
+  SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   if (ezImgui::GetSingleton() == nullptr)
   {
@@ -157,9 +157,9 @@ void RtsGameState::ConfigureMainCamera()
 }
 
 
-void RtsGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform* pStartPosition)
+void RtsGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
-  SUPER::OnChangedMainWorld(pPrevWorld, pNewWorld, sStartPosition, pStartPosition);
+  SUPER::OnChangedMainWorld(pPrevWorld, pNewWorld, sStartPosition, startPositionOffset);
 
   m_SelectedUnits.Clear();
   m_SelectedUnits.SetWorld(pNewWorld);
