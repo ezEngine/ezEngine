@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{15173666521599619521}
+		u4 %Hash{12468991782636897041}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -837,6 +837,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -1047,6 +1048,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -1159,6 +1161,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -1176,6 +1179,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -1710,6 +1714,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -1779,6 +1784,34 @@ o
 }
 o
 {
+	Uuid %id{u4{18212317870531700894,1937682998804166273}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14685989795849302689,2742524079615112512}}
+			Uuid{u4{1929184817971377296,2823757106125189770}}
+			Uuid{u4{9825902387142668692,2693393802510129704}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000003F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{7832085211727958406,1942950521102645858}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1827,6 +1860,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -1889,6 +1923,34 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{18288902506680418997,2099624600142543312}}
+	s %t{"ezGreyBoxComponent"}
+	u3 %v{7}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
+		u3 %Detail{16}
+		b %GenerateCollision{1}
+		b %IncludeInNavmesh{1}
+		s %Material{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
+		s %Shape{"ezGreyBoxShape::Box"}
+		f %SizeNegX{0x00000040}
+		f %SizeNegY{0x00000040}
+		f %SizeNegZ{0}
+		f %SizePosX{0x00000040}
+		f %SizePosY{0x00000040}
+		f %SizePosZ{0xCDCC4C3E}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -1966,6 +2028,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }"}
@@ -2151,12 +2214,13 @@ o
 {
 	Uuid %id{u4{8934191910348986764,2510824718234150554}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -2264,6 +2328,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -2392,6 +2457,32 @@ o
 }
 o
 {
+	Uuid %id{u4{9825902387142668692,2693393802510129704}}
+	s %t{"ezJoltShapeBoxComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %HalfExtents{f{0x0000C03F,0x0000C03F,0x0000003F}}
+	}
+}
+o
+{
+	Uuid %id{u4{14685989795849302689,2742524079615112512}}
+	s %t{"ezSceneTransitionComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Mode{"ezSceneLoadMode::LoadAndSwitch"}
+		HashedString %PreloadCollection{s{""}}
+		b %RelativeSpawnPosition{0}
+		HashedString %SpawnPoint{s{""}}
+		HashedString %TargetScene{s{"{ fe594680-2ccf-8bdc-41dd-6e908da72ff5 }"}}
+	}
+}
+o
+{
 	Uuid %id{u4{9971055110095519686,2744476740883175691}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -2426,6 +2517,36 @@ o
 		{
 			s{"CastShadow"}
 			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8331898585429185975,2769867575100824059}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{18212317870531700894,1937682998804166273}}
+			Uuid{u4{4715882554461468904,12303642477994248257}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{18288902506680418997,2099624600142543312}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000F8C1,0x0000D8C1,0x0000803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
 		}
 	}
 }
@@ -2473,6 +2594,18 @@ o
 }
 o
 {
+	Uuid %id{u4{1929184817971377296,2823757106125189770}}
+	s %t{"ezJoltTriggerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{9}
+		s %TriggerMessage{""}
+	}
+}
+o
+{
 	Uuid %id{u4{17327977130531520390,2827377131885304910}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -2502,17 +2635,18 @@ o
 {
 	Uuid %id{u4{10362584086104424557,2830608465593250453}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampY"}
+		s %Shape{"ezGreyBoxShape::RampNegY"}
 		f %SizeNegX{0x00002040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -2600,6 +2734,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -2644,6 +2779,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -2756,6 +2892,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
@@ -2921,6 +3058,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -2950,6 +3088,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -3242,6 +3381,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -3254,12 +3394,13 @@ o
 {
 	Uuid %id{u4{17952456231626479743,3630751861228559779}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -3286,6 +3427,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -3303,6 +3445,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -3332,6 +3475,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -3373,12 +3517,13 @@ o
 {
 	Uuid %id{u4{4620677274494284680,3724209296307828921}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -3609,6 +3754,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -3833,6 +3979,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -3974,6 +4121,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -4152,6 +4300,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }"}
@@ -4367,10 +4516,11 @@ o
 {
 	Uuid %id{u4{7561527291760208787,4623761464356894118}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -4390,10 +4540,11 @@ o
 {
 	Uuid %id{u4{9604360060652291774,4626353524496667384}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -4463,10 +4614,11 @@ o
 {
 	Uuid %id{u4{13806184686691462034,4635164311968908840}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -4589,10 +4741,11 @@ o
 {
 	Uuid %id{u4{9158683619322587804,4656982118109765185}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -4617,6 +4770,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -4691,10 +4845,11 @@ o
 {
 	Uuid %id{u4{13298004032296145325,4664467251936584560}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -4743,10 +4898,11 @@ o
 {
 	Uuid %id{u4{1859371569152968340,4666038115280124014}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -5093,10 +5249,11 @@ o
 {
 	Uuid %id{u4{1522513833820443567,4683222004842607685}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -5161,10 +5318,11 @@ o
 {
 	Uuid %id{u4{12285935448007778184,4689067613148327466}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -5189,6 +5347,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 		f %SortingDepthOffset{0}
@@ -5198,12 +5357,13 @@ o
 {
 	Uuid %id{u4{11341755196785872283,4693057467671460465}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -5241,6 +5401,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ d615cd66-0904-00ca-81f9-768ff4fc24ee }"}
@@ -5253,12 +5414,13 @@ o
 {
 	Uuid %id{u4{341800527934774943,4699491802594435435}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -5312,6 +5474,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -5363,10 +5526,11 @@ o
 {
 	Uuid %id{u4{1184818126725847219,4704021681415511787}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -5474,12 +5638,13 @@ o
 {
 	Uuid %id{u4{4220081091075350691,4713340861984725651}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -5551,10 +5716,11 @@ o
 {
 	Uuid %id{u4{15236455564294536577,4722236414428951558}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -5685,10 +5851,11 @@ o
 {
 	Uuid %id{u4{12507432622744571059,4734121005150364245}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -5708,12 +5875,13 @@ o
 {
 	Uuid %id{u4{6402229251682090373,4740937601337528484}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -5735,12 +5903,13 @@ o
 {
 	Uuid %id{u4{6625653281180356286,4754566588831389429}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -5762,10 +5931,11 @@ o
 {
 	Uuid %id{u4{11416517723945188236,4764612337519580873}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -5785,10 +5955,11 @@ o
 {
 	Uuid %id{u4{15504820146773286289,4766454641308165929}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -5928,10 +6099,11 @@ o
 {
 	Uuid %id{u4{1772962949061378980,4783045279245925244}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0x000080BF}}
 		u1 %CollisionLayer{0}
@@ -6219,10 +6391,11 @@ o
 {
 	Uuid %id{u4{7814062508579111815,4824981565370790480}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -6297,10 +6470,11 @@ o
 {
 	Uuid %id{u4{17187965505917187717,4831026981845211580}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -6352,6 +6526,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
@@ -6364,12 +6539,13 @@ o
 {
 	Uuid %id{u4{2451368656994253718,4843975618776232767}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -6543,10 +6719,11 @@ o
 {
 	Uuid %id{u4{827174287847170215,4864280384402779778}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -6720,10 +6897,11 @@ o
 {
 	Uuid %id{u4{8318033365265497517,4902135969723467543}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -6743,10 +6921,11 @@ o
 {
 	Uuid %id{u4{6730679040343285386,4904157281791941109}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -6846,10 +7025,11 @@ o
 {
 	Uuid %id{u4{17410144178842397322,4910901210769235953}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -6881,10 +7061,11 @@ o
 {
 	Uuid %id{u4{11426200200472656531,4915877726126594015}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -7014,10 +7195,11 @@ o
 {
 	Uuid %id{u4{6526978194801141137,4928421731217413740}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -7147,10 +7329,11 @@ o
 {
 	Uuid %id{u4{15103213708161687970,4940291706564221128}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -7170,10 +7353,11 @@ o
 {
 	Uuid %id{u4{15549508699653618560,4940420552450643173}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -7261,10 +7445,11 @@ o
 {
 	Uuid %id{u4{4935601582776801154,4951953148497509665}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -7378,10 +7563,11 @@ o
 {
 	Uuid %id{u4{5537313175999450266,4960795947292588756}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -7456,10 +7642,11 @@ o
 {
 	Uuid %id{u4{15482718609710182332,4968355164073513029}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -7544,10 +7731,11 @@ o
 {
 	Uuid %id{u4{11035122027846720143,4981973663735375238}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -7611,6 +7799,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
@@ -7665,17 +7854,18 @@ o
 {
 	Uuid %id{u4{5915166190318237103,4989587203334373981}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{12}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsX"}
+		s %Shape{"ezGreyBoxShape::StairsPosX"}
 		f %SizeNegX{0x0000D040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -7692,10 +7882,11 @@ o
 {
 	Uuid %id{u4{12874897459142644158,4990189689260855881}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -7715,10 +7906,11 @@ o
 {
 	Uuid %id{u4{11085309694332272061,4990649926911855076}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -7964,10 +8156,11 @@ o
 {
 	Uuid %id{u4{16479224784382119615,5028873788512315679}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -8259,10 +8452,11 @@ o
 {
 	Uuid %id{u4{3037366625564403328,5070570061327241893}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -8321,10 +8515,11 @@ o
 {
 	Uuid %id{u4{6017518799273594508,5083216283283813668}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -8489,10 +8684,11 @@ o
 {
 	Uuid %id{u4{11950649452029252998,5111964199886229072}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -8536,12 +8732,13 @@ o
 {
 	Uuid %id{u4{2128865152013403838,5115005639416411092}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -8563,10 +8760,11 @@ o
 {
 	Uuid %id{u4{2298195822107971730,5115304255426863841}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -8602,17 +8800,18 @@ o
 {
 	Uuid %id{u4{1376916972355259048,5120154506341732871}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{4}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsX"}
+		s %Shape{"ezGreyBoxShape::StairsPosX"}
 		f %SizeNegX{0x0000003F}
 		f %SizeNegY{0x00002040}
 		f %SizeNegZ{0}
@@ -8629,10 +8828,11 @@ o
 {
 	Uuid %id{u4{4302218128063136658,5127175584602789788}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -8652,10 +8852,11 @@ o
 {
 	Uuid %id{u4{1930337669508930460,5134074937016166315}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -8675,12 +8876,13 @@ o
 {
 	Uuid %id{u4{9040772765683065763,5134909709615955496}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -8768,10 +8970,11 @@ o
 {
 	Uuid %id{u4{8271696098851736748,5145051053912958433}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -8949,10 +9152,11 @@ o
 {
 	Uuid %id{u4{15244381584177741444,5168070859082406683}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -8972,10 +9176,11 @@ o
 {
 	Uuid %id{u4{9480487569276997256,5174632042080607085}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -9084,10 +9289,11 @@ o
 {
 	Uuid %id{u4{11945985655521863309,5191034577344523475}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -9317,10 +9523,11 @@ o
 {
 	Uuid %id{u4{11176957131828079492,5228331898435639448}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -9340,10 +9547,11 @@ o
 {
 	Uuid %id{u4{18065383074117129621,5228404962469371640}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -9481,10 +9689,11 @@ o
 {
 	Uuid %id{u4{10786881951917239943,5245540034673484854}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -9516,10 +9725,11 @@ o
 {
 	Uuid %id{u4{6914438561047781821,5253368627841668977}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -9675,12 +9885,13 @@ o
 {
 	Uuid %id{u4{16996444949911002540,5274580211478089382}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -9714,10 +9925,11 @@ o
 {
 	Uuid %id{u4{12357565345980177026,5282640074795325977}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -9767,17 +9979,18 @@ o
 {
 	Uuid %id{u4{15223958793089175207,5285482701883028580}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{8}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsY"}
+		s %Shape{"ezGreyBoxShape::StairsNegY"}
 		f %SizeNegX{0}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -9832,10 +10045,11 @@ o
 {
 	Uuid %id{u4{8915741004717592720,5291180959237385320}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -9910,6 +10124,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -9949,10 +10164,11 @@ o
 {
 	Uuid %id{u4{4525313892251271335,5303305676292279850}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -9994,10 +10210,11 @@ o
 {
 	Uuid %id{u4{4804943640909921983,5305799406632223398}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10087,10 +10304,11 @@ o
 {
 	Uuid %id{u4{15877490586670215813,5316380344701046506}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10195,10 +10413,11 @@ o
 {
 	Uuid %id{u4{11892339777328944526,5330403830215833993}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10307,6 +10526,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
@@ -10319,10 +10539,11 @@ o
 {
 	Uuid %id{u4{4636409673753321379,5345489579204758622}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10342,17 +10563,18 @@ o
 {
 	Uuid %id{u4{17461462470739730310,5350919150175572764}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampX"}
+		s %Shape{"ezGreyBoxShape::RampPosX"}
 		f %SizeNegX{0x0000403F}
 		f %SizeNegY{0x00000841}
 		f %SizeNegZ{0}
@@ -10410,10 +10632,11 @@ o
 {
 	Uuid %id{u4{11280051119949694617,5358774389598397835}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10455,10 +10678,11 @@ o
 {
 	Uuid %id{u4{10785291576200092579,5370184685518816135}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10478,10 +10702,11 @@ o
 {
 	Uuid %id{u4{7834122034727675069,5375286905993536111}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10506,6 +10731,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -10561,12 +10787,13 @@ o
 {
 	Uuid %id{u4{12893969309980742031,5386532169348789379}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -10626,10 +10853,11 @@ o
 {
 	Uuid %id{u4{15400389984650023591,5393295887752474911}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10710,10 +10938,11 @@ o
 {
 	Uuid %id{u4{13840356589812651691,5403447780648539523}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10756,10 +10985,11 @@ o
 {
 	Uuid %id{u4{7175954519783370161,5408677013842939735}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10801,10 +11031,11 @@ o
 {
 	Uuid %id{u4{12958741627662056327,5411406017037189897}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10931,10 +11162,11 @@ o
 {
 	Uuid %id{u4{8869758424791164806,5417673652794728940}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10954,10 +11186,11 @@ o
 {
 	Uuid %id{u4{8081759971604013492,5422060755358300292}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -10997,10 +11230,11 @@ o
 {
 	Uuid %id{u4{190251289345985198,5427081901599540410}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11085,10 +11319,11 @@ o
 {
 	Uuid %id{u4{447890847915202966,5442777249968509756}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11113,6 +11348,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 		f %SortingDepthOffset{0}
@@ -11122,10 +11358,11 @@ o
 {
 	Uuid %id{u4{1235812344007442068,5446528489331215908}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11150,6 +11387,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -11162,12 +11400,13 @@ o
 {
 	Uuid %id{u4{16497603065911933343,5450779575715237299}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -11216,10 +11455,11 @@ o
 {
 	Uuid %id{u4{12729862399863557007,5469361417947148451}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11250,10 +11490,11 @@ o
 {
 	Uuid %id{u4{3220504027446112421,5481642062182501585}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11300,10 +11541,11 @@ o
 {
 	Uuid %id{u4{6161610092015637437,5486081727690849749}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11379,10 +11621,11 @@ o
 {
 	Uuid %id{u4{6549721921297735607,5494408030167407103}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11440,6 +11683,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 69ce5162-8938-4fcf-af58-4b590317f807 }"}
@@ -11486,12 +11730,13 @@ o
 {
 	Uuid %id{u4{2271629012020095901,5501828757579223128}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -11552,10 +11797,11 @@ o
 {
 	Uuid %id{u4{10850988486953187003,5513006152302297310}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11580,6 +11826,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 		f %SortingDepthOffset{0}
@@ -11621,10 +11868,11 @@ o
 {
 	Uuid %id{u4{6756253625547428484,5523219146274973792}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11819,12 +12067,13 @@ o
 {
 	Uuid %id{u4{17092161220155211939,5536905134491953836}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -11856,10 +12105,11 @@ o
 {
 	Uuid %id{u4{12887961520182726074,5549459035293902289}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11927,10 +12177,11 @@ o
 {
 	Uuid %id{u4{11101520022745500321,5554720684218232654}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11950,10 +12201,11 @@ o
 {
 	Uuid %id{u4{5391518895330787237,5556285724015583121}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -11996,10 +12248,11 @@ o
 {
 	Uuid %id{u4{7041580398422491050,5561454791844489067}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -12071,17 +12324,18 @@ o
 {
 	Uuid %id{u4{17815034734211412366,5566732202788399846}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampY"}
+		s %Shape{"ezGreyBoxShape::RampNegY"}
 		f %SizeNegX{0x00002040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -12114,10 +12368,11 @@ o
 {
 	Uuid %id{u4{5358694275303101585,5567092506009738534}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -12353,12 +12608,13 @@ o
 {
 	Uuid %id{u4{17286638419770729360,5595161201011231395}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -12462,6 +12718,7 @@ o
 		b %Active{1}
 		b %CastShadows{1}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %FadeOutStart{0xCDCC4C3F}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
@@ -12504,10 +12761,11 @@ o
 {
 	Uuid %id{u4{2019142004571242670,5611966038566613708}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -12589,17 +12847,18 @@ o
 {
 	Uuid %id{u4{13999472997786286235,5625479843572063396}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampY"}
+		s %Shape{"ezGreyBoxShape::RampNegY"}
 		f %SizeNegX{0x00007041}
 		f %SizeNegY{0x0000A040}
 		f %SizeNegZ{0}
@@ -12759,10 +13018,11 @@ o
 {
 	Uuid %id{u4{10838780356225694343,5648903429110693479}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -12817,10 +13077,11 @@ o
 {
 	Uuid %id{u4{13205353420851902354,5660337644632991390}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -12901,10 +13162,11 @@ o
 {
 	Uuid %id{u4{15314018847943885706,5668486900661715276}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -12924,10 +13186,11 @@ o
 {
 	Uuid %id{u4{13326773798946702987,5677614143851656279}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -13025,12 +13288,13 @@ o
 {
 	Uuid %id{u4{2641312814765962151,5689027963668687802}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -13073,6 +13337,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 		f %SortingDepthOffset{0}
@@ -13082,12 +13347,13 @@ o
 {
 	Uuid %id{u4{11229079107651232136,5701248675764333451}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -13251,12 +13517,13 @@ o
 {
 	Uuid %id{u4{7242337380764176770,5732274011729194127}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -13278,10 +13545,11 @@ o
 {
 	Uuid %id{u4{6663082294649467776,5735754821907633192}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -13301,10 +13569,11 @@ o
 {
 	Uuid %id{u4{6859436546426647741,5735957701353411047}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -13336,10 +13605,11 @@ o
 {
 	Uuid %id{u4{11389247965194904971,5740351847464499525}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -13359,10 +13629,11 @@ o
 {
 	Uuid %id{u4{14862310220199146149,5741246635367389845}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -13503,10 +13774,11 @@ o
 {
 	Uuid %id{u4{9066493710058774167,5752186732259804054}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
+		b %AllowSleeping{1}
 		f %AngularDamping{0xCDCC4C3E}
 		Vec3 %CenterOfMass{f{0,0,0}}
 		u1 %CollisionLayer{0}
@@ -14254,6 +14526,7 @@ o
 			Uuid{u4{3530362984261023780,7058841709644765079}}
 			Uuid{u4{15413264801952994603,8222548017027831333}}
 			Uuid{u4{8708388193444232438,7304015216026661424}}
+			Uuid{u4{8331898585429185975,2769867575100824059}}
 		}
 		Uuid %Settings{u4{17165472681167466672,5590908592681332920}}
 	}
@@ -14666,6 +14939,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -14857,6 +15131,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -15153,6 +15428,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -15265,6 +15541,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
@@ -15376,17 +15653,18 @@ o
 {
 	Uuid %id{u4{14536357159775573275,8091276680196604573}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampY"}
+		s %Shape{"ezGreyBoxShape::RampNegY"}
 		f %SizeNegX{0x00002040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -15667,6 +15945,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -15723,6 +16002,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -15810,17 +16090,18 @@ o
 {
 	Uuid %id{u4{9015924281856116745,8563757505443362688}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampX"}
+		s %Shape{"ezGreyBoxShape::RampPosX"}
 		f %SizeNegX{0x00007040}
 		f %SizeNegY{0x0000A040}
 		f %SizeNegZ{0x00000040}
@@ -15939,6 +16220,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -15968,6 +16250,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -15985,6 +16268,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -16002,6 +16286,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ f7ffeb89-fb78-4fe3-b7a5-bbacb4e4095e }"}
@@ -16236,6 +16521,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -16253,6 +16539,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -16270,6 +16557,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -16314,6 +16602,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -16331,6 +16620,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -16348,6 +16638,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -16780,6 +17071,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -16797,6 +17089,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -16865,12 +17158,13 @@ o
 {
 	Uuid %id{u4{624394206911056468,9430290590223449572}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -16916,12 +17210,13 @@ o
 {
 	Uuid %id{u4{57262042788652831,9445408662223407479}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -17031,6 +17326,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
@@ -17394,12 +17690,13 @@ o
 {
 	Uuid %id{u4{8082555463817751335,9818166820791642975}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -17550,12 +17847,13 @@ o
 {
 	Uuid %id{u4{9179198194245012284,9882308078459974895}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -17604,12 +17902,13 @@ o
 {
 	Uuid %id{u4{10634810001157449543,9898889294427435174}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -17759,6 +18058,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -17895,6 +18195,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
@@ -18087,12 +18388,13 @@ o
 {
 	Uuid %id{u4{11985233226141606191,10196725939891087606}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -18185,6 +18487,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
@@ -18273,12 +18576,13 @@ o
 {
 	Uuid %id{u4{17696379496858538318,10247218563564023694}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -18317,6 +18621,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -18399,17 +18704,18 @@ o
 {
 	Uuid %id{u4{18149898972937019439,10267029614022377323}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{12}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsX"}
+		s %Shape{"ezGreyBoxShape::StairsPosX"}
 		f %SizeNegX{0x0000D040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -18810,17 +19116,18 @@ o
 {
 	Uuid %id{u4{1659409170102682645,10361878546517734235}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampX"}
+		s %Shape{"ezGreyBoxShape::RampPosX"}
 		f %SizeNegX{0x0000403F}
 		f %SizeNegY{0x00000841}
 		f %SizeNegZ{0}
@@ -19175,12 +19482,13 @@ o
 {
 	Uuid %id{u4{10910434986757646672,10405054030730973622}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -19272,12 +19580,13 @@ o
 {
 	Uuid %id{u4{8762811443711482944,10448726710745124824}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -19299,12 +19608,13 @@ o
 {
 	Uuid %id{u4{7369486124475346486,10451273435707448228}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -19397,6 +19707,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -19604,12 +19915,13 @@ o
 {
 	Uuid %id{u4{17126098321568610407,10567516004938624249}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -19631,12 +19943,13 @@ o
 {
 	Uuid %id{u4{9897464967785797678,10573567904427110042}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -19778,12 +20091,13 @@ o
 {
 	Uuid %id{u4{18266114878220654879,10602975008205464036}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -19970,12 +20284,13 @@ o
 {
 	Uuid %id{u4{6681958018889972751,10663974580036792721}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -20041,6 +20356,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -20535,6 +20851,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -20613,17 +20930,18 @@ o
 {
 	Uuid %id{u4{7787461706695516955,10902922254260066738}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampY"}
+		s %Shape{"ezGreyBoxShape::RampNegY"}
 		f %SizeNegX{0x00007041}
 		f %SizeNegY{0x0000A040}
 		f %SizeNegZ{0}
@@ -20760,17 +21078,18 @@ o
 {
 	Uuid %id{u4{5578290816199012906,10958192192986225144}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{8}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::StairsY"}
+		s %Shape{"ezGreyBoxShape::StairsNegY"}
 		f %SizeNegX{0}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -20787,12 +21106,13 @@ o
 {
 	Uuid %id{u4{10897358268143943228,10960594377386900920}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -20934,12 +21254,13 @@ o
 {
 	Uuid %id{u4{9556310360662146906,11019036538039077863}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -21319,12 +21640,13 @@ o
 {
 	Uuid %id{u4{989624216473285155,11134408863421665552}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -21788,17 +22110,18 @@ o
 {
 	Uuid %id{u4{8348037040413987883,11307145273721135165}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampY"}
+		s %Shape{"ezGreyBoxShape::RampNegY"}
 		f %SizeNegX{0x00002040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -22266,6 +22589,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -22283,6 +22607,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -22629,6 +22954,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -22900,6 +23226,33 @@ o
 }
 o
 {
+	Uuid %id{u4{4715882554461468904,12303642477994248257}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14241805586674212317,12793470640149287713}}
+			Uuid{u4{7681845822263559147,12413613118015867109}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0x9899993F,0x0000C03F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{17516258396389160646,12306607815667487853}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -22974,6 +23327,22 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 6d2f2203-1c29-417b-bb1b-b434080e8fed }"}
+	}
+}
+o
+{
+	Uuid %id{u4{7681845822263559147,12413613118015867109}}
+	s %t{"ezSpriteComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		f %AspectRatio{0x0000803F}
+		s %BlendMode{"ezSpriteBlendMode::Masked"}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %MaxScreenSize{0x00008042}
+		f %Size{0x0000803F}
+		s %Texture{""}
 	}
 }
 o
@@ -23117,6 +23486,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -23218,6 +23588,22 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{14241805586674212317,12793470640149287713}}
+	s %t{"ezDebugTextComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{255,255,255,255}}
+		s %Text{"To Scene Hub"}
+		f %Value0{0}
+		f %Value1{0}
+		f %Value2{0}
+		f %Value3{0}
 	}
 }
 o
@@ -23331,6 +23717,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -23557,6 +23944,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -23574,6 +23962,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -23591,6 +23980,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -23956,6 +24346,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -23973,6 +24364,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -24041,6 +24433,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -24308,12 +24701,13 @@ o
 {
 	Uuid %id{u4{1814090142977665993,14325977573492163180}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -24340,6 +24734,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -24885,6 +25280,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -25076,6 +25472,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -25176,6 +25573,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -26210,6 +26608,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -26966,12 +27365,13 @@ o
 {
 	Uuid %id{u4{14589846766941299410,15292384486581106530}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -27143,12 +27543,13 @@ o
 {
 	Uuid %id{u4{10035890396347744199,15320966273271129441}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -27209,12 +27610,13 @@ o
 {
 	Uuid %id{u4{10166572254670696670,15328447101919524592}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -27433,6 +27835,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -27469,12 +27872,13 @@ o
 {
 	Uuid %id{u4{3830184687833300177,15389168308301000261}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0xB9A0AC3E,0x0000803F,0x962A633F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -28814,6 +29218,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -29885,12 +30290,13 @@ o
 {
 	Uuid %id{u4{15904261094266854418,15842322667831481674}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -29998,6 +30404,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
@@ -31015,6 +31422,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -31242,6 +31650,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }"}
@@ -33700,6 +34109,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -34393,12 +34803,13 @@ o
 {
 	Uuid %id{u4{1081064585947731415,16503134748918116996}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -35187,17 +35598,18 @@ o
 {
 	Uuid %id{u4{12121626437778571738,16665291928530294519}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
 		s %Material{""}
-		s %Shape{"ezGreyBoxShape::RampY"}
+		s %Shape{"ezGreyBoxShape::RampNegY"}
 		f %SizeNegX{0x00002040}
 		f %SizeNegY{0}
 		f %SizeNegZ{0}
@@ -35214,12 +35626,13 @@ o
 {
 	Uuid %id{u4{13863987342176414423,16676286583777631725}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
 		b %IncludeInNavmesh{1}
@@ -35300,6 +35713,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -35491,6 +35905,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -36082,6 +36497,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -36326,6 +36742,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
@@ -36411,6 +36828,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -37024,6 +37442,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -37115,7 +37534,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"AngularDamping"}
+		s %Name{"LinearDamping"}
 		s %Type{"float"}
 	}
 }
@@ -37260,9 +37679,9 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
-		s %Name{"OnContact"}
-		s %Type{"ezOnJoltContact"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"ContinuousCollisionDetection"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -37297,6 +37716,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8368567981785606343,1191668598542069412}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLoadMode"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -37367,13 +37803,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{1199220615679206842,2374239054127356868}}
-			Uuid{u4{13321904241437720597,4060527578740508305}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Mass"}
-		s %Type{"float"}
+		s %Name{"AllowSleeping"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -37605,7 +38040,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -37628,11 +38063,11 @@ o
 o
 {
 	Uuid %id{u4{1199220615679206842,2374239054127356868}}
-	s %t{"ezSuffixAttribute"}
+	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %Suffix{" kg"}
+		i3 %Value{1}
 	}
 }
 o
@@ -37748,6 +38183,16 @@ o
 		}
 		s %TypeName{"ezJoltConstraintDriveMode"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{753089683636884655,3131094818050429719}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0xCDCC4C3E}
 	}
 }
 o
@@ -37884,11 +38329,13 @@ o
 o
 {
 	Uuid %id{u4{10410885489792813498,3493566296382582107}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000803F}
+		s %DependencyFlags{"ezDependencyFlags::Package"}
+		s %Filter{";CompatibleAsset_Surface;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -37965,17 +38412,6 @@ o
 	p
 	{
 		Color %Value{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
-	}
-}
-o
-{
-	Uuid %id{u4{13321904241437720597,4060527578740508305}}
-	s %t{"ezClampValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		Invalid %Max{}
-		f %Min{0}
 	}
 }
 o
@@ -38098,7 +38534,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0xCDCC4C3E}
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -38112,8 +38548,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CenterOfMass"}
-		s %Type{"ezVec3"}
+		s %Name{"CustomCenterOfMass"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -38202,9 +38638,9 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CustomCenterOfMass"}
-		s %Type{"bool"}
+		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
+		s %Name{"OnContact"}
+		s %Type{"ezOnJoltContact"}
 	}
 }
 o
@@ -38225,12 +38661,15 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{753089683636884655,3131094818050429719}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"ContinuousCollisionDetection"}
-		s %Type{"bool"}
+		s %Name{"AngularDamping"}
+		s %Type{"float"}
 	}
 }
 o
@@ -38314,13 +38753,11 @@ o
 o
 {
 	Uuid %id{u4{10078044627186449381,5582764362051808020}}
-	s %t{"ezAssetBrowserAttribute"}
+	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %DependencyFlags{"ezDependencyFlags::Package"}
-		s %Filter{";CompatibleAsset_Surface;"}
-		s %RequiredTag{""}
+		f %Value{0x0000C842}
 	}
 }
 o
@@ -38515,11 +38952,29 @@ o
 o
 {
 	Uuid %id{u4{12505397452943612473,6330002652460205516}}
-	s %t{"ezSuffixAttribute"}
+	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %Suffix{" kg/m^3"}
+		Invalid %Max{}
+		f %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{13110592936928813368,6435800931852943367}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneTransitionComponent"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -38627,7 +39082,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -38819,9 +39274,10 @@ o
 			Uuid{u4{13975639292304874303,958692951062372621}}
 			Uuid{u4{1584760291040431190,5108429992959750376}}
 			Uuid{u4{18115423731678040207,4639548822328574800}}
+			Uuid{u4{64892077413024703,9720385624882528333}}
 		}
 		s %TypeName{"ezJoltDynamicActorComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -38976,7 +39432,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Density"}
+		s %Name{"Mass"}
 		s %Type{"float"}
 	}
 }
@@ -39081,6 +39537,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleWindComponent"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{16760069048281874555,8669125593883744592}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSpriteBlendMode"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -39358,6 +39831,21 @@ o
 }
 o
 {
+	Uuid %id{u4{64892077413024703,9720385624882528333}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CenterOfMass"}
+		s %Type{"ezVec3"}
+	}
+}
+o
+{
 	Uuid %id{u4{8228401658076077542,9903301473102603301}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -39434,12 +39922,13 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{10078044627186449381,5582764362051808020}}
+			Uuid{u4{2640979303495452127,10236220907327507948}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
-		s %Name{"Surface"}
-		s %Type{"ezConstCharPtr"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Density"}
+		s %Type{"float"}
 	}
 }
 o
@@ -39495,6 +39984,16 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"MaxDistance"}
 		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{2640979303495452127,10236220907327507948}}
+	s %t{"ezSuffixAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Suffix{" kg/m^3"}
 	}
 }
 o
@@ -39731,11 +40230,11 @@ o
 o
 {
 	Uuid %id{u4{5174688543944173796,11006358172461919564}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezSuffixAttribute"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000C842}
+		s %Suffix{" kg"}
 	}
 }
 o
@@ -39925,7 +40424,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"LinearDamping"}
+		s %Name{"GravityFactor"}
 		s %Type{"float"}
 	}
 }
@@ -40581,7 +41080,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{7}
 	}
 }
 o
@@ -40742,9 +41241,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"GravityFactor"}
-		s %Type{"float"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Name{"Surface"}
+		s %Type{"ezConstCharPtr"}
 	}
 }
 o
@@ -40791,6 +41290,23 @@ o
 		s %Name{"AddAngularForce"}
 		Uuid %ReturnValue{u4{4903960154749262079,14218359138397949918}}
 		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
+	Uuid %id{u4{17835042676468670380,15413720485250302998}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSpriteComponent"}
+		u3 %TypeVersion{3}
 	}
 }
 o
