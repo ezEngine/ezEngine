@@ -111,7 +111,10 @@ void ezSceneLoadUtility::TickSceneLoading()
 
       if (pCollection.GetAcquireResult() == ezResourceAcquireResult::Final)
       {
-        pCollection->PreloadResources();
+        if (pCollection->PreloadResources())
+        {
+          EZ_REPORT_FAILURE("Failed to start preloading all resources.");
+        }
 
         float progress = 0.0f;
         if (pCollection->IsLoadingFinished(&progress))

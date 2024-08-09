@@ -126,7 +126,7 @@ bool ezGameState::IsLoadingSceneInBackground(float* out_pProgress) const
       auto state = m_pBackgroundSceneLoad->GetLoadingState();
       if (state != ezSceneLoadUtility::LoadingState::FinishedSuccessfully)
       {
-        *out_pProgress = ezMath::Max(*out_pProgress, 0.99f);
+        *out_pProgress = ezMath::Min(*out_pProgress, 0.99f);
       }
     }
   }
