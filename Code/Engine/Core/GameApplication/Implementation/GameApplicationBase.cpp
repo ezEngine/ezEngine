@@ -213,7 +213,7 @@ void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandl
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGameApplicationBase::ActivateGameState(ezWorld* pWorld /*= nullptr*/, ezStringView sStartPosition /*= {}*/, const ezTransform& startPositionOffset /*= nullptr*/)
+void ezGameApplicationBase::ActivateGameState(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_ASSERT_DEBUG(m_pGameState == nullptr, "ActivateGameState cannot be called when another GameState is already active");
 

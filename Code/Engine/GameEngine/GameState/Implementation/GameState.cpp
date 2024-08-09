@@ -352,7 +352,6 @@ ezResult ezGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform
       }
 
       startPos.m_vScale.Set(1.0f);
-      // startPos.m_vPosition.z += 0.1f; // do not spawn player prefabs on the ground, they may not have their origin there
 
       ezPrefabInstantiationOptions options;
       options.m_pOverrideTeamID = &uiTeamID;
