@@ -103,6 +103,12 @@ namespace
       return ezVariant(sValue.GetData());
     }
 
+    bool bValueIsNegative = false;
+    if (Accept(tokens, ref_uiCurToken, "-"))
+    {
+      bValueIsNegative = true;
+    }
+
     if (Accept(tokens, ref_uiCurToken, ezTokenType::Integer, &uiValueToken))
     {
       ezString sValue = tokens[uiValueToken]->m_DataView;
@@ -120,7 +126,7 @@ namespace
         ezConversionUtils::StringToInt64(sValue, iValue).IgnoreResult();
       }
 
-      return ezVariant(iValue);
+      return ezVariant(bValueIsNegative ? -iValue : iValue);
     }
 
     if (Accept(tokens, ref_uiCurToken, ezTokenType::Float, &uiValueToken))
@@ -130,7 +136,7 @@ namespace
       double fValue = 0;
       ezConversionUtils::StringToFloat(sValue, fValue).IgnoreResult();
 
-      return ezVariant(fValue);
+      return ezVariant(bValueIsNegative ? -fValue : fValue);
     }
 
     if (Accept(tokens, ref_uiCurToken, "true", &uiValueToken) || Accept(tokens, ref_uiCurToken, "false", &uiValueToken))
