@@ -919,6 +919,25 @@ export class RotorComponent extends TransformComponent
   set Deceleration(value: number) { __CPP_ComponentProperty_set(this, 3503289027, value); }
 }
 
+export class SceneTransitionComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 811802936; }
+  StartTransition(PositionOffset: Vec3, RotationOffset: Quat): void { __CPP_ComponentFunction_Call(this, 779411698, PositionOffset, RotationOffset); }
+  StartTransitionWithOffsetTo(GlobalPosition: Vec3, GlobalRotation: Quat): void { __CPP_ComponentFunction_Call(this, 735934107, GlobalPosition, GlobalRotation); }
+  StartPreload(): void { __CPP_ComponentFunction_Call(this, 280523740); }
+  CancelPreload(): void { __CPP_ComponentFunction_Call(this, 1205761980); }
+  get Mode(): Enum.SceneLoadMode { return __CPP_ComponentProperty_get(this, 2847435955); }
+  set Mode(value: Enum.SceneLoadMode) { __CPP_ComponentProperty_set(this, 2847435955, value); }
+  get TargetScene(): string { return __CPP_ComponentProperty_get(this, 4108749278); }
+  set TargetScene(value: string) { __CPP_ComponentProperty_set(this, 4108749278, value); }
+  get PreloadCollection(): string { return __CPP_ComponentProperty_get(this, 2336716771); }
+  set PreloadCollection(value: string) { __CPP_ComponentProperty_set(this, 2336716771, value); }
+  get SpawnPoint(): string { return __CPP_ComponentProperty_get(this, 1303462238); }
+  set SpawnPoint(value: string) { __CPP_ComponentProperty_set(this, 1303462238, value); }
+  get RelativeSpawnPosition(): boolean { return __CPP_ComponentProperty_get(this, 1843002242); }
+  set RelativeSpawnPosition(value: boolean) { __CPP_ComponentProperty_set(this, 1843002242, value); }
+}
+
 export class ScriptComponent extends EventMessageHandlerComponent
 {
   public static GetTypeNameHash(): number { return 1614462437; }
