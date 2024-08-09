@@ -234,5 +234,5 @@ float4 SampleColorPalette(Texture2D paletteTex, uint row, float column)
   paletteTex.GetDimensions(width, height);
 
   float2 uv = float2(column, (row + 0.5f) / height);
-  return paletteTex.Sample(LinearClampSampler, uv);
+  return paletteTex.SampleLevel(LinearClampSampler, uv, 0);
 }
