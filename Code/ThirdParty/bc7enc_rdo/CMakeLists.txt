@@ -2,6 +2,8 @@
 ## ezEngine specific additions
 ###################
 
+ez_requires_bc7enc_rdo()
+
 if(EZ_CMAKE_PLATFORM_LINUX)
 	get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 

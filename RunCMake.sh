@@ -73,12 +73,16 @@ Issue=$(cat /etc/issue)
 
 UbuntuPattern="Ubuntu ([0-9][0-9])"
 MintPattern="Linux Mint ([0-9][0-9])"
+SteamOSPattern="Steam Runtime ([0-9])"
 
 if [[ $Issue =~ $UbuntuPattern ]]; then
   Distribution="Ubuntu"
   Version=${BASH_REMATCH[1]}
 elif [[ $Issue =~ $MintPattern ]]; then
   Distribution="Mint"
+  Version=${BASH_REMATCH[1]}
+elif [[ $Issue =~ $SteamOSPattern ]]; then
+  Distribution="Steam Runtime"
   Version=${BASH_REMATCH[1]}
 fi
 
@@ -99,11 +103,16 @@ if [ "$Distribution" = "Ubuntu" -a "$Version" = "22" ] || [ "$Distribution" = "M
   else
     packages+=(gcc-12 g++-12)
   fi
+elif [ "$Distribution" = "Steam Runtime" -a "$Version" = "3" ]; then
+  packages=(gcc-12-monolithic mold)
 else
   >&2 echo "Your Distribution or Distribution version is not supported by this script"
   >&2 echo "Currently supported are:"
   >&2 echo "  * Ubuntu 22"
   >&2 echo "  * Linux Mint 21"
+  >&2 echo "  * Steam Runtime 3"
+  >&2 echo "Yours is: $Issue"
+  
   exit 1
 fi
 
@@ -129,8 +138,13 @@ if [ "$UseClang" = true ]; then
   CompilerShort=clang
 fi
 
+OsPostfix=""
+if [ "$Distribution" = "Steam Runtime" ]; then
+  OsPostfix="-steam"
+fi
+
 if [ "$RunCMake" = true ]; then
-  preset="linux-${CompilerShort}-${BuildType}"
+  preset="linux${OsPostfix}-${CompilerShort}-${BuildType}"
   cmake --preset ${preset} $NoUnity && \
   echo -e "\nRun 'ninja -C Workspace/${preset}' to build"
 fi

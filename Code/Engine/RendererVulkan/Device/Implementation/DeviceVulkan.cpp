@@ -217,6 +217,12 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
 #else
 #  error "Vulkan platform not supported"
 #endif
+  
+
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+  AddExtIfSupported(VK_KHR_XCB_SURFACE_EXTENSION_NAME, m_extensions.m_bSurfaceXcb);
+#endif
+
   AddExtIfSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, m_extensions.m_bDebugUtils);
   m_extensions.m_bDebugUtilsMarkers = m_extensions.m_bDebugUtils;
 

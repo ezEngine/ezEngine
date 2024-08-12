@@ -36,6 +36,8 @@
 #include "../../../Include/RmlUi/Core/Texture.h"
 #include "FontTypes.h"
 
+#include <cinttypes>
+
 namespace Rml {
 
 class FontFaceLayer;

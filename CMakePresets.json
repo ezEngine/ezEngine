@@ -96,7 +96,7 @@
     {
       "name": "android-x64-debug",
       "inherits" : ["android-base"],
-      "hidden" : false,    
+      "hidden" : true,    
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "ANDROID_ABI": "x86_64"
@@ -105,7 +105,7 @@
     {
       "name": "android-x64-dev",
       "inherits" : ["android-base"],
-      "hidden" : false,    
+      "hidden" : true,    
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Dev",
         "ANDROID_ABI": "x86_64"
@@ -114,7 +114,7 @@
     {
       "name": "android-x64-shipping",
       "inherits" : ["android-base"],
-      "hidden" : false,    
+      "hidden" : true,    
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Shipping",
         "ANDROID_ABI": "x86_64"
@@ -145,7 +145,6 @@
         "CMAKE_BUILD_TYPE": "Shipping"
       }
     },
-
     {
       "name": "linux-gcc-debug",
       "inherits" : ["linux-gcc-base"],
@@ -165,6 +164,43 @@
     {
       "name": "linux-gcc-shipping",
       "inherits" : ["linux-gcc-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Shipping"
+      }
+    },
+    {
+      "name": "linux-steam-clang-base",
+      "inherits":["linux-clang-base"],
+      "hidden": true,
+      "cacheVariables": {
+        "EZ_ENABLE_QT_SUPPORT": "OFF",
+        "EZ_EXPERIMENTAL_EDITOR_ON_LINUX": "OFF",
+        "EZ_3RDPARTY_ASSIMP_SUPPORT": "OFF",
+        "EZ_3RDPARTY_BC7ENC_RDO_SUPPORT": "OFF",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/Code/BuildSystem/CMake/toolchain-steamrt.cmake",
+        "EZ_FMOD_SDK_LOCATION": "${sourceDir}/Code/ThirdParty/fmod/linux"
+      }
+    },
+    {
+      "name": "linux-steam-clang-debug",
+      "inherits" : ["linux-steam-clang-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-steam-clang-dev",
+      "inherits" : ["linux-steam-clang-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Dev"
+      }
+    },
+    {
+      "name": "linux-steam-clang-shipping",
+      "inherits" : ["linux-steam-clang-base"],
       "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Shipping"

@@ -201,12 +201,19 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
     break;
     case ezWindowHandle::Type::XCB:
     {
-      vk::XcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
-      EZ_ASSERT_DEV(windowHandle.xcbWindow.m_pConnection != nullptr && windowHandle.xcbWindow.m_Window != 0, "Invalid xcb handle");
-      surfaceCreateInfo.connection = windowHandle.xcbWindow.m_pConnection;
-      surfaceCreateInfo.window = windowHandle.xcbWindow.m_Window;
+      if(m_pVulkanDevice->GetExtensions().m_bSurfaceXcb)
+      {
+        vk::XcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
+        EZ_ASSERT_DEV(windowHandle.xcbWindow.m_pConnection != nullptr && windowHandle.xcbWindow.m_Window != 0, "Invalid xcb handle");
+        surfaceCreateInfo.connection = windowHandle.xcbWindow.m_pConnection;
+        surfaceCreateInfo.window = windowHandle.xcbWindow.m_Window;
 
-      m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createXcbSurfaceKHR(surfaceCreateInfo);
+        m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createXcbSurfaceKHR(surfaceCreateInfo);
+      }
+      else
+      {
+        ezLog::Error("VK_KHR_xcb_surface extension is not supported!");
+      }
     }
     break;
   }

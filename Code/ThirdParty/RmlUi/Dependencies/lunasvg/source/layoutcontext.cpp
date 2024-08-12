@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <numeric>
+#include <cinttypes>
 
 using namespace lunasvg;
 

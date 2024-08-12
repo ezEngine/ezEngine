@@ -7,6 +7,9 @@ set(EZ_OUTPUT_DIRECTORY_DLL "${CMAKE_SOURCE_DIR}/Output/Bin" CACHE PATH "Where t
 mark_as_advanced(FORCE EZ_OUTPUT_DIRECTORY_LIB)
 mark_as_advanced(FORCE EZ_OUTPUT_DIRECTORY_DLL)
 
+set(EZ_OUTPUT_DIRECTORY_PLATFORM_POSTFIX "" CACHE STRING "Platform postfix for output directory")
+mark_as_advanced(FORCE EZ_OUTPUT_DIRECTORY_PLATFORM_POSTFIX)
+
 # #####################################
 # ## PCH support
 # #####################################
