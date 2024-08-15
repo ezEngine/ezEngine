@@ -68,10 +68,10 @@ public:
   /// If bAllowPartialPath is false, and a complete path can't be found (too far or simply not reachable),
   /// the 'Failed' state is used.
   /// Otherwise the 'Moving' state indicates that the character is navigating.
-  void SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath);
+  void SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath); ///< [ scriptable ]
 
   /// \brief Can be called at any time to stop moving.
-  void CancelNavigation();
+  void CancelNavigation();                           ///< [ scriptable ]
 
   ezHashedString m_sNavmeshConfig;                   ///< [ property ] Which navmesh to walk on.
   ezHashedString m_sPathSearchConfig;                ///< [ property ] What constraints there are for walking on the navmesh.

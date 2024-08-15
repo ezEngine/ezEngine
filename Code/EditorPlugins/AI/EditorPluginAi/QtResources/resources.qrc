@@ -5,6 +5,7 @@
   <qresource prefix="TypeIcons">
     <file>ezAiNavMeshPathTestComponent.svg</file>
 	<file>ezAiNavigationComponent.svg</file>
+	<file>ezNavMeshObstacleComponent.svg</file>
   </qresource>  
 </RCC>
 

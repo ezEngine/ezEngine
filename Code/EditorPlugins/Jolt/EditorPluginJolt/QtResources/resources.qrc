@@ -32,6 +32,8 @@
 	<file>ezJoltSwingTwistConstraintComponent.svg</file>
 	<file>ezJoltConeConstraintComponent.svg</file>
 	<file>ezJoltClothSheetComponent.svg</file>
+	<file>ezJoltGrabObjectComponent.svg</file>
+	<file>ezJoltQueryShapeActorComponent.svg</file>
   </qresource>  
 </RCC>
 

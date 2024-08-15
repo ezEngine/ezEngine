@@ -35,7 +35,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSphereReflectionProbeComponent, 2, ezComponentMode::St
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering/Lighting"),
+    new ezCategoryAttribute("Rendering/Reflections"),
     new ezSphereVisualizerAttribute("Radius", ezColorScheme::LightUI(ezColorScheme::Blue)),
     new ezSphereManipulatorAttribute("Radius"),
   }

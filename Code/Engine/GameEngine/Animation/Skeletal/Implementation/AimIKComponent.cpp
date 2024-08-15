@@ -102,6 +102,9 @@ void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const
 {
+  if (m_fWeight <= 0.0f)
+    return;
+
   const ezTransform targetTrans = msg.m_pGenerator->GetTargetObject()->GetGlobalTransform();
   const ezTransform selfTrans = GetOwner()->GetGlobalTransform();
   const ezTransform ownerTransform = ezTransform::MakeGlobalTransform(targetTrans, msg.m_pGenerator->GetSkeleton()->GetDescriptor().m_RootTransform);
@@ -122,6 +125,9 @@ void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration
 
   for (ezUInt32 i = 0; i < m_Joints.GetCount(); ++i)
   {
+    if (m_Joints[i].m_fWeight <= 0.0f)
+      continue;
+
     if (m_Joints[i].m_uiJointIdx == 0)
     {
       m_Joints[i].m_uiJointIdx = msg.m_pGenerator->GetSkeleton()->GetDescriptor().m_Skeleton.FindJointByName(m_Joints[i].m_sJointName);

@@ -33,10 +33,12 @@ ezLensFlareComponent;Lens Flare;;https://ezengine.net/pages/docs/effects/lensfla
 ezLineToComponent;Draw Line To Object;;https://ezengine.net/pages/docs/debugging/components/draw-line-component.html
 ezMarkerComponent;Marker;;https://ezengine.net/pages/docs/gameplay/marker-component.html
 ezMeshComponent;Mesh;;https://ezengine.net/pages/docs/graphics/meshes/mesh-component.html
+ezLodMeshComponent;LOD Mesh;;https://ezengine.net/pages/docs/graphics/meshes/lod-mesh-component.html
 ezMoveToComponent;Move To;;https://ezengine.net/pages/docs/animation/property-animation/move-to-component.html
 ezOccluderComponent;Occluder Component;;https://ezengine.net/pages/docs/graphics/occluder-component.html
 ezPlayerStartPointComponent;Player Start Point;;https://ezengine.net/pages/docs/gameplay/player-start-point.html
 ezPointLightComponent;Point Light;;https://ezengine.net/pages/docs/graphics/lighting/point-light-component.html
+ezFillLightComponent;Fill Light;;https://ezengine.net/pages/docs/graphics/lighting/fill-light-component.html
 ezPrefabReferenceComponent;Prefab Reference;;https://ezengine.net/pages/docs/prefabs/prefabs-overview.html
 ezProjectileComponent;Projectile;;https://ezengine.net/pages/docs/gameplay/projectile-component.html
 ezPropertyAnimComponent;Property Animation;;https://ezengine.net/pages/docs/animation/property-animation/property-animation-component.html
@@ -76,6 +78,11 @@ ezResetTransformComponent;Reset Transform;;https://ezengine.net/pages/docs/anima
 ezVolumeBoxComponent;Box Volume;;https://ezengine.net/pages/docs/effects/post-processing/volume-components.html
 ezVolumeSphereComponent;Sphere Volume;;https://ezengine.net/pages/docs/effects/post-processing/volume-components.html
 ezPostProcessingComponent;Post Processing;;https://ezengine.net/pages/docs/effects/post-processing/post-processing-component.html
+ezTwoBoneIKComponent;Two Bone IK;;https://ezengine.net/pages/docs/animation/skeletal-animation/ik/two-bone-ik-component.html
+ezAimIKComponent;Aim IK;;https://ezengine.net/pages/docs/animation/skeletal-animation/ik/aim-ik-component.html
+ezCreatureCrawlComponent;Creature Crawl;;https://ezengine.net/pages/docs/gameplay/creature-crawl-component.html
+ezLodComponent;LOD Component;;https://ezengine.net/pages/docs/graphics/lod-component.html
+ezSceneTransitionComponent;Scene Transition;;https://ezengine.net/pages/docs/gameplay/scene-transition-component.html
 
 # Properties
 

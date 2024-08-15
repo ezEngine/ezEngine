@@ -86,7 +86,8 @@
     <file>ezForwardEventsToGameStateComponent.svg</file>
     <file>ezPathComponent.svg</file>
     <file>ezCommentComponent.svg</file>
-    <file>ezCameraShakeVolumeSphereComponent.svg</file>
+    <file>ezCameraShakeComponent.svg</file>
+	<file>ezCameraShakeVolumeSphereComponent.svg</file>
     <file>ezPathNodeComponent.svg</file>
     <file>ezFollowPathComponent.svg</file>
     <file>ezLocalBlackboardComponent.svg</file>
@@ -96,10 +97,21 @@
     <file>ezVolumeSphereComponent.svg</file>
     <file>ezLodComponent.svg</file>
     <file>ezLodMeshComponent.svg</file>
+	<file>ezLodAnimatedMeshComponent.svg</file>
     <file>ezAimIKComponent.svg</file>
     <file>ezTwoBoneIKComponent.svg</file>
     <file>ezFillLightComponent.svg</file>
     <file>ezSceneTransitionComponent.svg</file>
+    <file>ezCreatureCrawlComponent.svg</file>
+    <file>ezCustomMeshComponent.svg</file>
+    <file>ezGrabbableItemComponent.svg</file>
+    <file>ezJointOverrideComponent.svg</file>
+    <file>ezLensFlareComponent.svg</file>
+    <file>ezPowerConnectorComponent.svg</file>
+    <file>ezVisualizeHandComponent.svg</file>
+    <file>ezTriggerDelayModifierComponent.svg</file>
+    <file>ezSkeletonPoseComponent.svg</file>
+    <file>ezResetTransformComponent.svg</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.svg</file>
