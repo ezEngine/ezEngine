@@ -58,6 +58,7 @@ public:
   static ezActionDescriptorHandle s_hReloadEngine;
   static ezActionDescriptorHandle s_hLaunchFileserve;
   static ezActionDescriptorHandle s_hLaunchInspector;
+  static ezActionDescriptorHandle s_hLaunchTracy;
   static ezActionDescriptorHandle s_hSaveProfiling;
   static ezActionDescriptorHandle s_hOpenVsCode;
   static ezActionDescriptorHandle s_hImportAsset;
@@ -116,6 +117,7 @@ public:
     ReloadEngine,
     LaunchFileserve,
     LaunchInspector,
+    LaunchTracy,
     SaveProfiling,
     OpenVsCode,
     Shortcuts,

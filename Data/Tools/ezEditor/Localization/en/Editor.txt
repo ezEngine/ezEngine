@@ -3,6 +3,7 @@
 Editor.OpenDashboard;Show Dash&board...
 Editor.LaunchFileserve;Launch Fileserve...;Launches the ezFileServe application.
 Editor.LaunchInspector;Launch Inspector...;Launches the ezInspector application.
+Editor.LaunchTracy;Launch Tracy...;Launches the Tracy profiler application.
 Editor.Plugins;Editor Pl&ugins...;Opens the editor plugins dialog
 Editor.Shortcuts;Shortcuts...;Opens the shortcut configuration dialog
 Editor.Preferences;Preferences...;Opens the preferences dialog
