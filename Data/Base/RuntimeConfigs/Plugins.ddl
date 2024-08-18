@@ -43,8 +43,3 @@ Plugin
 	string %Path{"ezTypeScriptPlugin"}
 	bool %LoadCopy{false}
 }
-Plugin
-{
-	string %Path{"ezXBoxControllerPlugin"}
-	bool %LoadCopy{false}
-}

@@ -1,12 +1,14 @@
 #pragma once
 
 #include <Core/Input/DeviceTypes/Controller.h>
-#include <XBoxControllerPlugin/XBoxControllerDLL.h>
+#include <GameEngine/GameEngineDLL.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
 /// \brief An implementation of ezInputDeviceController that handles XBox 360 controllers.
 ///
 /// Works on all platforms that provide the XINPUT API.
-class EZ_XBOXCONTROLLER_DLL ezInputDeviceXBox360 : public ezInputDeviceController
+class EZ_GAMEENGINE_DLL ezInputDeviceXBox360 : public ezInputDeviceController
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceXBox360, ezInputDeviceController);
 
@@ -37,3 +39,5 @@ private:
   static void RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags);
   static void SetDeadZone(const char* szButton);
 };
+
+#endif
