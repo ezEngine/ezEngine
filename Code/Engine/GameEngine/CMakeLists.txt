@@ -30,3 +30,30 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
   )
 
 endif()
+
+# XBOX controller support
+if (EZ_CMAKE_PLATFORM_WINDOWS)
+
+  if (EZ_3RDPARTY_GLFW_SUPPORT)
+    # When using glfw, glfw will handle xbox controller input, and this plugin is not needed.
+  else()
+
+    if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+
+      target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+        Xinputuap
+      )
+
+    elseif (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+
+      target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+        XINPUT9_1_0
+      )
+
+    endif()
+
+  endif()
+
+endif()
