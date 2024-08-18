@@ -96,7 +96,7 @@ bool ezParticleSystemInstance::IsFinalizerConfigEqual(const ezParticleSystemDesc
 
   for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
   {
-    if (factories[i]->GetFinalizerType() != m_Types[i]->GetDynamicRTTI())
+    if (factories[i]->GetFinalizerType() != m_Finalizers[i]->GetDynamicRTTI())
       return false;
   }
 
