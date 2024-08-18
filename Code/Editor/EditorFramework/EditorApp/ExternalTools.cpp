@@ -218,3 +218,15 @@ void ezQtEditorApp::RunInspector()
 
   QProcess::startDetached(sToolPath.GetData(), args);
 }
+
+void ezQtEditorApp::RunTracy()
+{
+#if BUILDSYSTEM_ENABLE_TRACY_SUPPORT == 0
+  ezQtUiServices::MessageBoxInformation("<html>This build of EZ was compiled without support for Tracy profiling.<br><br>See <a href='https://ezengine.net/pages/docs/debugging/tracy.html'>the documentation</a> for how to enable it.</html>");
+#else
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("tracy-profiler");
+  QStringList args;
+
+  QProcess::startDetached(sToolPath.GetData(), args);
+#endif
+}
