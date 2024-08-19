@@ -648,9 +648,14 @@ Qt::ItemFlags ezQtAssetBrowserModel::flags(const QModelIndex& index) const
 
   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-  if (entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Folder))
+  if (entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::Asset))
   {
     flags |= Qt::ItemIsDragEnabled | Qt::ItemIsEditable;
+  }
+
+  if (entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::SubAsset))
+  {
+    flags |= Qt::ItemIsDragEnabled;
   }
 
   return flags;

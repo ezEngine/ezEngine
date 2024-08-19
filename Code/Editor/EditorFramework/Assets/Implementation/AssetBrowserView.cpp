@@ -121,11 +121,17 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
     src.MakeCleanPath();
 
     ezStringBuilder dst = targetDirectory;
-    dst.AppendPath(qtToEzString(it->fileName()));
     dst.MakeCleanPath();
 
+    // prevent moving stuff into itself
     if (src == dst)
       continue;
+
+    // don't allow dropping anything onto an existing file
+    if (ezOSFile::ExistsFile(dst))
+      continue;
+
+    dst.AppendPath(qtToEzString(it->fileName()));
 
     if (ezOSFile::ExistsDirectory(src))
     {
