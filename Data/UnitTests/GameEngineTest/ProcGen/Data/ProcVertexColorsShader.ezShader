@@ -98,7 +98,7 @@ VS_OUT main(VS_IN Input)
   VS_OUT Output = FillVertexData(Input);
   
   // Fetch the procedural vertex colors from the per instance vertex color buffer
-  float4 instanceVertexColor0 = RGBA8ToFloat4(GetInstanceVertexColors(0));  
+  float4 instanceVertexColor0 = GetInstanceVertexColors(0);
   Output.Color0 = instanceVertexColor0;
 
   return Output;
