@@ -44,7 +44,7 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Variables.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Variables.ezBinScene"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Coroutines)
@@ -54,7 +54,7 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(10);
     m_ImgCompFrames.PushBack(17);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Coroutines.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Coroutines.ezBinScene"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Messages)
@@ -62,7 +62,7 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(1);
     m_ImgCompFrames.PushBack(4);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Messages.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Messages.ezBinScene"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::EnumsAndSwitch)
@@ -72,14 +72,14 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(3);
     m_ImgCompFrames.PushBack(6);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/EnumsAndSwitch.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/EnumsAndSwitch.ezBinScene"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Blackboard)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Blackboard.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Blackboard.ezBinScene"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Loops)
@@ -90,7 +90,7 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(41);
     m_ImgCompFrames.PushBack(42);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops.ezBinScene"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Loops2)
@@ -101,28 +101,28 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_pTestLog = EZ_DEFAULT_NEW(TestLog);
     m_pTestLog->m_Interface.ExpectMessage("Maximum node executions (100000) reached, execution will be aborted. Does the script contain an infinite loop?");
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops2.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops2.ezBinScene"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Loops3)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops3.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops3.ezBinScene"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Properties)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Properties.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Properties.ezBinScene"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Arrays)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Arrays.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Arrays.ezBinScene"));
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Expressions)
@@ -131,7 +131,7 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(15);
     m_ImgCompFrames.PushBack(31);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Expressions.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Expressions.ezBinScene"));
     return EZ_SUCCESS;
   }
 

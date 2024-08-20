@@ -25,7 +25,7 @@ ezLUTAssetDocumentManager::ezLUTAssetDocumentManager()
   m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezLUTAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
-  m_DocTypeDesc.m_sResourceFileExtension = "ezLUT";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinLUT";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_3D");
 

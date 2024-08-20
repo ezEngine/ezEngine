@@ -22,7 +22,7 @@ ezSubstancePackageAssetDocumentManager::ezSubstancePackageAssetDocumentManager()
     m_PackageTypeDesc.m_pManager = this;
     m_PackageTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Substance_Package");
 
-    m_PackageTypeDesc.m_sResourceFileExtension = "ezSubstancePackage";
+    m_PackageTypeDesc.m_sResourceFileExtension = "ezBinSubstancePackage";
     m_PackageTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SubAssetsAutoThumbnailOnTransform;
 
     ezQtImageCache::GetSingleton()->RegisterTypeImage("Substance Package", QPixmap(":/AssetIcons/SubstanceDesigner.svg"));
@@ -37,7 +37,7 @@ ezSubstancePackageAssetDocumentManager::ezSubstancePackageAssetDocumentManager()
     m_TextureTypeDesc.m_pManager = this;
     m_TextureTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D");
 
-    m_TextureTypeDesc.m_sResourceFileExtension = "ezTexture2D";
+    m_TextureTypeDesc.m_sResourceFileExtension = "ezBinTexture2D";
     m_TextureTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
   }
 }

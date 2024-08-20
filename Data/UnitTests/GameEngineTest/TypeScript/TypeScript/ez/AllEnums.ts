@@ -4,6 +4,7 @@ export enum AnimationInvisibleUpdateRate {  FullUpdate = 0, Max60FPS = 1, Max30F
 export enum BasisAxis {  PositiveX = 0, PositiveY = 1, PositiveZ = 2, NegativeX = 3, NegativeY = 4, NegativeZ = 5 }
 export enum CameraMode {  PerspectiveFixedFovX = 1, PerspectiveFixedFovY = 2, OrthoFixedWidth = 3, OrthoFixedHeight = 4 }
 export enum CameraUsageHint {  None = 0, MainView = 1, EditorView = 2, RenderTarget = 3, Culling = 4, Thumbnail = 7 }
+export enum FillLightMode {  Additive = 0, ModulateIndirect = 1 }
 export enum FollowPathMode {  OnlyPosition = 0, AlignUpZ = 1, FullRotation = 2 }
 export enum GlobalBlackboardInitMode {  EnsureEntriesExist = 0, ResetEntryValues = 1, ClearEntireBlackboard = 2 }
 export enum GreyBoxShape {  Box = 0, RampPosX = 1, RampNegX = 2, RampPosY = 3, RampNegY = 4, Column = 5, StairsPosX = 6, StairsNegX = 7, StairsPosY = 8, StairsNegY = 9, ArchX = 10, ArchY = 11, SpiralStairs = 12 }
@@ -13,6 +14,7 @@ export enum PathNodeTangentMode {  Auto = 0, Linear = 1 }
 export enum PropertyAnimMode {  Once = 0, Loop = 1, BackAndForth = 2 }
 export enum ReflectionProbeMode {  Static = 0, Dynamic = 1 }
 export enum RootMotionMode {  Ignore = 0, ApplyToOwner = 1, SendMoveCharacterMsg = 2 }
+export enum SceneLoadMode {  None = 0, LoadAndSwitch = 1, Preload = 2, CancelPreload = 3 }
 export enum SetColorMode {  SetRGBA = 0, SetRGB = 1, SetAlpha = 2, AlphaBlend = 3, Additive = 4, Modulate = 5 }
 export enum SkeletonPoseMode {  CustomPose = 0, RestPose = 1, Disabled = 2 }
 export enum SpriteBlendMode {  Masked = 0, Transparent = 1, Additive = 2 }

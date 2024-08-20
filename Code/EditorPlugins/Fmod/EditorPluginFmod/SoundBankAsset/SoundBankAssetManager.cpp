@@ -63,7 +63,7 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Fmod_Bank");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezFmodSoundBank";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinFmodSoundBank";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Bank", QPixmap(":/AssetIcons/Sound_Bank.svg"));

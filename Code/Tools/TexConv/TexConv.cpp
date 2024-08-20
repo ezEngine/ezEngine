@@ -70,7 +70,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = false;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZTEXTURE2D")
+  if (sExt == "EZBINTEXTURE2D")
   {
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
@@ -81,7 +81,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZTEXTURE3D")
+  if (sExt == "EZBINTEXTURE3D")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = true;
@@ -92,7 +92,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZTEXTURECUBE")
+  if (sExt == "EZBINTEXTURECUBE")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = false;
@@ -103,7 +103,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZTEXTUREATLAS")
+  if (sExt == "EZBINTEXTUREATLAS")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = false;
@@ -114,7 +114,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZIMAGEDATA")
+  if (sExt == "EZBINIMAGEDATA")
   {
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
@@ -165,7 +165,7 @@ ezResult ezTexConv::WriteTexFile(ezStreamWriter& inout_stream, const ezImage& im
 
 ezResult ezTexConv::WriteOutputFile(ezStringView sFile, const ezImage& image)
 {
-  if (sFile.HasExtension("ezImageData"))
+  if (sFile.HasExtension("ezBinImageData"))
   {
     ezDeferredFileWriter file;
     file.SetOutput(sFile);

@@ -209,7 +209,7 @@ void ezMaterialContext::OnInitialize()
   }
 
   {
-    m_hBallMesh = ezResourceManager::LoadResource<ezMeshResource>("Editor/Meshes/MaterialBall.ezMesh");
+    m_hBallMesh = ezResourceManager::LoadResource<ezMeshResource>("Editor/Meshes/MaterialBall.ezBinMesh");
   }
 
   auto pWorld = m_pWorld;

@@ -40,7 +40,7 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
-  m_DocTypeDesc.m_sResourceFileExtension = "ezTexture2D";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinTexture2D";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D");
 
@@ -50,7 +50,7 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   m_DocTypeDesc2.m_sAssetCategory = "Rendering";
   m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_DocTypeDesc2.m_pManager = this;
-  m_DocTypeDesc2.m_sResourceFileExtension = "ezRenderTarget";
+  m_DocTypeDesc2.m_sResourceFileExtension = "ezBinRenderTarget";
   m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
   m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D"); // render targets can also be used as 2D textures
   m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_Target");
@@ -111,7 +111,7 @@ ezString ezTextureAssetDocumentManager::GetRelativeOutputFileName(const ezAssetD
     sRelativePath.MakeRelativeTo(sDataDirectory).IgnoreResult();
     sRelativePath.RemoveFileExtension();
     sRelativePath.Append("-lowres");
-    ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "ezTexture2D", true);
+    ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "ezBinTexture2D", true);
     return sRelativePath;
   }
 

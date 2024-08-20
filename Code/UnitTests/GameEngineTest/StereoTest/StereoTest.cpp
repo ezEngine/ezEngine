@@ -73,7 +73,7 @@ ezResult ezStereoTest::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(100);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("XR/AssetCache/Common/Scenes/XR.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("XR/AssetCache/Common/Scenes/XR.ezBinScene"));
 
     auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }");
     ezDynamicCast<ezStereoTestGameState*>(m_pOwnApplication->GetActiveGameState())->OverrideRenderPipeline(renderPipeline);
@@ -84,7 +84,7 @@ ezResult ezStereoTest::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(100);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("XR/AssetCache/Common/Scenes/XR.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("XR/AssetCache/Common/Scenes/XR.ezBinScene"));
 
     auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }");
     ezDynamicCast<ezStereoTestGameState*>(m_pOwnApplication->GetActiveGameState())->OverrideRenderPipeline(renderPipeline);

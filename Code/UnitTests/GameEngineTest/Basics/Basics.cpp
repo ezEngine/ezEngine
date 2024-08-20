@@ -332,7 +332,7 @@ void ezGameEngineTestApplication_Basics::SubTestManyMeshesSetup()
 
   m_pWorld->Clear();
 
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
+  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
 
   ezInt32 dim = 15;
 
@@ -392,7 +392,7 @@ void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
   m_pWorld->Clear();
 
   ezTextureCubeResourceHandle hSkybox = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
+  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
 
   // Skybox
   {
@@ -597,7 +597,7 @@ void ezGameEngineTestApplication_Basics::SubTestLoadSceneSetup()
   ezResourceManager::ForceNoFallbackAcquisition(3);
   ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(false);
 
-  LoadScene("Basics/AssetCache/Common/Lighting.ezObjectGraph").IgnoreResult();
+  LoadScene("Basics/AssetCache/Common/Lighting.ezBinScene").IgnoreResult();
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iCurFrame)
@@ -624,7 +624,7 @@ void ezGameEngineTestApplication_Basics::SubTestGoReferenceSetup()
   ezResourceManager::ForceNoFallbackAcquisition(3);
   ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(false);
 
-  LoadScene("Basics/AssetCache/Common/GoReferences.ezObjectGraph").IgnoreResult();
+  LoadScene("Basics/AssetCache/Common/GoReferences.ezBinScene").IgnoreResult();
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestGoReferenceExec(ezInt32 iCurFrame)

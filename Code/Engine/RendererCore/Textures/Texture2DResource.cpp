@@ -294,7 +294,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, Texture2D)
   ON_CORESYSTEMS_STARTUP 
   {
     ezResourceManager::RegisterResourceOverrideType(ezGetStaticRTTI<ezRenderToTexture2DResource>(), [](const ezStringBuilder& sResourceID) -> bool  {
-        return sResourceID.HasExtension(".ezRenderTarget");
+        return sResourceID.HasExtension(".ezBinRenderTarget");
       });
   }
 

@@ -244,7 +244,7 @@ void ezBeamComponent::CreateMeshes()
   // Create the beam mesh name, it expresses the beam in local space with it's width
   // this way multiple beams in a corridor can share the same mesh for example.
   ezStringBuilder meshName;
-  meshName.SetFormat("ezBeamComponent_{0}_{1}_{2}_{3}.createdAtRuntime.ezMesh", m_fWidth, ezArgF(targetPositionInOwnerSpace.x, 2), ezArgF(targetPositionInOwnerSpace.y, 2), ezArgF(targetPositionInOwnerSpace.z, 2));
+  meshName.SetFormat("ezBeamComponent_{0}_{1}_{2}_{3}.createdAtRuntime.ezBinMesh", m_fWidth, ezArgF(targetPositionInOwnerSpace.x, 2), ezArgF(targetPositionInOwnerSpace.y, 2), ezArgF(targetPositionInOwnerSpace.z, 2));
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(meshName);
 

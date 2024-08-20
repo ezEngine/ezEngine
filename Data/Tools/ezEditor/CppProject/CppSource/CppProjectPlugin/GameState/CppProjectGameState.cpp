@@ -121,7 +121,7 @@ void CppProjectGameState::ProcessInput()
     // Here we use a path relative to the project directory.
     // We have to reference the 'transformed' file, not the source file.
     // This would break if the source asset is moved or renamed.
-    pMesh->SetMeshFile("AssetCache/Common/Meshes/Sphere.ezMesh");
+    pMesh->SetMeshFile("AssetCache/Common/Meshes/Sphere.ezBinMesh");
 
     // here we use the asset GUID to reference the transformed asset
     // we can copy the GUID from the asset browser
