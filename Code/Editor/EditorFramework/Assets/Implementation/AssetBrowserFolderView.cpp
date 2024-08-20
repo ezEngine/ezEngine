@@ -601,11 +601,26 @@ void eqQtAssetBrowserFolderView::BuildDirectoryTree(const ezDataDirPath& path, e
   }
 
   { // #TODO_ASSET data for folder
+
+    QString sPathAbs = pParent->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+    QString sPathRel = pParent->data(0, ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
+
+    if (sPathAbs.isEmpty())
+    {
+      sPathAbs = ezMakeQString(path.GetAbsolutePath());
+      sPathRel = ezMakeQString(path.GetDataDirParentRelativePath());
+    }
+    else
+    {
+      sPathAbs += "/" + sQtFolderName;
+      sPathRel += "/" + sQtFolderName;
+    }
+
     const bool bIsDataDir = sCurPathToItem.IsEmpty();
     pNewParent = new QTreeWidgetItem();
     pNewParent->setText(0, sQtFolderName);
-    pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath, ezMakeQString(path.GetAbsolutePath().GetView()));
-    pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::RelativePath, ezMakeQString(path.GetDataDirParentRelativePath()));
+    pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath, sPathAbs);
+    pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::RelativePath, sPathRel);
     ezBitflags<ezAssetBrowserItemFlags> flags = bIsDataDir ? ezAssetBrowserItemFlags::DataDirectory : ezAssetBrowserItemFlags::Folder;
     pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::ItemFlags, (int)flags.GetValue());
     pNewParent->setIcon(0, ezQtUiServices::GetCachedIconResource(bIsDataDir ? ":/EditorFramework/Icons/DataDirectory.svg" : ":/EditorFramework/Icons/Folder.svg"));
