@@ -570,13 +570,13 @@ ezGALBufferHandle ezGALDevice::FinalizeBufferInternal(const ezGALBufferCreationD
     // Create default resource view
     if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ShaderResource))
     {
-      // #TODO_VULKAN TexelBuffer requires a format, should we store it in the buffer desc?
-      if (desc.m_BufferFlags.IsAnySet(ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer))
+      if (desc.m_BufferFlags.IsAnySet(ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer))
       {
         ezGALBufferResourceViewCreationDescription viewDesc;
         viewDesc.m_hBuffer = hBuffer;
         viewDesc.m_uiFirstElement = 0;
         viewDesc.m_uiNumElements = (desc.m_uiStructSize != 0) ? (desc.m_uiTotalSize / desc.m_uiStructSize) : desc.m_uiTotalSize;
+        viewDesc.m_Format = desc.m_Format;
 
         pBuffer->m_hDefaultResourceView = CreateResourceView(viewDesc);
       }
@@ -1126,7 +1126,7 @@ ezGALBufferUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(cons
 
   // Some platform independent validation.
   {
-    if (desc.m_OverrideViewFormat == ezGALResourceFormat::Invalid)
+    if (desc.m_Format == ezGALResourceFormat::Invalid)
     {
       ezLog::Error("Invalid resource format is not allowed for buffer unordered access views!");
       return ezGALBufferUnorderedAccessViewHandle();

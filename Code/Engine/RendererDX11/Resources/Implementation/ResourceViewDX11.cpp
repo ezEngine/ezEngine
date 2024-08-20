@@ -176,7 +176,7 @@ ezResult ezGALBufferResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-  ezGALResourceFormat::Enum ViewFormat = m_Description.m_OverrideViewFormat;
+  ezGALResourceFormat::Enum ViewFormat = m_Description.m_Format;
 
   if (ViewFormat == ezGALResourceFormat::Invalid)
     ViewFormat = ezGALResourceFormat::RUInt;

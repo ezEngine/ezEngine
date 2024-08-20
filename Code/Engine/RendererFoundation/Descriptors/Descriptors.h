@@ -171,6 +171,7 @@ struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreat
   ezUInt32 m_uiStructSize = 0; // Struct or texel size
   ezBitflags<ezGALBufferUsageFlags> m_BufferFlags;
   ezGALResourceAccess m_ResourceAccess;
+  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid; // Only relevant for TexelBuffer
 };
 
 struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCreationDescription>
@@ -210,9 +211,9 @@ struct ezGALTextureResourceViewCreationDescription : public ezHashableStruct<ezG
 struct ezGALBufferResourceViewCreationDescription : public ezHashableStruct<ezGALBufferResourceViewCreationDescription>
 {
   ezGALBufferHandle m_hBuffer;
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
   ezUInt32 m_uiFirstElement = 0;
   ezUInt32 m_uiNumElements = 0;
+  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid;
   bool m_bRawView = false;
 };
 
@@ -244,7 +245,7 @@ struct ezGALBufferUnorderedAccessViewCreationDescription : public ezHashableStru
   ezGALBufferHandle m_hBuffer;
   ezUInt32 m_uiFirstElement = 0;
   ezUInt32 m_uiNumElements = 0;
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
+  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid;
   bool m_bRawView = false;
 };
 

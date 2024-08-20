@@ -148,7 +148,7 @@ ezResult ezGALBufferUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-  ezGALResourceFormat::Enum ViewFormat = m_Description.m_OverrideViewFormat;
+  ezGALResourceFormat::Enum ViewFormat = m_Description.m_Format;
 
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
@@ -182,7 +182,7 @@ ezResult ezGALBufferUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
   DXUAVDesc.Buffer.Flags = 0;
   if (m_Description.m_bRawView)
     DXUAVDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_RAW;
-  // #TODO_VULKAN Append / counter buffers can't easily be implemented in Vulkan on top of the same buffer infrastructure. So it's best to make these their own resource type similiar to shared textures.
+  // #TODO_VULKAN Append / counter buffers can't easily be implemented in Vulkan on top of the same buffer infrastructure. So it's best to make these their own resource type similar to shared textures.
   // if (m_Description.m_bAppend)
   //  DXUAVDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_APPEND;
 
