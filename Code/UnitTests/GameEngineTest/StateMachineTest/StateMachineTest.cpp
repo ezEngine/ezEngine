@@ -42,7 +42,7 @@ ezResult ezGameEngineTestStateMachine::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(34);
     m_ImgCompFrames.PushBack(51);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("StateMachine/AssetCache/Common/Scenes/StateMachine.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("StateMachine/AssetCache/Common/Scenes/StateMachine.ezBinScene"));
     return EZ_SUCCESS;
   }
 

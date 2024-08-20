@@ -73,7 +73,7 @@ ezResult ezGameEngineTestSubstance::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(9);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Substance/AssetCache/Common/Scenes/Substance.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Substance/AssetCache/Common/Scenes/Substance.ezBinScene"));
     return EZ_SUCCESS;
   }
 

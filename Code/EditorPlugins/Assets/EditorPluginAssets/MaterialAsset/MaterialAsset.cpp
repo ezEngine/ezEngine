@@ -912,7 +912,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
   ezStringBuilder sValue;
 
-  // now generate the .ezMaterialBin file
+  // now generate the .ezBinMaterial file
   {
     const ezUInt8 uiVersion = 7;
 

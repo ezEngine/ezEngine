@@ -50,7 +50,11 @@ void ezSceneLoadUtility::StartSceneLoading(ezStringView sSceneFile, ezStringView
 
     // if this is a path to the non-transformed source file, redirect it to the transformed file in the asset cache
     sFinalSceneFile.Prepend("AssetCache/Common/");
-    sFinalSceneFile.ChangeFileExtension("ezObjectGraph");
+
+    if (sFinalSceneFile.HasExtension("ezScene"))
+      sFinalSceneFile.ChangeFileExtension("ezBinScene");
+    else
+      sFinalSceneFile.ChangeFileExtension("ezBinPrefab");
   }
 
   if (sFinalSceneFile != sSceneFile)

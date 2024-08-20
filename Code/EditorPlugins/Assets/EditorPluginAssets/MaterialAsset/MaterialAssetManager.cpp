@@ -26,7 +26,7 @@ ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Material");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezMaterialBin";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinMaterial";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 

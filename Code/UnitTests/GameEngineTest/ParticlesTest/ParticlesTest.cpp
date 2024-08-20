@@ -65,37 +65,37 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::Billboards)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Billboards.ezObjectGraph");
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Billboards.ezBinScene");
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::PullAlongBehavior)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/PullAlong.ezObjectGraph");
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/PullAlong.ezBinScene");
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::DistanceEmitter)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/DistanceEmitter.ezObjectGraph");
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/DistanceEmitter.ezBinScene");
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::SharedInstances)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/SharedInstances.ezObjectGraph");
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/SharedInstances.ezBinScene");
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::EventReactionEffect)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/EventReactionEffect.ezObjectGraph");
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/EventReactionEffect.ezBinScene");
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::LocalSpaceSim)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/LocalSpaceSim.ezObjectGraph");
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/LocalSpaceSim.ezBinScene");
     return EZ_SUCCESS;
   }
   else if (iIdentifier == SubTests::Lighting)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Lighting.ezObjectGraph");
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Lighting.ezBinScene");
     return EZ_SUCCESS;
   }
   else
@@ -182,7 +182,7 @@ void ezGameEngineTestApplication_Particles::SetupSceneSubTest(const char* szFile
 
 void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szFile)
 {
-  LoadScene("Particles/AssetCache/Common/Particles1.ezObjectGraph").IgnoreResult();
+  LoadScene("Particles/AssetCache/Common/Particles1.ezBinScene").IgnoreResult();
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
 

@@ -19,7 +19,7 @@ ezAnimationGraphAssetManager::ezAnimationGraphAssetManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Keyframe_Graph");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezAnimGraphBin";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinAnimGraph";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Graph", QPixmap(":/AssetIcons/AnimationGraph.svg"));

@@ -19,7 +19,7 @@ ezStateMachineAssetManager::ezStateMachineAssetManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_StateMachine");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezStateMachineBin";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinStateMachine";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("StateMachine", ezSvgThumbnailToPixmap(":/AssetIcons/StateMachine.svg"));

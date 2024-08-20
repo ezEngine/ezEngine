@@ -19,7 +19,7 @@ ezVisualScriptClassAssetManager::ezVisualScriptClassAssetManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ScriptClass");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezVisualScriptClassBin";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinVisualScriptClass";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("VisualScriptClass", QPixmap(":/AssetIcons/VisualScript.svg"));

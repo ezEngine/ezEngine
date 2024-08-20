@@ -78,7 +78,7 @@ static int Duk_TestFailure(duk_context* pDuk)
 
 void ezGameEngineTestApplication_TypeScript::SubTestBasicsSetup()
 {
-  LoadScene("TypeScript/AssetCache/Common/Scenes/TypeScripting.ezObjectGraph").IgnoreResult();
+  LoadScene("TypeScript/AssetCache/Common/Scenes/TypeScripting.ezBinScene").IgnoreResult();
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
   ezTypeScriptComponentManager* pMan = m_pWorld->GetOrCreateComponentManager<ezTypeScriptComponentManager>();

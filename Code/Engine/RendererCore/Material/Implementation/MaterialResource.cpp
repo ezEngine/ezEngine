@@ -497,7 +497,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
   ezStringBuilder sAbsFilePath;
   (*pOuterStream) >> sAbsFilePath;
 
-  if (sAbsFilePath.HasExtension("ezMaterialBin"))
+  if (sAbsFilePath.HasExtension("ezBinMaterial"))
   {
     ezStringBuilder sTemp, sTemp2;
 
@@ -506,7 +506,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
 
     ezUInt8 uiVersion = 0;
     (*pOuterStream) >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 7, "Unknown ezMaterialBin version {0}", uiVersion);
+    EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 7, "Unknown ezBinMaterial version {0}", uiVersion);
 
     ezUInt8 uiCompressionMode = 0;
     if (uiVersion >= 6)
@@ -697,8 +697,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
       }
     }
   }
-
-  if (sAbsFilePath.HasExtension("ezMaterial"))
+  else if (sAbsFilePath.HasExtension("ezMaterial"))
   {
     ezOpenDdlReader reader;
 
@@ -785,6 +784,10 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
         }
       }
     }
+  }
+  else
+  {
+    ezLog::Error("Unknown material file type: '{}'", sAbsFilePath);
   }
 
   if (m_mDesc.m_hBaseMaterial.IsValid())

@@ -419,6 +419,8 @@ export class DeviceTrackingComponent extends Component
 export class LightComponent extends RenderComponent
 {
   public static GetTypeNameHash(): number { return 3732905662; }
+  get EffectiveColor(): Color { return __CPP_ComponentProperty_get(this, 1413990146); }
+  set EffectiveColor(value: Color) { __CPP_ComponentProperty_set(this, 1413990146, value); }
   get UseColorTemperature(): boolean { return __CPP_ComponentProperty_get(this, 3390607811); }
   set UseColorTemperature(value: boolean) { __CPP_ComponentProperty_set(this, 3390607811, value); }
   get LightColor(): Color { return __CPP_ComponentProperty_get(this, 1934568030); }
@@ -482,6 +484,29 @@ export class FakeRopeComponent extends Component
   set Damping(value: number) { __CPP_ComponentProperty_set(this, 151083567, value); }
   get WindInfluence(): number { return __CPP_ComponentProperty_get(this, 47944905); }
   set WindInfluence(value: number) { __CPP_ComponentProperty_set(this, 47944905, value); }
+}
+
+export class FillLightComponent extends RenderComponent
+{
+  public static GetTypeNameHash(): number { return 2966820638; }
+  get EffectiveColor(): Color { return __CPP_ComponentProperty_get(this, 3568522479); }
+  set EffectiveColor(value: Color) { __CPP_ComponentProperty_set(this, 3568522479, value); }
+  get LightMode(): Enum.FillLightMode { return __CPP_ComponentProperty_get(this, 3384563433); }
+  set LightMode(value: Enum.FillLightMode) { __CPP_ComponentProperty_set(this, 3384563433, value); }
+  get UseColorTemperature(): boolean { return __CPP_ComponentProperty_get(this, 2218298512); }
+  set UseColorTemperature(value: boolean) { __CPP_ComponentProperty_set(this, 2218298512, value); }
+  get LightColor(): Color { return __CPP_ComponentProperty_get(this, 3175804825); }
+  set LightColor(value: Color) { __CPP_ComponentProperty_set(this, 3175804825, value); }
+  get Temperature(): number { return __CPP_ComponentProperty_get(this, 27945615); }
+  set Temperature(value: number) { __CPP_ComponentProperty_set(this, 27945615, value); }
+  get Intensity(): number { return __CPP_ComponentProperty_get(this, 2509171759); }
+  set Intensity(value: number) { __CPP_ComponentProperty_set(this, 2509171759, value); }
+  get Range(): number { return __CPP_ComponentProperty_get(this, 198847836); }
+  set Range(value: number) { __CPP_ComponentProperty_set(this, 198847836, value); }
+  get FalloffExponent(): number { return __CPP_ComponentProperty_get(this, 243012702); }
+  set FalloffExponent(value: number) { __CPP_ComponentProperty_set(this, 243012702, value); }
+  get Directionality(): number { return __CPP_ComponentProperty_get(this, 3106718082); }
+  set Directionality(value: number) { __CPP_ComponentProperty_set(this, 3106718082, value); }
 }
 
 export class FogComponent extends SettingsComponent
@@ -996,6 +1021,25 @@ export class RotorComponent extends TransformComponent
   set Acceleration(value: number) { __CPP_ComponentProperty_set(this, 982214252, value); }
   get Deceleration(): number { return __CPP_ComponentProperty_get(this, 3503289027); }
   set Deceleration(value: number) { __CPP_ComponentProperty_set(this, 3503289027, value); }
+}
+
+export class SceneTransitionComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 811802936; }
+  StartTransition(PositionOffset: Vec3, RotationOffset: Quat): void { __CPP_ComponentFunction_Call(this, 779411698, PositionOffset, RotationOffset); }
+  StartTransitionWithOffsetTo(GlobalPosition: Vec3, GlobalRotation: Quat): void { __CPP_ComponentFunction_Call(this, 735934107, GlobalPosition, GlobalRotation); }
+  StartPreload(): void { __CPP_ComponentFunction_Call(this, 280523740); }
+  CancelPreload(): void { __CPP_ComponentFunction_Call(this, 1205761980); }
+  get Mode(): Enum.SceneLoadMode { return __CPP_ComponentProperty_get(this, 2847435955); }
+  set Mode(value: Enum.SceneLoadMode) { __CPP_ComponentProperty_set(this, 2847435955, value); }
+  get TargetScene(): string { return __CPP_ComponentProperty_get(this, 4108749278); }
+  set TargetScene(value: string) { __CPP_ComponentProperty_set(this, 4108749278, value); }
+  get PreloadCollection(): string { return __CPP_ComponentProperty_get(this, 2336716771); }
+  set PreloadCollection(value: string) { __CPP_ComponentProperty_set(this, 2336716771, value); }
+  get SpawnPoint(): string { return __CPP_ComponentProperty_get(this, 1303462238); }
+  set SpawnPoint(value: string) { __CPP_ComponentProperty_set(this, 1303462238, value); }
+  get RelativeSpawnPosition(): boolean { return __CPP_ComponentProperty_get(this, 1843002242); }
+  set RelativeSpawnPosition(value: boolean) { __CPP_ComponentProperty_set(this, 1843002242, value); }
 }
 
 export class ScriptComponent extends EventMessageHandlerComponent

@@ -18,7 +18,7 @@ ezKrautTreeAssetDocumentManager::ezKrautTreeAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Kraut_Tree");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezKrautTree";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinKrautTree";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 

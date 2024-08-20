@@ -296,7 +296,7 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
 
   // Write Path
   ezStringBuilder sAbsFilePath = GetMaterialDocument()->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezMaterialBin");
+  sAbsFilePath.ChangeFileExtension("ezBinMaterial");
   // Write Header
   memoryWriter << sAbsFilePath;
   const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetMaterialDocument()->GetGuid());

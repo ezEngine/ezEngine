@@ -143,7 +143,7 @@ void ezGameApplication::Init_SetupDefaultResources()
   {
     ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezMeshResource, ezMeshBufferResource>();
 
-    ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
+    ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
     ezResourceManager::SetResourceTypeMissingFallback<ezMeshResource>(hMissingMesh);
   }
 
@@ -153,7 +153,7 @@ void ezGameApplication::Init_SetupDefaultResources()
     // ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", emptyPrefab,
     // "MissingPrefabResource");
 
-    ezPrefabResourceHandle hMissingPrefab = ezResourceManager::LoadResource<ezPrefabResource>("Prefabs/MissingPrefab.ezObjectGraph");
+    ezPrefabResourceHandle hMissingPrefab = ezResourceManager::LoadResource<ezPrefabResource>("Prefabs/MissingPrefab.ezBinPrefab");
     ezResourceManager::SetResourceTypeMissingFallback<ezPrefabResource>(hMissingPrefab);
   }
 

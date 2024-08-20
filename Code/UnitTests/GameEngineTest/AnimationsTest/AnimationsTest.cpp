@@ -36,7 +36,7 @@ ezResult ezGameEngineTestAnimations::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(30);
     m_ImgCompFrames.PushBack(60);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Animations/AssetCache/Common/Scenes/AnimController.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Animations/AssetCache/Common/Scenes/AnimController.ezBinScene"));
     return EZ_SUCCESS;
   }
 

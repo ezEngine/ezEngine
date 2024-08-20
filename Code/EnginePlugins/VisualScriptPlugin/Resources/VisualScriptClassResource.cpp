@@ -24,7 +24,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(VisualScript, Resource)
   {
     ezResourceManager::RegisterResourceForAssetType("VisualScriptClass", ezGetStaticRTTI<ezVisualScriptClassResource>());
     ezResourceManager::RegisterResourceOverrideType(ezGetStaticRTTI<ezVisualScriptClassResource>(), [](const ezStringBuilder& sResourceID) -> bool  {
-        return sResourceID.HasExtension(".ezVisualScriptClassBin");
+        return sResourceID.HasExtension(".ezBinVisualScriptClass");
       });
   }
 

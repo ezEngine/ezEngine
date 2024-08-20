@@ -121,7 +121,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(TypeScript, ClassResource)
   ON_CORESYSTEMS_STARTUP 
   {
     ezResourceManager::RegisterResourceOverrideType(ezGetStaticRTTI<ezTypeScriptClassResource>(), [](const ezStringBuilder& sResourceID) -> bool  {
-        return sResourceID.HasExtension(".ezTypeScriptRes");
+        return sResourceID.HasExtension(".ezBinTypeScript");
       });
   }
 

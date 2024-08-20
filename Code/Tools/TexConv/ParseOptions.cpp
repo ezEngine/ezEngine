@@ -11,7 +11,7 @@ ezCommandLineOptionEnum opt_Mode("_TexConv", "-mode", "Mode determines which arg
 
 ezCommandLineOptionPath opt_Out("_TexConv", "-out",
   "Absolute path to main output file.\n\
-   ext = tga, dds, ezTexture2D, ezTexture3D, ezTextureCube or ezTextureAtlas.",
+   ext = tga, dds, ezBinTexture2D, ezBinTexture3D, ezBinTextureCube or ezBinTextureAtlas.",
   "");
 
 

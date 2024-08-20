@@ -53,7 +53,7 @@ ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
 
   ezImageDataResourceDescriptor desc;
 
-  if (sAbsFilePath.HasExtension("ezImageData"))
+  if (sAbsFilePath.HasExtension("ezBinImageData"))
   {
     ezAssetFileHeader AssetHash;
     if (AssetHash.Read(*Stream).Failed())

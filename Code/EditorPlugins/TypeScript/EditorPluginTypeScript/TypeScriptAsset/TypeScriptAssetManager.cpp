@@ -40,7 +40,7 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
   // Typescript doesn't fully work with the new scripting infrastructure yet. Uncomment at your own risk.
   // m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ScriptClass");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezTypeScriptRes";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinTypeScript";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.svg"));

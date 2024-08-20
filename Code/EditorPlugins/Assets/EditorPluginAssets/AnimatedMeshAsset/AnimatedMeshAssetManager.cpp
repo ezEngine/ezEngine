@@ -20,7 +20,7 @@ ezAnimatedMeshAssetDocumentManager::ezAnimatedMeshAssetDocumentManager()
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Skinned");
 
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
-  m_DocTypeDesc.m_sResourceFileExtension = "ezAnimatedMesh";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinAnimatedMesh";
 }
 
 ezAnimatedMeshAssetDocumentManager::~ezAnimatedMeshAssetDocumentManager()
