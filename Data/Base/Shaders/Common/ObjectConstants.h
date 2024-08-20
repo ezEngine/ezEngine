@@ -23,6 +23,8 @@ StructuredBuffer<ezPerInstanceData> perInstanceData;
 StructuredBuffer<Transform> skinningTransforms;
 #  endif
 
+// TODO: this doesn't work at the moment
+// Buffer<uint> perInstanceVertexColors;
 StructuredBuffer<uint> perInstanceVertexColors;
 
 #else // C++

@@ -1,0 +1,173 @@
+[PLATFORMS]
+// This section lists the platforms on which this shader is supported.
+ALL
+
+[PERMUTATIONS]
+// This section defines which permutation variables are available in this shader.
+// See http://ezengine.net/pages/docs/graphics/shaders/shader-permutation-variables.html
+
+// BLEND_MODE is hard-coded to opaque
+BLEND_MODE = BLEND_MODE_OPAQUE
+
+// PBR materials always use lighting
+SHADING_MODE = SHADING_MODE_LIT
+
+// triangles are only visible from the front
+TWO_SIDED = FALSE
+
+// SYSTEM permutations:
+// all of these are automatically set by the engine 
+FLIP_WINDING
+RENDER_PASS
+FORWARD_PASS_WRITE_DEPTH
+MSAA
+CAMERA_MODE
+SHADING_QUALITY
+VERTEX_SKINNING
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+// SYSTEM permutations
+
+[MATERIALPARAMETER]
+// This section determines which options are shown in the material UI.
+// Permutation options let the user choose the value of a permutation variable.
+// bool / float / int / Color options let the user set a fixed value for a CONSTANT_BUFFER variable.
+// Texture2D options let the user choose a texture for that slot.
+
+Color Layer0_Color @Default(Color(0.5, 0.5, 0.5));
+Color Layer1_Color @Default(Color(1, 0, 0));
+Color Layer2_Color @Default(Color(0, 1, 0));
+Color Layer3_Color @Default(Color(0, 0, 1));
+
+float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
+
+[RENDERSTATE]
+// This section defines the render pipeline state with which to execute this shader.
+// See http://ezengine.net/pages/docs/graphics/shaders/shader-render-state.html
+
+#include <Shaders/Materials/MaterialState.h>
+
+[SHADER]
+// The code in the SHADER section is prepended to every other shader stage,
+// e.g. VERTEXSHADER, GEOMETRYSHADER and PIXELSHADER all share this.
+// Most code is provided through the #included files.
+// The #defines configure that code and thus always must come before those #includes.
+
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+
+#if VERTEX_SKINNING
+  #define USE_SKINNING
+#endif
+
+// This enables special editor render modes:
+// http://ezengine.net/pages/docs/editor/editor-views.html#render-modes
+#if RENDER_PASS == RENDER_PASS_EDITOR
+  #define USE_DEBUG_INTERPOLATOR
+#endif
+
+#include <Shaders/Common/GlobalConstants.h>
+
+// The values of the variables in the MATERIALPARAMETER section are written to this constant buffer.
+// The constant buffer is available to all shader stages and these variables
+// can be read anywhere like global variables.
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(Layer0_Color);
+  COLOR4F(Layer1_Color);
+  COLOR4F(Layer2_Color);
+  COLOR4F(Layer3_Color);
+  FLOAT1(RoughnessValue);
+};
+
+[VERTEXSHADER]
+// This section contains the vertex shader code.
+// Note that code from the [SHADER] section is prepended, as well.
+
+// This shader uses procedural generated vertex colors.
+// It is up to you to decide what to do with the vertex colors.
+#define CUSTOM_INTERPOLATOR float4 Color0 : COLOR0;
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  // You could insert custom vertex animation code here.
+  // Search for USE_OBJECT_POSITION_OFFSET and USE_WORLD_POSITION_OFFSET to inject custom offsets,
+  // or manipulate the Input or Output structures directly.
+  VS_OUT Output = FillVertexData(Input);
+  
+  // Fetch the procedural vertex colors from the per instance vertex color buffer
+  float4 instanceVertexColor0 = RGBA8ToFloat4(GetInstanceVertexColors(0));  
+  Output.Color0 = instanceVertexColor0;
+
+  return Output;
+}
+
+
+[GEOMETRYSHADER]
+// This section contains the geometry shader code.
+// Note that code from the [SHADER] section is prepended, as well.
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+
+[PIXELSHADER]
+// This section contains the pixel shader code.
+// Note that code from the [SHADER] section is prepended, as well.
+
+#define USE_COLOR0;
+
+#define USE_SIMPLE_MATERIAL_MODEL
+#define USE_DECALS                // whether decals should be applied to this material
+#define USE_FOG                   // whether fog should be applied to this material 
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+// returns the normal at the pixel in world-space
+float3 GetNormal()
+{
+  return G.Input.Normal;
+}
+
+// returns the albedo color at this pixel
+float3 GetBaseColor()
+{
+  float4 blendMask = G.Input.Color0;
+
+  float3 baseColor = Layer0_Color.rgb;
+  baseColor = lerp(baseColor, Layer1_Color.rgb, blendMask.r);
+  baseColor = lerp(baseColor, Layer2_Color.rgb, blendMask.g);
+  baseColor = lerp(baseColor, Layer3_Color.rgb, blendMask.b);
+  
+  return baseColor;
+}
+
+// return the metallic value of this pixel
+// typically just 1 for metals and 0 for everything else
+// values in between are used to interpolate between metals and non-metals, but are physically implausible
+float GetMetallic()
+{
+  return 0.0;
+}
+
+// how reflective this surface is
+float GetReflectance()
+{
+  return 0.5f;
+}
+
+// how rough the surface is at this pixel
+// smooth surfaces lead to sharper reflections, rougher surfaces are more diffuse
+float GetRoughness()
+{
+  return RoughnessValue;
+}
+
+// how opaque this pixel is, lower values make it more transparent
+// only has an effect when BLEND_MODE is not set to OPAQUE
+// if alpha clipping (masked mode) is used, values below 0 make the pixel fully see through
+float GetOpacity()
+{
+  return 1.0;
+}
