@@ -37,7 +37,7 @@ ezResult ezGameEngineTestProcGen::InitializeSubTest(ezInt32 iIdentifier)
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("ProcGen/AssetCache/Common/Scenes/VertexColors.ezObjectGraph"));
     return EZ_SUCCESS;
   }
-  
+
   return EZ_FAILURE;
 }
 
