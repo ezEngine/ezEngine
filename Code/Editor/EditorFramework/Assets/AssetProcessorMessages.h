@@ -14,6 +14,7 @@ public:
   ezUuid m_AssetGuid;
   ezUInt64 m_AssetHash = 0;
   ezUInt64 m_ThumbHash = 0;
+  ezUInt64 m_PackageHash = 0;
   ezString m_sAssetPath;
   ezString m_sPlatform;
   ezDynamicArray<ezString> m_DepRefHull;

@@ -452,7 +452,9 @@ ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAs
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pAssetProfile, GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash);
+  ezUInt64 uiPackageHash = 0;
+  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pAssetProfile, GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash, uiPackageHash);
+
   if (state == ezAssetInfo::TransformState::UpToDate && !transformFlags.IsSet(ezTransformFlags::ForceTransform))
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
@@ -527,8 +529,9 @@ ezTransformStatus ezAssetDocument::CreateThumbnail()
 {
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
+  ezUInt64 uiPackageHash = 0;
 
-  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash);
+  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash, uiPackageHash);
 
   if (state == ezAssetInfo::TransformState::UpToDate)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");

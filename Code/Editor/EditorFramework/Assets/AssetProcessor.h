@@ -90,6 +90,7 @@ private:
   ezUuid m_AssetGuid;
   ezUInt64 m_uiAssetHash = 0;
   ezUInt64 m_uiThumbHash = 0;
+  ezUInt64 m_uiPackageHash = 0;
   ezDataDirPath m_AssetPath;
   ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning = false;

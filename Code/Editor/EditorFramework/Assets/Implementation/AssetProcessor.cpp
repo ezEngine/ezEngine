@@ -288,6 +288,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
           case ezAssetInfo::TransformState::Unknown:
           case ezAssetInfo::TransformState::TransformError:
           case ezAssetInfo::TransformState::MissingTransformDependency:
+          case ezAssetInfo::TransformState::MissingPackageDependency:
           case ezAssetInfo::TransformState::MissingThumbnailDependency:
           case ezAssetInfo::TransformState::CircularDependency:
           {
@@ -413,7 +414,7 @@ bool ezProcessTask::Tick(bool bStartNewWork)
             return bStartNewWork; // call again if we should be looking for new work
           }
 
-          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(m_AssetGuid, nullptr, nullptr, m_uiAssetHash, m_uiThumbHash);
+          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(m_AssetGuid, nullptr, nullptr, m_uiAssetHash, m_uiThumbHash, m_uiPackageHash);
           EZ_ASSERT_DEV(state == ezAssetInfo::TransformState::NeedsTransform || state == ezAssetInfo::TransformState::NeedsThumbnail, "An asset was selected that is already up to date.");
 
           ezSet<ezString> dependencies;
@@ -469,6 +470,7 @@ bool ezProcessTask::Tick(bool bStartNewWork)
         msg.m_AssetGuid = m_AssetGuid;
         msg.m_AssetHash = m_uiAssetHash;
         msg.m_ThumbHash = m_uiThumbHash;
+        msg.m_PackageHash = m_uiPackageHash;
         msg.m_sAssetPath = m_AssetPath;
         msg.m_DepRefHull.Swap(m_TransitiveHull);
         msg.m_sPlatform = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
