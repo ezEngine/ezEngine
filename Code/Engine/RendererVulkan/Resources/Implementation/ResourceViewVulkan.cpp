@@ -133,7 +133,7 @@ ezResult ezGALBufferResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
   }
   else
   {
-    ezGALResourceFormat::Enum viewFormat = m_Description.m_OverrideViewFormat;
+    ezGALResourceFormat::Enum viewFormat = m_Description.m_Format;
     if (viewFormat == ezGALResourceFormat::Invalid)
       viewFormat = ezGALResourceFormat::RUInt;
 

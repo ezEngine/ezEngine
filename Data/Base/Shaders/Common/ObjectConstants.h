@@ -23,7 +23,7 @@ StructuredBuffer<ezPerInstanceData> perInstanceData;
 StructuredBuffer<Transform> skinningTransforms;
 #  endif
 
-Buffer<uint> perInstanceVertexColors;
+Buffer<float4> perInstanceVertexColors;
 
 #else // C++
 
@@ -57,11 +57,11 @@ uint GetNumInstanceVertexColorsHelper(uint accessData)
   return accessData >> VERTEX_COLOR_ACCESS_OFFSET_BITS;
 }
 
-uint GetInstanceVertexColorsHelper(uint accessData, uint vertexID, uint colorIndex)
+float4 GetInstanceVertexColorsHelper(uint accessData, uint vertexID, uint colorIndex)
 {
   uint numColorsPerVertex = GetNumInstanceVertexColorsHelper(accessData);
   uint offset = (accessData & VERTEX_COLOR_ACCESS_OFFSET_MASK) + (vertexID * numColorsPerVertex + colorIndex);
-  return colorIndex < numColorsPerVertex ? perInstanceVertexColors[offset] : 0;
+  return (colorIndex < numColorsPerVertex) ? perInstanceVertexColors[offset] : 0;
 }
 
 #  define GetNumInstanceVertexColors() GetNumInstanceVertexColorsHelper(GetInstanceData().VertexColorAccessData)

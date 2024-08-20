@@ -170,7 +170,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
 
-EZ_CREATE_SIMPLE_TEST(00_Init, TransformBase)
+EZ_CREATE_SIMPLE_TEST(00_Init, 00_TransformBase) // prefix with 00_ to ensure base data is transformed first
 {
   EZ_TEST_BOOL(TranformProject("Data/Base/ezProject", 2).Succeeded());
 }
@@ -226,6 +226,11 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformSubstance)
   {
     EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Substance/ezProject", 1).Succeeded());
   }
+}
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformProcGen)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/ProcGen/ezProject", 6).Succeeded());
 }
 
 #endif

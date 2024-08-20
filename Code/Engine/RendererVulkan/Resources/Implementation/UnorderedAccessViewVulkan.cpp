@@ -119,7 +119,7 @@ ezResult ezGALBufferUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevice
     m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
     m_resourceBufferInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
 
-    ezGALResourceFormat::Enum viewFormat = m_Description.m_OverrideViewFormat;
+    ezGALResourceFormat::Enum viewFormat = m_Description.m_Format;
     if (viewFormat == ezGALResourceFormat::Invalid)
       viewFormat = ezGALResourceFormat::RUInt;
 
