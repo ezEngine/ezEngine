@@ -23,7 +23,7 @@ void ezCollisionFilterConfig::SetGroupName(ezUInt32 uiGroup, ezStringView sName)
 
 ezStringView ezCollisionFilterConfig::GetGroupName(ezUInt32 uiGroup) const
 {
-  return m_GroupNames[uiGroup];
+  return ezStringView((const char*)m_GroupNames[uiGroup]);
 }
 
 void ezCollisionFilterConfig::EnableCollision(ezUInt32 uiGroup1, ezUInt32 uiGroup2, bool bEnable)
