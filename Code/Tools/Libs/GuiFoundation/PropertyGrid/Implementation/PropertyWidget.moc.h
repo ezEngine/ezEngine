@@ -318,15 +318,17 @@ public:
 
 private Q_SLOTS:
   void on_CurrentEnum_changed(int iEnum);
+  void on_ButtonClicked_changed(bool checked);
 
 protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
-  QHBoxLayout* m_pLayout;
-  QComboBox* m_pWidget;
-  ezInt64 m_iCurrentEnum;
+  QHBoxLayout* m_pLayout = nullptr;
+  QComboBox* m_pWidget = nullptr;
+  ezInt64 m_iCurrentEnum = 0;
+  QPushButton* m_pButtons[2] = {nullptr, nullptr};
 };
 
 
