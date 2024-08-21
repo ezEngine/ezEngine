@@ -128,7 +128,7 @@ void ezResource::SetUniqueID(ezStringView sUniqueID, bool bIsReloadable)
 
 void ezResource::CallUnloadData(Unload WhatToUnload)
 {
-  EZ_LOG_BLOCK("ezResource::UnloadData", GetResourceID().GetData());
+  EZ_LOG_BLOCK("ezResource::UnloadData", GetResourceID());
 
   ezResourceEvent e;
   e.m_pResource = this;
@@ -159,7 +159,7 @@ void ezResource::CallUpdateContent(ezStreamReader* Stream)
 {
   EZ_PROFILE_SCOPE("CallUpdateContent");
 
-  EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceID().GetData());
+  EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceID());
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezResource* pPreviouslyUpdatingContent = g_pCurrentlyUpdatingContent;

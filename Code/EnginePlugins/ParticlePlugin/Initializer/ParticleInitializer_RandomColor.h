@@ -16,16 +16,8 @@ public:
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream) override;
 
-  void SetColorGradient(const ezColorGradientResourceHandle& hResource) { m_hGradient = hResource; }
-  EZ_ALWAYS_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; }
-
-  void SetColorGradientFile(const char* szFile);
-  const char* GetColorGradientFile() const;
-
   ezColor m_Color1;
   ezColor m_Color2;
-
-private:
   ezColorGradientResourceHandle m_hGradient;
 };
 

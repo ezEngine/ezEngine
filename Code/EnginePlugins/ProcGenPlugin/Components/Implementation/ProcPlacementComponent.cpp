@@ -605,7 +605,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcPlacementComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ProcGen_Graph")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Resource", GetResource, SetResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ProcGen_Graph")),
     EZ_ARRAY_ACCESSOR_PROPERTY("BoxExtents", BoxExtents_GetCount, BoxExtents_GetValue, BoxExtents_SetValue, BoxExtents_Insert, BoxExtents_Remove),
   }
   EZ_END_PROPERTIES;
@@ -642,27 +642,6 @@ void ezProcPlacementComponent::OnDeactivated()
 
   auto pManager = static_cast<ezProcPlacementComponentManager*>(GetOwningManager());
   pManager->RemoveComponent(this);
-}
-
-void ezProcPlacementComponent::SetResourceFile(const char* szFile)
-{
-  ezProcGenGraphResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezProcGenGraphResource>(szFile);
-    ezResourceManager::PreloadResource(hResource);
-  }
-
-  SetResource(hResource);
-}
-
-const char* ezProcPlacementComponent::GetResourceFile() const
-{
-  if (!m_hResource.IsValid())
-    return "";
-
-  return m_hResource.GetResourceID();
 }
 
 void ezProcPlacementComponent::SetResource(const ezProcGenGraphResourceHandle& hResource)

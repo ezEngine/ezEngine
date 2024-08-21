@@ -51,14 +51,14 @@ struct EZ_RENDERERCORE_DLL ezMsgSetMeshMaterial : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgSetMeshMaterial, ezMessage);
 
-  void SetMaterialFile(const char* szFile);
-  const char* GetMaterialFile() const;
+  // adds SetMaterialFile() and GetMaterialFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(Material, m_hMaterial);
 
   /// The material to be used.
-  ezMaterialResourceHandle m_hMaterial;
+  ezMaterialResourceHandle m_hMaterial; // [ property ]
 
   /// The slot on the mesh component where the material should be set.
-  ezUInt32 m_uiMaterialSlot = 0xFFFFFFFFu;
+  ezUInt32 m_uiMaterialSlot = 0xFFFFFFFFu; // [ property ]
 
   virtual void Serialize(ezStreamWriter& inout_stream) const override;
   virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;
@@ -90,15 +90,15 @@ public:
   ~ezMeshComponentBase();
 
   /// \brief Changes which mesh to render.
-  void SetMesh(const ezMeshResourceHandle& hMesh);
-  EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetMesh() const { return m_hMesh; }
+  void SetMesh(const ezMeshResourceHandle& hMesh);                                 // [ property ]
+  EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetMesh() const { return m_hMesh; } // [ property ]
+
+  // adds SetMeshFile() and GetMeshFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Mesh, m_hMesh, SetMesh);
 
   /// \brief Sets the material that should be used for the sub-mesh with the given index.
-  void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial);
-  ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const;
-
-  void SetMeshFile(const char* szFile); // [ property ]
-  const char* GetMeshFile() const;      // [ property ]
+  void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial); // [ property ]
+  ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const;                  // [ property ]
 
   /// \brief An additional tint color passed to the renderer to modify the mesh.
   void SetColor(const ezColor& color); // [ property ]
@@ -121,11 +121,13 @@ public:
 protected:
   virtual ezMeshRenderData* CreateRenderData() const;
 
-  ezUInt32 Materials_GetCount() const;                          // [ property ]
-  const char* Materials_GetValue(ezUInt32 uiIndex) const;       // [ property ]
-  void Materials_SetValue(ezUInt32 uiIndex, const char* value); // [ property ]
-  void Materials_Insert(ezUInt32 uiIndex, const char* value);   // [ property ]
-  void Materials_Remove(ezUInt32 uiIndex);                      // [ property ]
+  // TODO: Using ezStringView for the array accessors doesn't work (currently)
+
+  ezUInt32 Materials_GetCount() const;                        // [ property ]
+  ezString Materials_GetValue(ezUInt32 uiIndex) const;        // [ property ]
+  void Materials_SetValue(ezUInt32 uiIndex, ezString sValue); // [ property ]
+  void Materials_Insert(ezUInt32 uiIndex, ezString sValue);   // [ property ]
+  void Materials_Remove(ezUInt32 uiIndex);                    // [ property ]
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 

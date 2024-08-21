@@ -28,17 +28,14 @@ public:
   ezScriptComponent();
   ~ezScriptComponent();
 
-  void SetScriptVariable(const ezHashedString& sName, const ezVariant& value); // [ scriptable ]
-  ezVariant GetScriptVariable(const ezHashedString& sName) const;              // [ scriptable ]
+  void SetScriptVariable(const ezHashedString& sName, const ezVariant& value);         // [ scriptable ]
+  ezVariant GetScriptVariable(const ezHashedString& sName) const;                      // [ scriptable ]
 
-  void SetScriptClass(const ezScriptClassResourceHandle& hScript);
-  const ezScriptClassResourceHandle& GetScriptClass() const { return m_hScriptClass; }
+  void SetScriptClass(const ezScriptClassResourceHandle& hScript);                     // [ property ]
+  const ezScriptClassResourceHandle& GetScriptClass() const { return m_hScriptClass; } // [ property ]
 
-  void SetScriptClassFile(const char* szFile); // [ property ]
-  const char* GetScriptClassFile() const;      // [ property ]
-
-  void SetUpdateInterval(ezTime interval);     // [ property ]
-  ezTime GetUpdateInterval() const;            // [ property ]
+  void SetUpdateInterval(ezTime interval);                                             // [ property ]
+  ezTime GetUpdateInterval() const;                                                    // [ property ]
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters

@@ -354,7 +354,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeImageComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Image", GetImageFile, SetImageFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Image", m_hImage)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -390,26 +390,6 @@ void ezProcVolumeImageComponent::DeserializeComponent(ezWorldReader& inout_strea
 void ezProcVolumeImageComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
 {
   ref_msg.m_pCollection->AddImage(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFalloff, m_hImage);
-}
-
-void ezProcVolumeImageComponent::SetImageFile(const char* szFile)
-{
-  ezImageDataResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezImageDataResource>(szFile);
-  }
-
-  SetImage(hResource);
-}
-
-const char* ezProcVolumeImageComponent::GetImageFile() const
-{
-  if (!m_hImage.IsValid())
-    return "";
-
-  return m_hImage.GetResourceID();
 }
 
 void ezProcVolumeImageComponent::SetImage(const ezImageDataResourceHandle& hResource)

@@ -13,7 +13,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezVolumeComponent, 1)
   {
     EZ_ACCESSOR_PROPERTY("Type", GetVolumeType, SetVolumeType)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum"), new ezDefaultValueAttribute("GenericVolume")),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
-    EZ_ACCESSOR_PROPERTY("Template", GetTemplateFile, SetTemplateFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Template", GetTemplate, SetTemplate)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
     EZ_MAP_ACCESSOR_PROPERTY("Values", Reflection_GetKeys, Reflection_GetValue, Reflection_InsertValue, Reflection_RemoveValue),
   }
   EZ_END_PROPERTIES;
@@ -53,26 +53,6 @@ void ezVolumeComponent::OnDeactivated()
   RemoveReloadFunction();
 
   GetOwner()->UpdateLocalBounds();
-}
-
-void ezVolumeComponent::SetTemplateFile(const char* szFile)
-{
-  ezBlackboardTemplateResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezBlackboardTemplateResource>(szFile);
-  }
-
-  SetTemplate(hResource);
-}
-
-const char* ezVolumeComponent::GetTemplateFile() const
-{
-  if (!m_hTemplateResource.IsValid())
-    return "";
-
-  return m_hTemplateResource.GetResourceID();
 }
 
 void ezVolumeComponent::SetTemplate(const ezBlackboardTemplateResourceHandle& hResource)

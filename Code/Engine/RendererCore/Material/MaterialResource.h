@@ -7,6 +7,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;

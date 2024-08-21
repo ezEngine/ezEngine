@@ -20,7 +20,7 @@ struct ezSurfaceResourceEvent
   };
 
   Type m_Type;
-  ezSurfaceResource* m_pSurface;
+  ezSurfaceResource* m_pSurface = nullptr;
 };
 
 class EZ_CORE_DLL ezSurfaceResource : public ezResource

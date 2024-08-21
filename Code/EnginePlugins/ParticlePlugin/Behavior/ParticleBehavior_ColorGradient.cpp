@@ -11,7 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_ColorGradient, 1, ezRT
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Gradient", GetColorGradientFile, SetColorGradientFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Gradient", m_hGradient)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
     EZ_MEMBER_PROPERTY("TintColor", m_TintColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ENUM_MEMBER_PROPERTY("ColorGradientMode", ezParticleColorGradientMode, m_GradientMode),
     EZ_MEMBER_PROPERTY("GradientMaxSpeed", m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 100.0f)),
@@ -74,26 +74,6 @@ void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> m_TintColor;
   }
-}
-
-void ezParticleBehaviorFactory_ColorGradient::SetColorGradientFile(const char* szFile)
-{
-  ezColorGradientResourceHandle hGradient;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hGradient = ezResourceManager::LoadResource<ezColorGradientResource>(szFile);
-  }
-
-  SetColorGradient(hGradient);
-}
-
-const char* ezParticleBehaviorFactory_ColorGradient::GetColorGradientFile() const
-{
-  if (!m_hGradient.IsValid())
-    return "";
-
-  return m_hGradient.GetResourceID();
 }
 
 void ezParticleBehavior_ColorGradient::CreateRequiredStreams()

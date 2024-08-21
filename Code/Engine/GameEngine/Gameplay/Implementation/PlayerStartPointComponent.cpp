@@ -13,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPlayerStartPointComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("PlayerPrefab", GetPlayerPrefabFile, SetPlayerPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    EZ_RESOURCE_MEMBER_PROPERTY("PlayerPrefab", m_hPlayerPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("PlayerPrefab")),
   }
   EZ_END_PROPERTIES;
@@ -55,26 +55,6 @@ void ezPlayerStartPointComponent::DeserializeComponent(ezWorldReader& inout_stre
   }
 }
 
-void ezPlayerStartPointComponent::SetPlayerPrefabFile(const char* szFile)
-{
-  ezPrefabResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezPrefabResource>(szFile);
-  }
-
-  SetPlayerPrefab(hResource);
-}
-
-const char* ezPlayerStartPointComponent::GetPlayerPrefabFile() const
-{
-  if (!m_hPlayerPrefab.IsValid())
-    return "";
-
-  return m_hPlayerPrefab.GetResourceID();
-}
-
 void ezPlayerStartPointComponent::SetPlayerPrefab(const ezPrefabResourceHandle& hPrefab)
 {
   m_hPlayerPrefab = hPrefab;
@@ -88,9 +68,12 @@ const ezPrefabResourceHandle& ezPlayerStartPointComponent::GetPlayerPrefab() con
 const ezRangeView<const char*, ezUInt32> ezPlayerStartPointComponent::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
-    { return 0; }, [this]() -> ezUInt32
-    { return m_Parameters.GetCount(); }, [](ezUInt32& ref_uiIt)
-    { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char*
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
     { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 

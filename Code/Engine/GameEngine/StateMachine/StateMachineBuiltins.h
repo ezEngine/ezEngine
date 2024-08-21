@@ -21,11 +21,8 @@ public:
 
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
 
-  void SetResource(const ezStateMachineResourceHandle& hResource);
-  const ezStateMachineResourceHandle& GetResource() const { return m_hResource; }
-
-  void SetResourceFile(const char* szFile); // [ property ]
-  const char* GetResourceFile() const;      // [ property ]
+  void SetResource(const ezStateMachineResourceHandle& hResource);                // [ property ]
+  const ezStateMachineResourceHandle& GetResource() const { return m_hResource; } // [ property ]
 
   /// \brief Defines which state should be used as initial state after the state machine was instantiated.
   /// If empty the state machine resource defines the initial state.

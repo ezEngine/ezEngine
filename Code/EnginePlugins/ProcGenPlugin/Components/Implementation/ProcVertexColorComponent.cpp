@@ -154,15 +154,15 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   if (!pComponent->HasValidOutputs())
     return;
 
-  const char* szMesh = pComponent->GetMeshFile();
-  if (ezStringUtils::IsNullOrEmpty(szMesh))
+  const ezStringView sMesh = pComponent->GetMesh().GetResourceID();
+  if (sMesh.IsEmpty())
     return;
 
-  ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(szMesh);
+  ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(sMesh);
   ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
-    ezLog::Warning("Failed to retrieve CPU mesh '{}'", szMesh);
+    ezLog::Warning("Failed to retrieve CPU mesh '{}'", sMesh);
     return;
   }
 
@@ -393,24 +393,21 @@ void ezProcVertexColorComponent::OnDeactivated()
   // GetOwner()->DisableStaticTransformChangesNotifications();
 }
 
-void ezProcVertexColorComponent::SetResourceFile(const char* szFile)
+void ezProcVertexColorComponent::SetResourceFile(ezStringView sFile)
 {
   ezProcGenGraphResourceHandle hResource;
 
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    hResource = ezResourceManager::LoadResource<ezProcGenGraphResource>(szFile);
+    hResource = ezResourceManager::LoadResource<ezProcGenGraphResource>(sFile);
     ezResourceManager::PreloadResource(hResource);
   }
 
   SetResource(hResource);
 }
 
-const char* ezProcVertexColorComponent::GetResourceFile() const
+ezStringView ezProcVertexColorComponent::GetResourceFile() const
 {
-  if (!m_hResource.IsValid())
-    return "";
-
   return m_hResource.GetResourceID();
 }
 

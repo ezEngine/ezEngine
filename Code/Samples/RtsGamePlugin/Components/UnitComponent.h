@@ -41,9 +41,6 @@ public:
   ezUInt16 m_uiMaxHealth = 100;
   ezUInt16 m_uiCurHealth = 0;
 
-  void SetOnDestroyedPrefab(const char* szPrefab);
-  const char* GetOnDestroyedPrefab() const;
-
 private:
   ezPrefabResourceHandle m_hOnDestroyedPrefab;
 

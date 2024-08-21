@@ -19,8 +19,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("HeightfieldImage", GetHeightfieldFile, SetHeightfieldFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D")),
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("HeightfieldImage", GetHeightfield, SetHeightfield)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_ACCESSOR_PROPERTY("HalfExtents", GetHalfExtents, SetHalfExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec2(50))),
     EZ_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new ezDefaultValueAttribute(50)),
     EZ_ACCESSOR_PROPERTY("Tesselation", GetTesselation, SetTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(128))),
@@ -188,47 +188,6 @@ void ezHeightfieldComponent::SetTexCoordScale(ezVec2 value) // [ property ]
 {
   m_vTexCoordScale = value;
   InvalidateMesh();
-}
-
-void ezHeightfieldComponent::SetMaterialFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
-  }
-  else
-  {
-    m_hMaterial.Invalidate();
-  }
-}
-
-const char* ezHeightfieldComponent::GetMaterialFile() const
-{
-  if (!m_hMaterial.IsValid())
-    return "";
-
-  return m_hMaterial.GetResourceID();
-}
-
-
-void ezHeightfieldComponent::SetHeightfieldFile(const char* szFile)
-{
-  ezImageDataResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezImageDataResource>(szFile);
-  }
-
-  SetHeightfield(hResource);
-}
-
-const char* ezHeightfieldComponent::GetHeightfieldFile() const
-{
-  if (!m_hHeightfield.IsValid())
-    return "";
-
-  return m_hHeightfield.GetResourceID();
 }
 
 void ezHeightfieldComponent::SetHeightfield(const ezImageDataResourceHandle& hResource)

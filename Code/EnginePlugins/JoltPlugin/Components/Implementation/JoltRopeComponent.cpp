@@ -70,22 +70,23 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltRopeComponent::ezJoltRopeComponent() = default;
 ezJoltRopeComponent::~ezJoltRopeComponent() = default;
 
-void ezJoltRopeComponent::SetSurfaceFile(const char* szFile)
+void ezJoltRopeComponent::SetSurfaceFile(ezStringView sFile)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+  }
+  else
+  {
+    m_hSurface = {};
   }
 
   if (m_hSurface.IsValid())
     ezResourceManager::PreloadResource(m_hSurface);
 }
 
-const char* ezJoltRopeComponent::GetSurfaceFile() const
+ezStringView ezJoltRopeComponent::GetSurfaceFile() const
 {
-  if (!m_hSurface.IsValid())
-    return "";
-
   return m_hSurface.GetResourceID();
 }
 

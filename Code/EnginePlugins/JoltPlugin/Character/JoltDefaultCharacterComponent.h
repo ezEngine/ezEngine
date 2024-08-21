@@ -91,8 +91,8 @@ public:
   void SetWalkSurfaceInteraction(const char* szName) { m_sWalkSurfaceInteraction.Assign(szName); } // [ property ]
   const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); }    // [ property ]
 
-  void SetFallbackWalkSurfaceFile(const char* szFile);                                             // [ property ]
-  const char* GetFallbackWalkSurfaceFile() const;                                                  // [ property ]
+  void SetFallbackWalkSurfaceFile(ezStringView sFile);                                            // [ property ]
+  ezStringView GetFallbackWalkSurfaceFile() const;                                                 // [ property ]
 
   /// How fast to move while falling. The higher, the more "air control" the player has.
   float m_fAirSpeed = 2.5f; // [ property ]

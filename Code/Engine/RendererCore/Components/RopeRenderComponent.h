@@ -47,13 +47,11 @@ public:
   ezRopeRenderComponent();
   ~ezRopeRenderComponent();
 
-  ezColor m_Color = ezColor::White;         // [ property ]
+  ezColor m_Color = ezColor::White;                                                        // [ property ]
 
-  void SetMaterialFile(const char* szFile); // [ property ]
-  const char* GetMaterialFile() const;      // [ property ]
 
-  void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; }
-  ezMaterialResourceHandle GetMaterial() const { return m_hMaterial; }
+  void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; } // [ property ]
+  const ezMaterialResourceHandle& GetMaterial() const { return m_hMaterial; }              // [ property ]
 
   /// \brief Changes how thick the rope visualization is. This is independent of the simulated rope thickness.
   void SetThickness(float fThickness);                // [ property ]

@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
   {
     EZ_MEMBER_PROPERTY("MinDelay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1.0))),
     EZ_MEMBER_PROPERTY("DelayRange", m_DelayRange)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("TimeoutPrefab", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    EZ_RESOURCE_MEMBER_PROPERTY("TimeoutPrefab", m_hTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -92,28 +92,6 @@ void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
 }
-
-void ezTimedDeathComponent::SetTimeoutPrefab(const char* szPrefab)
-{
-  ezPrefabResourceHandle hPrefab;
-
-  if (!ezStringUtils::IsNullOrEmpty(szPrefab))
-  {
-    hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(szPrefab);
-  }
-
-  m_hTimeoutPrefab = hPrefab;
-}
-
-
-const char* ezTimedDeathComponent::GetTimeoutPrefab() const
-{
-  if (!m_hTimeoutPrefab.IsValid())
-    return "";
-
-  return m_hTimeoutPrefab.GetResourceID();
-}
-
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

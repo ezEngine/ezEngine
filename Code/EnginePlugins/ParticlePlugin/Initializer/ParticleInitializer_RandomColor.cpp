@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomColor, 1, ezR
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Gradient", GetColorGradientFile, SetColorGradientFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Gradient", m_hGradient)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
     EZ_MEMBER_PROPERTY("Color1", m_Color1)->AddAttributes(new ezDefaultValueAttribute(ezColor::White), new ezExposeColorAlphaAttribute()),
     EZ_MEMBER_PROPERTY("Color2", m_Color2)->AddAttributes(new ezDefaultValueAttribute(ezColor::White), new ezExposeColorAlphaAttribute()),
   }
@@ -37,27 +37,6 @@ void ezParticleInitializerFactory_RandomColor::CopyInitializerProperties(ezParti
   pInitializer->m_hGradient = m_hGradient;
   pInitializer->m_Color1 = m_Color1;
   pInitializer->m_Color2 = m_Color2;
-}
-
-void ezParticleInitializerFactory_RandomColor::SetColorGradientFile(const char* szFile)
-{
-  ezColorGradientResourceHandle hGradient;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hGradient = ezResourceManager::LoadResource<ezColorGradientResource>(szFile);
-  }
-
-  SetColorGradient(hGradient);
-}
-
-
-const char* ezParticleInitializerFactory_RandomColor::GetColorGradientFile() const
-{
-  if (!m_hGradient.IsValid())
-    return "";
-
-  return m_hGradient.GetResourceID();
 }
 
 void ezParticleInitializerFactory_RandomColor::Save(ezStreamWriter& inout_stream) const

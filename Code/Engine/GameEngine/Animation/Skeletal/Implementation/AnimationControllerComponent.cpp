@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 3, ezComponentMode::Stat
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("AnimGraph", GetAnimGraphFile, SetAnimGraphFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph")),
+    EZ_RESOURCE_MEMBER_PROPERTY("AnimGraph", m_hAnimGraph)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph")),
 
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
     EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
@@ -65,27 +65,6 @@ void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_s
   {
     s >> m_bEnableIK;
   }
-}
-
-void ezAnimationControllerComponent::SetAnimGraphFile(const char* szFile)
-{
-  ezAnimGraphResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimGraphResource>(szFile);
-  }
-
-  m_hAnimGraph = hResource;
-}
-
-
-const char* ezAnimationControllerComponent::GetAnimGraphFile() const
-{
-  if (!m_hAnimGraph.IsValid())
-    return "";
-
-  return m_hAnimGraph.GetResourceID();
 }
 
 void ezAnimationControllerComponent::OnSimulationStarted()

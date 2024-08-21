@@ -328,7 +328,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
   }
   else
   {
-    s_pState->m_ResourcesToUnloadOnMainThread.Insert(ezTempHashedString(pResource->GetResourceID().GetData()), pResource->GetDynamicRTTI());
+    s_pState->m_ResourcesToUnloadOnMainThread.Insert(ezTempHashedString(pResource->GetResourceID()), pResource->GetDynamicRTTI());
   }
 
   if (bAllowPreloading)

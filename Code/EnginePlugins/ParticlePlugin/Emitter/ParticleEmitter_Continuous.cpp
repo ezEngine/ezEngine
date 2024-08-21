@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDe
     EZ_MEMBER_PROPERTY("SpawnCountPerSecRange", m_uiSpawnCountPerSecRange),
     EZ_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),
 
-    EZ_ACCESSOR_PROPERTY("CountCurve", GetCountCurveFile, SetCountCurveFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
+    EZ_RESOURCE_MEMBER_PROPERTY("CountCurve", m_hCountCurve)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
     EZ_MEMBER_PROPERTY("CurveDuration", m_CurveDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromSeconds(10.0))),
   }
   EZ_END_PROPERTIES;
@@ -143,26 +143,6 @@ void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> m_sSpawnCountScaleParameter;
   }
-}
-
-void ezParticleEmitterFactory_Continuous::SetCountCurveFile(const char* szFile)
-{
-  ezCurve1DResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezCurve1DResource>(szFile);
-  }
-
-  m_hCountCurve = hResource;
-}
-
-const char* ezParticleEmitterFactory_Continuous::GetCountCurveFile() const
-{
-  if (!m_hCountCurve.IsValid())
-    return "";
-
-  return m_hCountCurve.GetResourceID();
 }
 
 void ezParticleEmitter_Continuous::OnFinalize()

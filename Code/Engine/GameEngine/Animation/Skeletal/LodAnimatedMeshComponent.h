@@ -22,9 +22,6 @@ private:
 
 struct ezLodAnimatedMeshLod
 {
-  const char* GetMeshFile() const;
-  void SetMeshFile(const char* szFile);
-
   ezMeshResourceHandle m_hMesh;
   float m_fThreshold;
 };

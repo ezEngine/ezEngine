@@ -7,11 +7,8 @@ using ezLodMeshComponentManager = ezComponentManager<class ezLodMeshComponent, e
 
 struct ezLodMeshLod
 {
-  const char* GetMeshFile() const;
-  void SetMeshFile(const char* szFile);
-
-  ezMeshResourceHandle m_hMesh;
-  float m_fThreshold;
+  ezMeshResourceHandle m_hMesh; // [ property ]
+  float m_fThreshold;           // [ property ]
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezLodMeshLod);

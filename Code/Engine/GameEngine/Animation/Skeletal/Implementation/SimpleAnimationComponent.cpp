@@ -87,36 +87,6 @@ void ezSimpleAnimationComponent::OnSimulationStarted()
   m_hSkeleton = msg.m_hSkeleton;
 }
 
-void ezSimpleAnimationComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
-{
-  m_hAnimationClip = hResource;
-}
-
-const ezAnimationClipResourceHandle& ezSimpleAnimationComponent::GetAnimationClip() const
-{
-  return m_hAnimationClip;
-}
-
-void ezSimpleAnimationComponent::SetAnimationClipFile(const char* szFile)
-{
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
-  }
-
-  SetAnimationClip(hResource);
-}
-
-const char* ezSimpleAnimationComponent::GetAnimationClipFile() const
-{
-  if (!m_hAnimationClip.IsValid())
-    return "";
-
-  return m_hAnimationClip.GetResourceID();
-}
-
 void ezSimpleAnimationComponent::SetNormalizedPlaybackPosition(float fPosition)
 {
   m_fNormalizedPlaybackPosition = fPosition;

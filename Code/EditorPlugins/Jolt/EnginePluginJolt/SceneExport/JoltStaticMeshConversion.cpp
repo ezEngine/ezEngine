@@ -130,6 +130,10 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
     ezJoltStaticActorComponent* pComp;
     pCompMan->CreateComponent(pGo, pComp);
 
-    pComp->SetMeshFile(sOutputFile);
+    if (!sOutputFile.IsEmpty())
+    {
+      ezJoltMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezJoltMeshResource>(sOutputFile);
+      pComp->SetMesh(hMesh);
+    }
   }
 }

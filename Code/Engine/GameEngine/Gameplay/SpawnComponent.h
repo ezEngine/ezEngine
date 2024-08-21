@@ -82,10 +82,6 @@ public:
   /// To stop continuously spawning, remove the continuous spawn flag.
   void ScheduleSpawn(); // [ scriptable ]
 
-  /// \brief Sets the prefab resource to use for spawning.
-  void SetPrefabFile(const char* szFile); // [ property ]
-  const char* GetPrefabFile() const;      // [ property ]
-
   /// \brief Enables that the component spawns right at creation time. Otherwise it needs to be triggered manually.
   void SetSpawnAtStart(bool b); // [ property ]
   bool GetSpawnAtStart() const; // [ property ]
@@ -95,12 +91,10 @@ public:
   bool GetSpawnContinuously() const; // [ property ]
 
   /// \brief Sets that spawned objects will be attached as child objects to this game object.
-  void SetAttachAsChild(bool b); // [ property ]
-  bool GetAttachAsChild() const; // [ property ]
+  void SetAttachAsChild(bool b);    // [ property ]
+  bool GetAttachAsChild() const;    // [ property ]
 
-  /// \brief Sets the prefab resource to spawn.
-  void SetPrefab(const ezPrefabResourceHandle& hPrefab);
-  EZ_ALWAYS_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; }
+  ezPrefabResourceHandle m_hPrefab; // [ property ]
 
   /// The minimum delay between spawning objects. This is also enforced for manually spawning things.
   ezTime m_MinDelay; // [ property ]
@@ -127,5 +121,4 @@ protected:
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
 
   ezTime m_LastManualSpawn;
-  ezPrefabResourceHandle m_hPrefab;
 };

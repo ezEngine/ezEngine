@@ -123,12 +123,9 @@ public:
 
   void OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const;
 
-  void SetImageFile(const char* szFile); // [ property ]
-  const char* GetImageFile() const;      // [ property ]
-
   void SetImage(const ezImageDataResourceHandle& hResource);
   ezImageDataResourceHandle GetImage() const { return m_hImage; }
 
 protected:
-  ezImageDataResourceHandle m_hImage;
+  ezImageDataResourceHandle m_hImage; // [ property ]
 };

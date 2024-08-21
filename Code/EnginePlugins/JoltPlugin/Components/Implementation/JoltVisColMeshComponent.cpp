@@ -13,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltVisColMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle;CompatibleAsset_Jolt_Colmesh_Convex", ezDependencyFlags::Package)),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("CollisionMesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle;CompatibleAsset_Jolt_Colmesh_Convex", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -68,26 +68,6 @@ ezResult ezJoltVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_boun
   }
 
   return EZ_FAILURE;
-}
-
-void ezJoltVisColMeshComponent::SetMeshFile(const char* szFile)
-{
-  ezJoltMeshResourceHandle hMesh;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hMesh = ezResourceManager::LoadResource<ezJoltMeshResource>(szFile);
-  }
-
-  SetMesh(hMesh);
-}
-
-const char* ezJoltVisColMeshComponent::GetMeshFile() const
-{
-  if (!m_hCollisionMesh.IsValid())
-    return "";
-
-  return m_hCollisionMesh.GetResourceID();
 }
 
 void ezJoltVisColMeshComponent::SetMesh(const ezJoltMeshResourceHandle& hMesh)

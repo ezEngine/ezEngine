@@ -35,13 +35,9 @@ public:
   ezVolumeComponent();
   ~ezVolumeComponent();
 
-  /// \brief Sets the blackboard template file to use.
-  void SetTemplateFile(const char* szFile); // [ property ]
-  const char* GetTemplateFile() const;      // [ property ]
-
   /// \brief Sets the blackboard template to use.
-  void SetTemplate(const ezBlackboardTemplateResourceHandle& hResource);
-  ezBlackboardTemplateResourceHandle GetTemplate() const { return m_hTemplateResource; }
+  void SetTemplate(const ezBlackboardTemplateResourceHandle& hResource);                        // [ property ]
+  const ezBlackboardTemplateResourceHandle& GetTemplate() const { return m_hTemplateResource; } // [ property ]
 
   /// \brief In case two volumes overlap, the one with a higher sort order value has precedence.
   void SetSortOrder(float fOrder);                    // [ property ]

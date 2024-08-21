@@ -32,7 +32,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLensFlareElement, ezNoBase, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
     EZ_MEMBER_PROPERTY("GreyscaleTexture", m_bGreyscaleTexture),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_MEMBER_PROPERTY("ModulateByLightColor", m_bModulateByLightColor)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -46,26 +46,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLensFlareElement, ezNoBase, 1, ezRTTIDefaultAll
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
-
-void ezLensFlareElement::SetTextureFile(const char* szFile)
-{
-  ezTexture2DResourceHandle hTexture;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
-  }
-
-  m_hTexture = hTexture;
-}
-
-const char* ezLensFlareElement::GetTextureFile() const
-{
-  if (!m_hTexture.IsValid())
-    return "";
-
-  return m_hTexture.GetResourceID();
-}
 
 ezResult ezLensFlareElement::Serialize(ezStreamWriter& inout_stream) const
 {

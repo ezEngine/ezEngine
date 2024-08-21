@@ -11,7 +11,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("UpdateInterval", GetUpdateInterval, SetUpdateInterval)->AddAttributes(new ezClampValueAttribute(ezTime::MakeZero(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("ScriptClass", GetScriptClassFile, SetScriptClassFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("ScriptClass", GetScriptClass, SetScriptClass)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass")),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("ScriptClass")),
   }
   EZ_END_PROPERTIES;
@@ -153,23 +153,6 @@ void ezScriptComponent::SetScriptClass(const ezScriptClassResourceHandle& hScrip
   }
 }
 
-void ezScriptComponent::SetScriptClassFile(const char* szFile)
-{
-  ezScriptClassResourceHandle hScript;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hScript = ezResourceManager::LoadResource<ezScriptClassResource>(szFile);
-  }
-
-  SetScriptClass(hScript);
-}
-
-const char* ezScriptComponent::GetScriptClassFile() const
-{
-  return m_hScriptClass.IsValid() ? m_hScriptClass.GetResourceID().GetData() : "";
-}
-
 void ezScriptComponent::SetUpdateInterval(ezTime interval)
 {
   m_UpdateInterval = interval;
@@ -240,7 +223,7 @@ void ezScriptComponent::InstantiateScript(bool bActivate)
   ezResourceLock<ezScriptClassResource> pScript(m_hScriptClass, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pScript.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
-    ezLog::Error("Failed to load script '{}'", GetScriptClassFile());
+    ezLog::Error("Failed to load script '{}'", GetScriptClass().GetResourceID());
     return;
   }
 

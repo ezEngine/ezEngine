@@ -43,13 +43,9 @@ public:
   ezRenderTargetActivatorComponent();
   ~ezRenderTargetActivatorComponent();
 
-  /// \brief Sets the resource file for the ezRenderToTexture2DResource
-  void SetRenderTargetFile(const char* szFile); // [ property ]
-  const char* GetRenderTargetFile() const;      // [ property ]
-
   /// \brief Sets the ezRenderToTexture2DResource to render activate.
-  void SetRenderTarget(const ezRenderToTexture2DResourceHandle& hResource);
-  ezRenderToTexture2DResourceHandle GetRenderTarget() const { return m_hRenderTarget; }
+  void SetRenderTarget(const ezRenderToTexture2DResourceHandle& hResource);                    // [ property ]
+  const ezRenderToTexture2DResourceHandle& GetRenderTarget() const { return m_hRenderTarget; } // [ property ]
 
 private:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;

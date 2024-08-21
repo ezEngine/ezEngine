@@ -36,9 +36,6 @@ public:
 
   virtual void ExtractGeometry(ezMsgExtractGeometry& ref_msg) const override;
 
-  void SetMeshFile(const char* szFile); // [ property ]
-  const char* GetMeshFile() const;      // [ property ]
-
   ezJoltMeshResourceHandle GetMesh() const { return m_hCollisionMesh; }
 
 protected:

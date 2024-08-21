@@ -43,11 +43,8 @@ public:
   ezSkeletonComponent();
   ~ezSkeletonComponent();
 
-  void SetSkeletonFile(const char* szFile); // [ property ]
-  const char* GetSkeletonFile() const;      // [ property ]
-
-  void SetSkeleton(const ezSkeletonResourceHandle& hResource);
-  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
+  void SetSkeleton(const ezSkeletonResourceHandle& hResource);                // [ property ]
+  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; } // [ property ]
 
   /// \brief Sets a semicolon-separated list of bone names that should be highlighted.
   ///

@@ -14,7 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
   {
     EZ_BEGIN_PROPERTIES
     {
-      EZ_ACCESSOR_PROPERTY("Animation", GetPropertyAnimFile, SetPropertyAnimFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Property_Animation")),
+      EZ_RESOURCE_MEMBER_PROPERTY("Animation", m_hPropertyAnim)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Property_Animation")),
       EZ_MEMBER_PROPERTY("Playing", m_bPlaying)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
       EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::MakeFromSeconds(0), ezVariant())),
@@ -90,26 +90,6 @@ void ezPropertyAnimComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
     s >> m_bPlaying;
   }
-}
-
-void ezPropertyAnimComponent::SetPropertyAnimFile(const char* szFile)
-{
-  ezPropertyAnimResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezPropertyAnimResource>(szFile);
-  }
-
-  SetPropertyAnim(hResource);
-}
-
-const char* ezPropertyAnimComponent::GetPropertyAnimFile() const
-{
-  if (!m_hPropertyAnim.IsValid())
-    return "";
-
-  return m_hPropertyAnim.GetResourceID();
 }
 
 void ezPropertyAnimComponent::SetPropertyAnim(const ezPropertyAnimResourceHandle& hPropertyAnim)

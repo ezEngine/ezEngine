@@ -41,10 +41,6 @@ public:
   ezAnimationControllerComponent();
   ~ezAnimationControllerComponent();
 
-  /// \brief Sets the ezAnimGraphResource file to use.
-  void SetAnimGraphFile(const char* szFile); // [ property ]
-  const char* GetAnimGraphFile() const;      // [ property ]
-
   /// \brief How often to update the animation while the animated mesh is invisible.
   ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
 

@@ -6,7 +6,7 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALShader : public ezGALObject<ezGALShaderCreationDescription>
 {
 public:
-  virtual void SetDebugName(const char* szName) const = 0;
+  virtual void SetDebugName(ezStringView sName) const = 0;
 
   /// Returns the list of shader resources and their binding information. These must be bound before the shader can be used.
   ezArrayPtr<const ezShaderResourceBinding> GetBindingMapping() const;

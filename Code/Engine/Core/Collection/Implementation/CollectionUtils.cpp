@@ -80,7 +80,7 @@ void ezCollectionUtils::AddResourceHandle(ezCollectionResourceDescriptor& ref_co
   if (!hHandle.IsValid())
     return;
 
-  const char* resID = hHandle.GetResourceID();
+  const ezStringView resID = hHandle.GetResourceID();
 
   auto& entry = ref_collection.m_Resources.ExpandAndGetRef();
 

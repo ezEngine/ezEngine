@@ -36,8 +36,7 @@ public:
 private:
   static ezUInt32 FilterPermutationVars(ezArrayPtr<const ezHashedString> usedVars, const ezHashTable<ezHashedString, ezHashedString>& permVars,
     ezDynamicArray<ezPermutationVar>& out_FilteredPermutationVariables);
-  static ezShaderPermutationResourceHandle PreloadSinglePermutationInternal(
-    const char* szResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables);
+  static ezShaderPermutationResourceHandle PreloadSinglePermutationInternal(ezStringView sResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables);
 
   static bool s_bEnableRuntimeCompilation;
   static ezString s_sPlatform;

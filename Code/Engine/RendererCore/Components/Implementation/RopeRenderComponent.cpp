@@ -21,7 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Material", GetMaterial, SetMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White), new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 16)),
@@ -173,26 +173,6 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
     ezDebugRenderer::DrawLines(msg.m_pView->GetHandle(), lines, ezColor::White, GetOwner()->GetGlobalTransform());
   }
-}
-
-void ezRopeRenderComponent::SetMaterialFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
-  }
-  else
-  {
-    m_hMaterial.Invalidate();
-  }
-}
-
-const char* ezRopeRenderComponent::GetMaterialFile() const
-{
-  if (!m_hMaterial.IsValid())
-    return "";
-
-  return m_hMaterial.GetResourceID();
 }
 
 void ezRopeRenderComponent::SetThickness(float fThickness)

@@ -15,33 +15,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetMeshMaterial, 1, ezRTTIDefaultAllocator<
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_MEMBER_PROPERTY("MaterialSlot", m_uiMaterialSlot),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-void ezMsgSetMeshMaterial::SetMaterialFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
-  }
-  else
-  {
-    m_hMaterial.Invalidate();
-  }
-}
-
-const char* ezMsgSetMeshMaterial::GetMaterialFile() const
-{
-  if (!m_hMaterial.IsValid())
-    return "";
-
-  return m_hMaterial.GetResourceID();
-}
 
 void ezMsgSetMeshMaterial::Serialize(ezStreamWriter& inout_stream) const
 {
@@ -248,26 +228,6 @@ ezMaterialResourceHandle ezMeshComponentBase::GetMaterial(ezUInt32 uiIndex) cons
   return m_Materials[uiIndex];
 }
 
-void ezMeshComponentBase::SetMeshFile(const char* szFile)
-{
-  ezMeshResourceHandle hMesh;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hMesh = ezResourceManager::LoadResource<ezMeshResource>(szFile);
-  }
-
-  SetMesh(hMesh);
-}
-
-const char* ezMeshComponentBase::GetMeshFile() const
-{
-  if (!m_hMesh.IsValid())
-    return "";
-
-  return m_hMesh.GetResourceID();
-}
-
 void ezMeshComponentBase::SetColor(const ezColor& color)
 {
   m_Color = color;
@@ -332,41 +292,33 @@ ezUInt32 ezMeshComponentBase::Materials_GetCount() const
   return m_Materials.GetCount();
 }
 
-const char* ezMeshComponentBase::Materials_GetValue(ezUInt32 uiIndex) const
+ezString ezMeshComponentBase::Materials_GetValue(ezUInt32 uiIndex) const
 {
-  auto hMat = GetMaterial(uiIndex);
-
-  if (!hMat.IsValid())
-    return "";
-
-  return hMat.GetResourceID();
+  return GetMaterial(uiIndex).GetResourceID();
 }
 
-
-void ezMeshComponentBase::Materials_SetValue(ezUInt32 uiIndex, const char* value)
+void ezMeshComponentBase::Materials_SetValue(ezUInt32 uiIndex, ezString sValue)
 {
-  if (ezStringUtils::IsNullOrEmpty(value))
+  if (sValue.IsEmpty())
     SetMaterial(uiIndex, ezMaterialResourceHandle());
   else
   {
-    auto hMat = ezResourceManager::LoadResource<ezMaterialResource>(value);
+    auto hMat = ezResourceManager::LoadResource<ezMaterialResource>(sValue);
     SetMaterial(uiIndex, hMat);
   }
 }
 
-
-void ezMeshComponentBase::Materials_Insert(ezUInt32 uiIndex, const char* value)
+void ezMeshComponentBase::Materials_Insert(ezUInt32 uiIndex, ezString sValue)
 {
   ezMaterialResourceHandle hMat;
 
-  if (!ezStringUtils::IsNullOrEmpty(value))
-    hMat = ezResourceManager::LoadResource<ezMaterialResource>(value);
+  if (!sValue.IsEmpty())
+    hMat = ezResourceManager::LoadResource<ezMaterialResource>(sValue);
 
   m_Materials.InsertAt(uiIndex, hMat);
 
   InvalidateCachedRenderData();
 }
-
 
 void ezMeshComponentBase::Materials_Remove(ezUInt32 uiIndex)
 {
@@ -374,7 +326,6 @@ void ezMeshComponentBase::Materials_Remove(ezUInt32 uiIndex)
 
   InvalidateCachedRenderData();
 }
-
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponentBase);

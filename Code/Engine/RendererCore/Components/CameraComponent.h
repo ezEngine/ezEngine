@@ -80,8 +80,8 @@ public:
   ezEnum<ezCameraUsageHint> GetUsageHint() const { return m_UsageHint; } // [ property ]
 
   /// \brief Sets the asset name (or path) to a render target resource, in case this camera should render to texture.
-  void SetRenderTargetFile(const char* szFile); // [ property ]
-  const char* GetRenderTargetFile() const;      // [ property ]
+  void SetRenderTargetFile(ezStringView sFile); // [ property ]
+  ezStringView GetRenderTargetFile() const; // [ property ]
 
   /// \brief An offset to render only to a part of a texture.
   void SetRenderTargetRectOffset(ezVec2 value);                                  // [ property ]

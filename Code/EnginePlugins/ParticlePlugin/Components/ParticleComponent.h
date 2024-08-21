@@ -86,8 +86,8 @@ public:
   void SetParticleEffect(const ezParticleEffectResourceHandle& hEffect);
   EZ_ALWAYS_INLINE const ezParticleEffectResourceHandle& GetParticleEffect() const { return m_hEffectResource; }
 
-  void SetParticleEffectFile(const char* szFile); // [ property ]
-  const char* GetParticleEffectFile() const;      // [ property ]
+  void SetParticleEffectFile(ezStringView sFile); // [ property ]
+  ezStringView GetParticleEffectFile() const;     // [ property ]
 
   // Exposed Parameters
   const ezRangeView<const char*, ezUInt32> GetParameters() const;   // [ property ]

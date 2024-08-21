@@ -19,6 +19,24 @@ using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>
 
 using ezSimpleAnimationComponentManager = ezComponentManagerSimple<class ezSimpleAnimationComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::FreeList>;
 
+#define EZ_ADD_RESOURCEHANDLE_PROPERTIES(name, member)                                  \
+  void Set##name##File(ezStringView sFile)                                              \
+  {                                                                                     \
+    if (!sFile.IsEmpty())                                                               \
+    {                                                                                   \
+      member = ezResourceManager::LoadResource<decltype(member)::RESOURCE_TYPE>(sFile); \
+    }                                                                                   \
+    else                                                                                \
+    {                                                                                   \
+      member = {};                                                                      \
+    }                                                                                   \
+  }                                                                                     \
+                                                                                        \
+  ezStringView Get##name##File() const                                                  \
+  {                                                                                     \
+    return member.GetResourceID();                                                      \
+  }
+
 /// \brief Plays a single animation clip on an animated mesh.
 ///
 /// \see ezAnimatedMeshComponent
@@ -43,11 +61,25 @@ public:
   ezSimpleAnimationComponent();
   ~ezSimpleAnimationComponent();
 
-  void SetAnimationClip(const ezAnimationClipResourceHandle& hResource);
-  const ezAnimationClipResourceHandle& GetAnimationClip() const;
 
-  void SetAnimationClipFile(const char* szFile); // [ property ]
-  const char* GetAnimationClipFile() const;      // [ property ]
+  ezAnimationClipResourceHandle m_hAnimationClip;
+
+  void SetAnimationClipFile(ezStringView sFile)
+  {
+    if (!sFile.IsEmpty())
+    {
+      m_hAnimationClip = ezResourceManager::LoadResource<ezAnimationClipResource>(sFile);
+    }
+    else
+    {
+      m_hAnimationClip = {};
+    }
+  }
+
+  ezStringView GetAnimationClipFile() const
+  {
+    return m_hAnimationClip.GetResourceID();
+  }
 
   /// \brief How to play the animation.
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
@@ -71,7 +103,6 @@ protected:
   ezEnum<ezRootMotionMode> m_RootMotionMode;
   float m_fNormalizedPlaybackPosition = 0.0f;
   ezTime m_Duration;
-  ezAnimationClipResourceHandle m_hAnimationClip;
   ezSkeletonResourceHandle m_hSkeleton;
   ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
   bool m_bEnableIK = false;
