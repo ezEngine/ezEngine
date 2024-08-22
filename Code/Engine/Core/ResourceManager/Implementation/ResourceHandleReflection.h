@@ -61,7 +61,7 @@ struct ezResourceHandlePropertyAccessor
   {
     if (!value.IsEmpty())
     {
-      (*pInstance).*Member = ezResourceManager::LoadResource<Type::ResourceType>(value);
+      (*pInstance).*Member = ezResourceManager::LoadResource<typename Type::ResourceType>(value);
     }
     else
     {

@@ -33,10 +33,12 @@ ezGALShaderVulkan::~ezGALShaderVulkan() {}
 
 void ezGALShaderVulkan::SetDebugName(ezStringView sName) const
 {
+  ezStringBuilder tmp;
+
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(ezGALDevice::GetDefaultDevice());
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
   {
-    pVulkanDevice->SetDebugName(sName, m_Shaders[i]);
+    pVulkanDevice->SetDebugName(sName.GetData(tmp), m_Shaders[i]);
   }
 }
 
