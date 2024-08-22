@@ -19,8 +19,6 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
   ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
   ezHybridArray<ezString, 3> sFolders;
-  sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
-  sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
 
   if (pPref->m_bUsePrecompiledTools)
   {
@@ -29,12 +27,15 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
       ezStringBuilder customToolsFolder = pPref->m_sCustomPrecompiledToolsFolder;
       customToolsFolder.MakeCleanPath();
       sFolders.PushBack(customToolsFolder);
-      ezMath::Swap(sFolders[0], sFolders[2]);
     }
-    else
-    {
-      ezMath::Swap(sFolders[0], sFolders[1]);
-    }
+
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
+  }
+  else
+  {
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
   }
 
   ezStringBuilder sTool;
