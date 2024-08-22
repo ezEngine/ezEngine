@@ -34,7 +34,7 @@ ezResult ezGameEngineTestProcGen::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("ProcGen/AssetCache/Common/Scenes/VertexColors.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("ProcGen/AssetCache/Common/Scenes/VertexColors.ezBinScene"));
     return EZ_SUCCESS;
   }
 
