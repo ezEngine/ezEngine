@@ -82,7 +82,7 @@ public:
 
   /// \brief The ezSurfaceResource to be used on the rope physics bodies.
   void SetSurfaceFile(ezStringView sFile); // [ property ]
-  ezStringView GetSurfaceFile() const;      // [ property ]
+  ezStringView GetSurfaceFile() const;     // [ property ]
 
   /// Defines which other physics objects the rope collides with.
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]

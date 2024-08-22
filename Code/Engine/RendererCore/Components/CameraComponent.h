@@ -81,7 +81,7 @@ public:
 
   /// \brief Sets the asset name (or path) to a render target resource, in case this camera should render to texture.
   void SetRenderTargetFile(ezStringView sFile); // [ property ]
-  ezStringView GetRenderTargetFile() const; // [ property ]
+  ezStringView GetRenderTargetFile() const;     // [ property ]
 
   /// \brief An offset to render only to a part of a texture.
   void SetRenderTargetRectOffset(ezVec2 value);                                  // [ property ]
