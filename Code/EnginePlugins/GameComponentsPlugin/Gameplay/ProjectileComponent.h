@@ -100,10 +100,10 @@ public:
   ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; // [ property ]
 
   /// \brief If the projectile reaches its maximum lifetime it can spawn this prefab.
-  ezPrefabResourceHandle m_hDeathPrefab;            // [ property ]
+  ezPrefabResourceHandle m_hDeathPrefab;           // [ property ]
 
-  void SetFallbackSurfaceFile(ezStringView szFile); // [ property ]
-  ezStringView GetFallbackSurfaceFile() const;      // [ property ]
+  void SetFallbackSurfaceFile(ezStringView sFile); // [ property ]
+  ezStringView GetFallbackSurfaceFile() const;     // [ property ]
 
 private:
   void Update();

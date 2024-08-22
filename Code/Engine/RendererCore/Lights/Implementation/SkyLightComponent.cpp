@@ -167,7 +167,6 @@ bool ezSkyLightComponent::GetShowMipMaps() const
   return m_Desc.m_bShowMipMaps;
 }
 
-
 void ezSkyLightComponent::SetCubeMapFile(ezStringView sFile)
 {
   ezTextureCubeResourceHandle hCubeMap;
