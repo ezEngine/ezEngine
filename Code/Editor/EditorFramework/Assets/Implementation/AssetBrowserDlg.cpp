@@ -5,7 +5,7 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-bool ezQtAssetBrowserDlg::s_bShowItemsInSubFolder = false;
+bool ezQtAssetBrowserDlg::s_bShowItemsInSubFolder = true;
 bool ezQtAssetBrowserDlg::s_bShowItemsInHiddenFolder = false;
 bool ezQtAssetBrowserDlg::s_bSortByRecentUse = true;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TextFilter;

@@ -62,7 +62,7 @@ private:
   ezString m_sPathFilter;
   ezString m_sTemporaryPinnedItem;
   ezSearchPatternFilter m_SearchFilter;
-  bool m_bShowItemsInSubFolders = false;
+  bool m_bShowItemsInSubFolders = true;
   bool m_bShowFiles = true;
   bool m_bShowNonImportableFiles = true;
   bool m_bShowItemsInHiddenFolders = false;

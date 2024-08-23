@@ -28,6 +28,7 @@ public:
   bool m_bExpandSceneTreeOnSelection = true;
   bool m_bBackgroundAssetProcessing = true;
   bool m_bHighlightUntranslatedUI = false;
+  bool m_bAssetBrowserShowItemsInSubFolders = true;
 
   bool m_bSkyBox = true;
   bool m_bSkyLight = true;

@@ -20,10 +20,14 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
 {
   setupUi(this);
 
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
   ButtonListMode->setVisible(false);
   ButtonIconMode->setVisible(false);
 
   m_pFilter = new ezQtAssetBrowserFilter(this);
+  m_pFilter->SetShowItemsInSubFolders(pPreferences->m_bAssetBrowserShowItemsInSubFolders);
+
   TreeFolderFilter->SetFilter(m_pFilter);
 
   m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
@@ -893,6 +897,9 @@ void ezQtAssetBrowserWidget::on_TypeFilter_currentIndexChanged(int index)
 void ezQtAssetBrowserWidget::OnShowSubFolderItemsToggled()
 {
   m_pFilter->SetShowItemsInSubFolders(!m_pFilter->GetShowItemsInSubFolders());
+
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  pPreferences->m_bAssetBrowserShowItemsInSubFolders = m_pFilter->GetShowItemsInSubFolders();
 }
 
 void ezQtAssetBrowserWidget::OnShowHiddenFolderItemsToggled()

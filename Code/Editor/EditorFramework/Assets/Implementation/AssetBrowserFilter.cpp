@@ -7,6 +7,7 @@
 ezQtAssetBrowserFilter::ezQtAssetBrowserFilter(QObject* pParent)
   : ezQtAssetFilter(pParent)
 {
+  Reset();
 }
 
 
@@ -21,7 +22,6 @@ void ezQtAssetBrowserFilter::Reset()
   SetTypeFilter("");
   SetPathFilter("");
 }
-
 
 void ezQtAssetBrowserFilter::UpdateImportExtensions(const ezSet<ezString>& extensions)
 {
@@ -238,12 +238,24 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
   if (!sDataDirParentRelativePath.StartsWith(m_sPathFilter))
     return true;
 
-  if (m_SearchFilter.IsEmpty() && (!m_bShowItemsInSubFolders || bIsFolder))
+  if (bIsFolder)
   {
     // do we find another path separator after the prefix path?
     // if so, there is a sub-folder, and thus we ignore it
     if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
+    {
       return true;
+    }
+  }
+
+  if (m_SearchFilter.IsEmpty() && !m_bShowItemsInSubFolders)
+  {
+    // do we find another path separator after the prefix path?
+    // if so, there is a sub-folder, and thus we ignore it
+    if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
+    {
+      return true;
+    }
   }
   else if(m_sPathFilter.IsEmpty() && !bIsFolder) // <Root> folder
   {
