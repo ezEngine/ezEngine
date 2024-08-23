@@ -91,10 +91,6 @@ public:
   void SetCustomData(const ezVec4& vData); // [ property ]
   const ezVec4& GetCustomData() const;     // [ property ]
 
-  /// \brief The ezMaterialResource file to use.
-  void SetMaterialFile(const char* szFile); // [ property ]
-  const char* GetMaterialFile() const;      // [ property ]
-
   /// \brief Sets the extent along the negative X axis of the bounding box.
   void SetSizeNegX(float f);                        // [ property ]
   float GetSizeNegX() const { return m_fSizeNegX; } // [ property ]

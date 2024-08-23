@@ -56,7 +56,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Texture", GetTexture, SetTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
     EZ_ENUM_MEMBER_PROPERTY("BlendMode", ezSpriteBlendMode, m_BlendMode),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f), new ezSuffixAttribute(" m")),
@@ -174,26 +174,6 @@ void ezSpriteComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)
 const ezTexture2DResourceHandle& ezSpriteComponent::GetTexture() const
 {
   return m_hTexture;
-}
-
-void ezSpriteComponent::SetTextureFile(const char* szFile)
-{
-  ezTexture2DResourceHandle hTexture;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
-  }
-
-  SetTexture(hTexture);
-}
-
-const char* ezSpriteComponent::GetTextureFile() const
-{
-  if (!m_hTexture.IsValid())
-    return "";
-
-  return m_hTexture.GetResourceID();
 }
 
 void ezSpriteComponent::SetColor(ezColor color)

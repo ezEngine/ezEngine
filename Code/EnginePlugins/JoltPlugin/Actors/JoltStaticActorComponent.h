@@ -43,14 +43,11 @@ public:
   /// \brief Searches for a sibling ezMeshComponent and attempts to retrieve information about the ezJoltMaterial to use for each submesh from its ezMaterial information.
   void PullSurfacesFromGraphicsMesh(ezDynamicArray<const ezJoltMaterial*>& ref_materials);
 
-  void SetMeshFile(const char* szFile); // [ property ]
-  const char* GetMeshFile() const;      // [ property ]
-
   void SetMesh(const ezJoltMeshResourceHandle& hMesh);
   EZ_ALWAYS_INLINE const ezJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
 
-  void SetSurfaceFile(const char* szFile);      // [ property ]
-  const char* GetSurfaceFile() const;           // [ property ]
+  void SetSurfaceFile(ezStringView sFile);      // [ property ]
+  ezStringView GetSurfaceFile() const;          // [ property ]
 
   bool m_bIncludeInNavmesh = true;              // [ property ]
   bool m_bPullSurfacesFromGraphicsMesh = false; // [ property ]

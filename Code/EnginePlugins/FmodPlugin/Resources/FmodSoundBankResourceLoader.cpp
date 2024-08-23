@@ -10,7 +10,7 @@
 
 ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResource* pResource)
 {
-  EZ_LOG_BLOCK("ezFmodSoundBankResourceLoader::OpenDataStream", pResource->GetResourceID().GetData());
+  EZ_LOG_BLOCK("ezFmodSoundBankResourceLoader::OpenDataStream", pResource->GetResourceID());
 
   LoadedData* pData = EZ_DEFAULT_NEW(LoadedData);
 

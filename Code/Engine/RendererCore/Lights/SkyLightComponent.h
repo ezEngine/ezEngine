@@ -57,8 +57,9 @@ public:
   void SetShowMipMaps(bool bShowMipMaps);                          // [ property ]
   bool GetShowMipMaps() const;                                     // [ property ]
 
-  void SetCubeMapFile(const char* szFile);                         // [ property ]
-  const char* GetCubeMapFile() const;                              // [ property ]
+  void SetCubeMapFile(ezStringView sFile);                         // [ property ]
+  ezStringView GetCubeMapFile() const;                             // [ property ]
+
   ezTextureCubeResourceHandle GetCubeMap() const
   {
     return m_hCubeMap;

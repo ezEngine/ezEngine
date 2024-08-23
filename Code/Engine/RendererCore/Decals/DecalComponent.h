@@ -142,11 +142,13 @@ public:
   void SetApplyOnlyTo(ezGameObjectHandle hObject);
   ezGameObjectHandle GetApplyOnlyTo() const;
 
-  ezUInt32 DecalFile_GetCount() const;                         // [ property ]
-  const char* DecalFile_Get(ezUInt32 uiIndex) const;           // [ property ]
-  void DecalFile_Set(ezUInt32 uiIndex, const char* szFile);    // [ property ]
-  void DecalFile_Insert(ezUInt32 uiIndex, const char* szFile); // [ property ]
-  void DecalFile_Remove(ezUInt32 uiIndex);                     // [ property ]
+  // TODO: Using ezStringView for the array accessors doesn't work (currently)
+
+  ezUInt32 DecalFile_GetCount() const;                     // [ property ]
+  ezString DecalFile_Get(ezUInt32 uiIndex) const;          // [ property ]
+  void DecalFile_Set(ezUInt32 uiIndex, ezString sFile);    // [ property ]
+  void DecalFile_Insert(ezUInt32 uiIndex, ezString sFile); // [ property ]
+  void DecalFile_Remove(ezUInt32 uiIndex);                 // [ property ]
 
 
 protected:

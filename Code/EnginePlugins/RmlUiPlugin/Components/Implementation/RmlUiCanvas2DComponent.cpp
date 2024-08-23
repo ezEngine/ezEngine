@@ -17,7 +17,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("RmlFile", GetRmlFile, SetRmlFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Rml_UI")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("RmlFile", GetRmlResource, SetRmlResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Rml_UI")),
     EZ_ACCESSOR_PROPERTY("AnchorPoint", GetAnchorPoint, SetAnchorPoint)->AddAttributes(new ezClampValueAttribute(ezVec2(0), ezVec2(1))),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezSuffixAttribute("px"), new ezMinValueTextAttribute("Auto")),
     EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::MakeZero()), new ezSuffixAttribute("px")),    
@@ -132,27 +132,6 @@ void ezRmlUiCanvas2DComponent::Update()
   }
 
   m_pContext->Update();
-}
-
-void ezRmlUiCanvas2DComponent::SetRmlFile(const char* szFile)
-{
-  ezRmlUiResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezRmlUiResource>(szFile);
-    ezResourceManager::PreloadResource(hResource);
-  }
-
-  SetRmlResource(hResource);
-}
-
-const char* ezRmlUiCanvas2DComponent::GetRmlFile() const
-{
-  if (!m_hResource.IsValid())
-    return "";
-
-  return m_hResource.GetResourceID();
 }
 
 void ezRmlUiCanvas2DComponent::SetRmlResource(const ezRmlUiResourceHandle& hResource)
@@ -272,7 +251,7 @@ ezRmlUiContext* ezRmlUiCanvas2DComponent::GetOrCreateRmlContext()
   ezStringBuilder sName = "Context_";
   if (m_hResource.IsValid())
   {
-    sName.Append(m_hResource.GetResourceID().GetView());
+    sName.Append(m_hResource.GetResourceID());
   }
   sName.AppendFormat("_{}", ezArgP(this));
 

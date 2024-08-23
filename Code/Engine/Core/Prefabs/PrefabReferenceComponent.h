@@ -59,9 +59,6 @@ public:
   ezPrefabReferenceComponent();
   ~ezPrefabReferenceComponent();
 
-  void SetPrefabFile(const char* szFile);                                                // [ property ]
-  const char* GetPrefabFile() const;                                                     // [ property ]
-
   void SetPrefab(const ezPrefabResourceHandle& hPrefab);                                 // [ property ]
   EZ_ALWAYS_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; } // [ property ]
 

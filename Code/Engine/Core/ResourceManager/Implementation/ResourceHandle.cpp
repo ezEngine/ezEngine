@@ -27,9 +27,14 @@ ezUInt64 ezTypelessResourceHandle::GetResourceIDHash() const
   return IsValid() ? m_pResource->GetResourceIDHash() : 0;
 }
 
-const ezString& ezTypelessResourceHandle::GetResourceID() const
+ezStringView ezTypelessResourceHandle::GetResourceID() const
 {
-  return m_pResource->GetResourceID();
+  if (IsValid())
+  {
+    return m_pResource->GetResourceID();
+  }
+
+  return {};
 }
 
 const ezRTTI* ezTypelessResourceHandle::GetResourceType() const

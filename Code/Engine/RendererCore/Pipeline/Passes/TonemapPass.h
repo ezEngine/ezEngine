@@ -25,14 +25,10 @@ protected:
   ezRenderPipelineNodeInputPin m_PinBloomInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  void SetVignettingTextureFile(const char* szFile);
-  const char* GetVignettingTextureFile() const;
-
-  void SetLUT1TextureFile(const char* szFile);
-  const char* GetLUT1TextureFile() const;
-
-  void SetLUT2TextureFile(const char* szFile);
-  const char* GetLUT2TextureFile() const;
+  // used internally
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(VignettingTexture, m_hVignettingTexture);
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(LUT1Texture, m_hLUT1);
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(LUT2Texture, m_hLUT2);
 
   ezTexture2DResourceHandle m_hVignettingTexture;
   ezTexture2DResourceHandle m_hNoiseTexture;

@@ -65,8 +65,8 @@ public:
   /// \brief Returns the material that is used for rendering.
   ezMaterialResourceHandle GetMaterial() const;
 
-  void SetMaterialFile(const char* szMaterial); // [ property ]
-  const char* GetMaterialFile() const;          // [ property ]
+  // adds SetMaterialFile() and GetMaterialFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(Material, m_hMaterial);
 
   /// \brief Sets the mesh instance color.
   void SetColor(const ezColor& color); // [ property ]
@@ -85,7 +85,7 @@ public:
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  ezMaterialResourceHandle m_hMaterial;
+  ezMaterialResourceHandle m_hMaterial; // [ property ]
   ezColor m_Color = ezColor::White;
   ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
   ezUInt32 m_uiFirstPrimitive = 0;

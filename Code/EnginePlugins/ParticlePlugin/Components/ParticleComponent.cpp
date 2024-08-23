@@ -284,20 +284,20 @@ void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle
 }
 
 
-void ezParticleComponent::SetParticleEffectFile(const char* szFile)
+void ezParticleComponent::SetParticleEffectFile(ezStringView sFile)
 {
   ezParticleEffectResourceHandle hEffect;
 
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(szFile);
+    hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(sFile);
   }
 
   SetParticleEffect(hEffect);
 }
 
 
-const char* ezParticleComponent::GetParticleEffectFile() const
+ezStringView ezParticleComponent::GetParticleEffectFile() const
 {
   if (!m_hEffectResource.IsValid())
     return "";

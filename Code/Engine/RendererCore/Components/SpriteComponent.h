@@ -83,14 +83,11 @@ public:
   ezSpriteComponent();
   ~ezSpriteComponent();
 
-  void SetTexture(const ezTexture2DResourceHandle& hTexture);
-  const ezTexture2DResourceHandle& GetTexture() const;
+  void SetTexture(const ezTexture2DResourceHandle& hTexture); // [ property ]
+  const ezTexture2DResourceHandle& GetTexture() const;        // [ property ]
 
-  void SetTextureFile(const char* szFile); // [ property ]
-  const char* GetTextureFile() const;      // [ property ]
-
-  void SetColor(ezColor color);            // [ property ]
-  ezColor GetColor() const;                // [ property ]
+  void SetColor(ezColor color);                               // [ property ]
+  ezColor GetColor() const;                                   // [ property ]
 
   /// \brief Sets the size of the sprite in world-space units. This determines how large the sprite will be at certain distances.
   void SetSize(float fSize); // [ property ]

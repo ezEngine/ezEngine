@@ -36,9 +36,6 @@ public:
   ezPropertyAnimComponent();
   ~ezPropertyAnimComponent();
 
-  void SetPropertyAnimFile(const char* szFile);                                                            // [ property ]
-  const char* GetPropertyAnimFile() const;                                                                 // [ property ]
-
   void SetPropertyAnim(const ezPropertyAnimResourceHandle& hResource);                                     // [ property ]
   EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; } // [ property ]
 

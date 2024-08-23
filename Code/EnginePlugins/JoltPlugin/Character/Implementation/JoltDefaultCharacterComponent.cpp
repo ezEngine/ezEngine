@@ -279,22 +279,23 @@ void ezJoltDefaultCharacterComponent::ApplyRotationZ()
   GetOwner()->SetGlobalRotation(qRotZ * GetOwner()->GetGlobalRotation());
 }
 
-void ezJoltDefaultCharacterComponent::SetFallbackWalkSurfaceFile(const char* szFile)
+void ezJoltDefaultCharacterComponent::SetFallbackWalkSurfaceFile(ezStringView sFile)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    m_hFallbackWalkSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+    m_hFallbackWalkSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+  }
+  else
+  {
+    m_hFallbackWalkSurface = {};
   }
 
   if (m_hFallbackWalkSurface.IsValid())
     ezResourceManager::PreloadResource(m_hFallbackWalkSurface);
 }
 
-const char* ezJoltDefaultCharacterComponent::GetFallbackWalkSurfaceFile() const
+ezStringView ezJoltDefaultCharacterComponent::GetFallbackWalkSurfaceFile() const
 {
-  if (!m_hFallbackWalkSurface.IsValid())
-    return "";
-
   return m_hFallbackWalkSurface.GetResourceID();
 }
 

@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipMapping, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("ClipName", GetClipName, SetClipName)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
-    EZ_ACCESSOR_PROPERTY("Clip", GetClip, SetClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Clip", m_hClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
   }
     EZ_END_PROPERTIES;
 }
@@ -25,26 +25,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezAnimGraphResource);
 // clang-format on
-
-const char* ezAnimationClipMapping::GetClip() const
-{
-  if (m_hClip.IsValid())
-    return m_hClip.GetResourceID();
-
-  return "";
-}
-
-void ezAnimationClipMapping::SetClip(const char* szName)
-{
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szName))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szName);
-  }
-
-  m_hClip = hResource;
-}
 
 ezAnimGraphResource::ezAnimGraphResource()
   : ezResource(ezResource::DoUpdate::OnAnyThread, 0)

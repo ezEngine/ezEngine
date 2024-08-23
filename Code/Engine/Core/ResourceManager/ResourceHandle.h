@@ -76,8 +76,8 @@ public:
   ezUInt64 GetResourceIDHash() const;
 
   /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
-  /// The handle must be valid.
-  const ezString& GetResourceID() const;
+  /// If the handle is not valid, an empty string is returned.
+  ezStringView GetResourceID() const;
 
   /// \brief Releases the current reference and increases the refcount of the given resource.
   void operator=(const ezTypelessResourceHandle& rhs);
@@ -220,7 +220,7 @@ public:
 
   /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
-  EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_hTypeless.GetResourceID(); }
+  EZ_ALWAYS_INLINE ezStringView GetResourceID() const { return m_hTypeless.GetResourceID(); }
 
   /// \brief Attempts to copy the given typeless handle to this handle.
   ///

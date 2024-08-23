@@ -13,9 +13,10 @@ ezGALShaderDX11::ezGALShaderDX11(const ezGALShaderCreationDescription& Descripti
 
 ezGALShaderDX11::~ezGALShaderDX11() = default;
 
-void ezGALShaderDX11::SetDebugName(const char* szName) const
+void ezGALShaderDX11::SetDebugName(ezStringView sName) const
 {
-  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
+  const char* szName = sName.GetStartPointer();
+  const ezUInt32 uiLength = sName.GetElementCount();
 
   if (m_pVertexShader != nullptr)
   {

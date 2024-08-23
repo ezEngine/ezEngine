@@ -31,9 +31,6 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezProjectileReaction);
 /// \brief Holds the information about how a projectile interacts with a specific surface type
 struct EZ_GAMECOMPONENTS_DLL ezProjectileSurfaceInteraction
 {
-  void SetSurface(const char* szSurface);
-  const char* GetSurface() const;
-
   /// \brief The surface type (and derived ones) for which this interaction is used
   ezSurfaceResourceHandle m_hSurface;
 
@@ -103,11 +100,10 @@ public:
   ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; // [ property ]
 
   /// \brief If the projectile reaches its maximum lifetime it can spawn this prefab.
-  void SetDeathPrefab(const char* szPrefab);       // [ property ]
-  const char* GetDeathPrefab() const;              // [ property ]
+  ezPrefabResourceHandle m_hDeathPrefab;           // [ property ]
 
-  void SetFallbackSurfaceFile(const char* szFile); // [ property ]
-  const char* GetFallbackSurfaceFile() const;      // [ property ]
+  void SetFallbackSurfaceFile(ezStringView sFile); // [ property ]
+  ezStringView GetFallbackSurfaceFile() const;     // [ property ]
 
 private:
   void Update();
@@ -115,7 +111,6 @@ private:
 
   void SpawnDeathPrefab();
 
-  ezPrefabResourceHandle m_hDeathPrefab; ///< Spawned when the projectile is killed due to m_MaxLifetime coming to an end
 
   /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction
   ezInt32 FindSurfaceInteraction(const ezSurfaceResourceHandle& hSurface) const;

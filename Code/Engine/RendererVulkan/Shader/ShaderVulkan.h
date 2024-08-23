@@ -20,7 +20,7 @@ public:
     void ComputeHash();
   };
 
-  void SetDebugName(const char* szName) const override;
+  virtual void SetDebugName(ezStringView sName) const override;
 
   EZ_ALWAYS_INLINE vk::ShaderModule GetShader(ezGALShaderStage::Enum stage) const;
   EZ_ALWAYS_INLINE ezUInt32 GetSetCount() const;

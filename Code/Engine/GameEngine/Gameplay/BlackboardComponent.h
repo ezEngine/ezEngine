@@ -79,9 +79,6 @@ public:
   void SetShowDebugInfo(bool bShow);                              // [ property ]
   bool GetShowDebugInfo() const;                                  // [ property ]
 
-  void SetTemplateFile(const char* szName);                       // [ property ]
-  const char* GetTemplateFile() const;                            // [ property ]
-
   void SetEntryValue(const char* szName, const ezVariant& value); // [ scriptable ]
   ezVariant GetEntryValue(const char* szName) const;              // [ scriptable ]
 

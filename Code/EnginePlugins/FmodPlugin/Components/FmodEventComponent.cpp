@@ -222,7 +222,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
     EZ_ACCESSOR_PROPERTY("NoGlobalPitch", GetNoGlobalPitch, SetNoGlobalPitch),
-    EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Fmod_Event", ezDependencyFlags::Package)),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("SoundEvent", GetSoundEvent, SetSoundEvent)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Fmod_Event", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("UseOcclusion", GetUseOcclusion, SetUseOcclusion),
     EZ_ACCESSOR_PROPERTY("OcclusionThreshold", GetOcclusionThreshold, SetOcclusionThreshold)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("OcclusionCollisionLayer", GetOcclusionCollisionLayer, SetOcclusionCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
@@ -417,26 +417,6 @@ void ezFmodEventComponent::SetVolume(float f)
   {
     EZ_FMOD_ASSERT(m_pEventInstance->setVolume(m_fVolume));
   }
-}
-
-void ezFmodEventComponent::SetSoundEventFile(const char* szFile)
-{
-  ezFmodSoundEventResourceHandle hRes;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hRes = ezResourceManager::LoadResource<ezFmodSoundEventResource>(szFile);
-  }
-
-  SetSoundEvent(hRes);
-}
-
-const char* ezFmodEventComponent::GetSoundEventFile() const
-{
-  if (!m_hSoundEvent.IsValid())
-    return "";
-
-  return m_hSoundEvent.GetResourceID();
 }
 
 void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent)

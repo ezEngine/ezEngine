@@ -11,7 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_SizeCurve, 1, ezRTTIDe
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("SizeCurve", GetSizeCurveFile, SetSizeCurveFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
+    EZ_RESOURCE_MEMBER_PROPERTY("SizeCurve", m_hCurve)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
     EZ_MEMBER_PROPERTY("BaseSize", m_fBaseSize)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("CurveScale", m_fCurveScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
@@ -55,27 +55,6 @@ void ezParticleBehaviorFactory_SizeCurve::Load(ezStreamReader& inout_stream)
   inout_stream >> m_hCurve;
   inout_stream >> m_fBaseSize;
   inout_stream >> m_fCurveScale;
-}
-
-void ezParticleBehaviorFactory_SizeCurve::SetSizeCurveFile(const char* szFile)
-{
-  ezCurve1DResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezCurve1DResource>(szFile);
-  }
-
-  m_hCurve = hResource;
-}
-
-
-const char* ezParticleBehaviorFactory_SizeCurve::GetSizeCurveFile() const
-{
-  if (!m_hCurve.IsValid())
-    return "";
-
-  return m_hCurve.GetResourceID();
 }
 
 void ezParticleBehavior_SizeCurve::CreateRequiredStreams()

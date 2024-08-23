@@ -445,18 +445,22 @@ const ezJoltMaterial* ezJoltDynamicActorComponent::GetJoltMaterial() const
   return nullptr;
 }
 
-void ezJoltDynamicActorComponent::SetSurfaceFile(const char* szFile)
+void ezJoltDynamicActorComponent::SetSurfaceFile(ezStringView sFile)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+  }
+  else
+  {
+    m_hSurface = {};
   }
 
   if (m_hSurface.IsValid())
     ezResourceManager::PreloadResource(m_hSurface);
 }
 
-const char* ezJoltDynamicActorComponent::GetSurfaceFile() const
+ezStringView ezJoltDynamicActorComponent::GetSurfaceFile() const
 {
   if (!m_hSurface.IsValid())
     return "";

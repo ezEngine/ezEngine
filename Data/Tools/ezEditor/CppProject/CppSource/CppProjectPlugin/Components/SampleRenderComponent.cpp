@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(SampleRenderComponent, 1 /* version */, ezComponentMode:
   {
     EZ_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
-    EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
     EZ_BITFLAGS_MEMBER_PROPERTY("Render", SampleRenderComponentMask, m_RenderTypes)->AddAttributes(new ezDefaultValueAttribute(SampleRenderComponentMask::Box)),
   }
   EZ_END_PROPERTIES;
@@ -96,36 +96,6 @@ void SampleRenderComponent::DeserializeComponent(ezWorldReader& stream)
     // s >> m_hTexture;
     // s >> m_RenderTypes;
   }
-}
-
-void SampleRenderComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)
-{
-  m_hTexture = hTexture;
-}
-
-const ezTexture2DResourceHandle& SampleRenderComponent::GetTexture() const
-{
-  return m_hTexture;
-}
-
-void SampleRenderComponent::SetTextureFile(const char* szFile)
-{
-  ezTexture2DResourceHandle hTexture;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
-  }
-
-  SetTexture(hTexture);
-}
-
-const char* SampleRenderComponent::GetTextureFile(void) const
-{
-  if (m_hTexture.IsValid())
-    return m_hTexture.GetResourceID();
-
-  return nullptr;
 }
 
 void SampleRenderComponent::OnSetColor(ezMsgSetColor& msg)

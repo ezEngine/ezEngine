@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnBoxComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("HalfExtents", GetHalfExtents, SetHalfExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(2.0f, 2.0f, 0.25f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Prefab", GetPrefabFile, SetPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    EZ_RESOURCE_MEMBER_PROPERTY("Prefab", m_hPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("SpawnAtStart", GetSpawnAtStart, SetSpawnAtStart),
     EZ_ACCESSOR_PROPERTY("SpawnContinuously", GetSpawnContinuously, SetSpawnContinuously),
     EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiMinSpawnCount)->AddAttributes(new ezDefaultValueAttribute(10)),
@@ -52,26 +52,6 @@ void ezSpawnBoxComponent::SetHalfExtents(const ezVec3& value)
   {
     GetOwner()->UpdateLocalBounds();
   }
-}
-
-void ezSpawnBoxComponent::SetPrefabFile(const char* szFile)
-{
-  ezPrefabResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezPrefabResource>(szFile);
-  }
-
-  m_hPrefab = hResource;
-}
-
-const char* ezSpawnBoxComponent::GetPrefabFile() const
-{
-  if (!m_hPrefab.IsValid())
-    return "";
-
-  return m_hPrefab.GetResourceID();
 }
 
 bool ezSpawnBoxComponent::GetSpawnAtStart() const

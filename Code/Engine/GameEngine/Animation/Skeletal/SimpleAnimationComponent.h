@@ -43,11 +43,10 @@ public:
   ezSimpleAnimationComponent();
   ~ezSimpleAnimationComponent();
 
-  void SetAnimationClip(const ezAnimationClipResourceHandle& hResource);
-  const ezAnimationClipResourceHandle& GetAnimationClip() const;
+  ezAnimationClipResourceHandle m_hAnimationClip;
 
-  void SetAnimationClipFile(const char* szFile); // [ property ]
-  const char* GetAnimationClipFile() const;      // [ property ]
+  // adds SetAnimationClipFile() and GetAnimationClipFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(AnimationClip, m_hAnimationClip);
 
   /// \brief How to play the animation.
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
@@ -71,7 +70,6 @@ protected:
   ezEnum<ezRootMotionMode> m_RootMotionMode;
   float m_fNormalizedPlaybackPosition = 0.0f;
   ezTime m_Duration;
-  ezAnimationClipResourceHandle m_hAnimationClip;
   ezSkeletonResourceHandle m_hSkeleton;
   ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
   bool m_bEnableIK = false;

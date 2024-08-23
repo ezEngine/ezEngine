@@ -74,13 +74,9 @@ public:
   ezSkeletonPoseComponent();
   ~ezSkeletonPoseComponent();
 
-  /// \brief Sets the asset GUID or path for the ezSkeletonResource to use.
-  void SetSkeletonFile(const char* szFile); // [ property ]
-  const char* GetSkeletonFile() const;      // [ property ]
-
   /// \brief Sets the ezSkeletonResource to use.
-  void SetSkeleton(const ezSkeletonResourceHandle& hResource);
-  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
+  void SetSkeleton(const ezSkeletonResourceHandle& hResource);                // [ property ]
+  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; } // [ property ]
 
   /// \brief Configures which pose to apply to the animated mesh.
   void SetPoseMode(ezEnum<ezSkeletonPoseMode> mode);

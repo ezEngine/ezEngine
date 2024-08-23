@@ -262,7 +262,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
 
   {
     ezFileReader File;
-    if (File.Open(pResource->GetResourceID().GetData()).Failed())
+    if (File.Open(pResource->GetResourceID()).Failed())
     {
       ezLog::Debug("Shader Permutation '{0}' does not exist, triggering recompile.", pResource->GetResourceID());
 
@@ -271,7 +271,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
         return res;
 
       // try again
-      if (File.Open(pResource->GetResourceID().GetData()).Failed())
+      if (File.Open(pResource->GetResourceID()).Failed())
       {
         ezLog::Debug("Shader Permutation '{0}' still does not exist after recompile.", pResource->GetResourceID());
         return res;
@@ -309,7 +309,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
 
     ezFileReader File;
 
-    if (File.Open(pResource->GetResourceID().GetData()).Failed())
+    if (File.Open(pResource->GetResourceID()).Failed())
     {
       ezLog::Error("Shader Permutation '{0}': Failed to open the file", pResource->GetResourceID());
       return res;

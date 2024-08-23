@@ -82,8 +82,8 @@ public:
   void SetGravityFactor(float fFactor);                       // [ property ]
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
-  void SetSurfaceFile(const char* szFile);                    // [ property ]
-  const char* GetSurfaceFile() const;                         // [ property ]
+  void SetSurfaceFile(ezStringView sFile);                    // [ property ]
+  ezStringView GetSurfaceFile() const;                        // [ property ]
 
   /// \brief If enabled, a more precise simulation method is used, preventing fast moving actors from tunneling through walls.
   /// This comes at an extra performance cost.

@@ -206,7 +206,7 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
   // used to gather all the transitive file dependencies
   preprop.SetFileLocatorFunction(ezMakeDelegate(&ezConfigFileResourceLoader::LoadedData::PrePropFileLocator, pData));
 
-  if (ezStringUtils::IsEqual(pResource->GetResourceID(), "Empty.ezConfig"))
+  if (pResource->GetResourceID() == "Empty.ezConfig")
   {
     // do nothing
   }

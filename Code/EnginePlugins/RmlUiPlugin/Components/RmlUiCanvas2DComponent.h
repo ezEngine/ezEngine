@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RmlUiPlugin/Components/RmlUiMessages.h>
+#include <RmlUiPlugin/Resources/RmlUiResource.h>
 
 struct ezMsgExtractRenderData;
 class ezRmlUiContext;
@@ -31,23 +32,20 @@ public:
 
   void Update();
 
-  void SetRmlFile(const char* szFile); // [ property ]
-  const char* GetRmlFile() const;      // [ property ]
+  void SetRmlResource(const ezRmlUiResourceHandle& hResource);                // [ property ]
+  const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; } // [ property ]
 
-  void SetRmlResource(const ezRmlUiResourceHandle& hResource);
-  const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; }
+  void SetOffset(const ezVec2I32& vOffset);                                   // [ property ]
+  const ezVec2I32& GetOffset() const { return m_vOffset; }                    // [ property ]
 
-  void SetOffset(const ezVec2I32& vOffset);                       // [ property ]
-  const ezVec2I32& GetOffset() const { return m_vOffset; }        // [ property ]
+  void SetSize(const ezVec2U32& vSize);                                       // [ property ]
+  const ezVec2U32& GetSize() const { return m_vSize; }                        // [ property ]
 
-  void SetSize(const ezVec2U32& vSize);                           // [ property ]
-  const ezVec2U32& GetSize() const { return m_vSize; }            // [ property ]
+  void SetAnchorPoint(const ezVec2& vAnchorPoint);                            // [ property ]
+  const ezVec2& GetAnchorPoint() const { return m_vAnchorPoint; }             // [ property ]
 
-  void SetAnchorPoint(const ezVec2& vAnchorPoint);                // [ property ]
-  const ezVec2& GetAnchorPoint() const { return m_vAnchorPoint; } // [ property ]
-
-  void SetPassInput(bool bPassInput);                             // [ property ]
-  bool GetPassInput() const { return m_bPassInput; }              // [ property ]
+  void SetPassInput(bool bPassInput);                                         // [ property ]
+  bool GetPassInput() const { return m_bPassInput; }                          // [ property ]
 
   /// \brief Look for a blackboard component on the owner object and its parent and bind their blackboards during initialization of this component.
   void SetAutobindBlackboards(bool bAutobind);                           // [ property ]

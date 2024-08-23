@@ -33,13 +33,10 @@ public:
   ezColorAnimationComponent();
 
   /// \brief How long it takes to sample the entire color gradient.
-  ezTime m_Duration;                             // [ property ]
+  ezTime m_Duration;                                                                                     // [ property ]
 
-  void SetColorGradientFile(const char* szFile); // [ property ]
-  const char* GetColorGradientFile() const;      // [ property ]
-
-  void SetColorGradient(const ezColorGradientResourceHandle& hResource);
-  EZ_ALWAYS_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; }
+  void SetColorGradient(const ezColorGradientResourceHandle& hResource);                                 // [ property ]
+  EZ_ALWAYS_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; } // [ property ]
 
   /// \brief How the animation should be played and looped.
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]

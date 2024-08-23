@@ -104,34 +104,31 @@ public:
   ezFmodEventComponent();
   ~ezFmodEventComponent();
 
-  void SetPaused(bool b);                                                            // [ property ]
-  bool GetPaused() const { return m_bPaused; }                                       // [ property ]
+  void SetPaused(bool b);                                                               // [ property ]
+  bool GetPaused() const { return m_bPaused; }                                          // [ property ]
 
-  void SetUseOcclusion(bool b);                                                      // [ property ]
-  bool GetUseOcclusion() const { return m_bUseOcclusion; }                           // [ property ]
+  void SetUseOcclusion(bool b);                                                         // [ property ]
+  bool GetUseOcclusion() const { return m_bUseOcclusion; }                              // [ property ]
 
-  void SetOcclusionCollisionLayer(ezUInt8 uiCollisionLayer);                         // [ property ]
-  ezUInt8 GetOcclusionCollisionLayer() const { return m_uiOcclusionCollisionLayer; } // [ property ]
+  void SetOcclusionCollisionLayer(ezUInt8 uiCollisionLayer);                            // [ property ]
+  ezUInt8 GetOcclusionCollisionLayer() const { return m_uiOcclusionCollisionLayer; }    // [ property ]
 
-  void SetOcclusionThreshold(float fThreshold);                                      // [ property ]
-  float GetOcclusionThreshold() const;                                               // [ property ]
+  void SetOcclusionThreshold(float fThreshold);                                         // [ property ]
+  float GetOcclusionThreshold() const;                                                  // [ property ]
 
-  void SetPitch(float f);                                                            // [ property ]
-  float GetPitch() const { return m_fPitch; }                                        // [ property ]
+  void SetPitch(float f);                                                               // [ property ]
+  float GetPitch() const { return m_fPitch; }                                           // [ property ]
 
-  void SetVolume(float f);                                                           // [ property ]
-  float GetVolume() const { return m_fVolume; }                                      // [ property ]
+  void SetVolume(float f);                                                              // [ property ]
+  float GetVolume() const { return m_fVolume; }                                         // [ property ]
 
-  void SetSoundEventFile(const char* szFile);                                        // [ property ]
-  const char* GetSoundEventFile() const;                                             // [ property ]
+  void SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent);                // [ property ]
+  const ezFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; } // [ property ]
 
-  void SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent);
-  const ezFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; }
+  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction;                               // [ property ]
 
-  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
-
-  void SetShowDebugInfo(bool bShow);                      // [ property ]
-  bool GetShowDebugInfo() const;                          // [ property ]
+  void SetShowDebugInfo(bool bShow);                                                    // [ property ]
+  bool GetShowDebugInfo() const;                                                        // [ property ]
 
   /// \brief If set, the global game speed does not affect the pitch of this event.
   ///

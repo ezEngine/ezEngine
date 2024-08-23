@@ -171,9 +171,6 @@ public:
   void SetFlags(ezBitflags<ezJoltClothSheetFlags> flags);                // [ property ]
   ezBitflags<ezJoltClothSheetFlags> GetFlags() const { return m_Flags; } // [ property ]
 
-  void SetMaterialFile(const char* szFile);                              // [ property ]
-  const char* GetMaterialFile() const;                                   // [ property ]
-
   ezMaterialResourceHandle m_hMaterial;                                  // [ property ]
 
 private:

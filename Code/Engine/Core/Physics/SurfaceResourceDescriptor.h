@@ -2,6 +2,7 @@
 
 #include <Core/CoreDLL.h>
 
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -35,9 +36,6 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezSurfaceInteractionAlignment);
 
 struct EZ_CORE_DLL ezSurfaceInteraction
 {
-  void SetPrefab(const char* szPrefab);
-  const char* GetPrefab() const;
-
   ezString m_sInteractionType;
 
   ezPrefabResourceHandle m_hPrefab;
@@ -63,9 +61,6 @@ struct EZ_CORE_DLL ezSurfaceResourceDescriptor : public ezReflectedClass
 public:
   void Load(ezStreamReader& inout_stream);
   void Save(ezStreamWriter& inout_stream) const;
-
-  void SetBaseSurfaceFile(const char* szFile);
-  const char* GetBaseSurfaceFile() const;
 
   void SetCollisionInteraction(const char* szName);
   const char* GetCollisionInteraction() const;

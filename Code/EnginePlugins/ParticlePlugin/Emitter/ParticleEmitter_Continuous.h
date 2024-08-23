@@ -29,9 +29,6 @@ public:
 
   ezCurve1DResourceHandle m_hCountCurve;
   ezTime m_CurveDuration;
-
-  void SetCountCurveFile(const char* szFile);
-  const char* GetCountCurveFile() const;
 };
 
 

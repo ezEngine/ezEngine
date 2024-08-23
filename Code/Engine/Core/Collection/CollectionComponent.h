@@ -33,11 +33,8 @@ public:
   ezCollectionComponent();
   ~ezCollectionComponent();
 
-  void SetCollectionFile(const char* szFile); // [ property ]
-  const char* GetCollectionFile() const;      // [ property ]
-
-  void SetCollection(const ezCollectionResourceHandle& hPrefab);
-  EZ_ALWAYS_INLINE const ezCollectionResourceHandle& GetCollection() const { return m_hCollection; }
+  void SetCollection(const ezCollectionResourceHandle& hPrefab);                                     // [ property ]
+  EZ_ALWAYS_INLINE const ezCollectionResourceHandle& GetCollection() const { return m_hCollection; } // [ property ]
 
 protected:
   /// \brief Triggers the preload on the referenced ezCollectionResource

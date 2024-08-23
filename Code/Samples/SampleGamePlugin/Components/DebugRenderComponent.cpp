@@ -23,11 +23,11 @@ EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2, ezComponentMode::Static)
   {
     EZ_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
-    EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
     EZ_BITFLAGS_MEMBER_PROPERTY("Render", DebugRenderComponentMask, m_RenderTypes)->AddAttributes(new ezDefaultValueAttribute(DebugRenderComponentMask::Box)),
 
     // BEGIN-DOCS-CODE-SNIPPET: customdata-property
-    EZ_ACCESSOR_PROPERTY("CustomData", GetSampleCustomDataResource, SetSampleCustomDataResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_CustomData", "SampleCustomData")),
+    EZ_RESOURCE_MEMBER_PROPERTY("CustomData", m_hCustomData)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_CustomData", "SampleCustomData")),
     // END-DOCS-CODE-SNIPPET
   }
   EZ_END_PROPERTIES;
@@ -82,36 +82,6 @@ void DebugRenderComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_hTexture;
   s >> m_RenderTypes;
   s >> m_hCustomData;
-}
-
-void DebugRenderComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)
-{
-  m_hTexture = hTexture;
-}
-
-const ezTexture2DResourceHandle& DebugRenderComponent::GetTexture() const
-{
-  return m_hTexture;
-}
-
-void DebugRenderComponent::SetTextureFile(const char* szFile)
-{
-  ezTexture2DResourceHandle hTexture;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
-  }
-
-  SetTexture(hTexture);
-}
-
-const char* DebugRenderComponent::GetTextureFile(void) const
-{
-  if (m_hTexture.IsValid())
-    return m_hTexture.GetResourceID();
-
-  return nullptr;
 }
 
 void DebugRenderComponent::OnSetColor(ezMsgSetColor& ref_msg)

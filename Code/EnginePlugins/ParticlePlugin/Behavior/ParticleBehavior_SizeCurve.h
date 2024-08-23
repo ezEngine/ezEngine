@@ -14,9 +14,6 @@ public:
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream) override;
 
-  void SetSizeCurveFile(const char* szFile);
-  const char* GetSizeCurveFile() const;
-
   float m_fBaseSize;
   float m_fCurveScale;
   ezCurve1DResourceHandle m_hCurve;

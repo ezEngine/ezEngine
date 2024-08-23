@@ -511,5 +511,6 @@ private:
   static const ezRTTI* FindResourceTypeOverride(const ezRTTI* pRtti, ezStringView sResourceID);
 };
 
+#include <Core/ResourceManager/Implementation/ResourceHandleReflection.h>
 #include <Core/ResourceManager/Implementation/ResourceLock.h>
 #include <Core/ResourceManager/Implementation/ResourceManager_inl.h>

@@ -21,7 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 3, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+    EZ_RESOURCE_MEMBER_PROPERTY("AnimationClip", m_hAnimationClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
     EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
@@ -85,36 +85,6 @@ void ezSimpleAnimationComponent::OnSimulationStarted()
   GetOwner()->SendMessage(msg);
 
   m_hSkeleton = msg.m_hSkeleton;
-}
-
-void ezSimpleAnimationComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
-{
-  m_hAnimationClip = hResource;
-}
-
-const ezAnimationClipResourceHandle& ezSimpleAnimationComponent::GetAnimationClip() const
-{
-  return m_hAnimationClip;
-}
-
-void ezSimpleAnimationComponent::SetAnimationClipFile(const char* szFile)
-{
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
-  }
-
-  SetAnimationClip(hResource);
-}
-
-const char* ezSimpleAnimationComponent::GetAnimationClipFile() const
-{
-  if (!m_hAnimationClip.IsValid())
-    return "";
-
-  return m_hAnimationClip.GetResourceID();
 }
 
 void ezSimpleAnimationComponent::SetNormalizedPlaybackPosition(float fPosition)

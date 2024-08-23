@@ -59,10 +59,6 @@ public:
   void SetUVUnitsPerWorldUnit(float fUVUnitsPerWorldUnit); // [ property ]
   float GetUVUnitsPerWorldUnit() const;                    // [ property ]
 
-  /// \brief Which material asset to use for rendering the beam geometry.
-  void SetMaterialFile(const char* szFile); // [ property ]
-  const char* GetMaterialFile() const;      // [ property ]
-
   ezMaterialResourceHandle GetMaterial() const;
 
   /// \brief The object to which to draw the beam.
@@ -76,9 +72,10 @@ protected:
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  float m_fWidth = 0.1f;                // [ property ]
-  float m_fUVUnitsPerWorldUnit = 1.0f;  // [ property ]
+  float m_fWidth = 0.1f;               // [ property ]
+  float m_fUVUnitsPerWorldUnit = 1.0f; // [ property ]
 
+  /// \brief Which material asset to use for rendering the beam geometry.
   ezMaterialResourceHandle m_hMaterial; // [ property ]
 
   const float m_fDistanceUpdateEpsilon = 0.02f;

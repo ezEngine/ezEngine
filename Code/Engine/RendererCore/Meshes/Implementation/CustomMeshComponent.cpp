@@ -27,7 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 3, ezComponentMode::Static)
   {
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -134,26 +134,6 @@ void ezCustomMeshComponent::SetMaterial(const ezMaterialResourceHandle& hMateria
 ezMaterialResourceHandle ezCustomMeshComponent::GetMaterial() const
 {
   return m_hMaterial;
-}
-
-void ezCustomMeshComponent::SetMaterialFile(const char* szMaterial)
-{
-  ezMaterialResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szMaterial))
-  {
-    hResource = ezResourceManager::LoadResource<ezMaterialResource>(szMaterial);
-  }
-
-  m_hMaterial = hResource;
-}
-
-const char* ezCustomMeshComponent::GetMaterialFile() const
-{
-  if (!m_hMaterial.IsValid())
-    return "";
-
-  return m_hMaterial.GetResourceID();
 }
 
 void ezCustomMeshComponent::SetColor(const ezColor& color)

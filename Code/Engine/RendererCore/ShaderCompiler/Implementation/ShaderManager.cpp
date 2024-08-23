@@ -326,7 +326,7 @@ ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString>
 
 
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(const char* szResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(ezStringView sResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
 {
   const ezUInt64 uiPermutationKey = (ezUInt64)ezHashingUtils::StringHashTo32(uiResourceIdHash) << 32 | uiPermutationHash;
 
@@ -335,7 +335,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInter
   {
     ezStringBuilder sShaderFile = GetCacheDirectory();
     sShaderFile.AppendPath(GetActivePlatform().GetData());
-    sShaderFile.AppendPath(szResourceId);
+    sShaderFile.AppendPath(sResourceId);
     sShaderFile.ChangeFileExtension("");
     if (sShaderFile.EndsWith("."))
       sShaderFile.Shrink(0, 1);

@@ -7,6 +7,7 @@
 #include <Foundation/Memory/InstanceDataAllocator.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
 class ezAnimGraphInstance;
 class ezAnimGraphNode;
@@ -24,9 +25,6 @@ struct EZ_RENDERERCORE_DLL ezAnimationClipMapping : public ezReflectedClass
 
   const char* GetClipName() const { return m_sClipName.GetData(); }
   void SetClipName(const char* szName) { m_sClipName.Assign(szName); }
-
-  const char* GetClip() const;
-  void SetClip(const char* szName);
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphResource : public ezResource

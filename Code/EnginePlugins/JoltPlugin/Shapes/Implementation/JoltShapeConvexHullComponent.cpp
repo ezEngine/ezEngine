@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltShapeConvexHullComponent, 1, ezComponentMode::Stat
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Convex", ezDependencyFlags::Package)),
+    EZ_RESOURCE_MEMBER_PROPERTY("CollisionMesh", m_hCollisionMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Convex", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -48,22 +48,6 @@ void ezJoltShapeConvexHullComponent::DeserializeComponent(ezWorldReader& inout_s
   auto& s = inout_stream.GetStream();
 
   s >> m_hCollisionMesh;
-}
-
-void ezJoltShapeConvexHullComponent::SetMeshFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hCollisionMesh = ezResourceManager::LoadResource<ezJoltMeshResource>(szFile);
-  }
-}
-
-const char* ezJoltShapeConvexHullComponent::GetMeshFile() const
-{
-  if (!m_hCollisionMesh.IsValid())
-    return "";
-
-  return m_hCollisionMesh.GetResourceID();
 }
 
 void ezJoltShapeConvexHullComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const

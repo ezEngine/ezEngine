@@ -81,8 +81,8 @@ public:
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
   /// \brief The ezSurfaceResource to be used on the rope physics bodies.
-  void SetSurfaceFile(const char* szFile); // [ property ]
-  const char* GetSurfaceFile() const;      // [ property ]
+  void SetSurfaceFile(ezStringView sFile); // [ property ]
+  ezStringView GetSurfaceFile() const;     // [ property ]
 
   /// Defines which other physics objects the rope collides with.
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]

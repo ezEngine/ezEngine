@@ -9,7 +9,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Collection", GetCollectionFile, SetCollectionFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_AssetCollection", ezDependencyFlags::Package)),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Collection", GetCollection, SetCollection)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_AssetCollection", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("RegisterNames", m_bRegisterNames),
   }
   EZ_END_PROPERTIES;
@@ -46,27 +46,6 @@ void ezCollectionComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
     s >> m_bRegisterNames;
   }
-}
-
-void ezCollectionComponent::SetCollectionFile(const char* szFile)
-{
-  ezCollectionResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezCollectionResource>(szFile);
-    ezResourceManager::PreloadResource(hResource);
-  }
-
-  SetCollection(hResource);
-}
-
-const char* ezCollectionComponent::GetCollectionFile() const
-{
-  if (!m_hCollection.IsValid())
-    return {};
-
-  return m_hCollection.GetResourceID();
 }
 
 void ezCollectionComponent::SetCollection(const ezCollectionResourceHandle& hCollection)

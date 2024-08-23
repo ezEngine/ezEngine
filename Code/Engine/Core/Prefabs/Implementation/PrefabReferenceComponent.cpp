@@ -8,7 +8,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Prefab", GetPrefabFile, SetPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
   }
   EZ_END_PROPERTIES;
@@ -186,27 +186,6 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& inout_strea
   }
 
   ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, inout_stream);
-}
-
-void ezPrefabReferenceComponent::SetPrefabFile(const char* szFile)
-{
-  ezPrefabResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezPrefabResource>(szFile);
-    ezResourceManager::PreloadResource(hResource);
-  }
-
-  SetPrefab(hResource);
-}
-
-const char* ezPrefabReferenceComponent::GetPrefabFile() const
-{
-  if (!m_hPrefab.IsValid())
-    return "";
-
-  return m_hPrefab.GetResourceID();
 }
 
 void ezPrefabReferenceComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)

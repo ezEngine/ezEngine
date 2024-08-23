@@ -1325,22 +1325,16 @@ ezQtPropertyEditorEnumWidget::ezQtPropertyEditorEnumWidget()
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
-
-  m_pWidget = new QComboBox(this);
-  m_pWidget->installEventFilter(this);
-  m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-  m_pLayout->addWidget(m_pWidget);
-
-  connect(m_pWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(on_CurrentEnum_changed(int)));
 }
 
 void ezQtPropertyEditorEnumWidget::OnInit()
 {
   const ezRTTI* pType = m_pProp->GetSpecificType();
 
-  ezQtScopedBlockSignals bs(m_pWidget);
+  const ezUInt32 uiCount = pType->GetProperties().GetCount();
 
-  ezUInt32 uiCount = pType->GetProperties().GetCount();
+  ezHybridArray<const ezAbstractProperty*, 16> props;
+
   // Start at 1 to skip default value.
   for (ezUInt32 i = 1; i < uiCount; ++i)
   {
@@ -1349,34 +1343,101 @@ void ezQtPropertyEditorEnumWidget::OnInit()
     if (pProp->GetCategory() != ezPropertyCategory::Constant)
       continue;
 
-    const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
+    props.PushBack(pProp);
+  }
 
-    m_pWidget->addItem(ezMakeQString(ezTranslate(pConstant->GetPropertyName())), pConstant->GetConstant().ConvertTo<ezInt64>());
+  // this code path implements using multiple buttons in a row instead of a combobox, for small number of entries
+  // it works for 2 elements, but often already looks bad with 3 elements
+  // but even with 2 elements, it just adds visual clutter (unused values are now visible)
+  // so I'm not going to enable it, but keep it in, in case we want to try it again in the future
+  constexpr bool bUseButtons = false;
+
+  if (bUseButtons && props.GetCount() <= EZ_ARRAY_SIZE(m_pButtons))
+  {
+    for (ezUInt32 i = 0; i < props.GetCount(); ++i)
+    {
+      auto pProp = props[i];
+
+      const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
+
+      m_pButtons[i] = new QPushButton(this);
+      m_pButtons[i]->setText(ezMakeQString(ezTranslate(pConstant->GetPropertyName())));
+      m_pButtons[i]->setCheckable(true);
+      m_pButtons[i]->setProperty("value", pConstant->GetConstant().ConvertTo<ezInt64>());
+
+      connect(m_pButtons[i], SIGNAL(clicked(bool)), this, SLOT(on_ButtonClicked_changed(bool)));
+
+      m_pLayout->addWidget(m_pButtons[i]);
+    }
+  }
+  else
+  {
+    m_pWidget = new QComboBox(this);
+    m_pWidget->installEventFilter(this);
+    m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    m_pLayout->addWidget(m_pWidget);
+
+    connect(m_pWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(on_CurrentEnum_changed(int)));
+
+    ezQtScopedBlockSignals bs(m_pWidget);
+
+    for (ezUInt32 i = 0; i < props.GetCount(); ++i)
+    {
+      auto pProp = props[i];
+
+      const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
+
+      m_pWidget->addItem(ezMakeQString(ezTranslate(pConstant->GetPropertyName())), pConstant->GetConstant().ConvertTo<ezInt64>());
+    }
   }
 }
 
 void ezQtPropertyEditorEnumWidget::InternalSetValue(const ezVariant& value)
 {
-  ezQtScopedBlockSignals b(m_pWidget);
 
-  if (value.IsValid())
+  if (m_pWidget)
   {
-    ezInt32 iIndex = m_pWidget->findData(value.ConvertTo<ezInt64>());
-    EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!");
+    ezInt32 iIndex = -1;
+    if (value.IsValid())
+    {
+      iIndex = m_pWidget->findData(value.ConvertTo<ezInt64>());
+      EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!");
+    }
+
+    ezQtScopedBlockSignals b(m_pWidget);
     m_pWidget->setCurrentIndex(iIndex);
   }
   else
   {
-    m_pWidget->setCurrentIndex(-1);
+    const ezInt64 iValue = value.ConvertTo<ezInt64>();
+
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_pButtons); ++i)
+    {
+      if (m_pButtons[i])
+      {
+        const ezInt64 iButtonValue = m_pButtons[i]->property("value").toLongLong();
+
+        ezQtScopedBlockSignals b(m_pButtons[i]);
+        m_pButtons[i]->setChecked(iButtonValue == iValue);
+      }
+    }
   }
 }
 
 void ezQtPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
 {
-  ezInt64 iValue = m_pWidget->itemData(iEnum).toLongLong();
+  const ezInt64 iValue = m_pWidget->itemData(iEnum).toLongLong();
   BroadcastValueChanged(iValue);
 }
 
+void ezQtPropertyEditorEnumWidget::on_ButtonClicked_changed(bool checked)
+{
+  if (QPushButton* pButton = qobject_cast<QPushButton*>(sender()))
+  {
+    const ezInt64 iValue = pButton->property("value").toLongLong();
+    BroadcastValueChanged(iValue);
+  }
+}
 
 /// *** BITFLAGS COMBOBOX ***
 

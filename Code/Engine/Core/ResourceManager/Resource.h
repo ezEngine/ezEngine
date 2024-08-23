@@ -44,7 +44,7 @@ public:
 
   /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other
   /// scheme that uniquely identifies the resource.
-  EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_sUniqueID; }
+  EZ_ALWAYS_INLINE ezStringView GetResourceID() const { return m_sUniqueID; }
 
   /// \brief Returns the hash of the unique ID.
   EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_uiUniqueIDHash; }

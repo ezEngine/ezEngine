@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("KrautTree", GetKrautFile, SetKrautFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Kraut_Tree")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("KrautTree", GetKrautGeneratorResource, SetKrautGeneratorResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Kraut_Tree")),
     EZ_ACCESSOR_PROPERTY("VariationIndex", GetVariationIndex, SetVariationIndex)->AddAttributes(new ezDefaultValueAttribute(0xFFFF)),
   }
   EZ_END_PROPERTIES;
@@ -112,26 +112,6 @@ ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
   }
 
   return EZ_FAILURE;
-}
-
-void ezKrautTreeComponent::SetKrautFile(const char* szFile)
-{
-  ezKrautGeneratorResourceHandle hTree;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hTree = ezResourceManager::LoadResource<ezKrautGeneratorResource>(szFile);
-  }
-
-  SetKrautGeneratorResource(hTree);
-}
-
-const char* ezKrautTreeComponent::GetKrautFile() const
-{
-  if (!m_hKrautGenerator.IsValid())
-    return "";
-
-  return m_hKrautGenerator.GetResourceID();
 }
 
 void ezKrautTreeComponent::SetVariationIndex(ezUInt16 uiIndex)

@@ -44,9 +44,6 @@ public:
   ezPlayerStartPointComponent();
   ~ezPlayerStartPointComponent();
 
-  void SetPlayerPrefabFile(const char* szFile);                     // [ property ]
-  const char* GetPlayerPrefabFile() const;                          // [ property ]
-
   void SetPlayerPrefab(const ezPrefabResourceHandle& hPrefab);      // [ property ]
   const ezPrefabResourceHandle& GetPlayerPrefab() const;            // [ property ]
 

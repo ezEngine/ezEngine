@@ -14,7 +14,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodMeshLod, ezNoBase, 2, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Mesh", m_hMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
     EZ_MEMBER_PROPERTY("Threshold", m_fThreshold)
   }
   EZ_END_PROPERTIES;
@@ -52,32 +52,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezLodMeshComponent, 1, ezComponentMode::Static)
 }
 EZ_END_COMPONENT_TYPE;
 // clang-format on
-
-const char* ezLodMeshLod::GetMeshFile() const
-{
-  if (!m_hMesh.IsValid())
-    return "";
-
-  return m_hMesh.GetResourceID();
-}
-
-void ezLodMeshLod::SetMeshFile(const char* szFile)
-{
-  ezMeshResourceHandle hMesh;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hMesh = ezResourceManager::LoadResource<ezMeshResource>(szFile);
-  }
-
-  if (m_hMesh != hMesh)
-  {
-    m_hMesh = hMesh;
-
-    // TriggerLocalBoundsUpdate();
-    // InvalidateCachedRenderData();
-  }
-}
 
 struct LodMeshCompFlags
 {

@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltStaticActorComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle", ezDependencyFlags::Package)),
+    EZ_RESOURCE_MEMBER_PROPERTY("CollisionMesh", m_hCollisionMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("IncludeInNavmesh", m_bIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("PullSurfacesFromGraphicsMesh", m_bPullSurfacesFromGraphicsMesh),
     EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
@@ -232,26 +232,6 @@ void ezJoltStaticActorComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg)
   }
 }
 
-void ezJoltStaticActorComponent::SetMeshFile(const char* szFile)
-{
-  ezJoltMeshResourceHandle hMesh;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hMesh = ezResourceManager::LoadResource<ezJoltMeshResource>(szFile);
-  }
-
-  SetMesh(hMesh);
-}
-
-const char* ezJoltStaticActorComponent::GetMeshFile() const
-{
-  if (!m_hCollisionMesh.IsValid())
-    return "";
-
-  return m_hCollisionMesh.GetResourceID();
-}
-
 void ezJoltStaticActorComponent::SetMesh(const ezJoltMeshResourceHandle& hMesh)
 {
   m_hCollisionMesh = hMesh;
@@ -272,22 +252,23 @@ const ezJoltMaterial* ezJoltStaticActorComponent::GetJoltMaterial() const
   return nullptr;
 }
 
-void ezJoltStaticActorComponent::SetSurfaceFile(const char* szFile)
+void ezJoltStaticActorComponent::SetSurfaceFile(ezStringView sFile)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+  }
+  else
+  {
+    m_hSurface = {};
   }
 
   if (m_hSurface.IsValid())
     ezResourceManager::PreloadResource(m_hSurface);
 }
 
-const char* ezJoltStaticActorComponent::GetSurfaceFile() const
+ezStringView ezJoltStaticActorComponent::GetSurfaceFile() const
 {
-  if (!m_hSurface.IsValid())
-    return "";
-
   return m_hSurface.GetResourceID();
 }
 
