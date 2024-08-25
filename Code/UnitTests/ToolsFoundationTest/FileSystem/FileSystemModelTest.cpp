@@ -311,6 +311,93 @@ void FileSystemModelTest()
     EZ_TEST_BOOL(it.Value() == ezFileStatus::Status::Valid);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "git")
+  {
+    ezStringBuilder sIndex(sOutputFolder);
+    sIndex.AppendPath("index");
+    ezStringBuilder sLock(sOutputFolder);
+    sLock.AppendPath("index.lock");
+
+    EZ_TEST_RESULT(eztCreateFile(sIndex));
+
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
+    {
+      ezFileSystemModel::GetSingleton()->MainThreadTick();
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+
+      EZ_LOCK(fileEventLock);
+      if (fileEvents.GetCount() > 0)
+        break;
+    }
+    {
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sIndex), {}, ezFileChangedEvent::Type::FileAdded)};
+      CompareFiles(ezMakeArrayPtr(expected));
+      ClearFiles();
+    }
+
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    // EXT3 filesystem only support second resolution so we won't detect the modification if it is done within the same second.
+    // As we intend to swap the index and index.lock files later, we need to make sure the two files have sufficiently different modification dates so that the swap of the files is detected as a change to the original file.
+    ezThreadUtils::Sleep(ezTime::MakeFromSeconds(1.0));
+#  endif
+
+    EZ_TEST_RESULT(eztCreateFile(sLock));
+
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
+    {
+      ezFileSystemModel::GetSingleton()->MainThreadTick();
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+
+      EZ_LOCK(fileEventLock);
+      if (fileEvents.GetCount() > 0)
+        break;
+    }
+    {
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sLock), {}, ezFileChangedEvent::Type::FileAdded)};
+      CompareFiles(ezMakeArrayPtr(expected));
+      ClearFiles();
+    }
+
+    EZ_TEST_RESULT(ezOSFile::DeleteFile(sIndex));
+    EZ_TEST_RESULT(ezOSFile::MoveFileOrDirectory(sLock, sIndex));
+
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
+    {
+      ezFileSystemModel::GetSingleton()->MainThreadTick();
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+
+      EZ_LOCK(fileEventLock);
+      if (fileEvents.GetCount() >= 2)
+        break;
+    }
+
+    ezFileChangedEvent expected[] = {
+      ezFileChangedEvent(MakePath(sIndex), {}, ezFileChangedEvent::Type::FileChanged),
+      ezFileChangedEvent(MakePath(sLock), {}, ezFileChangedEvent::Type::FileRemoved)};
+    CompareFiles(ezMakeArrayPtr(expected));
+    ClearFiles();
+    CompareFolders({});
+
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 1);
+
+    // Cleanup test
+    EZ_TEST_RESULT(ezOSFile::DeleteFile(sIndex));
+
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
+    {
+      ezFileSystemModel::GetSingleton()->MainThreadTick();
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+
+      EZ_LOCK(fileEventLock);
+      if (fileEvents.GetCount() > 0)
+        break;
+    }
+    ClearFiles();
+    ClearFolders();
+  }
+
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Add file")
   {
     ezStringBuilder sFilePath(sOutputFolder);
