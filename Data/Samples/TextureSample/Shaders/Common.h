@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Common/ConstantBufferMacros.h>
 #include "SampleConstantBuffer.h"
+#include <Shaders/Common/ConstantBufferMacros.h>
+#include <Shaders/Common/GlobalConstants.h>
 
 #if EZ_ENABLED(PLATFORM_SHADER)
 
