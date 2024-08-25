@@ -90,6 +90,7 @@ ezTestAppRun ezEditorTestProject::CreateDocuments()
 
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::TransformError], 0);
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingTransformDependency], 0);
+    EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingPackageDependency], 0);
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingThumbnailDependency], 0);
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::CircularDependency], 0);
   }

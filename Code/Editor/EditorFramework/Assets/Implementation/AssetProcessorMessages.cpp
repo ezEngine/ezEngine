@@ -10,6 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetMsg, 1, ezRTTIDefaultAllocator<ezP
     EZ_MEMBER_PROPERTY("AssetGuid", m_AssetGuid),
     EZ_MEMBER_PROPERTY("AssetHash", m_AssetHash),
     EZ_MEMBER_PROPERTY("ThumbHash", m_ThumbHash),
+    EZ_MEMBER_PROPERTY("PackageHash", m_PackageHash),
     EZ_MEMBER_PROPERTY("AssetPath", m_sAssetPath),
     EZ_MEMBER_PROPERTY("Platform", m_sPlatform),
     EZ_ARRAY_MEMBER_PROPERTY("DepRefHull", m_DepRefHull),
