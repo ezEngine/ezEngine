@@ -11,6 +11,8 @@
 #  include <Fileserve/Gui.moc.h>
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #  include <QApplication>
+#  include <QFileDialog>
+#  include <QSettings>
 #endif
 
 #ifdef EZ_USE_QT
@@ -66,6 +68,33 @@ ezResult ezFileserverApp::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("fileserve");
+
+#ifdef EZ_USE_QT
+  if (!ezCommandLineUtils::GetGlobalInstance()->HasOption("-specialdirs"))
+  {
+    QString sLastFolder;
+
+    {
+      QSettings Settings;
+      Settings.beginGroup(QLatin1String("Fileserve"));
+      sLastFolder = Settings.value("LastProject", "").toString();
+      Settings.endGroup();
+    }
+
+    QString folder = QFileDialog::getExistingDirectory(nullptr, "Select Project Folder", sLastFolder);
+    if (!folder.isEmpty())
+    {
+      QSettings Settings;
+      Settings.beginGroup(QLatin1String("Fileserve"));
+      Settings.setValue("LastProject", folder);
+      Settings.endGroup();
+
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-specialdirs");
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("project");
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(folder.toUtf8().data());
+    }
+  }
+#endif
 
   return SUPER::BeforeCoreSystemsStartup();
 }

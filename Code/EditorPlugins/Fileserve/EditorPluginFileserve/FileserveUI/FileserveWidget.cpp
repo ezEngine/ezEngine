@@ -78,7 +78,7 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget* pParent /*= nullptr*/)
 
   UpdateSpecialDirectoryUI();
 
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_start"))
+  if (!ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_nostart"))
   {
     QTimer::singleShot(100, this, &ezQtFileserveWidget::on_StartServerButton_clicked);
   }

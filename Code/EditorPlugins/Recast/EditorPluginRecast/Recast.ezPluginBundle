@@ -11,5 +11,5 @@ PluginInfo
 	string %PackageDependencies{"Recast.dll"}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{}
-	string %EnabledInTemplates{"General3D"}
+	string %EnabledInTemplates{""}
 }

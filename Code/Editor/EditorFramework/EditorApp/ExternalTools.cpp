@@ -195,7 +195,7 @@ ezString ezQtEditorApp::BuildFileserveCommandLine() const
   ezStringBuilder params;
 
   ezStringBuilder cmd;
-  cmd.Set(sToolPath, " -specialdirs project \"", sProjectDir, "\" -fs_start");
+  cmd.Set(sToolPath, " -specialdirs project \"", sProjectDir, "\"");
 
   return cmd;
 }
