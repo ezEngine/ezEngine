@@ -8,7 +8,7 @@
 
 JPH_NAMESPACE_BEGIN
 
-class JPH_EXPORT BodyAccess
+class BodyAccess
 {
 public:
 	/// Access rules, used to detect race conditions during simulation
