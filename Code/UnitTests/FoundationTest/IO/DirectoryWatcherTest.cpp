@@ -179,6 +179,30 @@ void DirectoryWatcherTest()
     }
   };
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "git")
+  {
+    ezOSFile::DeleteFolder(sTestRootPath).IgnoreResult();
+    EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sTestRootPath).Succeeded());
+
+    CreateFile("index");
+
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories).Succeeded());
+
+    CreateFile("index.lock");
+    DeleteFile("index");
+    Rename("index.lock", "index");
+
+    ExpectedEvent expectedEvents[] = {
+      {"index.lock", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
+      {"index", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File},
+      {"index.lock", ezDirectoryWatcherAction::RenamedOldName, ezDirectoryWatcherType::File},
+      {"index", ezDirectoryWatcherAction::RenamedNewName, ezDirectoryWatcherType::File},
+
+    };
+    CheckExpectedEvents(watcher, expectedEvents);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Simple Create File")
   {
     ezOSFile::DeleteFolder(sTestRootPath).IgnoreResult();

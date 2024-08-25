@@ -134,11 +134,11 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType 
 {
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder sDumpToolPath = ezOSFile::GetApplicationDirectory();
-  sDumpToolPath.AppendPath("MiniDumpTool.exe");
+  sDumpToolPath.AppendPath("ezMiniDumpTool.exe");
   sDumpToolPath.MakeCleanPath();
 
   if (!ezOSFile::ExistsFile(sDumpToolPath))
-    return ezStatus(ezFmt("MiniDumpTool.exe not found in '{}'", sDumpToolPath));
+    return ezStatus(ezFmt("ezMiniDumpTool.exe not found in '{}'", sDumpToolPath));
 
   ezProcessOptions procOpt;
   procOpt.m_sProcess = sDumpToolPath;
@@ -158,7 +158,7 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType 
     return ezStatus(ezFmt("Failed to launch '{}'", sDumpToolPath));
 
   if (proc.WaitToFinish().Failed())
-    return ezStatus("Waiting for MiniDumpTool to finish failed.");
+    return ezStatus("Waiting for ezMiniDumpTool to finish failed.");
 
   return ezStatus(EZ_SUCCESS);
 

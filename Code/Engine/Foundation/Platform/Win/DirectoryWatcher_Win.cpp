@@ -517,7 +517,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
         switch (info.Action)
         {
           case FILE_ACTION_ADDED:
-            DEBUG_LOG("FILE_ACTION_ADDED {} ({})", eventFilePath, info.LastModificationTime.QuadPart);
+            DEBUG_LOG("FILE_ACTION_ADDED {} ({})", info.eventFilePath, info.LastModificationTime.QuadPart);
             action = ezDirectoryWatcherAction::Added;
             fireEvent = whatToWatch.IsSet(ezDirectoryWatcher::Watch::Creates);
             if (mirror)
@@ -531,14 +531,14 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
             }
             break;
           case FILE_ACTION_REMOVED:
-            DEBUG_LOG("FILE_ACTION_REMOVED {} ({})", eventFilePath, info.LastModificationTime.QuadPart);
+            DEBUG_LOG("FILE_ACTION_REMOVED {} ({})", info.eventFilePath, info.LastModificationTime.QuadPart);
             action = ezDirectoryWatcherAction::Removed;
             fireEvent = false;
             pendingRemoveOrRename = {info.eventFilePath, false};
             break;
           case FILE_ACTION_MODIFIED:
           {
-            DEBUG_LOG("FILE_ACTION_MODIFIED {} ({})", eventFilePath, info.LastModificationTime.QuadPart);
+            DEBUG_LOG("FILE_ACTION_MODIFIED {} ({})", info.eventFilePath, info.LastModificationTime.QuadPart);
             action = ezDirectoryWatcherAction::Modified;
             fireEvent = whatToWatch.IsAnySet(ezDirectoryWatcher::Watch::Writes);
             bool fileAreadyKnown = false;
@@ -554,7 +554,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
           }
           break;
           case FILE_ACTION_RENAMED_OLD_NAME:
-            DEBUG_LOG("FILE_ACTION_RENAMED_OLD_NAME {} ({})", eventFilePath, info.LastModificationTime.QuadPart);
+            DEBUG_LOG("FILE_ACTION_RENAMED_OLD_NAME {} ({})", info.eventFilePath, info.LastModificationTime.QuadPart);
             EZ_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending move from");
             action = ezDirectoryWatcherAction::RenamedOldName;
             fireEvent = whatToWatch.IsAnySet(ezDirectoryWatcher::Watch::Renames);
@@ -562,7 +562,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
             lastMoveFrom = {info.eventFilePath, false};
             break;
           case FILE_ACTION_RENAMED_NEW_NAME:
-            DEBUG_LOG("FILE_ACTION_RENAMED_NEW_NAME {} ({})", eventFilePath, info.LastModificationTime.QuadPart);
+            DEBUG_LOG("FILE_ACTION_RENAMED_NEW_NAME {} ({})", info.eventFilePath, info.LastModificationTime.QuadPart);
             action = ezDirectoryWatcherAction::RenamedNewName;
             fireEvent = whatToWatch.IsAnySet(ezDirectoryWatcher::Watch::Renames);
             EZ_ASSERT_DEV(!lastMoveFrom.IsEmpty() && !lastMoveFrom.isDirectory, "last move from doesn't match");
@@ -586,7 +586,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
         {
           case FILE_ACTION_ADDED:
           {
-            DEBUG_LOG("DIR_ACTION_ADDED {}", eventFilePath);
+            DEBUG_LOG("DIR_ACTION_ADDED {}", info.eventFilePath);
             bool directoryAlreadyKnown = false;
             if (mirror)
             {
@@ -640,16 +640,16 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
           }
           break;
           case FILE_ACTION_REMOVED:
-            DEBUG_LOG("DIR_ACTION_REMOVED {}", eventFilePath);
+            DEBUG_LOG("DIR_ACTION_REMOVED {}", info.eventFilePath);
             pendingRemoveOrRename = {info.eventFilePath, true};
             break;
           case FILE_ACTION_RENAMED_OLD_NAME:
-            DEBUG_LOG("DIR_ACTION_OLD_NAME {}", eventFilePath);
+            DEBUG_LOG("DIR_ACTION_OLD_NAME {}", info.eventFilePath);
             EZ_ASSERT_DEV(lastMoveFrom.IsEmpty(), "there should be no pending move from");
             lastMoveFrom = {info.eventFilePath, true};
             break;
           case FILE_ACTION_RENAMED_NEW_NAME:
-            DEBUG_LOG("DIR_ACTION_NEW_NAME {}", eventFilePath);
+            DEBUG_LOG("DIR_ACTION_NEW_NAME {}", info.eventFilePath);
             EZ_ASSERT_DEV(!lastMoveFrom.IsEmpty(), "rename old name and rename new name should always appear in pairs");
             if (mirror)
             {

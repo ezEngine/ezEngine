@@ -234,7 +234,6 @@ void ezComputeShaderHistogramApp::BeforeHighLevelSystemsShutdown()
   m_hScreenSRV.Invalidate();
   device->DestroyTexture(m_hScreenTexture);
   m_hScreenTexture.Invalidate();
-  device->DestroySwapChain(m_hSwapChain);
 
   device->DestroyUnorderedAccessView(m_hHistogramUAV);
   m_hHistogramUAV.Invalidate();
