@@ -335,6 +335,12 @@ void FileSystemModelTest()
       ClearFiles();
     }
 
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    // EXT3 filesystem only support second resolution so we won't detect the modification if it is done within the same second.
+    // As we intend to swap the index and index.lock files later, we need to make sure the two files have sufficiently different modification dates so that the swap of the files is detected as a change to the original file.
+    ezThreadUtils::Sleep(ezTime::MakeFromSeconds(1.0));
+#  endif
+
     EZ_TEST_RESULT(eztCreateFile(sLock));
 
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
@@ -351,11 +357,6 @@ void FileSystemModelTest()
       CompareFiles(ezMakeArrayPtr(expected));
       ClearFiles();
     }
-
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
-    // EXT3 filesystem only support second resolution so we won't detect the modification if it is done within the same second.
-    ezThreadUtils::Sleep(ezTime::MakeFromSeconds(1.0));
-#  endif
 
     EZ_TEST_RESULT(ezOSFile::DeleteFile(sIndex));
     EZ_TEST_RESULT(ezOSFile::MoveFileOrDirectory(sLock, sIndex));
