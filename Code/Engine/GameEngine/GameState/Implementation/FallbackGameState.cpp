@@ -408,7 +408,7 @@ bool ezFallbackGameState::DisplayMenu()
 
       if (ezInputManager::GetInputSlotState(ezInputSlot_KeyReturn) == ezKeyState::Pressed || ezInputManager::GetInputSlotState(ezInputSlot_KeyNumpadEnter) == ezKeyState::Pressed)
       {
-        StartBackgroundSceneLoading(m_AvailableScenes[m_uiSelectedScene], {});
+        LoadScene(m_AvailableScenes[m_uiSelectedScene], {}, "", ezTransform::MakeIdentity());
         m_bShowMenu = false;
       }
 

@@ -47,7 +47,7 @@ jobs:
           token: ${{ secrets.API_TOKEN_GITHUB }} 
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.0.2
+        uses: microsoft/setup-msbuild@v2
 
       - name: Run CMake
         run: |
@@ -67,7 +67,7 @@ jobs:
       - name: Compile Shaders
         if: github.event.inputs.compile-shaders == 'true'
         run: |
-          repo\Output\Bin\WinVs2022Dev64\ShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
+          repo\Output\Bin\WinVs2022Dev64\ezShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
 
       - name: Transform All Projects
         if: github.event.inputs.transform-projects == 'true'
@@ -102,7 +102,7 @@ jobs:
 
       - name: Artifact - Release Package
         if: github.event.inputs.release-artifact == 'true'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ezEngine.Release.${{ steps.sdk-version.outputs.content }}
           path: ezEngine.Release.${{ steps.sdk-version.outputs.content }}.zip

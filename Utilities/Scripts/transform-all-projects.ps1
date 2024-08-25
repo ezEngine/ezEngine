@@ -7,7 +7,7 @@ Write-Host "Using $appPath"
 Get-ChildItem -Path $PSScriptRoot\..\..\. -Filter ezProject -Recurse -File | ForEach-Object {
     $projectDir = $_.Directory.FullName
     
-    Write-Host "Transforming: -project $projectDir -transform PC"
+    Write-Host "Transforming: -project $projectDir -transform Default"
 
-    & $appPath -project $projectDir -transform PC | Out-Null
+    & $appPath -project $projectDir -transform Default | Out-Null
 }
